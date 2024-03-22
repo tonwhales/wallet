@@ -15,7 +15,6 @@ import { useNetwork, usePrimaryCurrency } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { getCurrentAddress } from '../../storage/appState';
-import { getAppData } from '../../engine/getters/getAppData';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { HoldersPlaceholder, WebViewLoader } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
@@ -23,7 +22,6 @@ import { openWithInApp } from '../../utils/openWithInApp';
 import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
 import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppManifest } from '../../engine/api/fetchManifest';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
 
 export const HoldersLandingFragment = fragment(() => {

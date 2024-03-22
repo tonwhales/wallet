@@ -54,6 +54,7 @@ type ConfirmLoadedProps = {
         balance: bigint,
         active: boolean,
         domain?: string
+        bounceable?: boolean
     },
     text: string | null,
     order: LedgerOrder,
@@ -127,7 +128,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         }
     }, []);
 
-    const friendlyTarget = target.address.toString({ testOnly: network.isTestnet });
+    const friendlyTarget = target.address.toString({ testOnly: network.isTestnet, bounceable: target.bounceable });
     // Contact wallets
     const contact = useContact(friendlyTarget);
 
@@ -464,7 +465,8 @@ export const LedgerSignTransferFragment = fragment(() => {
                     address: target.address,
                     balance: BigInt(state.account.balance.coins),
                     active: state.account.state.type === 'active',
-                    domain: order.domain
+                    domain: order.domain,
+                    bounceable: target.isBounceable
                 },
                 order,
                 jetton,

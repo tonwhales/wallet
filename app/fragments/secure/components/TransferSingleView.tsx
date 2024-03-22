@@ -12,7 +12,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
-import { useAppState, useNetwork, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
+import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
@@ -23,11 +23,11 @@ import { Avatar, avatarColors } from "../../../components/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
 import { toBnWithDecimals } from "../../../utils/withDecimals";
+import { avatarHash } from "../../../utils/avatarHash";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
-import { avatarHash } from "../../../utils/avatarHash";
 
 export const TransferSingleView = memo(({
     operation,
@@ -56,6 +56,7 @@ export const TransferSingleView = memo(({
         balance: bigint;
         active: boolean;
         domain?: string | undefined;
+        bounceable?: boolean | undefined;
     },
     fees: bigint,
     jetton: Jetton | null,
@@ -72,10 +73,11 @@ export const TransferSingleView = memo(({
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
-    const ledgerContext = useLedgerTransport();
+    const ledgerTransport = useLedgerTransport();
     const appState = useAppState();
     const [walletsSettings,] = useWalletsSettings();
     const [price, currency] = usePrice();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
@@ -98,7 +100,18 @@ export const TransferSingleView = memo(({
         );
     }, [price, currency, fees]);
 
-    const fromAddress = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address;
+    const isTargetLedger = useMemo(() => {
+        try {
+            if (!!ledgerTransport?.addr?.address) {
+                return Address.parse(ledgerTransport.addr.address).equals(target.address);
+            }
+            return false
+        } catch {
+            return false;
+        }
+    }, [ledgerTransport.addr?.address, target.address]);
+
+    const fromAddress = isLedger ? Address.parse(ledgerTransport.addr!.address) : selected!.address;
     const name = isLedger
         ? 'Ledger'
         : `${t('common.wallet')} ${appState.addresses.findIndex((a) => fromAddress?.equals(a.address)) + 1}`;
@@ -110,18 +123,14 @@ export const TransferSingleView = memo(({
 
     const to = {
         address: target.address,
-        name: targetWalletSettings?.name
-            || known?.name
-            || target.domain
-            || null
+        name:
+            isTargetLedger
+                ? 'Ledger'
+                : targetWalletSettings?.name
+                || known?.name
+                || target.domain
+                || null
     }
-
-    const inactiveAlert = useCallback(() => {
-        navigation.navigateAlert({
-            title: t('transfer.error.addressIsNotActive'),
-            message: t('transfer.error.addressIsNotActiveDescription')
-        });
-    }, []);
 
     const jettonsGasAlert = useCallback(() => {
         if (!jettonAmountString) return;
@@ -193,21 +202,28 @@ export const TransferSingleView = memo(({
                         }} />
                         <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                             <View style={{ width: 68, flexDirection: 'row', height: 68 }}>
-                                <Avatar
-                                    size={68}
-                                    id={targetString}
-                                    address={targetString}
-                                    hash={targetWalletSettings?.avatar}
-                                    spam={isSpam}
-                                    showSpambadge
-                                    borderWith={2}
-                                    borderColor={theme.surfaceOnElevation}
-                                    backgroundColor={avatarColor}
-                                    markContact={!!contact}
-                                    icProps={{ position: 'bottom' }}
-                                    theme={theme}
-                                    isTestnet={isTestnet}
-                                />
+                                {isTargetLedger ? (
+                                    <Image
+                                        source={require('@assets/ledger_device.png')}
+                                        style={{ height: 68, width: 68 }}
+                                    />
+                                ) : (
+                                    <Avatar
+                                        size={68}
+                                        id={targetString}
+                                        address={targetString}
+                                        hash={targetWalletSettings?.avatar}
+                                        spam={isSpam}
+                                        showSpambadge
+                                        borderWith={2}
+                                        borderColor={theme.surfaceOnElevation}
+                                        backgroundColor={avatarColor}
+                                        markContact={!!contact}
+                                        icProps={{ position: 'bottom' }}
+                                        theme={theme}
+                                        isTestnet={isTestnet}
+                                    />
+                                )}
                             </View>
                         </View>
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
@@ -223,7 +239,8 @@ export const TransferSingleView = memo(({
                                 color: theme.textPrimary,
                                 marginTop: 2
                             }}>
-                                <AddressComponent address={target.address} end={4} />
+                                <AddressComponent bounceable={target.bounceable} address={target.address} end={4} />
+                                {isTargetLedger && ' (Ledger)'}
                             </Text>
                         </View>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -290,6 +307,7 @@ export const TransferSingleView = memo(({
                                         <AddressComponent
                                             address={fromAddress}
                                             end={4}
+                                            bounceable={bounceableFormat}
                                         />
                                     </Text>
 
@@ -312,7 +330,7 @@ export const TransferSingleView = memo(({
                                     }}
                                 >
                                     <Text style={{ color: theme.textPrimary }}>
-                                        {to.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
+                                        {to.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }).replaceAll('-', '\u2011')}
                                     </Text>
                                 </Text>
                             </View>

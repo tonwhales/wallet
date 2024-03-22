@@ -23,10 +23,13 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
 
     if (status.state === HoldersAccountState.Ok) {
         let accounts;
+        let prepaidCards;
         let type = 'public';
 
         if (token) {
-            accounts = await fetchAccountsList(token);
+            const res = await fetchAccountsList(token);
+            accounts = res?.accounts;
+            prepaidCards = res?.prepaidCards;
             type = 'private';
         } else {
             accounts = await fetchAccountsPublic(address, isTestnet);
@@ -34,7 +37,15 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
         }
 
         const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
-        const accountsData = { accounts: filtered, type };
+
+        const sorted = filtered?.sort((a, b) => {
+            if (a.cards.length > b.cards.length) return -1;
+            if (a.cards.length < b.cards.length) return 1;
+            return 0;
+        });
+
+        const accountsData = { accounts: sorted, type, prepaidCards };
+
         queryClient.setQueryData(Queries.Holders(address).Cards(!!token ? 'private' : 'public'), () => accountsData);
     }
 }

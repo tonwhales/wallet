@@ -244,7 +244,9 @@ export type LocalizationSchema = {
                 message: string
             },
             description: string,
-            installExtension: string
+            installExtension: string,
+            moreWallets: string,
+            connectionSecureDescription: string
         },
         consent: string,
     },
@@ -960,6 +962,17 @@ export type LocalizationSchema = {
         avatar: string,
         wallet: string,
         price: string
+    },
+    newAddressFormat: {
+        title: string,
+        fragmentTitle: string,
+        description_0: string,
+        description_1: string,
+        action: string,
+        oldAddress: string,
+        newAddress: string,
+        bannerTitle: string,
+        bannerDescription: string,
     }
 };
 

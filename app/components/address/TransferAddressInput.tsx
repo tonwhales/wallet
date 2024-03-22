@@ -1,4 +1,4 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect } from "react";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
 import { Platform, Pressable, View, Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
@@ -8,12 +8,14 @@ import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { useAppState, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { AddressSearch } from "./AddressSearch";
+import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { AddressInputAvatar } from "./AddressInputAvatar";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -30,6 +32,7 @@ type TransferAddressInputProps = {
     onQRCodeRead: (value: string) => void,
     isSelected?: boolean,
     onNext?: () => void,
+    onSearchItemSelected?: (item: AddressSearchItem) => void,
 }
 
 export type AddressInputState = {
@@ -129,15 +132,37 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const theme = useTheme();
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
     const [walletSettings,] = useWalletSettings(validAddressFriendly);
+    const ledgerTransport = useLedgerTransport();
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
-    const myWallets = appState.addresses.map((acc, index) => ({
-        address: acc.address,
-        addressString: acc.address.toString({ testOnly: props.isTestnet }),
-        index: index
-    })).filter((acc) => !acc.address.equals(props.acc));
+    const isSelectedLedger = useMemo(() => {
+        try {
+            if (!!ledgerTransport?.addr?.address && !!props.validAddress) {
+                return Address.parse(ledgerTransport.addr.address).equals(props.validAddress);
+            }
+            return false
+        } catch {
+            return false;
+        }
+    }, [ledgerTransport.addr?.address, props.validAddress]);
+
+    const myWallets = appState.addresses
+        .map((acc, index) => ({
+            address: acc.address,
+            addressString: acc.address.toString({ testOnly: props.isTestnet }),
+            index: index
+        }))
+        .concat(ledgerTransport.addr ? [
+            {
+                address: Address.parse(ledgerTransport.addr.address),
+                addressString: Address.parse(ledgerTransport.addr.address).toString({ testOnly: props.isTestnet }),
+                index: -2
+            }
+        ] : [])
+        .filter((acc) => !acc.address.equals(props.acc));
+
     const own = !!myWallets.find((acc) => {
         if (props.validAddress) {
             return acc.address.equals(props.validAddress);
@@ -171,24 +196,17 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     }}
                     onPress={select}
                 >
-                    {!!validAddressFriendly
-                        ? <Avatar
-                            size={46}
-                            id={validAddressFriendly}
-                            address={validAddressFriendly}
-                            borderColor={props.theme.elevation}
-                            theme={theme}
-                            hash={walletSettings?.avatar}
-                            isTestnet={props.isTestnet}
-                            backgroundColor={avatarColor}
-                            markContact={!!contact}
-                            icProps={{ isOwn: own }}
-                        />
-                        : <Image
-                            source={require('@assets/ic-contact.png')}
-                            style={{ height: 46, width: 46, tintColor: theme.iconPrimary }}
-                        />
-                    }
+                    <AddressInputAvatar
+                        size={46}
+                        theme={theme}
+                        isTestnet={props.isTestnet}
+                        isOwn={own}
+                        markContact={!!contact}
+                        hash={walletSettings?.avatar}
+                        isLedger={isSelectedLedger}
+                        friendly={validAddressFriendly}
+                        avatarColor={avatarColor}
+                    />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={{
                             color: theme.textSecondary,
@@ -222,24 +240,17 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     flexDirection: 'row', alignItems: 'center'
                 }}>
                     <View style={{ marginLeft: 20 }}>
-                        {!!validAddressFriendly
-                            ? <Avatar
-                                size={46}
-                                id={validAddressFriendly}
-                                address={validAddressFriendly}
-                                borderColor={props.theme.elevation}
-                                theme={theme}
-                                isTestnet={props.isTestnet}
-                                hash={walletSettings?.avatar}
-                                backgroundColor={avatarColor}
-                                markContact={!!contact}
-                                icProps={{ isOwn: own }}
-                            />
-                            : <Image
-                                source={require('@assets/ic-contact.png')}
-                                style={{ height: 46, width: 46, tintColor: theme.iconPrimary }}
-                            />
-                        }
+                        <AddressInputAvatar
+                            size={46}
+                            theme={theme}
+                            isTestnet={props.isTestnet}
+                            isOwn={own}
+                            markContact={!!contact}
+                            hash={walletSettings?.avatar}
+                            isLedger={isSelectedLedger}
+                            friendly={validAddressFriendly}
+                            avatarColor={avatarColor}
+                        />
                     </View>
                     <View style={{ flexGrow: 1 }}>
                         <AddressDomainInput
@@ -275,11 +286,22 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 <AddressSearch
                     account={props.acc}
                     onSelect={(item) => {
+                        const friendly = item.addr.address.toString({ testOnly: props.isTestnet, bounceable: item.addr.isBounceable });
+                        let name = item.type !== 'unknown' ? item.title : friendly;
+
+                        if (item.isLedger) {
+                            name = 'Ledger';
+                        }
+
                         props.dispatch({
                             type: InputActionType.InputTarget,
-                            input: item.type !== 'unknown' ? item.title : item.address.toString({ testOnly: props.isTestnet }),
-                            target: item.address.toString({ testOnly: props.isTestnet })
-                        })
+                            input: name,
+                            target: friendly
+                        });
+
+                        if (props.onSearchItemSelected) {
+                            props.onSearchItemSelected(item);
+                        }
                     }}
                     query={props.input.toLowerCase()}
                     transfer

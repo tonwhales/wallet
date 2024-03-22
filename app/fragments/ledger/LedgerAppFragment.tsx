@@ -1,12 +1,11 @@
 import React from "react";
-import { useEffect } from "react";
 import { View, Image, Platform, StyleSheet } from "react-native";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LedgerNavigationStack } from "./LedgerHomeFragment";
-import { useAccountTransactions, useClient4, useNetwork, useTheme } from "../../engine/hooks";
+import { useAccountTransactions, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
@@ -16,11 +15,7 @@ const Tab = createBottomTabNavigator();
 
 
 const PrefetchTransactions = ({ address }: { address: string }) => {
-    let isTestnet = useNetwork().isTestnet;
-    let client = useClient4(isTestnet);
-
-    useAccountTransactions(client, address, true);
-
+    useAccountTransactions(address, { refetchOnMount: true });
     return null;
 }
 

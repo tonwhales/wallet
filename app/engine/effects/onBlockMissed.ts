@@ -1,7 +1,7 @@
 import { backoff } from '../../utils/time';
-import { onAccountTouched } from './onAccountTouched';
+import { onAccountTouched, onAccountsTouched } from './onAccountTouched';
 import { queryClient } from '../clients';
-import { TonClient4 } from '@ton/ton';
+import { Address, TonClient4 } from '@ton/ton';
 
 export function getMissedBlocksRange(lastBlock: number, newBlock: number) {
     return [...new Array(newBlock - lastBlock - 1).fill(0).map((a, i) => lastBlock + i + 1)];
@@ -26,13 +26,16 @@ export async function onBlockMissed(client: TonClient4, lastBlock: number, newBl
             let missedBlocks = await Promise.all(missedBlocksRange.map((block) => backoff('missed-block-' + block, () => client.getBlock(block))));
             let touched = new Set(missedBlocks.flatMap(a => a.shards.flatMap(a => a.transactions)).map(a => a.account));
 
-            for (let t of touched) {
-                onAccountTouched(t, isTestnet);
+            if (isTestnet) { // we get addresses without testOnly flag from the client, so we need to parse them
+                touched = new Set([...touched].map(a => Address.parse(a).toString({ testOnly: true })));
             }
+
+            onAccountsTouched(touched);
         } catch {
-            await invalidateAllAccounts();
+            // Invalidate all in case of error
+            invalidateAllAccounts();
         }
     } else {
-        await invalidateAllAccounts();
+        invalidateAllAccounts();
     }
 }

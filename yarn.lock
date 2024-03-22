@@ -2942,10 +2942,10 @@
     "@ton/crypto" "^3.2.0"
     teslabot "^1.5.0"
 
-"@ton/core@^0.54.0":
-  version "0.54.0"
-  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.54.0.tgz#811495859102d9868ac7a412b540df14eae15795"
-  integrity sha512-ry3sCDq3jdjZuo7+egZ827/Y0/ajPbtrozvJryNMefUGfZQ/zYLVCmw9zBtxVsY2EX2zW7QhHQUs76/3y6HCwQ==
+"@ton/core@^0.56.2":
+  version "0.56.2"
+  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.56.2.tgz#02f82dd71faa4719710844135eb288133cba3269"
+  integrity sha512-URILQzi7qnVxidcJBRMx8ChS0TKiVRbi0CDe+ZWpVNOQyBpwkcYX+OeRVop3hb3GjtyHnOmoP+EAulSAhkX4rw==
   dependencies:
     symbol.inspect "1.0.1"
 

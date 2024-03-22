@@ -24,6 +24,8 @@ import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
 import { toBnWithDecimals } from "../../../utils/withDecimals";
 import { avatarHash } from "../../../utils/avatarHash";
+import { ContractMetadata } from "../../../engine/metadata/Metadata";
+import { Typography } from "../../../components/styles";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';

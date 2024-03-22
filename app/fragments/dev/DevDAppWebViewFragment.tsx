@@ -46,8 +46,7 @@ export const DevDAppWebViewFragment = fragment(() => {
     const [, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
 
-    // const initExampleUrl = isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com/';
-    const initExampleUrl = 'http://10.100.102.3:3000/tonhubbridge';
+    const initExampleUrl = isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com/';
 
     const [url, setUrl] = useState(initExampleUrl);
     const [urlInput, setUrlInput] = useState(url);

@@ -3,7 +3,7 @@ import { useNetwork } from "../network/useNetwork";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
-import { fetchAccountsList, fetchAccountsPublic } from "../../api/holders/fetchAccounts";
+import { PrePaidHoldersCard, fetchAccountsList, fetchAccountsPublic } from "../../api/holders/fetchAccounts";
 import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersAccountState } from "../../api/holders/fetchAccountState";
 
@@ -32,7 +32,7 @@ export function useHoldersAccounts(address: string | Address) {
         staleTime: 35000,
         queryFn: async () => {
             let accounts;
-            let prepaidCards;
+            let prepaidCards: PrePaidHoldersCard[] | undefined;
             let type = 'public';
             if (token) {
                 const res = await fetchAccountsList(token);
@@ -45,7 +45,7 @@ export function useHoldersAccounts(address: string | Address) {
             }
 
             const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
-            
+
             const sorted = filtered?.sort((a, b) => {
                 if (a.cards.length > b.cards.length) return -1;
                 if (a.cards.length < b.cards.length) return 1;

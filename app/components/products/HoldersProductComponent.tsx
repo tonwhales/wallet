@@ -11,33 +11,148 @@ import { Typography } from "../styles";
 
 import IcHide from '@assets/ic-hide.svg';
 import IcHolders from '@assets/ic-holders-white.svg';
+import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
 
 export const HoldersProductComponent = memo(() => {
     const network = useNetwork();
     const theme = useTheme();
     const selected = useSelectedAccount();
     const accounts = useHoldersAccounts(selected!.address).data?.accounts;
+    // const prePaid = useHoldersAccounts(selected!.address).data?.prepaidCards;
+    // TODO REMOVE MOCK
+    // id: z.string(),
+    //   status: cardStatusSchema,
+    //   walletId: z.string().optional().nullable(),
+    //   fiatCurrency: z.string(),
+    //   lastFourDigits: z.string().nullable().optional(),
+    //   productId: z.string(),
+    //   personalizationCode: z.string(),
+    //   delivery: cardDeliverySchema.nullable().optional(),
+    //   seed: z.string().nullable().optional(),
+    //   updatedAt: z.string(),
+    //   createdAt: z.string(),
+    //   provider: z.string().optional().nullable(),
+    //   kind: z.string().optional().nullable()
+    //   type: z.literal('PREPAID'),
+    //   fiatBalance: z.string(),
+    const prePaid = [
+        {
+            id: '1',
+            status: 'ACTIVE',
+            walletId: '1',
+            fiatCurrency: 'USD',
+            lastFourDigits: '1234',
+            productId: '1',
+            personalizationCode: 'holders',
+            delivery: null,
+            seed: '1234',
+            updatedAt: '1234',
+            createdAt: '1234',
+            provider: 'provider',
+            kind: 'kind',
+            type: 'PREPAID',
+            fiatBalance: '1234',
+        },
+        {
+            id: '2',
+            status: 'ACTIVE',
+            walletId: '2',
+            fiatCurrency: 'USD',
+            lastFourDigits: '1234',
+            productId: '2',
+            personalizationCode: 'whales',
+            delivery: null,
+            seed: '1234',
+            updatedAt: '1234',
+            createdAt: '1234',
+            provider: 'provider',
+            kind: 'kind',
+            type: 'PREPAID',
+            fiatBalance: '343434',
+        },
+        {
+            id: '3',
+            status: 'ACTIVE',
+            walletId: '3',
+            fiatCurrency: 'USD',
+            lastFourDigits: '1234',
+            productId: '3',
+            personalizationCode: 'whales',
+            delivery: null,
+            seed: '1234',
+            updatedAt: '1234',
+            createdAt: '1234',
+            provider: 'provider',
+            kind: 'kind',
+            type: 'PREPAID',
+            fiatBalance: '543543',
+        },
+        {
+            id: '4',
+            status: 'ACTIVE',
+            walletId: '4',
+            fiatCurrency: 'USD',
+            lastFourDigits: '1234',
+            productId: '4',
+            personalizationCode: 'whales',
+            delivery: null,
+            seed: '1234',
+            updatedAt: '1234',
+            createdAt: '1234',
+            provider: 'provider',
+            kind: 'kind',
+            type: 'PREPAID',
+            fiatBalance: '13213',
+        },
+        {
+            id: '5',
+            status: 'ACTIVE',
+            walletId: '5',
+            fiatCurrency: 'USD',
+            lastFourDigits: '3422',
+            productId: '5',
+            personalizationCode: 'black-pro',
+            delivery: null,
+            seed: '1234',
+            updatedAt:
+                '1234',
+            createdAt: '1234',
+            provider: 'provider',
+            kind: 'kind',
+            type: 'PREPAID',
+            fiatBalance: '10000',
+        },
+    ];
     const [hiddenCards, markCard] = useHoldersHiddenAccounts(selected!.address);
-    const visibleList = useMemo(() => {
+    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(selected!.address);
+
+    const visibleAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {
             return !hiddenCards.includes(item.id);
-        });
+        }).map((item) => ({ ...item, type: 'account' }));
     }, [hiddenCards, accounts]);
+
+    const visiblePrepaidList = useMemo(() => {
+        return (prePaid ?? []).filter((item) => {
+            return !hiddenPrepaidCards.includes(item.id);
+        }).map((item) => ({ card: item, type: 'prepaid' }));
+    }, [hiddenPrepaidCards, prePaid]);
+
     const totalBalance = useMemo(() => {
-        return visibleList?.reduce((acc, item) => {
+        return visibleAccountsList?.reduce((acc, item) => {
             return acc + BigInt(item.balance);
         }, BigInt(0));
-    }, [visibleList]);
+    }, [visibleAccountsList]);
 
     if (!network.isTestnet) {
         return null;
     }
 
-    if (!visibleList || visibleList?.length === 0) {
+    if (!visibleAccountsList || visibleAccountsList?.length === 0) {
         return null;
     }
 
-    if (visibleList.length <= 3) {
+    if (visibleAccountsList.length <= 3) {
         return (
             <View style={{ marginBottom: 16, paddingHorizontal: 16, gap: 16 }}>
                 <View
@@ -50,11 +165,11 @@ export const HoldersProductComponent = memo(() => {
                         {t('products.holders.accounts.title')}
                     </Text>
                 </View>
-                {visibleList.map((item, index) => {
+                {visibleAccountsList.map((item, index) => {
                     return (
                         <HoldersAccountItem
                             key={`card-${index}`}
-                            account={item}
+                            account={{ ...item, type: 'account' }}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={() => markCard(item.id, true)}
                             style={{ paddingVertical: 0 }}
@@ -69,7 +184,7 @@ export const HoldersProductComponent = memo(() => {
         <View style={{ marginBottom: 16 }}>
             <CollapsibleCards
                 title={t('products.holders.accounts.title')}
-                items={visibleList}
+                items={[...visibleAccountsList, ...visiblePrepaidList]}
                 renderItem={(item, index) => {
                     return (
                         <HoldersAccountItem

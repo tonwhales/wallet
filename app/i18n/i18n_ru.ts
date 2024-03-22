@@ -472,6 +472,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "basicAccount": 'Базовый счет',
                 "proAccount": 'Pro счет',
                 "noCards": "Нет карт",
+                "prepaidCard": "Prepaid карта",
             },
             "pageTitles": {
                 "general": "Tonhub Cards",

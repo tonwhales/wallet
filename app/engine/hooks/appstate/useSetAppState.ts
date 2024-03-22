@@ -1,7 +1,6 @@
 import { useRecoilCallback } from 'recoil';
 import { AppState, setAppState } from '../../../storage/appState';
 import { appStateAtom } from '../../state/appState';
-import { connectExtensionsState, loadExtensionsStored } from '../../state/tonconnect';
 import { onAccountTouched } from '../../effects/onAccountTouched';
 
 export function useSetAppState() {
@@ -29,9 +28,6 @@ export function useSetAppState() {
 
             // Update
             setAppState(temp, isTestnet);
-
-            // Update extensions for new selected
-            set(connectExtensionsState, loadExtensionsStored());
 
             // Update queries for new selected
             if (newSelectedAddress) {

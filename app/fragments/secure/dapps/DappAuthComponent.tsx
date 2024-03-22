@@ -1,9 +1,9 @@
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { AppManifest } from "../../../engine/api/fetchManifest";
 import { ConnectRequest } from "@tonconnect/protocol";
 import { ReturnStrategy } from "../../../engine/tonconnect/types";
 import { AppData } from "../../../engine/api/fetchAppData";
-import { Platform, View, Text } from "react-native";
+import { Platform, View, Text, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
@@ -13,14 +13,21 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
-import { useNetwork, useTheme } from "../../../engine/hooks";
 import { CheckBox } from "../../../components/CheckBox";
-
-import TonhubLogo from '@assets/tonhub-logo.svg';
-import IcConnectLine from '@assets/ic-connect-line.svg';
+import { useTheme, useAppState, useBounceableWalletFormat, useNetwork } from "../../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { SelectedAccount } from "../../../engine/types";
+import { Typography } from "../../../components/styles";
+import { ScrollView } from "react-native-gesture-handler";
+import { WalletItem } from "../../../components/wallet/WalletItem";
+import { Address } from "@ton/core";
+import Collapsible from "react-native-collapsible";
+import Animated, { FadeOutDown } from "react-native-reanimated";
+
+import TonhubLogo from '@assets/tonhub-logo.svg';
+import IcConnectLine from '@assets/ic-connect-line.svg';
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -58,37 +65,46 @@ export const DappAuthComponent = memo(({
     onApprove,
     onCancel,
     addExtension,
-    setAddExtension
+    setAddExtension,
+    single
 }: {
     state: SignState,
-    onApprove: () => Promise<void>,
+    onApprove: (selectedAccount?: SelectedAccount) => Promise<void>,
     onCancel?: () => void,
     addExtension?: boolean,
     setAddExtension?: (add: boolean) => void,
+    single?: boolean
 }) => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
-    const network = useNetwork();
+    const appState = useAppState();
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const { isTestnet } = useNetwork();
+    const accounts = useMemo(() => appState.addresses
+        .map((a, i) => ({ ...a, index: i }))
+        .sort((a, b) => {
+            if (a.index === appState.selected) {
+                return -1;
+            } else if (b.index === appState.selected) {
+                return 1;
+            }
+            return 0;
+        }), [appState]);
 
-    const addressString = useMemo(() => {
-        const address = getCurrentAddress().address;
-        const friendly = address?.toString({ testOnly: network.isTestnet });
-        if (!friendly) {
-            return '';
-        }
-        return `${friendly.slice(0, 4)}...${friendly?.slice(-4)}`;
-    }, []);
+    const [showMore, setShowMore] = useState(appState.addresses.length > 2 ? false : true);
+    const [selectedAccount, setSelectedAccount] = useState(getCurrentAddress());
 
-    const name = useMemo(() => {
-        if (state.type !== 'initing') {
-            return ''
+    const onAddressSelected = useCallback((address: Address) => {
+        const account = appState.addresses.find((a) => a.address.equals(address));
+        if (!!account) {
+            setSelectedAccount(account);
         }
-        if (state.connector === 'ton-connect') {
-            return state.app ? state.app.name : state.name;
-        }
-        return state.app ? state.app.title : state.name;
-    }, [state]);
+    }, [appState]);
+
+    const doApprove = useCallback(async () => {
+        await onApprove(selectedAccount);
+    }, [selectedAccount, onApprove]);
 
     const iconUrl = useMemo(() => {
         if (state.type === 'initing') {
@@ -114,10 +130,19 @@ export const DappAuthComponent = memo(({
             return '#3CADF5';
         }
 
-        return Platform.select({
+        let color = Platform.select({
             android: (dAppIconColors as AndroidImageColors).dominant,
             ios: (dAppIconColors as IOSImageColors).primary,
         }) || '#3CADF5';
+
+        if (color === '#FFFFFF' || color === '#E4E6EA') {
+            color = Platform.select({
+                android: (dAppIconColors as AndroidImageColors).average,
+                ios: (dAppIconColors as IOSImageColors).background,
+            }) || '#3CADF5'
+        }
+
+        return color;
     }, [dAppIconColors]);
 
     const connectLineSvg = useMemo(() => {
@@ -135,83 +160,48 @@ export const DappAuthComponent = memo(({
         )!;
     }, [primaryIconColor]);
 
-    const title = useMemo(() => {
-        switch (state.type) {
-            case 'loading':
-                return '...';
-            case 'expired':
-                return t('auth.expired');
-            case 'initing':
-                return t('auth.title', { name: name });
-            case 'completed':
-                return t('auth.completed');
-            case 'authorized':
-                return t('auth.authorized');
-            case 'failed':
-                return t('auth.failed');
-        }
-    }, [state, name]);
-
     const description = useMemo(() => {
         if (state.type === 'initing') {
-            return (
-                <>
-                    <Text style={{ color: theme.accent }}>
-                        {domain + ' '}
-                    </Text>
-                    {t('auth.message', { wallet: addressString })}
-                </>
-            )
+            return `${domain[0].toLocaleUpperCase()}${domain.slice(1)} ${t('auth.message', { wallet: '' })}`;
         }
-    }, [state, domain, addressString]);
+    }, [state, domain]);
 
     return (
         <View style={[
             { flexGrow: 1 },
             Platform.select({
-                android: { backgroundColor: theme.backgroundPrimary },
-                ios: { paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom }
+                android: { 
+                    backgroundColor: theme.backgroundPrimary,
+                    paddingTop: safeArea.top
+                },
+                ios: { backgroundColor: theme.elevation }
             })
         ]}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
-            {Platform.OS === 'android' && (
-                <ScreenHeader
-                    onClosePressed={onCancel}
-                    onBackPressed={!onCancel ? navigation.goBack : undefined}
-                    style={{ paddingTop: safeArea.top }}
-                />
-            )}
-            <View style={{ flexGrow: 1 }} />
+            <ScreenHeader
+                onClosePressed={onCancel}
+                onBackPressed={!onCancel ? navigation.goBack : undefined}
+                title={t('install.title')}
+            />
             <View style={[
                 {
+                    flexGrow: 1,
                     paddingHorizontal: 16,
                     paddingBottom: safeArea.bottom + 16
                 },
                 Platform.select({
-                    ios: {
-                        flexGrow: 0, flexShrink: 1,
-                        backgroundColor: theme.elevation,
-                        paddingTop: 40,
-                        borderTopEndRadius: 20, borderTopStartRadius: 20
-                    },
-                    android: {
-                        flexGrow: 1, flexShrink: undefined,
-                        backgroundColor: theme.backgroundPrimary,
-                        paddingTop: 0,
-                        borderTopEndRadius: 0, borderTopStartRadius: 0
-                    }
+                    ios: { backgroundColor: theme.elevation },
+                    android: { backgroundColor: theme.backgroundPrimary }
                 })
             ]}>
-                <View style={Platform.select({ android: { flexGrow: 1 } })}>
+                <View style={Platform.select({ android: { flexGrow: single ? 1 : 0 } })}>
                     <View style={{
                         borderRadius: 20,
-                        backgroundColor: theme.surfaceOnElevation,
                         width: '100%',
-                        paddingVertical: 44,
+                        paddingVertical: 48,
                         justifyContent: 'center',
                         alignItems: 'center',
                         flexDirection: 'row',
-                        marginBottom: 32
                     }}>
                         <WImage
                             heigh={72}
@@ -268,24 +258,7 @@ export const DappAuthComponent = memo(({
                         </>
                     ) : (
                         <>
-                            <Text
-                                style={{
-                                    fontSize: 32,
-                                    fontWeight: '600',
-                                    marginBottom: 12,
-                                    color: theme.textPrimary
-                                }}
-                            >
-                                {title}
-                            </Text>
-                            <Text
-                                style={{
-                                    fontSize: 17,
-                                    fontWeight: '500',
-                                    marginBottom: 36,
-                                    color: theme.textSecondary
-                                }}
-                            >
+                            <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
                                 {description}
                             </Text>
                             {state.type === 'initing' && !!setAddExtension && (
@@ -302,9 +275,88 @@ export const DappAuthComponent = memo(({
                             )}
                         </>
                     )}
-                    {Platform.OS === 'android' && (
+                </View>
+                {single ? (
+                    <>
+                        <WalletItem
+                            index={0}
+                            address={selectedAccount.address}
+                            onSelect={onAddressSelected}
+                            style={{ marginBottom: 0, marginTop: 16 }}
+                            hideSelect
+                            bounceableFormat={bounceableFormat}
+                            isTestnet={isTestnet}
+                        />
                         <View style={{ flexGrow: 1 }} />
-                    )}
+                    </>
+                ) : (
+                    <ScrollView
+                        style={
+                            [
+                                { flexBasis: 0 },
+                                Platform.select({ android: { marginTop: 24 } })
+                            ]
+                        }
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 16 }}
+                        contentInset={{ top: 24 }}
+                    >
+                        {accounts.slice(0, 2).map((addr, index) => {
+                            return (
+                                <WalletItem
+                                    key={addr.address.toString()}
+                                    index={addr.index}
+                                    selected={selectedAccount?.address.equals(addr.address)}
+                                    address={addr.address}
+                                    onSelect={onAddressSelected}
+                                    style={{ marginBottom: 0 }}
+                                    bounceableFormat={bounceableFormat}
+                                    isTestnet={isTestnet}
+                                />
+                            )
+                        })}
+                        {!showMore && (
+                            <Animated.View
+                                exiting={FadeOutDown}
+                            >
+                                <Text
+                                    style={[{ color: theme.accent }, Typography.medium15_20]}
+                                    onPress={() => setShowMore(!showMore)}
+                                >
+                                    {t('auth.apps.moreWallets', { count: accounts.length - 2 })}
+                                </Text>
+                            </Animated.View>
+                        )}
+                        <Collapsible collapsed={!showMore}>
+                            {accounts.slice(2).map((addr, index) => {
+                                return (
+                                    <WalletItem
+                                        key={addr.address.toString()}
+                                        index={addr.index}
+                                        selected={selectedAccount?.address.equals(addr.address)}
+                                        address={addr.address}
+                                        onSelect={onAddressSelected}
+                                        bounceableFormat={bounceableFormat}
+                                        isTestnet={isTestnet}
+                                    />
+                                );
+                            })}
+                        </Collapsible>
+                    </ScrollView>
+                )}
+                <View>
+                    <View style={{ flexDirection: 'row', marginBottom: 24 }}>
+                        <Image
+                            source={require('@assets/ic-shield-chekmark.png')}
+                            style={{
+                                height: 24,
+                                width: 24,
+                            }}
+                        />
+                        <Text style={[Typography.regular13_18, { color: theme.textSecondary, marginTop: 4, flexShrink: 1 }]}>
+                            {t('auth.apps.connectionSecureDescription')}
+                        </Text>
+                    </View>
                     <View style={{ flexDirection: 'row', width: '100%' }}>
                         <RoundButton
                             style={{ marginBottom: 16, flex: 1, marginRight: 16 }}
@@ -316,13 +368,13 @@ export const DappAuthComponent = memo(({
                         <RoundButton
                             style={{ marginBottom: 16, flex: 1 }}
                             title={t('common.connect')}
-                            disabled={!onApprove || state.type !== 'initing'}
-                            action={onApprove}
+                            disabled={state.type !== 'initing'}
+                            action={doApprove}
                             loading={state.type === 'loading'}
                         />
                     </View>
                 </View>
             </View>
-        </View>
+        </View >
     );
 });

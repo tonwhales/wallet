@@ -7,13 +7,14 @@ import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { ATextInput, ATextInputRef } from "../ATextInput";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useClient4, useConfig, useNetwork, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useClient4, useConfig, useNetwork, useTheme } from "../../engine/hooks";
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 import { AddressInputAction, InputActionType } from "./TransferAddressInput";
+import { resolveBounceableTag } from "../../utils/resolveBounceableTag";
 
 export const AddressDomainInput = memo(forwardRef(({
     style,
@@ -51,6 +52,7 @@ export const AddressDomainInput = memo(forwardRef(({
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
     const netConfig = useConfig();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const [focused, setFocused] = useState<boolean>(false);
     const [resolving, setResolving] = useState<boolean>();
@@ -97,17 +99,21 @@ export const AddressDomainInput = memo(forwardRef(({
 
             if (resolvedDomainWallet instanceof Address) {
                 const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
+                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: network.isTestnet, bounceableFormat });
+
                 dispatch({
                     type: InputActionType.DomainTarget,
                     domain: `${domain}${zone}`,
-                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
+                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet, bounceable })
                 });
             } else {
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
+                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: network.isTestnet, bounceableFormat });
+
                 dispatch({
                     type: InputActionType.DomainTarget,
                     domain: `${domain}${zone}`,
-                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
+                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet, bounceable })
                 });
             }
         } catch (e) {
@@ -115,7 +121,7 @@ export const AddressDomainInput = memo(forwardRef(({
             warn(e);
         }
         setResolving(false);
-    }, []);
+    }, [bounceableFormat, network, client]);
 
     const { suffix, textInput } = useMemo(() => {
         let suffix = undefined;
@@ -252,7 +258,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 editable={!resolving}
                 inputStyle={[
                     {
-                        width: suffix? undefined: '100%',
+                        width: suffix ? undefined : '100%',
                         fontSize: 17, fontWeight: '400',
                         color: theme.textPrimary,
                         textAlignVertical: 'center',

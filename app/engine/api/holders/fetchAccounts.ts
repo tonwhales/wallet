@@ -113,13 +113,13 @@ const cardDeliverySchema = z.object({
 
 const accountLimitsSchema = z.object({
   tzOffset: z.number(),
-  onetime: z.string(),
-  daily: z.string(),
-  dailySpent: z.string(),
-  monthly: z.string(),
-  monthlySpent: z.string(),
   dailyDeadline: z.number(),
-  monthlyDeadline: z.number()
+  dailySpent: z.string(),
+  monthlyDeadline: z.number(),
+  monthlySpent: z.string(),
+  monthly: z.string(),
+  daily: z.string(),
+  onetime: z.string()
 });
 
 const cardPendingStatusSchema = z.union([
@@ -143,16 +143,27 @@ const cardStatusSchema = z.union([
 
 const cardSchema = z.object({
   id: z.string(),
+  status: cardStatusSchema,
+  walletId: z.string().optional().nullable(),
   fiatCurrency: z.string(),
   lastFourDigits: z.string().nullable().optional(),
-  leftToPay: z.string(),
-  personalizationCode: z.string(),
   productId: z.string(),
+  personalizationCode: z.string(),
+  delivery: cardDeliverySchema.nullable().optional(),
   seed: z.string().nullable().optional(),
-  status: cardStatusSchema,
-  createdAt: z.string(),
   updatedAt: z.string(),
+  createdAt: z.string(),
+  provider: z.string().optional().nullable(),
+  kind: z.string().optional().nullable()
 });
+
+const cardDebit = cardSchema.and(z.object({ type: z.literal('DEBIT') }),);
+const cardPrepaid = cardSchema.and(
+  z.object({
+    type: z.literal('PREPAID'),
+    fiatBalance: z.string(),
+  }),
+);
 
 const cryptoCurrencyTicker = z.union([
   z.literal('TON'),
@@ -180,13 +191,14 @@ const accountSchema = z.object({
   }),
 
   limits: accountLimitsSchema,
-  cards: z.array(cardSchema),
+  cards: z.array(cardDebit),
 });
 
-export const accountsListResCodec = z.union([
+export const accountsListResCodec = z.discriminatedUnion('ok', [
   z.object({
     ok: z.literal(true),
     list: z.array(accountSchema),
+    prepaidCards: z.array(cardPrepaid)
   }),
   z.object({
     ok: z.literal(false),
@@ -200,6 +212,7 @@ export const generalCardSchema = z.intersection(cardSchema, cardPublicSchema);
 export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
 export type HoldersAccount = z.infer<typeof accountSchema>;
 export type GeneralHoldersCard = z.infer<typeof generalCardSchema>;
+export type PrePaidHoldersCard = z.infer<typeof cardPrepaid>;
 
 export async function fetchAccountsList(token: string) {
   let res = await axios.post(
@@ -219,15 +232,18 @@ export async function fetchAccountsList(token: string) {
     return null;
   }
 
-  if (!res.data.ok) {
-    throw Error(`Error fetching card list: ${res.data.error}`);
-  }
-
   let parseResult = accountsListResCodec.safeParse(res.data);
   if (!parseResult.success) {
     console.warn(JSON.stringify(parseResult.error.format()));
     throw Error("Invalid card list response");
   }
 
-  return res.data.list as GeneralHoldersAccount[];
+  if (!parseResult.data.ok) {
+    throw Error(`Error fetching card list: ${res.data.error}`);
+  }
+
+  return {
+    accounts: parseResult.data.list as GeneralHoldersAccount[],
+    prepaidCards: parseResult.data.prepaidCards as PrePaidHoldersCard[]
+  };
 }

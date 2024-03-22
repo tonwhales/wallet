@@ -1,10 +1,10 @@
 import { extensionKey } from "./useAddExtension";
-import { ConnectedApp, useTonConnectExtensions } from "./useTonConnectExtenstions";
+import { ConnectedApp, useConnectExtensions } from "./useTonConnectExtenstions";
 import { useAppConnections } from "./useAppConnections";
 import { ConnectedAppConnectionRemote, TonConnectBridgeType } from '../../tonconnect/types';
 
 export function useConnectApp() {
-    const [extensions,] = useTonConnectExtensions();
+    const [extensions,] = useConnectExtensions();
 
     const apps = Object.values(extensions);
 
@@ -15,7 +15,7 @@ export function useConnectApp() {
 }
 
 export function useConnectAppByClientSessionId() {
-    const [extensions,] = useTonConnectExtensions();
+    const [extensions,] = useConnectExtensions();
     const connectAppConnections = useAppConnections();
     const connectedAppsList = Object.values(extensions);
 

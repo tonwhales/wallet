@@ -674,21 +674,25 @@ export const SimpleTransferFragment = fragment(() => {
             }
         }
 
-        const addressFriendly = targetAddressValid?.address.toString({ testOnly: network.isTestnet });
+        let headertitle: {
+            onBackPressed?: () => void,
+            title?: string,
+            rightButton?: ReactNode,
+            titleComponent?: ReactNode,
+        } = { title: t('transfer.title') };
 
-        const headertitle = addressFriendly
-            ? {
+        if (targetAddressValid) {
+            headertitle = {
                 titleComponent: (
                     <TransferHeader
                         theme={theme}
-                        addressFriendly={addressFriendly}
+                        address={targetAddressValid.address}
                         isTestnet={network.isTestnet}
+                        bounceable={targetAddressValid.isBounceable}
                     />
                 )
-            }
-            : {
-                title: t('transfer.title'),
-            }
+            };
+        }
 
         if (selectedInput === 0) {
             return {
@@ -815,6 +819,9 @@ export const SimpleTransferFragment = fragment(() => {
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
+                        onSearchItemSelected={() => {
+                            scrollRef.current?.scrollTo({ y: 0 });
+                        }}
                     />
                 </Animated.View>
                 {selected === 'address' && (

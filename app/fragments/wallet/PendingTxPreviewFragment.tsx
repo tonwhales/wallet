@@ -16,7 +16,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -44,23 +44,17 @@ const PendingTxPreview = () => {
     const [price, currency] = usePrice();
     const [dontShowComments,] = useDontShowComments();
     const [walletSettings,] = useWalletSettings(selected.address);
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const params = useParams<{ transaction: PendingTransaction }>();
     const tx = params.transaction;
     const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
-    const opAddress = tx.body?.type === 'token' ? tx.body.target.toString({ testOnly: isTestnet }) : tx.address?.toString({ testOnly: isTestnet });
     const amount = tx.body?.type === 'token'
         ? tx.body.amount
         : tx.amount > 0n
             ? tx.amount
             : -tx.amount;
-    const operation = !!opAddress ? resolveOperation({
-        account: Address.parse(opAddress),
-        amount: amount,
-        body: body
-    }, isTestnet) : undefined;
     const fees = tx.fees;
-    const isOwn = appState.addresses.findIndex((a) => a.address.toString({ testOnly: isTestnet }) === opAddress) >= 0;
     let comment = tx.body?.type === 'comment' ? tx.body.comment : undefined;
     if (body?.type === 'comment') {
         comment = body.comment;
@@ -68,6 +62,19 @@ const PendingTxPreview = () => {
     if (tx.body?.type === 'token' && tx.body.comment) {
         comment = tx.body.comment;
     }
+
+    const opAddress = tx.body?.type === 'token'
+        ? tx.body.target.toString({ testOnly: isTestnet })
+        : tx.address?.toString({ testOnly: isTestnet });
+    const opAddressBounceable = tx.body?.type === 'token'
+        ? tx.body.target.toString({ testOnly: isTestnet, bounceable: tx.body.bounceable })
+        : tx.address?.toString({ testOnly: isTestnet, bounceable: tx.bounceable });
+    const operation = !!opAddress ? resolveOperation({
+        account: Address.parse(opAddress),
+        amount: amount,
+        body: body
+    }, isTestnet) : undefined;
+    const isOwn = appState.addresses.findIndex((a) => a.address.toString({ testOnly: isTestnet }) === opAddress) >= 0;
 
     const verified = !!KnownJettonMasters(isTestnet)[opAddress ?? ''];
     const knownWallet = KnownWallets(isTestnet)[opAddress ?? ''];
@@ -111,10 +118,10 @@ const PendingTxPreview = () => {
         const appState = getAppState();
         const index = `${appState.addresses.findIndex((a) => selected.address?.equals(a.address)) + 1}`;
 
-        if (!opAddress) {
+        if (!opAddressBounceable) {
             return {
                 from: {
-                    address: selected.address,
+                    address: selected.address?.toString({ testOnly: isTestnet, bounceable: bounceableFormat }) || '',
                     name: walletSettings?.name || `${t('common.wallet')} ${index}`
                 }
             }
@@ -122,18 +129,18 @@ const PendingTxPreview = () => {
 
         return {
             from: {
-                address: selected.address,
+                address: selected.address?.toString({ testOnly: isTestnet, bounceable: bounceableFormat }) || '',
                 name: walletSettings?.name || `${t('common.wallet')} ${index}`
             },
             to: {
-                address: Address.parse(opAddress),
+                address: opAddressBounceable,
                 name: known?.name
             }
         }
-    }, [opAddress, walletSettings, tx, known]);
+    }, [opAddressBounceable, walletSettings, tx, known, bounceableFormat]);
 
-    const onCopyAddress = useCallback((address: Address) => {
-        copyText(address.toString({ testOnly: isTestnet }));
+    const onCopyAddress = useCallback((address: string) => {
+        copyText(address);
         toaster.show({
             message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
             type: 'default',
@@ -226,6 +233,7 @@ const PendingTxPreview = () => {
                             >
                                 <AddressComponent
                                     address={participants.to.address}
+                                    bounceable={tx.body?.type === 'token' ? tx.body.bounceable : tx.bounceable}
                                     end={4}
                                 />
                             </PerfText>
@@ -294,6 +302,7 @@ const PendingTxPreview = () => {
                         kind={'out'}
                         theme={theme}
                         isTestnet={isTestnet}
+                        bounceableFormat={bounceableFormat}
                     />
                     {!!participants.to && (
                         <>
@@ -311,6 +320,7 @@ const PendingTxPreview = () => {
                                 kind={'out'}
                                 theme={theme}
                                 isTestnet={isTestnet}
+                                bounceableFormat={bounceableFormat}
                             />
                         </>
                     )}

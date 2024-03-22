@@ -16,6 +16,18 @@ const isTestnetAtom = atom({
     effects: [persistedBooleanEffect(storage, isTestnetKey)]
 });
 
+export function getIsTestnet() {
+    let isTestnet = storage.getBoolean(isTestnetKey);
+    if (isTestnet === undefined) {
+      isTestnet = false;
+    }
+    if (IS_SANDBOX) {
+      isTestnet = true;
+    }
+
+    return isTestnet;
+}
+
 export const networkSelector = selector({
     key: 'wallet/network',
     get: ({ get }) => {

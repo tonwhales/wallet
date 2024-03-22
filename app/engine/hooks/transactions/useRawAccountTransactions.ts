@@ -199,26 +199,9 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
 
 const TRANSACTIONS_LENGTH = 16;
 
-const currentTransactionsVersion = 1;
-const transactionsKey = (account: string) => `transactions-version-${account}`;
-
-function invalidateTransactionsIfVersionChanged(account: string) {
-    const key = transactionsKey(account);
-    const lastVersion = storage.getNumber(key);
-
-    if (!lastVersion || lastVersion < currentTransactionsVersion) {
-        storage.set(key, currentTransactionsVersion);
-        queryClient.removeQueries(Queries.Transactions(account));
-    }
-}
-
 export function useRawAccountTransactions(account: string, options: { refetchOnMount: boolean } = { refetchOnMount: false }) {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
-
-    useEffect(() => {
-        invalidateTransactionsIfVersionChanged(account);
-    }, [account]);
 
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Transactions(account),

@@ -32,10 +32,13 @@ export function useHoldersAccounts(address: string | Address) {
         staleTime: 35000,
         queryFn: async () => {
             let accounts;
+            let prepaidCards;
             let type = 'public';
             if (token) {
-                accounts = await fetchAccountsList(token);
+                const res = await fetchAccountsList(token);
                 type = 'private';
+                accounts = res?.accounts;
+                prepaidCards = res?.prepaidCards;
             } else {
                 accounts = await fetchAccountsPublic(addressString, isTestnet);
                 type = 'public';
@@ -49,7 +52,7 @@ export function useHoldersAccounts(address: string | Address) {
                 return 0;
             });
 
-            return { accounts: sorted, type };
+            return { accounts: sorted, type, prepaidCards };
         },
 
     });

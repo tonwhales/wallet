@@ -243,12 +243,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
             },
             description: 'Applications or extensions you have authorized will be displayed here. You can revoke access from any app or extension at any time.',
-            installExtension: 'Install and open extension for this application'
+            installExtension: 'Install and open extension for this application',
+            moreWallets: 'More wallets ({{count}})',
+            connectionSecureDescription: 'No funds would be transfered to the app and no access to your coins would be granted'
         },
         consent: 'By clicking continue you accepting our',
     },
     install: {
-        title: 'Install Extension',
+        title: 'Connection request',
         message: '<strong>{{name}}</strong> wants to connect to your account',
         action: 'Install'
     },
@@ -959,7 +961,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         price: 'This is where you can change your primary currency',
     },
     newAddressFormat: {
-        title: 'Address update',
+        title: 'Address format',
         fragmentTitle: 'New wallet address display format',
         description_0: 'The new format avoids problems with sending funds to unpublished addresses.',
         description_1: 'The old address will continue working and lead to the same wallet, and your funds will remain safe. You can switch the address to the old format or back in the app settings anytime.',

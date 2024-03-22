@@ -17,7 +17,8 @@ export type AddressSearchItem = {
     title: string,
     searchable: string,
     type: 'contact' | 'known' | 'unknown' | 'my-wallets',
-    icon?: string
+    icon?: string,
+    isLedger?: boolean
 };
 
 export const AddressSearch = memo(({
@@ -116,6 +117,10 @@ export const AddressSearch = memo(({
                     title = walletSettings.name;
                 }
 
+                if (acc.index === -2) {
+                    title = 'Ledger';
+                }
+
                 let addr: {
                     isBounceable: boolean;
                     isTestOnly: boolean;
@@ -129,7 +134,11 @@ export const AddressSearch = memo(({
 
                 const searchable = `${title} ${acc.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat })}`.toLowerCase();
 
-                return { type: 'my-wallets', addr, title, searchable, walletSettings }
+                return {
+                    type: 'my-wallets',
+                    addr, title, searchable, walletSettings,
+                    isLedger: acc.index === -2 ? true : undefined
+                }
             })
         ].filter((i) => !!i) as AddressSearchItem[];
     }, [contacts, knownWallets, bounceableFormat, network]);

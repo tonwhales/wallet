@@ -5,10 +5,24 @@ import { ThemeType } from "../../engine/state/theme";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
+import { Address } from "@ton/core";
+import { Typography } from "../styles";
 
-export const TransferHeader = memo(({ theme, isTestnet, addressFriendly }: { theme: ThemeType, isTestnet: boolean, addressFriendly: string }) => {
-    const [walletSettings,] = useWalletSettings(addressFriendly);
-    const avatarColorHash = walletSettings?.color ?? avatarHash(addressFriendly, avatarColors.length);
+export const TransferHeader = memo(({
+    theme,
+    isTestnet,
+    address,
+    bounceable
+}: {
+    theme: ThemeType,
+    isTestnet: boolean,
+    address: Address,
+    bounceable?: boolean
+}) => {
+    const addressKey = address.toString({ testOnly: isTestnet });
+    const addressFriendly = address.toString({ testOnly: isTestnet, bounceable });
+    const [walletSettings,] = useWalletSettings(addressKey);
+    const avatarColorHash = walletSettings?.color ?? avatarHash(addressKey, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
     return (
@@ -28,23 +42,17 @@ export const TransferHeader = memo(({ theme, isTestnet, addressFriendly }: { the
         >
             <Avatar
                 size={24}
-                id={addressFriendly}
-                address={addressFriendly}
+                id={addressKey}
+                address={addressKey}
                 borderWith={0}
                 theme={theme}
                 isTestnet={isTestnet}
                 hash={walletSettings?.avatar}
                 backgroundColor={avatarColor}
             />
-            <Text style={{
-                fontSize: 17, lineHeight: 24,
-                color: theme.textPrimary,
-                fontWeight: '500',
-                marginLeft: 6,
-                minHeight: 24
-            }}>
+            <Text style={[{ color: theme.textPrimary, marginLeft: 6, minHeight: 24 }, Typography.medium17_24]}>
                 {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}
             </Text>
         </Animated.View>
-    )
-})
+    );
+});

@@ -28,7 +28,7 @@ const lpDataCodec = z.object({
 
 const masterContentCodec = z.intersection(
     contentCodec,
-    lpDataCodec
+    lpDataCodec.optional(),
 );
 
 export type LPAssetMetadata = z.infer<typeof lpAssetCodec>;
@@ -36,7 +36,7 @@ export type JettonMasterState = z.infer<typeof masterContentCodec>;
 
 export async function fetchJettonMasterContent(address: Address, isTestnet: boolean) {
     const res = await axios.get(
-        `https://connect.tonhubapi.com/v2/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
+        `https://connect.tonhubapi.com/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
         { timeout: 5000 }
     );
 

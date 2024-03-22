@@ -38,6 +38,7 @@ export function TransactionView(props: {
     isTestnet: boolean,
     spamWallets: string[],
     appState?: AppState,
+    jettons: Jetton[]
     bounceableFormat: boolean
 }) {
     const {
@@ -61,6 +62,10 @@ export function TransactionView(props: {
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
     const [walletSettings,] = useWalletSettings(parsedAddressFriendly);
+    const jetton = props.jettons.find((j) =>
+        !!tx.metadata?.jettonWallet?.master
+        && j.master.equals(tx.metadata?.jettonWallet?.master)
+    );
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

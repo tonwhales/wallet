@@ -19,7 +19,7 @@ import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { useEffect, useMemo, useState } from 'react';
-import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useJettons, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
 import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal } from '@ton/core';
@@ -27,6 +27,7 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
+import { Jetton } from '../../engine/types';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 
 export type TransferFragmentProps = {
@@ -486,7 +487,7 @@ export const TransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, [netConfig, selectedAccount, bounceableFormat]);
+    }, [netConfig, selectedAccount, bounceableFormat, jettons]);
 
     return (
         <View style={{ flexGrow: 1 }}>

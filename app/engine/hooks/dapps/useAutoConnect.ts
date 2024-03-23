@@ -15,17 +15,10 @@ export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
 
             if (
                 !app ||
+                !connections ||
                 connections.length === 0 ||
                 app.autoConnectDisabled
             ) {
-                throw new ConnectEventError(
-                    CONNECT_EVENT_ERROR_CODES.UNKNOWN_APP_ERROR,
-                    'Unknown app',
-                    0
-                );
-            }
-
-            if (!app || !connections || connections.length === 0) {
                 throw new ConnectEventError(
                     CONNECT_EVENT_ERROR_CODES.UNKNOWN_APP_ERROR,
                     'Unknown app',

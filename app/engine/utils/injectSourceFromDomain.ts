@@ -5,9 +5,11 @@ import { getDomainKey } from "../state/domainKeys";
 import { contractFromPublicKey, walletConfigFromContract } from "../contractFromPublicKey";
 import { getCurrentAddress } from "../../storage/appState";
 import { EdgeInsets } from "react-native-safe-area-context";
+import { useBounceableWalletFormat } from "../hooks";
 
 export function injectSourceFromDomain(domain: string, isTestnet: boolean, safeArea: EdgeInsets) {
     const currentAccount = getCurrentAddress();
+    const [bounceableFormat,] = useBounceableWalletFormat();
     const contract = contractFromPublicKey(currentAccount.publicKey);
     const config = walletConfigFromContract(contract);
 
@@ -27,7 +29,7 @@ export function injectSourceFromDomain(domain: string, isTestnet: boolean, safeA
             platform: Platform.OS,
             platformVersion: Platform.Version,
             network: isTestnet ? 'testnet' : 'mainnet',
-            address: currentAccount.address.toString({ testOnly: isTestnet }),
+            address: currentAccount.address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }),
             publicKey: currentAccount.publicKey.toString('base64'),
             walletConfig,
             walletType,

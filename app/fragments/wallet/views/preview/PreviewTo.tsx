@@ -10,26 +10,31 @@ import { AddressComponent } from "../../../../components/address/AddressComponen
 
 type PreviewToProps = {
     to: {
-        address: Address | null;
+        address: string | null;
         name: string;
     } | {
-        address: Address;
+        address: string;
         name: string | undefined;
     }
     kind: 'in' | 'out';
     theme: ThemeType;
     isTestnet: boolean;
-    onCopyAddress: (address: Address) => void;
+    onCopyAddress: (address: string) => void;
+    bounceableFormat: boolean;
 }
 
 export const PreviewTo = memo((props: PreviewToProps) => {
-    const { to, kind, theme, isTestnet, onCopyAddress } = props
+    const { to, kind, theme, isTestnet, onCopyAddress, bounceableFormat } = props
 
-    if (!to.address) return null
+    if (!to.address) return null;
+
+    const parsedAddress = Address.parseFriendly(to.address);
+    const bounceable = bounceableFormat || parsedAddress.isBounceable;
+    const parsedAddressFriendly = parsedAddress.address.toString({ testOnly: isTestnet, bounceable });
 
     return (
         <Pressable
-            onPress={() => onCopyAddress(to.address!)}
+            onPress={() => onCopyAddress(parsedAddressFriendly)}
             style={({ pressed }) => ({ paddingHorizontal: 10, justifyContent: 'center', opacity: pressed ? 0.5 : 1 })}
         >
             <PerfText style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
@@ -53,7 +58,7 @@ export const PreviewTo = memo((props: PreviewToProps) => {
                         />
                     ) : (
                         <PerfText style={{ color: theme.textPrimary }}>
-                            {to.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
+                            {parsedAddressFriendly.replaceAll('-', '\u2011')}
                         </PerfText>
                     )}
                 </PerfText>

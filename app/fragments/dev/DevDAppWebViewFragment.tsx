@@ -130,6 +130,7 @@ export const DevDAppWebViewFragment = fragment(() => {
     const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(endpoint, navigation);
     // ton-x
     const injectionEngine = useInjectEngine(domain, 'DevWebView', isTestnet, endpoint);
+    const injectionSource = injectSourceFromDomain(domain, isTestnet, safeArea);
     // tonhub-bridge
     const bridgeEngine = useTonhubBridgeEngine(domain, 'DevWebView', isTestnet, endpoint);
 
@@ -146,7 +147,6 @@ export const DevDAppWebViewFragment = fragment(() => {
         }
 
         if (engine === 'ton-x') {
-            const injectionSource = injectSourceFromDomain(domain, isTestnet, safeArea);
 
             return {
                 injectionEngine,
@@ -199,7 +199,7 @@ export const DevDAppWebViewFragment = fragment(() => {
         };
     }, [
         engine,
-        tonConnectWebViewProps, injectionEngine, bridgeEngine,
+        tonConnectWebViewProps, injectionEngine, bridgeEngine, injectionSource,
         domain, isTestnet, safeArea, webViewRef,
         useStatusBar, useMainButton, useQueryAPI, useToaster,
         loadWithRequest
@@ -336,9 +336,23 @@ export const DevDAppWebViewFragment = fragment(() => {
                                 onChange={(event) => setEngine(engineOptions[event.nativeEvent.selectedSegmentIndex] ?? null)}
                                 style={{ marginHorizontal: 16 }}
                                 backgroundColor={theme.surfaceOnBg}
-                                fontStyle={{ fontSize: 15, fontWeight: '500', color: theme.textPrimary }}
-                                activeFontStyle={{ fontSize: 15, fontWeight: '500', color: theme.textPrimary }}
+                                fontStyle={{ fontSize: 10, fontWeight: '500', color: theme.textPrimary }}
+                                activeFontStyle={{ fontSize: 10, fontWeight: '500', color: theme.textPrimary }}
                             />
+                            <View style={{
+                                backgroundColor: theme.surfaceOnElevation,
+                                paddingVertical: 20,
+                                borderRadius: 20,
+                                marginHorizontal: 16,
+                                marginTop: 16
+                            }}>
+                                <ATextInput
+                                    style={{ paddingHorizontal: 16, flexShrink: 1 }}
+                                    value={urlInput}
+                                    onValueChange={setUrlInput}
+                                    label="URL"
+                                />
+                            </View>
                             {engine === 'ton-x' && (
                                 <ItemButton
                                     title={`${hasDomainKey ? '' : 'Create'} Domain key`}
@@ -380,20 +394,6 @@ export const DevDAppWebViewFragment = fragment(() => {
                                 value={useQueryAPI}
                                 onChange={setUseQueryAPI}
                             />
-                            <View style={{
-                                backgroundColor: theme.surfaceOnElevation,
-                                paddingVertical: 20,
-                                borderRadius: 20,
-                                marginHorizontal: 16,
-                                marginBottom: 16
-                            }}>
-                                <ATextInput
-                                    style={{ paddingHorizontal: 16, flexShrink: 1 }}
-                                    value={urlInput}
-                                    onValueChange={setUrlInput}
-                                    label="URL"
-                                />
-                            </View>
                             <RoundButton
                                 title={'Save'}
                                 style={{ marginHorizontal: 16, marginBottom: 16 }}

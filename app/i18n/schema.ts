@@ -244,7 +244,9 @@ export type LocalizationSchema = {
                 message: string
             },
             description: string,
-            installExtension: string
+            installExtension: string,
+            moreWallets: string,
+            connectionSecureDescription: string
         },
         consent: string,
     },

@@ -51,10 +51,14 @@ export const ContactFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const contact = useContact(params.address);
     const contractInfo = useContractInfo(params.address ?? '');
+
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const [editing, setEditing] = useState(!contact);
+    const [name, setName] = useState(contact?.name);
+    const [fields, setFields] = useState(contact?.fields || requiredFields);
 
     const shortAddressStr = useMemo(() => {
-        if (!parsed || params.isNew) {
+        if (!parsed || (params.isNew && editing)) {
             return null;
         }
         const bounceable = (contractInfo?.kind === 'wallet')
@@ -62,11 +66,7 @@ export const ContactFragment = fragment(() => {
             : true;
         const friendly = parsed.address.toString({ testOnly: isTestnet, bounceable });
         return `${friendly.slice(0, 6) + '...' + friendly.slice(friendly.length - 6)}`;
-    }, [params.address, params.isNew, contractInfo, bounceableFormat, parsed, isTestnet]);
-
-    const [editing, setEditing] = useState(!contact);
-    const [name, setName] = useState(contact?.name);
-    const [fields, setFields] = useState(contact?.fields || requiredFields);
+    }, [params.isNew, contractInfo, bounceableFormat, parsed, isTestnet, editing]);
 
     const onAction = useCallback(() => {
         if (!editing) {
@@ -234,33 +234,7 @@ export const ContactFragment = fragment(() => {
             <ScreenHeader
                 title={t('contacts.title')}
                 style={{ paddingLeft: 16 }}
-                onBackPressed={navigation.goBack}
-                rightButton={<Pressable
-                    style={({ pressed }) => ({
-                        marginRight: 16,
-                        opacity: pressed ? 0.5 : 1,
-                    })}
-                    onPress={onAction}
-                    hitSlop={
-                        Platform.select({
-                            ios: undefined,
-                            default: { top: 16, right: 16, bottom: 16, left: 16 },
-                        })
-                    }
-                    disabled={editing ? !canSave : false}
-                >
-                    <Text style={{
-                        color: editing
-                            ? canSave
-                                ? theme.accent
-                                : theme.textSecondary
-                            : theme.accent,
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '500',
-                    }}>
-                        {editing ? t('contacts.save') : t('contacts.edit')}
-                    </Text>
-                </Pressable>}
+                onClosePressed={navigation.goBack}
             />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
@@ -518,49 +492,62 @@ export const ContactFragment = fragment(() => {
                                 </>
                             )}
 
-                            <View style={{
-                                backgroundColor: theme.surfaceOnElevation,
-                                marginTop: 20,
-                                paddingVertical: 20,
-                                width: '100%', borderRadius: 20
-                            }}>
-                                {fields.map((field, index) => {
-                                    return (
-                                        <View key={`input-${index}`}>
-                                            <ContactField
-                                                fieldKey={field.key}
-                                                index={index + (params.isNew ? 2 : 1)}
-                                                ref={refs[index + (params.isNew ? 2 : 1)]}
-                                                input={{
-                                                    value: field.value || '',
-                                                    onFocus: onFocus,
-                                                    onSubmit: onSubmit,
-                                                    editable: editing,
-                                                    enabled: editing
-                                                }}
-                                                onFieldChange={onFieldChange}
-                                            />
-                                            {index !== fields.length - 1 && (
-                                                <View style={{ marginHorizontal: 16 }}>
-                                                    <ItemDivider marginHorizontal={0} />
-                                                </View>
-                                            )}
-                                        </View>
-                                    )
-                                })}
-                            </View>
-                            {!!contact && (
-                                <RoundButton
-                                    display={'danger_zone_text'}
-                                    onPress={onDelete}
-                                    title={t('contacts.delete')}
-                                    style={{ marginTop: 16 }}
-                                />
+                            {fields.length > 0 && (
+                                <View style={{
+                                    backgroundColor: theme.surfaceOnElevation,
+                                    marginTop: 20,
+                                    paddingVertical: 20,
+                                    width: '100%', borderRadius: 20
+                                }}>
+                                    {fields.map((field, index) => {
+                                        return (
+                                            <View key={`input-${index}`}>
+                                                <ContactField
+                                                    fieldKey={field.key}
+                                                    index={index + (params.isNew ? 2 : 1)}
+                                                    ref={refs[index + (params.isNew ? 2 : 1)]}
+                                                    input={{
+                                                        value: field.value || '',
+                                                        onFocus: onFocus,
+                                                        onSubmit: onSubmit,
+                                                        editable: editing,
+                                                        enabled: editing
+                                                    }}
+                                                    onFieldChange={onFieldChange}
+                                                />
+                                                {index !== fields.length - 1 && (
+                                                    <View style={{ marginHorizontal: 16 }}>
+                                                        <ItemDivider marginHorizontal={0} />
+                                                    </View>
+                                                )}
+                                            </View>
+                                        )
+                                    })}
+                                </View>
                             )}
                         </>
                     )}
                 </Animated.View>
             </Animated.ScrollView>
+            <View
+                style={{
+                    position: 'absolute', bottom: safeArea.bottom + 24, left: 0, right: 0,
+                    paddingHorizontal: 16,
+                    gap: 16
+                }}
+            >
+                <RoundButton
+                    display={'default'}
+                    onPress={onAction}
+                    title={editing ? t('contacts.save') : t('contacts.edit')}
+                    disabled={editing ? !canSave : false}
+                />
+                <RoundButton
+                    display={'danger_zone'}
+                    onPress={onDelete}
+                    title={t('contacts.delete')}
+                />
+            </View>
         </View>
-    )
+    );
 });

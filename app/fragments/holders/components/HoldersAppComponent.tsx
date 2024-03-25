@@ -1,21 +1,17 @@
 import * as React from 'react';
-import { Linking, Platform, View } from 'react-native';
-import WebView from 'react-native-webview';
+import { Linking, View } from 'react-native';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
-import { walletConfigFromContract, contractFromPublicKey } from '../../../engine/contractFromPublicKey';
-import { createInjectSource } from '../../apps/components/inject/createInjectSource';
-import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { getLocales } from 'react-native-localize';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
-import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, Extrapolation, FadeOut, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useDAppBridge, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
@@ -24,9 +20,7 @@ import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersAccountStatus } from '../../../engine/hooks';
 import { HoldersAccountState, holdersUrl } from '../../../engine/api/holders/fetchAccountState';
 import { useHoldersAccounts } from '../../../engine/hooks';
-import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
-import { getDomainKey } from '../../../engine/state/domainKeys';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppWebView';
@@ -67,17 +61,7 @@ function PulsingCardPlaceholder(theme: ThemeType) {
     }, []);
 
     return (
-        <Animated.View style={[
-            { flexGrow: 1, width: '100%' },
-            {
-                opacity: interpolate(
-                    animation.value,
-                    [0, 1],
-                    [1, 0.75],
-                    Extrapolation.CLAMP
-                )
-            }
-        ]}>
+        <View style={{ flexGrow: 1, width: '100%' }}>
             <View
                 style={{
                     backgroundColor: theme.backgroundUnchangeable,
@@ -151,7 +135,7 @@ function PulsingCardPlaceholder(theme: ThemeType) {
                     animatedStyles
                 ]}
             />
-        </Animated.View>
+        </View>
     );
 }
 
@@ -271,7 +255,6 @@ export const HoldersAppComponent = memo((
     const accountsStatus = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
     const [currency,] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
-    
 
     const source = useMemo(() => {
         let route = '';
@@ -355,7 +338,7 @@ export const HoldersAppComponent = memo((
                     }
                 }
                 : {},
-            ...accountsStatus?.type === 'private' ? { accountsList: accountsStatus.accounts } : {},
+            ...accountsStatus?.type === 'private' ? { accountsList: accountsStatus.accounts, prepaidCards: accountsStatus.prepaidCards } : {},
         };
 
         return `

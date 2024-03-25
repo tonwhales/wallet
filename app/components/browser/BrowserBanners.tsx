@@ -80,10 +80,12 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
             renderItem={({ item, index }) => (
                 <View
                     key={`${index}-${item.id}`}
-                    style={{
-                        paddingLeft: index === 0 ? halfBoxDistance : 0,
-                        paddingRight: index === banners.length - 1 ? halfBoxDistance : 0,
-                    }}
+                    style={Platform.select({
+                        android: {
+                            paddingLeft: index === 0 ? halfBoxDistance : 0,
+                            paddingRight: index === banners.length - 1 ? halfBoxDistance : 0,
+                        }
+                    })}
                 >
                     <BrowserBanner
                         banner={item}

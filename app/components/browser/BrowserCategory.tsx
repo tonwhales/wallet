@@ -55,6 +55,7 @@ export const BrowserCategory = memo(({
                 data={columns}
                 keyExtractor={(item, index) => `col-${index}`}
                 horizontal
+                scrollEnabled={columns.length > 1}
                 style={{ maxHeight: (56 + 24) * 3 }}
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={dimensions.screen.width - 16}

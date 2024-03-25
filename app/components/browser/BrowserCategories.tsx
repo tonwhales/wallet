@@ -16,7 +16,10 @@ export const BrowserCategories = memo(({ list }: { list: Map<string, ListingsCat
     }, [list]);
 
     return (
-        <View style={Platform.select({ android: { paddingBottom: bottomBarHeight + 56 + 16 } })}>
+        <View style={Platform.select({
+            android: { paddingBottom: bottomBarHeight + 56 },
+            ios: { paddingBottom: 16 }
+        })}>
             {categories.map((category, index) => (
                 <View
                     style={{ marginBottom: 16 }}

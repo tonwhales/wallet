@@ -981,7 +981,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 social: 'Social',
                 utils: 'Utilities',
                 services: 'Services'
-            }
+            },
+            title: 'For you'
         }
     }
 };

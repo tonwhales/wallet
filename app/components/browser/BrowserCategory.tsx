@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { ListingsCategory } from "./BrowserListings";
-import { View, Text } from "react-native";
+import { View, Text, Platform } from "react-native";
 import { BrowserListItem } from "./BrowserListItem";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { ThemeType } from "../../engine/state/theme";
@@ -19,7 +19,7 @@ export const BrowserCategory = memo(({
 }) => {
     const dimensions = useDimensions();
     const columns = useMemo(() => {
-        // deviding category.listings into columns of 3 items
+        // dividing category.listings into columns of 3 items
         const columns = [];
         let column = [];
         for (let i = 0; i < category.listings.length; i++) {
@@ -55,23 +55,26 @@ export const BrowserCategory = memo(({
                 data={columns}
                 keyExtractor={(item, index) => `col-${index}`}
                 horizontal
-                style={{ maxHeight: (56 + 16) * 3, marginBottom: 16 }}
+                style={{ maxHeight: (56 + 24) * 3 }}
                 showsHorizontalScrollIndicator={false}
-                snapToInterval={dimensions.screen.width + 32}
+                snapToInterval={dimensions.screen.width - 16}
                 decelerationRate={'fast'}
                 contentInset={{
                     left: 32,
-                    right: 32,
+                    right: 32
                 }}
+                overScrollMode={'never'}
                 renderItem={({ item }) => (
-                    <View style={{ backgroundColor: 'red' }}>
+                    <View>
                         {item.map((item, index) => (
-                            <View style={{ paddingBottom: 16, marginLeft: 16 }}>
+                            <View style={[
+                                { marginLeft: 16, marginBottom: 24 },
+                                Platform.select({ android: { marginRight: index === 0 ? 16 : 0 } })
+                            ]}>
                                 <BrowserListItem
                                     key={index}
                                     item={item}
                                     navigation={navigation}
-                                    theme={theme}
                                 />
                             </View>
                         ))}

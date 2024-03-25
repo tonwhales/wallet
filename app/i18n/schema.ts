@@ -983,7 +983,8 @@ export type LocalizationSchema = {
                 social: string,
                 utils: string,
                 services: string,
-            }
+            },
+            title: string
         }
     }
 };

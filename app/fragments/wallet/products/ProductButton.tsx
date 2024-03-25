@@ -10,13 +10,13 @@ import { useTheme } from '../../../engine/hooks';
 
 export type ProductButtonProps = {
     name: string,
-    subtitle: string,
+    subtitle?: string | null,
     icon?: React.FC<SvgProps>,
     iconComponent?: React.ReactNode,
-    image?: string,
+    image?: string | null,
     requireSource?: ImageRequireSource,
     blurhash?: string,
-    value: bigint | string | null,
+    value?: bigint | string | null,
     decimals?: number | null,
     symbol?: string,
     extension?: boolean,
@@ -88,7 +88,11 @@ export function ProductButton(props: ProductButtonProps) {
                         />
                     )}
                 </View>
-                <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
+                <View style={{
+                    flexDirection: 'column',
+                    flexGrow: 1, flexBasis: 0,
+                    justifyContent: 'center'
+                }}>
                     <View style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
@@ -127,34 +131,33 @@ export function ProductButton(props: ProductButtonProps) {
                         )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginRight: 10, marginBottom: 10, }}>
-                        <Text
-                            style={{ color: theme.textSecondary, fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
-                            ellipsizeMode={'tail'}
-                            numberOfLines={1}
-                        >
-                            <Text style={{ flexShrink: 1 }}>
-                                {props.subtitle}
+                        {!!props.subtitle && (
+                            <Text
+                                style={{ color: theme.textSecondary, fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
+                                ellipsizeMode={'tail'}
+                                numberOfLines={1}
+                            >
+                                <Text style={{ flexShrink: 1 }}>
+                                    {props.subtitle}
+                                </Text>
                             </Text>
-                        </Text>
-                        {(!!props.value && typeof props.value !== 'string' && !props.symbol) &&
-                            (
-                                <PriceComponent
-                                    amount={props.value}
-                                    style={{
-                                        backgroundColor: theme.transparent,
-                                        paddingHorizontal: 0, paddingVertical: 0,
-                                        alignSelf: 'flex-end',
-                                        marginTop: 2, height: 14
-                                    }}
-                                    theme={theme}
-                                    textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 12 }}
-                                />
-                            )
-                        }
+                        )}
+                        {(!!props.value && typeof props.value !== 'string' && !props.symbol) && (
+                            <PriceComponent
+                                amount={props.value}
+                                style={{
+                                    backgroundColor: theme.transparent,
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                    marginTop: 2, height: 14
+                                }}
+                                theme={theme}
+                                textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 12 }}
+                            />
+                        )}
                     </View>
-                    <View style={{ flexGrow: 1 }} />
                 </View>
             </View>
-        </TouchableHighlight >
-    )
+        </TouchableHighlight>
+    );
 }

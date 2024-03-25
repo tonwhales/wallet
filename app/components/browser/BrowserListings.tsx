@@ -1,15 +1,13 @@
 import { memo, useMemo } from "react";
-import { BrowserListing } from "../../engine/api/fetchBrowserListings";
-import { BrowserListingCategory } from "../../engine/hooks/banners/useBrowserListings";
+import { BrowserListingsWithCategory, useBrowserListings } from "../../engine/hooks/banners/useBrowserListings";
 import { t } from "../../i18n/t";
-import { View } from "react-native";
 import { BrowserBanners } from "./BrowserBanners";
 import { BrowserCategories } from "./BrowserCategories";
 import { ScrollView } from "react-native-gesture-handler";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
-type Listing = Omit<BrowserListing, 'category'> & { category?: BrowserListingCategory | null}
-export type BrowserBannerItem = Listing & { banner_type: 'bannerItem' };
-export type BrowserListingItem = Listing & { banner_type: 'listItem' };
+export type BrowserBannerItem = BrowserListingsWithCategory & { banner_type: 'bannerItem' };
+export type BrowserListingItem = BrowserListingsWithCategory & { banner_type: 'listItem' };
 export type ListingsCategory = {
     id: string;
     title: string;
@@ -29,7 +27,8 @@ const initOthersCategory = {
 const supportedCategories = ['other', 'exchange', 'defi', 'nft', 'games', 'social', 'utils', 'services'];
 type SupportedCategory = 'other' | 'exchange' | 'defi' | 'nft' | 'games' | 'social' | 'utils' | 'services';
 
-export const BrowserListings = memo(({ listings }: { listings: Listing[] }) => {
+export const BrowserListings = memo(({ listings }: { listings: BrowserListingsWithCategory[] }) => {
+    const bottomBarHeight = useBottomTabBarHeight();
     const { banners, list } = useMemo(() => {
         let banners: BrowserBannerItem[] = [];
         const list = new Map<string, ListingsCategory>();
@@ -39,8 +38,6 @@ export const BrowserListings = memo(({ listings }: { listings: Listing[] }) => {
                 banners.push(l as BrowserBannerItem);
             } else if (l.banner_type === 'listItem') {
                 const category = l.category;
-
-                console.log('category', category);
 
                 if (!category) {
                     let others = list.get('others');
@@ -62,8 +59,6 @@ export const BrowserListings = memo(({ listings }: { listings: Listing[] }) => {
                     const title = supportedCategories.includes(category.id)
                         ? t(`browser.listings.categories.${category.id as SupportedCategory}`)
                         : category.title;
-
-                    // TODO: add translation for category.description
 
                     if (!title) {
                         continue;
@@ -93,7 +88,7 @@ export const BrowserListings = memo(({ listings }: { listings: Listing[] }) => {
         <ScrollView
             style={{ flexGrow: 1 }}
             showsVerticalScrollIndicator={false}
-            contentInset={{ top: 0, left: 0, bottom: 56 + 16, right: 0 }}
+            contentInset={{ top: 0, left: 0, bottom: 56 + 52 + 16 + bottomBarHeight, right: 0 }}
             contentOffset={{ y: -56, x: 0 }}
         >
             <BrowserBanners banners={banners} />

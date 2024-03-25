@@ -1,7 +1,6 @@
 import { memo, useCallback } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
 import { View, Text, Image, Pressable } from "react-native";
-import FastImage from "react-native-fast-image";
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from "react-native-reanimated";
 import { ThemeType } from "../../engine/state/theme";
 import { Typography } from "../styles";

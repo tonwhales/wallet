@@ -981,7 +981,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "social": "Социальные",
                 "utils": "Утилиты",
                 "services": "Сервисы"
-            }
+            },
+            "title": "Рекомендации",
         }
     }
 };

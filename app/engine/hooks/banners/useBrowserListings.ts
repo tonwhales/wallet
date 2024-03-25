@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNetwork } from "..";
 import { Queries } from "../../queries";
-import { fetchBrowserListings } from "../../api/fetchBrowserListings";
+import { BrowserListing, fetchBrowserListings } from "../../api/fetchBrowserListings";
 import { z } from 'zod';
 
 const categoryCodec = z.object({
@@ -12,6 +12,7 @@ const categoryCodec = z.object({
 });
 
 export type BrowserListingCategory = z.infer<typeof categoryCodec>;
+export type BrowserListingsWithCategory = Omit<BrowserListing, 'category'> & { category?: BrowserListingCategory | null };
 
 export function useBrowserListings() {
     const { isTestnet } = useNetwork();
@@ -26,8 +27,12 @@ export function useBrowserListings() {
 
             const mapped = res
                 .filter((b) => {
-                    return b.enabled && b.start_date < Date.now() && b.expiration_date > Date.now();
+                    // Filter out disabled banners
+                    return b.enabled
+                        && b.start_date < Date.now()
+                        && b.expiration_date > Date.now();
                 }).map((b) => {
+                    // Parse category
                     if (!b.category) {
                         return b;
                     }
@@ -48,11 +53,12 @@ export function useBrowserListings() {
                     }
                 });
 
-            return mapped;
+            return mapped as BrowserListingsWithCategory[];
         },
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        staleTime: 1000 * 60 * 60, // 1 hour
+        // staleTime: 1000 * 60 * 60, // 1 hour
+        staleTime: 1000 * 5
     });
 }
 

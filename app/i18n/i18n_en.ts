@@ -961,9 +961,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     newAddressFormat: {
         title: 'Address format',
-        fragmentTitle: 'New wallet address display format',
-        description_0: 'The new format avoids problems with sending funds to unpublished addresses.',
-        description_1: 'The old address will continue working and lead to the same wallet, and your funds will remain safe. You can switch the address to the old format or back in the app settings anytime.',
+        fragmentTitle: 'New address format',
+        description_0: 'Previously, wallet and contract addresses in TON were displayed in the same format, which in some cases led to incorrect transactions sending. With the new format, developers can easily distinguish a wallet from a contract and avoid errors.        ',
+        description_1: 'The old address will continue to work in the same mode and will be linked to the same wallet. You can always switch the address format in the settings. Your funds are safe.',
         action: 'Use {{format}}',
         oldAddress: 'Old address',
         newAddress: 'New address',

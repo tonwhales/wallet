@@ -56,7 +56,6 @@ export const NewAddressFormatFragment = fragment(() => {
                 ios: 'light'
             })} />
             <ScreenHeader
-                title={t('newAddressFormat.title')}
                 onClosePressed={navigation.goBack}
                 style={Platform.select({ android: { marginTop: safeArea.top } })}
             />

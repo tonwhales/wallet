@@ -964,6 +964,8 @@ export type LocalizationSchema = {
     newAddressFormat: {
         title: string,
         fragmentTitle: string,
+        learnMore: string,
+        shortDescription: string,
         description_0: string,
         description_1: string,
         action: string,

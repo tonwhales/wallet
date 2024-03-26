@@ -46,6 +46,13 @@ export const NewAddressFormatFragment = fragment(() => {
         navigation.goBack();
     }, [setBounceableFormat, onFormatSwitch]);
 
+    const onLearnMore = useCallback(() => {
+        navigation.navigateAlert({
+            title: t('newAddressFormat.fragmentTitle'),
+            message: `${t('newAddressFormat.description_0')}\n\n${t('newAddressFormat.description_1')}`,
+        });
+    }, []);
+
     return (
         <View style={{
             flexGrow: 1,
@@ -64,10 +71,7 @@ export const NewAddressFormatFragment = fragment(() => {
                     {t('newAddressFormat.fragmentTitle')}
                 </Text>
                 <Text style={[{ color: theme.textSecondary, textAlign: 'center' }, Typography.regular17_24]}>
-                    {t('newAddressFormat.description_0')}
-                </Text>
-                <Text style={[{ color: theme.textSecondary, textAlign: 'center' }, Typography.regular17_24]}>
-                    {t('newAddressFormat.description_1')}
+                    {t('newAddressFormat.shortDescription')}
                 </Text>
             </View>
             <View style={{ paddingHorizontal: 16, gap: 16, marginTop: 24 }}>
@@ -111,12 +115,17 @@ export const NewAddressFormatFragment = fragment(() => {
             <View style={{ flexGrow: 1 }} />
             <View style={{ padding: 16 }}>
                 <RoundButton
-                    style={{ marginBottom: 8 }}
+                    style={{ marginBottom: 16 }}
                     title={t(
                         'newAddressFormat.action',
                         { format: (!bounceableFormat ? t('newAddressFormat.oldAddress') : t('newAddressFormat.newAddress')).toLowerCase() }
                     )}
                     action={switchFormat}
+                />
+                <RoundButton
+                    display={'secondary'}
+                    title={t('newAddressFormat.learnMore')}
+                    onPress={onLearnMore}
                 />
             </View>
         </View>

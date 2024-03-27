@@ -1,6 +1,6 @@
-import { atom, atomFamily } from "recoil";
+import { atomFamily } from "recoil";
 import { Address, Cell } from "@ton/core";
-import { JettonMasterState } from "../metadata/fetchJettonMasterContent";
+import { Jetton } from "../types";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell }
@@ -8,7 +8,7 @@ export type PendingTransactionBody =
     | {
         type: 'token',
         amount: bigint,
-        master: JettonMasterState,
+        master: Jetton,
         target: Address,
         bounceable?: boolean,
         comment: string | null

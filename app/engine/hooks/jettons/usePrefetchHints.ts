@@ -76,7 +76,7 @@ export function jettonWalletQueryFn(client: TonClient4, wallet: string, isTestne
     }
 }
 
-const currentJettonsVersion = 1;
+const currentJettonsVersion = 3;
 const jettonsVersionKey = 'jettons-version';
 
 function invalidateJettonsDataIfVersionChanged(queryClient: QueryClient) {

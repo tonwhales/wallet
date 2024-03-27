@@ -30,6 +30,7 @@ import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { queryClient } from '../../engine/clients';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -57,6 +58,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const clearHolders = useClearHolders();
 
     const resetCache = useCallback(async () => {
+        queryClient.clear();
+        queryClient.invalidateQueries();
         storagePersistence.clearAll();
         storageQuery.clearAll();
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));

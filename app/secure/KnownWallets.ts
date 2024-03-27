@@ -544,6 +544,7 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             'EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728': {}, // jUSDC
             'EQDo_ZJyQ_YqBzBwbVpMmhbhIddKtRP99HugZJ14aFscxi7B': {}, // jDAI
             'EQDcBkGHmC4pTf34x3Gm05XvepO5w60DNxZ-XT4I6-UGG5L5': {}, // jWBTC
+            'EQCM3B12QK1e4yZSf8GtBRT0aLMNyEsBc_DhVfRRtOEffLez': {}, // pTON
 
             'EQBCFwW8uFUh-amdRmNY9NyeDEaeDYXd9ggJGsicpqVcHq7B': {}, // DHD Coin
             'EQDCJL0iQHofcBBvFBHdVG233Ri2V4kCNFgfRT-gqAd3Oc86': {}, // Fanzee Token

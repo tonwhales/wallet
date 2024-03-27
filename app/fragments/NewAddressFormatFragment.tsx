@@ -48,7 +48,7 @@ export const NewAddressFormatFragment = fragment(() => {
 
     const onLearnMore = useCallback(() => {
         navigation.navigateAlert({
-            title: t('newAddressFormat.fragmentTitle'),
+            title: t('newAddressFormat.learnMore'),
             message: `${t('newAddressFormat.description_0')}\n\n${t('newAddressFormat.description_1')}`,
         });
     }, []);

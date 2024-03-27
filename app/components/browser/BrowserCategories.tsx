@@ -12,7 +12,11 @@ export const BrowserCategories = memo(({ list }: { list: Map<string, ListingsCat
     const bottomBarHeight = useBottomTabBarHeight();
 
     const categories = useMemo(() => {
-        return Array.from(list.values()).sort((a, b) => b.weight - a.weight);
+        return Array.from(list.values()).sort((a, b) => {
+            if (a.weight > b.weight) return -1;
+            if (a.weight < b.weight) return 1;
+            return 0;
+        });
     }, [list]);
 
     return (
@@ -23,7 +27,7 @@ export const BrowserCategories = memo(({ list }: { list: Map<string, ListingsCat
             {categories.map((category, index) => (
                 <View
                     style={{ marginBottom: 16 }}
-                    key={`${category.id}-${index}`}
+                    key={`category-${category.id}-${index}`}
                 >
                     <BrowserCategory
                         navigation={navigation}

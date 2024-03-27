@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, View } from "react-native";
 import { PressableChip } from "../PressableChip";
 import { t } from "../../i18n/t";
@@ -14,6 +14,8 @@ export const BrowserTabs = memo(() => {
     const listings = useBrowserListings().data || [];
     const hasListings = !!listings && listings.length > 0;
     const [tab, setTab] = useState(hasListings ? 0 : 1);
+
+    const chipsScrollRef = useRef<ScrollView>(null);
 
     const tabComponent = useMemo(() => {
         if (tab === 0) {
@@ -31,17 +33,27 @@ export const BrowserTabs = memo(() => {
         if (tab === 0 && !hasListings) {
             setTab(1);
         }
+
+        if (chipsScrollRef.current) {
+            if (tab === 0) {
+                chipsScrollRef.current.scrollTo({ x: -24, y: 0, animated: true });
+            } else if (tab === 2) {
+                chipsScrollRef.current.scrollToEnd({ animated: true });
+            }
+        }
     }, [hasListings, tab]);
 
     return (
         <View>
             <ScrollView
+                ref={chipsScrollRef}
                 horizontal
                 contentContainerStyle={[
                     { flexDirection: 'row', gap: 8, paddingVertical: 8 },
                     Platform.select({ android: { paddingHorizontal: 8 } })
                 ]}
                 contentInset={{ right: 24, left: 24 }}
+                contentOffset={{ x: -24, y: 0 }}
                 showsHorizontalScrollIndicator={false}
             >
                 {!!listings && listings.length > 0 && (

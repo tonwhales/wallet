@@ -28,8 +28,10 @@ export const BrowserListItem = memo(({
 
     return (
         <View style={{
+            flexGrow: 1,
             height: 56,
-            width: dimensions.screen.width - 32,
+            width: '100%',
+            maxWidth: dimensions.screen.width - 32,
         }}>
             <ProductButton
                 name={item.title ?? ''}

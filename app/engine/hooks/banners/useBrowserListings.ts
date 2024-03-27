@@ -57,8 +57,7 @@ export function useBrowserListings() {
         },
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        // staleTime: 1000 * 60 * 60, // 1 hour
-        staleTime: 1000 * 5
+        staleTime: 1000 * 60 * 60, // 1 hour
     });
 }
 

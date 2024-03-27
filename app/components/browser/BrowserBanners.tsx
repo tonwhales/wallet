@@ -70,7 +70,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
                 setScrollViewWidth(e.nativeEvent.layout.width);
             }}
             snapToAlignment={'center'}
-            keyExtractor={(item, index) => `${index}-${item.id}`}
+            keyExtractor={(item, index) => `banner-${index}-${item.id}`}
             onScroll={(e) => {
                 const scrollOffset = e.nativeEvent.contentOffset.x + halfBoxDistance;
                 const activeSlide = 1 + Math.floor((scrollOffset - 64) / boxWidth);

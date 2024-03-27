@@ -78,7 +78,12 @@ export const BrowserListings = memo(({ listings }: { listings: BrowserListingsWi
             }
         }
 
-        banners = banners.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0));
+        banners = banners.sort((a, b) => {
+            if (a.weight === b.weight) {
+                return 0;
+            }
+            return (a.weight ?? 0) > (b.weight ?? 0) ? -1 : 1;
+        });
 
         return { banners, list };
 

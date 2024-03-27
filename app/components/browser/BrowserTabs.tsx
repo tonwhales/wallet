@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Platform, View } from "react-native";
 import { PressableChip } from "../PressableChip";
 import { t } from "../../i18n/t";
@@ -12,7 +12,8 @@ import { ScrollView } from "react-native-gesture-handler";
 export const BrowserTabs = memo(() => {
     const theme = useTheme();
     const listings = useBrowserListings().data || [];
-    const [tab, setTab] = useState(0);
+    const hasListings = !!listings && listings.length > 0;
+    const [tab, setTab] = useState(hasListings ? 0 : 1);
 
     const tabComponent = useMemo(() => {
         if (tab === 0) {
@@ -24,7 +25,13 @@ export const BrowserTabs = memo(() => {
         }
 
         return <BrowserConnections />;
-    }, [tab, listings])
+    }, [tab, listings]);
+
+    useEffect(() => {
+        if (tab === 0 && !hasListings) {
+            setTab(1);
+        }
+    }, [hasListings, tab]);
 
     return (
         <View>

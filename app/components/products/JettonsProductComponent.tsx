@@ -16,7 +16,7 @@ export const JettonsProductComponent = memo(() => {
     const selected = useSelectedAccount();
 
     const jettons = useJettons(selected!.addressString);
-    const visibleList = jettons.filter((j) => !j.disabled);
+    const visibleList = jettons.filter((j) => !j.disabled).filter((j) => j.balance > 0);
 
     if (visibleList.length === 0) {
         return null;

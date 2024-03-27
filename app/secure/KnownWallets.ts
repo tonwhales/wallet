@@ -537,24 +537,70 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
 export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } = (isTestnet: boolean) => {
     return !isTestnet
         ? {
-            'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': { /*TODO: add some usefull fields for mapped objects */ },
-            'EQB-ajMyi5-WKIgOHnbOGApfckUGbl6tDk3Qt8PKmb-xLAvp': {},
+            'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': {}, // AMBR
+            'EQB-ajMyi5-WKIgOHnbOGApfckUGbl6tDk3Qt8PKmb-xLAvp': {}, // TNX
             'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': {}, // wsTON
             'EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA': {}, // jUSDT
             'EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728': {}, // jUSDC
             'EQDo_ZJyQ_YqBzBwbVpMmhbhIddKtRP99HugZJ14aFscxi7B': {}, // jDAI
             'EQDcBkGHmC4pTf34x3Gm05XvepO5w60DNxZ-XT4I6-UGG5L5': {}, // jWBTC
 
-            'EQBCFwW8uFUh-amdRmNY9NyeDEaeDYXd9ggJGsicpqVcHq7B': {}, // DHD Coin
-            'EQDCJL0iQHofcBBvFBHdVG233Ri2V4kCNFgfRT-gqAd3Oc86': {}, // Fanzee Token
+            'EQBCFwW8uFUh-amdRmNY9NyeDEaeDYXd9ggJGsicpqVcHq7B': {}, // DHD
+            'EQDCJL0iQHofcBBvFBHdVG233Ri2V4kCNFgfRT-gqAd3Oc86': {}, // FNZ
             'EQC-tdRjjoYMz3MXKW4pj95bNZgvRyWwZ23Jix3ph7guvHxJ': {}, // KINGY
             'EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE': {}, // SCALE
             'EQBjEw-SOe8yV2kIbGVZGrsPpLTaaoAOE87CGXI2ca4XdzXA': {}, // MARGA
-            'EQAQXlWJvGbbFfE8F3oS8s87lIgdovS455IsWFaRdmJetTon': {}, // JetTon
-            'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw': {}, // Huebel Bolt
+            'EQAQXlWJvGbbFfE8F3oS8s87lIgdovS455IsWFaRdmJetTon': {}, // JETTON
+            'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw': {}, // BOLT
             'EQD_KpO2-iFeHPT4dF0ur9E0iAFts2fwhpR2KjwAmYKpccvH': {}, // LIFEYT
             'EQCBdxpECfEPH2wUxi1a6QiOkSf-5qDjUWqLCUuKtD-GLINT': {}, // GLINT
             'EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O': {}, // GRAM
         }
         : {};
 }
+
+export const KnownJettonTickers = [
+    // Other chains
+    'BTC',
+    'ETH',
+    'USDT',
+    'USDC',
+    'BNB',
+    'SOL',
+    'XPR',
+    'ADA',
+    'AVAX',
+    'DOGE',
+    'DOT',
+    'TRX',
+    'LINK',
+    'MATIC',
+    'DAI',
+    'SHIB',
+    'LTC',
+    'EURt',
+    'EURc',
+    'TRX',
+    
+    // TON main
+    'TON',
+    'AMBR',
+    'wsTON',
+    'jUSDT',
+    'jUSDC',
+    'jDAI',
+    'jWBTC',
+    
+    // TON others
+    'TNX',
+    'DHD',
+    'FNZ',
+    'KINGY',
+    'SCALE',
+    'MARGA',
+    'JETTON',
+    'BOLT',
+    'LIFEYT',
+    'GLINT',
+    'GRAM',
+]

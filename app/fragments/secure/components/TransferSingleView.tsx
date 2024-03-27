@@ -7,7 +7,7 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { LedgerOrder, Order } from "../ops/Order";
-import { KnownWallet } from "../../../secure/KnownWallets";
+import { KnownJettonMasters, KnownJettonTickers, KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
@@ -37,6 +37,7 @@ export const TransferSingleView = memo(({
     jettonAmountString,
     target,
     fees,
+    metadata,
     jettonMaster,
     doSend,
     walletSettings,
@@ -59,6 +60,7 @@ export const TransferSingleView = memo(({
         bounceable?: boolean | undefined;
     },
     fees: bigint,
+    metadata: ContractMetadata | null,
     jettonMaster: JettonMasterState | null,
     doSend?: () => Promise<void>,
     walletSettings: WalletSettings | null,
@@ -149,6 +151,19 @@ export const TransferSingleView = memo(({
         );
         return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jettonMaster?.symbol ?? ''}`
     }, [amount, jettonAmountString, jettonMaster]);
+
+    const isSCAMJetton = useMemo(() => {
+        const masterAddress = metadata?.jettonWallet?.master;
+
+        if (!masterAddress || !jettonMaster?.symbol) {
+            return false;
+        }
+
+        const isKnown = !!KnownJettonMasters(isTestnet)[masterAddress.toString({ testOnly: isTestnet })];
+        const isSCAM = !isKnown && KnownJettonTickers.includes(jettonMaster.symbol);
+
+        return isSCAM;
+    }, [isTestnet, metadata, jettonMaster]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -243,21 +258,20 @@ export const TransferSingleView = memo(({
                                 {isTargetLedger && ' (Ledger)'}
                             </Text>
                         </View>
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                             <Text
                                 minimumFontScale={0.4}
                                 adjustsFontSizeToFit={true}
                                 numberOfLines={1}
-                                style={{
-                                    color: theme.textPrimary,
-                                    fontWeight: '600',
-                                    fontSize: 27,
-                                    marginTop: 12,
-                                    lineHeight: 32
-                                }}
+                                style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold27_32]}
                             >
-                                {amountText}
+                                {amountText + (isSCAMJetton ? ' • ' : '')}
                             </Text>
+                            {isSCAMJetton && (
+                                <Text style={[{ color: theme.accentRed }, Typography.semiBold27_32]}>
+                                    {'SCAM'}
+                                </Text>
+                            )}
                         </View>
                         {!jettonAmountString && (
                             <PriceComponent

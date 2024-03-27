@@ -6,6 +6,8 @@ import { ThemeType } from "../../engine/state/theme";
 import { Typography } from "../styles";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
+import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
+import { extractDomain } from "../../engine/utils/extractDomain";
 
 export const BrowserBanner = memo(({
     banner,
@@ -44,16 +46,54 @@ export const BrowserBanner = memo(({
     });
 
     const onPress = useCallback(() => {
+        trackEvent(MixpanelEvent.ProductBannerClick, {
+            id: banner.id,
+            product_url: banner.product_url,
+            type: 'banner'
+        });
+
+        const domain = extractDomain(banner.product_url);
+        const titleComponent = (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ marginRight: 8 }}>
+                    <View style={{
+                        width: 24, height: 24,
+                        borderRadius: 12,
+                        backgroundColor: theme.accent,
+                        justifyContent: 'center', alignItems: 'center'
+                    }}>
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
+                            {domain.charAt(0).toUpperCase()}
+                        </Text>
+                    </View>
+                </View>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    {banner.title && (
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
+                            {banner.title}
+                        </Text>
+                    )}
+                    <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
+                        {domain}
+                    </Text>
+                </View>
+            </View>
+        );
+
         navigation.navigateDAppWebView({
             url: banner.product_url,
             title: banner.title ?? undefined,
-            header: {
-                title: banner.title ?? ''
-            },
+            header: { titleComponent: titleComponent },
             useStatusBar: true,
             engine: 'ton-connect',
-            refId: `browser-banner-${banner.id}`
-        })
+            refId: `browser-banner-${banner.id}`,
+            controlls: {
+                refresh: true,
+                share: true,
+                back: true,
+                forward: true
+            }
+        });
     }, [banner]);
 
     return (

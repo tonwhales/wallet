@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, Linking, View } from "react-native";
+import { ActivityIndicator, Linking, View, Text, Platform, Share, Pressable } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -20,6 +20,11 @@ import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomai
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { useFocusEffect } from "@react-navigation/native";
+import { QueryParamsState } from "../../components/webview/utils/extractWebViewQueryAPIParams";
+import { Ionicons } from '@expo/vector-icons';
+import { CloseButton } from "../../components/navigation/CloseButton";
+import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
+import { t } from "../../i18n/t";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
 
@@ -27,9 +32,10 @@ export type DAppWebViewFragmentParams = {
     url: string;
     title?: string;
     header?: {
-        title: string;
+        title?: string;
         onBack?: () => void;
         onClose?: () => void;
+        titleComponent?: React.ReactNode;
     };
     useMainButton?: boolean;
     useStatusBar?: boolean;
@@ -37,16 +43,24 @@ export type DAppWebViewFragmentParams = {
     useToaster?: boolean;
     refId?: string;
     engine?: DAppEngine;
+    defaultQueryParamsState?: QueryParamsState;
+    controlls?: {
+        back?: boolean;
+        forward?: boolean;
+        refresh?: boolean;
+        share?: boolean;
+    };
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine } = useParams<DAppWebViewFragmentParams>();
+    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState, controlls } = useParams<DAppWebViewFragmentParams>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
     const [pushPemissions,] = usePermissions();
     const [, currency] = usePrice();
+    const { showActionSheetWithOptions } = useActionSheet();
 
     const endpoint = useMemo(() => {
         try {
@@ -173,6 +187,14 @@ export const DAppWebViewFragment = fragment(() => {
     // to account for wierd statusbar bug with navigating withing the bottom bar stack
     useFocusEffect(() => setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark'));
 
+    const onShare = useCallback(() => {
+        if (Platform.OS === 'ios') {
+            Share.share({ title: t('receive.share.title'), url: endpoint });
+        } else {
+            Share.share({ title: t('receive.share.title'), message: endpoint });
+        }
+    }, [endpoint]);
+
     if (engine === 'ton-x' && !hasDomainKey) {
         navigation.navigate('Install', { url: endpoint, title: title ?? '', image: null, callback: setHasDomainKey });
         return (
@@ -193,15 +215,129 @@ export const DAppWebViewFragment = fragment(() => {
         );
     }
 
+    const controllsComponent = useMemo(() => {
+        if (!controlls || (!controlls.back && !controlls.forward && !controlls.refresh && !controlls.share)) {
+            return undefined;
+        }
+
+        const { back, forward, refresh, share } = controlls;
+
+        const options: string[] = [];
+        const icons: React.ReactNode[] = [];
+        if (back) {
+            options.push(t('browser.back'));
+            icons.push(<Ionicons
+                name={'arrow-back'}
+                size={24}
+                color={theme.iconNav}
+            />);
+        }
+        if (forward) {
+            options.push(t('browser.forward'));
+            icons.push(<Ionicons
+                name={'arrow-forward'}
+                size={24}
+                color={theme.iconNav}
+            />);
+        }
+        if (refresh) {
+            options.push(t('browser.refresh'));
+            icons.push(<Ionicons
+                name={'refresh'}
+                size={24}
+                color={theme.iconNav}
+            />);
+        }
+        if (share) {
+            options.push(t('browser.share'));
+            icons.push(<Ionicons
+                name={'share'}
+                size={24}
+                color={theme.iconNav}
+            />);
+        }
+        options.push(t('common.cancel'));
+
+
+        const handleAction = (eN?: number) => {
+            const iShare = options.findIndex((i) => i === t('browser.share'));
+            const iBack = options.findIndex((i) => i === t('browser.back'));
+            const iForward = options.findIndex((i) => i === t('browser.forward'));
+            const iRefresh = options.findIndex((i) => i === t('browser.refresh'));
+
+            switch (eN) {
+                case iShare: {
+                    onShare();
+                    break;
+                }
+                case iBack: {
+                    webViewRef.current?.goBack();
+                    break;
+                }
+                case iForward: {
+                    webViewRef.current?.goForward();
+                    break;
+                }
+                case iRefresh: {
+                    webViewRef.current?.reload();
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        const actionSheetOptions: ActionSheetOptions = {
+            options,
+            userInterfaceStyle: theme.style,
+            cancelButtonIndex: options.length - 1,
+            icons
+        }
+
+        return (
+            <View style={{
+                flexDirection: 'row',
+                gap: 4, backgroundColor: theme.surfaceOnElevation,
+                marginRight: 16, borderRadius: 32,
+                paddingHorizontal: 8
+            }}>
+                <Pressable
+                    style={({ pressed }) => [
+                        {
+                            opacity: pressed ? 0.5 : 1,
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 32,
+                            height: 32, width: 32,
+                            justifyContent: 'center', alignItems: 'center',
+                        },
+                    ]}
+                    onPress={() => showActionSheetWithOptions(actionSheetOptions, handleAction)}
+                >
+                    <Ionicons
+                        name={'ellipsis-horizontal'}
+                        size={24}
+                        color={theme.iconNav}
+                    />
+                </Pressable>
+                <CloseButton
+                    onPress={headerOnClose}
+                />
+            </View>
+        );
+
+    }, [controlls, headerOnClose, onShare]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {!!header && (
                 <ScreenHeader
-                    style={{ paddingTop: 32, paddingHorizontal: 16 }}
+                    style={{ paddingTop: 32 }}
                     onBackPressed={header.onBack}
-                    onClosePressed={headerOnClose}
+                    onClosePressed={!!controllsComponent ? undefined : headerOnClose}
+                    rightButton={controllsComponent}
                     title={header.title}
+                    titleComponent={header.titleComponent}
                 />
             )}
             <DAppWebView
@@ -213,7 +349,8 @@ export const DAppWebViewFragment = fragment(() => {
                 defaultQueryParamsState={{
                     backPolicy: 'back',
                     showKeyboardAccessoryView: false,
-                    lockScroll: true
+                    lockScroll: false,
+                    ...defaultQueryParamsState
                 }}
             />
         </View>

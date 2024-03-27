@@ -983,7 +983,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "services": "Сервисы"
             },
             "title": "Рекомендации",
-        }
+        },
+        "refresh": "Обновить",
+        "back": "Назад",
+        "forward": "Вперед",
+        "share": "Поделиться"
     }
 };
 

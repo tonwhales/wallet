@@ -983,7 +983,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 services: 'Services'
             },
             title: 'For you'
-        }
+        },
+        refresh: 'Reload',
+        back: 'Back',
+        forward: 'Forward',
+        share: 'Share'
     }
 };
 

@@ -92,6 +92,7 @@ export const BrowserCategory = memo(({
                                     key={index}
                                     item={item}
                                     navigation={navigation}
+                                    theme={theme}
                                 />
                             </View>
                         ))}

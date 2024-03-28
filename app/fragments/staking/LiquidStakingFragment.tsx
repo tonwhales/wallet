@@ -3,7 +3,6 @@ import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
-import { WalletAddress } from "../../components/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingCycle } from "../../components/staking/StakingCycle";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -24,6 +23,7 @@ import { BackButton } from "../../components/navigation/BackButton";
 import { LiquidStakingMember } from "../../components/staking/LiquidStakingBalance";
 import { TransferAction } from "./StakingTransferFragment";
 import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
+import { WalletAddress } from "../../components/address/WalletAddress";
 
 export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();

@@ -12,7 +12,8 @@ export function usePoolApys(pool: string) {
         queryFn: () => {
             return fetchPoolApys(pool);
         },
-        refetchInterval: 1000 * 60 * 5, // sync every 5 minutes
+        refetchInterval: 1000 * 60 * 30, // sync every 30 mins
+        staleTime: 1000 * 60 * 30, // 30 mins
     }).data;
 }
 
@@ -26,9 +27,9 @@ export function usePoolApy(pool: string) {
     const res = useMemo(() => {
         try {
             const last = parseFloat(lastApy);
-            return last === lastGlobalApys[0] ? last : lastGlobalApys[1];
+            return last === lastGlobalApys[1] ? last : lastGlobalApys[0];
         } catch {
-            return global ?? lastGlobalApys[1];
+            return global ?? lastGlobalApys[0];
         }
     }, [apys, lastApy, lastGlobalApys, global]);
 

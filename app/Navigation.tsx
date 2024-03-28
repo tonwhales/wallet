@@ -85,6 +85,8 @@ import { ProductsFragment } from './fragments/wallet/ProductsFragment';
 import { PendingTxPreviewFragment } from './fragments/wallet/PendingTxPreviewFragment';
 import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
+import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
+import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
 import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
 

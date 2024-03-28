@@ -20,6 +20,7 @@ import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomai
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { useFocusEffect } from "@react-navigation/native";
+import { QueryParamsState } from "../../components/webview/utils/extractWebViewQueryAPIParams";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
 
@@ -37,10 +38,11 @@ export type DAppWebViewFragmentParams = {
     useToaster?: boolean;
     refId?: string;
     engine?: DAppEngine;
+    defaultQueryParamsState?: QueryParamsState;
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine } = useParams<DAppWebViewFragmentParams>();
+    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState } = useParams<DAppWebViewFragmentParams>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
@@ -198,7 +200,7 @@ export const DAppWebViewFragment = fragment(() => {
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {!!header && (
                 <ScreenHeader
-                    style={{ paddingTop: 32, paddingHorizontal: 16 }}
+                    style={{ paddingTop: 32 }}
                     onBackPressed={header.onBack}
                     onClosePressed={headerOnClose}
                     title={header.title}
@@ -213,7 +215,8 @@ export const DAppWebViewFragment = fragment(() => {
                 defaultQueryParamsState={{
                     backPolicy: 'back',
                     showKeyboardAccessoryView: false,
-                    lockScroll: true
+                    lockScroll: true,
+                    ...defaultQueryParamsState
                 }}
             />
         </View>

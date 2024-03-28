@@ -12,11 +12,13 @@ export const StakingPendingComponent = memo((
     {
         member,
         target,
-        style
+        style,
+        isLedger
     }: {
         member?: StakingPoolMember | null,
         target: Address,
-        style?: StyleProp<ViewStyle>
+        style?: StyleProp<ViewStyle>,
+        isLedger?: boolean
     }
 ) => {
     const theme = useTheme();
@@ -35,7 +37,7 @@ export const StakingPendingComponent = memo((
 
     return (
         <View style={[{
-            backgroundColor: theme.border,
+            backgroundColor: theme.surfaceOnBg,
             borderRadius: 20,
             justifyContent: 'center',
             alignItems: 'center',
@@ -100,7 +102,6 @@ export const StakingPendingComponent = memo((
                         marginBottom: 20
                     }}>
                         <View>
-
                             <Text style={{
                                 fontSize: 17,
                                 fontWeight: '600',
@@ -150,14 +151,34 @@ export const StakingPendingComponent = memo((
                     )}
                     <Pressable
                         style={{ width: '100%', marginBottom: 20 }}
-                        onPress={() => navigation.navigateStaking({
-                            target: target,
-                            amount: member.withdraw,
-                            lockAmount: true,
-                            lockAddress: true,
-                            lockComment: true,
-                            action: 'withdraw_ready' as TransferAction,
-                        })}
+                        onPress={() => {
+                            if (isLedger) {
+                                navigation.navigateStakingTransfer(
+                                    {
+                                        target: target,
+                                        amount: member.withdraw,
+                                        lockAmount: true,
+                                        lockAddress: true,
+                                        lockComment: true,
+                                        action: 'withdraw_ready' as TransferAction,
+                                    },
+                                    isLedger
+                                );
+                                return;
+                            }
+
+                            navigation.navigateStakingTransfer(
+                                {
+                                    target: target,
+                                    amount: member.withdraw,
+                                    lockAmount: true,
+                                    lockAddress: true,
+                                    lockComment: true,
+                                    action: 'withdraw_ready' as TransferAction,
+                                },
+                                isLedger
+                            );
+                        }}
                     >
                         <View style={{
                             flexDirection: 'row', width: '100%',

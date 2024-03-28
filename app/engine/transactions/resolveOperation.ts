@@ -4,6 +4,7 @@ import { parseMessageBody } from "./parseMessageBody";
 import { parseBody } from './parseWalletTransaction';
 import { LocalizedResources } from "../../i18n/schema";
 import { StoredOperation, StoredOperationItem, TxBody } from '../types';
+import { getLiquidStakingAddress } from "../../utils/KnownPools";
 
 export function resolveOperation(args: {
     account: Address,
@@ -34,6 +35,10 @@ export function resolveOperation(args: {
             let f = formatSupportedBody(parsedBody);
             if (f) {
                 op = f;
+                const isLiquid = getLiquidStakingAddress(isTestnet).equals(address);
+                if (op.res === 'known.withdraw' && isLiquid) {
+                    op = { res: 'known.withdrawLiquid' };
+                }
             }
 
             if (parsedBody.type === 'jetton::transfer') {

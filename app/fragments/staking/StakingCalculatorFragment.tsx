@@ -13,11 +13,13 @@ import { useRoute } from "@react-navigation/native";
 import { formatCurrency, formatInputAmount } from "../../utils/formatCurrency";
 import { ValueComponent } from "../../components/ValueComponent";
 import { TransferAction } from "./StakingTransferFragment";
-import { useNetwork, usePrice, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useLiquidStakingMember, useNetwork, usePrice, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { Address, fromNano, toNano } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
 import { StatusBar } from "expo-status-bar";
+import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
+import { getLiquidStakingAddress } from "../../utils/KnownPools";
 
 export const StakingCalculatorFragment = fragment(() => {
     const theme = useTheme();
@@ -30,7 +32,9 @@ export const StakingCalculatorFragment = fragment(() => {
     const route = useRoute();
     const network = useNetwork();
     const selected = useSelectedAccount();
+    const liquidStaking = useLiquidStaking().data;
 
+    const isLiquid = params.target.equals(getLiquidStakingAddress(network.isTestnet));
     const isLedger = route.name === 'LedgerStakingCalculator';
 
     const ledgerAddress = useMemo(() => {
@@ -40,24 +44,33 @@ export const StakingCalculatorFragment = fragment(() => {
         } catch { }
     }, [ledgerContext?.addr?.address]);
 
-    const config = useStakingWalletConfig(
-        isLedger
-            ? ledgerAddress!.toString({ testOnly: network.isTestnet })
-            : selected!.address.toString({ testOnly: network.isTestnet })
-    );
+    const account = isLedger ? ledgerAddress : selected?.address;
+
+    const nominator = useLiquidStakingMember(account)?.data;
+
+    const balance = useMemo(() => {
+        if (!isLiquid) {
+            return pool?.member?.balance ?? 0n;
+        }
+        const bal = fromNano(nominator?.balance || 0n);
+        const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
+        return toNano((parseFloat(bal) * parseFloat(rate)).toFixed(9));
+    }, [nominator?.balance, liquidStaking?.rateWithdraw, isLiquid]);
+
+    const config = useStakingWalletConfig(account!.toString({ testOnly: network.isTestnet }));
 
     const available = useMemo(() => {
-        if (network.isTestnet) {
+        if (network.isTestnet || isLiquid) {
             return true;
         }
         return !!config?.pools.find((v2) => {
             return Address.parse(v2).equals(params.target)
         })
-    }, [config, params.target, network]);
+    }, [config, params.target, network, isLiquid]);
 
     const pool = useStakingPool(params.target, ledgerAddress);
 
-    const [amount, setAmount] = useState(pool?.member?.balance ? fromNano(pool.member.balance) : '');
+    const [amount, setAmount] = useState(balance ? fromNano(balance) : '');
 
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
@@ -89,26 +102,36 @@ export const StakingCalculatorFragment = fragment(() => {
     }, [amount, price, currency, validAmount]);
 
     const transferAmount = useMemo(() => {
-        if (!pool?.params) {
-            return validAmount ?? 0n;
+        let poolParams = {
+            minStake: pool?.params.minStake ?? 0n,
+            receiptPrice: pool?.params.receiptPrice ?? 0n,
+            depositFee: pool?.params.depositFee ?? 0n,
+        };
+
+        if (isLiquid) {
+            poolParams = {
+                minStake: liquidStaking?.extras.minStake ?? 0n,
+                receiptPrice: liquidStaking?.extras.receiptPrice ?? 0n,
+                depositFee: liquidStaking?.extras.depositFee ?? 0n,
+            };
         }
 
         let value = 0n;
 
         if (!validAmount) {
-            value += pool.params.minStake;
-        } else if (validAmount < pool.params.minStake) {
-            value += pool.params.minStake;
+            value += poolParams.minStake;
+        } else if (validAmount < poolParams.minStake) {
+            value += poolParams.minStake;
         } else {
             value += validAmount;
         }
 
-        value += pool.params.receiptPrice;
-        value += pool.params.depositFee;
+        value += poolParams.receiptPrice;
+        value += poolParams.depositFee;
 
         return value;
 
-    }, [validAmount, pool?.params]);
+    }, [validAmount, pool?.params, liquidStaking?.extras]);
 
     return (
         <>
@@ -153,7 +176,7 @@ export const StakingCalculatorFragment = fragment(() => {
                                 {`${t('common.balance')}: `}
                                 <ValueComponent
                                     precision={4}
-                                    value={pool?.member?.balance || 0n}
+                                    value={balance}
                                     centFontStyle={{ opacity: 0.5 }}
                                 />
                             </Text>
@@ -188,10 +211,10 @@ export const StakingCalculatorFragment = fragment(() => {
                             prefix={'TON'}
                         />
                     </View>
-                    {!!pool && validAmount !== null && (
+                    {(isLiquid ? !!liquidStaking : !!pool) && (validAmount !== null) && (
                         <StakingCalcComponent
                             amount={validAmount}
-                            pool={pool}
+                            fee={isLiquid ? toNano(fromNano(liquidStaking!.extras.poolFee)) : pool!.params.poolFee}
                         />
                     )}
                 </View>
@@ -208,6 +231,19 @@ export const StakingCalculatorFragment = fragment(() => {
                     title={t('products.staking.calc.goToTopUp')}
                     disabled={!available}
                     onPress={() => {
+                        if (isLiquid) {
+                            navigation.replace(
+                                isLedger ? 'LedgerLiquidStakingTransfer' : 'LiquidStakingTransfer',
+                                {
+                                    target: params.target,
+                                    amount: transferAmount,
+                                    lockAddress: true,
+                                    lockComment: true,
+                                    action: 'top_up' as TransferAction,
+                                }
+                            )
+                            return;
+                        }
                         navigation.replace(
                             isLedger ? 'LedgerStakingTransfer' : 'StakingTransfer',
                             {

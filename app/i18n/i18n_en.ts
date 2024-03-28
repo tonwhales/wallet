@@ -338,6 +338,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 lockupsDescription: 'Allows holders of big lockups in TON to earn additional income',
                 tonkeeper: 'Tonkeeper',
                 tonkeeperDescription: 'Friendly mobile wallet on TON',
+                liquid: 'Liquid Staking',
+                liquidDescription: 'Send TON to staking and get wsTON tokens instead',
+                rateTitle: 'Exchange rate'
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
@@ -366,6 +369,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 top_up: 'Top Up',
                 withdraw: 'Withdraw',
                 calc: 'Calculate',
+                swap: 'Swap instantly'
             },
             join: {
                 title: 'Become a TON validator',
@@ -405,6 +409,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             unstake: {
                 title: 'Are you sure want to request withdrawal?',
                 message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
+            },
+            unstakeLiquid: {
+                title: 'Wihdraw your wsTON',
+                message: 'You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on ',
             },
             learnMore: 'Info',
             moreInfo: 'More info',
@@ -676,6 +684,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         depositOk: 'Deposit accepted',
         withdraw: 'Withdrawal request of {{coins}} TON',
         withdrawAll: 'Request withdraw of all coins',
+        withdrawLiquid: 'Withdraw',
         withdrawCompleted: 'Withdraw completed',
         withdrawRequested: 'Withdraw requested',
         upgrade: 'Upgrade code to {{hash}}',

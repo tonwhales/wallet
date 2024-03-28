@@ -8,12 +8,15 @@ export const Queries = {
         StakingPool: () => ({
             Status: () => ['account', address, 'staking', 'status'],
             Params: () => ['account', address, 'staking', 'params'],
-            Member: (member: string) => ['account', address, 'staking', 'member', member],
         }),
     }),
     Job: (address: string) => (['job', address]),
 
     StakingChart: (pool: string, fixedPeriod: 'week' | 'month' | 'year' | 'allTime', member: string) => ['staking', 'chart', pool, fixedPeriod, member, 'askdjsd'],
+    StakingMember: (pool: string, member: string) => ['staking', 'member', pool, member],
+    StakingStatus: (seqno: string) => ['staking', 'status', seqno],
+    StakingLiquid: (pool: string) => ['staking', 'liquid', pool],
+    StakingLiquidMember: (pool: string, member: string) => ['staking', 'liquid', pool, member],
 
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({

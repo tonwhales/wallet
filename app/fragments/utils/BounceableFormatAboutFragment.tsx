@@ -75,7 +75,7 @@ export const BounceableFormatAboutFragment = fragment(() => {
                             {`\n\n${t('newAddressFormat.title_3')}\n\n`}
                         </Text>
                         {t('newAddressFormat.description_3')}
-                        {`\n\n${t('newAddressFormat.description_4')}:\n`}
+                        {`\n\n${t('newAddressFormat.description_4')}: `}
                         <Text
                             style={{ color: theme.accent, textDecorationLine: 'underline' }}
                             onPress={() => openWithInApp('https://github.com/ton-blockchain/TEPs/pull/123')}

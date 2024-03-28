@@ -3,7 +3,6 @@ import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
-import { WalletAddress } from "../../components/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingCycle } from "../../components/staking/StakingCycle";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -24,6 +23,7 @@ import { BackButton } from "../../components/navigation/BackButton";
 import { LiquidStakingMember } from "../../components/staking/LiquidStakingBalance";
 import { TransferAction } from "./StakingTransferFragment";
 import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
+import { WalletAddress } from "../../components/address/WalletAddress";
 
 export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
@@ -90,8 +90,8 @@ export const LiquidStakingFragment = fragment(() => {
 
     const onTopUp = useCallback(() => {
         navigation.navigateLiquidStakingTransfer(
-            { amount: transferAmount, action: 'top_up' as TransferAction },
-            isLedger
+            { amount: transferAmount.toString(), action: 'top_up' as TransferAction },
+            { ledger: isLedger }
         );
     }, [transferAmount, isLedger]);
 
@@ -344,7 +344,7 @@ export const LiquidStakingFragment = fragment(() => {
                             </View>
                             <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                                 <Pressable
-                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPool })}
+                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPoolFriendly })}
                                     style={({ pressed }) => ({
                                         opacity: pressed ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,

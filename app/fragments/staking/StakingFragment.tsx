@@ -16,7 +16,7 @@ import { KnownPools } from "../../utils/KnownPools";
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingActive, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -25,11 +25,16 @@ import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
 import { StakingPoolHeader } from "../../components/staking/StakingPoolHeader";
 import { Typography } from "../../components/styles";
 
+export type StakingFragmentParams = {
+    backToHome?: boolean;
+    pool: string;
+};
+
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const initParams = useParams<{ backToHome?: boolean, pool: string }>();
+    const initParams = useParams<StakingFragmentParams>();
     const [params, setParams] = useState(initParams);
     const navigation = useTypedNavigation();
     const route = useRoute();
@@ -93,27 +98,27 @@ export const StakingFragment = fragment(() => {
     const onTopUp = useCallback(() => {
         navigation.navigateStakingTransfer(
             {
-                target: targetPool,
-                amount: transferAmount,
+                target: targetPool.toString({ testOnly: network.isTestnet }),
+                amount: transferAmount.toString(),
                 lockAddress: true,
                 lockComment: true,
                 action: 'top_up' as TransferAction,
-            }, 
-            isLedger
+            },
+            { ledger: isLedger }
         );
-    }, [targetPool, transferAmount, isLedger]);
+    }, [targetPool, transferAmount, isLedger, network]);
 
     const onUnstake = useCallback(() => {
         navigation.navigateStakingTransfer(
             {
-                target: targetPool,
+                target: targetPool.toString({ testOnly: network.isTestnet }),
                 lockAddress: true,
                 lockComment: true,
                 action: 'withdraw' as TransferAction,
             },
-            isLedger
+            { ledger: isLedger }
         );
-    }, [targetPool, isLedger]);
+    }, [targetPool, isLedger, network]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
@@ -311,7 +316,7 @@ export const StakingFragment = fragment(() => {
                             </View>
                             <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                                 <Pressable
-                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPool })}
+                                    onPress={() => navigation.navigateStakingCalculator({ target: params.pool })}
                                     style={({ pressed }) => ({
                                         opacity: pressed ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,
@@ -359,6 +364,7 @@ export const StakingFragment = fragment(() => {
                             />
                         )}
                         <StakingPendingComponent
+                            isTestnet={network.isTestnet}
                             target={targetPool}
                             member={member}
                             isLedger={isLedger}

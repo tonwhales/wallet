@@ -23,7 +23,7 @@ import { getLiquidStakingAddress } from "../../utils/KnownPools";
 
 export const StakingCalculatorFragment = fragment(() => {
     const theme = useTheme();
-    const params = useParams<{ target: Address }>();
+    const params = useParams<{ target: string }>();
     const navigation = useTypedNavigation();
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();
@@ -34,7 +34,8 @@ export const StakingCalculatorFragment = fragment(() => {
     const selected = useSelectedAccount();
     const liquidStaking = useLiquidStaking().data;
 
-    const isLiquid = params.target.equals(getLiquidStakingAddress(network.isTestnet));
+    const target = Address.parse(params.target);
+    const isLiquid = target.equals(getLiquidStakingAddress(network.isTestnet));
     const isLedger = route.name === 'LedgerStakingCalculator';
 
     const ledgerAddress = useMemo(() => {
@@ -64,11 +65,11 @@ export const StakingCalculatorFragment = fragment(() => {
             return true;
         }
         return !!config?.pools.find((v2) => {
-            return Address.parse(v2).equals(params.target)
+            return Address.parse(v2).equals(target)
         })
-    }, [config, params.target, network, isLiquid]);
+    }, [config, target, network, isLiquid]);
 
-    const pool = useStakingPool(params.target, ledgerAddress);
+    const pool = useStakingPool(target, ledgerAddress);
 
     const [amount, setAmount] = useState(balance ? fromNano(balance) : '');
 
@@ -213,7 +214,7 @@ export const StakingCalculatorFragment = fragment(() => {
                     </View>
                     {(isLiquid ? !!liquidStaking : !!pool) && (validAmount !== null) && (
                         <StakingCalcComponent
-                            poolAddressString={params.target.toString({ testOnly: network.isTestnet })}
+                            poolAddressString={target.toString({ testOnly: network.isTestnet })}
                             amount={validAmount}
                             fee={isLiquid ? toNano(fromNano(liquidStaking!.extras.poolFee)) : pool!.params.poolFee}
                         />
@@ -233,28 +234,34 @@ export const StakingCalculatorFragment = fragment(() => {
                     disabled={!available}
                     onPress={() => {
                         if (isLiquid) {
-                            navigation.replace(
-                                isLedger ? 'LedgerLiquidStakingTransfer' : 'LiquidStakingTransfer',
+                            navigation.navigateLiquidStakingTransfer(
                                 {
-                                    target: params.target,
-                                    amount: transferAmount,
+                                    amount: transferAmount.toString(),
                                     lockAddress: true,
                                     lockComment: true,
                                     action: 'top_up' as TransferAction,
+                                },
+                                {
+                                    ledger: isLedger,
+                                    replace: true
                                 }
-                            )
+                            );
                             return;
                         }
-                        navigation.replace(
-                            isLedger ? 'LedgerStakingTransfer' : 'StakingTransfer',
+
+                        navigation.navigateStakingTransfer(
                             {
-                                target: params.target,
-                                amount: transferAmount,
+                                target: target.toString({ testOnly: network.isTestnet }),
+                                amount: transferAmount.toString(),
                                 lockAddress: true,
                                 lockComment: true,
                                 action: 'top_up' as TransferAction,
+                            },
+                            {
+                                ledger: isLedger,
+                                replace: true
                             }
-                        )
+                        );
                     }}
                 />
             </KeyboardAvoidingView>

@@ -98,7 +98,10 @@ export const StakingPool = memo((props: {
                     restrictedAlert(navigation, poolAddressString);
                     return;
                 }
-                navigation.navigate(props.isLedger ? 'LedgerStaking' : 'Staking', { backToHome: false, pool: poolAddressString })
+                navigation.navigateStakingPool(
+                    { pool: poolAddressString, backToHome: false },
+                    { ledger: props.isLedger }
+                );
             }}
             style={({ pressed }) => [{
                 flex: 1,

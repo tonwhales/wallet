@@ -88,11 +88,10 @@ export const LiquidWithdrawActionFragment = fragment(() => {
                     title={t('products.staking.actions.withdraw')}
                     display={'secondary'}
                     onPress={() => {
-                        if (isLedger) {
-                            navigation.replace('LedgerLiquidStakingTransfer', { action: 'withdraw' });
-                            return;
-                        }
-                        navigation.replace('LiquidStakingTransfer', { action: 'withdraw' });
+                        navigation.navigateLiquidStakingTransfer(
+                            { action: 'withdraw' },
+                            { ledger: isLedger, replace: true }
+                        );
                     }}
                 />
             </View>

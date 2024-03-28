@@ -87,6 +87,8 @@ import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
 import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
 import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
+import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
+import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';

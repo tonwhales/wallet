@@ -15,7 +15,6 @@ export const LiquidWithdrawActionFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const route = useRoute();
-    const isLedger = route.name === 'LedgerLiquidWithdrawAction';
 
     return (
         <View style={{
@@ -79,7 +78,10 @@ export const LiquidWithdrawActionFragment = fragment(() => {
                                 onClose: navigation.goBack
                             },
                             engine: 'ton-connect',
-                            useStatusBar: true
+                            useStatusBar: true,
+                            defaultQueryParamsState: {
+                                lockScroll: false
+                            }
                         });
                     }}
                 />
@@ -88,10 +90,7 @@ export const LiquidWithdrawActionFragment = fragment(() => {
                     title={t('products.staking.actions.withdraw')}
                     display={'secondary'}
                     onPress={() => {
-                        navigation.navigateLiquidStakingTransfer(
-                            { action: 'withdraw' },
-                            { ledger: isLedger, replace: true }
-                        );
+                        navigation.replace('LiquidStakingTransfer', { action: 'withdraw' });
                     }}
                 />
             </View>

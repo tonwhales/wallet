@@ -2,14 +2,14 @@ import React, { ReactElement, useCallback, useMemo } from "react";
 import { View, ScrollView, ActivityIndicator, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { KnownPools } from "../../utils/KnownPools";
+import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { TopBar } from "../../components/topbar/TopBar";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { StakingPoolsHeader } from "./components/StakingPoolsHeader";
-import { StakingPool } from "./components/StakingPool";
+import { StakingPoolsHeader } from "../../components/staking/StakingPoolsHeader";
+import { StakingPool } from "../../components/staking/StakingPool";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { Address } from "@ton/core";
 import { useClient4, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
@@ -17,8 +17,9 @@ import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { LiquidStakingPool } from "../../components/staking/LiquidStakingPool";
 
-export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
+export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper' | 'liquid';
 
 export function filterPools(pools: StakingPoolMember[], type: StakingPoolType, processed: Set<string>, isTestnet: boolean) {
     return pools.filter((v) => KnownPools(isTestnet)[v.pool].name.toLowerCase().includes(type) && !processed.has(v.pool));
@@ -40,29 +41,20 @@ export const StakingPoolsFragment = fragment(() => {
 
     const ledgerAddress = useMemo(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;
-        try {
-            return Address.parse(ledgerContext?.addr?.address);
-        } catch { }
+        try { return Address.parse(ledgerContext?.addr?.address); } catch { }
     }, [ledgerContext?.addr?.address]);
+    const memberAddress = isLedger ? ledgerAddress : selected?.address;
 
-    const config = useStakingWalletConfig(
-        isLedger
-            ? ledgerAddress!.toString({ testOnly: network.isTestnet })
-            : selected!.address.toString({ testOnly: network.isTestnet })
-    );
-
-    const pools = Object.keys(KnownPools(isTestnet)).map((v) => Address.parse(v));
-
-    const memberData = useStakingPoolMembers(
+    const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: network.isTestnet }));
+    const members = useStakingPoolMembers(
         client,
         isTestnet,
-        pools.map((p) => ({
-            pool: p,
-            member: isLedger
-                ? ledgerAddress!
-                : selected!.address
-        })),
-    ).filter((v) => !!v) as (StakingPoolMember)[];
+        Object.keys(KnownPools(isTestnet)).map((v) => Address.parse(v)).map((p) => ({ pool: p, member: memberAddress! })),
+    );
+
+    const memberData = useMemo(() => {
+        return members.filter((v) => !!v) as StakingPoolMember[];
+    }, [members]);
 
     const poolsWithStake = useMemo(() => {
         return memberData.filter(
@@ -110,9 +102,10 @@ export const StakingPoolsFragment = fragment(() => {
             active.push(
                 <StakingPool
                     key={`active-${p.pool}`}
-                    address={Address.parse(p.pool)}
+                    pool={Address.parse(p.pool)}
                     isLedger={isLedger}
                     balance={p.balance + p.pendingDeposit + p.pendingWithdraw + p.withdraw}
+                    member={memberAddress!}
                 />
             );
             processed.add(p.pool);
@@ -142,9 +135,10 @@ export const StakingPoolsFragment = fragment(() => {
         rec.push(
             <StakingPool
                 key={`best-${recommended}`}
-                address={Address.parse(recommended.pool)}
+                pool={Address.parse(recommended.pool)}
                 isLedger={isLedger}
                 balance={recommended.balance}
+                member={memberAddress!}
             />
         );
         items.push(
@@ -163,6 +157,22 @@ export const StakingPoolsFragment = fragment(() => {
         )
     }
 
+    // Liquid staking
+    const liquidAddress = getLiquidStakingAddress(isTestnet);
+    processed.add(liquidAddress.toString({ testOnly: isTestnet }));
+
+    items.push(
+        <View
+            key={'liquid-staking'}
+            style={poolViewStyle}
+        >
+            <LiquidStakingPool
+                isLedger={isLedger}
+                member={memberAddress!}
+            />
+        </View>
+    );
+
     let club = filterPools(memberData, 'club', processed, network.isTestnet);
     let team = filterPools(memberData, 'team', processed, network.isTestnet);
     let nominators = filterPools(memberData, 'nominators', processed, network.isTestnet);
@@ -177,9 +187,10 @@ export const StakingPoolsFragment = fragment(() => {
             epnItems.push(
                 <StakingPool
                     key={`epn-${memberData.pool}`}
-                    address={Address.parse(memberData.pool)}
+                    pool={Address.parse(memberData.pool)}
                     balance={memberData.balance}
                     isLedger={isLedger}
+                    member={memberAddress!}
                 />
             );
         }
@@ -211,9 +222,10 @@ export const StakingPoolsFragment = fragment(() => {
             nominatorsItems.push(
                 <StakingPool
                     key={`nominators-${memberData.pool}`}
-                    address={Address.parse(memberData.pool)}
+                    pool={Address.parse(memberData.pool)}
                     balance={memberData.balance}
                     isLedger={isLedger}
+                    member={memberAddress!}
                 />
             );
         }
@@ -240,9 +252,10 @@ export const StakingPoolsFragment = fragment(() => {
             clubItems.push(
                 <StakingPool
                     key={`club-${memberData.pool}`}
-                    address={Address.parse(memberData.pool)}
+                    pool={Address.parse(memberData.pool)}
                     balance={memberData.balance}
                     isLedger={isLedger}
+                    member={memberAddress!}
                 />
             );
         }
@@ -274,9 +287,10 @@ export const StakingPoolsFragment = fragment(() => {
             lockupsItems.push(
                 <StakingPool
                     key={`lockup-${memberData.pool}`}
-                    address={Address.parse(memberData.pool)}
+                    pool={Address.parse(memberData.pool)}
                     balance={memberData.balance}
                     isLedger={isLedger}
+                    member={memberAddress!}
                 />
             );
         }
@@ -303,9 +317,10 @@ export const StakingPoolsFragment = fragment(() => {
             teamItems.push(
                 <StakingPool
                     key={`team-${memberData.pool}`}
-                    address={Address.parse(memberData.pool)}
+                    pool={Address.parse(memberData.pool)}
                     balance={memberData.balance}
                     isLedger={isLedger}
+                    member={memberAddress!}
                 />
             );
         }
@@ -336,9 +351,10 @@ export const StakingPoolsFragment = fragment(() => {
             keeperItems.push(
                 <StakingPool
                     key={`tonkeeper-${memberData.pool}`}
-                    address={Address.parse(memberData.pool)}
+                    pool={Address.parse(memberData.pool)}
                     balance={memberData.balance}
                     isLedger={isLedger}
+                    member={memberAddress!}
                 />
             );
         }

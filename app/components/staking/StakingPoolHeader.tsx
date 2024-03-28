@@ -1,15 +1,15 @@
 import { Dispatch, SetStateAction, memo, useCallback } from "react";
-import { ScreenHeader } from "../../../components/ScreenHeader";
+import { ScreenHeader } from "../ScreenHeader";
 import { Pressable, Image, Text, View } from "react-native";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { KnownPools } from "../../../utils/KnownPools";
-import { useNetwork, useStakingActive, useTheme } from "../../../engine/hooks";
-import { openWithInApp } from "../../../utils/openWithInApp";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { KnownPools } from "../../utils/KnownPools";
+import { useNetwork, useStakingActive, useTheme } from "../../engine/hooks";
+import { openWithInApp } from "../../utils/openWithInApp";
 import { Address } from "@ton/core";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform } from "react-native";
-import { BackButton } from "../../../components/navigation/BackButton";
-import { Typography } from "../../../components/styles";
+import { BackButton } from "../navigation/BackButton";
+import { Typography } from "../styles";
 
 export const StakingPoolHeader = memo(({
     isLedger,

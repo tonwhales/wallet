@@ -30,7 +30,7 @@ function fetchStakingMemberQueryFn(client: TonClient4, isTestnet: boolean, pool:
 
 export function stakingPoolMemberQuery(pool: Address, member: Address | undefined, client: TonClient4, isTestnet: boolean) {
     return {
-        queryKey: Queries.Account(pool.toString({ testOnly: isTestnet })).StakingPool().Member(member?.toString({ testOnly: isTestnet }) || 'default-null'),
+        queryKey: Queries.StakingMember(pool.toString({ testOnly: isTestnet }), member?.toString({ testOnly: isTestnet }) || 'default-null'),
         queryFn: fetchStakingMemberQueryFn(client, isTestnet, pool, member),
         refetchOnMount: true,
     };

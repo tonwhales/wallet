@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { t } from "../../i18n/t";
-import { LedgerStakingProductComponent } from "./LedgerStakingProductComponent";
 import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
 import { useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
@@ -12,6 +11,7 @@ import { PriceComponent } from '../PriceComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import Animated from 'react-native-reanimated';
+import { StakingProductComponent } from "./StakingProductComponent";
 
 export const LedgerProductsComponent = React.memo(({ account }: { account: AccountLite }) => {
     const theme = useTheme();
@@ -82,11 +82,11 @@ export const LedgerProductsComponent = React.memo(({ account }: { account: Accou
                     </View>
                     <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                            <ValueComponent value={account.balance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
+                            <ValueComponent value={account?.balance ?? 0n} precision={2} centFontStyle={{ color: theme.textSecondary }} />
                             <Text style={{ color: theme.textSecondary, fontSize: 15 }}>{' TON'}</Text>
                         </Text>
                         <PriceComponent
-                            amount={account.balance}
+                            amount={account?.balance ?? 0n}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0, paddingVertical: 0,
@@ -100,35 +100,35 @@ export const LedgerProductsComponent = React.memo(({ account }: { account: Accou
                 </Animated.View>
             </Pressable>
         )
-    }, [theme, account.balance, onPressIn, onPressOut, animatedStyle, onTonPress]);
+    }, [theme, account?.balance, onPressIn, onPressOut, animatedStyle, onTonPress]);
 
     return (
-        <View>
+        <View style={{
+            backgroundColor: theme.backgroundPrimary,
+        }}>
             <View style={{
-                backgroundColor: theme.backgroundPrimary,
+                flexDirection: 'row',
+                justifyContent: 'space-between', alignItems: 'center',
+                marginTop: 16,
+                paddingVertical: 12,
+                paddingHorizontal: 16
             }}>
-                <View style={{ paddingHorizontal: 16 }}>
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between', alignItems: 'center',
-                        marginTop: 16,
-                        paddingVertical: 12,
-                    }}>
-                        <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                            {t('common.products')}
-                        </Text>
-                    </View>
-                    {tonItem}
+                <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                    {t('common.products')}
+                </Text>
+            </View>
 
-                    <View style={{ marginTop: 4 }}>
-                        <LedgerStakingProductComponent key={'pool'} />
-                    </View>
+            <View style={{ paddingHorizontal: 16 }}>
+                {tonItem}
+            </View>
 
-                    <View style={{ marginTop: 16 }}>
-                        <LedgerJettonsProductComponent key={'jettons'} />
-                    </View>
-                </View>
+            <View style={{ marginTop: 4 }}>
+                <StakingProductComponent isLedger key={'pool'} />
+            </View>
+
+            <View style={{ marginTop: 16, paddingHorizontal: 16 }}>
+                <LedgerJettonsProductComponent key={'jettons'} />
             </View>
         </View>
-    )
-})
+    );
+});

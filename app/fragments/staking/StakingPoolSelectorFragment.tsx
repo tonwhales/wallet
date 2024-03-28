@@ -9,7 +9,7 @@ import { WImage } from "../../components/WImage";
 import { useParams } from "../../utils/useParams";
 import { useRoute } from "@react-navigation/native";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useClient4, useNetwork, usePoolApy, useSelectedAccount, useStakingPool, useStakingPoolMembers, useTheme } from "../../engine/hooks";
+import { useClient4, useNetwork, useSelectedAccount, useStakingApy, useStakingPool, useStakingPoolMembers, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { ScreenHeader } from "../../components/ScreenHeader";

@@ -47,10 +47,7 @@ export const NewAddressFormatFragment = fragment(() => {
     }, [setBounceableFormat, onFormatSwitch]);
 
     const onLearnMore = useCallback(() => {
-        navigation.navigateAlert({
-            title: t('newAddressFormat.learnMore'),
-            message: `${t('newAddressFormat.description_0')}\n\n${t('newAddressFormat.description_1')}`,
-        });
+        navigation.navigate('BounceableFormatAbout');
     }, []);
 
     return (

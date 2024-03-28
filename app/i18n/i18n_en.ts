@@ -242,12 +242,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
             },
             description: 'Applications or extensions you have authorized will be displayed here. You can revoke access from any app or extension at any time.',
-            installExtension: 'Install and open extension for this application'
+            installExtension: 'Install and open extension for this application',
+            moreWallets: 'More wallets ({{count}})',
+            connectionSecureDescription: 'No funds would be transfered to the app and no access to your coins would be granted'
         },
         consent: 'By clicking continue you accepting our',
     },
     install: {
-        title: 'Install Extension',
+        title: 'Connection request',
         message: '<strong>{{name}}</strong> wants to connect to your account',
         action: 'Install'
     },
@@ -965,6 +967,27 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         avatar: 'This is where you can change your wallets avatar and name',
         wallet: 'This is where you can add new or switch between your wallets',
         price: 'This is where you can change your primary currency',
+    },
+    newAddressFormat: {
+        title: 'Address format',
+        fragmentTitle: 'New addresses type',
+        learnMore: 'More about new addresses',
+        shortDescription: 'The address update will make the TON blockchain even more secure and stable. All assets sent to your old address will continue flowing to your wallet.',
+        description_0_0: 'Recently, TON ',
+        description_0_link: 'announced this update',
+        description_0_1: ' to addresses and asked all wallets to support it.',
+        title_1: 'Why?',
+        description_1: 'The update allows developers to distinguish between wallet and contract addresses and avoid errors when sending transactions.',
+        title_2: 'What do you need to do?',
+        description_2: 'Click the button on the previous screen and authorize us to display all addresses in the app in the new format. You will be able to revert back to the old format in your settings.',
+        title_3: 'What happens to the old address?',
+        description_3: 'All TONs, tokens, NFTs and other assets sent to your old address will continue to flow to your wallet.',
+        description_4: 'Technical details of the upgrade can be found at',
+        action: 'Use {{format}}',
+        oldAddress: 'Old address',
+        newAddress: 'New address',
+        bannerTitle: 'Update your address',
+        bannerDescription: 'From EQ to UQ',
     }
 };
 

@@ -10,7 +10,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/hooks/dapps/useRemoveExtension";
-import { useTonConnectExtensions } from "../../../engine/hooks/dapps/useTonConnectExtenstions";
+import { useConnectExtensions } from "../../../engine/hooks/dapps/useTonConnectExtenstions";
 import { useRemoveConnectApp } from "../../../engine/hooks/dapps/useRemoveConnectApp";
 import { getDomainKey } from "../../../engine/state/domainKeys";
 
@@ -27,7 +27,7 @@ export const DappButton = memo(({
     }
 ) => {
     const navigation = useTypedNavigation();
-    const [inastalledConnectApps,] = useTonConnectExtensions();
+    const [inastalledConnectApps,] = useConnectExtensions();
     const manifestUrl = useMemo(() => {
         return inastalledConnectApps?.[appKey]?.manifestUrl;
     }, [inastalledConnectApps, appKey]);

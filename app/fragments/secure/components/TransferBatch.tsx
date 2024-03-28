@@ -20,7 +20,7 @@ import { WImage } from "../../../components/WImage";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { useAppData, useAppManifest, useClient4, useCommitCommand, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
+import { useAppData, useAppManifest, useClient4, useCommitCommand, useNetwork, useBounceableWalletFormat, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../../engine/getters/getJettonMaster";
 import { Address, Cell, MessageRelaxed, SendMode, beginCell, external, fromNano, storeMessage, internal, toNano, loadStateInit, comment } from "@ton/core";
@@ -79,9 +79,11 @@ export const TransferBatch = memo((props: Props) => {
     const registerPending = useRegisterPending();
     const [walletSettings,] = useWalletSettings(selected?.address);
     const [addressBook,] = useAddressBook();
+    const [bounceableFormat,] = useBounceableWalletFormat();
     const contacts = addressBook.contacts;
     const denyList = addressBook.denyList;
     const serverConfig = useServerConfig();
+    const knownWallets = KnownWallets(isTestnet);
 
     const appData = useAppData(props.order.app?.url || '');
     const appManifest = useAppManifest(props.order.app?.url || '');
@@ -585,7 +587,12 @@ export const TransferBatch = memo((props: Props) => {
                             </Text>
                             <View style={{ flexDirection: 'row' }}>
                                 <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
-                                    <AddressComponent address={selected!.address} end={4} />
+                                    <AddressComponent
+                                        address={selected!.address}
+                                        bounceable={bounceableFormat}
+                                        end={4}
+                                        testOnly={isTestnet}
+                                    />
                                 </Text>
                                 {walletSettings?.name && (
                                     <Text
@@ -729,6 +736,7 @@ export const TransferBatch = memo((props: Props) => {
                     </ItemCollapsible>
 
                     {internals.map((i, index) => {
+                        const known = knownWallets[i.message.addr.address.toString({ testOnly: isTestnet })];
                         return (
                             <ItemCollapsible
                                 key={`internal-${index}`}
@@ -781,7 +789,14 @@ export const TransferBatch = memo((props: Props) => {
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
                                         <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                            <AddressComponent address={Address.parse(i.operation.address)} start={10} end={4} />
+                                            <AddressComponent
+                                                bounceable={i.message.addr.bounceable}
+                                                address={i.message.addr.address}
+                                                start={10}
+                                                end={4}
+                                                testOnly={isTestnet}
+                                                known={!!known}
+                                            />
                                         </Text>
                                         {i.known && (
                                             <View style={{ flexDirection: 'row' }}>

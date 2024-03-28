@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from "react";
-import { useAppManifest, useConnectAppByClientSessionId, useConnectCallback, useNetwork, usePrepareConnectRequest, useTheme, useTonConnectExtensions } from "../../../engine/hooks";
+import { useAppManifest, useConnectAppByClientSessionId, useConnectCallback, usePrepareConnectRequest } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { t } from "../../../i18n/t";
 import { extractDomain } from "../../../engine/utils/extractDomain";

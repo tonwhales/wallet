@@ -27,6 +27,7 @@ import { tonConnectDeviceInfo } from '../../../engine/tonconnect/config';
 import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Minimizer from '../../../modules/Minimizer';
+import { SelectedAccount } from '../../../engine/types';
 
 type SignState = { type: 'loading' }
     | { type: 'expired', returnStrategy?: ReturnStrategy }
@@ -120,13 +121,12 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     }, []);
 
     // Approve
-    const acc = useMemo(() => getCurrentAddress(), []);
     let active = useRef(true);
     useEffect(() => {
         return () => { active.current = false; };
     }, []);
 
-    const approve = useCallback(async () => {
+    const approve = useCallback(async (selectedAccount?: SelectedAccount) => {
 
         if (state.type !== 'initing') {
             return;
@@ -140,6 +140,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
         }
 
         try {
+            const acc = selectedAccount ?? getCurrentAddress();
             const contract = contractFromPublicKey(acc.publicKey);
             const config = walletConfigFromContract(contract);
 
@@ -156,8 +157,9 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     cancelable: true,
                     backgroundColor: theme.elevation,
                     containerStyle: { paddingBottom: safeArea.bottom + 56 },
+                    selectedAccount: acc
                 });
-            } catch (e) {
+            } catch {
                 warn('Failed to load wallet keys');
                 return;
             }
@@ -177,7 +179,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     stateInitStr,
                     isTestnet
                 );
-            } catch (e) {
+            } catch {
                 warn('Failed to create reply items');
                 return;
             }
@@ -222,6 +224,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
                 // Save connection
                 saveAppConnection({
+                    address: acc.addressString,
                     app: {
                         name: state.app.name,
                         url: state.app.url,
@@ -256,10 +259,9 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     if (!!state.returnStrategy) {
                         if (state.returnStrategy === 'back') {
                             Minimizer.goBack();
-                            return;
                         } else if (state.returnStrategy !== 'none') {
                             try {
-                                const url = new URL(state.returnStrategy);
+                                const url = new URL(decodeURIComponent(state.returnStrategy));
                                 Linking.openURL(url.toString());
                             } catch (e) {
                                 warn('Failed to open url');
@@ -275,7 +277,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
             // Should not happen
             setState({ type: 'failed', returnStrategy: state.returnStrategy });
-        } catch (e) {
+        } catch {
             warn('Failed to approve');
             setState({ type: 'failed', returnStrategy: state.returnStrategy });
         }
@@ -306,6 +308,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             state={{ ...state, connector: 'ton-connect' }}
             onApprove={approve}
             onCancel={onCancel}
+            single={connectProps.type === 'callback'}
         />
     )
 });

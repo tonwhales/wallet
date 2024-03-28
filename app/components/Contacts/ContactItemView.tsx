@@ -4,20 +4,35 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
-import { useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { AddressComponent } from "../address/AddressComponent";
+import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
+import { KnownWallets } from "../../secure/KnownWallets";
 
-export const ContactItemView = memo(({ addr, action }: { addr: string, action?: (address: Address) => void }) => {
-    const { isTestnet } = useNetwork();
-    const theme = useTheme();
-    const address = useMemo(() => Address.parse(addr), [addr])
-    const contact = useContact(addr);
-    const isSpam = useDenyAddress(address.toString({ testOnly: isTestnet }));
-
+export const ContactItemView = memo(({
+    addressFriendly,
+    action,
+    testOnly
+}: {
+    addressFriendly: string,
+    action?: (address: Address) => void,
+    testOnly: boolean
+}) => {
     const navigation = useTypedNavigation();
+    const theme = useTheme();
+    const address = useMemo(() => Address.parse(addressFriendly), [addressFriendly]);
+    const contact = useContact(addressFriendly);
+    const isSpam = useDenyAddress(address.toString({ testOnly }));
+    const contractInfo = useContractInfo(addressFriendly);
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const known = KnownWallets(testOnly)[address.toString({ testOnly })];
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
+
+    const bounceable = (contractInfo?.kind === 'wallet')
+        ? bounceableFormat
+        : true;
 
     const lastName = useMemo(() => {
         if (contact?.fields) {
@@ -30,8 +45,8 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
             action(address);
             return;
         }
-        navigation.navigate('Contact', { address: addr });
-    }, [addr, action, address]);
+        navigation.navigate('Contact', { address: addressFriendly });
+    }, [addressFriendly, action, address]);
 
     return (
         <Pressable
@@ -42,12 +57,12 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
             <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     <Avatar
-                        address={addr}
-                        id={addr}
+                        address={address.toString({ testOnly })}
+                        id={address.toString({ testOnly })}
                         size={46}
                         borderWith={0}
                         theme={theme}
-                        isTestnet={isTestnet}
+                        isTestnet={testOnly}
                         hashColor
                     />
                 </View>
@@ -86,40 +101,48 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                 ellipsizeMode={'middle'}
                                 numberOfLines={1}
                             >
-                                <AddressComponent address={address} />
+                                <AddressComponent
+                                    address={address}
+                                    bounceable={bounceable}
+                                    testOnly={testOnly}
+                                    known={!!known}
+                                />
                             </Text>
                         </>
-                    )
-                        : (
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Text
-                                    style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
-                                    ellipsizeMode={'middle'}
-                                    numberOfLines={1}
-                                >
-                                    <AddressComponent address={address} />
-                                </Text>
-                                {isSpam && (
-                                    <View style={{
-                                        backgroundColor: theme.backgroundPrimaryInverted,
-                                        borderRadius: 100,
-                                        height: 15,
-                                        marginLeft: 10,
-                                        paddingHorizontal: 5,
-                                        justifyContent: 'center',
+                    ) : (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text
+                                style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                ellipsizeMode={'middle'}
+                                numberOfLines={1}
+                            >
+                                <AddressComponent
+                                    address={address}
+                                    bounceable={bounceable}
+                                    testOnly={testOnly}
+                                    known={!!known}
+                                />
+                            </Text>
+                            {isSpam && (
+                                <View style={{
+                                    backgroundColor: theme.backgroundPrimaryInverted,
+                                    borderRadius: 100,
+                                    height: 15,
+                                    marginLeft: 10,
+                                    paddingHorizontal: 5,
+                                    justifyContent: 'center',
+                                }}>
+                                    <Text style={{
+                                        fontSize: 10,
+                                        fontWeight: '500',
+                                        color: theme.textPrimaryInverted
                                     }}>
-                                        <Text style={{
-                                            fontSize: 10,
-                                            fontWeight: '500',
-                                            color: theme.textPrimaryInverted
-                                        }}>
-                                            {'SPAM'}
-                                        </Text>
-                                    </View>
-                                )}
-                            </View>
-                        )
-                    }
+                                        {'SPAM'}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    )}
                 </View>
             </Animated.View>
         </Pressable>

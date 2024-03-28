@@ -8,17 +8,29 @@ import Animated from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { useNetwork, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
+import { KnownWallets } from "../../secure/KnownWallets";
 
-export const ContactTransactionView = memo(({ address }: { address: Address }) => {
+export const ContactTransactionView = memo(({ 
+    addr,
+    testOnly
+}: {
+    addr: {
+        isBounceable: boolean;
+        isTestOnly: boolean;
+        address: Address;
+    },
+    testOnly: boolean
+}) => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
-
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
+    const known = KnownWallets(testOnly)[addr.address.toString({ testOnly })];
+
     const addressFriendly = useMemo(() => {
-        return address.toString({ testOnly: network.isTestnet });
-    }, [address]);
+        return addr.address.toString({ testOnly, bounceable: addr.isBounceable });
+    }, [addr]);
 
     const onPress = useCallback(() => {
         navigation.navigate('Contact', { address: addressFriendly });
@@ -29,7 +41,6 @@ export const ContactTransactionView = memo(({ address }: { address: Address }) =
             onPress={onPress}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
-
         >
             <Animated.View style={[
                 {
@@ -64,7 +75,12 @@ export const ContactTransactionView = memo(({ address }: { address: Address }) =
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        <AddressComponent address={address} />
+                        <AddressComponent
+                            address={addr.address}
+                            bounceable={addr.isBounceable}
+                            testOnly={testOnly}
+                            known={!!known}
+                        />
                     </Text>
                 </View>
                 <View style={{

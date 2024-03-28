@@ -3,10 +3,8 @@ import { useRawAccountTransactions } from './useRawAccountTransactions';
 import { ContractMetadata } from '../../metadata/Metadata';
 import { useContractMetadatas } from '../metadata/useContractMetadatas';
 import { useJettonContents } from '../jettons/useJettonContents';
-import { StoredContractMetadata, StoredJettonMaster } from '../../metadata/StoredMetadata';
+import { StoredContractMetadata } from '../../metadata/StoredMetadata';
 import { useMemo } from 'react';
-import { JettonMasterState } from '../../metadata/fetchJettonMasterContent';
-import { TonClient4 } from '@ton/ton';
 import { TransactionDescription } from '../../types';
 
 export function getJettonMasterAddressFromMetadata(metadata: StoredContractMetadata | null) {
@@ -36,13 +34,13 @@ export function parseStoredMetadata(metadata: StoredContractMetadata): ContractM
 }
 
 
-export function useAccountTransactions(client: TonClient4, account: string, refetchOnMount: boolean = false): {
+export function useAccountTransactions(account: string, options: { refetchOnMount: boolean } = { refetchOnMount: false }): {
     data: TransactionDescription[] | null,
     next: () => void,
     hasNext: boolean,
     loading: boolean
 } {
-    let raw = useRawAccountTransactions(client, account, refetchOnMount);
+    let raw = useRawAccountTransactions(account, options);
 
     // We should memoize to prevent recalculation if metadatas and jettons are updated
     let { baseTxs, mentioned } = useMemo(() => {

@@ -7,29 +7,36 @@ import { t } from "../../../../i18n/t"
 import { ThemeType } from "../../../../engine/state/theme"
 import { AddressComponent } from "../../../../components/address/AddressComponent"
 import { Typography } from "../../../../components/styles"
+import { KnownWallets } from "../../../../secure/KnownWallets"
 
 type PreviewFromProps = {
     from: {
-        address: Address | null;
+        address: string | null;
         name: string;
     } | {
-        address: Address;
+        address: string;
         name: string | undefined;
     }
     kind: 'in' | 'out';
     theme: ThemeType;
     isTestnet: boolean;
-    onCopyAddress: (address: Address) => void;
+    onCopyAddress: (address: string) => void;
+    bounceableFormat: boolean;
 }
 
 export const PreviewFrom = memo((props: PreviewFromProps) => {
-    const { from, kind, theme, isTestnet, onCopyAddress } = props
+    const { from, kind, theme, isTestnet, onCopyAddress, bounceableFormat } = props;
 
-    if (!from.address) return null
+    if (!from.address) return null;
+
+    const parsedAddress = Address.parseFriendly(from.address);
+    const known = KnownWallets(isTestnet)[parsedAddress.address.toString({ testOnly: isTestnet })];
+    const bounceable = bounceableFormat || parsedAddress.isBounceable;
+    const parsedAddressFriendly = parsedAddress.address.toString({ testOnly: isTestnet, bounceable });
 
     return (
         <Pressable
-            onPress={() => onCopyAddress(from.address!)}
+            onPress={() => onCopyAddress(parsedAddressFriendly)}
             style={({ pressed }) => ({ paddingHorizontal: 10, justifyContent: 'center', opacity: pressed ? 0.5 : 1 })}
         >
             <PerfText style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
@@ -39,7 +46,7 @@ export const PreviewFrom = memo((props: PreviewFromProps) => {
                 <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                     {kind === 'in' ? (
                         <PerfText>
-                            {from.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
+                            {parsedAddressFriendly.replaceAll('-', '\u2011')}
                         </PerfText>
                     ) : (
                         <>
@@ -54,8 +61,11 @@ export const PreviewFrom = memo((props: PreviewFromProps) => {
                             )}
                             <PerfText style={{ color: !!from.name ? theme.textSecondary : theme.textPrimary, }}>
                                 <AddressComponent
-                                    address={from.address}
+                                    address={parsedAddress.address}
+                                    bounceable={parsedAddress.isBounceable}
                                     end={4}
+                                    known={!!known}
+                                    testOnly={isTestnet}
                                 />
                             </PerfText>
                         </>

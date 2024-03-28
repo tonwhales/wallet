@@ -2,13 +2,11 @@ import { View, Platform, Text, Pressable } from "react-native";
 import { useCallback, useMemo } from "react";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
-import { extractDomain } from "../../engine/utils/extractDomain";
+import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
 import { ProductBanner } from "../../components/products/ProductBanner";
-import { getDomainKey } from "../../engine/state/domainKeys";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -20,6 +18,7 @@ export const ProductsFragment = fragment(() => {
     const apy = useStakingApy()?.apy;
     const seleted = useSelectedAccount();
     const status = useHoldersAccountStatus(seleted!.address).data;
+    const isHoldersReady = useIsConnectAppReady(holdersUrl);
 
     const apyWithFee = useMemo(() => {
         if (!!apy) {
@@ -34,25 +33,20 @@ export const ProductsFragment = fragment(() => {
         return false;
     }, [status]);
 
-    const onHolders = useCallback(
-        () => {
-            const domain = extractDomain(holdersUrl);
-            const domainKey = getDomainKey(domain);
-            navigation.goBack();
-            if (needsEnrolment || !domainKey) {
-                navigation.navigate(
-                    'HoldersLanding',
-                    {
-                        endpoint: holdersUrl,
-                        onEnrollType: { type: 'create' }
-                    }
-                );
-                return;
-            }
-            navigation.navigate('Holders', { type: 'create' });
-        },
-        [needsEnrolment],
-    );
+    const onHolders = useCallback(() => {
+        // we are not using .replace(...) here because of wierd animation
+        navigation.goBack();
+
+        if (needsEnrolment || !isHoldersReady) {
+            navigation.navigate(
+                'HoldersLanding',
+                { endpoint: holdersUrl, onEnrollType: { type: 'create' } }
+            );
+            return;
+        }
+
+        navigation.navigate('Holders', { type: 'create' });
+    }, [needsEnrolment, isHoldersReady]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>

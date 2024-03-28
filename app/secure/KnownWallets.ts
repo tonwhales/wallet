@@ -84,7 +84,17 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                     primary: '#3595D3',
                     secondary: '#BAD5E7'
                 }
-            }
+            },
+
+            [Address.parse('0QBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka95J1JJwXXf2Dz').toString()]: {
+                name: 'OKX',
+                ic: Img_OKX
+            },
+            [Address.parse('kQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXNKY').toString()]: {
+                name: 'OKX',
+                ic: Img_OKX
+            },
+
         } : {
             [Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N').toString()]: {
                 name: 'TON Foundation',

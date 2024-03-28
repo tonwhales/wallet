@@ -8,7 +8,7 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { useClient4, useNetwork, useSelectedAccount, useTheme, useAccountTransactions } from '../engine/hooks';
+import { useSelectedAccount, useTheme, useAccountTransactions, useNetwork } from '../engine/hooks';
 import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useParams } from "../utils/useParams";
@@ -23,16 +23,15 @@ const EmptyIllustrations = {
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const { isTestnet } = useNetwork();
     const { callback } = useParams<{ callback?: (address: Address) => void }>();
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
     const account = useSelectedAccount();
-    const client = useClient4(isTestnet);
     const dimensions = useDimensions();
-    const transactions = useAccountTransactions(client, account?.addressString ?? '').data ?? [];
+    const transactions = useAccountTransactions(account?.addressString ?? '').data ?? [];
 
     const [search, setSearch] = useState('');
     const [searchFocused, setSearchFocused] = useState(false);
@@ -45,7 +44,7 @@ export const ContactsFragment = fragment(() => {
                 addresses.add(t.base.operation.address);
             }
         });
-        return Array.from(addresses).map((addr) => Address.parse(addr));
+        return Array.from(addresses).map((addr) => Address.parseFriendly(addr));
     }, [transactions]);
 
     const contactsList = useMemo(() => {
@@ -166,7 +165,13 @@ export const ContactsFragment = fragment(() => {
                         showsVerticalScrollIndicator={true}
                     >
                         {transactionsAddresses.map((a, index) => {
-                            return (<ContactTransactionView key={`recent-${index}`} address={a} />);
+                            return (
+                                <ContactTransactionView
+                                    key={`recent-${index}`}
+                                    addr={a}
+                                    testOnly={isTestnet}
+                                />
+                            );
                         })}
                     </ScrollView>
                 </>
@@ -179,8 +184,9 @@ export const ContactsFragment = fragment(() => {
                         return (
                             <ContactItemView
                                 key={`contact-${d[0]}`}
-                                addr={d[0]}
+                                addressFriendly={d[0]}
                                 action={callback}
+                                testOnly={isTestnet}
                             />
                         );
                     })}

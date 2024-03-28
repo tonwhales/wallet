@@ -1,15 +1,13 @@
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import React, { memo, useCallback, useEffect, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { t } from "../../i18n/t";
-import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Pressable, View, Image, Text, Platform, ScrollView } from "react-native";
-import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
-import { WalletAddress } from "../../components/WalletAddress";
+import { WalletAddress } from "../../components/address/WalletAddress";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
-import { useAccountLite, useAccountsLite, useNetwork, useStaking, useTheme } from "../../engine/hooks";
+import { useAccountLite, useBounceableWalletFormat, useNetwork, useStaking, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
@@ -25,11 +23,11 @@ import { LiquidStakingFragment } from "../staking/LiquidStakingFragment";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
-    const network = useNetwork();
     const navigation = useTypedNavigation();
-    const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
     const bottomBarHeight = useBottomTabBarHeight();
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const { isTestnet } = useNetwork();
 
     const address = useMemo(() => {
         if (!ledgerContext?.addr) {
@@ -39,8 +37,9 @@ export const LedgerHomeFragment = fragment(() => {
             return Address.parse(ledgerContext.addr.address);
         } catch { }
     }, [ledgerContext?.addr?.address]);
+    const addressFriendly = address?.toString({ bounceable: bounceableFormat, testOnly: isTestnet });
 
-    const account = useAccountLite(address!, true)!;
+    const account = useAccountLite(address!, { refetchOnMount: true })!;
     const staking = useStaking(address!);
 
     const stakingBalance = useMemo(() => {
@@ -73,17 +72,14 @@ export const LedgerHomeFragment = fragment(() => {
     }, []);
 
     const navigateReceive = useCallback(() => {
-        if (!ledgerContext?.addr) {
+        if (!addressFriendly) {
             return;
         }
         navigation.navigate(
             'LedgerReceive',
-            {
-                addr: ledgerContext.addr.address,
-                ledger: true
-            }
+            { addr: addressFriendly, ledger: true }
         );
-    }, []);
+    }, [addressFriendly]);
 
     if (
         !ledgerContext?.tonTransport
@@ -186,7 +182,6 @@ export const LedgerHomeFragment = fragment(() => {
                         </Pressable>
                         <View style={{ flexGrow: 1 }} />
                         <WalletAddress
-                            value={address!.toString({ testOnly: network.isTestnet })}
                             address={address!}
                             elipsise={{ start: 4, end: 4 }}
                             style={{

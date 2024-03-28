@@ -83,6 +83,7 @@ export const TransferBatch = memo((props: Props) => {
     const contacts = addressBook.contacts;
     const denyList = addressBook.denyList;
     const serverConfig = useServerConfig();
+    const knownWallets = KnownWallets(isTestnet);
 
     const appData = useAppData(props.order.app?.url || '');
     const appManifest = useAppManifest(props.order.app?.url || '');
@@ -586,7 +587,12 @@ export const TransferBatch = memo((props: Props) => {
                             </Text>
                             <View style={{ flexDirection: 'row' }}>
                                 <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
-                                    <AddressComponent address={selected!.address} bounceable={bounceableFormat} end={4} />
+                                    <AddressComponent
+                                        address={selected!.address}
+                                        bounceable={bounceableFormat}
+                                        end={4}
+                                        testOnly={isTestnet}
+                                    />
                                 </Text>
                                 {walletSettings?.name && (
                                     <Text
@@ -730,6 +736,7 @@ export const TransferBatch = memo((props: Props) => {
                     </ItemCollapsible>
 
                     {internals.map((i, index) => {
+                        const known = knownWallets[i.message.addr.address.toString({ testOnly: isTestnet })];
                         return (
                             <ItemCollapsible
                                 key={`internal-${index}`}
@@ -787,6 +794,8 @@ export const TransferBatch = memo((props: Props) => {
                                                 address={i.message.addr.address}
                                                 start={10}
                                                 end={4}
+                                                testOnly={isTestnet}
+                                                known={!!known}
                                             />
                                         </Text>
                                         {i.known && (

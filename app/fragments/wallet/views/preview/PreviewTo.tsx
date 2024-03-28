@@ -7,6 +7,7 @@ import { PerfText } from "../../../../components/basic/PerfText";
 import { Typography } from "../../../../components/styles";
 import { PerfView } from "../../../../components/basic/PerfView";
 import { AddressComponent } from "../../../../components/address/AddressComponent";
+import { KnownWallets } from "../../../../secure/KnownWallets";
 
 type PreviewToProps = {
     to: {
@@ -18,19 +19,20 @@ type PreviewToProps = {
     }
     kind: 'in' | 'out';
     theme: ThemeType;
-    isTestnet: boolean;
+    testOnly: boolean;
     onCopyAddress: (address: string) => void;
     bounceableFormat: boolean;
 }
 
 export const PreviewTo = memo((props: PreviewToProps) => {
-    const { to, kind, theme, isTestnet, onCopyAddress, bounceableFormat } = props
+    const { to, kind, theme, testOnly, onCopyAddress, bounceableFormat } = props
 
     if (!to.address) return null;
 
     const parsedAddress = Address.parseFriendly(to.address);
+    const known = KnownWallets(testOnly)[parsedAddress.address.toString({ testOnly })];
     const bounceable = bounceableFormat || parsedAddress.isBounceable;
-    const parsedAddressFriendly = parsedAddress.address.toString({ testOnly: isTestnet, bounceable });
+    const parsedAddressFriendly = parsedAddress.address.toString({ testOnly, bounceable });
 
     return (
         <Pressable
@@ -55,6 +57,8 @@ export const PreviewTo = memo((props: PreviewToProps) => {
                         <AddressComponent
                             address={to.address}
                             end={4}
+                            known={!!known}
+                            testOnly={testOnly}
                         />
                     ) : (
                         <PerfText style={{ color: theme.textPrimary }}>

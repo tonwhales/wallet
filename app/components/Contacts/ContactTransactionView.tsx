@@ -8,21 +8,28 @@ import Animated from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { useNetwork, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
+import { KnownWallets } from "../../secure/KnownWallets";
 
-export const ContactTransactionView = memo(({ addr }: {
+export const ContactTransactionView = memo(({ 
+    addr,
+    testOnly
+}: {
     addr: {
         isBounceable: boolean;
         isTestOnly: boolean;
         address: Address;
-    }
+    },
+    testOnly: boolean
 }) => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
+    const known = KnownWallets(testOnly)[addr.address.toString({ testOnly })];
+
     const addressFriendly = useMemo(() => {
-        return addr.address.toString({ testOnly: network.isTestnet, bounceable: addr.isBounceable });
+        return addr.address.toString({ testOnly, bounceable: addr.isBounceable });
     }, [addr]);
 
     const onPress = useCallback(() => {
@@ -68,7 +75,12 @@ export const ContactTransactionView = memo(({ addr }: {
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        <AddressComponent address={addr.address} bounceable={addr.isBounceable} />
+                        <AddressComponent
+                            address={addr.address}
+                            bounceable={addr.isBounceable}
+                            testOnly={testOnly}
+                            known={!!known}
+                        />
                     </Text>
                 </View>
                 <View style={{

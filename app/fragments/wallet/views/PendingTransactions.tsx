@@ -43,7 +43,9 @@ const PendingTransactionView = memo(({
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const body = tx.body;
-    const targetFriendly = body?.type === 'token' ? body.target.toString({ testOnly: isTestnet }) : tx.address?.toString({ testOnly: isTestnet });
+    const targetFriendly = body?.type === 'token'
+        ? body.target.toString({ testOnly: isTestnet })
+        : tx.address?.toString({ testOnly: isTestnet });
     const contact = useContact(targetFriendly);
     const [settings,] = useWalletSettings(targetFriendly);
     const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
@@ -153,6 +155,8 @@ const PendingTransactionView = memo(({
                                 ? <AddressComponent
                                     bounceable={bounceable}
                                     address={Address.parse(targetFriendly)}
+                                    testOnly={isTestnet}
+                                    known={!!known}
                                 />
                                 : t('tx.batch')
                             }

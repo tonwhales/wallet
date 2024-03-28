@@ -259,7 +259,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
-    transparentModalScreen('LedgerLiquidWithdrawAction', LiquidWithdrawActionFragment, safeArea),
 
     // Settings
     modalScreen('WalletBackup', WalletBackupFragment, safeArea),

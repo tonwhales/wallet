@@ -82,11 +82,11 @@ export const LedgerProductsComponent = React.memo(({ account }: { account: Accou
                     </View>
                     <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                            <ValueComponent value={account.balance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
+                            <ValueComponent value={account?.balance ?? 0n} precision={2} centFontStyle={{ color: theme.textSecondary }} />
                             <Text style={{ color: theme.textSecondary, fontSize: 15 }}>{' TON'}</Text>
                         </Text>
                         <PriceComponent
-                            amount={account.balance}
+                            amount={account?.balance ?? 0n}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0, paddingVertical: 0,
@@ -100,7 +100,7 @@ export const LedgerProductsComponent = React.memo(({ account }: { account: Accou
                 </Animated.View>
             </Pressable>
         )
-    }, [theme, account.balance, onPressIn, onPressOut, animatedStyle, onTonPress]);
+    }, [theme, account?.balance, onPressIn, onPressOut, animatedStyle, onTonPress]);
 
     return (
         <View style={{

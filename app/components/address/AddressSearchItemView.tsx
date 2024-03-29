@@ -1,29 +1,32 @@
 import React, { memo } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Image } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
-import { useBounceableWalletFormat, useNetwork, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar, avatarColors } from "../Avatar";
 import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
 import { avatarHash } from "../../utils/avatarHash";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
+import { KnownWallets } from "../../secure/KnownWallets";
 
 export const AddressSearchItemView = memo(({
     item,
     onPress,
-    walletsSettings
+    walletsSettings,
+    testOnly
 }: {
     item: AddressSearchItem,
     onPress?: (item: AddressSearchItem) => void,
-    walletsSettings: { [key: string]: WalletSettings }
+    walletsSettings: { [key: string]: WalletSettings },
+    testOnly: boolean
 }) => {
     const theme = useTheme();
-    const network = useNetwork();
     const [bounceableFormat,] = useBounceableWalletFormat();
-    const addressString = item.addr.address.toString({ testOnly: network.isTestnet });
+    const addressString = item.addr.address.toString({ testOnly });
     const contractInfo = useContractInfo(addressString);
+    const known = KnownWallets(testOnly)[addressString];
 
     const settings = walletsSettings[addressString];
 
@@ -48,21 +51,28 @@ export const AddressSearchItemView = memo(({
         >
             <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
-                    <Avatar
-                        address={addressString}
-                        id={addressString}
-                        size={46}
-                        borderWith={0}
-                        markContact={item.type === 'contact'}
-                        icProps={{
-                            isOwn: item.type === 'my-wallets',
-                            backgroundColor: theme.elevation
-                        }}
-                        hash={settings?.avatar}
-                        theme={theme}
-                        isTestnet={network.isTestnet}
-                        backgroundColor={avatarColor}
-                    />
+                    {item.isLedger ? (
+                        <Image
+                            style={{ width: 46, height: 46 }}
+                            source={require('@assets/ledger_device.png')}
+                        />
+                    ) : (
+                        <Avatar
+                            address={addressString}
+                            id={addressString}
+                            size={46}
+                            borderWith={0}
+                            markContact={item.type === 'contact'}
+                            icProps={{
+                                isOwn: item.type === 'my-wallets',
+                                backgroundColor: theme.elevation
+                            }}
+                            hash={settings?.avatar}
+                            theme={theme}
+                            isTestnet={testOnly}
+                            backgroundColor={avatarColor}
+                        />
+                    )}
                 </View>
                 <View style={{ flexShrink: 1, justifyContent: 'center' }}>
                     <Text
@@ -70,7 +80,7 @@ export const AddressSearchItemView = memo(({
                         ellipsizeMode={'tail'}
                         numberOfLines={1}
                     >
-                        {item.title}
+                        {item.isLedger ? 'Ledger' : item.title}
                     </Text>
                     <Text
                         style={{ color: theme.textSecondary, fontSize: 15, lineHeight: 20, fontWeight: '400' }}
@@ -80,6 +90,8 @@ export const AddressSearchItemView = memo(({
                         <AddressComponent
                             bounceable={bounceable}
                             address={item.addr.address}
+                            testOnly={testOnly}
+                            known={!!known}
                         />
                     </Text>
                 </View>

@@ -14,7 +14,7 @@ import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
 import { CheckBox } from "../../../components/CheckBox";
-import { useTheme, useAppState } from "../../../engine/hooks";
+import { useTheme, useAppState, useBounceableWalletFormat, useNetwork } from "../../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -79,6 +79,8 @@ export const DappAuthComponent = memo(({
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const appState = useAppState();
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const { isTestnet } = useNetwork();
     const accounts = useMemo(() => appState.addresses
         .map((a, i) => ({ ...a, index: i }))
         .sort((a, b) => {
@@ -168,8 +170,11 @@ export const DappAuthComponent = memo(({
         <View style={[
             { flexGrow: 1 },
             Platform.select({
-                android: { backgroundColor: theme.backgroundPrimary },
-                ios: { backgroundColor: theme.elevation, }
+                android: { 
+                    backgroundColor: theme.backgroundPrimary,
+                    paddingTop: safeArea.top
+                },
+                ios: { backgroundColor: theme.elevation }
             })
         ]}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
@@ -189,7 +194,7 @@ export const DappAuthComponent = memo(({
                     android: { backgroundColor: theme.backgroundPrimary }
                 })
             ]}>
-                <View style={Platform.select({ android: { flexGrow: 1 } })}>
+                <View style={Platform.select({ android: { flexGrow: single ? 1 : 0 } })}>
                     <View style={{
                         borderRadius: 20,
                         width: '100%',
@@ -279,6 +284,8 @@ export const DappAuthComponent = memo(({
                             onSelect={onAddressSelected}
                             style={{ marginBottom: 0, marginTop: 16 }}
                             hideSelect
+                            bounceableFormat={bounceableFormat}
+                            isTestnet={isTestnet}
                         />
                         <View style={{ flexGrow: 1 }} />
                     </>
@@ -298,11 +305,13 @@ export const DappAuthComponent = memo(({
                             return (
                                 <WalletItem
                                     key={addr.address.toString()}
-                                    index={index}
+                                    index={addr.index}
                                     selected={selectedAccount?.address.equals(addr.address)}
                                     address={addr.address}
                                     onSelect={onAddressSelected}
                                     style={{ marginBottom: 0 }}
+                                    bounceableFormat={bounceableFormat}
+                                    isTestnet={isTestnet}
                                 />
                             )
                         })}
@@ -323,10 +332,12 @@ export const DappAuthComponent = memo(({
                                 return (
                                     <WalletItem
                                         key={addr.address.toString()}
-                                        index={index + 2}
+                                        index={addr.index}
                                         selected={selectedAccount?.address.equals(addr.address)}
                                         address={addr.address}
                                         onSelect={onAddressSelected}
+                                        bounceableFormat={bounceableFormat}
+                                        isTestnet={isTestnet}
                                     />
                                 );
                             })}

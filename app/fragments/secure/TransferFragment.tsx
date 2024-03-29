@@ -19,7 +19,7 @@ import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { useEffect, useMemo, useState } from 'react';
-import { useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
@@ -29,6 +29,7 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
+import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 
 export type TransferFragmentProps = {
     text: string | null,
@@ -120,6 +121,7 @@ export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     // Memmoize all parameters just in case
     const from = useMemo(() => getCurrentAddress(), []);
@@ -198,7 +200,8 @@ export const TransferFragment = fragment(() => {
                                     let jettonTargetAddress = sc.loadAddress();
 
                                     if (jettonTargetAddress) {
-                                        jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet }));
+                                        const bounceable = await resolveBounceableTag(jettonTargetAddress, { testOnly: isTestnet, bounceableFormat });
+                                        jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable }));
                                     }
 
                                     jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, isTestnet);
@@ -484,7 +487,7 @@ export const TransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, [netConfig, selectedAccount]);
+    }, [netConfig, selectedAccount, bounceableFormat]);
 
     return (
         <View style={{ flexGrow: 1 }}>

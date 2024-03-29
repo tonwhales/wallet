@@ -4,7 +4,7 @@ import WebView, { WebViewMessageEvent, WebViewNavigation, WebViewProps } from "r
 import { useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
 import { dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
@@ -311,9 +311,15 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [props.onContentProcessDidTerminate, ref]);
 
     const injectedJavaScriptBeforeContentLoaded = useMemo(() => {
+        
+        const adjustedSafeArea = Platform.select({
+            ios: safeArea,
+            android: { ...safeArea, bottom: 16 }
+        }) as EdgeInsets;
+
         return `
         ${props.useMainButton ? mainButtonAPI : ''}
-        ${props.useStatusBar ? statusBarAPI(safeArea) : ''}
+        ${props.useStatusBar ? statusBarAPI(adjustedSafeArea) : ''}
         ${props.useToaster ? toasterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {
@@ -340,9 +346,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         try {
             const powerState = DeviceInfo.getPowerStateSync();
             const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;
-            setTimeout(() => setLoaded(true), biggerDelay ? 180 : 100);
+            setTimeout(() => setLoaded(true), biggerDelay ? 300 : 200);
         } catch {
-            setTimeout(() => setLoaded(true), 100);
+            setTimeout(() => setLoaded(true), 200);
         }
     }, []);
 

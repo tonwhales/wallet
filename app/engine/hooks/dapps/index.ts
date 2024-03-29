@@ -23,3 +23,4 @@ export { useSaveAppConnection } from './useSaveAppConnection';
 export { useSetAppsConnectionsState } from './useSetTonconnectConnections';
 export { useConnectExtensions as useTonConnectExtensions } from './useTonConnectExtenstions';
 export { useWebViewBridge } from './useWebViewBridge';
+export { useIsConnectAppReady } from '../dapps/useIsConnectAppReady';

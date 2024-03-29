@@ -7,7 +7,7 @@ import { Pressable, View, Image, Text, Platform, ScrollView } from "react-native
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
-import { useAccountLite, useStaking, useTheme } from "../../engine/hooks";
+import { useAccountLite, useBounceableWalletFormat, useNetwork, useStaking, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
@@ -25,6 +25,8 @@ export const LedgerHomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
     const bottomBarHeight = useBottomTabBarHeight();
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const { isTestnet } = useNetwork();
 
     const address = useMemo(() => {
         if (!ledgerContext?.addr) {
@@ -34,6 +36,7 @@ export const LedgerHomeFragment = fragment(() => {
             return Address.parse(ledgerContext.addr.address);
         } catch { }
     }, [ledgerContext?.addr?.address]);
+    const addressFriendly = address?.toString({ bounceable: bounceableFormat, testOnly: isTestnet });
 
     const account = useAccountLite(address!, { refetchOnMount: true })!;
     const staking = useStaking(address!);
@@ -68,17 +71,14 @@ export const LedgerHomeFragment = fragment(() => {
     }, []);
 
     const navigateReceive = useCallback(() => {
-        if (!ledgerContext?.addr) {
+        if (!addressFriendly) {
             return;
         }
         navigation.navigate(
             'LedgerReceive',
-            {
-                addr: ledgerContext.addr.address,
-                ledger: true
-            }
+            { addr: addressFriendly, ledger: true }
         );
-    }, []);
+    }, [addressFriendly]);
 
     if (
         !ledgerContext?.tonTransport

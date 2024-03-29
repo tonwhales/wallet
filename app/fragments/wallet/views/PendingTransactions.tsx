@@ -18,7 +18,7 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
+import { useBounceableWalletFormat, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
 
@@ -28,22 +28,27 @@ const PendingTransactionView = memo(({
     last,
     single,
     onRemove,
-    viewType = 'main'
+    viewType = 'main',
+    bounceableFormat
 }: {
     tx: PendingTransaction,
     first?: boolean,
     last?: boolean,
     single?: boolean,
     onRemove?: (id: string) => void,
-    viewType?: 'history' | 'main'
+    viewType?: 'history' | 'main',
+    bounceableFormat?: boolean
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const body = tx.body;
-    const targetFriendly = body?.type === 'token' ? body.target.toString({ testOnly: isTestnet }) : tx.address?.toString({ testOnly: isTestnet });
+    const targetFriendly = body?.type === 'token'
+        ? body.target.toString({ testOnly: isTestnet })
+        : tx.address?.toString({ testOnly: isTestnet });
     const contact = useContact(targetFriendly);
     const [settings,] = useWalletSettings(targetFriendly);
+    const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -148,8 +153,10 @@ const PendingTransactionView = memo(({
                         >
                             {targetFriendly
                                 ? <AddressComponent
-                                    bounceable={body?.type === 'token' ? body.bounceable : tx.bounceable}
+                                    bounceable={bounceable}
                                     address={Address.parse(targetFriendly)}
+                                    testOnly={isTestnet}
+                                    known={!!known}
                                 />
                                 : t('tx.batch')
                             }
@@ -219,6 +226,8 @@ export const PendingTransactionsView = memo((
         viewType?: 'history' | 'main'
     }
 ) => {
+    const [bounceableFormat,] = useBounceableWalletFormat();
+
     return (
         <View style={[
             {
@@ -236,6 +245,7 @@ export const PendingTransactionsView = memo((
                     last={i === pending.length - 1}
                     onRemove={() => removePending(tx.id)}
                     viewType={viewType}
+                    bounceableFormat={bounceableFormat}
                 />
             ))}
         </View>

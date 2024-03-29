@@ -211,6 +211,7 @@ export function TransactionView(props: {
                         {known
                             ? known.name
                             : <AddressComponent
+                                testOnly={isTestnet}
                                 address={parsedOpAddr.address}
                                 bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
                             />

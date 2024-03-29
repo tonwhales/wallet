@@ -199,6 +199,7 @@ type TonhubBridgeSourceProps = {
     };
     version: number;
     network: 'testnet' | 'mainnet';
+    theme: 'light' | 'dark';
 }
 
 export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {

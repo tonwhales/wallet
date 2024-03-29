@@ -177,6 +177,7 @@ export const DevDAppWebViewFragment = fragment(() => {
                 },
                 version: 1,
                 network: isTestnet ? 'testnet' : 'mainnet',
+                theme: theme.style === 'dark' ? 'dark' : 'light'
             });
 
             return {

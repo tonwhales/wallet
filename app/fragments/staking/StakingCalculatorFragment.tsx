@@ -20,6 +20,7 @@ import { StakingCalcComponent } from "../../components/staking/StakingCalcCompon
 import { StatusBar } from "expo-status-bar";
 import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
 import { getLiquidStakingAddress } from "../../utils/KnownPools";
+import { useValidAmount } from "../../utils/useValidAmount";
 
 export const StakingCalculatorFragment = fragment(() => {
     const theme = useTheme();
@@ -71,20 +72,7 @@ export const StakingCalculatorFragment = fragment(() => {
     const pool = useStakingPool(params.target, ledgerAddress);
 
     const [amount, setAmount] = useState(balance ? fromNano(balance) : '');
-
-    const validAmount = useMemo(() => {
-        let value: bigint | null = null;
-        if (amount.length === 0) {
-            return 0n;
-        }
-        try {
-            const valid = amount.replace(',', '.').replaceAll(' ', '');
-            value = toNano(valid);
-            return value;
-        } catch {
-            return null;
-        }
-    }, [amount]);
+    const validAmount = useValidAmount(amount);
 
     const priceText = useMemo(() => {
         if (!amount || !validAmount) {

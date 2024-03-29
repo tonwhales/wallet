@@ -30,6 +30,7 @@ import { ItemDivider } from '../../components/ItemDivider';
 import { Typography } from '../../components/styles';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { useValidAmount } from '../../utils/useValidAmount';
 
 export type LiquidStakingTransferParams = Omit<StakingTransferParams, 'target'>;
 
@@ -121,17 +122,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
     );
 
     const [minAmountWarn, setMinAmountWarn] = useState<string>();
-
-    const validAmount = useMemo(() => {
-        let value: bigint | null = null;
-        try {
-            const valid = amount.ton.replace(',', '.').replaceAll(' ', '');
-            value = toNano(valid);
-            return value;
-        } catch {
-            return null;
-        }
-    }, [amount.ton]);
+    const validAmount = useValidAmount(amount.ton);
 
     const balance = useMemo(() => {
         if (params?.action === 'withdraw') {

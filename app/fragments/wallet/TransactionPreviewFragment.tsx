@@ -289,6 +289,8 @@ const TransactionPreview = () => {
                                     address={parsedOpAddr.address}
                                     bounceable={parsedOpAddr.isBounceable}
                                     end={4}
+                                    testOnly={isTestnet}
+                                    known={!!known}
                                 />
                             </PerfText>
                         </PerfView>
@@ -380,7 +382,7 @@ const TransactionPreview = () => {
                         to={participants.to}
                         kind={kind}
                         theme={theme}
-                        isTestnet={isTestnet}
+                        testOnly={isTestnet}
                         bounceableFormat={bounceableFormat}
                     />
                     <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />

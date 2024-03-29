@@ -7,6 +7,7 @@ import { t } from "../../../../i18n/t"
 import { ThemeType } from "../../../../engine/state/theme"
 import { AddressComponent } from "../../../../components/address/AddressComponent"
 import { Typography } from "../../../../components/styles"
+import { KnownWallets } from "../../../../secure/KnownWallets"
 
 type PreviewFromProps = {
     from: {
@@ -29,6 +30,7 @@ export const PreviewFrom = memo((props: PreviewFromProps) => {
     if (!from.address) return null;
 
     const parsedAddress = Address.parseFriendly(from.address);
+    const known = KnownWallets(isTestnet)[parsedAddress.address.toString({ testOnly: isTestnet })];
     const bounceable = bounceableFormat || parsedAddress.isBounceable;
     const parsedAddressFriendly = parsedAddress.address.toString({ testOnly: isTestnet, bounceable });
 
@@ -62,6 +64,8 @@ export const PreviewFrom = memo((props: PreviewFromProps) => {
                                     address={parsedAddress.address}
                                     bounceable={parsedAddress.isBounceable}
                                     end={4}
+                                    known={!!known}
+                                    testOnly={isTestnet}
                                 />
                             </PerfText>
                         </>

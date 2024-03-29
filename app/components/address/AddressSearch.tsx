@@ -224,6 +224,7 @@ export const AddressSearch = memo(({
                                     }}
                                     walletsSettings={walletsSettings}
                                     onPress={onSelect}
+                                    testOnly={network.isTestnet}
                                 />
                             );
                         })}
@@ -260,6 +261,7 @@ export const AddressSearch = memo(({
                                     item={item}
                                     onPress={onSelect}
                                     walletsSettings={walletsSettings}
+                                    testOnly={network.isTestnet}
                                 />
                             );
                         })}
@@ -296,6 +298,7 @@ export const AddressSearch = memo(({
                                     item={item}
                                     onPress={onSelect}
                                     walletsSettings={walletsSettings}
+                                    testOnly={network.isTestnet}
                                 />
                             );
                         })}

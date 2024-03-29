@@ -36,13 +36,13 @@ export type LiquidStakingTransferParams = Omit<StakingTransferParams, 'target'>;
 type AmountAction = { type: 'ton', amount: string } | { type: 'wsTon', amount: string };
 type AmountState = { ton: string, wsTon: string };
 
-function reduceAmountState(withdrawRate: bigint, depostRate: bigint, type: 'withdraw' | 'top_up') {
+function reduceAmountState(withdrawRate: bigint, depositRate: bigint, type: 'withdraw' | 'top_up') {
     return (state: AmountState, action: AmountAction): AmountState => {
         try {
             const amount = action.amount.replace(',', '.').replaceAll(' ', '');
             if (action.type === 'ton') {
                 const ton = formatInputAmount(action.amount, 9, { skipFormattingDecimals: true }, state.ton);
-                const computed = parseFloat(amount) * parseFloat(fromNano(type === 'withdraw' ? withdrawRate : depostRate)) || 0
+                const computed = parseFloat(amount) * parseFloat(fromNano(type === 'withdraw' ? withdrawRate : depositRate)) || 0
                 const wsTon = fromNano(toNano(computed.toFixed(9)));
 
                 if (ton === state.ton) {
@@ -53,7 +53,7 @@ function reduceAmountState(withdrawRate: bigint, depostRate: bigint, type: 'with
             }
 
             const wsTon = formatInputAmount(action.amount, 9, { skipFormattingDecimals: true }, state.wsTon);
-            const computed = parseFloat(amount) * parseFloat(fromNano(type === 'withdraw' ? withdrawRate : depostRate)) || 0;
+            const computed = parseFloat(amount) * parseFloat(fromNano(type === 'withdraw' ? withdrawRate : depositRate)) || 0;
             const ton = fromNano(toNano(computed.toFixed(9)));
 
             if (wsTon === state.wsTon) {
@@ -100,12 +100,13 @@ export const LiquidStakingTransferFragment = fragment(() => {
     }
 
     if (params?.action === 'top_up' && params.amount) {
-        const depostRate = liquidStaking?.rateDeposit ?? 0n;
-        const ton = fromNano(params.amount);
-        const computed = parseFloat(ton) * parseFloat(fromNano(depostRate)) || 0
-        const wsTon = fromNano(toNano(computed.toFixed(9)));
+        const depositRate = liquidStaking?.rateDeposit ?? 0n;
+        const ton = params.amount;
+        const computed = ton * depositRate;
+        const wsTon = fromNano(computed);
+
         initAmount = {
-            ton,
+            ton: fromNano(ton),
             wsTon
         }
     }

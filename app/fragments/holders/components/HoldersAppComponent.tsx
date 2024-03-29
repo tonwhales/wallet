@@ -184,7 +184,7 @@ export function HoldersPlaceholder() {
     );
 }
 
-export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
+export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' | 'prepaid' }) {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -196,7 +196,7 @@ export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'accoun
     const animatedStyles = useAnimatedStyle(() => {
         return {
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-            paddingTop: type === 'account' ? 0 : safeArea.top,
+            paddingTop: (type === 'account' || type === 'prepaid') ? 0 : safeArea.top,
             backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -232,7 +232,7 @@ export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'accoun
                 onBackPressed={showClose ? navigation.goBack : undefined}
                 style={{ paddingHorizontal: 16, width: '100%' }}
             />
-            {type === 'account' ? <PulsingCardPlaceholder {...theme} /> : <HoldersPlaceholder />}
+            {(type === 'account' || type === 'prepaid') ? <PulsingCardPlaceholder {...theme} /> : <HoldersPlaceholder />}
         </Animated.View>
     );
 }

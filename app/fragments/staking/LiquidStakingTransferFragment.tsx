@@ -102,7 +102,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
 
     if (params?.action === 'top_up' && params.amount) {
         const depositRate = liquidStaking?.rateDeposit ?? 0n;
-        const ton = params.amount;
+        const ton = toNano(params.amount);
         const computed = ton * depositRate;
         const wsTon = fromNano(computed);
 

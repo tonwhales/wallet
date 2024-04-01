@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { fragment } from "../../fragment";
-import { ActivityIndicator, Linking, Platform, View } from "react-native";
+import { Linking, Platform, View } from "react-native";
 import { useBounceableWalletFormat, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { useCallback, useMemo, useRef } from "react";
 import { getPlatform } from "../../engine/tonconnect/config";
@@ -17,6 +17,7 @@ import { protectNavigation } from "../apps/components/protect/protectNavigation"
 import { DAppWebView } from "../../components/webview/DAppWebView";
 import WebView from "react-native-webview";
 import { SwapSkeleton } from "../../components/skeletons/SwapSkeleton";
+import { useTrackScreen } from "../../analytics/mixpanel";
 
 export const SwapFragment = fragment(() => {
     const theme = useTheme();
@@ -117,6 +118,8 @@ export const SwapFragment = fragment(() => {
         }
     }, [theme, isTestnet, bridgeEngine, loadWithRequest, bounceableFormat]);
 
+    useTrackScreen('Swap', isTestnet);
+
     return (
         <View style={{
             flexGrow: 1,
@@ -136,6 +139,7 @@ export const SwapFragment = fragment(() => {
                 webviewDebuggingEnabled={isTestnet}
                 onContentProcessDidTerminate={webViewRef.current?.reload}
                 loader={(l) => <SwapSkeleton loaded={l.loaded} theme={theme} />}
+                defaultSafeArea={Platform.OS === 'ios' ? undefined : { top: 16 }}
             />
         </View>
     );

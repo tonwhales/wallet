@@ -32,6 +32,7 @@ export type DAppWebViewProps = WebViewProps & {
     refId?: string;
     defaultQueryParamsState?: QueryParamsState;
     onEnroll?: () => void;
+    defaultSafeArea?: { top?: number; right?: number; bottom?: number; left?: number; };
 }
 
 export type WebViewLoaderProps<T> = { loaded: boolean } & T;
@@ -311,7 +312,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [props.onContentProcessDidTerminate, ref]);
 
     const injectedJavaScriptBeforeContentLoaded = useMemo(() => {
-        
+
         const adjustedSafeArea = Platform.select({
             ios: safeArea,
             android: { ...safeArea, bottom: 16 }
@@ -319,7 +320,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
         return `
         ${props.useMainButton ? mainButtonAPI : ''}
-        ${props.useStatusBar ? statusBarAPI(adjustedSafeArea) : ''}
+        ${props.useStatusBar ? statusBarAPI({ ...adjustedSafeArea, ...props.defaultSafeArea }) : ''}
         ${props.useToaster ? toasterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {
@@ -394,6 +395,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     }
                 }}
                 onNavigationStateChange={(event: WebViewNavigation) => {
+                    console.log('onNavigationStateChange', event);
                     // Searching for supported query
                     onNavigation(event.url);
                 }}

@@ -31,6 +31,7 @@ export const SwapSkeleton = memo(({ theme, loaded }: { theme: ThemeType, loaded:
             backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
             paddingHorizontal: 16,
+            paddingTop: Platform.OS === 'android' ? 16 : undefined,
         };
     });
 
@@ -69,17 +70,13 @@ export const SwapSkeleton = memo(({ theme, loaded }: { theme: ThemeType, loaded:
         <Animated.View
             style={animatedStyles}
         >
-            <ScreenHeader
-                onBackPressed={showClose ? navigation.goBack : undefined}
-                style={{ width: '100%' }}
-            />
             <Animated.View style={[
                 {
-                    height: 44,
+                    height: Platform.OS === 'android' ? 58 : 44,
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingHorizontal: 6,
-                    marginTop: -40
+                    marginTop: 16
                 },
                 animatedContentStyles
             ]}>
@@ -115,8 +112,7 @@ export const SwapSkeleton = memo(({ theme, loaded }: { theme: ThemeType, loaded:
                             height: 36,
                             width: 36,
                             borderRadius: 36,
-                            marginTop: -9,
-                            marginBottom: -9,
+                            marginVertical: -9,
                             alignSelf: 'center'
                         },
                         animatedContentStyles
@@ -135,6 +131,14 @@ export const SwapSkeleton = memo(({ theme, loaded }: { theme: ThemeType, loaded:
                     ]}
                 />
             </View>
+            <ScreenHeader
+                closeButtonStyle={{ marginRight: 0 }}
+                onClosePressed={showClose ? navigation.goBack : undefined}
+                style={{
+                    position: 'absolute', top: 0, left: 16, right: 16,
+                    marginTop: Platform.OS === 'android' ? 10 : 0,
+                }}
+            />
         </Animated.View>
     );
 });

@@ -27,6 +27,7 @@ import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
+import { useValidAmount } from '../../utils/useValidAmount';
 
 export type TransferAction = 'withdraw' | 'top_up' | 'withdraw_ready';
 
@@ -81,17 +82,7 @@ export const StakingTransferFragment = fragment(() => {
 
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [minAmountWarn, setMinAmountWarn] = useState<string>();
-
-    const validAmount = useMemo(() => {
-        let value: bigint | null = null;
-        try {
-            const valid = amount.replace(',', '.').replaceAll(' ', '');
-            value = toNano(valid);
-            return value;
-        } catch {
-            return null;
-        }
-    }, [amount]);
+    const validAmount = useValidAmount(amount);
 
     let balance = account?.balance || 0n;
     if (params?.action === 'withdraw') {

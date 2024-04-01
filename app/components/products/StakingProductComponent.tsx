@@ -2,7 +2,7 @@ import React, { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useLiquidStakingMember, useSelectedAccount, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
+import { useSelectedAccount, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
 import { ItemDivider } from "../ItemDivider";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
@@ -12,12 +12,12 @@ import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
-import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
-import { Address, fromNano, toNano } from "@ton/core";
+import { Address } from "@ton/core";
 import { LiquidStakingPool } from "../staking/LiquidStakingPool";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import StakingIcon from '@assets/ic-staking.svg';
+import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 
 const style: StyleProp<ViewStyle> = {
     height: 86,
@@ -62,14 +62,7 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
     const account = isLedger ? ledgerAddress : selectedAccount;
 
     const active = useStakingActive(account);
-    const liquidStaking = useLiquidStaking().data;
-    const liquidNominator = useLiquidStakingMember(account)?.data;
-
-    const liquidBalance = useMemo(() => {
-        const bal = fromNano(liquidNominator?.balance || 0n);
-        const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
-        return toNano((parseFloat(bal) * parseFloat(rate)).toFixed(9));
-    }, [liquidNominator?.balance, liquidStaking?.rateWithdraw]);
+    const liquidBalance = useLiquidStakingBalance(account);
 
     const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {

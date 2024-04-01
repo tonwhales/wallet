@@ -3,7 +3,6 @@ import { useClient4, useNetwork } from "../network";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { getLiquidStakingAddress } from "../../../utils/KnownPools";
-import { LiquidStakingPool } from "../../../utils/LiquidStakingContract";
 import { LiquidStakingWallet } from "../../../utils/LiquidStakingWallet";
 
 export function useLiquidStakingMember(member: Address | null | undefined) {
@@ -17,12 +16,12 @@ export function useLiquidStakingMember(member: Address | null | undefined) {
 
     return useQuery({
         queryFn: async () => {
-            let contract = LiquidStakingPool.createFromAddress(pool);
-            let openedContract = client.open(contract);
-            let walletAddress = await openedContract.getWalletAddress(member);
-            let walletContract = client.open(LiquidStakingWallet.createFromAddress(walletAddress));
+            const walletAddress = LiquidStakingWallet.contractAddress(member, pool);
+            const walletContract = client.open(LiquidStakingWallet.createFromAddress(walletAddress));
 
-            return (await walletContract.getState())?.data ?? null;
+            const state = await walletContract.getState();
+
+            return state?.data ?? null;
         },
         refetchOnMount: true,
         refetchInterval: 10_000,

@@ -12,14 +12,16 @@ export function useLiquidStaking() {
 
   return useQuery({
     queryFn: async () => {
-      const contract = client.open(LiquidStakingPool.createFromAddress(pool));
       const status = await fetchStakingStatus(client, network.isTestnet);
 
       if (!status) {
         return null;
       }
 
-      return await contract.getPoolStatus(pool, status, network.isTestnet);
+      const contract = client.open(LiquidStakingPool.createFromAddress(pool));
+      const poolStatus = await contract.getPoolStatus(pool, status, network.isTestnet)
+      
+      return poolStatus;
     },
     refetchInterval: 5 * 60_000, // every 5 minutes
     refetchOnMount: true,

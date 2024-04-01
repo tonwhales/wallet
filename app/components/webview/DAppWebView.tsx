@@ -48,7 +48,7 @@ function WebViewLoader(props: WebViewLoaderProps<{}>) {
             style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.backgroundPrimary }]}
             pointerEvents={props.loaded ? 'none' : 'box-none'}
         >
-            <ActivityIndicator size="large" color={theme.accent} />
+            <ActivityIndicator size={'small'} color={theme.accent} />
         </Animated.View>
     );
 };

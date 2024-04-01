@@ -118,7 +118,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "actions": {
             "receive": "Получить",
             "send": "Отправить",
-            "buy": "Купить"
+            "buy": "Купить",
+            "swap": "Обмен",
         },
         "empty": {
             "message": "У вас нет транзакций",

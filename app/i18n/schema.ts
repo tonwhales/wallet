@@ -120,7 +120,8 @@ export type LocalizationSchema = {
         actions: {
             receive: string,
             send: string,
-            buy: string
+            buy: string,
+            swap: string,
         },
         empty: {
             message: string,

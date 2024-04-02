@@ -228,6 +228,20 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, []);
 
+    // Resolve known wallets params
+    const known = KnownWallets(network.isTestnet)[target];
+
+    // Resolve memo error string
+    const commentError = useMemo(() => {
+        if (!known || !known.requireMemo) {
+            return undefined;
+        }
+        if (!commentString || commentString.length === 0) {
+            return t('transfer.error.memoRequired');
+        }
+        return undefined;
+    }, [commentString, known]);
+
     // Resolve order
     const order = useMemo(() => {
         if (validAmount === null) {
@@ -237,6 +251,13 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             Address.parseFriendly(target);
         } catch (e) {
+            return null;
+        }
+
+        if (
+            (!!known && known.requireMemo)
+            && (!commentString || commentString.length === 0)
+        ) {
             return null;
         }
 
@@ -300,7 +321,14 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, estimation]);
+    }, [
+        validAmount, target, domain, commentString, stateInit, jettonState,
+        params?.app,
+        acc,
+        ledgerAddress,
+        estimation,
+        known
+    ]);
 
     // Estimate fee
     const config = useConfig();
@@ -489,7 +517,7 @@ export const SimpleTransferFragment = fragment(() => {
                 });
             }
         }
-    }, [commentString, target, validAmount, stateInit, jetton,]);
+    }, [commentString, target, validAmount, stateInit, jetton]);
 
     const onAddAll = useCallback(() => {
         const amount = jettonState
@@ -524,8 +552,6 @@ export const SimpleTransferFragment = fragment(() => {
         }
         setJetton(null);
     }, []);
-
-    const isKnown: boolean = !!KnownWallets(network.isTestnet)[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -1011,10 +1037,10 @@ export const SimpleTransferFragment = fragment(() => {
                                 ref={refs[2]}
                                 onFocus={onFocus}
                                 onValueChange={setComment}
-                                placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                 keyboardType={'default'}
                                 autoCapitalize={'sentences'}
-                                label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                 style={{ paddingHorizontal: 16 }}
                                 inputStyle={{
                                     flexShrink: 1,
@@ -1023,6 +1049,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     textAlignVertical: 'center',
                                 }}
                                 multiline
+                                error={commentError}
                             />
                         </View>
                         {selected === 'comment' && (

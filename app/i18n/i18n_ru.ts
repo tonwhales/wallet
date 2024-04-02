@@ -155,7 +155,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "addressCantReceive": "Адрес получателя не может принимать монеты",
             "addressIsNotActive": "У кошелька получателя нет истории",
             "addressIsNotActiveDescription": "С данного кошелька не было совершено ни одной исходящей транзакции",
-            "invalidTransaction": "Неверная транзакция"
+            "invalidTransaction": "Неверная транзакция",
+            // memoRequired: 'Memo or Tag is required'
+            "memoRequired": "Требуется мемо или тег в сообщении",
         },
         "sendAll": "Max",
         "scanQR": "Считать QR код",
@@ -167,7 +169,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "purpose": "Цель транзакции",
         "comment": "Cообщение (необязательно)",
         "commentDescription": "Сообщение будет видно всем в блокчейне",
-        "commentRequired": "Проверьте сообщение перед отправкой",
+        "commentRequired": "Проверьте мемо/тег перед отправкой",
         "commentLabel": "Сообщение",
         "checkComment": "Проверьте перед отправкой",
         "confirmTitle": "Подтверждение транзакции",

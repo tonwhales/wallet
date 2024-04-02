@@ -173,6 +173,7 @@ export type LocalizationSchema = {
             addressIsNotActive: string
             addressIsNotActiveDescription: string,
             invalidTransaction: string,
+            memoRequired: string
         },
         sendAll: string,
         scanQR: string,

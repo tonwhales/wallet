@@ -276,15 +276,20 @@ export function TransactionView(props: {
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        {known
-                            ? known.name
-                            : <AddressComponent
-                                testOnly={isTestnet}
-                                address={parsedOpAddr.address}
-                                bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
-                            />
-                        }
-                        {` • ${formatTime(tx.base.time)}`}
+                        {tx.outMessagesCount <= 1 && (
+                            <>
+                                {known
+                                    ? known.name
+                                    : <AddressComponent
+                                        testOnly={isTestnet}
+                                        address={parsedOpAddr.address}
+                                        bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
+                                    />
+                                }
+                                {' • '}
+                            </>
+                        )}
+                        {`${formatTime(tx.base.time)}`}
                     </Text>
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>

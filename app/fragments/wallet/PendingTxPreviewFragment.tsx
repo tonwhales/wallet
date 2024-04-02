@@ -235,6 +235,8 @@ const PendingTxPreview = () => {
                                     address={participants.to.address}
                                     bounceable={tx.body?.type === 'token' ? tx.body.bounceable : tx.bounceable}
                                     end={4}
+                                    known={!!known}
+                                    testOnly={isTestnet}
                                 />
                             </PerfText>
                         </PerfView>
@@ -319,7 +321,7 @@ const PendingTxPreview = () => {
                                 to={participants.to}
                                 kind={'out'}
                                 theme={theme}
-                                isTestnet={isTestnet}
+                                testOnly={isTestnet}
                                 bounceableFormat={bounceableFormat}
                             />
                         </>

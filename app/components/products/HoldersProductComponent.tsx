@@ -49,7 +49,7 @@ export const HoldersProductComponent = memo(() => {
         return null;
     }
 
-    if (visibleAccountsList.length <= 3) {
+    if ((visibleAccountsList.length + visiblePrepaidList.length) <= 3) {
         return (
             <View style={{ marginBottom: 16, paddingHorizontal: 16, gap: 16 }}>
                 <View
@@ -73,6 +73,17 @@ export const HoldersProductComponent = memo(() => {
                         />
                     )
                 })}
+                {visiblePrepaidList.map((item, index) => {
+                    return (
+                        <HoldersAccountItem
+                            key={`card-${index}`}
+                            account={{ ...item, type: 'prepaid' }}
+                            rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                            rightAction={() => markPrepaidCard(item.card.id, true)}
+                            style={{ paddingVertical: 0 }}
+                        />
+                    )
+                })}
             </View>
         )
     }
@@ -83,13 +94,15 @@ export const HoldersProductComponent = memo(() => {
                 title={t('products.holders.accounts.title')}
                 items={[...visibleAccountsList, ...visiblePrepaidList]}
                 renderItem={(item, index) => {
-                    const rightAction = item.type === 'account' ? markCard : markPrepaidCard;
+                    const rightAction = item.type === 'account'
+                        ? () => markCard(item.id, true)
+                        : () => markPrepaidCard(item.card.id, true);
                     return (
                         <HoldersAccountItem
                             key={`card-${index}`}
                             account={item}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                            rightAction={() => rightAction(item.id, true)}
+                            rightAction={rightAction}
                         />
                     )
                 }}

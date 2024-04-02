@@ -473,6 +473,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 proAccount: 'Pro account',
                 noCards: 'No cards',
                 prepaidCard: 'Prepaid card',
+                prepaidCardDescription: 'Reloadable card for everyday use',
             },
             pageTitles: {
                 general: 'Tonhub Cards',

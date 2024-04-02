@@ -475,6 +475,7 @@ export type LocalizationSchema = {
                 proAccount: string,
                 noCards: string,
                 prepaidCard: string,
+                prepaidCardDescription: string,
             },
             pageTitles: {
                 general: string,

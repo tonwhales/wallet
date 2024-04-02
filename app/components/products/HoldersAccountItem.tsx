@@ -59,32 +59,22 @@ export const HoldersAccountItem = memo((props: {
     }, [props.account]);
 
     const onPress = useCallback(() => {
-        if (props.account.type === 'prepaid') {
-            if (needsEnrollment) {
-                navigation.navigate(
-                    'HoldersLanding',
-                    {
-                        endpoint: holdersUrl,
-                        onEnrollType: props.account.card ? { type: 'prepaid', id: props.account.card.id } : { type: 'create' }
-                    }
-                );
-                return;
-            }
-            navigation.navigateHolders(props.account.card ? { type: 'prepaid', id: props.account.card.id } : { type: 'create' });
-            return;
-        }
 
         if (needsEnrollment) {
+            const onEnrollType = props.account.type === 'prepaid'
+                ? { type: 'prepaid', id: props.account.card.id }
+                : { type: 'account', id: props.account.id };
             navigation.navigate(
                 'HoldersLanding',
-                {
-                    endpoint: holdersUrl,
-                    onEnrollType: props.account ? { type: 'account', id: props.account.id } : { type: 'create' }
-                }
+                { endpoint: holdersUrl, onEnrollType: onEnrollType }
             );
             return;
         }
-        navigation.navigateHolders(props.account ? { type: 'account', id: props.account.id } : { type: 'create' });
+
+        navigation.navigateHolders(props.account.type === 'prepaid'
+            ? { type: 'prepaid', id: props.account.card.id }
+            : { type: 'account', id: props.account.id }
+        );
     }, [props.account, needsEnrollment]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
@@ -97,7 +87,10 @@ export const HoldersAccountItem = memo((props: {
         title = t('products.holders.accounts.prepaidCard');
     }
 
-    const subtitle = isPro ? t('products.holders.accounts.proAccount') : t('products.holders.accounts.basicAccount');
+    let subtitle = isPro ? t('products.holders.accounts.proAccount') : t('products.holders.accounts.basicAccount');
+    if (props.account.type === 'prepaid') {
+        subtitle = t('products.holders.accounts.prepaidCardDescription');
+    }
 
     return (
         <Swipeable
@@ -164,22 +157,9 @@ export const HoldersAccountItem = memo((props: {
                                     <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                         <ValueComponent value={toNano(props.account.card.fiatBalance)} precision={2} centFontStyle={{ color: theme.textSecondary }} />
                                         <PerfText style={{ color: theme.textSecondary }}>
-                                            {' EUR'}
+                                            {` ${props.account.card.fiatCurrency}`}
                                         </PerfText>
                                     </PerfText>
-                                    {/* <PriceComponent
-                                        // amount={BigInt(props.account.balance)}
-                                        amount={BigInt(props.account.card.fiatBalance)}
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            paddingHorizontal: 0, paddingVertical: 0,
-                                            alignSelf: 'flex-end',
-                                            height: undefined
-                                        }}
-                                        textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                        currencyCode={'EUR'}
-                                        theme={theme}
-                                    /> */}
                                 </View>
                             ) : props.account.balance && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
@@ -216,7 +196,7 @@ export const HoldersAccountItem = memo((props: {
                             {props.account.type === 'prepaid' ? (
                                 <HoldersAccountCard
                                     key={'card-item-prepaid'}
-                                    card={props.account.card as GeneralHoldersCard}
+                                    card={{ ...props.account.card, personalizationCode: 'black-pro' } as GeneralHoldersCard}
                                     theme={theme}
                                 />
                             ) : (

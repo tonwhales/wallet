@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, View } from 'react-native';
+import { Linking, Platform, View, useWindowDimensions } from 'react-native';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
@@ -31,8 +31,9 @@ export function normalizePath(path: string) {
 }
 
 import IcHolders from '@assets/ic_holders.svg';
+import { useDimensions } from '@react-native-community/hooks';
 
-function PulsingCardPlaceholder(theme: ThemeType) {
+function PulsingAccountPlaceholder(theme: ThemeType) {
     const safeArea = useSafeAreaInsets();
     const animation = useSharedValue(0);
 
@@ -65,7 +66,7 @@ function PulsingCardPlaceholder(theme: ThemeType) {
             <View
                 style={{
                     backgroundColor: theme.backgroundUnchangeable,
-                    height: 324,
+                    height: Platform.OS === 'android'? 296 : 324,
                     position: 'absolute',
                     top: -30 - 36 - safeArea.top,
                     left: -4,
@@ -83,7 +84,7 @@ function PulsingCardPlaceholder(theme: ThemeType) {
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingHorizontal: 22,
-                    marginTop: -12
+                    marginTop: Platform.OS === 'android' ? -24 : -12
                 },
                 animatedStyles
             ]}>
@@ -95,7 +96,7 @@ function PulsingCardPlaceholder(theme: ThemeType) {
                 <View style={{ height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ backgroundColor: theme.textSecondary, height: 28, width: 132, borderRadius: 20 }} />
                 </View>
-                <View style={{ width: 32, height: 32, }} />
+                <View style={{ width: 32, height: 32 }} />
             </Animated.View>
             <Animated.View
                 style={[
@@ -139,6 +140,91 @@ function PulsingCardPlaceholder(theme: ThemeType) {
     );
 }
 
+function PulsingCardPlaceholder(theme: ThemeType) {
+    const dimensions = useDimensions();
+    const animation = useSharedValue(0);
+
+    useEffect(() => {
+        animation.value =
+            withRepeat(
+                withTiming(1, {
+                    duration: 450,
+                    easing: Easing.bezier(0.42, 0, 1, 1)
+                }),
+                -1,
+                true,
+            );
+    }, []);
+
+    const animatedStyles = useAnimatedStyle(() => {
+        const scale = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 1.03],
+            Extrapolation.CLAMP,
+        )
+        return {
+            transform: [{ scale: scale }],
+        };
+    }, []);
+
+    return (
+        <View style={{ flexGrow: 1, width: '100%' }}>
+            <Animated.View style={[
+                {
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                    marginTop: 48,
+                    gap: 28
+                },
+                animatedStyles
+            ]}>
+                <View
+                    style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        width: (dimensions.screen.width - 56) * 0.1 - 8,
+                        height: 152,
+                        marginLeft: -16,
+                        borderTopEndRadius: 20,
+                        borderBottomEndRadius: 20
+                    }}
+                />
+                <View
+                    style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        width: dimensions.screen.width - 108,
+                        height: 186,
+                        borderRadius: 20
+                    }}
+                />
+                <View
+                    style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        width: (dimensions.screen.width - 56) * 0.1 - 8,
+                        height: 152,
+                        marginRight: -16,
+                        borderTopStartRadius: 20,
+                        borderBottomStartRadius: 20
+                    }}
+                />
+            </Animated.View>
+            <Animated.View style={[
+                {
+                    backgroundColor: theme.surfaceOnBg,
+                    alignSelf: 'center',
+                    height: 96,
+                    width: dimensions.screen.width - 32,
+                    marginTop: 38,
+                    borderRadius: 20
+                },
+                animatedStyles
+            ]} />
+        </View>
+    );
+}
+
 export function HoldersPlaceholder() {
     const animation = useSharedValue(0);
 
@@ -169,6 +255,7 @@ export function HoldersPlaceholder() {
         )
         return {
             flex: 1,
+            flexGrow: 1,
             alignSelf: 'center',
             justifyContent: 'center',
             marginBottom: 56,
@@ -224,15 +311,27 @@ export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'accoun
         return null;
     }
 
+    let placeholder = <HoldersPlaceholder />;
+
+    if (type === 'account') {
+        placeholder = <PulsingAccountPlaceholder {...theme} />;
+    }
+
+    if (type === 'prepaid') {
+        placeholder = <PulsingCardPlaceholder {...theme} />;
+    }
+
     return (
         <Animated.View
             style={animatedStyles}
         >
+            <View style={{ marginTop: 58, width: '100%', flexGrow: 1 }}>
+                {placeholder}
+            </View>
             <ScreenHeader
                 onBackPressed={showClose ? navigation.goBack : undefined}
-                style={{ paddingHorizontal: 16, width: '100%' }}
+                style={{ position: 'absolute', top: 32, left: 16, right: 0 }}
             />
-            {(type === 'account' || type === 'prepaid') ? <PulsingCardPlaceholder {...theme} /> : <HoldersPlaceholder />}
         </Animated.View>
     );
 }
@@ -262,6 +361,8 @@ export const HoldersAppComponent = memo((
             route = '/create';
         } else if (props.variant.type === 'account') {
             route = `/account/${props.variant.id}`;
+        } else if (props.variant.type === 'prepaid') {
+            route = `/card-prepaid/${props.variant.id}`;
         }
 
         const queryParams = new URLSearchParams({

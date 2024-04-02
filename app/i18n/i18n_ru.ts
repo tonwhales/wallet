@@ -473,6 +473,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "proAccount": 'Pro счет',
                 "noCards": "Нет карт",
                 "prepaidCard": "Prepaid карта",
+                "prepaidCardDescription": 'Пополняемая карта на каждый день',
             },
             "pageTitles": {
                 "general": "Tonhub Cards",

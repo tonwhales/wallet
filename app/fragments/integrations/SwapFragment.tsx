@@ -18,9 +18,11 @@ import { DAppWebView } from "../../components/webview/DAppWebView";
 import WebView from "react-native-webview";
 import { SwapSkeleton } from "../../components/skeletons/SwapSkeleton";
 import { useTrackScreen } from "../../analytics/mixpanel";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const SwapFragment = fragment(() => {
     const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
     const { isTestnet } = useNetwork();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const [pushPemissions,] = usePermissions();
@@ -111,10 +113,7 @@ export const SwapFragment = fragment(() => {
             // useMainButton,
             useToaster: true,
             useQueryAPI: true,
-            onShouldStartLoadWithRequest: loadWithRequest,
-            onMessage: (event: any) => {
-                console.log('onMessage', event);
-            },
+            onShouldStartLoadWithRequest: loadWithRequest
         }
     }, [theme, isTestnet, bridgeEngine, loadWithRequest, bounceableFormat]);
 
@@ -139,7 +138,7 @@ export const SwapFragment = fragment(() => {
                 webviewDebuggingEnabled={isTestnet}
                 onContentProcessDidTerminate={webViewRef.current?.reload}
                 loader={(l) => <SwapSkeleton loaded={l.loaded} theme={theme} />}
-                defaultSafeArea={Platform.OS === 'ios' ? undefined : { top: 16 }}
+                defaultSafeArea={Platform.OS === 'ios' ? { bottom: safeArea.bottom - 8 } : { top: 16, bottom: 0 }}
             />
         </View>
     );

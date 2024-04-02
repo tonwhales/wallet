@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useContractMetadatas, useDontShowComments, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { TransactionDescription } from "../../engine/types";
 import { BigMath } from "../../utils/BigMath";
@@ -75,13 +75,13 @@ const TransactionPreview = () => {
     const item = operation.items[0];
     const fees = BigInt(tx.base.fees);
     const messages = tx.outMessages ?? [];
-
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
     const isOwn = appState.addresses.findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
     const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
 
+    const preparedMessages = usePeparedMessages(messages, isTestnet);
     const [walletsSettings,] = useWalletsSettings();
     const ownWalletSettings = walletsSettings[opAddressBounceable];
     const opAddressWalletSettings = walletsSettings[opAddressBounceable];
@@ -238,7 +238,7 @@ const TransactionPreview = () => {
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
                     {tx.outMessagesCount > 1 ? (
                         <BatchAvatars
-                            messages={tx.outMessages}
+                            messages={messages}
                             size={68}
                             icProps={{
                                 size: 28,
@@ -334,7 +334,30 @@ const TransactionPreview = () => {
                             {t('tx.failed')}
                         </PerfText>
                     ) : (
-                        tx.outMessagesCount > 1 ? (null) : (
+                        tx.outMessagesCount > 1 ? (
+                            <PerfView style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                {preparedMessages.map((message, index) => {
+                                    if (!message.amountString) {
+                                        return null;
+                                    }
+
+                                    return (
+                                        <Text
+                                            key={`prep-amount-${index}`}
+                                            minimumFontScale={0.4}
+                                            adjustsFontSizeToFit={true}
+                                            numberOfLines={1}
+                                            style={[
+                                                { color: theme.textPrimary },
+                                                Typography.semiBold17_24
+                                            ]}
+                                        >
+                                            {message.amountString}
+                                        </Text>
+                                    );
+                                })}
+                            </PerfView>
+                        ) : (
                             <>
                                 <Text
                                     minimumFontScale={0.4}
@@ -378,7 +401,7 @@ const TransactionPreview = () => {
                     <>
                         <PerfView style={{ marginTop: 16 }}>
                             <PreviewMessages
-                                outMessages={messages}
+                                outMessages={preparedMessages}
                                 theme={theme}
                                 addressBook={addressBook.state}
                             />

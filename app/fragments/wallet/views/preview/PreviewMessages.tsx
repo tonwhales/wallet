@@ -1,22 +1,18 @@
-import { Address, Cell, fromNano, toNano } from "@ton/core";
-import { memo, useMemo } from "react";
+import { Address, fromNano } from "@ton/core";
+import { memo } from "react";
 import { View, Text, Image, Platform } from "react-native";
 import { ThemeType } from "../../../../engine/state/theme";
-import { useContractMetadata, useNetwork, useServerConfig } from "../../../../engine/hooks";
-import { parseBody } from "../../../../engine/transactions/parseWalletTransaction";
-import { JettonMasterState } from "../../../../engine/metadata/fetchJettonMasterContent";
-import { getJettonMaster } from "../../../../engine/getters/getJettonMaster";
-import { resolveOperation } from "../../../../engine/transactions/resolveOperation";
+import { useNetwork, useServerConfig } from "../../../../engine/hooks";
 import { KnownWallet, KnownWallets } from "../../../../secure/KnownWallets";
 import { AddressBook, AddressContact } from "../../../../engine/hooks/contacts/useAddressBook";
 import { ServerConfig } from "../../../../engine/api/fetchConfig";
 import { ItemCollapsible } from "../../../../components/ItemCollapsible";
 import { t } from "../../../../i18n/t";
 import { PriceComponent } from "../../../../components/PriceComponent";
-import { StoredMessage } from "../../../../engine/types/transactions";
 import { Typography } from "../../../../components/styles";
 import { useContractInfo } from "../../../../engine/hooks/metadata/useContractInfo";
 import { WalletAddress } from "../../../../components/address/WalletAddress";
+import { PreparedMessage } from "../../../../engine/hooks/transactions/usePeparedMessages";
 
 const MessagePreview = memo(({
     index,
@@ -28,82 +24,26 @@ const MessagePreview = memo(({
     serverConfig
 }: {
     index: number
-    message: StoredMessage,
+    message: PreparedMessage,
     theme: ThemeType,
     isTestnet: boolean,
     contacts: { [key: string]: AddressContact },
     denyList: { [key: string]: { reason: string | null } },
     serverConfig?: ServerConfig
 }) => {
-    const addressString = message.info.type === 'internal' ? message.info.dest : null;
-    const metadata = useContractMetadata(addressString);
+    const addressString = message.addressString;
+    const gas = message.gas;
+    const amountString = message.amountString;
+    const operation = message.operation;
+    const friendlyTarget = message.friendlyTarget;
+
+    let amount = message.amount;
+
     const contractInfo = useContractInfo(addressString);
     const bounceable = contractInfo?.kind !== 'wallet';
 
-    const address = useMemo(() => {
-        if (!addressString) {
-            return null;
-        }
-        try {
-            return Address.parse(addressString);
-        } catch (error) {
-            return null;
-        }
-    }, [addressString]);
-
-    if (!address || !addressString || message.info.type !== 'internal') {
-        return null;
-    }
-
-    // check for empty body
-    const bodyCell = Cell.fromBoc(Buffer.from(message.body, 'base64'))[0];
-    const body = parseBody(bodyCell);
-    let amount = BigInt(message.info.value || '0');
-
-    // Read jetton master
-    let jettonMaster: JettonMasterState | null = null;
-    if (!!metadata?.jettonWallet) {
-        jettonMaster = getJettonMaster(Address.parse(metadata.jettonWallet.master), isTestnet) || null;
-    }
-
-    let jettonAmount: bigint | null = null;
-    try {
-        if (jettonMaster && message.body) {
-            const temp = bodyCell;
-            if (temp) {
-                const parsing = temp.beginParse();
-                parsing.loadUint(32);
-                parsing.loadUint(64);
-                jettonAmount = parsing.loadCoins();
-            }
-        }
-    } catch {
-        console.warn('Failed to parse jetton amount');
-    }
-
-    let gas: { amount: bigint | null, unusual: boolean } = {
-        amount: null,
-        unusual: false
-    };
-
-    if (jettonAmount && !!jettonMaster && !!metadata?.jettonWallet) {
-        gas.amount = amount;
-
-        if (amount > toNano('0.2')) {
-            gas.unusual = true;
-        }
-    }
-
-    // Resolve operation
-    let operation = resolveOperation({
-        body: body,
-        amount: amount,
-        account: address,
-    }, isTestnet);
-
-    const friendlyTarget = operation.address;
     const target = Address.parse(friendlyTarget);
-    const contact = contacts[operation.address];
+    const contact = contacts[friendlyTarget];
 
     let known: KnownWallet | undefined = undefined;
 
@@ -113,15 +53,11 @@ const MessagePreview = memo(({
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
-    const isSpam = !!(denyList ?? {})[operation.address];
+    const isSpam = !!(denyList ?? {})[friendlyTarget];
     const spam = !!serverConfig?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
 
     if (!amount && operation.items[0].kind === 'ton') {
         amount = BigInt(operation.items[0].amount);
-    }
-
-    if (!jettonAmount && operation.items[0].kind === 'token') {
-        jettonAmount = BigInt(operation.items[0].amount);
     }
 
     return (
@@ -130,7 +66,7 @@ const MessagePreview = memo(({
             titleStyle={[{ color: theme.textPrimary }, Typography.regular17_24]}
             title={t('common.message') + ` #${index + 1}`}
         >
-            {(jettonAmount || amount) && (
+            {!!amountString && (
                 <>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
@@ -138,12 +74,9 @@ const MessagePreview = memo(({
                         </Text>
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
-                                {jettonAmount
-                                    ? fromNano(jettonAmount) + (` ${jettonMaster?.symbol}` ?? '')
-                                    : fromNano(amount) + ' TON'
-                                }
+                                {amountString}
                             </Text>
-                            {!jettonAmount && (
+                            {!!amount && (
                                 <PriceComponent
                                     amount={amount}
                                     style={{
@@ -215,7 +148,7 @@ const MessagePreview = memo(({
                     )}
                 </View>
             </View>
-            {!!jettonAmount && (
+            {!!gas && (
                 <>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -224,10 +157,10 @@ const MessagePreview = memo(({
                         </Text>
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
-                                {fromNano(amount) + ' TON'}
+                                {fromNano(gas.amount) + ' TON'}
                             </Text>
                             <PriceComponent
-                                amount={amount}
+                                amount={gas.amount}
                                 style={{
                                     backgroundColor: theme.transparent,
                                     paddingHorizontal: 0,
@@ -279,7 +212,7 @@ export const PreviewMessages = memo(({
     theme,
     addressBook
 }: {
-    outMessages: StoredMessage[],
+    outMessages: PreparedMessage[],
     theme: ThemeType,
     addressBook: AddressBook,
 }) => {

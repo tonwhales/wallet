@@ -566,5 +566,11 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             'EQCBdxpECfEPH2wUxi1a6QiOkSf-5qDjUWqLCUuKtD-GLINT': {}, // GLINT
             'EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O': {}, // GRAM
         }
-        : {};
+        : {
+            'kQAZym3GBvem-frRGy1gUIaO-IBb5ByJPrm8aXtN7a_6PK4w': {} // USDT (j1INCH)
+        };
+}
+
+export const USDTMaster: (isTestnet: boolean) => string | null = (isTestnet: boolean) => {
+    return isTestnet? 'kQAZym3GBvem-frRGy1gUIaO-IBb5ByJPrm8aXtN7a_6PK4w' : null
 }

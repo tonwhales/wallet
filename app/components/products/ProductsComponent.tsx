@@ -21,6 +21,7 @@ import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import { AddressFormatUpdate } from "./AddressFormatUpdate"
 import { TonProductComponent } from "./TonProductComponent"
+import { USDTProduct } from "./USDTProduct"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -161,6 +162,14 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     balance={balance}
                     theme={theme}
                     navigation={navigation}
+                />
+
+                <USDTProduct
+                    key={'usdt-native'}
+                    theme={theme}
+                    navigation={navigation}
+                    address={selected.address}
+                    testOnly={isTestnet}
                 />
 
                 <HoldersProductComponent key={'holders'} />

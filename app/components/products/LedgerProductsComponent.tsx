@@ -8,8 +8,10 @@ import { Typography } from "../styles";
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TonProductComponent } from "./TonProductComponent";
+import { USDTProduct } from "./USDTProduct";
+import { Address } from "@ton/core";
 
-export const LedgerProductsComponent = React.memo(({ account }: { account: AccountLite }) => {
+export const LedgerProductsComponent = React.memo(({ account, testOnly }: { account: AccountLite, testOnly: boolean }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
@@ -36,6 +38,15 @@ export const LedgerProductsComponent = React.memo(({ account }: { account: Accou
                     theme={theme}
                     navigation={navigation}
                     isLedger
+                />
+
+                <USDTProduct
+                    key={'usdt-native'}
+                    theme={theme}
+                    navigation={navigation}
+                    isLedger
+                    address={Address.parse(account.address)}
+                    testOnly={testOnly}
                 />
 
                 <View style={{ paddingHorizontal: 16 }}>

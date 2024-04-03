@@ -71,7 +71,7 @@ export const TransferSingleView = memo(({
     isSpam: boolean,
     isWithStateInit?: boolean,
     isLedger?: boolean,
-    contact?: AddressContact | null,
+    contact?: AddressContact | null
 }) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
@@ -256,7 +256,13 @@ export const TransferSingleView = memo(({
                                 color: theme.textPrimary,
                                 marginTop: 2
                             }}>
-                                <AddressComponent bounceable={target.bounceable} address={target.address} end={4} />
+                                <AddressComponent
+                                    bounceable={target.bounceable}
+                                    address={target.address}
+                                    end={4}
+                                    testOnly={isTestnet}
+                                    known={!!known}
+                                />
                                 {isTargetLedger && ' (Ledger)'}
                             </Text>
                         </View>
@@ -324,9 +330,9 @@ export const TransferSingleView = memo(({
                                             address={fromAddress}
                                             end={4}
                                             bounceable={bounceableFormat}
+                                            testOnly={isTestnet}
                                         />
                                     </Text>
-
                                 </Text>
                             </View>
                         </View>

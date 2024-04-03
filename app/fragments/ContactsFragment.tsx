@@ -8,7 +8,7 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { useSelectedAccount, useTheme, useAccountTransactions } from '../engine/hooks';
+import { useSelectedAccount, useTheme, useAccountTransactions, useNetwork } from '../engine/hooks';
 import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useParams } from "../utils/useParams";
@@ -25,6 +25,7 @@ export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { callback } = useParams<{ callback?: (address: Address) => void }>();
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
@@ -164,7 +165,13 @@ export const ContactsFragment = fragment(() => {
                         showsVerticalScrollIndicator={true}
                     >
                         {transactionsAddresses.map((a, index) => {
-                            return (<ContactTransactionView key={`recent-${index}`} addr={a} />);
+                            return (
+                                <ContactTransactionView
+                                    key={`recent-${index}`}
+                                    addr={a}
+                                    testOnly={isTestnet}
+                                />
+                            );
                         })}
                     </ScrollView>
                 </>
@@ -179,6 +186,7 @@ export const ContactsFragment = fragment(() => {
                                 key={`contact-${d[0]}`}
                                 addressFriendly={d[0]}
                                 action={callback}
+                                testOnly={isTestnet}
                             />
                         );
                     })}

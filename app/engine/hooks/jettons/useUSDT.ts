@@ -14,12 +14,12 @@ export function useUSDT(address: Address) {
 
     const udstInTon = useMemo(() => {
         try {
-            return (price?.price.usd ?? 0) * parseFloat(fromNano(usdt?.balance ?? 0n))
+            return (price?.price?.usd ?? 0) * parseFloat(fromNano(usdt?.balance ?? 0n))
         } catch {
             console.warn('Failed to calculate USDT in TON');
             return 0n;
         }
-    }, [price.price.usd, usdt?.balance]);
+    }, [price?.price?.usd, usdt?.balance]);
 
     return { ...usdt, toTon: toNano(udstInTon) };
 }

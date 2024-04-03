@@ -31,6 +31,11 @@ export type ResolvedUrl = {
 } | {
     type: 'tonconnect',
     query: ConnectQrQuery
+} | {
+    type: 'tx',
+    address: string,
+    hash: string,
+    lt: string
 }
 
 export function isUrl(str: string): boolean {
@@ -43,6 +48,8 @@ export function isUrl(str: string): boolean {
 }
 
 export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
+
+    console.log('resolveUrl', src);
 
 
     // Try address parsing
@@ -130,6 +137,29 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 type: 'connect',
                 session,
                 endpoint
+            }
+        }
+
+        console.log({
+            url: url.toString(),
+            protocol: url.protocol,
+            host: url.host,
+            pathname: url.pathname,
+            query: url.query
+        })
+
+        if ((url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:') && url.host.toLowerCase() === 'tx' && url.pathname.startsWith('/')) {
+            // `${test ? 'ton-test://' : 'ton://'}tx/${to}/${t.lt}_${encodeURIComponent(t.hash)}`
+            const address = url.pathname.slice(1).split('/')[0];
+            const txId = url.pathname.slice(1).split('/')[1].split('_');
+            const lt = txId[0];
+            const hash = decodeURIComponent(txId[1]);
+
+            return {
+                type: 'tx',
+                address,
+                hash,
+                lt
             }
         }
 

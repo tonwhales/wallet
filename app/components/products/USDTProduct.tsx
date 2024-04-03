@@ -8,10 +8,7 @@ import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 import { Address } from "@ton/core";
-import { useJettons } from "../../engine/hooks";
-import { USDTMaster } from "../../secure/KnownWallets";
-
-// import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { useUSDT } from "../../engine/hooks/jettons/useUSDT";
 
 export const USDTProduct = memo(({
     theme,
@@ -27,11 +24,7 @@ export const USDTProduct = memo(({
     testOnly: boolean
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
-    const jettons = useJettons(address.toString({ testOnly }));
-    const usdtMaster = USDTMaster(testOnly);
-    const usdt = !!usdtMaster
-        ? jettons.find(j => j.master.equals(Address.parse(usdtMaster)))
-        : null;
+    const usdt = useUSDT(address);
 
     const balance = usdt?.balance ?? 0n;
 

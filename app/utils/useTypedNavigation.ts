@@ -10,6 +10,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
+import { HomeFragmentProps } from '../fragments/HomeFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -122,7 +123,7 @@ export class TypedNavigation {
     navigateHolders(params: HoldersAppParams) {
         this.navigate('Holders', params);
     }
-    
+
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
     }
@@ -148,6 +149,10 @@ export class TypedNavigation {
 
     navigateDAppWebView(params: DAppWebViewFragmentParams) {
         this.navigate('DAppWebView', params);
+    }
+
+    navigateAndReplaceHome(params?: HomeFragmentProps) {
+        this.navigateAndReplaceAll('Home', params);
     }
 }
 

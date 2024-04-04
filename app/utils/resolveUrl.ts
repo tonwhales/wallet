@@ -150,7 +150,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
         if ((url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:') && url.host.toLowerCase() === 'tx' && url.pathname.startsWith('/')) {
             // `${test ? 'ton-test://' : 'ton://'}tx/${to}/${t.lt}_${encodeURIComponent(t.hash)}`
-            const address = url.pathname.slice(1).split('/')[0];
+            const address = decodeURIComponent(url.pathname.slice(1).split('/')[0]);
             const txId = url.pathname.slice(1).split('/')[1].split('_');
             const lt = txId[0];
             const hash = decodeURIComponent(txId[1]);

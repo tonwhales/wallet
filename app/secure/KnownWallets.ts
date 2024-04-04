@@ -55,6 +55,7 @@ const Img_BitGo = require('@assets/known/bitgo.png');
 const Img_BitCom = require('@assets/known/bitcom.png');
 const Img_AvanChange = require('@assets/known/avanchange.png');
 const Img_FixedFloat = require('@assets/known/fixedfloat.png');
+const Img_Bybit = require('@assets/known/bybit.png');
 
 export type KnownWallet = {
     name: string,
@@ -553,7 +554,11 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_BitGo,
                 requireMemo: true
             },
-            [Address.parse('EQDD8dqOzaj4zUK6ziJOo_G2lx6qf1TEktTRkFJ7T1c_fPQb').toString()]: { name: 'Bybit' },
+            [Address.parse('EQDD8dqOzaj4zUK6ziJOo_G2lx6qf1TEktTRkFJ7T1c_fPQb').toString()]: {
+                name: 'Bybit',
+                ic: Img_Bybit,
+                requireMemo: true
+            },
             [Address.parse('EQAAi7CI6B441YOCaQEJNWcCfMFXXsdErDVPpO7sMC0WbSVp').toString()]: {
                 name: 'bit.com',
                 ic: Img_BitCom,

@@ -286,7 +286,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 <AddressSearch
                     account={props.acc}
                     onSelect={(item) => {
-                        const friendly = item.addr.address.toString({ testOnly: props.isTestnet, bounceable: item.addr.isBounceable });
+                        const friendly = item.addr.address.toString({
+                            testOnly: props.isTestnet,
+                            bounceable: item.known ? true : item.addr.isBounceable
+                        });
+                        
                         let name = item.type !== 'unknown' ? item.title : friendly;
 
                         if (item.isLedger) {

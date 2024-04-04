@@ -229,7 +229,7 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     // Resolve known wallets params
-    const known = KnownWallets(network.isTestnet)[target];
+    const known = KnownWallets(network.isTestnet)[targetAddressValid?.address.toString({ testOnly: network.isTestnet }) ?? ''];
 
     // Resolve memo error string
     const commentError = useMemo(() => {

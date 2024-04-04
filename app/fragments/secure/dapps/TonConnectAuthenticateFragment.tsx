@@ -18,7 +18,7 @@ import { handleConnectDeeplink } from '../../../engine/tonconnect/handleConnectD
 import { isUrl } from '../../../utils/resolveUrl';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { getAppManifest } from '../../../engine/getters/getAppManifest';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useSaveAppConnection } from '../../../engine/hooks';
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../../engine/tonconnect/utils';
 import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../../engine/tonconnect/types';
@@ -224,7 +224,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
                 // Save connection
                 saveAppConnection({
-                    address: acc.addressString,
+                    address: acc.address.toString({ testOnly: isTestnet }),
                     app: {
                         name: state.app.name,
                         url: state.app.url,

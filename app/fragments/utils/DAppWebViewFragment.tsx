@@ -21,10 +21,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { useFocusEffect } from "@react-navigation/native";
 import { QueryParamsState } from "../../components/webview/utils/extractWebViewQueryAPIParams";
-import { Ionicons } from '@expo/vector-icons';
-import { CloseButton } from "../../components/navigation/CloseButton";
-import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
-import { t } from "../../i18n/t";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
 
@@ -44,16 +40,10 @@ export type DAppWebViewFragmentParams = {
     refId?: string;
     engine?: DAppEngine;
     defaultQueryParamsState?: QueryParamsState;
-    controlls?: {
-        back?: boolean;
-        forward?: boolean;
-        refresh?: boolean;
-        share?: boolean;
-    };
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState, controlls } = useParams<DAppWebViewFragmentParams>();
+    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState } = useParams<DAppWebViewFragmentParams>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
@@ -349,7 +339,7 @@ export const DAppWebViewFragment = fragment(() => {
                 defaultQueryParamsState={{
                     backPolicy: 'back',
                     showKeyboardAccessoryView: false,
-                    lockScroll: false,
+                    lockScroll: true,
                     ...defaultQueryParamsState
                 }}
             />

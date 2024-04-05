@@ -40,11 +40,13 @@ export const WalletActions = memo(({ theme, navigation, isTestnet }: { theme: Th
                     navigation={navigation}
                     theme={theme}
                 />
-                <WalletActionButton
-                    type={'swap'}
-                    navigation={navigation}
-                    theme={theme}
-                />
+                {!isTestnet && (
+                    <WalletActionButton
+                        type={'swap'}
+                        navigation={navigation}
+                        theme={theme}
+                    />
+                )}
                 <WalletActionButton
                     type={'send'}
                     navigation={navigation}

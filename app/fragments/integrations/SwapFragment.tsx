@@ -30,7 +30,9 @@ export const SwapFragment = fragment(() => {
 
     const webViewRef = useRef<WebView>(null);
 
-    const deDustUrl = isTestnet ? 'https://dev.dedust-tonhub.pages.dev/' : 'https://dedust-tonhub.pages.dev/';
+    // const deDustUrl = isTestnet ? 'https://dev.dedust-tonhub.pages.dev/' : 'https://dedust-tonhub.pages.dev/';
+    // TODO: Change to production
+    const deDustUrl = 'https://dev.dedust-tonhub.pages.dev/';
     const domain = extractDomain(deDustUrl);
     const endpoint = useMemo(() => {
         try {

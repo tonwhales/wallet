@@ -20,6 +20,7 @@ import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
 import { useWalletSettings } from '../../../engine/hooks';
 import { avatarHash } from '../../../utils/avatarHash';
+import { getLiquidStakingAddress } from '../../../utils/KnownPools';
 
 export function TransactionView(props: {
     own: Address,
@@ -71,6 +72,10 @@ export function TransactionView(props: {
     // Operation
     const op = useMemo(() => {
         if (operation.op) {
+            const isLiquid = getLiquidStakingAddress(isTestnet).equals(Address.parse(opAddress));
+            if (operation.op.res === 'known.withdraw' && isLiquid) {
+                return t('known.withdrawLiquid');
+            }
             return t(operation.op.res, operation.op.options);
         } else {
             if (parsed.kind === 'out') {

@@ -261,7 +261,6 @@ export const TransferSingleView = memo(({
                                     address={target.address}
                                     end={4}
                                     testOnly={isTestnet}
-                                    known={!!known}
                                 />
                                 {isTargetLedger && ' (Ledger)'}
                             </Text>

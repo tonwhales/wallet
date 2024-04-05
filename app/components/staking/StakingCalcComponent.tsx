@@ -20,16 +20,16 @@ export const StakingCalcComponent = memo((
         amount,
         topUp,
         member,
-        pool
+        fee
     }: {
         amount: bigint,
         topUp?: boolean,
         member?: StakingPoolMember | null,
-        pool: StakingPoolState
+        fee: bigint
     }) => {
     const theme = useTheme();
     const apy = useStakingApy()?.apy;
-    const poolFee = pool.params.poolFee / 100n;
+    const poolFee = fee / 100n;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
             try {

@@ -338,6 +338,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 lockupsDescription: 'Allows holders of big lockups in TON to earn additional income',
                 tonkeeper: 'Tonkeeper',
                 tonkeeperDescription: 'Friendly mobile wallet on TON',
+                liquid: 'Liquid Staking',
+                liquidDescription: 'Send TON to staking and get wsTON tokens instead',
+                rateTitle: 'Exchange rate'
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',
@@ -366,6 +369,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 top_up: 'Top Up',
                 withdraw: 'Withdraw',
                 calc: 'Calculate',
+                swap: 'Swap instantly'
             },
             join: {
                 title: 'Become a TON validator',
@@ -405,6 +409,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             unstake: {
                 title: 'Are you sure want to request withdrawal?',
                 message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
+            },
+            unstakeLiquid: {
+                title: 'Wihdraw your wsTON',
+                message: 'You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on ',
             },
             learnMore: 'Info',
             moreInfo: 'More info',
@@ -676,6 +684,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         depositOk: 'Deposit accepted',
         withdraw: 'Withdrawal request of {{coins}} TON',
         withdrawAll: 'Request withdraw of all coins',
+        withdrawLiquid: 'Withdraw',
         withdrawCompleted: 'Withdraw completed',
         withdrawRequested: 'Withdraw requested',
         upgrade: 'Upgrade code to {{hash}}',
@@ -961,9 +970,19 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     newAddressFormat: {
         title: 'Address format',
-        fragmentTitle: 'New wallet address display format',
-        description_0: 'The new format avoids problems with sending funds to unpublished addresses.',
-        description_1: 'The old address will continue working and lead to the same wallet, and your funds will remain safe. You can switch the address to the old format or back in the app settings anytime.',
+        fragmentTitle: 'New addresses type',
+        learnMore: 'More about new addresses',
+        shortDescription: 'The address update will make the TON blockchain even more secure and stable. All assets sent to your old address will continue flowing to your wallet.',
+        description_0_0: 'Recently, TON ',
+        description_0_link: 'announced this update',
+        description_0_1: ' to addresses and asked all wallets to support it.',
+        title_1: 'Why?',
+        description_1: 'The update allows developers to distinguish between wallet and contract addresses and avoid errors when sending transactions.',
+        title_2: 'What do you need to do?',
+        description_2: 'Click the button on the previous screen and authorize us to display all addresses in the app in the new format. You will be able to revert back to the old format in your settings.',
+        title_3: 'What happens to the old address?',
+        description_3: 'All TONs, tokens, NFTs and other assets sent to your old address will continue to flow to your wallet.',
+        description_4: 'Technical details of the upgrade can be found at',
         action: 'Use {{format}}',
         oldAddress: 'Old address',
         newAddress: 'New address',

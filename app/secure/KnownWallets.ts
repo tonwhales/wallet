@@ -39,6 +39,7 @@ const Img_Lockups_2 = require('@assets/known/ic_lockups_2.png');
 
 const Img_MEXC = require('@assets/known/ic_mexc.png');
 
+const Img_Liquid = require('@assets/known/ic_wls.png');
 const Img_Telegram = require('@assets/known/ic-telegram.png');
 const Img_Fragment = require('@assets/known/ic-fragment.png');
 const Img_CryptoBot = require('@assets/known/ic-crypto-bot.png');
@@ -83,7 +84,17 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                     primary: '#3595D3',
                     secondary: '#BAD5E7'
                 }
-            }
+            },
+
+            [Address.parse('0QBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka95J1JJwXXf2Dz').toString()]: {
+                name: 'OKX',
+                ic: Img_OKX
+            },
+            [Address.parse('kQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXNKY').toString()]: {
+                name: 'OKX',
+                ic: Img_OKX
+            },
+
         } : {
             [Address.parse('EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N').toString()]: {
                 name: 'TON Foundation',
@@ -384,6 +395,14 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                     secondary: '#DEEFFC'
                 },
                 ic: Img_Lockups_2
+            },
+            [Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON').toString()]: {
+                name: 'Whales Liquid',
+                colors: {
+                    primary: '#65C6FF',
+                    secondary: '#DEEFFC'
+                },
+                ic: Img_Liquid
             },
 
             // Bridges

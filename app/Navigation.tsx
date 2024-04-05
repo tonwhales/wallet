@@ -25,14 +25,12 @@ import { AuthenticateFragment } from './fragments/secure/dapps/AuthenticateFragm
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
-import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
-import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
@@ -88,6 +86,9 @@ import { PendingTxPreviewFragment } from './fragments/wallet/PendingTxPreviewFra
 import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
 import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
+import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
+import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
+import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -237,11 +238,13 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // Staking
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('LiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     transparentModalScreen('StakingPoolSelector', StakingPoolSelectorFragment, safeArea),
     transparentModalScreen('StakingPoolSelectorLedger', StakingPoolSelectorFragment, safeArea),
     modalScreen('StakingOperations', StakingOperationsFragment, safeArea),
     modalScreen('StakingAnalytics', StakingAnalyticsFragment, safeArea),
+    transparentModalScreen('LiquidWithdrawAction', LiquidWithdrawActionFragment, safeArea),
 
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),
@@ -254,6 +257,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerTransactionPreview', TransactionPreviewFragment, safeArea),
     modalScreen('LedgerAssets', AssetsFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
 
     // Settings
@@ -270,6 +274,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
+    modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
 
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),

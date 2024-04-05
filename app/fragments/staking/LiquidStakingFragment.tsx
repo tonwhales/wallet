@@ -1,43 +1,41 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
-import { WalletAddress } from "../../components/address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingCycle } from "../../components/staking/StakingCycle";
-import { StakingPendingComponent } from "../../components/staking/StakingPendingComponent";
-import { useParams } from "../../utils/useParams";
-import { TransferAction } from "./StakingTransferFragment";
+import { openWithInApp } from "../../utils/openWithInApp";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBanner";
-import { KnownPools } from "../../utils/KnownPools";
-import { StakingPoolType } from "./StakingPoolsFragment";
+import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingActive, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useLiquidStakingMember, useNetwork, usePendingTransactions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { Address, toNano } from "@ton/core";
+import { Address, fromNano, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
-import { StakingPoolHeader } from "../../components/staking/StakingPoolHeader";
+import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
 import { Typography } from "../../components/styles";
+import { BackButton } from "../../components/navigation/BackButton";
+import { LiquidStakingMember } from "../../components/staking/LiquidStakingBalance";
+import { TransferAction } from "./StakingTransferFragment";
+import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
+import { WalletAddress } from "../../components/address/WalletAddress";
 
-export const StakingFragment = fragment(() => {
+export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const initParams = useParams<{ backToHome?: boolean, pool: string }>();
-    const [params, setParams] = useState(initParams);
     const navigation = useTypedNavigation();
     const route = useRoute();
-    const isLedger = route.name === 'LedgerStaking';
+    const isLedger = route.name === 'LedgerLiquidStaking';
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
+    const liquidStaking = useLiquidStaking().data;
     const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
-
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;
@@ -45,15 +43,32 @@ export const StakingFragment = fragment(() => {
             return Address.parse(ledgerContext?.addr?.address);
         } catch { }
     }, [ledgerContext?.addr?.address]);
+    const memberAddress = isLedger ? ledgerAddress : selected?.address;
+    const nominator = useLiquidStakingMember(memberAddress)?.data;
+    const apy = useStakingApy()?.apy;
 
-    const targetPool = Address.parse(params.pool);
-    const pool = useStakingPool(targetPool, ledgerAddress);
-    const member = pool?.member;
-    const config = useStakingWalletConfig(
-        isLedger
-            ? ledgerAddress!.toString({ testOnly: network.isTestnet })
-            : selected!.address.toString({ testOnly: network.isTestnet })
-    );
+    const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
+    const apyWithFee = useMemo(() => {
+        if (!!apy && !!poolFee) {
+            return `${t('common.apy')} ≈ ${(apy - apy * (poolFee / 100)).toFixed(2)}%`;
+        }
+    }, [apy, poolFee]);
+
+    const balance = useMemo(() => {
+        const bal = fromNano(nominator?.balance || 0n);
+        const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
+        return toNano((parseFloat(bal) * parseFloat(rate)).toFixed(9));
+    }, [nominator?.balance, liquidStaking?.rateWithdraw]);
+
+    const { targetPool, targetPoolFriendly } = useMemo(() => {
+        const address = getLiquidStakingAddress(network.isTestnet);
+        return {
+            targetPool: address,
+            targetPoolFriendly: address.toString({ testOnly: network.isTestnet })
+        }
+    }, [network.isTestnet]);
+
+    const stakeUntil = Math.min(liquidStaking?.extras.proxyZeroStakeUntil ?? 0, liquidStaking?.extras.proxyOneStakeUntil ?? 0);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
@@ -67,61 +82,29 @@ export const StakingFragment = fragment(() => {
         });
     }, [setPending]);
 
-    let type: StakingPoolType = useMemo(() => {
-        if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
-            return 'club';
-        }
-        if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('team')) {
-            return 'team';
-        }
-        return 'nominators'
-    }, []);
-
-    let available = useMemo(() => {
-        if (network.isTestnet) {
-            return true;
-        }
-        return !!config?.pools.find((v2) => {
-            return Address.parse(v2).equals(targetPool)
-        })
-    }, [config, targetPool, network]);
-
-    const transferAmount = (pool?.params?.minStake ?? 0n)
-        + (pool?.params?.receiptPrice ?? 0n)
-        + (pool?.params?.depositFee ?? 0n);
+    const transferAmount = useMemo(() => {
+        return (liquidStaking?.extras.minStake ?? 0n)
+            + (liquidStaking?.extras.receiptPrice ?? 0n)
+            + (liquidStaking?.extras.depositFee ?? 0n);
+    }, [liquidStaking]);
 
     const onTopUp = useCallback(() => {
-        navigation.navigateStakingTransfer(
-            {
-                target: targetPool,
-                amount: transferAmount,
-                lockAddress: true,
-                lockComment: true,
-                action: 'top_up' as TransferAction,
-            }, 
+        navigation.navigateLiquidStakingTransfer(
+            { amount: transferAmount, action: 'top_up' as TransferAction },
             isLedger
         );
-    }, [targetPool, transferAmount, isLedger]);
+    }, [transferAmount, isLedger]);
 
     const onUnstake = useCallback(() => {
-        navigation.navigateStakingTransfer(
-            {
-                target: targetPool,
-                lockAddress: true,
-                lockComment: true,
-                action: 'withdraw' as TransferAction,
-            },
-            isLedger
-        );
-    }, [targetPool, isLedger]);
+        navigation.navigateLiquidWithdrawAction(isLedger);
+    }, [isLedger]);
 
+    const openMoreInfo = useCallback(() => openWithInApp(network.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), [network.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
-    const hasStake = (member?.balance || 0n)
-        + (member?.pendingWithdraw || 0n)
-        + (member?.pendingDeposit || 0n)
-        + (member?.withdraw || 0n)
-        > 0n;
+    const hasStake = useMemo(() => {
+        return (nominator?.balance || 0n) > 0n
+    }, [nominator]);
 
     // weird bug with status bar not changing color with component
     useFocusEffect(() => {
@@ -131,13 +114,57 @@ export const StakingFragment = fragment(() => {
     });
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
+        <View style={{ flex: 1 }}>
             <StatusBar style={'light'} />
-            <StakingPoolHeader
-                isLedger={false}
-                currentPool={targetPool}
-                setParams={setParams}
-            />
+            <View
+                style={{
+                    backgroundColor: theme.backgroundUnchangeable,
+                    paddingTop: safeArea.top + (Platform.OS === 'ios' ? 0 : 16),
+                    paddingHorizontal: 16
+                }}
+                collapsable={false}
+            >
+                <View style={{
+                    height: 44,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingVertical: 6
+                }}>
+                    <View style={{ flex: 1 }}>
+                        <BackButton
+                            iconTintColor={theme.iconUnchangeable}
+                            style={{ backgroundColor: theme.surfaceOnDark }}
+                            onPress={navigation.goBack}
+                        />
+                    </View>
+                    <View style={{ backgroundColor: theme.surfaceOnDark, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 32 }}>
+                        <Text style={[{ color: theme.textUnchangeable }, Typography.medium17_24]}>
+                            {KnownPools(network.isTestnet)[targetPoolFriendly]?.name}
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
+                        <Pressable
+                            style={({ pressed }) => ({
+                                opacity: pressed ? 0.5 : 1,
+                                backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
+                                height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
+                                borderRadius: 16
+                            })}
+                            onPress={openMoreInfo}
+                        >
+                            <Image
+                                source={require('@assets/ic-info.png')}
+                                style={{
+                                    height: 16,
+                                    width: 16,
+                                    tintColor: theme.iconUnchangeable
+                                }}
+                            />
+                        </Pressable>
+                    </View>
+                </View>
+            </View>
             <ScrollView
                 style={{ flexBasis: 0 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
@@ -170,7 +197,7 @@ export const StakingFragment = fragment(() => {
                     }}>
                         <Text style={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}>
                             <ValueComponent
-                                value={member?.balance || 0n}
+                                value={balance}
                                 precision={4}
                                 centFontStyle={{ opacity: 0.5 }}
                             />
@@ -178,31 +205,39 @@ export const StakingFragment = fragment(() => {
                         </Text>
                         <View style={{
                             flexDirection: 'row', alignItems: 'center',
-                            marginTop: 10
+                            marginTop: 10, gap: 8
                         }}>
                             <Pressable
                                 style={{ flexDirection: 'row', alignItems: 'center' }}
                                 onPress={navigateToCurrencySettings}
                             >
                                 <PriceComponent
-                                    amount={member?.balance || 0n}
+                                    amount={balance}
                                     style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
                                     textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
                                     theme={theme}
                                 />
-                                <PriceComponent
-                                    showSign
-                                    amount={toNano(1)}
-                                    style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg, marginLeft: 8 }}
-                                    textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
-                                    theme={theme}
-                                />
                             </Pressable>
+                            <View style={{
+                                backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
+                                gap: 6,
+                                padding: 2, paddingRight: 12,
+                                borderRadius: 24,
+                                flexDirection: 'row', alignItems: 'center'
+                            }}>
+                                <Image
+                                    style={{ height: 24, width: 24 }}
+                                    source={require('@assets/ic-profit.png')}
+                                />
+                                <Text style={[{ color: theme.textUnchangeable }, Typography.medium15_20]}>
+                                    {apyWithFee}
+                                </Text>
+                            </View>
                         </View>
                         <WalletAddress
                             value={targetPool.toString({ testOnly: network.isTestnet })}
                             address={targetPool}
-                            elipsise={{ start: 4, end: 4 }}
+                            elipsise={{ start: 4, end: 5 }}
                             style={{
                                 marginTop: 16,
                                 alignSelf: 'center',
@@ -219,7 +254,6 @@ export const StakingFragment = fragment(() => {
                             disableContextMenu
                             copyOnPress
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
-                            bounceable={true}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -243,10 +277,9 @@ export const StakingFragment = fragment(() => {
                             <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                                 <Pressable
                                     onPress={onTopUp}
-                                    disabled={!available}
                                     style={({ pressed }) => {
                                         return {
-                                            opacity: (pressed || !available) ? 0.5 : 1,
+                                            opacity: pressed ? 0.5 : 1,
                                             borderRadius: 14, flex: 1, paddingVertical: 10,
                                             marginHorizontal: 4
                                         }
@@ -343,13 +376,11 @@ export const StakingFragment = fragment(() => {
                         </View>
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
-                        {!!pool && (
-                            <StakingCycle
-                                stakeUntil={pool.status.proxyStakeUntil}
-                                locked={pool.status.locked}
-                                style={{ marginBottom: 16 }}
-                            />
-                        )}
+                        <StakingCycle
+                            stakeUntil={stakeUntil}
+                            locked={true}
+                            style={{ marginBottom: 16 }}
+                        />
                         {!!pendingPoolTxs && pendingPoolTxs.length > 0 && (
                             <PendingTransactionsView
                                 theme={theme}
@@ -358,17 +389,18 @@ export const StakingFragment = fragment(() => {
                                 style={{ marginBottom: 16 }}
                             />
                         )}
-                        <StakingPendingComponent
-                            target={targetPool}
-                            member={member}
-                            isLedger={isLedger}
+                        {/* TODO */}
+                        {!!memberAddress && (
+                            <LiquidStakingPendingComponent
+                                member={memberAddress}
+                                style={{ marginBottom: 16 }}
+                                isLedger={isLedger}
+                            />
+                        )}
+                        <LiquidStakingMember
+                            balance={nominator?.balance ?? 0n}
+                            rateWithdraw={liquidStaking?.rateWithdraw ?? 0n}
                         />
-                        {(type !== 'nominators' && !available) && (
-                            <RestrictedPoolBanner type={type} />
-                        )}
-                        {network.isTestnet && (
-                            <RestrictedPoolBanner type={'team'} />
-                        )}
                         {__DEV__ && (
                             <StakingAnalyticsComponent pool={targetPool} />
                         )}

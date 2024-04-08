@@ -19,66 +19,7 @@ import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
 import { avatarHash } from '../../../utils/avatarHash';
-import { WalletSettings } from '../../../engine/state/walletSettings';
-import { Ionicons } from '@expo/vector-icons';
-import { BatchAvatars } from '../../../components/avatar/BatchAvatars';
-
-const TxAvatar = memo((
-    {
-        status,
-        parsedAddressFriendly,
-        kind,
-        spam,
-        isOwn,
-        theme,
-        isTestnet,
-        walletSettings,
-        markContact,
-        avatarColor
-    }: {
-        status: "failed" | "pending" | "success",
-        parsedAddressFriendly: string,
-        kind: "in" | "out",
-        spam: boolean,
-        isOwn: boolean,
-        theme: ThemeType,
-        isTestnet: boolean,
-        walletSettings?: WalletSettings,
-        markContact?: boolean,
-        avatarColor: string
-    }
-) => {
-    if (status === "pending") {
-        return (
-            <PendingTransactionAvatar
-                kind={kind}
-                address={parsedAddressFriendly}
-                avatarId={parsedAddressFriendly}
-            />
-        );
-    }
-
-    return (
-        <Avatar
-            size={48}
-            address={parsedAddressFriendly}
-            id={parsedAddressFriendly}
-            borderWith={0}
-            spam={spam}
-            markContact={markContact}
-            icProps={{
-                isOwn,
-                backgroundColor: theme.backgroundPrimary,
-                size: 18,
-                borderWidth: 2
-            }}
-            theme={theme}
-            isTestnet={isTestnet}
-            backgroundColor={avatarColor}
-            hash={walletSettings?.avatar}
-        />
-    );
-});
+import { getLiquidStakingAddress } from '../../../utils/KnownPools';
 
 export function TransactionView(props: {
     own: Address,
@@ -131,6 +72,10 @@ export function TransactionView(props: {
     // Operation
     const op = useMemo(() => {
         if (operation.op) {
+            const isLiquid = getLiquidStakingAddress(isTestnet).equals(Address.parse(opAddress));
+            if (operation.op.res === 'known.withdraw' && isLiquid) {
+                return t('known.withdrawLiquid');
+            }
             return t(operation.op.res, operation.op.options);
         } else {
             if (parsed.kind === 'out') {

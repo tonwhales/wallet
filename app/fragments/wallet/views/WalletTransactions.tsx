@@ -40,7 +40,6 @@ type TransactionListItemProps = {
     onLongPress?: (tx: TransactionDescription) => void,
     ledger?: boolean,
     navigation: TypedNavigation,
-    addToDenyList: (address: string | Address, reason: string) => void,
     spamMinAmount: bigint,
     dontShowComments: boolean,
     denyList: { [key: string]: { reason: string | null } },
@@ -72,7 +71,6 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.theme === next.theme
         && prev.section === next.section
         && prev.index === next.index
-        && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
         && prev.spamWallets === next.spamWallets
@@ -324,7 +322,6 @@ export const WalletTransactions = memo((props: {
                     onLongPress={onLongPress}
                     ledger={props.ledger}
                     navigation={navigation}
-                    addToDenyList={addToDenyList}
                     spamMinAmount={spamMinAmount}
                     dontShowComments={dontShowComments}
                     denyList={addressBook.denyList}

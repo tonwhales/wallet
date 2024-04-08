@@ -12,6 +12,7 @@ export type PreparedMessage = {
     address: Address,
     addressString: string,
     metadata: StoredContractMetadata,
+    jettonMaster: JettonMasterState | null,
     amount: bigint | null,
     amountString: string,
     gas: { amount: bigint, unusual: boolean } | null,
@@ -92,6 +93,7 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean)
                     amountString: jettonAmount
                         ? fromNano(jettonAmount) + (` ${jettonMaster?.symbol}` ?? '')
                         : fromNano(amount) + ' TON',
+                    jettonMaster,
                     amount: jettonAmount ? null : amount,
                     gas,
                     operation,

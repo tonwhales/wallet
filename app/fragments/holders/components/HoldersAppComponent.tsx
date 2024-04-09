@@ -378,6 +378,7 @@ export const HoldersAppComponent = memo((
             useMainButton: true,
             useToaster: true,
             useQueryAPI: true,
+            useEmitter: true,
             onShouldStartLoadWithRequest: loadWithRequest,
             onContentProcessDidTerminate,
             onClose,

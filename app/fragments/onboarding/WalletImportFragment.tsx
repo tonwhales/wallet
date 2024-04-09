@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Platform, Text, View, TextInput as TextInputAndroid } from "react-native";
 import * as Haptics from 'expo-haptics';
 import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +18,7 @@ import { mnemonicValidate } from '@ton/crypto';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { useParams } from '../../utils/useParams';
 import { StatusBar } from 'expo-status-bar';
+import { Typography } from '../../components/styles';
 
 export const wordsTrie = WordsListTrie();
 
@@ -147,58 +148,61 @@ export const WordInput = memo(forwardRef((props: {
                     flexDirection: 'row',
                     backgroundColor: theme.border,
                     borderRadius: 16,
-                    marginVertical: 8
+                    marginVertical: 8,
+                    overflow: 'hidden'
                 }}
                 collapsable={false}
             >
                 <Text
-                    style={{
-                        alignSelf: 'center',
-                        fontSize: 17, fontWeight: '500',
-                        lineHeight: 24,
-                        width: 40,
-                        paddingVertical: 14,
-                        textAlign: 'right',
-                        color: !isWrong ? theme.textSecondary : theme.accentRed,
-                    }}
+                    style={[
+                        {
+                            alignSelf: 'center',
+                            width: 40,
+                            paddingVertical: 14,
+                            textAlign: 'right',
+                            color: !isWrong ? theme.textSecondary : theme.accentRed,
+                        },
+                        Typography.medium17_24
+                    ]}
                     onPress={() => {
                         tref.current?.focus();
                     }}
                 >
                     {(props.index + 1)}:
                 </Text>
-                {Platform.OS === 'android' && (
-                    <TouchableOpacity onPress={tref.current?.focus} activeOpacity={1} >
-                        <TextInput
-                            ref={tref}
-                            style={{
-                                paddingVertical: 16,
-                                marginLeft: -16,
-                                paddingLeft: 26,
-                                paddingRight: 48,
-                                flexGrow: 1,
-                                fontSize: 17,
-                                lineHeight: 24,
-                                fontWeight: '400',
-                                color: !isWrong ? theme.textPrimary : theme.accentRed
-                            }}
-                            value={props.value}
-                            onChangeText={onTextChange}
-                            onBlur={onBlur}
-                            returnKeyType="next"
-                            autoComplete='off'
-                            autoCorrect={false}
-                            keyboardType="ascii-capable"
-                            autoCapitalize="none"
-                            onFocus={onFocus}
-                            onSubmitEditing={onSubmit}
-                            blurOnSubmit={false}
-                            inputAccessoryViewID={'suggestions'}
-                            autoFocus={props.autoFocus}
-                        />
-                    </TouchableOpacity>
-                )}
-                {Platform.OS !== 'android' && (
+                {Platform.OS === 'android' ? (
+                    <TextInputAndroid
+                        ref={tref}
+                        style={{
+                            paddingVertical: 16,
+                            marginLeft: -16,
+                            paddingLeft: 26,
+                            paddingRight: 48,
+                            flexGrow: 1,
+                            fontSize: 17,
+                            lineHeight: 24,
+                            fontWeight: '400',
+                            color: !isWrong ? theme.textPrimary : theme.accentRed,
+                            width: '100%',
+                            maxHeight: 56
+                        }}
+                        multiline={true}
+                        numberOfLines={1}
+                        value={props.value}
+                        onChangeText={onTextChange}
+                        onBlur={onBlur}
+                        returnKeyType="next"
+                        autoComplete='off'
+                        autoCorrect={false}
+                        keyboardType="ascii-capable"
+                        autoCapitalize="none"
+                        onFocus={onFocus}
+                        onSubmitEditing={onSubmit}
+                        blurOnSubmit={false}
+                        inputAccessoryViewID={'suggestions'}
+                        autoFocus={props.autoFocus}
+                    />
+                ) : (
                     <TextInput
                         ref={tref}
                         style={{

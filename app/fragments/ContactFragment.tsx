@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Image, Alert, Keyboard, Pressable, TextInput } from "react-native";
+import { Platform, View, Text, Image, Alert, Keyboard, Pressable, TextInput, KeyboardAvoidingView } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "../components/Avatar";
@@ -252,7 +252,11 @@ export const ContactFragment = fragment(() => {
             >
                 <Animated.View
                     ref={containerRef}
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
+                    style={{
+                        flexGrow: 1, flexBasis: 0,
+                        alignSelf: 'stretch', flexDirection: 'column',
+                        paddingBottom: Platform.OS === 'ios' ? 0 : 56,
+                    }}
                 >
                     <View style={{
                         justifyContent: 'center',
@@ -529,25 +533,51 @@ export const ContactFragment = fragment(() => {
                     )}
                 </Animated.View>
             </Animated.ScrollView>
-            <View
-                style={{
-                    position: 'absolute', bottom: safeArea.bottom + 24, left: 0, right: 0,
-                    paddingHorizontal: 16,
-                    gap: 16
-                }}
-            >
-                <RoundButton
-                    display={'default'}
-                    onPress={onAction}
-                    title={editing ? t('contacts.save') : t('contacts.edit')}
-                    disabled={editing ? !canSave : false}
-                />
-                <RoundButton
-                    display={'danger_zone'}
-                    onPress={onDelete}
-                    title={t('contacts.delete')}
-                />
-            </View>
+            {Platform.OS === 'ios' ? (
+                <View
+                    style={{
+                        position: 'absolute', bottom: safeArea.bottom + 24, left: 0, right: 0,
+                        paddingHorizontal: 16,
+                        gap: 16
+                    }}
+                >
+                    <RoundButton
+                        display={'default'}
+                        onPress={onAction}
+                        title={editing ? t('contacts.save') : t('contacts.edit')}
+                        disabled={editing ? !canSave : false}
+                    />
+                    {!params.isNew && (
+                        <RoundButton
+                            display={'danger_zone'}
+                            onPress={onDelete}
+                            title={t('contacts.delete')}
+                        />
+                    )}
+                </View>
+            ) : (
+                <KeyboardAvoidingView
+                    style={{
+                        gap: 16,
+                        paddingHorizontal: 16,
+                        marginVertical: 16,
+                    }}
+                >
+                    <RoundButton
+                        display={'default'}
+                        onPress={onAction}
+                        title={editing ? t('contacts.save') : t('contacts.edit')}
+                        disabled={editing ? !canSave : false}
+                    />
+                    {!params.isNew && (
+                        <RoundButton
+                            display={'danger_zone'}
+                            onPress={onDelete}
+                            title={t('contacts.delete')}
+                        />
+                    )}
+                </KeyboardAvoidingView>
+            )}
         </View>
     );
 });

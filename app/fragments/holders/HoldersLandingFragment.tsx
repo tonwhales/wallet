@@ -178,6 +178,7 @@ export const HoldersLandingFragment = fragment(() => {
             useMainButton: true,
             useToaster: true,
             useQueryAPI: true,
+            useEmitter: true,
 
             onContentProcessDidTerminate,
             onEnroll

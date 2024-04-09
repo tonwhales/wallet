@@ -374,11 +374,13 @@ export const HoldersAppComponent = memo((
         return {
             ...tonConnectWebViewProps,
             injectedJavaScriptBeforeContentLoaded: injectSource,
+            
             useStatusBar: true,
             useMainButton: true,
             useToaster: true,
             useQueryAPI: true,
             useEmitter: true,
+
             onShouldStartLoadWithRequest: loadWithRequest,
             onContentProcessDidTerminate,
             onClose,

@@ -1,5 +1,5 @@
 import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react"
-import { ViewStyle, StyleProp, Alert, Pressable, TextStyle, Image } from "react-native"
+import { Alert, Pressable, Image } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { View } from "react-native";
@@ -15,10 +15,9 @@ import { KnownWallets } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 import { AddressInputAction, InputActionType } from "./TransferAddressInput";
 import { resolveBounceableTag } from "../../utils/resolveBounceableTag";
+import { Typography } from "../styles";
 
 export const AddressDomainInput = memo(forwardRef(({
-    style,
-    inputStyle,
     onFocus,
     onBlur,
     onSubmit,
@@ -30,10 +29,9 @@ export const AddressDomainInput = memo(forwardRef(({
     contact,
     onQRCodeRead,
     autoFocus,
-    domain
+    domain,
+    screenWidth
 }: {
-    style?: StyleProp<ViewStyle>,
-    inputStyle?: StyleProp<TextStyle>,
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
@@ -45,7 +43,8 @@ export const AddressDomainInput = memo(forwardRef(({
     contact?: AddressContact | null,
     onQRCodeRead?: (value: string) => void,
     autoFocus?: boolean,
-    domain?: string
+    domain?: string,
+    screenWidth?: number
 }, ref: ForwardedRef<ATextInputRef>) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
@@ -198,8 +197,8 @@ export const AddressDomainInput = memo(forwardRef(({
         )
     }, [resolving, input, onQRCodeRead, openScanner]);
 
-    const actionsWidth = input.length === 0
-        ? 44 - (!!onQRCodeRead ? 0 : 40)
+    const actionsWidth = (input.length === 0)
+        ? (!!onQRCodeRead ? 44 : 4)
         : 24
 
     useEffect(() => {
@@ -214,7 +213,7 @@ export const AddressDomainInput = memo(forwardRef(({
     }, [textInput, netConfig]);
 
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <ATextInput
                 autoFocus={autoFocus}
                 value={textInput}
@@ -240,12 +239,17 @@ export const AddressDomainInput = memo(forwardRef(({
                 keyboardType={'default'}
                 autoCapitalize={'none'}
                 label={t('common.domainOrAddressOrContact')}
+                labelStyle={{ marginLeft: -16 }}
                 suffix={suffix}
                 multiline
                 autoCorrect={false}
                 autoComplete={'off'}
                 textContentType={'none'}
-                style={[{ paddingHorizontal: 16, flexGrow: 1 }, style]}
+                style={{
+                    paddingHorizontal: 0,
+                    width: 'auto',
+                    // backgroundColor: 'blue'
+                }}
                 onBlur={(index) => {
                     setFocused(false);
                     if (onBlur) {
@@ -256,29 +260,26 @@ export const AddressDomainInput = memo(forwardRef(({
                 returnKeyType={'next'}
                 blurOnSubmit={false}
                 editable={!resolving}
-                inputStyle={[
-                    {
-                        width: suffix ? undefined : '100%',
-                        fontSize: 17, fontWeight: '400',
-                        color: theme.textPrimary,
-                        textAlignVertical: 'center',
-                        marginLeft: (focused && input.length === 0) ? 0 : -8,
-                        flexShrink: suffix ? 1 : undefined,
-                    },
-                    inputStyle
-                ]}
-                suffixStyle={{
+                inputStyle={{
+                    fontSize: 17, fontWeight: '400',
+                    color: theme.textPrimary,
+                    textAlignVertical: 'center',
+                    flexShrink: 1,
+                    // width: suffix ? undefined : '100%',
+                    // flexShrink: suffix ? 1 : undefined,
+                }}
+                suffixStyle={[{
                     flex: 1,
                     flexGrow: 1, marginLeft: 5,
-                    fontSize: 17, fontWeight: '400',
                     color: theme.textSecondary,
                     textAlign: 'left'
-                }}
+                }, Typography.regular17_24]}
                 textAlignVertical={'center'}
                 actionButtonRight={{
                     component: actionsRight,
                     width: actionsWidth
                 }}
+                screenWidth={screenWidth}
             />
         </View>
     )

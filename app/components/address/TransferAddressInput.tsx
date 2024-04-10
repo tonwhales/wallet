@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
-import { Platform, Pressable, View, Image } from "react-native";
+import { Platform, Pressable, View, Image, InteractionManager } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { Avatar, avatarColors } from "../Avatar";
@@ -234,7 +234,14 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 </Pressable>
             </View>
             <View
-                style={[!isSelected ? [{ opacity: 0, height: 0 }, Platform.select({ ios: { width: 0 } })] : {}]}
+                style={
+                    !isSelected
+                        ? Platform.select({
+                            ios: { width: 0, height: 0, opacity: 0 },
+                            android: { height: 1, opacity: 0 } // to account for wierd android behavior (not focusing on input when it's height/width is 0)
+                        })
+                        : { height: 'auto', width: '100%', opacity: 1 }
+                }
                 pointerEvents={isSelected ? undefined : 'none'}
             >
                 <View style={{

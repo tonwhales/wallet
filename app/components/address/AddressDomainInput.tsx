@@ -1,11 +1,10 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react"
-import { Alert, Pressable, Image } from "react-native"
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
+import { Alert, Pressable, Image, TextInput, View, Text, Platform, } from "react-native"
+import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { View } from "react-native";
 import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
-import { ATextInput, ATextInputRef } from "../ATextInput";
+import { ATextInputRef } from "../ATextInput";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useBounceableWalletFormat, useClient4, useConfig, useNetwork, useTheme } from "../../engine/hooks";
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
@@ -52,8 +51,6 @@ export const AddressDomainInput = memo(forwardRef(({
     const client = useClient4(network.isTestnet);
     const netConfig = useConfig();
     const [bounceableFormat,] = useBounceableWalletFormat();
-
-    const [focused, setFocused] = useState<boolean>(false);
     const [resolving, setResolving] = useState<boolean>();
 
     const openScanner = useCallback(() => {
@@ -146,7 +143,7 @@ export const AddressDomainInput = memo(forwardRef(({
         }
 
         return { suffix, textInput };
-    }, [resolving, isKnown, contact, focused, target, input, domain]);
+    }, [resolving, isKnown, contact, target, input, domain]);
 
     const actionsRight = useMemo(() => {
         if (resolving) {
@@ -197,10 +194,6 @@ export const AddressDomainInput = memo(forwardRef(({
         )
     }, [resolving, input, onQRCodeRead, openScanner]);
 
-    const actionsWidth = (input.length === 0)
-        ? (!!onQRCodeRead ? 44 : 4)
-        : 24
-
     useEffect(() => {
         if (!netConfig) {
             return;
@@ -212,75 +205,150 @@ export const AddressDomainInput = memo(forwardRef(({
         }
     }, [textInput, netConfig]);
 
+    const tref = useRef<TextInput>(null);
+    useImperativeHandle(ref, () => ({
+        focus: () => {
+            tref.current!.focus();
+        },
+        blur: () => {
+            tref.current!.blur();
+        }
+    }), []);
+
+    const valueNotEmptyShared = useSharedValue(0);
+    const labelHeightCoeff = useSharedValue(1);
+    const valueNotEmpty = (textInput?.length || 0) > 0;
+    const xTranslate = Math.round((screenWidth ?? 0) * 0.1) + 2;
+
+    const labelAnimStyle = useAnimatedStyle(() => {
+        return {
+            transform: [
+                { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -xTranslate]) },
+                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
+            ],
+            opacity: interpolate(valueNotEmptyShared.value, [0, 0.5, 1], [1, 0.1, 1]),
+        }
+    });
+
+    const labelShiftStyle = useAnimatedStyle(() => {
+        return {
+            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * 10]),
+        }
+    });
+
+    const inputHeightCompensatorStyle = useAnimatedStyle(() => {
+        return {
+            marginBottom: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * -4])
+        }
+    });
+
+    useEffect(() => {
+        cancelAnimation(valueNotEmptyShared);
+        valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 100 });
+    }, [valueNotEmpty]);
+
     return (
-        <View style={{ flex: 1 }}>
-            <ATextInput
-                autoFocus={autoFocus}
-                value={textInput}
-                index={index}
-                ref={ref}
-                onFocus={(index) => {
-                    setFocused(true);
-                    if (onFocus) {
-                        onFocus(index);
-                    }
-                }}
-                onValueChange={(value) => {
-                    // Remove leading and trailing spaces
-                    value = value.trim();
-                    if (value !== textInput) {
-                        dispatch({
-                            type: InputActionType.Input,
-                            input: value
-                        });
-                    }
-                }}
-                placeholder={t('common.domainOrAddressOrContact')}
-                keyboardType={'default'}
-                autoCapitalize={'none'}
-                label={t('common.domainOrAddressOrContact')}
-                labelStyle={{ marginLeft: -16 }}
-                suffix={suffix}
-                multiline
-                autoCorrect={false}
-                autoComplete={'off'}
-                textContentType={'none'}
-                style={{
-                    paddingHorizontal: 0,
-                    width: 'auto',
-                    // backgroundColor: 'blue'
-                }}
-                onBlur={(index) => {
-                    setFocused(false);
-                    if (onBlur) {
-                        onBlur(index);
-                    }
-                }}
-                onSubmit={onSubmit}
-                returnKeyType={'next'}
-                blurOnSubmit={false}
-                editable={!resolving}
-                inputStyle={{
-                    fontSize: 17, fontWeight: '400',
-                    color: theme.textPrimary,
-                    textAlignVertical: 'center',
-                    flexShrink: 1,
-                    // width: suffix ? undefined : '100%',
-                    // flexShrink: suffix ? 1 : undefined,
-                }}
-                suffixStyle={[{
-                    flex: 1,
-                    flexGrow: 1, marginLeft: 5,
-                    color: theme.textSecondary,
-                    textAlign: 'left'
-                }, Typography.regular17_24]}
-                textAlignVertical={'center'}
-                actionButtonRight={{
-                    component: actionsRight,
-                    width: actionsWidth
-                }}
-                screenWidth={screenWidth}
-            />
+        <View style={{
+            position: 'relative',
+            flexDirection: 'row',
+            alignItems: 'center',
+            minHeight: 26,
+            flexShrink: 1
+        }}>
+            <View style={[
+                { position: 'absolute', top: 0, right: 0, left: 0, paddingHorizontal: 16 },
+                { marginLeft: -16 }
+            ]}>
+                <Animated.View style={labelAnimStyle}>
+                    <Text
+                        numberOfLines={1}
+                        onTextLayout={(e) => {
+                            if (e.nativeEvent.lines.length <= 1) {
+                                labelHeightCoeff.value = 1;
+                                return;
+                            }
+                            labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
+                        }}
+                        style={[
+                            { color: theme.textSecondary },
+                            Typography.regular17_24,
+                        ]}
+                    >
+                        {t('common.domainOrAddressOrContact')}
+                    </Text>
+                </Animated.View>
+            </View>
+            <View style={{ width: '100%', flex: 1, flexShrink: 1 }}>
+                <Animated.View style={labelShiftStyle} />
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                        ref={tref}
+                        style={{
+                            color: theme.textPrimary,
+                            marginHorizontal: 0, marginVertical: 0,
+                            paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                            paddingLeft: 0, paddingRight: 0,
+                            fontSize: 17, fontWeight: '400',
+                            textAlignVertical: 'center',
+                            flexShrink: 1,
+                        }}
+                        selectionColor={Platform.select({
+                            ios: theme.accent,
+                            android: 'rgba(0, 0, 0, 0.3)',
+                        })}
+                        cursorColor={theme.textPrimary}
+                        autoFocus={autoFocus}
+                        placeholderTextColor={theme.textSecondary}
+                        autoCapitalize={'none'}
+                        autoCorrect={false}
+                        keyboardType={'default'}
+                        returnKeyType={'next'}
+                        autoComplete={'off'}
+                        multiline
+                        blurOnSubmit={false}
+                        editable={!resolving}
+                        value={textInput}
+                        onChangeText={(value) => {
+                            // Remove leading and trailing spaces
+                            value = value.trim();
+                            if (value !== textInput) {
+                                dispatch({
+                                    type: InputActionType.Input,
+                                    input: value
+                                });
+                            }
+                        }}
+                        textContentType={'none'}
+                        onFocus={() => onFocus?.(index)}
+                        onBlur={() => onBlur?.(index)}
+                        onSubmitEditing={() => onSubmit?.(index)}
+                    />
+                    {suffix && (
+                        <Text
+                            numberOfLines={1}
+                            ellipsizeMode={'tail'}
+                            style={[
+                                {
+                                    flexGrow: 1,
+                                    alignSelf: 'center',
+                                    flexShrink: 1,
+                                    textAlignVertical: 'bottom',
+                                    flex: 1,
+                                    marginLeft: 5,
+                                    color: theme.textSecondary,
+                                    textAlign: 'left'
+                                },
+                                Typography.regular17_24
+                            ]}
+                        >
+                            {suffix}
+                        </Text>
+                    )}
+                </View>
+                <Animated.View style={[inputHeightCompensatorStyle, { backgroundColor: 'rgba(255,125,0,0.2)' }]} />
+            </View>
+            {actionsRight}
         </View>
-    )
+    );
 }));

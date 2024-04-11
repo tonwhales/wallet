@@ -30,6 +30,8 @@ import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { getCountryCodes } from '../../utils/countries';
+import { Item } from '../../components/Item';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -39,6 +41,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const offlineApp = useOfflineApp();
+    const countryCodes = getCountryCodes();
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
@@ -170,6 +173,11 @@ export const DeveloperToolsFragment = fragment(() => {
                                     <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                                 </View>
                             )}
+
+                        <View style={{ width: '100%', marginBottom: 16 }}>
+                            <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
+                            <Item title={"Country code"} hint={countryCodes.countryCode} />
+                        </View>
                     </View>
                     <View style={{
                         marginTop: 16,

@@ -7,15 +7,21 @@
 // To export a module named RCTStoreFrontModule
 RCT_EXPORT_MODULE(StoreFront);
 
-RCT_EXPORT_METHOD(getStoreFront:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
++ (BOOL)requiresMainQueueSetup
+{
+    return NO;
+}
+
+- (NSDictionary *)constantsToExport
+{
     if (@available(iOS 13.0, *)) {
         SKStorefront* skStoreFront = [SKPaymentQueue defaultQueue].storefront;
         if(skStoreFront != nil)
-            resolve(skStoreFront.countryCode);
+            return @{ @"countryCode": skStoreFront.countryCode };
         else
-            resolve(nil);
+            return @{ @"countryCode": [NSNull null] };
     } else {
-        resolve(nil);
+        return @{ @"countryCode": [NSNull null] };
     }
 }
 

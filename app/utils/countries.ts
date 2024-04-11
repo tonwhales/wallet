@@ -250,219 +250,153 @@ export const countries: Country[] = [
     { value: "+358", shortname: "AX", label: "Åland Islands", emoji: '🇦🇽' },
 ];
 
-export const neocryptoNonEligibleCountriesAlpha2 = [
+export const neocryptoNonEligibleCountries: { [key: string]: string } = {
     // Albania
-    "AL",
+    "AL": "Albania",
+    "ALB": "Albania",
     // Afghanistan
-    "AF",
+    "AF": "Afghanistan",
+    "AFG": "Afghanistan",
     // The Bahamas
-    "BS",
+    "BS": "The Bahamas",
+    "BHS": "The Bahamas",
     // Barbados
-    "BB",
+    "BB": "Barbados",
+    "BRB": "Barbados",
     // Botswana
-    "BW",
+    "BW": "Botswana",
+    "BWA": "Botswana",
     // Burkina Faso
-    "BF",
+    "BF": "Burkina Faso",
+    "BFA": "Burkina Faso",
     // Cambodia
-    "KH",
+    "KH": "Cambodia",
+    "KHM": "Cambodia",
     // Cayman Islands
-    "KY",
+    "KY": "Cayman Islands",
+    "CYM": "Cayman Islands",
     // Cuba
-    "CU",
+    "CU": "Cuba",
+    "CUB": "Cuba",
     // Democratic People's Republic of Korea (North Korea)
-    "KP",
+    "KP": "Democratic People's Republic of Korea (North Korea)",
+    "PRK": "Democratic People's Republic of Korea (North Korea)",
     // Haiti
-    "HT",
+    "HT": "Haiti",
+    "HTI": "Haiti",
     // Ghana
-    "GH",
+    "GH": "Ghana",
+    "GHA": "Ghana",
     // Jamaica
-    "JM",
+    "JM": "Jamaica",
+    "JAM": "Jamaica",
     // Iran
-    "IR",
+    "IR": "Iran",
+    "IRN": "Iran",
     // Iraq
-    "IQ",
+    "IQ": "Iraq",
+    "IRQ": "Iraq",
     // Gibraltar
-    "GI",
+    "GI": "Gibraltar",
+    "GIB": "Gibraltar",
     // Mauritius
-    "MU",
+    "MU": "Mauritius",
+    "MUS": "Mauritius",
     // Morocco
-    "MA",
+    "MA": "Morocco",
+    "MAR": "Morocco",
     // Myanmar (Burma)
-    "MM",
+    "MM": "Myanmar (Burma)",
+    "MMR": "Myanmar (Burma)",
     // Nicaragua
-    "NI",
+    "NI": "Nicaragua",
+    "NIC": "Nicaragua",
     // Pakistan
-    "PK",
+    "PK": "Pakistan",
+    "PAK": "Pakistan",
     // Panama
-    "PA",
+    "PA": "Panama",
+    "PAN": "Panama",
     // Philippines
-    "PH",
+    "PH": "Philippines",
+    "PHL": "Philippines",
     // Senegal
-    "SN",
+    "SN": "Senegal",
+    "SEN": "Senegal",
     // South Sudan
-    "SS",
+    "SS": "South Sudan",
+    "SSD": "South Sudan",
     // Syria
-    "SY",
+    "SY": "Syria",
+    "SYR": "Syria",
     // Trinidad and Tobago
-    "TT",
+    "TT": "Trinidad and Tobago",
+    "TTO": "Trinidad and Tobago",
     // Uganda
-    "UG",
+    "UG": "Uganda",
+    "UGA": "Uganda",
     // Vanuatu
-    "VU",
+    "VU": "Vanuatu",
+    "VUT": "Vanuatu",
     // Yemen
-    "YE",
+    "YE": "Yemen",
+    "YEM": "Yemen",
     // Angola
-    "AO",
+    "AO": "Angola",
+    "AGO": "Angola",
     // Burundi
-    "BI",
+    "BI": "Burundi",
+    "BDI": "Burundi",
     // Central African Republic
-    "CF",
+    "CF": "Central African Republic",
+    "CAF": "Central African Republic",
     // Congo
-    "CG",
+    "CG": "Congo",
+    "COG": "Congo",
     // Democratic Republic of the Congo
-    "CD",
+    "CD": "Democratic Republic of the Congo",
+    "COD": "Democratic Republic of the Congo",
     // Guinea-Bissau
-    "GW",
+    "GW": "Guinea-Bissau",
+    "GNB": "Guinea-Bissau",
     // Liberia
-    "LR",
+    "LR": "Liberia",
+    "LBR": "Liberia",
     // Libya
-    "LY",
+    "LY": "Libya",
+    "LBY": "Libya",
     // Mali
-    "ML",
+    "ML": "Mali",
+    "MLI": "Mali",
     // Sierra Leone
-    "SL",
+    "SL": "Sierra Leone",
+    "SLE": "Sierra Leone",
     // Somalia
-    "SO",
+    "SO": "Somalia",
+    "SOM": "Somalia",
     // Cote d'Ivoire (Ivory Coast)
-    "CI",
+    "CI": "Cote d'Ivoire (Ivory Coast)",
+    "CIV": "Cote d'Ivoire (Ivory Coast)",
     // United States of America (USA)
-    "US",
+    "US": "United States of America (USA)",
+    "USA": "United States of America (USA)",
     // Zimbabwe
-    "ZW"
-];
-
-const neocryptoNonEligibleCountriesAlpha3 = [
-    // Albania (ALB)
-    "ALB",
-    // Afghanistan (AFG)
-    "AFG",
-    // The Bahamas (BHS)
-    "BHS",
-    // Barbados (BRB)
-    "BRB",
-    // Botswana (BWA)
-    "BWA",
-    // Burkina Faso (BFA)
-    "BFA",
-    // Cambodia (KHM)
-    "KHM",
-    // Cayman Islands (CYM)
-    "CYM",
-    // Cuba (CUB)
-    "CUB",
-    // Democratic People's Republic of Korea (North Korea) (PRK)
-    "PRK",
-    // Haiti (HTI)
-    "HTI",
-    // Ghana (GHA)
-    "GHA",
-    // Jamaica (JAM)
-    "JAM",
-    // Iran (IRN)
-    "IRN",
-    // Iraq (IRQ)
-    "IRQ",
-    // Gibraltar (GIB)
-    "GIB",
-    // Mauritius (MUS)
-    "MUS",
-    // Morocco (MAR)
-    "MAR",
-    // Myanmar (Burma) (MMR)
-    "MMR",
-    // Nicaragua (NIC)
-    "NIC",
-    // Pakistan (PAK)
-    "PAK",
-    // Panama (PAN)
-    "PAN",
-    // Philippines (PHL)
-    "PHL",
-    // Senegal (SEN)
-    "SEN",
-    // South Sudan (SSD)
-    "SSD",
-    // Syria (SYR)
-    "SYR",
-    // Trinidad and Tobago (TTO)
-    "TTO",
-    // Uganda (UGA)
-    "UGA",
-    // Vanuatu (VUT)
-    "VUT",
-    // Yemen (YEM)
-    "YEM",
-    // Angola (AGO)
-    "AGO",
-    // Burundi (BDI)
-    "BDI",
-    // Central African Republic (CAF)
-    "CAF",
-    // Congo (COG)
-    "COG",
-    // Democratic Republic of the Congo (COD)
-    "COD",
-    // Guinea-Bissau (GNB)
-    "GNB",
-    // Liberia (LBR)
-    "LBR",
-    // Libya (LBY)
-    "LBY",
-    // Mali (MLI)
-    "MLI",
-    // Sierra Leone (SLE)
-    "SLE",
-    // Somalia (SOM)
-    "SOM",
-    // Cote d'Ivoire (Ivory Coast) (CIV)
-    "CIV",
-    // United States of America (USA) (USA)
-    "USA",
-    // Zimbabwe (ZWE)
-    "ZWE"
-];
-
-
-export function neocryptoNonEligibleCountries(standart: 'alpha-2' | 'alpha-3') {
-    if (standart === 'alpha-2') {
-        return neocryptoNonEligibleCountriesAlpha2;
-    }
-    return neocryptoNonEligibleCountriesAlpha3;
+    "ZW": "Zimbabwe",
+    "ZWE": "Zimbabwe"
 };
 
-export function useIsBuyAvailable() {
-    // ISO 3166-1 alpha-2
+export function isBuyAvailable() {
     const countryCode = getCountry();
-    const isAvailableByCountry = !neocryptoNonEligibleCountries('alpha-2').includes(countryCode);
+    const storeFrontCode = getStoreFront();
+    const isAvailableByCountry = !neocryptoNonEligibleCountries[countryCode];
+    const isAvailableByStoreFront = storeFrontCode ? !neocryptoNonEligibleCountries[storeFrontCode] : false;
 
-    const [isBuyAvailable, setIsBuyAvailable] = useState<boolean>(isAvailableByCountry);
-
-    useEffect(() => {
-        (async () => {
-            // ISO 3166-1 Alpha-3
-            const storeFrontCode = await getStoreFront();
-
-            if (!!storeFrontCode) {
-                const isAvailableByStoreFront = !neocryptoNonEligibleCountries('alpha-3').includes(storeFrontCode);
-                setIsBuyAvailable(isAvailableByStoreFront && isAvailableByCountry);
-            }
-        })();
-    }, []);
-
-    return isBuyAvailable;
+    return isAvailableByCountry && isAvailableByStoreFront;
 }
 
-export async function isBuyNCAvailable(): Promise<boolean> {
+export function getCountryCodes() {
     const countryCode = getCountry();
-    return !neocryptoNonEligibleCountries('alpha-2').includes(countryCode);
+    const storeFrontCode = getStoreFront();
+
+    return { countryCode, storeFrontCode };
 }

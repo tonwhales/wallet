@@ -1,5 +1,7 @@
 import { getCountry } from 'react-native-localize';
 import { Country } from './Country';
+import { getStoreFront } from '../modules/StoreFront';
+import { useEffect, useState } from 'react';
 // source: https://github.com/datasets/country-codes/blob/master/data/country-codes.csv
 export const countries: Country[] = [
     { value: "+93", shortname: "AF", label: "Afghanistan", emoji: '🇦🇫' },
@@ -248,7 +250,7 @@ export const countries: Country[] = [
     { value: "+358", shortname: "AX", label: "Åland Islands", emoji: '🇦🇽' },
 ];
 
-export const neocryptoNonEligibleCountries = [
+export const neocryptoNonEligibleCountriesAlpha2 = [
     // Albania
     "AL",
     // Afghanistan
@@ -337,10 +339,130 @@ export const neocryptoNonEligibleCountries = [
     "US",
     // Zimbabwe
     "ZW"
-  ];
+];
 
-  export function isBuyNCAvailable(): boolean {
+const neocryptoNonEligibleCountriesAlpha3 = [
+    // Albania (ALB)
+    "ALB",
+    // Afghanistan (AFG)
+    "AFG",
+    // The Bahamas (BHS)
+    "BHS",
+    // Barbados (BRB)
+    "BRB",
+    // Botswana (BWA)
+    "BWA",
+    // Burkina Faso (BFA)
+    "BFA",
+    // Cambodia (KHM)
+    "KHM",
+    // Cayman Islands (CYM)
+    "CYM",
+    // Cuba (CUB)
+    "CUB",
+    // Democratic People's Republic of Korea (North Korea) (PRK)
+    "PRK",
+    // Haiti (HTI)
+    "HTI",
+    // Ghana (GHA)
+    "GHA",
+    // Jamaica (JAM)
+    "JAM",
+    // Iran (IRN)
+    "IRN",
+    // Iraq (IRQ)
+    "IRQ",
+    // Gibraltar (GIB)
+    "GIB",
+    // Mauritius (MUS)
+    "MUS",
+    // Morocco (MAR)
+    "MAR",
+    // Myanmar (Burma) (MMR)
+    "MMR",
+    // Nicaragua (NIC)
+    "NIC",
+    // Pakistan (PAK)
+    "PAK",
+    // Panama (PAN)
+    "PAN",
+    // Philippines (PHL)
+    "PHL",
+    // Senegal (SEN)
+    "SEN",
+    // South Sudan (SSD)
+    "SSD",
+    // Syria (SYR)
+    "SYR",
+    // Trinidad and Tobago (TTO)
+    "TTO",
+    // Uganda (UGA)
+    "UGA",
+    // Vanuatu (VUT)
+    "VUT",
+    // Yemen (YEM)
+    "YEM",
+    // Angola (AGO)
+    "AGO",
+    // Burundi (BDI)
+    "BDI",
+    // Central African Republic (CAF)
+    "CAF",
+    // Congo (COG)
+    "COG",
+    // Democratic Republic of the Congo (COD)
+    "COD",
+    // Guinea-Bissau (GNB)
+    "GNB",
+    // Liberia (LBR)
+    "LBR",
+    // Libya (LBY)
+    "LBY",
+    // Mali (MLI)
+    "MLI",
+    // Sierra Leone (SLE)
+    "SLE",
+    // Somalia (SOM)
+    "SOM",
+    // Cote d'Ivoire (Ivory Coast) (CIV)
+    "CIV",
+    // United States of America (USA) (USA)
+    "USA",
+    // Zimbabwe (ZWE)
+    "ZWE"
+];
+
+
+export function neocryptoNonEligibleCountries(standart: 'alpha-2' | 'alpha-3') {
+    if (standart === 'alpha-2') {
+        return neocryptoNonEligibleCountriesAlpha2;
+    }
+    return neocryptoNonEligibleCountriesAlpha3;
+};
+
+export function useIsBuyAvailable() {
+    // ISO 3166-1 alpha-2
     const countryCode = getCountry();
-    return !neocryptoNonEligibleCountries.includes(countryCode);
-  }
-  
+    const isAvailableByCountry = !neocryptoNonEligibleCountries('alpha-2').includes(countryCode);
+
+    const [isBuyAvailable, setIsBuyAvailable] = useState<boolean>(isAvailableByCountry);
+
+    useEffect(() => {
+        (async () => {
+            // ISO 3166-1 Alpha-3
+            const storeFrontCode = await getStoreFront();
+
+            if (!!storeFrontCode) {
+                const isAvailableByStoreFront = !neocryptoNonEligibleCountries('alpha-3').includes(storeFrontCode);
+                setIsBuyAvailable(isAvailableByStoreFront && isAvailableByCountry);
+            }
+        })();
+    }, []);
+
+    return isBuyAvailable;
+}
+
+export async function isBuyNCAvailable(): Promise<boolean> {
+    const countryCode = getCountry();
+    return !neocryptoNonEligibleCountries('alpha-2').includes(countryCode);
+}

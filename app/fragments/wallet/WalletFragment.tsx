@@ -24,7 +24,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Typography } from '../../components/styles';
-import { isBuyNCAvailable } from '../../utils/countries';
+import { useIsBuyAvailable } from '../../utils/countries';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -35,7 +35,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const staking = useStaking();
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
-    const showBuy = isBuyNCAvailable();
+    const showBuy = useIsBuyAvailable();
 
     const stakingBalance = useMemo(() => {
         if (!staking) {

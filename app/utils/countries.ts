@@ -1,3 +1,4 @@
+import { getCountry } from 'react-native-localize';
 import { Country } from './Country';
 // source: https://github.com/datasets/country-codes/blob/master/data/country-codes.csv
 export const countries: Country[] = [
@@ -246,3 +247,100 @@ export const countries: Country[] = [
     { value: "+263", shortname: "ZW", label: "Zimbabwe", emoji: '🇿🇼' },
     { value: "+358", shortname: "AX", label: "Åland Islands", emoji: '🇦🇽' },
 ];
+
+export const neocryptoNonEligibleCountries = [
+    // Albania
+    "AL",
+    // Afghanistan
+    "AF",
+    // The Bahamas
+    "BS",
+    // Barbados
+    "BB",
+    // Botswana
+    "BW",
+    // Burkina Faso
+    "BF",
+    // Cambodia
+    "KH",
+    // Cayman Islands
+    "KY",
+    // Cuba
+    "CU",
+    // Democratic People's Republic of Korea (North Korea)
+    "KP",
+    // Haiti
+    "HT",
+    // Ghana
+    "GH",
+    // Jamaica
+    "JM",
+    // Iran
+    "IR",
+    // Iraq
+    "IQ",
+    // Gibraltar
+    "GI",
+    // Mauritius
+    "MU",
+    // Morocco
+    "MA",
+    // Myanmar (Burma)
+    "MM",
+    // Nicaragua
+    "NI",
+    // Pakistan
+    "PK",
+    // Panama
+    "PA",
+    // Philippines
+    "PH",
+    // Senegal
+    "SN",
+    // South Sudan
+    "SS",
+    // Syria
+    "SY",
+    // Trinidad and Tobago
+    "TT",
+    // Uganda
+    "UG",
+    // Vanuatu
+    "VU",
+    // Yemen
+    "YE",
+    // Angola
+    "AO",
+    // Burundi
+    "BI",
+    // Central African Republic
+    "CF",
+    // Congo
+    "CG",
+    // Democratic Republic of the Congo
+    "CD",
+    // Guinea-Bissau
+    "GW",
+    // Liberia
+    "LR",
+    // Libya
+    "LY",
+    // Mali
+    "ML",
+    // Sierra Leone
+    "SL",
+    // Somalia
+    "SO",
+    // Cote d'Ivoire (Ivory Coast)
+    "CI",
+    // United States of America (USA)
+    "US",
+    // Zimbabwe
+    "ZW"
+  ];
+
+  export function isBuyNCAvailable(): boolean {
+    const countryCode = getCountry();
+    return !neocryptoNonEligibleCountries.includes(countryCode);
+  }
+  

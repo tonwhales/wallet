@@ -9,7 +9,7 @@ import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../components/styles";
-import { isBuyAvailable } from "../../../utils/countries";
+import { isNeocryptoAvailable } from "../../../utils/isNeocryptoAvailable";
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-txs-dark.webp'),
@@ -23,7 +23,7 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     const ledgerContext = useLedgerTransport();
     const dimensions = useDimensions();
     const safeArea = useSafeAreaInsets();
-    const showBuy = isBuyAvailable();
+    const showBuy = isNeocryptoAvailable();
 
     const navigateReceive = useCallback(() => {
         if (isLedger && !!ledgerContext?.addr) {

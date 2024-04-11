@@ -575,15 +575,16 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             'EQCBdxpECfEPH2wUxi1a6QiOkSf-5qDjUWqLCUuKtD-GLINT': {}, // GLINT
             'EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O': {}, // GRAM
         }
-        : {};
+        : {
+            'EQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQlMJ': {}, // wsTON
+            'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD': {} // wsTON
+        };
 }
 
 export const KnownJettonTickers = [
     // Other chains
     'BTC',
     'ETH',
-    'USDT',
-    'USDC',
     'BNB',
     'SOL',
     'XPR',

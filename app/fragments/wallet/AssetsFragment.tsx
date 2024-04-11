@@ -166,6 +166,7 @@ export const AssetsFragment = fragment(() => {
                                 theme={theme}
                                 hideSelection={!callback}
                                 selected={selected}
+                                isTestnet={network.isTestnet}
                             />
                         );
                     })}

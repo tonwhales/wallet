@@ -8,7 +8,7 @@ import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
 import { memo, useCallback, useRef } from 'react';
 import { Swipeable, TouchableHighlight } from 'react-native-gesture-handler';
-import { useNetwork, useTheme } from '../../engine/hooks';
+import { useIsScamJetton, useNetwork, useTheme } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
 import { PerfText } from '../basic/PerfText';
 import { useJettonSwap } from '../../engine/hooks/jettons/useJettonSwap';
@@ -38,7 +38,7 @@ export const JettonProductItem = memo((props: {
     const swipableRef = useRef<Swipeable>(null);
 
     const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toString({ testOnly: isTestnet })];
-    const isSCAM = !isKnown && KnownJettonTickers.includes(props.jetton.symbol);
+    const isSCAM = useIsScamJetton(props.jetton.symbol, props.jetton.master.toString({ testOnly: isTestnet }));
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 

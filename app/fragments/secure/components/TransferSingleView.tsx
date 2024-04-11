@@ -12,7 +12,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
-import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
+import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useIsScamJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
@@ -154,18 +154,7 @@ export const TransferSingleView = memo(({
         return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jettonMaster?.symbol ?? ''}`
     }, [amount, jettonAmountString, jettonMaster]);
 
-    const isSCAMJetton = useMemo(() => {
-        const masterAddress = metadata?.jettonWallet?.master;
-
-        if (!masterAddress || !jettonMaster?.symbol) {
-            return false;
-        }
-
-        const isKnown = !!KnownJettonMasters(isTestnet)[masterAddress.toString({ testOnly: isTestnet })];
-        const isSCAM = !isKnown && KnownJettonTickers.includes(jettonMaster.symbol);
-
-        return isSCAM;
-    }, [isTestnet, metadata, jettonMaster]);
+    const isSCAMJetton = useIsScamJetton(jettonMaster?.symbol, metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet }));
 
     return (
         <View style={{ flexGrow: 1 }}>

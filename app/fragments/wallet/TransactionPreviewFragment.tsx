@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsScamJetton, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { TransactionDescription } from "../../engine/types";
@@ -208,18 +208,8 @@ const TransactionPreview = () => {
             : theme.accentGreen
         : theme.textPrimary
 
-    const isSCAMJetton = useMemo(() => {
-        const masterAddress = tx.metadata?.jettonWallet?.master;
-
-        if (!masterAddress || !jetton?.symbol) {
-            return false;
-        }
-
-        const isKnown = !!KnownJettonMasters(isTestnet)[masterAddress.toString({ testOnly: isTestnet })];
-        const isSCAM = !isKnown && KnownJettonTickers.includes(jetton.symbol);
-
-        return isSCAM;
-    }, [isTestnet, tx]);
+    const jettonMaster = tx.metadata?.jettonWallet?.master;
+    const isSCAMJetton = useIsScamJetton(jetton?.symbol, jettonMaster?.toString({ testOnly: isTestnet }));
 
     return (
         <PerfView
@@ -339,8 +329,8 @@ const TransactionPreview = () => {
                                         `${amountText[0]}${amountText[1]}${item.kind === 'ton'
                                             ? ' TON'
                                             : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`
-                                        + (isSCAMJetton ? ' • ' : '')
                                     }
+                                    {isSCAMJetton && (' • ')}
                                 </Text>
                                 {isSCAMJetton && (
                                     <Text style={[{ color: theme.accentRed }, Typography.semiBold27_32]}>

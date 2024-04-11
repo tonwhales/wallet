@@ -23,7 +23,7 @@ import { WImage } from '../../components/WImage';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useAccountLite, useClient4, useCommitCommand, useConfig, useIsScamJetton, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -182,15 +182,8 @@ export const SimpleTransferFragment = fragment(() => {
         }
         return !!KnownJettonMasters(network.isTestnet)[jettonState.wallet.master];
     }, [jettonState]);
-
-    const isSCAM = useMemo(() => {
-        const ticker = jettonState?.master?.symbol;
-        if (!ticker) {
-            return false;
-        }
-
-        return !isVerified && KnownJettonTickers.includes(ticker);
-    }, [jettonState, isVerified]);
+    
+    const isSCAM = useIsScamJetton(jettonState?.master?.symbol, jettonState?.wallet?.master);
 
     const balance = useMemo(() => {
         let value: bigint;

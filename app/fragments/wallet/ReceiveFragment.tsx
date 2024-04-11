@@ -12,7 +12,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { KnownJettonMasters, KnownJettonTickers } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useIsScamJetton } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
@@ -76,18 +76,7 @@ export const ReceiveFragment = fragment(() => {
             + `/${friendly}`
     }, [jetton, network, friendly]);
 
-    const isSCAM = useMemo(() => {
-        const masterAddress = jetton?.master;
-
-        if (!masterAddress || !jetton.data.symbol) {
-            return false;
-        }
-
-        const isKnown = !!KnownJettonMasters(network.isTestnet)[masterAddress.toString({ testOnly: network.isTestnet })];
-        const isSCAM = !isKnown && KnownJettonTickers.includes(jetton.data.symbol);
-
-        return isSCAM;
-    }, [network, jetton]);
+    const isSCAM = useIsScamJetton(jetton?.data.symbol, jetton?.master?.toString({ testOnly: network.isTestnet }));
 
     return (
         <View

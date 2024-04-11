@@ -11,7 +11,6 @@ type CountriesBase = {
     [key: string]: Country;
 }
 
-//Taken from: https://github.com/datasets/country-codes/blob/master/data/country-codes.csv
 let countries: Country[] = [
     { countryNameEn: "Albania", alpha2: "AL", alpha3: "ALB" },
     { countryNameEn: "Afghanistan", alpha2: "AF", alpha3: "AFG" },

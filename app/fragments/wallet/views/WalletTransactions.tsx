@@ -17,7 +17,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../../i18n/t";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { KnownWallets } from "../../../secure/KnownWallets";
+import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { Typography } from "../../../components/styles";
 import { warn } from "../../../utils/log";
 
@@ -48,6 +48,7 @@ type TransactionListItemProps = {
     spamWallets: string[],
     appState: AppState,
     bounceableFormat: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }
 
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
@@ -77,6 +78,7 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.appState === next.appState
         && prev.onLongPress === next.onLongPress
         && prev.bounceableFormat === next.bounceableFormat
+        && prev.knownWallets === next.knownWallets
 });
 TransactionListItem.displayName = 'TransactionListItem';
 
@@ -101,6 +103,7 @@ export const WalletTransactions = memo((props: {
     const theme = props.theme;
     const navigation = props.navigation;
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
     const [addressBook, updateAddressBook] = useAddressBook();
@@ -210,7 +213,7 @@ export const WalletTransactions = memo((props: {
             || (
                 absAmount < spamMinAmount
                 && !!tx.base.operation.comment
-                && !KnownWallets(isTestnet)[opAddress]
+                && !knownWallets[opAddress]
                 && !isTestnet
             ) && kind !== 'out';
 
@@ -326,6 +329,7 @@ export const WalletTransactions = memo((props: {
                     spamWallets={spamWallets}
                     appState={appState}
                     bounceableFormat={bounceableFormat}
+                    knownWallets={knownWallets}
                 />
             )}
             onEndReached={() => props.onLoadMore()}

@@ -6,27 +6,27 @@ import { Avatar } from "../Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
 import { t } from "../../i18n/t";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet } from "../../secure/KnownWallets";
 
 export const ContactTransactionView = memo(({ 
     addr,
-    testOnly
+    testOnly,
+    knownWallets
 }: {
     addr: {
         isBounceable: boolean;
         isTestOnly: boolean;
         address: Address;
     },
-    testOnly: boolean
+    testOnly: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
     const theme = useTheme();
-    const network = useNetwork();
     const navigation = useTypedNavigation();
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
-
-    const known = KnownWallets(testOnly)[addr.address.toString({ testOnly })];
+    const known = knownWallets[addr.address.toString({ testOnly })];
 
     const addressFriendly = useMemo(() => {
         return addr.address.toString({ testOnly, bounceable: addr.isBounceable });
@@ -58,8 +58,8 @@ export const ContactTransactionView = memo(({
                         size={46}
                         borderWith={0}
                         theme={theme}
-                        isTestnet={network.isTestnet}
                         hashColor
+                        knownWallets={knownWallets}
                     />
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center', flexShrink: 1 }}>

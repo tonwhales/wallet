@@ -3,8 +3,8 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useAccountTransactions, useNetwork, useBounceableWalletFormat, useTheme, useWalletsSettings } from "../../engine/hooks";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useAccountTransactions, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 
@@ -27,7 +27,8 @@ export const AddressSearch = memo(({
     onSelect,
     transfer,
     myWallets,
-    bounceableFormat
+    bounceableFormat,
+    knownWallets
 }: {
     account: Address,
     query?: string,
@@ -38,13 +39,13 @@ export const AddressSearch = memo(({
         addressString: string;
         index: number;
     }[],
-    bounceableFormat: boolean
+    bounceableFormat: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
     const theme = useTheme();
     const network = useNetwork();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
-    const knownWallets = KnownWallets(network.isTestnet);
     const [walletsSettings,] = useWalletsSettings();
 
     const txs = useAccountTransactions(account.toString({ testOnly: network.isTestnet })).data;

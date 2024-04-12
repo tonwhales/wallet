@@ -7,7 +7,7 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { LedgerOrder, Order } from "../ops/Order";
-import { KnownWallet } from "../../../secure/KnownWallets";
+import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
@@ -72,6 +72,7 @@ export const TransferSingleView = memo(({
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const selected = useSelectedAccount();
     const ledgerTransport = useLedgerTransport();
     const appState = useAppState();
@@ -221,7 +222,7 @@ export const TransferSingleView = memo(({
                                         markContact={!!contact}
                                         icProps={{ position: 'bottom' }}
                                         theme={theme}
-                                        isTestnet={isTestnet}
+                                        knownWallets={knownWallets}
                                     />
                                 )}
                             </View>

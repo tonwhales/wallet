@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Image } from 'react-native';
 import { avatarHash } from '../utils/avatarHash';
-import { KnownWallets } from '../secure/KnownWallets';
+import { KnownWallet } from '../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
 import FastImage from 'react-native-fast-image';
 import { memo } from 'react';
@@ -79,19 +79,20 @@ export const Avatar = memo((props: {
         size?: number,
     },
     theme: ThemeType,
-    isTestnet: boolean,
-    hashColor?: { hash: number } | boolean
+    hashColor?: { hash: number } | boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
     const theme = props.theme;
-    const isTestnet = props.isTestnet;
-
-    let known = props.address ? KnownWallets(isTestnet)[props.address] : undefined;
+    const known = props.address ? props.knownWallets[props.address] : undefined;
 
     const hash = (props.hash !== undefined && props.hash !== null)
         ? props.hash
         : avatarHash(props.id, avatarImages.length);
-    let imgSource = avatarImages[hash];
-    let color = avatarColors[avatarHash(props.id, avatarColors.length)];
+    const imgSource = avatarImages[hash];
+    const color = avatarColors[avatarHash(props.id, avatarColors.length)];
+
+
+    // resolve image
     let img: any;
 
     if (props.image) {

@@ -10,7 +10,7 @@ import { useClient4, useConfig, useNetwork, useTheme } from "../../engine/hooks"
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 import { AddressInputAction, InputActionType } from "./TransferAddressInput";
 import { resolveBounceableTag } from "../../utils/resolveBounceableTag";
@@ -30,7 +30,8 @@ export const AddressDomainInput = memo(forwardRef(({
     autoFocus,
     domain,
     screenWidth,
-    bounceableFormat
+    bounceableFormat,
+    knownWallets
 }: {
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
@@ -45,7 +46,8 @@ export const AddressDomainInput = memo(forwardRef(({
     autoFocus?: boolean,
     domain?: string,
     screenWidth?: number,
-    bounceableFormat: boolean
+    bounceableFormat: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }, ref: ForwardedRef<ATextInputRef>) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
@@ -136,7 +138,7 @@ export const AddressDomainInput = memo(forwardRef(({
         if (!resolving && target) {
             if (isKnown) {
                 suffix = target.slice(0, 4) + '...' + target.slice(target.length - 4);
-                textInput = `${KnownWallets(network.isTestnet)[target].name}`
+                textInput = `${knownWallets[target].name}`
             } else if (contact) {
                 suffix = target.slice(0, 4) + '...' + target.slice(target.length - 4);
                 textInput = `${contact.name}`

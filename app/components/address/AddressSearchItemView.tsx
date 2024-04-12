@@ -2,7 +2,6 @@ import React, { memo } from "react";
 import { View, Text, Pressable, Image } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
-import { useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar, avatarColors } from "../Avatar";
 import { AddressComponent } from "./AddressComponent";
@@ -76,7 +75,7 @@ export const AddressSearchItemView = memo(({
                             }}
                             hash={settings?.avatar}
                             theme={theme}
-                            isTestnet={testOnly}
+                            knownWallets={knownWallets}
                             backgroundColor={avatarColor}
                         />
                     )}

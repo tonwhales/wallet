@@ -39,6 +39,7 @@ import { avatarHash } from "../../utils/avatarHash";
 const TransactionPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const route = useRoute();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -137,8 +138,8 @@ const TransactionPreview = () => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[opAddressBounceable]) {
-        known = KnownWallets(isTestnet)[opAddressBounceable];
+    if (knownWallets[opAddressBounceable]) {
+        known = knownWallets[opAddressBounceable];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
@@ -152,7 +153,7 @@ const TransactionPreview = () => {
         || (
             BigMath.abs(BigInt(tx.base.parsed.amount)) < spamMinAmount
             && tx.base.parsed.body?.type === 'comment'
-            && !KnownWallets(isTestnet)[opAddressBounceable]
+            && !knownWallets[opAddressBounceable]
             && !isTestnet
         ) && tx.base.parsed.kind !== 'out';
 
@@ -250,14 +251,14 @@ const TransactionPreview = () => {
                             size: 28
                         }}
                         theme={theme}
-                        isTestnet={isTestnet}
+                        knownWallets={knownWallets}
                         hash={opAddressWalletSettings?.avatar}
                     />
                     <PerfText
                         style={[
                             {
                                 color: theme.textPrimary,
-                                paddingTop: (spam || !!contact || verified || isOwn || !!KnownWallets(isTestnet)[opAddressBounceable]) ? 16 : 8,
+                                paddingTop: (spam || !!contact || verified || isOwn || !!knownWallets[opAddressBounceable]) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}

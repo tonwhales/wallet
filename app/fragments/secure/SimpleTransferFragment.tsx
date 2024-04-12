@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image, Dimensions } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
@@ -63,6 +63,7 @@ export const SimpleTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
     const route = useRoute();
+    const knownWallets = KnownWallets(network.isTestnet);
     const isLedger = route.name === 'LedgerSimpleTransfer';
     const safeArea = useSafeAreaInsets();
     const acc = useSelectedAccount();
@@ -101,7 +102,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const jettonWallet = useJettonWallet(jetton?.toString({ testOnly: network.isTestnet }), true);
     const jettonMaster = useJettonMaster(jettonWallet?.master!);
-    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
+    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON';
 
     const targetAddressValid = useMemo(() => {
         if (target.length > 48) {
@@ -525,7 +526,7 @@ export const SimpleTransferFragment = fragment(() => {
         setJetton(null);
     }, []);
 
-    const isKnown: boolean = !!KnownWallets(network.isTestnet)[target];
+    const isKnown: boolean = !!knownWallets[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -689,6 +690,7 @@ export const SimpleTransferFragment = fragment(() => {
                         address={targetAddressValid.address}
                         isTestnet={network.isTestnet}
                         bounceable={targetAddressValid.isBounceable}
+                        knownWallets={knownWallets}
                     />
                 )
             };
@@ -822,6 +824,7 @@ export const SimpleTransferFragment = fragment(() => {
                         onSearchItemSelected={() => {
                             scrollRef.current?.scrollTo({ y: 0 });
                         }}
+                        knownWallets={knownWallets}
                     />
                 </Animated.View>
                 {selected === 'address' && (

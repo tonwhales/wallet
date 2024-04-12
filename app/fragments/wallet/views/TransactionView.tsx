@@ -39,7 +39,8 @@ export function TransactionView(props: {
     isTestnet: boolean,
     spamWallets: string[],
     appState?: AppState,
-    bounceableFormat: boolean
+    bounceableFormat: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) {
     const {
         theme,
@@ -48,6 +49,7 @@ export function TransactionView(props: {
         spamMinAmount, dontShowComments, spamWallets,
         contacts,
         isTestnet,
+        knownWallets
     } = props;
     const parsed = tx.base.parsed;
     const operation = tx.base.operation;
@@ -98,8 +100,8 @@ export function TransactionView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[parsedAddressFriendly]) {
-        known = KnownWallets(isTestnet)[parsedAddressFriendly];
+    if (knownWallets[parsedAddressFriendly]) {
+        known = knownWallets[parsedAddressFriendly];
     }
     if (tx.title) {
         known = { name: tx.title };
@@ -117,7 +119,7 @@ export function TransactionView(props: {
         || (
             absAmount < spamMinAmount
             && !!tx.base.operation.comment
-            && !KnownWallets(isTestnet)[parsedAddressFriendly]
+            && !knownWallets[parsedAddressFriendly]
             && !isTestnet
         ) && kind !== 'out';
 
@@ -149,6 +151,7 @@ export function TransactionView(props: {
                             kind={kind}
                             address={parsedAddressFriendly}
                             avatarId={parsedAddressFriendly}
+                            knownWallets={knownWallets}
                         />
                     ) : (
                         <Avatar
@@ -165,7 +168,7 @@ export function TransactionView(props: {
                                 borderWidth: 2
                             }}
                             theme={theme}
-                            isTestnet={isTestnet}
+                            knownWallets={knownWallets}
                             backgroundColor={avatarColor}
                             hash={walletSettings?.avatar}
                         />

@@ -1,11 +1,11 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
-import { Platform, Pressable, View, Image, InteractionManager } from "react-native";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react";
+import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
-import { Avatar, avatarColors } from "../Avatar";
+import { avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { useAppState, useBounceableWalletFormat, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
@@ -13,10 +13,10 @@ import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
-
-import IcChevron from '@assets/ic_chevron_forward.svg';
 import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
+
+import IcChevron from '@assets/ic_chevron_forward.svg';
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -34,6 +34,7 @@ type TransferAddressInputProps = {
     isSelected?: boolean,
     onNext?: () => void,
     onSearchItemSelected?: (item: AddressSearchItem) => void,
+    knownWallets: { [key: string]: KnownWallet }
 }
 
 export type AddressInputState = {
@@ -126,8 +127,24 @@ export function addressInputReducer() {
     }
 }
 
+function useDebounceQeury(query: string, delay: number) {
+    const [debouncedQuery, setDebouncedQuery] = useState(query);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedQuery(query);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [query, delay]);
+
+    return debouncedQuery;
+}
+
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
-    const isKnown: boolean = !!KnownWallets(props.isTestnet)[props.target];
+    const isKnown: boolean = !!props.knownWallets[props.target];
     const contact = useContact(props.target);
     const appState = useAppState();
     const theme = useTheme();
@@ -137,6 +154,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [walletSettings,] = useWalletSettings(validAddressFriendly);
     const [bounceableFormat,] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
+
+    const query = useDebounceQeury(props.input, 500);
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -185,7 +204,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     }, [select, isSelected]);
 
-
     return (
         <View>
             <View
@@ -211,6 +229,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         isLedger={isSelectedLedger}
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
+                        knownWallets={props.knownWallets}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={{
@@ -263,6 +282,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         isLedger={isSelectedLedger}
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
+                        knownWallets={props.knownWallets}
                     />
                     <AddressDomainInput
                         input={props.input}
@@ -279,6 +299,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         domain={props.domain}
                         screenWidth={screenWidth * 0.75}
                         bounceableFormat={bounceableFormat}
+                        knownWallets={props.knownWallets}
                     />
                 </View>
                 {!props.validAddress && (props.target.length >= 48) && (
@@ -315,12 +336,15 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             props.onSearchItemSelected(item);
                         }
                     }}
-                    query={props.input.toLowerCase()}
+                    query={query}
                     transfer
                     myWallets={myWallets}
                     bounceableFormat={bounceableFormat}
+                    knownWallets={props.knownWallets}
                 />
             </View>
         </View>
-    )
-}))
+    );
+}));
+
+TransferAddressInput.displayName = 'TransferAddressInput';

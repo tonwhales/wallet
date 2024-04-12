@@ -33,7 +33,7 @@ export const ContactTransactionView = memo(({
     }, [addr]);
 
     const onPress = useCallback(() => {
-        navigation.navigate('Contact', { address: addressFriendly });
+        navigation.navigate('ContactNew', { address: addressFriendly });
     }, [addressFriendly]);
 
     return (

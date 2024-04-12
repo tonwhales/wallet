@@ -83,7 +83,7 @@ function PulsingAccountSkeleton(theme: ThemeType) {
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingHorizontal: 16,
-                    marginTop: -12
+                    marginTop: safeArea.top - 59
                 },
             ]}>
                 <View style={{
@@ -204,7 +204,7 @@ export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'accoun
         return {
             opacity: withTiming(
                 opacity.value,
-                { duration: 250, easing: Easing.bezier(0.42, 0, 1, 1) }
+                { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }
             )
         };
     });
@@ -231,7 +231,6 @@ export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'accoun
                 animatedStyles
             ]}
             pointerEvents={loaded ? 'none' : 'auto'}
-            exiting={FadeOut.duration(3050)}
         >
             <View style={{ marginTop: 58, width: '100%', flexGrow: 1 }}>
                 {type === 'account' ? <PulsingAccountSkeleton {...theme} /> : <HoldersPlaceholder />}

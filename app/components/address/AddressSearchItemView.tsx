@@ -9,24 +9,31 @@ import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
 import { avatarHash } from "../../utils/avatarHash";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet } from "../../secure/KnownWallets";
+import { ThemeType } from "../../engine/state/theme";
 
 export const AddressSearchItemView = memo(({
     item,
     onPress,
     walletsSettings,
-    testOnly
+    testOnly,
+    theme,
+    bounceableFormat,
+    knownWallets
 }: {
     item: AddressSearchItem,
     onPress?: (item: AddressSearchItem) => void,
     walletsSettings: { [key: string]: WalletSettings },
-    testOnly: boolean
+    testOnly: boolean,
+    theme: ThemeType,
+    bounceableFormat: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
-    const theme = useTheme();
-    const [bounceableFormat,] = useBounceableWalletFormat();
     const addressString = item.addr.address.toString({ testOnly });
     const contractInfo = useContractInfo(addressString);
-    const known = KnownWallets(testOnly)[addressString];
+    const a = global.performance.now();
+    const known = knownWallets[addressString];
+    console.log('AdSIV hooks', global.performance.now() - a, 'ms');
 
     const settings = walletsSettings[addressString];
 
@@ -99,3 +106,5 @@ export const AddressSearchItemView = memo(({
         </Pressable>
     );
 });
+
+AddressSearchItemView.displayName = 'AddressSearchItemView';

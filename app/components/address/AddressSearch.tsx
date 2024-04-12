@@ -26,7 +26,8 @@ export const AddressSearch = memo(({
     query,
     onSelect,
     transfer,
-    myWallets
+    myWallets,
+    bounceableFormat
 }: {
     account: Address,
     query?: string,
@@ -36,7 +37,8 @@ export const AddressSearch = memo(({
         address: Address;
         addressString: string;
         index: number;
-    }[]
+    }[],
+    bounceableFormat: boolean
 }) => {
     const theme = useTheme();
     const network = useNetwork();
@@ -44,7 +46,6 @@ export const AddressSearch = memo(({
     const contacts = addressBook.contacts;
     const knownWallets = KnownWallets(network.isTestnet);
     const [walletsSettings,] = useWalletsSettings();
-    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const txs = useAccountTransactions(account.toString({ testOnly: network.isTestnet })).data;
 
@@ -225,6 +226,9 @@ export const AddressSearch = memo(({
                                     walletsSettings={walletsSettings}
                                     onPress={onSelect}
                                     testOnly={network.isTestnet}
+                                    theme={theme}
+                                    bounceableFormat={bounceableFormat}
+                                    knownWallets={knownWallets}
                                 />
                             );
                         })}
@@ -262,6 +266,9 @@ export const AddressSearch = memo(({
                                     onPress={onSelect}
                                     walletsSettings={walletsSettings}
                                     testOnly={network.isTestnet}
+                                    theme={theme}
+                                    bounceableFormat={bounceableFormat}
+                                    knownWallets={knownWallets}
                                 />
                             );
                         })}
@@ -299,6 +306,9 @@ export const AddressSearch = memo(({
                                     onPress={onSelect}
                                     walletsSettings={walletsSettings}
                                     testOnly={network.isTestnet}
+                                    theme={theme}
+                                    bounceableFormat={bounceableFormat}
+                                    knownWallets={knownWallets}
                                 />
                             );
                         })}
@@ -311,3 +321,5 @@ export const AddressSearch = memo(({
         </View>
     );
 });
+
+AddressSearch.displayName = 'AddressSearch';

@@ -58,3 +58,5 @@ export const AddressInputAvatar = memo(({
         />
     );
 });
+
+AddressInputAvatar.displayName = 'AddressInputAvatar';

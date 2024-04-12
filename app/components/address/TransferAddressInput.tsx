@@ -6,7 +6,7 @@ import { Avatar, avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
-import { useAppState, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -135,6 +135,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const screenWidth = dimentions.screen.width;
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
     const [walletSettings,] = useWalletSettings(validAddressFriendly);
+    const [bounceableFormat,] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
@@ -277,6 +278,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         onQRCodeRead={props.onQRCodeRead}
                         domain={props.domain}
                         screenWidth={screenWidth * 0.75}
+                        bounceableFormat={bounceableFormat}
                     />
                 </View>
                 {!props.validAddress && (props.target.length >= 48) && (
@@ -316,6 +318,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     query={props.input.toLowerCase()}
                     transfer
                     myWallets={myWallets}
+                    bounceableFormat={bounceableFormat}
                 />
             </View>
         </View>

@@ -6,7 +6,7 @@ import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { ATextInputRef } from "../ATextInput";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useBounceableWalletFormat, useClient4, useConfig, useNetwork, useTheme } from "../../engine/hooks";
+import { useClient4, useConfig, useNetwork, useTheme } from "../../engine/hooks";
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
@@ -29,7 +29,8 @@ export const AddressDomainInput = memo(forwardRef(({
     onQRCodeRead,
     autoFocus,
     domain,
-    screenWidth
+    screenWidth,
+    bounceableFormat
 }: {
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
@@ -43,14 +44,14 @@ export const AddressDomainInput = memo(forwardRef(({
     onQRCodeRead?: (value: string) => void,
     autoFocus?: boolean,
     domain?: string,
-    screenWidth?: number
+    screenWidth?: number,
+    bounceableFormat: boolean
 }, ref: ForwardedRef<ATextInputRef>) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
     const netConfig = useConfig();
-    const [bounceableFormat,] = useBounceableWalletFormat();
     const [resolving, setResolving] = useState<boolean>();
 
     const openScanner = useCallback(() => {
@@ -352,3 +353,5 @@ export const AddressDomainInput = memo(forwardRef(({
         </View>
     );
 }));
+
+AddressDomainInput.displayName = 'AddressDomainInput';

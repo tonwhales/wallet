@@ -1,18 +1,19 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
-import { Platform, Pressable, View, Image } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
-import { Avatar, avatarColors } from "../Avatar";
+import { avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
-import { useAppState, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 import { AddressInputAvatar } from "./AddressInputAvatar";
@@ -127,7 +128,8 @@ export function addressInputReducer() {
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const isKnown: boolean = !!KnownWallets(props.isTestnet)[props.target];
-    const contact = useContact(props.target);
+    const addressBookContext = useAddressBookContext();
+    const contact = addressBookContext.asContact(props.target);
     const appState = useAppState();
     const theme = useTheme();
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });

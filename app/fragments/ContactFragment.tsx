@@ -17,10 +17,11 @@ import { ItemDivider } from "../components/ItemDivider";
 import Share from 'react-native-share';
 import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 import { ATextInput } from "../components/ATextInput";
-import { useBounceableWalletFormat, useContact, useNetwork, useRemoveContact, useSetContact, useTheme } from "../engine/hooks";
+import { useBounceableWalletFormat, useNetwork, useTheme } from "../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { useContractInfo } from "../engine/hooks/metadata/useContractInfo";
+import { useAddressBookContext } from "../engine/AddressBookContext";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -46,10 +47,11 @@ export const ContactFragment = fragment(() => {
         }
     }, [address]);
 
-    const setContact = useSetContact();
-    const removeContact = useRemoveContact();
     const safeArea = useSafeAreaInsets();
-    const contact = useContact(params.address);
+    const addressBookContext = useAddressBookContext();
+    const contact = addressBookContext.asContact(params.address);
+    const setContact = addressBookContext.setContact;
+    const removeContact = addressBookContext.removeContact;
     const contractInfo = useContractInfo(params.address ?? '');
 
     const [bounceableFormat,] = useBounceableWalletFormat();

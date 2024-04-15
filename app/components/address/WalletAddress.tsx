@@ -6,8 +6,10 @@ import { confirmAlert } from "../../utils/confirmAlert";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, ToastProps, useToaster } from "../toast/ToastProvider";
-import { useAddToDenyList, useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
+import { ThemeType } from "../../engine/state/theme";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
     return src.slice(0, params?.start ?? 10)
@@ -29,13 +31,15 @@ export const WalletAddress = memo((props: {
     previewBackgroundColor?: string,
     copyOnPress?: boolean,
     copyToastProps?: Omit<ToastProps, 'message' | 'type' | 'duration'>,
-    bounceable?: boolean
+    bounceable?: boolean,
+    theme: ThemeType,
 }) => {
+    const startRender = global.performance.now();
     const toaster = useToaster();
     const network = useNetwork();
-    const theme = useTheme();
+    const theme = props.theme;
     const navigation = useTypedNavigation();
-    const addToDenyList = useAddToDenyList();
+    const addToDenyList = useAddressBookContext().addToDenyList;
     const [bounceableFormat,] = useBounceableWalletFormat();
     const bounceable = (props.bounceable === undefined)
         ? bounceableFormat
@@ -263,4 +267,6 @@ export const WalletAddress = memo((props: {
             )}
         </>
     );
-})
+});
+
+WalletAddress.displayName = 'WalletAddress';

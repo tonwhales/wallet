@@ -8,10 +8,11 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemSwitch } from "../components/Item";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
-import { useDenyList, useDontShowComments, useNetwork, useRemoveFromDenyList, useSpamMinAmount, useTheme } from "../engine/hooks";
+import { useDontShowComments, useNetwork, useSpamMinAmount, useTheme } from "../engine/hooks";
 import { Address, fromNano, toNano } from "@ton/core";
 import { confirmAlert } from "../utils/confirmAlert";
 import { StatusBar } from "expo-status-bar";
+import { useAddressBookContext } from "../engine/AddressBookContext";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
 import IcInfo from '@assets/ic-info.svg';
@@ -25,10 +26,11 @@ export const SpamFilterFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const denyMap = useDenyList();
+    const addressBookContext = useAddressBookContext();
+    const denyMap = addressBookContext.state.denyList || {};
     const { isTestnet } = useNetwork();
 
-    const removeFromDenyList = useRemoveFromDenyList();
+    const removeFromDenyList = addressBookContext.removeFromDenyList;
     const [minAmount, updateMinAmount] = useSpamMinAmount();
     const [dontShow, updateDontshow] = useDontShowComments();
 

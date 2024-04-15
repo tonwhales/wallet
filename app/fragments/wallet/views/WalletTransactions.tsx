@@ -20,6 +20,7 @@ import { confirmAlert } from "../../../utils/confirmAlert";
 import { KnownWallets } from "../../../secure/KnownWallets";
 import { Typography } from "../../../components/styles";
 import { warn } from "../../../utils/log";
+import { useAddressBookContext } from "../../../engine/AddressBookContext";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -103,7 +104,9 @@ export const WalletTransactions = memo((props: {
     const { isTestnet } = useNetwork();
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
-    const [addressBook, updateAddressBook] = useAddressBook();
+    const addressBookContext = useAddressBookContext();
+    const addressBook = addressBookContext.state;
+    const addToDenyList = addressBookContext.addToDenyList;
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
     const [pending,] = usePendingTransactions(props.address, isTestnet);
@@ -111,18 +114,6 @@ export const WalletTransactions = memo((props: {
     const [bounceableFormat,] = useBounceableWalletFormat();
 
     const { showActionSheetWithOptions } = useActionSheet();
-
-    const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
-        let addr = '';
-
-        if (address instanceof Address) {
-            addr = address.toString({ testOnly: isTestnet });
-        } else {
-            addr = address;
-        }
-
-        return updateAddressBook((doc) => doc.denyList[addr] = { reason });
-    }, [isTestnet, updateAddressBook]);
 
     const { transactionsSectioned } = useMemo(() => {
         const sectioned = new Map<string, TransactionDescription[]>();

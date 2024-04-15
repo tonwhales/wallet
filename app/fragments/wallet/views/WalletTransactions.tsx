@@ -126,7 +126,8 @@ export const WalletTransactions = memo((props: {
 
     const { transactionsSectioned } = useMemo(() => {
         const sectioned = new Map<string, { title: string, data: TransactionDescription[] }>();
-        for (const t of props.txs) {
+        for (let i = 0; i < props.txs.length; i++) {
+            const t = props.txs[i];
             const time = getDateKey(t.base.time);
             const section = sectioned.get(time);
             if (section) {

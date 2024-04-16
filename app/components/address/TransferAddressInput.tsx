@@ -127,24 +127,9 @@ export function addressInputReducer() {
     }
 }
 
-function useDebounceQeury(query: string, delay: number) {
-    const [debouncedQuery, setDebouncedQuery] = useState(query);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedQuery(query);
-        }, delay);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [query, delay]);
-
-    return debouncedQuery;
-}
-
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const isKnown: boolean = !!props.knownWallets[props.target];
+    const query = props.input;
     const contact = useContact(props.target);
     const appState = useAppState();
     const theme = useTheme();
@@ -154,8 +139,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [walletSettings,] = useWalletSettings(validAddressFriendly);
     const [bounceableFormat,] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
-
-    const query = useDebounceQeury(props.input, 500);
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

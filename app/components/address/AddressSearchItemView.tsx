@@ -69,7 +69,7 @@ export const AddressSearchItemView = memo(({
                             borderWith={0}
                             markContact={item.type === 'contact'}
                             icProps={{
-                                isOwn: item.type === 'my-wallets',
+                                isOwn: item.type === 'own',
                                 backgroundColor: theme.elevation
                             }}
                             hash={settings?.avatar}

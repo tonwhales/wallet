@@ -3,7 +3,7 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useNetwork, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -19,7 +19,7 @@ export type AddressSearchItem = {
     },
     title: string,
     searchable: string,
-    type: 'contact' | 'known' | 'unknown' | 'my-wallets',
+    type: 'contact' | 'known' | 'unknown' | 'own',
     icon?: string,
     isLedger?: boolean
 };
@@ -51,19 +51,19 @@ export const AddressSearch = memo(({
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
     const [walletsSettings,] = useWalletsSettings();
-    const debouncedQuery = useDebouncedValue(query, 500);
+    const debouncedQuery = useDebouncedValue(query?.toLowerCase(), 500);
 
     const lastTxs = useMemo(() => {
         const two = lastTwoTxs?.slice(0, 2);
         let addresses: { isBounceable: boolean; isTestOnly: boolean; address: Address; }[] = [];
-    
+
         if (two && two.length > 1) {
             const firstAddr = two[0].base.operation.items[0].kind === 'token' ? two[0].base.operation.address : two[0].base.parsed.resolvedAddress;
             const secondAddr = two[1].base.operation.items[0].kind === 'token' ? two[1].base.operation.address : two[1].base.parsed.resolvedAddress;
-    
+
             const first = Address.parseFriendly(firstAddr);
             const second = Address.parseFriendly(secondAddr);
-    
+
             if (first && second) {
                 addresses = first.address.equals(second.address) ? [first] : [first, second];
             } else if (first) {
@@ -72,46 +72,13 @@ export const AddressSearch = memo(({
                 addresses = [second];
             }
         }
-    
+
         return addresses;
     }, [lastTwoTxs, contacts]);
 
     const searchItems = useMemo(() => {
-        return [
-            ...Object.entries(contacts).map(([key, contact]) => {
-                let addr: {
-                    isBounceable: boolean;
-                    isTestOnly: boolean;
-                    address: Address;
-                };
-                try {
-                    addr = Address.parseFriendly(key);
-                } catch {
-                    return null
-                }
-                const name = contact.name;
-                const lastName = contact.fields?.find((f) => f.key === 'lastName')?.value
-                const title = `${name}${lastName ? ` ${lastName}` : ''}`;
-                const searchable = `${title} ${key}`.toLowerCase();
-                return { type: 'contact', addr, title, searchable };
-            }),
-            ...Object.entries(knownWallets).map(([key, known]) => {
-                let addr: {
-                    isBounceable: boolean;
-                    isTestOnly: boolean;
-                    address: Address;
-                };
-                try {
-                    addr = Address.parseFriendly(key);
-                } catch (error) {
-                    return null
-                }
-                const title = known.name;
-                const searchable = `${title} ${addr.address.toString({ testOnly: network.isTestnet, bounceable: addr.isBounceable })}`.toLowerCase();
-
-                return { type: 'known', addr, title, searchable, icon: known.ic };
-            }),
-            ...myWallets.map((acc) => {
+        return {
+            own: myWallets.map((acc) => {
                 const walletSettings = walletsSettings[acc.addressString];
                 let title = `${t('common.wallet')} ${acc.index + 1}`;
 
@@ -137,29 +104,62 @@ export const AddressSearch = memo(({
                 const searchable = `${title} ${acc.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat })}`.toLowerCase();
 
                 return {
-                    type: 'my-wallets',
+                    type: 'own',
                     addr, title, searchable, walletSettings,
                     isLedger: acc.index === -2 ? true : undefined
                 }
-            })
-        ].filter((i) => !!i) as AddressSearchItem[];
+            }).filter((i) => !!i) as AddressSearchItem[],
+            contact: Object.entries(contacts).map(([key, contact]) => {
+                let addr: {
+                    isBounceable: boolean;
+                    isTestOnly: boolean;
+                    address: Address;
+                };
+                try {
+                    addr = Address.parseFriendly(key);
+                } catch {
+                    return null
+                }
+                const name = contact.name;
+                const lastName = contact.fields?.find((f) => f.key === 'lastName')?.value
+                const title = `${name}${lastName ? ` ${lastName}` : ''}`;
+                const searchable = `${title} ${key}`.toLowerCase();
+                return { type: 'contact', addr, title, searchable };
+            }).filter((i) => !!i) as AddressSearchItem[],
+            known: Object.entries(knownWallets).map(([key, known]) => {
+                let addr: {
+                    isBounceable: boolean;
+                    isTestOnly: boolean;
+                    address: Address;
+                };
+                try {
+                    addr = Address.parseFriendly(key);
+                } catch (error) {
+                    return null
+                }
+                const title = known.name;
+                const searchable = `${title} ${addr.address.toString({ testOnly: network.isTestnet, bounceable: addr.isBounceable })}`.toLowerCase();
+
+                return { type: 'known', addr, title, searchable, icon: known.ic };
+            }).filter((i) => !!i) as AddressSearchItem[]
+        };
     }, [contacts, knownWallets, bounceableFormat, network]);
 
     const filtered = useMemo(() => {
         if (!debouncedQuery || debouncedQuery.length === 0) {
             return {
                 recent: lastTxs,
-                searchRes: searchItems.filter((i) => i.type === 'contact' || i.type === 'unknown'),
-                myWallets: searchItems.filter((i) => i.type === 'my-wallets')
+                searchRes: searchItems.contact,
+                myWallets: searchItems.own
             };
         }
 
-        const searchRes = searchItems.filter((i) => i.searchable.includes(debouncedQuery));
+        const searchRes = [...searchItems.contact, ...searchItems.known].filter((i) => i.searchable.includes(debouncedQuery));
 
         return {
             recent: lastTxs.filter((a) => a.address.toString({ testOnly: network.isTestnet, bounceable: a.isBounceable }).includes(debouncedQuery)),
-            searchRes: searchRes.filter((i) => i.type !== 'my-wallets'),
-            myWallets: searchRes.filter((i) => i.type === 'my-wallets')
+            searchRes: searchRes,
+            myWallets: searchItems.own.filter((i) => i.searchable.includes(debouncedQuery))
         };
     }, [searchItems, lastTxs, debouncedQuery, bounceableFormat, network]);
 
@@ -198,7 +198,7 @@ export const AddressSearch = memo(({
                             const own = myWallets.find((acc) => acc.address.equals(addr.address));
                             const settings = walletsSettings[addr.address.toString({ testOnly: network.isTestnet })];
 
-                            let type: "known" | "unknown" | "contact" | "my-wallets" = 'unknown';
+                            let type: "known" | "unknown" | "contact" | "own" = 'unknown';
                             let title = t('contacts.unknown');
                             if (contact) {
                                 type = 'contact';
@@ -207,7 +207,7 @@ export const AddressSearch = memo(({
                                 type = 'known';
                                 title = known.name;
                             } else if (!!own) {
-                                type = 'my-wallets';
+                                type = 'own';
                                 if (settings?.name) {
                                     title = settings.name;
                                 } else {

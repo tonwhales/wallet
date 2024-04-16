@@ -32,7 +32,6 @@ export const AddressSearchItemView = memo(({
     const contractInfo = useContractInfo(addressString);
     const a = global.performance.now();
     const known = knownWallets[addressString];
-    console.log('AdSIV hooks', global.performance.now() - a, 'ms');
 
     const settings = walletsSettings[addressString];
 

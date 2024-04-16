@@ -1,12 +1,12 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
-import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
+import { KnownWallet } from "../../secure/KnownWallets";
+import { useAppState, useBounceableWalletFormat, useContact, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -16,8 +16,10 @@ import { useLedgerTransport } from "../../fragments/ledger/components/TransportC
 import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
 import { TransactionDescription } from "../../engine/types";
+import { TypedNavigation } from "../../utils/useTypedNavigation";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { AddressBookContext, useAddressBookContext } from "../../engine/AddressBookContext";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -37,6 +39,7 @@ type TransferAddressInputProps = {
     onSearchItemSelected?: (item: AddressSearchItem) => void,
     knownWallets: { [key: string]: KnownWallet },
     lastTwoTxs: TransactionDescription[],
+    navigation: TypedNavigation
 }
 
 export type AddressInputState = {
@@ -132,7 +135,8 @@ export function addressInputReducer() {
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const isKnown: boolean = !!props.knownWallets[props.target];
     const query = props.input;
-    const contact = useContact(props.target);
+    const addressBookContext = useAddressBookContext();
+    const contact = addressBookContext.asContact(props.target);
     const appState = useAppState();
     const theme = props.theme;
     const dimentions = useDimensions();
@@ -285,6 +289,9 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         screenWidth={screenWidth * 0.75}
                         bounceableFormat={bounceableFormat}
                         knownWallets={props.knownWallets}
+                        navigation={props.navigation}
+                        theme={theme}
+                        isTestnet={props.isTestnet}
                     />
                 </View>
                 {!props.validAddress && (props.target.length >= 48) && (

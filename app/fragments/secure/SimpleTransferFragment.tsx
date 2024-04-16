@@ -828,6 +828,7 @@ export const SimpleTransferFragment = fragment(() => {
                         }}
                         knownWallets={knownWallets}
                         lastTwoTxs={txs?.slice(0, 2) ?? []}
+                        navigation={navigation}
                     />
                 </Animated.View>
                 {selected === 'address' && (

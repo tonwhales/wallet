@@ -23,7 +23,7 @@ import { WImage } from '../../components/WImage';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -80,6 +80,8 @@ export const SimpleTransferFragment = fragment(() => {
             } catch { }
         }
     }, [addr]);
+
+    const txs = useAccountTransactions((ledgerAddress ?? acc!.address).toString({ testOnly: network.isTestnet })).data;
 
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
@@ -825,6 +827,7 @@ export const SimpleTransferFragment = fragment(() => {
                             scrollRef.current?.scrollTo({ y: 0 });
                         }}
                         knownWallets={knownWallets}
+                        lastTwoTxs={txs?.slice(0, 2) ?? []}
                     />
                 </Animated.View>
                 {selected === 'address' && (

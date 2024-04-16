@@ -3,10 +3,13 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useAccountTransactions, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
+import { useDebouncedValue } from "../../utils/useDebouncedValue";
+import { TransactionDescription } from "../../engine/types";
+import { ThemeType } from "../../engine/state/theme";
 
 export type AddressSearchItem = {
     addr: {
@@ -22,15 +25,15 @@ export type AddressSearchItem = {
 };
 
 export const AddressSearch = memo(({
-    account,
     query,
     onSelect,
     transfer,
     myWallets,
     bounceableFormat,
-    knownWallets
+    knownWallets,
+    lastTwoTxs,
+    theme
 }: {
-    account: Address,
     query?: string,
     onSelect?: (item: AddressSearchItem) => void,
     transfer?: boolean,
@@ -40,41 +43,38 @@ export const AddressSearch = memo(({
         index: number;
     }[],
     bounceableFormat: boolean,
-    knownWallets: { [key: string]: KnownWallet }
+    knownWallets: { [key: string]: KnownWallet },
+    lastTwoTxs: TransactionDescription[],
+    theme: ThemeType
 }) => {
-    const theme = useTheme();
     const network = useNetwork();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
     const [walletsSettings,] = useWalletsSettings();
-
-    const txs = useAccountTransactions(account.toString({ testOnly: network.isTestnet })).data;
+    const debouncedQuery = useDebouncedValue(query, 500);
 
     const lastTxs = useMemo(() => {
-        // first two txs
-        const two = txs?.slice(0, 2);
-
+        const two = lastTwoTxs?.slice(0, 2);
         let addresses: { isBounceable: boolean; isTestOnly: boolean; address: Address; }[] = [];
-        if (!!two && two.length > 1) {
+    
+        if (two && two.length > 1) {
             const firstAddr = two[0].base.operation.items[0].kind === 'token' ? two[0].base.operation.address : two[0].base.parsed.resolvedAddress;
             const secondAddr = two[1].base.operation.items[0].kind === 'token' ? two[1].base.operation.address : two[1].base.parsed.resolvedAddress;
-
+    
             const first = Address.parseFriendly(firstAddr);
             const second = Address.parseFriendly(secondAddr);
-
-            if (!!first && !!second && first.address.equals(second.address)) {
-                addresses = [first];
-            } else if (!!first && !!second && !first.address.equals(second.address)) {
-                addresses = [first, second];
+    
+            if (first && second) {
+                addresses = first.address.equals(second.address) ? [first] : [first, second];
             } else if (first) {
                 addresses = [first];
             } else if (second) {
                 addresses = [second];
             }
         }
-
+    
         return addresses;
-    }, [txs, contacts]);
+    }, [lastTwoTxs, contacts]);
 
     const searchItems = useMemo(() => {
         return [
@@ -146,7 +146,7 @@ export const AddressSearch = memo(({
     }, [contacts, knownWallets, bounceableFormat, network]);
 
     const filtered = useMemo(() => {
-        if (!query || query.length === 0) {
+        if (!debouncedQuery || debouncedQuery.length === 0) {
             return {
                 recent: lastTxs,
                 searchRes: searchItems.filter((i) => i.type === 'contact' || i.type === 'unknown'),
@@ -154,14 +154,14 @@ export const AddressSearch = memo(({
             };
         }
 
-        const searchRes = searchItems.filter((i) => i.searchable.includes(query));
+        const searchRes = searchItems.filter((i) => i.searchable.includes(debouncedQuery));
 
         return {
-            recent: lastTxs.filter((a) => a.address.toString({ testOnly: network.isTestnet, bounceable: a.isBounceable }).includes(query)),
+            recent: lastTxs.filter((a) => a.address.toString({ testOnly: network.isTestnet, bounceable: a.isBounceable }).includes(debouncedQuery)),
             searchRes: searchRes.filter((i) => i.type !== 'my-wallets'),
             myWallets: searchRes.filter((i) => i.type === 'my-wallets')
         };
-    }, [searchItems, lastTxs, query, bounceableFormat, network]);
+    }, [searchItems, lastTxs, debouncedQuery, bounceableFormat, network]);
 
     if ((filtered.searchRes.length === 0) && filtered.recent.length === 0 && filtered.myWallets.length === 0) {
         return null;

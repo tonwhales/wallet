@@ -15,6 +15,7 @@ import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
+import { TransactionDescription } from "../../engine/types";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -34,7 +35,8 @@ type TransferAddressInputProps = {
     isSelected?: boolean,
     onNext?: () => void,
     onSearchItemSelected?: (item: AddressSearchItem) => void,
-    knownWallets: { [key: string]: KnownWallet }
+    knownWallets: { [key: string]: KnownWallet },
+    lastTwoTxs: TransactionDescription[],
 }
 
 export type AddressInputState = {
@@ -132,7 +134,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const query = props.input;
     const contact = useContact(props.target);
     const appState = useAppState();
-    const theme = useTheme();
+    const theme = props.theme;
     const dimentions = useDimensions();
     const screenWidth = dimentions.screen.width;
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
@@ -300,7 +302,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     </Animated.View>
                 )}
                 <AddressSearch
-                    account={props.acc}
+                    theme={theme}
                     onSelect={(item) => {
                         const friendly = item.addr.address.toString({ testOnly: props.isTestnet, bounceable: item.addr.isBounceable });
                         let name = item.type !== 'unknown' ? item.title : friendly;
@@ -324,6 +326,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     myWallets={myWallets}
                     bounceableFormat={bounceableFormat}
                     knownWallets={props.knownWallets}
+                    lastTwoTxs={props.lastTwoTxs}
                 />
             </View>
         </View>

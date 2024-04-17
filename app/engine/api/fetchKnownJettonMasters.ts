@@ -8,7 +8,7 @@ const knownJettonTickersCodec = z.object({
 
 export async function fetchKnownJettonMasters() {
     try {
-        const res = await axios.get("https://github.com/tonwhales/wallet/tree/master/assets/knownJettonMasters.json");
+        const res = await axios.get("https://raw.githubusercontent.com/tonwhales/wallet/master/assets/knownJettonMasters.json");
 
         if (res.status === 200) {
             const parsed = knownJettonTickersCodec.safeParse(res.data);

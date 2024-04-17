@@ -24,7 +24,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Typography } from '../../components/styles';
-import { useUSDT } from '../../engine/hooks/jettons/useUSDT';
+import { useSpecialJetton } from '../../engine/hooks/jettons/useSpecialJetton';
 import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
 import { isNeocryptoAvailable } from '../../utils/isNeocryptoAvailable';
 
@@ -34,7 +34,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const navigation = useTypedNavigation();
     const address = props.selectedAcc.address;
     const account = props.wallet;
-    const usdt = useUSDT(address);
+    const usdt = useSpecialJetton(address);
     const staking = useStaking();
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();

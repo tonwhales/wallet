@@ -1,11 +1,11 @@
+import { useJettonsConfig } from ".";
 import { useNetwork } from "../network";
-import { useKnownJettonMasters } from "./useKnownJettonMasters";
-import { useKnownJettonTickers } from "./useKnownJettonTickers";
 
 export function useIsScamJetton(ticker?: string | null, master?: string | null) {
     const { isTestnet } = useNetwork();
-    const knownTickers = useKnownJettonTickers();
-    const knownMasters = useKnownJettonMasters(isTestnet);
+    const config = useJettonsConfig(isTestnet);
+    const knownTickers = config?.tickers ?? [];
+    const knownMasters = config?.masters ?? {};
 
     if (!ticker || !master) {
         return false;

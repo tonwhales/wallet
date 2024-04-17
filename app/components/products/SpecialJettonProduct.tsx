@@ -8,30 +8,32 @@ import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 import { Address } from "@ton/core";
-import { useUSDT } from "../../engine/hooks/jettons/useUSDT";
+import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
+import { ItemDivider } from "../ItemDivider";
 
-export const USDTProduct = memo(({
+export const SpecialJettonProduct = memo(({
     theme,
     navigation,
     isLedger,
     address,
-    testOnly
+    testOnly,
+    divider
 }: {
     theme: ThemeType,
     navigation: TypedNavigation,
     isLedger?: boolean,
     address: Address,
-    testOnly: boolean
+    testOnly: boolean,
+    divider?: 'top' | 'bottom'
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
-    const usdt = useUSDT(address);
-    const content = usdt?.masterContent;
-
-    const balance = usdt?.balance ?? 0n;
+    const specialJetton = useSpecialJetton(address);
+    const content = specialJetton?.masterContent;
+    const balance = specialJetton?.balance ?? 0n;
 
     const onPress = useCallback(() => {
-        if (!usdt || !usdt.wallet) {
+        if (!specialJetton || !specialJetton.wallet) {
             return;
         }
 
@@ -39,7 +41,7 @@ export const USDTProduct = memo(({
             amount: null,
             target: null,
             comment: null,
-            jetton: usdt.wallet,
+            jetton: specialJetton.wallet,
             stateInit: null,
             job: null,
             callback: null
@@ -52,22 +54,23 @@ export const USDTProduct = memo(({
 
         navigation.navigateSimpleTransfer(tx);
 
-    }, [usdt, isLedger]);
+    }, [specialJetton, isLedger]);
 
-    if (!usdt) {
+    if (!specialJetton) {
         return null;
     }
 
     return (
         <Pressable
-            disabled={!usdt || !usdt.wallet}
+            disabled={!specialJetton || !specialJetton.wallet}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             style={({ pressed }) => {
-                return { flex: 1, paddingHorizontal: 16, marginBottom: 16, opacity: pressed ? 0.8 : 1 }
+                return { flex: 1, opacity: pressed ? 0.8 : 1 }
             }}
             onPress={onPress}
         >
+            {divider === 'top' && <ItemDivider marginVertical={0} />}
             <Animated.View style={[
                 {
                     flexDirection: 'row', flexGrow: 1,
@@ -145,7 +148,7 @@ export const USDTProduct = memo(({
                         </Text>
                     </Text>
                     <PriceComponent
-                        amount={usdt.nano}
+                        amount={specialJetton.nano}
                         style={{
                             backgroundColor: 'transparent',
                             paddingHorizontal: 0, paddingVertical: 0,
@@ -158,6 +161,7 @@ export const USDTProduct = memo(({
                     />
                 </View>
             </Animated.View>
+            {divider === 'bottom' && <ItemDivider marginVertical={0} />}
         </Pressable>
     );
 });

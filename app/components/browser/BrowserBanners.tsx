@@ -27,7 +27,9 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
     useEffect(() => {
         if (banners.length === 0) return;
 
-        trackEvent(MixpanelEvent.BrowserBannerShown, { id: banners[activeSlide].id, productUrl: banners[activeSlide].product_url });
+        if (banners[activeSlide]) {
+            trackEvent(MixpanelEvent.BrowserBannerShown, { id: banners[activeSlide].id, productUrl: banners[activeSlide].product_url });
+        }
 
         const timerId = setTimeout(() => {
             if (banners.length === 0) return;

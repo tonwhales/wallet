@@ -33,7 +33,7 @@ export function normalizePath(path: string) {
 
 import IcHolders from '@assets/ic_holders.svg';
 
-function PulsingAccountPlaceholder(theme: ThemeType) {
+function PulsingAccountSkeleton(theme: ThemeType) {
     const safeArea = useSafeAreaInsets();
     const animation = useSharedValue(0);
 
@@ -92,7 +92,6 @@ function PulsingAccountPlaceholder(theme: ThemeType) {
                     backgroundColor: '#1c1c1e',
                     borderRadius: 16
                 }} />
-
                 <Animated.View
                     style={[
                         { height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' },
@@ -395,7 +394,7 @@ export function HoldersPlaceholder() {
     );
 }
 
-export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' | 'prepaid' }) {
+export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -422,22 +421,12 @@ export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'accoun
         }, 3000);
     }, []);
 
-    let placeholder = <HoldersPlaceholder />;
-
-    if (type === 'account') {
-        placeholder = <PulsingAccountPlaceholder {...theme} />;
-    }
-
-    if (type === 'prepaid') {
-        placeholder = <PulsingCardPlaceholder {...theme} />;
-    }
-
     return (
         <Animated.View
             style={[
                 {
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    paddingTop: (type === 'account' || type === 'prepaid') ? 0 : safeArea.top,
+                    paddingTop: type === 'account' ? 0 : safeArea.top,
                     backgroundColor: theme.backgroundPrimary,
                     alignItems: 'center'
                 },
@@ -446,7 +435,7 @@ export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'accoun
             pointerEvents={loaded ? 'none' : 'auto'}
         >
             <View style={{ marginTop: 58, width: '100%', flexGrow: 1 }}>
-                {placeholder}
+                {type === 'account' ? <PulsingAccountSkeleton {...theme} /> : <HoldersPlaceholder />}
             </View>
             <ScreenHeader
                 onBackPressed={showClose ? navigation.goBack : undefined}

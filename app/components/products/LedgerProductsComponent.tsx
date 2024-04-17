@@ -1,4 +1,4 @@
-import React, { } from "react"
+import React, { memo } from "react"
 import { Text, View } from "react-native"
 import { t } from "../../i18n/t";
 import { StakingProductComponent } from "./StakingProductComponent";
@@ -11,7 +11,7 @@ import { TonProductComponent } from "./TonProductComponent";
 import { USDTProduct } from "./USDTProduct";
 import { Address } from "@ton/core";
 
-export const LedgerProductsComponent = React.memo(({ account, testOnly }: { account: AccountLite, testOnly: boolean }) => {
+export const LedgerProductsComponent = memo(({ account, testOnly }: { account: AccountLite, testOnly: boolean }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
@@ -38,6 +38,15 @@ export const LedgerProductsComponent = React.memo(({ account, testOnly }: { acco
                     theme={theme}
                     navigation={navigation}
                     isLedger
+                />
+
+                <USDTProduct
+                    key={'usdt-native'}
+                    theme={theme}
+                    navigation={navigation}
+                    isLedger
+                    address={Address.parse(account.address)}
+                    testOnly={testOnly}
                 />
 
                 <View style={{ marginTop: 4 }}>

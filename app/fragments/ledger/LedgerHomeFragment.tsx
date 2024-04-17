@@ -19,6 +19,7 @@ import { StakingFragment } from "../staking/StakingFragment";
 import { StakingPoolsFragment } from "../staking/StakingPoolsFragment";
 import { useFocusEffect } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
+import { useUSDT } from "../../engine/hooks/jettons/useUSDT";
 import { LiquidStakingFragment } from "../staking/LiquidStakingFragment";
 
 export const LedgerHomeFragment = fragment(() => {

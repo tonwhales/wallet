@@ -337,7 +337,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "lockups": "Локапы",
                 "lockupsDescription": "Только для держателей крупных локапов в TON",
                 "tonkeeper": "Tonkeeper",
-                "tonkeeperDescription": "Для пользователей дружественного мобильного кошелька Tonkeeper"
+                "tonkeeperDescription": "Для пользователей дружественного мобильного кошелька Tonkeeper",
+                "liquid": "Ликвидный Стейкинг",
+                "liquidDescription": 'Отправьте TON на стейкинг и получите токены wsTON взамен',
+                "rateTitle": "Курс обмена"
             },
             "transfer": {
                 "stakingWarning": "Вы всегда можете внести новый депозит или увеличить существующий. Обратите внимание, что минимальная сумма составляет: {{minAmount}}",
@@ -365,7 +368,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "deposit": "Депозит",
                 "top_up": "Пополнить",
                 "withdraw": "Вывести",
-                "calc": "Калькулятор"
+                "calc": "Калькулятор",
+                "swap": "Обменять"
             },
             "join": {
                 "title": "Стань валидатором TON",
@@ -393,7 +397,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             "pending": "В процессе",
             "withdrawStatus": {
-                "pending": "Вывод ожидает",
+                "pending": "Ожидает вывода",
                 "ready": "Готово к выводу",
                 "withdrawNow": "Нажмите для вывода"
             },
@@ -405,6 +409,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "unstake": {
                 "title": "Вы уверены, что хотите запросить вывод?",
                 "message": "Обратите внимание, что при запросе на вывод, все незавершенные депозиты также будут возвращены."
+            },
+            "unstakeLiquid": {
+                "title": "Вывести wsTON",
+                "message": "Вы можете вывести средства непосредственно после завершения цикла или мгновенно обменять wsTON на TON на "
             },
             "learnMore": "Инфо",
             "moreInfo": "Больше информации",
@@ -677,6 +685,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "deposit": "Депозит",
         "depositOk": "Депозит принят",
         "withdraw": "Запрос вывода {{coins}} TON",
+        "withdrawLiquid": "Запрос вывода",
         "withdrawAll": "Запрос вывода всех монет",
         "withdrawCompleted": "Вывод завершен",
         "withdrawRequested": "Запрос на вывод принят",

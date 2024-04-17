@@ -34,7 +34,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const navigation = useTypedNavigation();
     const address = props.selectedAcc.address;
     const account = props.wallet;
-    const usdt = useSpecialJetton(address);
+    const specialJetton = useSpecialJetton(address);
     const staking = useStaking();
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
@@ -55,8 +55,8 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
             return summ + BigInt(card.balance);
         }, 0n);
 
-        return (cardsBalance || 0n) + accountWithStaking + (usdt?.toTon || 0n);
-    }, [account, stakingBalance, holdersCards, usdt?.toTon]);
+        return (cardsBalance || 0n) + accountWithStaking + (specialJetton?.toTon || 0n);
+    }, [account, stakingBalance, holdersCards, specialJetton?.toTon]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);

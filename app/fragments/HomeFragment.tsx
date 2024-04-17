@@ -171,7 +171,7 @@ export const HomeFragment = fragment(() => {
                         headerShown: false,
                         header: undefined,
                         unmountOnBlur: false,
-                        freezeOnBlur: route.name === 'Transactions',
+                        lazy: false,
                         tabBarStyle: {
                             backgroundColor: theme.transparent,
                             borderTopColor: theme.border,

@@ -22,7 +22,7 @@ export const requiredFields = [
     { key: 'notes', value: '' },
 ];
 
-export const ContactNew = fragment(() => {
+export const ContactNewFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();

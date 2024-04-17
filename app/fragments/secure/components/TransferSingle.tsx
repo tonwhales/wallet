@@ -322,6 +322,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             known={known}
             isSpam={spam}
             isWithStateInit={!!order.messages[0].stateInit}
+            contact={contact}
         />
     );
 });

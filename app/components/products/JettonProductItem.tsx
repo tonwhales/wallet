@@ -32,7 +32,7 @@ export const JettonProductItem = memo((props: {
     const balance = props.jetton.balance;
     const balanceNum = Number(fromNano(balance));
     const swapAmount = (!!swap && balance > 0n)
-        ? Number(fromNano(swap)) * balanceNum
+        ? (Number(fromNano(swap)) * balanceNum).toFixed(2)
         : null;
     const swipableRef = useRef<Swipeable>(null);
 

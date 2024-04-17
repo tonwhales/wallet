@@ -3,7 +3,7 @@ import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storagePersistence, storageQuery } from '../../storage/storage';
+import { storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import * as Application from 'expo-application';
@@ -30,6 +30,7 @@ import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { queryClient } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 

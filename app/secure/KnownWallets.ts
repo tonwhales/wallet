@@ -576,7 +576,6 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             'EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O': {}, // GRAM
         }
         : {
-            'kQAZym3GBvem-frRGy1gUIaO-IBb5ByJPrm8aXtN7a_6PK4w': {}, // USDT (j1INCH)
             'EQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQlMJ': {}, // wsTON
             'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD': {} // wsTON
         };
@@ -602,7 +601,7 @@ export const KnownJettonTickers = [
     'EURt',
     'EURc',
     'TRX',
-    
+
     // TON main
     'TON',
     'AMBR',
@@ -611,7 +610,7 @@ export const KnownJettonTickers = [
     'jUSDC',
     'jDAI',
     'jWBTC',
-    
+
     // TON others
     'TNX',
     'DHD',

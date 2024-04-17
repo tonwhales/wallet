@@ -6,6 +6,7 @@ import { useJettonContents } from '../jettons/useJettonContents';
 import { StoredContractMetadata } from '../../metadata/StoredMetadata';
 import { useMemo } from 'react';
 import { TransactionDescription } from '../../types';
+import { useNetwork } from '..';
 
 export function getJettonMasterAddressFromMetadata(metadata: StoredContractMetadata | null) {
     if (metadata?.jettonMaster) {
@@ -40,6 +41,7 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
     hasNext: boolean,
     loading: boolean
 } {
+    const { isTestnet } = useNetwork();
     let raw = useRawAccountTransactions(account, options);
 
     // We should memoize to prevent recalculation if metadatas and jettons are updated
@@ -79,7 +81,8 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
     const jettonMasterMetadatas = useJettonContents(jettonMasters);
     let txs = useMemo(() => {
         return baseTxs?.map<TransactionDescription>((base) => {
-            const metadata = metadatasMap.get(base.parsed.resolvedAddress);
+            const resolvedAddress = Address.parse(base.parsed.resolvedAddress);
+            const metadata = metadatasMap.get(resolvedAddress.toString({ testOnly: isTestnet }));
             const jettonMasterAddress = metadata?.jettonMasterAddress;
 
             const jettonMasterMetadata = jettonMasterAddress ? jettonMasterMetadatas.find(a => a.data?.address === jettonMasterAddress)?.data ?? null : null;

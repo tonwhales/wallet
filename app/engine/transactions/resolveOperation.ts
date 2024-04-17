@@ -45,10 +45,14 @@ export function resolveOperation(args: {
                 address = parsedBody.data.destination;
                 let amount = parsedBody.data.amount;
                 items.unshift({ kind: 'token', amount: amount.toString(10) });
-                let body = parseBody(parsedBody.data.forwardPayload);
-                if (body && body.type === 'comment') {
-                    comment = body.comment;
+
+                if (!!parsedBody.data.forwardPayload) {
+                    let body = parseBody(parsedBody.data.forwardPayload);
+                    if (body && body.type === 'comment') {
+                        comment = body.comment;
+                    }
                 }
+
                 op = { res: 'tx.tokenTransfer' };
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 if (parsedBody.data['sender']) {

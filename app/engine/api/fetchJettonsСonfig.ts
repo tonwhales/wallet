@@ -20,7 +20,7 @@ type JettonsNetConfig = z.infer<typeof jettonsConfigCodec>;
 
 export type JettonsConfig = z.infer<typeof jettonNetConfigCodec>;
 
-export async function fetchJettonsconfig(): Promise<JettonsNetConfig | null>{
+export async function fetchJettonsСonfig(): Promise<JettonsNetConfig | null>{
     try {
         const res = await axios.get("https://raw.githubusercontent.com/tonwhales/wallet/master/assets/jettonsConfig.json");
 

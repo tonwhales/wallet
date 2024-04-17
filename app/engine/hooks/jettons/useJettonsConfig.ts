@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
-import { JettonsConfig, fetchJettonsconfig } from "../../api/fetchJettonsconfig";
+import { JettonsConfig, fetchJettonsСonfig } from "../../api/fetchJettonsСonfig";
 
 export function useJettonsConfig(isTestnet: boolean): JettonsConfig | null {
     return useQuery({
         queryKey: Queries.Jettons().Config(isTestnet ? 'testnet' : 'mainnet'),
         queryFn: async () => {
-            const res = await fetchJettonsconfig();
+            const res = await fetchJettonsСonfig();
 
             if (!res) {
                 return null;

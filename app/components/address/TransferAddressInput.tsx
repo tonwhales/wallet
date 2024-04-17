@@ -14,6 +14,7 @@ import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
+import { useDimensions } from "@react-native-community/hooks";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 

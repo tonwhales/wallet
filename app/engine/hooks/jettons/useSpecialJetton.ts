@@ -22,11 +22,11 @@ export function useSpecialJetton(address: Address) {
     }
 
 
-    const usdt = specialJettonMaster
+    const specialJetton = specialJettonMaster
         ? jettons.find(j => j.master.toString({ testOnly }) === specialJettonMaster)
         : null;
 
-    const balanceString = fromBnWithDecimals(usdt?.balance ?? 0n, masterContent?.decimals ?? 6);
+    const balanceString = fromBnWithDecimals(specialJetton?.balance ?? 0n, masterContent?.decimals ?? 6);
     const nano = toNano(balanceString);
     const tonRate = 1 / price.price.usd; // 1 usd = tonRate ton
 
@@ -38,5 +38,5 @@ export function useSpecialJetton(address: Address) {
         console.warn('Failed to convert balance to TON');
     }
 
-    return { ...usdt, nano, toTon, masterContent };
+    return { ...specialJetton, nano, toTon, masterContent };
 }

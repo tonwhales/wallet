@@ -42,7 +42,7 @@ export const Queries = {
             Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
-        Config: (network: 'mainnet' | 'testnet') => ['jettons', 'config', network],
+        Known: (network: 'mainnet' | 'testnet') => ['jettons', 'known', network],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

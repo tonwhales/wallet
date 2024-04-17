@@ -9,4 +9,4 @@ export { useJettonWalletAddress } from './useJettonWalletAddress';
 export { useJettonWallets } from './useJettonWallets';
 export { usePrefetchHints } from './usePrefetchHints';
 export { useIsScamJetton } from './useIsScamJetton';
-export { useJettonsConfig } from './useJettonsConfig';
+export { useKnownJettons as useJettonsConfig } from './useJettonsConfig';

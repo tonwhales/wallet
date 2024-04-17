@@ -5,27 +5,27 @@ const specialJettonCodec = z.string().nullable().optional();
 const knownJettonTickersCodec = z.array(z.string());
 const jettonMastersCodec = z.record(z.object({}));
 
-const jettonNetConfigCodec = z.object({
+const knownJettonsCodec = z.object({
     tickers: knownJettonTickersCodec,
     specialJetton: specialJettonCodec,
     masters: jettonMastersCodec
 });
 
-const jettonsConfigCodec = z.object({
-    testnet: jettonNetConfigCodec,
-    mainnet: jettonNetConfigCodec,
+const knownJettonsNetCodec = z.object({
+    testnet: knownJettonsCodec,
+    mainnet: knownJettonsCodec,
 });
 
-type JettonsNetConfig = z.infer<typeof jettonsConfigCodec>;
+type KnownJettonByNet = z.infer<typeof knownJettonsNetCodec>;
 
-export type JettonsConfig = z.infer<typeof jettonNetConfigCodec>;
+export type KnownJettons = z.infer<typeof knownJettonsCodec>;
 
-export async function fetchJettonsСonfig(): Promise<JettonsNetConfig | null>{
+export async function fetchKnownJettons(): Promise<KnownJettonByNet | null>{
     try {
-        const res = await axios.get("https://raw.githubusercontent.com/tonwhales/wallet/master/assets/jettonsConfig.json");
+        const res = await axios.get("https://raw.githubusercontent.com/tonwhales/wallet/master/assets/knownJettons.json");
 
         if (res.status === 200) {
-            const parsed = jettonsConfigCodec.safeParse(res.data);
+            const parsed = knownJettonsNetCodec.safeParse(res.data);
 
             if (parsed.success) {
                 return parsed.data;

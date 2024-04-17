@@ -16,8 +16,6 @@ import { useLedgerTransport } from "../../fragments/ledger/components/TransportC
 import { AddressInputAvatar } from "./AddressInputAvatar";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { AddressInputAvatar } from "./AddressInputAvatar";
-import { useDimensions } from "@react-native-community/hooks";
 
 type TransferAddressInputProps = {
     acc: Address,

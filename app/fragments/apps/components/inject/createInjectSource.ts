@@ -101,6 +101,22 @@ window['toaster'] = (() => {
 })();
 `
 
+
+
+export const emitterAPI = `
+window['dapp-emitter'] = (() => {
+    let __EMITTER_READY = true;
+
+    const transferEvent = (event) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'dapp-emitter', args: { event } } }));
+    };
+
+    const obj = { transferEvent, __EMITTER_READY };
+    Object.freeze(obj);
+    return obj;
+})();
+`
+
 export const statusBarAPI = (safeArea: EdgeInsets) => {
     return `
     window['status-bar'] = (() => {

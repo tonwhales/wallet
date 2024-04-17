@@ -2,18 +2,18 @@ import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "
 import { Platform, View, Text, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
-import { ContactItemView } from "../components/Contacts/ContactItemView";
-import { RoundButton } from "../components/RoundButton";
-import { fragment } from "../fragment";
-import { t } from "../i18n/t";
-import { useTypedNavigation } from "../utils/useTypedNavigation";
+import { ContactItemView } from "../../components/Contacts/ContactItemView";
+import { RoundButton } from "../../components/RoundButton";
+import { fragment } from "../../fragment";
+import { t } from "../../i18n/t";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { useSelectedAccount, useTheme, useAccountTransactions, useNetwork } from '../engine/hooks';
-import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
-import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
-import { useParams } from "../utils/useParams";
+import { useSelectedAccount, useTheme, useAccountTransactions, useNetwork } from '../../engine/hooks';
+import { ScreenHeader, useScreenHeader } from "../../components/ScreenHeader";
+import { ContactTransactionView } from "../../components/Contacts/ContactTransactionView";
+import { useParams } from "../../utils/useParams";
 import { StatusBar } from "expo-status-bar";
-import { useAddressBookContext } from "../engine/AddressBookContext";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { useDimensions } from "@react-native-community/hooks";
 
 const EmptyIllustrations = {

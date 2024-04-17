@@ -582,10 +582,6 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
         };
 }
 
-export const USDTMaster: (isTestnet: boolean) => string | null = (isTestnet: boolean) => {
-    return isTestnet? 'kQAZym3GBvem-frRGy1gUIaO-IBb5ByJPrm8aXtN7a_6PK4w' : null
-}
-
 export const KnownJettonTickers = [
     // Other chains
     'BTC',

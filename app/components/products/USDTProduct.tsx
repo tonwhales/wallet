@@ -9,6 +9,7 @@ import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 import { Address } from "@ton/core";
 import { useUSDT } from "../../engine/hooks/jettons/useUSDT";
+import { WImage } from "../WImage";
 
 export const USDTProduct = memo(({
     theme,
@@ -25,20 +26,16 @@ export const USDTProduct = memo(({
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
     const usdt = useUSDT(address);
+    const content = usdt?.masterContent;
 
     const balance = usdt?.balance ?? 0n;
 
-    const onTonPress = useCallback(() => {
-        if (!usdt) {
+    const onPress = useCallback(() => {
+        if (!usdt || !usdt.wallet) {
             return;
         }
-        if (isLedger) {
-            navigation.navigateLedgerTransfer({
 
-            });
-            return;
-        }
-        navigation.navigateSimpleTransfer({
+        const tx = {
             amount: null,
             target: null,
             comment: null,
@@ -46,23 +43,30 @@ export const USDTProduct = memo(({
             stateInit: null,
             job: null,
             callback: null
-        });
+        }
+
+        if (isLedger) {
+            navigation.navigateLedgerTransfer(tx);
+            return;
+        }
+
+        navigation.navigateSimpleTransfer(tx);
 
     }, [usdt, isLedger]);
 
-    if (!testOnly) {
+    if (!usdt) {
         return null;
     }
 
     return (
         <Pressable
-            disabled={!usdt}
+            disabled={!usdt || !usdt.wallet}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             style={({ pressed }) => {
                 return { flex: 1, paddingHorizontal: 16, marginBottom: 16, opacity: pressed ? 0.8 : 1 }
             }}
-            onPress={onTonPress}
+            onPress={onPress}
         >
             <Animated.View style={[
                 {
@@ -82,13 +86,23 @@ export const USDTProduct = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
-                    <Text
-                        style={[{ color: theme.white }, Typography.medium13_18]}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {'USDT'}
-                    </Text>
+                    {!!content?.image?.preview256 ? (
+                        <WImage
+                            src={content.image.preview256}
+                            blurhash={content.image.blurhash}
+                            width={46}
+                            heigh={46}
+                            borderRadius={23}
+                        />
+                    ) : (
+                        <Text
+                            style={[{ color: theme.white }, Typography.medium13_18]}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {'TetherUSD₮'}
+                        </Text>
+                    )}
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         height: 20, width: 20, borderRadius: 10,
@@ -107,23 +121,31 @@ export const USDTProduct = memo(({
                         ellipsizeMode="tail"
                         numberOfLines={1}
                     >
-                        {'USDT'}
+                        {content?.name ?? 'USDT'}
                     </Text>
                     <Text
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                         style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
                     >
-                        {'The Open Network'}
+                        {content?.description ?? 'The Open Network'}
                     </Text>
                 </View>
                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                        <ValueComponent value={balance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
-                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>{' USDT'}</Text>
+                        <ValueComponent
+                            value={balance}
+                            precision={2}
+                            decimals={content?.decimals ?? 6}
+                            centFontStyle={{ color: theme.textSecondary }}
+                        />
+                        <Text
+                            style={{ color: theme.textSecondary, fontSize: 15 }}>
+                            {` ${content?.symbol ?? 'USDT'}`}
+                        </Text>
                     </Text>
                     <PriceComponent
-                        amount={balance}
+                        amount={usdt.nano}
                         style={{
                             backgroundColor: 'transparent',
                             paddingHorizontal: 0, paddingVertical: 0,

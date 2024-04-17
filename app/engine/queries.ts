@@ -44,6 +44,7 @@ export const Queries = {
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
         Tickers: () => ['jettons', 'tickers'],
         Masters: () => ['jettons', 'masters'],
+        USDTMaster: (network: 'mainnet' | 'testnet') => ['jettons', 'usdt', 'master', network],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

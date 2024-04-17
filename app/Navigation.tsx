@@ -89,7 +89,7 @@ import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
 import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
-import { ContactNewFragment } from './fragments/contacts/ContactNew';
+import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';

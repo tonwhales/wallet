@@ -18,7 +18,7 @@ import { useBounceableWalletFormat, useContact, useNetwork, useTheme } from "../
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
-import { requiredFields } from "./ContactNew";
+import { requiredFields } from "./ContactNewFragment";
 import { ContactEdit } from "../../components/Contacts/ContactEdit";
 
 import CopyIcon from '@assets/ic-copy.svg';

@@ -4,7 +4,7 @@ import { Alert, Keyboard, Platform, TextInput, View, Text, KeyboardAvoidingView 
 import { useBounceableWalletFormat, useContact, useRemoveContact, useSetContact } from "../../engine/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
-import { requiredFields } from "../../fragments/contacts/ContactNew";
+import { requiredFields } from "../../fragments/contacts/ContactNewFragment";
 import { t } from "../../i18n/t";
 import { confirmAlert } from "../../utils/confirmAlert";
 import Animated, { measure, useAnimatedRef, scrollTo, runOnUI, useSharedValue } from "react-native-reanimated";

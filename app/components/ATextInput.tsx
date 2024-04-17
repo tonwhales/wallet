@@ -328,7 +328,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                 </Text>
                             )}
                         </View>
-                        <Animated.View style={[inputHeightCompensatorStyle, { backgroundColor: 'rgba(255,125,0,0.2)' }]} />
+                        <Animated.View style={inputHeightCompensatorStyle} />
                     </View>
                     {!!props.actionButtonRight
                         ? (props.actionButtonRight.component)

@@ -3,8 +3,10 @@ import { Platform, View } from "react-native";
 import { ThemeType } from "../../../engine/state/theme";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { WalletActionButton } from "./WalletActionButton";
+import { isNeocryptoAvailable } from "../../../utils/isNeocryptoAvailable";
 
 export const WalletActions = memo(({ theme, navigation, isTestnet }: { theme: ThemeType, navigation: TypedNavigation, isTestnet: boolean }) => {
+    const showBuy = isNeocryptoAvailable();
     return (
         <View style={{ paddingHorizontal: 16 }}>
             <View style={{
@@ -28,7 +30,7 @@ export const WalletActions = memo(({ theme, navigation, isTestnet }: { theme: Th
                 }}
                 collapsable={false}
             >
-                {isTestnet && (
+                {!isTestnet && showBuy && (
                     <WalletActionButton
                         type={'buy'}
                         navigation={navigation}

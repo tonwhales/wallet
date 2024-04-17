@@ -11,12 +11,11 @@ import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useMemo, useRef } from 'react';
-import { useNetwork, usePrimaryCurrency } from '../../engine/hooks';
+import { useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
-import { getCurrentAddress } from '../../storage/appState';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { HoldersPlaceholder, WebViewLoader } from './components/HoldersAppComponent';
+import { HoldersPlaceholder, HoldersLoader } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 import { openWithInApp } from '../../utils/openWithInApp';
 import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
@@ -25,7 +24,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
 
 export const HoldersLandingFragment = fragment(() => {
-    const acc = useMemo(() => getCurrentAddress(), []);
+    const acc = useSelectedAccount()!;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
@@ -178,6 +177,7 @@ export const HoldersLandingFragment = fragment(() => {
             useMainButton: true,
             useToaster: true,
             useQueryAPI: true,
+            useEmitter: true,
 
             onContentProcessDidTerminate,
             onEnroll
@@ -198,7 +198,7 @@ export const HoldersLandingFragment = fragment(() => {
                         lockScroll: true
                     }}
                     webviewDebuggingEnabled={isTestnet}
-                    loader={(p) => <WebViewLoader type={'create'} {...p} />}
+                    loader={(p) => <HoldersLoader type={'create'} {...p} />}
                 />
                 <Animated.View style={[StyleSheet.absoluteFill, animatedAuthStyles]} pointerEvents={'none'}>
                     <ScreenHeader

@@ -1,7 +1,7 @@
 import React, { } from "react"
 import { Text, View } from "react-native"
 import { t } from "../../i18n/t";
-import { LedgerStakingProductComponent } from "./LedgerStakingProductComponent";
+import { StakingProductComponent } from "./StakingProductComponent";
 import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
 import { useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
@@ -40,26 +40,13 @@ export const LedgerProductsComponent = React.memo(({ account, testOnly }: { acco
                     isLedger
                 />
 
-                <USDTProduct
-                    key={'usdt-native'}
-                    theme={theme}
-                    navigation={navigation}
-                    isLedger
-                    address={Address.parse(account.address)}
-                    testOnly={testOnly}
-                />
-
+                <View style={{ marginTop: 4 }}>
+                    <StakingProductComponent isLedger key={'pool'} />
+                </View>
                 <View style={{ paddingHorizontal: 16 }}>
-
-                    <View style={{ marginTop: 4 }}>
-                        <LedgerStakingProductComponent key={'pool'} />
-                    </View>
-
-                    <View style={{ marginTop: 16 }}>
-                        <LedgerJettonsProductComponent key={'jettons'} />
-                    </View>
+                    <LedgerJettonsProductComponent key={'jettons'} />
                 </View>
             </View>
         </View>
-    )
-})
+    );
+});

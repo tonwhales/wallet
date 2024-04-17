@@ -4,6 +4,7 @@ import { parseMessageBody } from "./parseMessageBody";
 import { parseBody } from './parseWalletTransaction';
 import { LocalizedResources } from "../../i18n/schema";
 import { StoredOperation, StoredOperationItem, TxBody } from '../types';
+import { getLiquidStakingAddress } from "../../utils/KnownPools";
 
 export function resolveOperation(args: {
     account: Address,
@@ -34,16 +35,24 @@ export function resolveOperation(args: {
             let f = formatSupportedBody(parsedBody);
             if (f) {
                 op = f;
+                const isLiquid = getLiquidStakingAddress(isTestnet).equals(address);
+                if (op.res === 'known.withdraw' && isLiquid) {
+                    op = { res: 'known.withdrawLiquid' };
+                }
             }
 
             if (parsedBody.type === 'jetton::transfer') {
                 address = parsedBody.data.destination;
                 let amount = parsedBody.data.amount;
                 items.unshift({ kind: 'token', amount: amount.toString(10) });
-                let body = parseBody(parsedBody.data.forwardPayload);
-                if (body && body.type === 'comment') {
-                    comment = body.comment;
+
+                if (!!parsedBody.data.forwardPayload) {
+                    let body = parseBody(parsedBody.data.forwardPayload);
+                    if (body && body.type === 'comment') {
+                        comment = body.comment;
+                    }
                 }
+
                 op = { res: 'tx.tokenTransfer' };
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 if (parsedBody.data['sender']) {

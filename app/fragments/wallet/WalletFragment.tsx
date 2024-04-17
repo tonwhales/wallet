@@ -24,6 +24,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Typography } from '../../components/styles';
+import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
+import { isNeocryptoAvailable } from '../../utils/isNeocryptoAvailable';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -34,6 +36,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const staking = useStaking();
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
+    const showBuy = isNeocryptoAvailable();
 
     const stakingBalance = useMemo(() => {
         if (!staking) {
@@ -186,7 +189,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             }}
                             collapsable={false}
                         >
-                            {!network.isTestnet && (
+                            {!network.isTestnet && showBuy && (
                                 <View style={{
                                     flexGrow: 1, flexBasis: 0,
                                     marginRight: 7,
@@ -351,6 +354,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
+    fullScreen('LiquidStaking', LiquidStakingFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

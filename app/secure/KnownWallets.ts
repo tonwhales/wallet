@@ -39,6 +39,7 @@ const Img_Lockups_2 = require('@assets/known/ic_lockups_2.png');
 
 const Img_MEXC = require('@assets/known/ic_mexc.png');
 
+const Img_Liquid = require('@assets/known/ic_wls.png');
 const Img_Telegram = require('@assets/known/ic-telegram.png');
 const Img_Fragment = require('@assets/known/ic-fragment.png');
 const Img_CryptoBot = require('@assets/known/ic-crypto-bot.png');
@@ -394,6 +395,14 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                     secondary: '#DEEFFC'
                 },
                 ic: Img_Lockups_2
+            },
+            [Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON').toString()]: {
+                name: 'Whales Liquid',
+                colors: {
+                    primary: '#65C6FF',
+                    secondary: '#DEEFFC'
+                },
+                ic: Img_Liquid
             },
 
             // Bridges

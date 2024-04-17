@@ -3,6 +3,12 @@ import { ImageRequireSource } from "react-native";
 
 export type StakingPool = { name: string, restricted?: boolean, requireSource?: ImageRequireSource };
 
+export function getLiquidStakingAddress(isTestnet: boolean) {
+    return isTestnet
+        ? Address.parse('kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD')
+        : Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON');
+}
+
 export const KnownPools: (isTestnet: boolean) => { [key: string]: StakingPool } = (isTestnet) => {
     return isTestnet
         ? {
@@ -13,7 +19,11 @@ export const KnownPools: (isTestnet: boolean) => { [key: string]: StakingPool } 
             [Address.parse('kQCkXp5Z3tJ_eAjFG_0xbbfx2Oh_ESyY6Nk56zARZDwhales').toString({ testOnly: isTestnet })]: {
                 name: 'Nominators 2',
                 requireSource: require('@assets/known/ic_nominators.webp')
-            }
+            },
+            [Address.parse('kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD').toString({ testOnly: isTestnet })]: {
+                name: 'Whales Liquid',
+                requireSource: require('@assets/known/ic_wls.png')
+            },
         } : {
             [Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales').toString({ testOnly: isTestnet })]: {
                 name: 'Nominators 1',
@@ -66,6 +76,10 @@ export const KnownPools: (isTestnet: boolean) => { [key: string]: StakingPool } 
             [Address.parse('EQDvvBmP3wUcjoXPY1jHfT4-fgb294imVYH5EHdLnAKeeper').toString({ testOnly: isTestnet })]: {
                 name: 'Tonkeeper 2',
                 requireSource: require('@assets/known/ic_tonkeeper_2.png')
+            },
+            [Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON').toString()]: {
+                name: 'Whales Liquid',
+                requireSource: require('@assets/known/ic_wls.png')
             },
         }
 }

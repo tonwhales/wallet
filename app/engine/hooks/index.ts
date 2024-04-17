@@ -15,3 +15,4 @@ export * from './appstate';
 export * from './accounts';
 export { useServerConfig } from './useServerConfig';
 export { useSyncState } from './useSyncState';
+export { useAppVisible } from './useAppVisible';

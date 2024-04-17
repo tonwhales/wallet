@@ -83,11 +83,6 @@ export const ContactEdit = memo(({
             }
         }
 
-        console.log('ContactEdit.onAction, saving contact', {
-            name,
-            fields
-        });
-
         await setContact(
             parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }),
             { name, fields }

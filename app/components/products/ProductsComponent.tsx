@@ -21,6 +21,7 @@ import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import { AddressFormatUpdate } from "./AddressFormatUpdate"
 import { TonProductComponent } from "./TonProductComponent"
+import { SpecialJettonProduct } from "./SpecialJettonProduct"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -156,12 +157,27 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     </View>
                 )}
 
-                <TonProductComponent
-                    key={'ton-native'}
-                    balance={balance}
-                    theme={theme}
-                    navigation={navigation}
-                />
+                <View style={{
+                    marginHorizontal: 16, marginBottom: 16,
+                    backgroundColor: theme.surfaceOnBg,
+                    borderRadius: 20
+                }}>
+                    <TonProductComponent
+                        key={'ton-native'}
+                        balance={balance}
+                        theme={theme}
+                        navigation={navigation}
+                    />
+
+                    <SpecialJettonProduct
+                        key={'special-jettton'}
+                        theme={theme}
+                        navigation={navigation}
+                        address={selected.address}
+                        testOnly={isTestnet}
+                        divider={'top'}
+                    />
+                </View>
 
                 <HoldersProductComponent key={'holders'} />
 

@@ -32,7 +32,7 @@ export const TonProductComponent = memo(({
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             style={({ pressed }) => {
-                return { flex: 1, paddingHorizontal: 16, marginBottom: 16, opacity: pressed ? 0.8 : 1 }
+                return { flex: 1, opacity: pressed ? 0.8 : 1 }
             }}
             onPress={onTonPress}
         >

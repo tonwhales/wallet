@@ -1,0 +1,16 @@
+{
+    "testnet": {
+        "tickers": [
+            "TON"
+        ],
+        "specialJetton": "kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD",
+        "masters": {}
+    },
+    "mainnet": {
+        "tickers": [
+            "TON"
+        ],
+        "specialJetton": null,
+        "masters": {}
+    }
+}

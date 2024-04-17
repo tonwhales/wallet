@@ -601,7 +601,7 @@ export const KnownJettonTickers = [
     'EURt',
     'EURc',
     'TRX',
-    
+
     // TON main
     'TON',
     'AMBR',
@@ -610,7 +610,7 @@ export const KnownJettonTickers = [
     'jUSDC',
     'jDAI',
     'jWBTC',
-    
+
     // TON others
     'TNX',
     'DHD',

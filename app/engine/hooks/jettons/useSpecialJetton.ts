@@ -27,7 +27,7 @@ export function useSpecialJetton(address: Address) {
 
     const balanceString = fromBnWithDecimals(specialJetton?.balance ?? 0n, masterContent?.decimals ?? 6);
     const nano = toNano(balanceString);
-    const tonRate = 1 / price.price.usd; // 1 usd = tonRate ton
+    const tonRate = price?.price?.usd ? 1 / price.price.usd : 0; // 1 usd = tonRate * ton
 
     // Convert balance to TON
     let toTon = 0n;

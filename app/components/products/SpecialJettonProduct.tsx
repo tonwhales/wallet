@@ -165,3 +165,4 @@ export const SpecialJettonProduct = memo(({
         </Pressable>
     );
 });
+SpecialJettonProduct.displayName = 'SpecialJettonProduct';

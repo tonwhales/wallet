@@ -77,3 +77,4 @@ export const ProductBanner = memo((props: {
         </Pressable>
     );
 });
+ProductBanner.displayName = 'ProductBanner';

@@ -66,4 +66,5 @@ export const JettonsHiddenComponent = memo(() => {
             />
         </View>
     );
-})
+});
+JettonsHiddenComponent.displayName = 'JettonsHiddenComponent';

@@ -222,3 +222,4 @@ export const HoldersAccountItem = memo((props: {
         </Swipeable >
     );
 });
+HoldersAccountItem.displayName = 'HoldersAccountItem';

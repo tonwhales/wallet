@@ -308,4 +308,5 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
             </View>
         </Animated.View>
     );
-})
+});
+StakingProductComponent.displayName = 'StakingProductComponent';

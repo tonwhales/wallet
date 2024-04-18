@@ -125,3 +125,4 @@ export const JettonsProductComponent = memo(() => {
         </View>
     );
 });
+JettonsProductComponent.displayName = 'JettonsProductComponent';

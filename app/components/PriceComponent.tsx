@@ -99,5 +99,6 @@ export const PriceComponent = memo((
                 </PerfText>
             </PerfText>
         </PerfView>
-    )
-})
+    );
+});
+PriceComponent.displayName = 'PriceComponent';

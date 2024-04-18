@@ -39,8 +39,9 @@ const CardItemWrapper = memo(({
         ]}>
             {item}
         </Animated.View>
-    )
+    );
 });
+CardItemWrapper.displayName = 'CardItemWrapper';
 
 export const CollapsibleCards = memo(({
     title,
@@ -286,5 +287,6 @@ export const CollapsibleCards = memo(({
                 })}
             </Animated.View>
         </View>
-    )
+    );
 });
+CollapsibleCards.displayName = 'CollapsibleCards';

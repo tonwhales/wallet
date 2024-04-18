@@ -202,4 +202,5 @@ export const HoldersProductComponent = memo(() => {
             />
         </View>
     );
-})
+});
+HoldersProductComponent.displayName = 'HoldersProductComponent';

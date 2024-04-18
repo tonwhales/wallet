@@ -98,3 +98,4 @@ export const TonProductComponent = memo(({
         </Pressable>
     );
 });
+TonProductComponent.displayName = 'TonProductComponent';

@@ -93,3 +93,4 @@ export const AddressFormatUpdate = memo(() => {
         </Animated.View>
     );
 });
+AddressFormatUpdate.displayName = 'AddressFormatUpdate';

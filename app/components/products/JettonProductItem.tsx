@@ -302,3 +302,4 @@ export const JettonProductItem = memo((props: {
         )
     );
 });
+JettonProductItem.displayName = 'JettonProductItem';

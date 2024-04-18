@@ -85,4 +85,5 @@ export const HoldersHiddenAccounts = memo(() => {
             />
         </View>
     );
-})
+});
+HoldersHiddenAccounts.displayName = 'HoldersHiddenAccounts';

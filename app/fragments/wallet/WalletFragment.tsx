@@ -318,6 +318,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
         </View>
     );
 }
+WalletComponent.displayName = 'WalletComponent';
 
 const skeleton = (
     <View style={{ position: 'absolute', top: -100, bottom: 0, left: 0, right: 0 }}>
@@ -348,6 +349,7 @@ export const WalletFragment = fragment(() => {
         </>
     );
 });
+WalletFragment.displayName = 'WalletFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'WalletStack';

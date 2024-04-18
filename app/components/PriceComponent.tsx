@@ -19,7 +19,8 @@ export const PriceComponent = memo((
         suffix,
         currencyCode,
         showSign,
-        theme
+        theme,
+        priceUSD
     }: {
         amount: bigint,
         style?: StyleProp<ViewStyle>,
@@ -29,7 +30,8 @@ export const PriceComponent = memo((
         suffix?: string,
         currencyCode?: string,
         showSign?: boolean,
-        theme: ThemeType
+        theme: ThemeType,
+        priceUSD?: number
     }
 ) => {
     const [price, currency] = usePrice();
@@ -41,13 +43,13 @@ export const PriceComponent = memo((
         if (!price) {
             return '';
         }
-        const priceUSD = price.price.usd;
+        const priceInUSD = priceUSD ?? price.price.usd;
         const rates = price.price.rates;
 
-        const formattedAmount = parseFloat(fromNano(abs)) * priceUSD * rates[currencyCode || currency];
+        const formattedAmount = parseFloat(fromNano(abs)) * priceInUSD * rates[currencyCode || currency];
         const formattedCurrency = formatCurrency(formattedAmount.toFixed(2), currencyCode || currency, isNeg);
         return `${prefix ?? ''}${formattedCurrency}${suffix ?? ''}`;
-    }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg]);
+    }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg, priceUSD]);
 
     const decimalPoint = fullText.match(/[.,]/)?.[0];
     const parts = fullText.split(decimalPoint ?? /[.,]/);

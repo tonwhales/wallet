@@ -211,7 +211,11 @@ export const AddressSearch = memo(({
                                 if (settings?.name) {
                                     title = settings.name;
                                 } else {
-                                    title = `${t('common.wallet')} ${own.index + 1}`;
+                                    if (own.index === -2) {
+                                        title = 'Ledger';
+                                    } else {
+                                        title = `${t('common.wallet')} ${own.index + 1}`;
+                                    }
                                 }
                             }
 
@@ -223,6 +227,7 @@ export const AddressSearch = memo(({
                                         title: title,
                                         searchable: friendly,
                                         type: type,
+                                        isLedger: own?.index === -2
                                     }}
                                     walletsSettings={walletsSettings}
                                     onPress={onSelect}

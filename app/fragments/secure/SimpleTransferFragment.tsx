@@ -12,7 +12,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { KnownJettonMasters, KnownWallets } from '../../secure/KnownWallets';
+import { KnownJettonMasters, KnownJettonTickers, KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder, createSimpleOrder } from './ops/Order';
 import { useLinkNavigator } from "../../useLinkNavigator";
@@ -23,7 +23,7 @@ import { WImage } from '../../components/WImage';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useAccountLite, useClient4, useCommitCommand, useConfig, useIsScamJetton, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -183,6 +183,8 @@ export const SimpleTransferFragment = fragment(() => {
         }
         return !!KnownJettonMasters(network.isTestnet)[jettonState.wallet.master];
     }, [jettonState]);
+    
+    const isSCAM = useIsScamJetton(jettonState?.master?.symbol, jettonState?.wallet?.master);
 
     const balance = useMemo(() => {
         let value: bigint;
@@ -876,7 +878,7 @@ export const SimpleTransferFragment = fragment(() => {
                                                 />
                                             )}
                                             {!jettonState && (<IcTonIcon width={46} height={46} />)}
-                                            {isVerified && (
+                                            {isVerified ? (
                                                 <View style={{
                                                     justifyContent: 'center', alignItems: 'center',
                                                     height: 20, width: 20, borderRadius: 10,
@@ -888,7 +890,19 @@ export const SimpleTransferFragment = fragment(() => {
                                                         style={{ height: 20, width: 20 }}
                                                     />
                                                 </View>
-                                            )}
+                                            ) : (isSCAM && (
+                                                <View style={{
+                                                    justifyContent: 'center', alignItems: 'center',
+                                                    height: 20, width: 20, borderRadius: 10,
+                                                    position: 'absolute', right: -2, bottom: -2,
+                                                    backgroundColor: theme.surfaceOnBg
+                                                }}>
+                                                    <Image
+                                                        source={require('@assets/ic-jetton-scam.png')}
+                                                        style={{ height: 20, width: 20 }}
+                                                    />
+                                                </View>
+                                            ))}
                                         </View>
                                         <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
                                             <Text style={{
@@ -913,6 +927,14 @@ export const SimpleTransferFragment = fragment(() => {
                                                     }}
                                                     selectable={false}
                                                 >
+                                                    {isSCAM && (
+                                                        <>
+                                                            <Text style={{ color: theme.accentRed }}>
+                                                                {'SCAM'}
+                                                            </Text>
+                                                            {jettonState?.master.description ? ' • ' : ''}
+                                                        </>
+                                                    )}
                                                     {`${jettonState?.master.description ?? 'The Open Network'}`}
                                                 </Text>
                                             </Text>

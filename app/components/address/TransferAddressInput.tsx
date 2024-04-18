@@ -1,4 +1,4 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
@@ -311,7 +311,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
                         props.dispatch({
                             type: InputActionType.InputTarget,
-                            input: name,
+                            input: name.trim(),
                             target: friendly
                         });
 

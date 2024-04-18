@@ -6,7 +6,7 @@ import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { useHoldersAccountStatus, useIsConnectAppReady, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useIsConnectAppReady, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { GeneralHoldersAccount, GeneralHoldersCard, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -15,6 +15,7 @@ import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-ha
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
 import { toNano } from "@ton/core";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -26,13 +27,13 @@ export const HoldersAccountItem = memo((props: {
     rightActionIcon?: any,
     single?: boolean,
     hidden?: boolean,
-    style?: StyleProp<ViewStyle>
+    style?: StyleProp<ViewStyle>,
+    holdersAccStatus?: HoldersAccountStatus
 }) => {
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const selected = useSelectedAccount();
-    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const holdersAccStatus = props.holdersAccStatus;
     const isHoldersReady = useIsConnectAppReady(holdersUrl);
 
     const needsEnrollment = useMemo(() => {

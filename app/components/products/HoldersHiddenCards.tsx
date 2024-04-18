@@ -5,6 +5,7 @@ import { HoldersAccountItem } from "./HoldersAccountItem";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 import Show from '@assets/ic-show.svg';
 
@@ -14,11 +15,12 @@ export const holdersCardImageMap: { [key: string]: any } = {
     'whales': require('@assets/holders/whales.png'),
 }
 
-export const HoldersHiddenAccounts = memo(() => {
+export const HoldersHiddenAccounts = memo(({ holdersAccStatus }: { holdersAccStatus?: HoldersAccountStatus }) => {
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
     const accounts = useHoldersAccounts(selected!.address).data?.accounts;
+    
     const [hiddenAccounts, markCard] = useHoldersHiddenAccounts(selected!.address);
     const hiddenList = useMemo(() => {
         return (accounts ?? []).filter((item) => {
@@ -79,6 +81,7 @@ export const HoldersHiddenAccounts = memo(() => {
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                             single={hiddenList.length === 1}
                             style={{ paddingVertical: 0 }}
+                            holdersAccStatus={holdersAccStatus}
                         />
                     )
                 }}

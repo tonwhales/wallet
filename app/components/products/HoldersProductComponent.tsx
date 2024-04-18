@@ -9,11 +9,12 @@ import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { Typography } from "../styles";
 import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 import IcHide from '@assets/ic-hide.svg';
 import IcHolders from '@assets/ic-holders-white.svg';
 
-export const HoldersProductComponent = memo(() => {
+export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccStatus?: HoldersAccountStatus }) => {
     const network = useNetwork();
     const theme = useTheme();
     const selected = useSelectedAccount();
@@ -70,6 +71,7 @@ export const HoldersProductComponent = memo(() => {
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={() => markCard(item.id, true)}
                             style={{ paddingVertical: 0 }}
+                            holdersAccStatus={holdersAccStatus}
                         />
                     )
                 })}
@@ -81,6 +83,7 @@ export const HoldersProductComponent = memo(() => {
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={() => markPrepaidCard(item.card.id, true)}
                             style={{ paddingVertical: 0 }}
+                            holdersAccStatus={holdersAccStatus}
                         />
                     )
                 })}
@@ -103,6 +106,7 @@ export const HoldersProductComponent = memo(() => {
                             account={item}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={rightAction}
+                            holdersAccStatus={holdersAccStatus}
                         />
                     )
                 }}

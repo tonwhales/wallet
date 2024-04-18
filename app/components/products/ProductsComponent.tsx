@@ -180,13 +180,13 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     />
                 </View>
 
-                <HoldersProductComponent key={'holders'} />
+                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
                 <StakingProductComponent key={'pool'} />
 
                 <JettonsProductComponent jettons={jettons} key={'jettons'} />
 
-                <HoldersHiddenAccounts key={'holders-hidden'} />
+                <HoldersHiddenAccounts holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
 
                 <JettonsHiddenComponent jettons={jettons} key={'jettons-hidden'} />
             </View>

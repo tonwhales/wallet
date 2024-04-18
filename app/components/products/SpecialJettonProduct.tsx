@@ -125,7 +125,7 @@ export const SpecialJettonProduct = memo(({
                         ellipsizeMode="tail"
                         numberOfLines={1}
                     >
-                        {content?.name ?? 'USDT'}
+                        {content?.name ?? 'Special Jetton'}
                     </Text>
                     <Text
                         numberOfLines={1}
@@ -145,7 +145,7 @@ export const SpecialJettonProduct = memo(({
                         />
                         <Text
                             style={{ color: theme.textSecondary, fontSize: 15 }}>
-                            {` ${content?.symbol ?? 'USDT'}`}
+                            {` ${content?.symbol ?? ''}`}
                         </Text>
                     </Text>
                     <PriceComponent

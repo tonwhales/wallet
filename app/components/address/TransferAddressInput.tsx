@@ -6,7 +6,7 @@ import { avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useContact, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -17,9 +17,7 @@ import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
 import { TransactionDescription } from "../../engine/types";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-
-import IcChevron from '@assets/ic_chevron_forward.svg';
-import { AddressBookContext, useAddressBookContext } from "../../engine/AddressBookContext";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 

@@ -17,7 +17,7 @@ export type SupportedMessage =
             responseDestination: Address | null;
             customPayload: Cell | null;
             forwardTonAmount: bigint;
-            forwardPayload: Cell;
+            forwardPayload: Cell | null;
         }
     } | {
         type: 'jetton::transfer_notification',
@@ -91,7 +91,11 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             let responseDestination = sc.loadMaybeAddress();
             let customPayload = sc.loadBit() ? sc.loadRef() : null;
             let forwardTonAmount = sc.loadCoins();
-            let forwardPayload = sc.loadBit() ? sc.loadRef() : sc.asCell();
+            let forwardPayload = null;
+            if (sc.remainingBits > 0) {
+                forwardPayload = sc.loadMaybeRef() ?? sc.asCell();
+            }
+
             return {
                 type: 'jetton::transfer',
                 data: {

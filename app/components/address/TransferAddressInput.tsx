@@ -13,6 +13,7 @@ import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
 

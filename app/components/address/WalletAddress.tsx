@@ -1,12 +1,10 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { NativeSyntheticEvent, Platform, Pressable, Share, StyleProp, Text, TextProps, TextStyle, View, ViewStyle } from "react-native";
-import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
+import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { t } from "../../i18n/t";
-import { confirmAlert } from "../../utils/confirmAlert";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, ToastProps, useToaster } from "../toast/ToastProvider";
-import { useAddToDenyList, useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
@@ -24,7 +22,6 @@ export const WalletAddress = memo((props: {
     known?: boolean,
     spam?: boolean;
     elipsise?: boolean | { start?: number, end?: number },
-    limitActions?: boolean,
     disableContextMenu?: boolean,
     previewBackgroundColor?: string,
     copyOnPress?: boolean,
@@ -34,24 +31,11 @@ export const WalletAddress = memo((props: {
     const toaster = useToaster();
     const network = useNetwork();
     const theme = useTheme();
-    const navigation = useTypedNavigation();
-    const addToDenyList = useAddToDenyList();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const bounceable = (props.bounceable === undefined)
         ? bounceableFormat
         : props.bounceable;
     const friendlyAddress = props.address.toString({ testOnly: network.isTestnet, bounceable });
-
-    const onMarkAddressSpam = useCallback(async (addr: Address) => {
-        const confirmed = await confirmAlert('spamFilter.blockConfirm');
-        if (confirmed) {
-            addToDenyList(addr);
-        }
-    }, [addToDenyList]);
-
-    const onAddressContact = useCallback((addr: Address) => {
-        navigation.replace('Contact', { address: addr.toString({ testOnly: network.isTestnet }) });
-    }, []);
 
     const addressLink = useMemo(() => {
         return (network.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
@@ -90,35 +74,10 @@ export const WalletAddress = memo((props: {
                 onShare();
                 break;
             }
-            case t('spamFilter.blockConfirm'): {
-                onMarkAddressSpam(props.address);
-                break;
-            }
-            case t('contacts.contact'): {
-                onAddressContact(props.address)
-                break;
-            }
             default:
                 break;
         }
     }, [props.address]);
-
-    const actions: ContextMenuAction[] = [];
-
-    if (!props.spam) {
-        actions.push({
-            title: t('spamFilter.blockConfirm'),
-            systemIcon: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined,
-            destructive: true,
-        });
-    }
-
-    if (!props.known) {
-        actions.push({
-            title: t('contacts.contact'),
-            systemIcon: Platform.OS === 'ios' ? 'person.crop.circle' : undefined,
-        });
-    }
 
     return (
         <>
@@ -127,7 +86,6 @@ export const WalletAddress = memo((props: {
                     actions={[
                         { title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined },
                         { title: t('common.share'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
-                        ...(props.limitActions ? [] : actions)
                     ]}
                     onPress={handleAction}
                     style={props.style}
@@ -263,4 +221,5 @@ export const WalletAddress = memo((props: {
             )}
         </>
     );
-})
+});
+WalletAddress.displayName = 'WalletAddress';

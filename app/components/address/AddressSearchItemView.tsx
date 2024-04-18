@@ -30,7 +30,6 @@ export const AddressSearchItemView = memo(({
 }) => {
     const addressString = item.addr.address.toString({ testOnly });
     const contractInfo = useContractInfo(addressString);
-    const a = global.performance.now();
     const known = knownWallets[addressString];
 
     const settings = walletsSettings[addressString];

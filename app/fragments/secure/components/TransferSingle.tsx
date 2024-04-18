@@ -314,6 +314,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             jettonAmountString={jettonAmountString}
             target={target}
             fees={fees}
+            metadata={metadata}
             jettonMaster={jettonMaster}
             doSend={doSend}
             walletSettings={walletSettings}
@@ -321,6 +322,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             known={known}
             isSpam={spam}
             isWithStateInit={!!order.messages[0].stateInit}
+            contact={contact}
         />
     );
 });

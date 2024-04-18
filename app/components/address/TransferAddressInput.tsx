@@ -5,7 +5,7 @@ import { Address } from "@ton/core";
 import { avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
-import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet } from "../../secure/KnownWallets";
 import { useAppState, useBounceableWalletFormat, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";

@@ -580,6 +580,8 @@ export const KnownJettonMastersMainnet: { [key: string]: any } = {
     'EQD_KpO2-iFeHPT4dF0ur9E0iAFts2fwhpR2KjwAmYKpccvH': {}, // LIFEYT
     'EQCBdxpECfEPH2wUxi1a6QiOkSf-5qDjUWqLCUuKtD-GLINT': {}, // GLINT
     'EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O': {}, // GRAM
+
+    'EQCDkrpCu-FFVPQJnManjlf8XCN75wjX_AKrrEFFQ1mfJqZo': {} // YO
 }
 
 export const KnownJettonTickers = [

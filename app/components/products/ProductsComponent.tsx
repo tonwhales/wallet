@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useJettons, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -34,6 +34,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const balance = useAccountLite(selected.address)?.balance ?? 0n;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const jettons = useJettons(selected!.addressString);
     const banners = useBanners();
     const isHoldersReady = useIsConnectAppReady(holdersUrl);
 
@@ -183,12 +184,13 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <StakingProductComponent key={'pool'} />
 
-                <JettonsProductComponent key={'jettons'} />
+                <JettonsProductComponent jettons={jettons} key={'jettons'} />
 
                 <HoldersHiddenAccounts key={'holders-hidden'} />
 
-                <JettonsHiddenComponent key={'jettons-hidden'} />
+                <JettonsHiddenComponent jettons={jettons} key={'jettons-hidden'} />
             </View>
         </View>
     );
-})
+});
+ProductsComponent.displayName = 'ProductsComponent';

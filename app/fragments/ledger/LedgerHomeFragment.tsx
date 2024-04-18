@@ -307,7 +307,10 @@ export const LedgerHomeFragment = fragment(() => {
                         </View>
                     </View>
                 </View>
-                <LedgerProductsComponent testOnly={isTestnet} account={account} />
+                <LedgerProductsComponent
+                    account={account}
+                    specialJetton={specialJetton}
+                />
             </ScrollView>
         </View>
     );

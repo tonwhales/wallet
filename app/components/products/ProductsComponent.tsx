@@ -22,16 +22,24 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import { AddressFormatUpdate } from "./AddressFormatUpdate"
 import { TonProductComponent } from "./TonProductComponent"
 import { SpecialJettonProduct } from "./SpecialJettonProduct"
+import { SpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
-export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
+export const ProductsComponent = memo(({
+    selected,
+    tonBalance,
+    specialJetton
+}: {
+    selected: SelectedAccount,
+    tonBalance: bigint,
+    specialJetton: SpecialJetton | null
+}) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const totalStaked = useStaking().total;
-    const balance = useAccountLite(selected.address)?.balance ?? 0n;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const jettons = useJettons(selected!.addressString);
@@ -165,7 +173,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 }}>
                     <TonProductComponent
                         key={'ton-native'}
-                        balance={balance}
+                        balance={tonBalance}
                         theme={theme}
                         navigation={navigation}
                     />
@@ -174,8 +182,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         key={'special-jettton'}
                         theme={theme}
                         navigation={navigation}
-                        address={selected.address}
-                        testOnly={isTestnet}
+                        specialJetton={specialJetton}
                         divider={'top'}
                     />
                 </View>
@@ -184,7 +191,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <StakingProductComponent key={'pool'} />
 
-                <JettonsProductComponent jettons={jettons} key={'jettons'} />
+                {/* <JettonsProductComponent jettons={jettons} key={'jettons'} /> */}
+                <JettonsProductComponent jettons={[...jettons, ...jettons, ...jettons]} key={'jettons'} />
 
                 <HoldersHiddenAccounts holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
 

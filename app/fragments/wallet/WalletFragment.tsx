@@ -63,7 +63,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
-            <WalletHeader />
+            <WalletHeader address={address} />
             <ScrollView
                 style={{ flexBasis: 0 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
@@ -313,7 +313,11 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         </View>
                     </View>
                 </View>
-                <ProductsComponent selected={props.selectedAcc} />
+                <ProductsComponent
+                    selected={props.selectedAcc}
+                    specialJetton={specialJetton}
+                    tonBalance={account?.balance ?? 0n}
+                />
             </ScrollView>
         </View>
     );

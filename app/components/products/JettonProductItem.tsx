@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KnownJettonMasters, KnownJettonTickers } from '../../secure/KnownWallets';
+import { KnownJettonMasters } from '../../secure/KnownWallets';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { View, Pressable, Image, Text } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
@@ -7,7 +7,7 @@ import { WImage } from '../WImage';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
 import { memo, useCallback, useRef } from 'react';
-import { Swipeable, TouchableHighlight } from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useIsScamJetton, useNetwork, useTheme } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
 import { PerfText } from '../basic/PerfText';
@@ -15,6 +15,7 @@ import { useJettonSwap } from '../../engine/hooks/jettons/useJettonSwap';
 import { PriceComponent } from '../PriceComponent';
 import { fromNano, toNano } from '@ton/core';
 import { Typography } from '../styles';
+import { PerfView } from '../basic/PerfView';
 
 export const JettonProductItem = memo((props: {
     jetton: Jetton,
@@ -123,8 +124,8 @@ export const JettonProductItem = memo((props: {
                         )
                     }}
                 >
-                    <TouchableHighlight
-                        style={{ flexGrow: 1 }}
+                    <Pressable
+                        style={({ pressed }) => ({ flexGrow: 1, opacity: pressed ? 0.8 : 1 })}
                         onPressIn={onPressIn}
                         onPressOut={onPressOut}
                         onPress={onPress}
@@ -143,7 +144,7 @@ export const JettonProductItem = memo((props: {
                                     borderRadius={23}
                                 />
                                 {isKnown ? (
-                                    <View style={{
+                                    <PerfView style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 20, width: 20, borderRadius: 10,
                                         position: 'absolute', right: -2, bottom: -2,
@@ -153,9 +154,9 @@ export const JettonProductItem = memo((props: {
                                             source={require('@assets/ic-verified.png')}
                                             style={{ height: 20, width: 20 }}
                                         />
-                                    </View>
+                                    </PerfView>
                                 ) : (isSCAM && (
-                                    <View style={{
+                                    <PerfView style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 20, width: 20, borderRadius: 10,
                                         position: 'absolute', right: -2, bottom: -2,
@@ -165,7 +166,7 @@ export const JettonProductItem = memo((props: {
                                             source={require('@assets/ic-jetton-scam.png')}
                                             style={{ height: 20, width: 20 }}
                                         />
-                                    </View>
+                                    </PerfView>
                                 ))}
                             </View>
                             <View style={{ marginLeft: 12, flex: 1 }}>
@@ -220,14 +221,20 @@ export const JettonProductItem = memo((props: {
                                 )}
                             </View>
                         </View>
-                    </TouchableHighlight>
+                    </Pressable>
                 </Swipeable>
-                {
-                    !props.last && !props.card && (
-                        <View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
-                    )
-                }
-            </Animated.View >
+                {!props.last && !props.card && (
+                    <PerfView
+                        style={{
+                            backgroundColor: theme.divider,
+                            height: 1,
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 36, right: 36
+                        }}
+                    />
+                )}
+            </Animated.View>
         ) : (
             <Pressable
                 onPressIn={onPressIn}

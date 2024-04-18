@@ -40,3 +40,5 @@ export function useSpecialJetton(address: Address) {
 
     return { ...specialJetton, nano, toTon, masterContent };
 }
+
+export type SpecialJetton = ReturnType<typeof useSpecialJetton>;

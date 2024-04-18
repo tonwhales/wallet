@@ -7,8 +7,7 @@ import Animated from "react-native-reanimated";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
-import { Address } from "@ton/core";
-import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
+import { SpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
 import { ItemDivider } from "../ItemDivider";
 
@@ -16,19 +15,16 @@ export const SpecialJettonProduct = memo(({
     theme,
     navigation,
     isLedger,
-    address,
-    testOnly,
-    divider
+    divider,
+    specialJetton
 }: {
     theme: ThemeType,
     navigation: TypedNavigation,
     isLedger?: boolean,
-    address: Address,
-    testOnly: boolean,
-    divider?: 'top' | 'bottom'
+    divider?: 'top' | 'bottom',
+    specialJetton: SpecialJetton | null
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
-    const specialJetton = useSpecialJetton(address);
     const content = specialJetton?.masterContent;
     const balance = specialJetton?.balance ?? 0n;
 

@@ -9,9 +9,15 @@ import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TonProductComponent } from "./TonProductComponent";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
-import { Address } from "@ton/core";
+import { SpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 
-export const LedgerProductsComponent = memo(({ account, testOnly }: { account: AccountLite, testOnly: boolean }) => {
+export const LedgerProductsComponent = memo(({
+    account,
+    specialJetton
+}: {
+    account: AccountLite,
+    specialJetton: SpecialJetton | null
+}) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
@@ -48,8 +54,7 @@ export const LedgerProductsComponent = memo(({ account, testOnly }: { account: A
                         key={'special-jettton'}
                         theme={theme}
                         navigation={navigation}
-                        address={Address.parse(account.address)}
-                        testOnly={testOnly}
+                        specialJetton={specialJetton}
                         divider={'top'}
                     />
                 </View>

@@ -21,6 +21,8 @@ import { TypedNavigation } from "../../utils/useTypedNavigation";
 import IcChevron from '@assets/ic_chevron_forward.svg';
 import { AddressBookContext, useAddressBookContext } from "../../engine/AddressBookContext";
 
+import IcChevron from '@assets/ic_chevron_forward.svg';
+
 type TransferAddressInputProps = {
     acc: Address,
     theme: ThemeType,
@@ -320,7 +322,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
                         props.dispatch({
                             type: InputActionType.InputTarget,
-                            input: name,
+                            input: name.trim(),
                             target: friendly
                         });
 

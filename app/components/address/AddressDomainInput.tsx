@@ -225,7 +225,8 @@ export const AddressDomainInput = memo(forwardRef(({
     const valueNotEmptyShared = useSharedValue(0);
     const labelHeightCoeff = useSharedValue(1);
     const valueNotEmpty = (textInput?.length || 0) > 0;
-    const xTranslate = Math.round((screenWidth ?? 0) * 0.1) + 2;
+    const screenWidthValue = screenWidth ?? 0;
+    const xTranslate = Math.round(screenWidthValue * 0.1) + Math.round(screenWidthValue / 2 * 0.01);
 
     const labelAnimStyle = useAnimatedStyle(() => {
         return {

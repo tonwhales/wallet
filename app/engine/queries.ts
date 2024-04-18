@@ -42,6 +42,7 @@ export const Queries = {
             Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
+        Known: () => ['jettons', 'known'],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

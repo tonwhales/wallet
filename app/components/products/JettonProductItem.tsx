@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { KnownJettonMasters, KnownJettonTickers } from '../../secure/KnownWallets';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { View, Pressable, Image, Text } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
@@ -8,7 +7,7 @@ import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
 import { memo, useCallback, useRef } from 'react';
 import { Swipeable, TouchableHighlight } from 'react-native-gesture-handler';
-import { useIsScamJetton, useNetwork, useTheme } from '../../engine/hooks';
+import { useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
 import { PerfText } from '../basic/PerfText';
 import { useJettonSwap } from '../../engine/hooks/jettons/useJettonSwap';
@@ -37,8 +36,10 @@ export const JettonProductItem = memo((props: {
         : null;
     const swipableRef = useRef<Swipeable>(null);
 
-    const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toString({ testOnly: isTestnet })];
-    const isSCAM = useIsScamJetton(props.jetton.symbol, props.jetton.master.toString({ testOnly: isTestnet }));
+    const { verified, isSCAM } = useVerifyJetton({
+        ticker: props.jetton.symbol,
+        master: props.jetton.master.toString({ testOnly: isTestnet })
+    });
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
@@ -142,7 +143,7 @@ export const JettonProductItem = memo((props: {
                                     heigh={46}
                                     borderRadius={23}
                                 />
-                                {isKnown ? (
+                                {verified ? (
                                     <View style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 20, width: 20, borderRadius: 10,
@@ -251,7 +252,7 @@ export const JettonProductItem = memo((props: {
                             heigh={46}
                             borderRadius={23}
                         />
-                        {isKnown && (
+                        {verified && (
                             <View style={{
                                 justifyContent: 'center', alignItems: 'center',
                                 height: 20, width: 20, borderRadius: 10,

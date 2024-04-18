@@ -30,6 +30,7 @@ export const SpecialJettonProduct = memo(({
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
     const specialJetton = useSpecialJetton(address);
     const content = specialJetton?.masterContent;
+    const image = content?.image?.preview256 ?? content?.originalImage;
     const balance = specialJetton?.balance ?? 0n;
 
     const onPress = useCallback(() => {
@@ -89,10 +90,10 @@ export const SpecialJettonProduct = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
-                    {!!content?.image?.preview256 ? (
+                    {!!image ? (
                         <WImage
-                            src={content.image.preview256}
-                            blurhash={content.image.blurhash}
+                            src={image}
+                            blurhash={content?.image?.blurhash}
                             width={46}
                             heigh={46}
                             borderRadius={23}
@@ -103,7 +104,7 @@ export const SpecialJettonProduct = memo(({
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >
-                            {'TetherUSD₮'}
+                            {'Jetton'}
                         </Text>
                     )}
                     <View style={{

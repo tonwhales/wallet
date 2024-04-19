@@ -78,7 +78,7 @@ const PendingTxPreview = () => {
     const isOwn = appState.addresses.findIndex((a) => a.address.toString({ testOnly: isTestnet }) === opAddress) >= 0;
 
     const { verified } = useVerifyJetton({ master: opAddress });
-    const knownWallet = KnownWallets(isTestnet)[opAddress ?? ''];
+    const knownWallet = knownWallets[opAddress ?? ''];
     const contact = addressBook.asContact(opAddress);
     const isSpam = addressBook.isDenyAddress(opAddress);
 

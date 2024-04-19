@@ -12,7 +12,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { KnownJettonMasters, KnownWallets } from '../../secure/KnownWallets';
+import { KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder, createSimpleOrder } from './ops/Order';
 import { useLinkNavigator } from "../../useLinkNavigator";
@@ -24,6 +24,7 @@ import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/for
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
 import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useIsScamJetton, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -179,14 +180,10 @@ export const SimpleTransferFragment = fragment(() => {
         );
     }, [price, currency, estimation]);
 
-    const isVerified = useMemo(() => {
-        if (!jettonState || !jettonState.wallet.master) {
-            return true;
-        }
-        return !!KnownJettonMasters(network.isTestnet)[jettonState.wallet.master];
-    }, [jettonState]);
-    
-    const isSCAM = useIsScamJetton(jettonState?.master?.symbol, jettonState?.wallet?.master);
+    const { isSCAM, verified: isVerified } = useVerifyJetton({
+        ticker: jettonState?.master?.symbol,
+        master: jettonState?.wallet?.master
+    });
 
     const balance = useMemo(() => {
         let value: bigint;

@@ -7,13 +7,12 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { LedgerOrder, Order } from "../ops/Order";
-import { KnownWallets } from "../../../secure/KnownWallets";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
-import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useIsScamJetton } from "../../../engine/hooks";
+import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
@@ -156,7 +155,10 @@ export const TransferSingleView = memo(({
         return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jettonMaster?.symbol ?? ''}`
     }, [amount, jettonAmountString, jettonMaster]);
 
-    const isSCAMJetton = useIsScamJetton(jettonMaster?.symbol, metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet }));
+    const { isSCAM: isSCAMJetton } = useVerifyJetton({
+        ticker: jettonMaster?.symbol,
+        master: metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet })
+    });
 
     return (
         <View style={{ flexGrow: 1 }}>

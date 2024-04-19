@@ -1,11 +1,11 @@
 import { Address, toNano } from "@ton/core";
-import { useJettonContent, useJettons, useJettonsConfig, useNetwork, usePrice } from "..";
+import { useJettonContent, useJettons, useKnownJettons, useNetwork, usePrice } from "..";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 
 export function useSpecialJetton(address: Address) {
     const { isTestnet: testOnly } = useNetwork();
-    const config = useJettonsConfig(testOnly);
-    const specialJettonMaster = config?.specialJetton;
+    const knownJettons = useKnownJettons(testOnly);
+    const specialJettonMaster = knownJettons?.specialJetton;
     const jettons = useJettons(address.toString({ testOnly }));
     const masterContent = useJettonContent(specialJettonMaster ?? null);
     const [price,] = usePrice();
@@ -21,14 +21,13 @@ export function useSpecialJetton(address: Address) {
         return null;
     }
 
-
     const specialJetton = specialJettonMaster
         ? jettons.find(j => j.master.toString({ testOnly }) === specialJettonMaster)
         : null;
 
     const balanceString = fromBnWithDecimals(specialJetton?.balance ?? 0n, masterContent?.decimals ?? 6);
     const nano = toNano(balanceString);
-    const tonRate = 1 / price.price.usd; // 1 usd = tonRate ton
+    const tonRate = price?.price?.usd ? 1 / price.price.usd : 0; // 1 usd = tonRate * ton
 
     // Convert balance to TON
     let toTon = 0n;

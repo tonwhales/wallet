@@ -262,7 +262,8 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                                 : 'center',
                                         marginHorizontal: 0, marginVertical: 0,
                                         paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                        paddingLeft: 0, paddingRight: 0
+                                        paddingLeft: 0, paddingRight: 0,
+                                        flexGrow: props.prefix ? 0 : 1
                                     },
                                     props.inputStyle
                                 ]}

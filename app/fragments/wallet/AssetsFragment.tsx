@@ -6,8 +6,6 @@ import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { SelectableButton } from "../../components/SelectableButton";
-import { WImage } from "../../components/WImage";
-import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
 import { useJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
@@ -16,6 +14,7 @@ import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Jetton } from "../../engine/types";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
+import { AssetsListItem } from "../../components/jettons/AssetsListItem";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
 
@@ -113,7 +112,10 @@ export const AssetsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 title={t('products.accounts')}
@@ -155,39 +157,16 @@ export const AssetsFragment = fragment(() => {
                         hideSelection={!callback}
                     />
                     {(isLedgerScreen ? ledgerJettons : visibleList).map((j) => {
-                        const verified = KnownJettonMasters(network.isTestnet)[j.master.toString()];
                         const selected = !!selectedJetton && j.master.equals(selectedJetton);
                         return (
-                            <SelectableButton
+                            <AssetsListItem
                                 key={'jt' + j.wallet.toString()}
-                                title={j.name}
-                                subtitle={j.description}
+                                jetton={j}
                                 onSelect={() => onSelected(j)}
-                                icon={
-                                    <View style={{ width: 46, height: 46 }}>
-                                        <WImage
-                                            src={j.icon ? j.icon : undefined}
-                                            width={46}
-                                            heigh={46}
-                                            borderRadius={23}
-                                        />
-                                        {verified && (
-                                            <View style={{
-                                                justifyContent: 'center', alignItems: 'center',
-                                                height: 20, width: 20, borderRadius: 10,
-                                                position: 'absolute', right: -2, bottom: -2,
-                                                backgroundColor: theme.surfaceOnBg
-                                            }}>
-                                                <Image
-                                                    source={require('@assets/ic-verified.png')}
-                                                    style={{ height: 20, width: 20 }}
-                                                />
-                                            </View>
-                                        )}
-                                    </View>
-                                }
+                                theme={theme}
                                 hideSelection={!callback}
                                 selected={selected}
+                                isTestnet={network.isTestnet}
                             />
                         );
                     })}

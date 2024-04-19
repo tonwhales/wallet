@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, ScrollView, Text } from "react-native";
+import { Platform, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
@@ -9,7 +9,7 @@ import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar, avatarColors } from "../../components/Avatar";
 import { t } from "../../i18n/t";
-import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { copyText } from "../../utils/copyText";
@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme, useVerifyJetton } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { TransactionDescription } from "../../engine/types";
@@ -85,9 +85,6 @@ const TransactionPreview = () => {
 
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-
-    const verified = !!tx.verified
-        || !!KnownJettonMasters(isTestnet)[opAddressBounceable];
 
     const contact = addressBook.asContact(opAddressBounceable);
     const isSpam = addressBook.isDenyAddress(opAddressBounceable);
@@ -196,11 +193,25 @@ const TransactionPreview = () => {
         });
     }, []);
 
-    const stringText = valueText({
+    const amountText = valueText({
         value: item.amount,
         precision: 9,
         decimals: item.kind === 'token' && jetton ? jetton.decimals : undefined,
     });
+
+    const amountColor = kind === 'in'
+        ? spam
+            ? theme.textPrimary
+            : theme.accentGreen
+        : theme.textPrimary
+
+    const jettonMaster = tx.metadata?.jettonWallet?.master;
+
+    const { isSCAM: isSCAMJetton, verified: verifiedJetton } = useVerifyJetton({
+        ticker: jetton?.symbol,
+        master: jettonMaster?.toString({ testOnly: isTestnet })
+    });
+    const verified = !!tx.verified || verifiedJetton;
 
     return (
         <PerfView
@@ -309,24 +320,26 @@ const TransactionPreview = () => {
                         </PerfText>
                     ) : (
                         <>
-                            <Text
-                                minimumFontScale={0.4}
-                                adjustsFontSizeToFit={true}
-                                numberOfLines={1}
-                                style={[
+                            <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
+                                <Text
+                                    minimumFontScale={0.4}
+                                    adjustsFontSizeToFit={true}
+                                    numberOfLines={1}
+                                    style={[{ color: amountColor }, Typography.semiBold27_32]}
+                                >
                                     {
-                                        color: kind === 'in'
-                                            ? spam
-                                                ? theme.textPrimary
-                                                : theme.accentGreen
-                                            : theme.textPrimary,
-                                        marginTop: 12,
-                                    },
-                                    Typography.semiBold27_32
-                                ]}
-                            >
-                                {`${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
-                            </Text>
+                                        `${amountText[0]}${amountText[1]}${item.kind === 'ton'
+                                            ? ' TON'
+                                            : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`
+                                    }
+                                    {isSCAMJetton && (' • ')}
+                                </Text>
+                                {isSCAMJetton && (
+                                    <Text style={[{ color: theme.accentRed }, Typography.semiBold27_32]}>
+                                        {'SCAM'}
+                                    </Text>
+                                )}
+                            </View>
                             {item.kind === 'ton' && (
                                 <PriceComponent
                                     style={{

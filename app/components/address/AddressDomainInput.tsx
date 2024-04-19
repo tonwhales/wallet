@@ -293,6 +293,7 @@ export const AddressDomainInput = memo(forwardRef(({
                             fontSize: 17, fontWeight: '400',
                             textAlignVertical: 'center',
                             flexShrink: 1,
+                            flexGrow: suffix ? 0 : 1
                         }}
                         selectionColor={Platform.select({
                             ios: theme.accent,

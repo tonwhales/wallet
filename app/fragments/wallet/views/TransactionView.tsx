@@ -4,7 +4,7 @@ import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar, avatarColors } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { KnownJettonMasters, KnownJettonTickers, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
+import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
@@ -18,7 +18,7 @@ import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
-import { useIsScamJetton, useWalletSettings } from '../../../engine/hooks';
+import { useVerifyJetton, useWalletSettings } from '../../../engine/hooks';
 import { avatarHash } from '../../../utils/avatarHash';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
 
@@ -126,7 +126,11 @@ export function TransactionView(props: {
         : theme.textPrimary;
 
     const jettonMaster = tx.metadata?.jettonWallet?.master;
-    const isSCAMJetton = useIsScamJetton(tx.masterMetadata?.symbol, jettonMaster?.toString({ testOnly: isTestnet }));
+
+    const { isSCAM: isSCAMJetton } = useVerifyJetton({
+        ticker: tx.masterMetadata?.symbol,
+        master: jettonMaster?.toString({ testOnly: isTestnet })
+    });
 
     const symbolText = `${(item.kind === 'token')
         ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}`

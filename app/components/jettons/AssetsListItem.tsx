@@ -1,12 +1,11 @@
 import { memo } from "react";
 import { View, Image, Pressable, Text } from "react-native";
 import { Jetton } from "../../engine/types";
-import { useIsScamJetton } from "../../engine/hooks";
 import { WImage } from "../WImage";
 import { ThemeType } from "../../engine/state/theme";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Typography } from "../styles";
-import { KnownJettonMasters } from "../../secure/KnownWallets";
+import { useVerifyJetton } from "../../engine/hooks";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -25,8 +24,10 @@ export const AssetsListItem = memo(({
     hideSelection?: boolean,
     isTestnet: boolean
 }) => {
-    const verified = KnownJettonMasters(isTestnet)[jetton.master.toString()];
-    const isSCAM = useIsScamJetton(jetton.symbol, jetton.master.toString({ testOnly: isTestnet }));
+    const { verified, isSCAM } = useVerifyJetton({
+        ticker: jetton.symbol,
+        master: jetton.master.toString({ testOnly: isTestnet })
+    });
 
     return (
         <Animated.View entering={FadeIn} exiting={FadeOut}>

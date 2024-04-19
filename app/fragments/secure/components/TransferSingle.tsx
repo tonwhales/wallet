@@ -15,19 +15,17 @@ import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { TransferSingleView } from "./TransferSingleView";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode } from "@ton/core";
-import { useAccountLite, useClient4, useCommitCommand, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
+import { useAccountLite, useClient4, useCommitCommand, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { ConfirmLoadedPropsSingle } from "../TransferFragment";
 import { PendingTransactionBody } from "../../../engine/state/pending";
-import { useAddressBookContext } from "../../../engine/AddressBookContext";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
     const { isTestnet } = useNetwork();
-    const addressBookContext = useAddressBookContext();
     const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
@@ -96,7 +94,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
     const friendlyTarget = target.address.toString({ testOnly: isTestnet, bounceable: target.bounceable });
     // Contact wallets
-    const contact = addressBookContext.asContact(friendlyTarget);
+    const contact = useContact(friendlyTarget);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -107,7 +105,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         known = { name: contact.name }
     }
 
-    const isSpam = addressBookContext.isDenyAddress(friendlyTarget);
+    const isSpam = useDenyAddress(friendlyTarget);
     const spam = useIsSpamWallet(friendlyTarget) || isSpam
 
     // Confirmation

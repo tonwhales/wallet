@@ -6,14 +6,13 @@ import { avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
-import { useAppState, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
-import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
 
@@ -129,8 +128,7 @@ export function addressInputReducer() {
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const isKnown: boolean = !!KnownWallets(props.isTestnet)[props.target];
-    const addressBookContext = useAddressBookContext();
-    const contact = addressBookContext.asContact(props.target);
+    const contact = useContact(props.target);
     const appState = useAppState();
     const theme = useTheme();
     const dimentions = useDimensions();

@@ -28,7 +28,7 @@ import { confirmAlert } from '../../utils/confirmAlert';
 import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { TonTransport } from '@ton-community/ton-ledger';
-import { useAccountLite, useClient4, useConfig, useIsSpamWallet, useNetwork, useTheme } from '../../engine/hooks';
+import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { fromBnWithDecimals } from '../../utils/withDecimals';
@@ -39,7 +39,6 @@ import { TransferSingleView } from '../secure/components/TransferSingleView';
 import { RoundButton } from '../../components/RoundButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { useAddressBookContext } from '../../engine/AddressBookContext';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -68,7 +67,6 @@ type ConfirmLoadedProps = {
 const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferState: (state: 'confirm' | 'sending' | 'sent') => void })) => {
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
-    const addressBookContext = useAddressBookContext();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -131,7 +129,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
 
     const friendlyTarget = target.address.toString({ testOnly: network.isTestnet, bounceable: target.bounceable });
     // Contact wallets
-    const contact = addressBookContext.asContact(friendlyTarget);
+    const contact = useContact(friendlyTarget);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -141,7 +139,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         known = { name: contact.name }
     }
 
-    const isSpam = addressBookContext.isDenyAddress(friendlyTarget);
+    const isSpam = useDenyAddress(friendlyTarget);
     let spam = useIsSpamWallet(friendlyTarget) || isSpam
 
     // Confirmation

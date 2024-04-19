@@ -22,7 +22,7 @@ export type KnownJettons = z.infer<typeof knownJettonsCodec>;
 
 export async function fetchKnownJettons(): Promise<KnownJettonByNet | null>{
     try {
-        const res = await axios.get("https://raw.githubusercontent.com/tonwhales/wallet/master/assets/knownJettons.json");
+        const res = await axios.get("https://raw.githubusercontent.com/tonwhales/wallet/master/assets/jettons/knownJettons.json");
 
         if (res.status === 200) {
             const parsed = knownJettonsNetCodec.safeParse(res.data);

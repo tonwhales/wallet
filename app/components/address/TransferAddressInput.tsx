@@ -1,4 +1,4 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
@@ -30,7 +30,6 @@ type TransferAddressInputProps = {
     target: string,
     input: string,
     domain?: string,
-    dispatch: (action: AddressInputAction) => void,
     onFocus: (index: number) => void,
     onSubmit: (index: number) => void,
     onQRCodeRead: (value: string) => void,
@@ -39,7 +38,8 @@ type TransferAddressInputProps = {
     onSearchItemSelected?: (item: AddressSearchItem) => void,
     knownWallets: { [key: string]: KnownWallet },
     lastTwoTxs: TransactionDescription[],
-    navigation: TypedNavigation
+    navigation: TypedNavigation,
+    setAddressdomainInputState: (state: AddressInputState) => void,
 }
 
 export type AddressInputState = {
@@ -133,8 +133,17 @@ export function addressInputReducer() {
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
+    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
+        addressInputReducer(),
+        {
+            input: props?.target || '',
+            target: props?.target || '',
+            domain: undefined
+        }
+    );
+
     const isKnown: boolean = !!props.knownWallets[props.target];
-    const query = props.input;
+    const query = addressDomainInputState.input;
     const addressBookContext = useAddressBookContext();
     const contact = addressBookContext.asContact(props.target);
     const appState = useAppState();
@@ -192,6 +201,16 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             select();
         }
     }, [select, isSelected]);
+
+    useEffect(() => {
+        // debounce dispatching of input setAddressdomainInputState
+        const timeout = setTimeout(() => {
+            props.setAddressdomainInputState(addressDomainInputState);
+        }, 200);
+        return () => {
+            clearTimeout(timeout);
+        }
+    }, [addressDomainInputState]);
 
     return (
         <View>
@@ -274,8 +293,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         knownWallets={props.knownWallets}
                     />
                     <AddressDomainInput
-                        input={props.input}
-                        dispatch={props.dispatch}
+                        input={addressDomainInputState.input}
+                        dispatch={dispatchAddressDomainInput}
                         target={props.target}
                         index={props.index}
                         ref={ref}
@@ -318,7 +337,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             name = 'Ledger';
                         }
 
-                        props.dispatch({
+                        dispatchAddressDomainInput({
                             type: InputActionType.InputTarget,
                             input: name.trim(),
                             target: friendly

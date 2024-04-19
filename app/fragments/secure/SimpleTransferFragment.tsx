@@ -31,7 +31,7 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
-import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
+import { AddressInputAction, AddressInputState, TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
@@ -85,8 +85,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
-    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
-        addressInputReducer(),
+    const [addressDomainInputState, setAddressdomainInputState] = useState<AddressInputState>(
         {
             input: params?.target || '',
             target: params?.target || '',
@@ -817,7 +816,7 @@ export const SimpleTransferFragment = fragment(() => {
                         isTestnet={network.isTestnet}
                         index={0}
                         onFocus={onFocus}
-                        dispatch={dispatchAddressDomainInput}
+                        setAddressdomainInputState={setAddressdomainInputState}
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}

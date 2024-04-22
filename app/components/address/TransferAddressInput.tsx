@@ -122,7 +122,11 @@ export function addressInputReducer(ref: ForwardedRef<AnimTextInputRef>) {
                 };
             case InputActionType.Clear:
                 (ref as RefObject<AnimTextInputRef>)?.current?.setText('');
-                return state
+                return {
+                    input: '',
+                    target: '',
+                    domain: undefined
+                };
             default:
                 return state;
         }

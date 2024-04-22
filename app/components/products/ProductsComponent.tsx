@@ -167,6 +167,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         balance={balance}
                         theme={theme}
                         navigation={navigation}
+                        address={selected.address}
+                        testOnly={isTestnet}
                     />
 
                     <SpecialJettonProduct

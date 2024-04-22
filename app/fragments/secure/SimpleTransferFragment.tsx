@@ -85,7 +85,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
-    const [addressDomainInputState, setAddressdomainInputState] = useState<AddressInputState>(
+    const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
         {
             input: params?.target || '',
             target: params?.target || '',
@@ -816,7 +816,7 @@ export const SimpleTransferFragment = fragment(() => {
                         isTestnet={network.isTestnet}
                         index={0}
                         onFocus={onFocus}
-                        setAddressdomainInputState={setAddressdomainInputState}
+                        setAddressDomainInputState={setAddressDomainInputState}
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}

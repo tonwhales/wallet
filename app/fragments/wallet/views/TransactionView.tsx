@@ -127,11 +127,11 @@ export function TransactionView(props: {
         ? (spam ? theme.textPrimary : theme.accentGreen)
         : theme.textPrimary;
 
-    const jettonMaster = tx.metadata?.jettonWallet?.master;
+    const jettonMaster = tx.masterAddressStr ?? tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
-        ticker: tx.masterMetadata?.symbol,
-        master: jettonMaster?.toString({ testOnly: isTestnet })
+        ticker: item.kind === 'token' ? tx.masterMetadata?.symbol : undefined,
+        master: jettonMaster
     });
 
     const symbolText = `${(item.kind === 'token')

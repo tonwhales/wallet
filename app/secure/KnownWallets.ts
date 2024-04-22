@@ -581,7 +581,8 @@ export const KnownJettonMastersMainnet: { [key: string]: any } = {
     'EQCBdxpECfEPH2wUxi1a6QiOkSf-5qDjUWqLCUuKtD-GLINT': {}, // GLINT
     'EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O': {}, // GRAM
 
-    'EQCDkrpCu-FFVPQJnManjlf8XCN75wjX_AKrrEFFQ1mfJqZo': {} // YO
+    'EQCDkrpCu-FFVPQJnManjlf8XCN75wjX_AKrrEFFQ1mfJqZo': {}, // YO
+    'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs': {} // USD₮
 }
 
 export const KnownJettonTickers = [
@@ -612,6 +613,7 @@ export const KnownJettonTickers = [
     'jUSDC',
     'jDAI',
     'jWBTC',
+    "USD₮",
 
     // TON others
     'TNX',

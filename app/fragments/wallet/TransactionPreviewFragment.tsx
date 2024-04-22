@@ -206,12 +206,13 @@ const TransactionPreview = () => {
             : theme.accentGreen
         : theme.textPrimary
 
-    const jettonMaster = tx.metadata?.jettonWallet?.master;
+    const jettonMaster = tx.masterAddressStr ?? tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
 
     const { isSCAM: isSCAMJetton, verified: verifiedJetton } = useVerifyJetton({
-        ticker: jetton?.symbol,
-        master: jettonMaster?.toString({ testOnly: isTestnet })
+        ticker: item.kind === 'token' ? jetton?.symbol : undefined,
+        master: jettonMaster
     });
+
     const verified = !!tx.verified || verifiedJetton;
 
     return (

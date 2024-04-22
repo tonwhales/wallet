@@ -26,7 +26,7 @@ export const SpecialJettonProduct = memo(({
     isLedger?: boolean,
     address: Address,
     testOnly: boolean,
-    divider?: 'top' | 'bottom',
+    divider?: 'top' | 'bottom'
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
     const specialJetton = useSpecialJetton(address);

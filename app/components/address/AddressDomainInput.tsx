@@ -317,7 +317,6 @@ export const AddressDomainInput = memo(forwardRef(({
                         multiline
                         blurOnSubmit={false}
                         editable={!resolving}
-                        value={textInput}
                         onChangeText={(value) => {
                             // Remove leading and trailing spaces
                             value = value.trim();

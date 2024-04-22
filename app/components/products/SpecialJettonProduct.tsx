@@ -36,11 +36,13 @@ export const SpecialJettonProduct = memo(({
     const ledgerAddressStr = address?.toString({ bounceable: bounceableFormat, testOnly });
 
     const onPress = useCallback(() => {
+        const jetton = specialJetton ? { master: specialJetton?.master, data: specialJetton?.masterContent } : undefined;
+
         if (balance === 0n) {
             if (isLedger) {
-                navigation.navigate('LedgerReceive', { addr: ledgerAddressStr, ledger: true });
+                navigation.navigate('LedgerReceive', { addr: ledgerAddressStr, ledger: true, jetton });
             } else {
-                navigation.navigate('Receive');
+                navigation.navigate('Receive', { jetton });
             }
             return;
         }

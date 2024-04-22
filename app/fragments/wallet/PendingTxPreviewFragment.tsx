@@ -35,6 +35,7 @@ import { resolveOperation } from "../../engine/transactions/resolveOperation";
 const PendingTxPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
@@ -77,7 +78,7 @@ const PendingTxPreview = () => {
     const isOwn = appState.addresses.findIndex((a) => a.address.toString({ testOnly: isTestnet }) === opAddress) >= 0;
 
     const { verified } = useVerifyJetton({ master: opAddress });
-    const knownWallet = KnownWallets(isTestnet)[opAddress ?? ''];
+    const knownWallet = knownWallets[opAddress ?? ''];
     const contact = addressBook.asContact(opAddress);
     const isSpam = addressBook.isDenyAddress(opAddress);
 
@@ -201,7 +202,7 @@ const PendingTxPreview = () => {
                             size: 28
                         }}
                         theme={theme}
-                        isTestnet={isTestnet}
+                        knownWallets={knownWallets}
                         hashColor
                     />
                     <PerfText

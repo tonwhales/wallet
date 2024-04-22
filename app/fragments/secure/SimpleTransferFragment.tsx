@@ -23,7 +23,7 @@ import { WImage } from '../../components/WImage';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
+import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -31,7 +31,7 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
-import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
+import { AddressInputAction, AddressInputState, TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
@@ -63,6 +63,7 @@ export const SimpleTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
     const route = useRoute();
+    const knownWallets = KnownWallets(network.isTestnet);
     const isLedger = route.name === 'LedgerSimpleTransfer';
     const safeArea = useSafeAreaInsets();
     const acc = useSelectedAccount();
@@ -80,10 +81,11 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [addr]);
 
+    const txs = useAccountTransactions((ledgerAddress ?? acc!.address).toString({ testOnly: network.isTestnet })).data;
+
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
-    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
-        addressInputReducer(),
+    const [addressDomainInputState, setAddressdomainInputState] = useState<AddressInputState>(
         {
             input: params?.target || '',
             target: params?.target || '',
@@ -101,7 +103,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const jettonWallet = useJettonWallet(jetton?.toString({ testOnly: network.isTestnet }), true);
     const jettonMaster = useJettonMaster(jettonWallet?.master!);
-    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
+    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON';
 
     const targetAddressValid = useMemo(() => {
         if (target.length > 48) {
@@ -523,7 +525,7 @@ export const SimpleTransferFragment = fragment(() => {
         setJetton(null);
     }, []);
 
-    const isKnown: boolean = !!KnownWallets(network.isTestnet)[target];
+    const isKnown: boolean = !!knownWallets[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -687,6 +689,7 @@ export const SimpleTransferFragment = fragment(() => {
                         address={targetAddressValid.address}
                         isTestnet={network.isTestnet}
                         bounceable={targetAddressValid.isBounceable}
+                        knownWallets={knownWallets}
                     />
                 )
             };
@@ -813,13 +816,16 @@ export const SimpleTransferFragment = fragment(() => {
                         isTestnet={network.isTestnet}
                         index={0}
                         onFocus={onFocus}
-                        dispatch={dispatchAddressDomainInput}
+                        setAddressdomainInputState={setAddressdomainInputState}
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
                         onSearchItemSelected={() => {
                             scrollRef.current?.scrollTo({ y: 0 });
                         }}
+                        knownWallets={knownWallets}
+                        lastTwoTxs={txs?.slice(0, 2) ?? []}
+                        navigation={navigation}
                     />
                 </Animated.View>
                 {selected === 'address' && (

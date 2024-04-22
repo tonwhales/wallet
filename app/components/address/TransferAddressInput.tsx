@@ -1,12 +1,12 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
-import { KnownWallets } from "../../secure/KnownWallets";
-import { useAppState, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
+import { KnownWallet } from "../../secure/KnownWallets";
+import { useAppState, useBounceableWalletFormat, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -15,6 +15,9 @@ import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
+import { TransactionDescription } from "../../engine/types";
+import { TypedNavigation } from "../../utils/useTypedNavigation";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -27,13 +30,16 @@ type TransferAddressInputProps = {
     target: string,
     input: string,
     domain?: string,
-    dispatch: (action: AddressInputAction) => void,
     onFocus: (index: number) => void,
     onSubmit: (index: number) => void,
     onQRCodeRead: (value: string) => void,
     isSelected?: boolean,
     onNext?: () => void,
     onSearchItemSelected?: (item: AddressSearchItem) => void,
+    knownWallets: { [key: string]: KnownWallet },
+    lastTwoTxs: TransactionDescription[],
+    navigation: TypedNavigation,
+    setAddressdomainInputState: (state: AddressInputState) => void,
 }
 
 export type AddressInputState = {
@@ -127,14 +133,26 @@ export function addressInputReducer() {
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
-    const isKnown: boolean = !!KnownWallets(props.isTestnet)[props.target];
-    const contact = useContact(props.target);
+    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
+        addressInputReducer(),
+        {
+            input: props?.target || '',
+            target: props?.target || '',
+            domain: undefined
+        }
+    );
+
+    const isKnown: boolean = !!props.knownWallets[props.target];
+    const query = addressDomainInputState.input;
+    const addressBookContext = useAddressBookContext();
+    const contact = addressBookContext.asContact(props.target);
     const appState = useAppState();
-    const theme = useTheme();
+    const theme = props.theme;
     const dimentions = useDimensions();
     const screenWidth = dimentions.screen.width;
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
     const [walletSettings,] = useWalletSettings(validAddressFriendly);
+    const [bounceableFormat,] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
@@ -184,6 +202,15 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     }, [select, isSelected]);
 
+    useEffect(() => {
+        // debounce dispatching of input setAddressdomainInputState
+        const timeout = setTimeout(() => {
+            props.setAddressdomainInputState(addressDomainInputState);
+        }, 200);
+        return () => {
+            clearTimeout(timeout);
+        }
+    }, [addressDomainInputState]);
 
     return (
         <View>
@@ -210,6 +237,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         isLedger={isSelectedLedger}
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
+                        knownWallets={props.knownWallets}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={{
@@ -262,10 +290,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         isLedger={isSelectedLedger}
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
+                        knownWallets={props.knownWallets}
                     />
                     <AddressDomainInput
-                        input={props.input}
-                        dispatch={props.dispatch}
+                        input={addressDomainInputState.input}
+                        dispatch={dispatchAddressDomainInput}
                         target={props.target}
                         index={props.index}
                         ref={ref}
@@ -277,6 +306,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         onQRCodeRead={props.onQRCodeRead}
                         domain={props.domain}
                         screenWidth={screenWidth * 0.75}
+                        bounceableFormat={bounceableFormat}
+                        knownWallets={props.knownWallets}
+                        navigation={props.navigation}
+                        theme={theme}
+                        isTestnet={props.isTestnet}
                     />
                 </View>
                 {!props.validAddress && (props.target.length >= 48) && (
@@ -294,7 +328,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     </Animated.View>
                 )}
                 <AddressSearch
-                    account={props.acc}
+                    theme={theme}
                     onSelect={(item) => {
                         const friendly = item.addr.address.toString({ testOnly: props.isTestnet, bounceable: item.addr.isBounceable });
                         let name = item.type !== 'unknown' ? item.title : friendly;
@@ -303,7 +337,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             name = 'Ledger';
                         }
 
-                        props.dispatch({
+                        dispatchAddressDomainInput({
                             type: InputActionType.InputTarget,
                             input: name.trim(),
                             target: friendly
@@ -313,11 +347,16 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             props.onSearchItemSelected(item);
                         }
                     }}
-                    query={props.input.toLowerCase()}
+                    query={query}
                     transfer
                     myWallets={myWallets}
+                    bounceableFormat={bounceableFormat}
+                    knownWallets={props.knownWallets}
+                    lastTwoTxs={props.lastTwoTxs}
                 />
             </View>
         </View>
-    )
-}))
+    );
+}));
+
+TransferAddressInput.displayName = 'TransferAddressInput';

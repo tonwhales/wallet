@@ -5,16 +5,17 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { ATextInputRef } from "../ATextInput";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useBounceableWalletFormat, useClient4, useConfig, useNetwork, useTheme } from "../../engine/hooks";
+import { TypedNavigation } from "../../utils/useTypedNavigation";
+import { useClient4, useConfig } from "../../engine/hooks";
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 import { AddressInputAction, InputActionType } from "./TransferAddressInput";
 import { resolveBounceableTag } from "../../utils/resolveBounceableTag";
 import { Typography } from "../styles";
+import { ThemeType } from "../../engine/state/theme";
 
 export const AddressDomainInput = memo(forwardRef(({
     onFocus,
@@ -29,7 +30,12 @@ export const AddressDomainInput = memo(forwardRef(({
     onQRCodeRead,
     autoFocus,
     domain,
-    screenWidth
+    screenWidth,
+    bounceableFormat,
+    knownWallets,
+    theme,
+    isTestnet,
+    navigation
 }: {
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
@@ -43,14 +49,15 @@ export const AddressDomainInput = memo(forwardRef(({
     onQRCodeRead?: (value: string) => void,
     autoFocus?: boolean,
     domain?: string,
-    screenWidth?: number
+    screenWidth?: number,
+    bounceableFormat: boolean,
+    knownWallets: { [key: string]: KnownWallet },
+    theme: ThemeType,
+    isTestnet: boolean,
+    navigation: TypedNavigation,
 }, ref: ForwardedRef<ATextInputRef>) => {
-    const navigation = useTypedNavigation();
-    const theme = useTheme();
-    const network = useNetwork();
-    const client = useClient4(network.isTestnet);
+    const client = useClient4(isTestnet);
     const netConfig = useConfig();
-    const [bounceableFormat,] = useBounceableWalletFormat();
     const [resolving, setResolving] = useState<boolean>();
 
     const openScanner = useCallback(() => {
@@ -95,21 +102,21 @@ export const AddressDomainInput = memo(forwardRef(({
 
             if (resolvedDomainWallet instanceof Address) {
                 const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
-                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: network.isTestnet, bounceableFormat });
+                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
 
                 dispatch({
                     type: InputActionType.DomainTarget,
                     domain: `${domain}${zone}`,
-                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet, bounceable })
+                    target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
                 });
             } else {
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
-                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: network.isTestnet, bounceableFormat });
+                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
 
                 dispatch({
                     type: InputActionType.DomainTarget,
                     domain: `${domain}${zone}`,
-                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet, bounceable })
+                    target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
                 });
             }
         } catch (e) {
@@ -117,7 +124,7 @@ export const AddressDomainInput = memo(forwardRef(({
             warn(e);
         }
         setResolving(false);
-    }, [bounceableFormat, network, client]);
+    }, [bounceableFormat, isTestnet, client]);
 
     const { suffix, textInput } = useMemo(() => {
         let suffix = undefined;
@@ -135,7 +142,7 @@ export const AddressDomainInput = memo(forwardRef(({
         if (!resolving && target) {
             if (isKnown) {
                 suffix = target.slice(0, 4) + '...' + target.slice(target.length - 4);
-                textInput = `${KnownWallets(network.isTestnet)[target].name}`
+                textInput = `${knownWallets[target].name}`
             } else if (contact) {
                 suffix = target.slice(0, 4) + '...' + target.slice(target.length - 4);
                 textInput = `${contact.name}`
@@ -310,7 +317,6 @@ export const AddressDomainInput = memo(forwardRef(({
                         multiline
                         blurOnSubmit={false}
                         editable={!resolving}
-                        value={textInput}
                         onChangeText={(value) => {
                             // Remove leading and trailing spaces
                             value = value.trim();
@@ -354,3 +360,5 @@ export const AddressDomainInput = memo(forwardRef(({
         </View>
     );
 }));
+
+AddressDomainInput.displayName = 'AddressDomainInput';

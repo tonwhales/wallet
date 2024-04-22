@@ -295,10 +295,7 @@ export const AddressDomainInput = memo(forwardRef(({
                             flexShrink: 1,
                             flexGrow: suffix ? 0 : 1
                         }}
-                        selectionColor={Platform.select({
-                            ios: theme.accent,
-                            android: 'rgba(0, 0, 0, 0.3)',
-                        })}
+                        selectionColor={theme.accent}
                         cursorColor={theme.textPrimary}
                         autoFocus={autoFocus}
                         placeholderTextColor={theme.textSecondary}

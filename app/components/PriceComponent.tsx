@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from "react"
 import { StyleProp, ViewStyle, TextStyle } from "react-native"
-import { formatCurrency } from "../utils/formatCurrency"
+import { CurrencySymbols, formatCurrency } from "../utils/formatCurrency"
 import { usePrice } from "../engine/hooks";
 import { fromNano } from "@ton/core";
 import { ThemeType } from "../engine/state/theme";
@@ -50,6 +50,14 @@ export const PriceComponent = memo((
 
         const formattedAmount = parseFloat(fromNano(abs)) * priceInUSD * rates[currencyCode || currency];
         const decimals = (amount === 0n && hideCentsIfNull) ? 0 : 2;
+
+        // Check if the formattedAmount is less than the smallest value representable by the specified precision
+        if (formattedAmount > 0 && formattedAmount < Math.pow(10, -decimals)) {
+            // Include the currency symbol for the "<0.01" case
+            const symbol = CurrencySymbols[currency].symbol;
+            return `${prefix ?? ''}${isNeg ? '-' : ''}<0.${'0'.repeat(decimals - 1)}1${symbol}${suffix ?? ''}`;
+        }
+
         const formattedCurrency = formatCurrency(formattedAmount.toFixed(decimals), currencyCode || currency, isNeg);
         return `${prefix ?? ''}${formattedCurrency}${suffix ?? ''}`;
     }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg, priceUSD, hideCentsIfNull]);

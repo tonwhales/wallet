@@ -8,9 +8,13 @@
     },
     "mainnet": {
         "tickers": [
-            "TON"
+            "TON",
+            "USDT",
+            "USD₮"
         ],
         "specialJetton": "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
-        "masters": {}
+        "masters": {
+            "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs": {}
+        }
     }
 }

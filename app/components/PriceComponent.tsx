@@ -20,7 +20,8 @@ export const PriceComponent = memo((
         currencyCode,
         showSign,
         theme,
-        priceUSD
+        priceUSD,
+        hideCentsIfNull
     }: {
         amount: bigint,
         style?: StyleProp<ViewStyle>,
@@ -31,7 +32,8 @@ export const PriceComponent = memo((
         currencyCode?: string,
         showSign?: boolean,
         theme: ThemeType,
-        priceUSD?: number
+        priceUSD?: number,
+        hideCentsIfNull?: boolean
     }
 ) => {
     const [price, currency] = usePrice();
@@ -47,14 +49,19 @@ export const PriceComponent = memo((
         const rates = price.price.rates;
 
         const formattedAmount = parseFloat(fromNano(abs)) * priceInUSD * rates[currencyCode || currency];
-        const formattedCurrency = formatCurrency(formattedAmount.toFixed(2), currencyCode || currency, isNeg);
+        const decimals = (amount === 0n && hideCentsIfNull) ? 0 : 2;
+        const formattedCurrency = formatCurrency(formattedAmount.toFixed(decimals), currencyCode || currency, isNeg);
         return `${prefix ?? ''}${formattedCurrency}${suffix ?? ''}`;
-    }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg, priceUSD]);
+    }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg, priceUSD, hideCentsIfNull]);
 
-    const decimalPoint = fullText.match(/[.,]/)?.[0];
+    let decimalPoint = fullText.match(/[.,]/)?.[0];
     const parts = fullText.split(decimalPoint ?? /[.,]/);
     const integer = parts[0];
     const cents = parts[1];
+
+    if (parts.length === 1) {
+        decimalPoint = '';
+    }
 
     if (!price) {
         return <></>;
@@ -99,5 +106,5 @@ export const PriceComponent = memo((
                 </PerfText>
             </PerfText>
         </PerfView>
-    )
-})
+    );
+});

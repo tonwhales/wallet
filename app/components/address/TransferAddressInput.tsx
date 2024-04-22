@@ -39,7 +39,7 @@ type TransferAddressInputProps = {
     knownWallets: { [key: string]: KnownWallet },
     lastTwoTxs: TransactionDescription[],
     navigation: TypedNavigation,
-    setAddressdomainInputState: (state: AddressInputState) => void,
+    setAddressDomainInputState: (state: AddressInputState) => void,
 }
 
 export type AddressInputState = {
@@ -203,9 +203,9 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     }, [select, isSelected]);
 
     useEffect(() => {
-        // debounce dispatching of input setAddressdomainInputState
+        // debounce dispatching of input setAddressDomainInputState
         const timeout = setTimeout(() => {
-            props.setAddressdomainInputState(addressDomainInputState);
+            props.setAddressDomainInputState(addressDomainInputState);
         }, 200);
         return () => {
             clearTimeout(timeout);

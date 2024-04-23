@@ -145,6 +145,7 @@ export function TransactionView(props: {
                         walletsSettings={props.walletsSettings}
                         time={tx.base.time}
                         status={parsed.status}
+                        knownWallets={knownWallets}
                     />
                 ))}
             </>

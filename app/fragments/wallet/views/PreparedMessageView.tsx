@@ -37,7 +37,8 @@ export function PreparedMessageView(props: {
     bounceableFormat: boolean,
     walletsSettings: { [key: string]: WalletSettings },
     time: number,
-    status: 'success' | 'failed' | 'pending'
+    status: 'success' | 'failed' | 'pending',
+    knownWallets: { [key: string]: KnownWallet }
 }) {
     const { theme, message, contacts, isTestnet, status, time, onPress, onLongPress, walletsSettings, appState } = props;
     const operation = message.operation;
@@ -113,10 +114,10 @@ export function PreparedMessageView(props: {
                         spam={false}
                         isOwn={isOwn}
                         theme={theme}
-                        isTestnet={isTestnet}
                         walletSettings={walletSettings}
                         markContact={!!contact}
                         avatarColor={avatarColor}
+                        knownWallets={props.knownWallets}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>

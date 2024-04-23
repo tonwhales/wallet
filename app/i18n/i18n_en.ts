@@ -412,7 +412,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
             },
             unstakeLiquid: {
-                title: 'Wihdraw your wsTON',
+                title: 'Withdraw your wsTON',
                 message: 'You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on ',
             },
             learnMore: 'Info',
@@ -481,6 +481,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 basicAccount: 'Basic account',
                 proAccount: 'Pro account',
                 noCards: 'No cards',
+                prepaidCard: 'Prepaid card',
+                prepaidCardDescription: 'Reloadable card for everyday use',
             },
             pageTitles: {
                 general: 'Tonhub Cards',

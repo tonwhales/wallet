@@ -2,31 +2,35 @@ import React, { memo } from "react";
 import { View, Text, Pressable, Image } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
-import { useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
 import { avatarHash } from "../../utils/avatarHash";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet } from "../../secure/KnownWallets";
+import { ThemeType } from "../../engine/state/theme";
 
 export const AddressSearchItemView = memo(({
     item,
     onPress,
     walletsSettings,
-    testOnly
+    testOnly,
+    theme,
+    bounceableFormat,
+    knownWallets
 }: {
     item: AddressSearchItem,
     onPress?: (item: AddressSearchItem) => void,
     walletsSettings: { [key: string]: WalletSettings },
-    testOnly: boolean
+    testOnly: boolean,
+    theme: ThemeType,
+    bounceableFormat: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
-    const theme = useTheme();
-    const [bounceableFormat,] = useBounceableWalletFormat();
     const addressString = item.addr.address.toString({ testOnly });
     const contractInfo = useContractInfo(addressString);
-    const known = KnownWallets(testOnly)[addressString];
+    const known = knownWallets[addressString];
 
     const settings = walletsSettings[addressString];
 
@@ -64,12 +68,12 @@ export const AddressSearchItemView = memo(({
                             borderWith={0}
                             markContact={item.type === 'contact'}
                             icProps={{
-                                isOwn: item.type === 'my-wallets',
+                                isOwn: item.type === 'own',
                                 backgroundColor: theme.elevation
                             }}
                             hash={settings?.avatar}
                             theme={theme}
-                            isTestnet={testOnly}
+                            knownWallets={knownWallets}
                             backgroundColor={avatarColor}
                         />
                     )}
@@ -99,3 +103,5 @@ export const AddressSearchItemView = memo(({
         </Pressable>
     );
 });
+
+AddressSearchItemView.displayName = 'AddressSearchItemView';

@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from "react"
 import { StyleProp, ViewStyle, TextStyle } from "react-native"
-import { formatCurrency } from "../utils/formatCurrency"
+import { CurrencySymbols, formatCurrency } from "../utils/formatCurrency"
 import { usePrice } from "../engine/hooks";
 import { fromNano } from "@ton/core";
 import { ThemeType } from "../engine/state/theme";
@@ -19,7 +19,9 @@ export const PriceComponent = memo((
         suffix,
         currencyCode,
         showSign,
-        theme
+        theme,
+        priceUSD,
+        hideCentsIfNull
     }: {
         amount: bigint,
         style?: StyleProp<ViewStyle>,
@@ -29,7 +31,9 @@ export const PriceComponent = memo((
         suffix?: string,
         currencyCode?: string,
         showSign?: boolean,
-        theme: ThemeType
+        theme: ThemeType,
+        priceUSD?: number,
+        hideCentsIfNull?: boolean
     }
 ) => {
     const [price, currency] = usePrice();
@@ -41,18 +45,31 @@ export const PriceComponent = memo((
         if (!price) {
             return '';
         }
-        const priceUSD = price.price.usd;
+        const priceInUSD = priceUSD ?? price.price.usd;
         const rates = price.price.rates;
 
-        const formattedAmount = parseFloat(fromNano(abs)) * priceUSD * rates[currencyCode || currency];
-        const formattedCurrency = formatCurrency(formattedAmount.toFixed(2), currencyCode || currency, isNeg);
-        return `${prefix ?? ''}${formattedCurrency}${suffix ?? ''}`;
-    }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg]);
+        const formattedAmount = parseFloat(fromNano(abs)) * priceInUSD * rates[currencyCode || currency];
+        const decimals = (amount === 0n && hideCentsIfNull) ? 0 : 2;
 
-    const decimalPoint = fullText.match(/[.,]/)?.[0];
+        // Check if the formattedAmount is less than the smallest value representable by the specified precision
+        if (formattedAmount > 0 && formattedAmount < Math.pow(10, -decimals)) {
+            // Include the currency symbol for the "<0.01" case
+            const symbol = CurrencySymbols[currency].symbol;
+            return `${prefix ?? ''}${isNeg ? '-' : ''}<0.${'0'.repeat(decimals - 1)}1${symbol}${suffix ?? ''}`;
+        }
+
+        const formattedCurrency = formatCurrency(formattedAmount.toFixed(decimals), currencyCode || currency, isNeg);
+        return `${prefix ?? ''}${formattedCurrency}${suffix ?? ''}`;
+    }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg, priceUSD, hideCentsIfNull]);
+
+    let decimalPoint = fullText.match(/[.,]/)?.[0];
     const parts = fullText.split(decimalPoint ?? /[.,]/);
     const integer = parts[0];
     const cents = parts[1];
+
+    if (parts.length === 1) {
+        decimalPoint = '';
+    }
 
     if (!price) {
         return <></>;
@@ -97,5 +114,5 @@ export const PriceComponent = memo((
                 </PerfText>
             </PerfText>
         </PerfView>
-    )
-})
+    );
+});

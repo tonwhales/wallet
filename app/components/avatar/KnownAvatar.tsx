@@ -11,6 +11,7 @@ export const KnownAvatar = memo((props: { size: number, wallet: KnownWallet }) =
                 borderRadius: props.size / 2,
                 overflow: 'hidden'
             }}
+            fadeDuration={0}
             source={props.wallet.ic}
         />
     );

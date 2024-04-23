@@ -6,6 +6,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
 import { useAppState, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
+import { KnownWallet } from "../../secure/KnownWallets";
 
 import IcCheck from "@assets/ic-check.svg";
 import { Avatar, avatarColors } from "../avatar/Avatar";
@@ -19,7 +20,8 @@ export const WalletItem = memo((
         style,
         hideSelect,
         bounceableFormat,
-        isTestnet
+        isTestnet,
+        knownWallets
     }: {
         index: number
         address: Address,
@@ -28,7 +30,8 @@ export const WalletItem = memo((
         style?: StyleProp<ViewStyle>,
         hideSelect?: boolean,
         bounceableFormat: boolean,
-        isTestnet: boolean
+        isTestnet: boolean,
+        knownWallets: { [key: string]: KnownWallet }
     }
 ) => {
     const theme = useTheme();
@@ -88,8 +91,8 @@ export const WalletItem = memo((
                     size={46}
                     hash={walletSettings?.avatar}
                     theme={theme}
-                    isTestnet={isTestnet}
                     backgroundColor={avatarColor}
+                    knownWallets={knownWallets}
                 />
             </View>
             <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>

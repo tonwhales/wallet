@@ -4,20 +4,22 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../avatar/Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
-import { useBounceableWalletFormat, useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useContact, useDenyAddress, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { AddressComponent } from "../address/AddressComponent";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet } from "../../secure/KnownWallets";
 
 export const ContactItemView = memo(({
     addressFriendly,
     action,
-    testOnly
+    testOnly,
+    knownWallets
 }: {
     addressFriendly: string,
     action?: (address: Address) => void,
-    testOnly: boolean
+    testOnly: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
@@ -26,7 +28,7 @@ export const ContactItemView = memo(({
     const isSpam = useDenyAddress(address.toString({ testOnly }));
     const contractInfo = useContractInfo(addressFriendly);
     const [bounceableFormat,] = useBounceableWalletFormat();
-    const known = KnownWallets(testOnly)[address.toString({ testOnly })];
+    const known = knownWallets[address.toString({ testOnly })];
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
@@ -62,8 +64,8 @@ export const ContactItemView = memo(({
                         size={46}
                         borderWith={0}
                         theme={theme}
-                        isTestnet={testOnly}
                         hashColor
+                        knownWallets={knownWallets}
                     />
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center' }}>

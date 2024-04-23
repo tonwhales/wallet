@@ -21,6 +21,7 @@ import { useBounceableWalletFormat, useContact, useNetwork, useRemoveContact, us
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { useContractInfo } from "../engine/hooks/metadata/useContractInfo";
+import { KnownWallets } from "../secure/KnownWallets";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -36,6 +37,7 @@ export const ContactFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
 
     const [address, setAddress] = useState(params.address ?? '');
     const parsed = useMemo(() => {
@@ -268,7 +270,7 @@ export const ContactFragment = fragment(() => {
                                 borderWith={2}
                                 borderColor={theme.surfaceOnElevation}
                                 theme={theme}
-                                isTestnet={isTestnet}
+                                knownWallets={knownWallets}
                                 hashColor
                             />
                         </View>

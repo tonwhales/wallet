@@ -1,9 +1,9 @@
-import React, { memo, useEffect, useRef, useState } from "react"
+import React, { memo, useEffect } from "react"
 import { StyleProp, View, ViewStyle, Image } from "react-native"
 import { avatarHash } from "../../utils/avatarHash";
 import { Avatar, avatarColors } from "./Avatar";
-import { KnownWallets } from "../../secure/KnownWallets";
-import { useNetwork, useTheme, useWalletSettings } from "../../engine/hooks";
+import { KnownWallet } from "../secure/KnownWallets";
+import { useNetwork, useTheme, useWalletSettings } from "../engine/hooks";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 
 const Color = require('color');
@@ -12,12 +12,14 @@ export const PendingTransactionAvatar = memo(({
     style,
     avatarId,
     address,
-    kind
+    kind,
+    knownWallets
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
     address?: string,
-    kind: 'in' | 'out'
+    kind: 'in' | 'out',
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
     const theme = useTheme();
     const network = useNetwork();
@@ -29,7 +31,7 @@ export const PendingTransactionAvatar = memo(({
 
     const animatedRotation = useAnimatedStyle(() => ({ transform: [{ rotate: `${rotation.value * 360}deg` }] }), []);
 
-    let known = address ? KnownWallets(network.isTestnet)[address] : undefined;
+    let known = address ? knownWallets[address] : undefined;
     let lighter = Color(avatarColor).lighten(0.4).hex();
     let darker = Color(avatarColor).lighten(0.2).hex();
 
@@ -62,7 +64,7 @@ export const PendingTransactionAvatar = memo(({
                     borderWith={0}
                     backgroundColor={avatarColor}
                     theme={theme}
-                    isTestnet={network.isTestnet}
+                    knownWallets={knownWallets}
                 />
             </View>
             <Animated.View style={[

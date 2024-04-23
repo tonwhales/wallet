@@ -150,6 +150,5 @@ export type TransactionDescription = {
     op: string | null;
     title: string | null;
     verified: boolean | null;
-    outMessagesCount: number;
-    outMessages: StoredMessage[];
+    masterAddressStr: string | null | undefined;
 };

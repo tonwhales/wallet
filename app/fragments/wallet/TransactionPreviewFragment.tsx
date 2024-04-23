@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, ScrollView, Text } from "react-native";
+import { Platform, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
@@ -9,7 +9,7 @@ import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar, avatarColors } from "../../components/avatar/Avatar";
 import { t } from "../../i18n/t";
-import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { copyText } from "../../utils/copyText";
@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useContractMetadatas, useDontShowComments, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme, useVerifyJetton } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { TransactionDescription } from "../../engine/types";
 import { BigMath } from "../../utils/BigMath";
@@ -40,6 +40,7 @@ import { BatchAvatars } from "../../components/avatar/BatchAvatars";
 const TransactionPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const route = useRoute();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -89,9 +90,6 @@ const TransactionPreview = () => {
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
-    const verified = !!tx.verified
-        || !!KnownJettonMasters(isTestnet)[opAddressBounceable];
-
     const contact = addressBook.asContact(opAddressBounceable);
     const isSpam = addressBook.isDenyAddress(opAddressBounceable);
 
@@ -140,8 +138,8 @@ const TransactionPreview = () => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[opAddressBounceable]) {
-        known = KnownWallets(isTestnet)[opAddressBounceable];
+    if (knownWallets[opAddressBounceable]) {
+        known = knownWallets[opAddressBounceable];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
@@ -156,7 +154,7 @@ const TransactionPreview = () => {
         || (
             BigMath.abs(BigInt(tx.base.parsed.amount)) < spamMinAmount
             && tx.base.parsed.body?.type === 'comment'
-            && !KnownWallets(isTestnet)[opAddressBounceable]
+            && !knownWallets[opAddressBounceable]
             && !isTestnet
         ) && tx.base.parsed.kind !== 'out';
 
@@ -200,11 +198,26 @@ const TransactionPreview = () => {
         });
     }, []);
 
-    const stringText = valueText({
+    const amountText = valueText({
         value: item.amount,
         precision: 9,
         decimals: item.kind === 'token' && jetton ? jetton.decimals : undefined,
     });
+
+    const amountColor = kind === 'in'
+        ? spam
+            ? theme.textPrimary
+            : theme.accentGreen
+        : theme.textPrimary
+
+    const jettonMaster = tx.masterAddressStr ?? tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
+
+    const { isSCAM: isSCAMJetton, verified: verifiedJetton } = useVerifyJetton({
+        ticker: item.kind === 'token' ? jetton?.symbol : undefined,
+        master: jettonMaster
+    });
+
+    const verified = !!tx.verified || verifiedJetton;
 
     return (
         <PerfView
@@ -236,54 +249,32 @@ const TransactionPreview = () => {
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
-                    {tx.outMessagesCount > 1 ? (
-                        <BatchAvatars
-                            messages={messages}
-                            size={68}
-                            icProps={{
-                                size: 28,
-                                borderWidth: 2,
-                                position: 'bottom'
-                            }}
-                            showSpambadge
-                            theme={theme}
-                            isTestnet={isTestnet}
-                            denyList={addressBook.state.denyList}
-                            contacts={addressBook.state.contacts}
-                            spamWallets={config?.wallets?.spam ?? []}
-                            ownAccounts={appState.addresses}
-                            walletsSettings={walletsSettings}
-                            backgroundColor={theme.surfaceOnBg}
-                            borderWidth={2.5}
-                        />
-                    ) : (
-                        <Avatar
-                            size={68}
-                            id={opAddressBounceable}
-                            address={opAddressBounceable}
-                            spam={spam}
-                            showSpambadge
-                            verified={verified}
-                            borderWith={2.5}
-                            borderColor={theme.surfaceOnElevation}
-                            backgroundColor={avatarColor}
-                            markContact={!!contact}
-                            icProps={{
-                                isOwn: isOwn,
-                                borderWidth: 2,
-                                position: 'bottom',
-                                size: 28
-                            }}
-                            theme={theme}
-                            isTestnet={isTestnet}
-                            hash={opAddressWalletSettings?.avatar}
-                        />
-                    )}
+                    <Avatar
+                        size={68}
+                        id={opAddressBounceable}
+                        address={opAddressBounceable}
+                        spam={spam}
+                        showSpambadge
+                        verified={verified}
+                        borderWith={2.5}
+                        borderColor={theme.surfaceOnElevation}
+                        backgroundColor={avatarColor}
+                        markContact={!!contact}
+                        icProps={{
+                            isOwn: isOwn,
+                            borderWidth: 2,
+                            position: 'bottom',
+                            size: 28
+                        }}
+                        theme={theme}
+                        knownWallets={knownWallets}
+                        hash={opAddressWalletSettings?.avatar}
+                    />
                     <PerfText
                         style={[
                             {
                                 color: theme.textPrimary,
-                                paddingTop: (spam || !!contact || verified || isOwn || !!KnownWallets(isTestnet)[opAddressBounceable]) ? 16 : 8,
+                                paddingTop: (spam || !!contact || verified || isOwn || !!knownWallets[opAddressBounceable]) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}
@@ -334,67 +325,44 @@ const TransactionPreview = () => {
                             {t('tx.failed')}
                         </PerfText>
                     ) : (
-                        tx.outMessagesCount > 1 ? (
-                            <PerfView style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                {preparedMessages.map((message, index) => {
-                                    if (!message.amountString) {
-                                        return null;
-                                    }
-
-                                    return (
-                                        <Text
-                                            key={`prep-amount-${index}`}
-                                            minimumFontScale={0.4}
-                                            adjustsFontSizeToFit={true}
-                                            numberOfLines={1}
-                                            style={[
-                                                { color: theme.textPrimary },
-                                                Typography.semiBold17_24
-                                            ]}
-                                        >
-                                            {message.amountString}
-                                        </Text>
-                                    );
-                                })}
-                            </PerfView>
-                        ) : (
-                            <>
+                        <>
+                            <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
                                 <Text
                                     minimumFontScale={0.4}
                                     adjustsFontSizeToFit={true}
                                     numberOfLines={1}
-                                    style={[
-                                        {
-                                            color: kind === 'in'
-                                                ? spam
-                                                    ? theme.textPrimary
-                                                    : theme.accentGreen
-                                                : theme.textPrimary,
-                                            marginTop: 12,
-                                        },
-                                        Typography.semiBold27_32
-                                    ]}
+                                    style={[{ color: amountColor }, Typography.semiBold27_32]}
                                 >
-                                    {`${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
+                                    {
+                                        `${amountText[0]}${amountText[1]}${item.kind === 'ton'
+                                            ? ' TON'
+                                            : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`
+                                    }
+                                    {isSCAMJetton && (' • ')}
                                 </Text>
-                                {item.kind === 'ton' && tx.outMessagesCount <= 1 && (
-                                    <PriceComponent
-                                        style={{
-                                            backgroundColor: theme.transparent,
-                                            paddingHorizontal: 0,
-                                            alignSelf: 'center',
-                                            paddingVertical: 0,
-                                            height: 'auto',
-                                            paddingLeft: 0
-                                        }}
-                                        theme={theme}
-                                        prefix={kind === 'in' ? '+' : ''}
-                                        textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
-                                        amount={BigInt(item.amount)}
-                                    />
+                                {isSCAMJetton && (
+                                    <Text style={[{ color: theme.accentRed }, Typography.semiBold27_32]}>
+                                        {'SCAM'}
+                                    </Text>
                                 )}
-                            </>
-                        )
+                            </View>
+                            {item.kind === 'ton' && (
+                                <PriceComponent
+                                    style={{
+                                        backgroundColor: theme.transparent,
+                                        paddingHorizontal: 0,
+                                        alignSelf: 'center',
+                                        paddingVertical: 0,
+                                        height: 'auto',
+                                        paddingLeft: 0
+                                    }}
+                                    theme={theme}
+                                    prefix={kind === 'in' ? '+' : ''}
+                                    textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
+                                    amount={BigInt(item.amount)}
+                                />
+                            )}
+                        </>
                     )}
                 </PerfView>
                 {tx.outMessagesCount > 1 ? (

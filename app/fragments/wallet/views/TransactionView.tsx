@@ -17,6 +17,7 @@ import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
+import { useVerifyJetton, useWalletSettings } from '../../../engine/hooks';
 import { avatarHash } from '../../../utils/avatarHash';
 import { WalletSettings } from '../../../engine/state/walletSettings';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
@@ -41,7 +42,7 @@ export function TransactionView(props: {
     spamWallets: string[],
     appState?: AppState,
     bounceableFormat: boolean,
-    walletsSettings: { [key: string]: WalletSettings }
+    knownWallets: { [key: string]: KnownWallet }
 }) {
     const {
         theme,
@@ -50,6 +51,7 @@ export function TransactionView(props: {
         spamMinAmount, dontShowComments, spamWallets,
         contacts,
         isTestnet,
+        knownWallets
     } = props;
     const parsed = tx.base.parsed;
     const operation = tx.base.operation;
@@ -101,8 +103,8 @@ export function TransactionView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[parsedAddressFriendly]) {
-        known = KnownWallets(isTestnet)[parsedAddressFriendly];
+    if (knownWallets[parsedAddressFriendly]) {
+        known = knownWallets[parsedAddressFriendly];
     }
     if (tx.title) {
         known = { name: tx.title };
@@ -120,34 +122,24 @@ export function TransactionView(props: {
         || (
             absAmount < spamMinAmount
             && !!tx.base.operation.comment
-            && !KnownWallets(isTestnet)[parsedAddressFriendly]
+            && !knownWallets[parsedAddressFriendly]
             && !isTestnet
         ) && kind !== 'out';
 
+    const amountColor = (kind === 'in')
+        ? (spam ? theme.textPrimary : theme.accentGreen)
+        : theme.textPrimary;
 
-    if (preparedMessages.length > 1) {
-        return (
-            <>
-                {preparedMessages.map((m, i) => (
-                    <PreparedMessageView
-                        own={props.own}
-                        message={m}
-                        separator={false}
-                        theme={theme}
-                        navigation={props.navigation}
-                        onPress={() => props.onPress(props.tx)}
-                        onLongPress={() => props.onLongPress?.(props.tx)}
-                        contacts={props.contacts}
-                        isTestnet={props.isTestnet}
-                        bounceableFormat={props.bounceableFormat}
-                        walletsSettings={props.walletsSettings}
-                        time={tx.base.time}
-                        status={parsed.status}
-                    />
-                ))}
-            </>
-        );
-    }
+    const jettonMaster = tx.masterAddressStr ?? tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
+
+    const { isSCAM: isSCAMJetton } = useVerifyJetton({
+        ticker: item.kind === 'token' ? tx.masterMetadata?.symbol : undefined,
+        master: jettonMaster
+    });
+
+    const symbolText = `${(item.kind === 'token')
+        ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}`
+        : ' TON'}${isSCAMJetton ? ' • ' : ''}`;
 
     return (
         <Pressable
@@ -172,18 +164,33 @@ export function TransactionView(props: {
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center'
                 }}>
-                    <TxAvatar
-                        status={parsed.status}
-                        parsedAddressFriendly={parsedAddressFriendly}
-                        kind={kind}
-                        spam={spam}
-                        isOwn={isOwn}
-                        theme={theme}
-                        isTestnet={isTestnet}
-                        walletSettings={walletSettings}
-                        markContact={!!contact}
-                        avatarColor={avatarColor}
-                    />
+                    {parsed.status === 'pending' ? (
+                        <PendingTransactionAvatar
+                            kind={kind}
+                            address={parsedAddressFriendly}
+                            avatarId={parsedAddressFriendly}
+                            knownWallets={knownWallets}
+                        />
+                    ) : (
+                        <Avatar
+                            size={48}
+                            address={parsedAddressFriendly}
+                            id={parsedAddressFriendly}
+                            borderWith={0}
+                            spam={spam}
+                            markContact={!!contact}
+                            icProps={{
+                                isOwn,
+                                backgroundColor: theme.backgroundPrimary,
+                                size: 18,
+                                borderWidth: 2
+                            }}
+                            theme={theme}
+                            knownWallets={knownWallets}
+                            backgroundColor={avatarColor}
+                            hash={walletSettings?.avatar}
+                        />
+                    )}
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>
                     <PerfView style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -253,35 +260,24 @@ export function TransactionView(props: {
                         </PerfText>
                     ) : (
                         <Text
-                            style={[
-                                {
-                                    color: kind === 'in'
-                                        ? spam
-                                            ? theme.textPrimary
-                                            : theme.accentGreen
-                                        : theme.textPrimary,
-                                    marginRight: 2,
-                                },
-                                Typography.semiBold17_24
-                            ]}
+                            style={[{ color: amountColor, marginRight: 2 }, Typography.semiBold17_24]}
                             numberOfLines={1}
                         >
-                            {tx.outMessagesCount > 1 ? (
-                                `${tx.outMessagesCount} ${t('common.messages').toLowerCase()}`
-                            ) : (
-                                <>
-                                    {kind === 'in' ? '+' : '-'}
-                                    <ValueComponent
-                                        value={absAmount}
-                                        decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
-                                        precision={3}
-                                        centFontStyle={{ fontSize: 15 }}
-                                    />
-                                    <Text style={{ fontSize: 15 }}>
-                                        {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
+                            {kind === 'in' ? '+' : '-'}
+                            <ValueComponent
+                                value={absAmount}
+                                decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
+                                precision={3}
+                                centFontStyle={{ fontSize: 15 }}
+                            />
+                            <Text style={{ fontSize: 15 }}>
+                                {symbolText}
+                                {isSCAMJetton && (
+                                    <Text style={{ color: theme.accentRed }}>
+                                        {' SCAM'}
                                     </Text>
-                                </>
-                            )}
+                                )}
+                            </Text>
                         </Text>
                     )}
                     {item.kind !== 'token' && tx.outMessagesCount <= 1 && (

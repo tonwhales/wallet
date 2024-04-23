@@ -3,7 +3,7 @@ import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { avatarColors } from "../Avatar";
-import { AddressDomainInput } from "./AddressDomainInput";
+import { AddressDomainInput, AnimTextInputRef } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { useAppState, useBounceableWalletFormat, useWalletSettings } from "../../engine/hooks";
@@ -76,7 +76,7 @@ export type AddressInputAction = {
     target: string,
 } | { type: InputActionType.Clear }
 
-export function addressInputReducer() {
+export function addressInputReducer(ref: ForwardedRef<AnimTextInputRef>) {
     return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
         switch (action.type) {
             case InputActionType.Input:
@@ -121,6 +121,7 @@ export function addressInputReducer() {
                     target: action.target
                 };
             case InputActionType.Clear:
+                (ref as RefObject<AnimTextInputRef>)?.current?.setText('');
                 return {
                     input: '',
                     target: '',
@@ -132,9 +133,9 @@ export function addressInputReducer() {
     }
 }
 
-export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
+export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AnimTextInputRef>) => {
     const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
-        addressInputReducer(),
+        addressInputReducer(ref),
         {
             input: props?.target || '',
             target: props?.target || '',
@@ -342,6 +343,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             input: name.trim(),
                             target: friendly
                         });
+
+                        (ref as RefObject<AnimTextInputRef>)?.current?.setText(name.trim());
 
                         if (props.onSearchItemSelected) {
                             props.onSearchItemSelected(item);

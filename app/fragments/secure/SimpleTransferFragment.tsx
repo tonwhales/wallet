@@ -40,6 +40,7 @@ import { TransferHeader } from '../../components/transfer/TransferHeader';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { AnimTextInputRef } from '../../components/address/AddressDomainInput';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -806,7 +807,7 @@ export const SimpleTransferFragment = fragment(() => {
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
                     <TransferAddressInput
-                        ref={refs[0]}
+                        ref={refs[0] as RefObject<AnimTextInputRef>}
                         acc={ledgerAddress ?? acc!.address}
                         theme={theme}
                         target={target}

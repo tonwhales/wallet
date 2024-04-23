@@ -19,6 +19,8 @@ import { StakingFragment } from "../staking/StakingFragment";
 import { StakingPoolsFragment } from "../staking/StakingPoolsFragment";
 import { useFocusEffect } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
+import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
+import { LiquidStakingFragment } from "../staking/LiquidStakingFragment";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -40,6 +42,7 @@ export const LedgerHomeFragment = fragment(() => {
 
     const account = useAccountLite(address!, { refetchOnMount: true })!;
     const staking = useStaking(address!);
+    const specialJetton = useSpecialJetton(address!);
 
     const stakingBalance = useMemo(() => {
         if (!staking) {
@@ -52,8 +55,8 @@ export const LedgerHomeFragment = fragment(() => {
         const accountWithStaking = (account ? BigInt(account.balance) : 0n)
             + (stakingBalance || 0n);
 
-        return accountWithStaking;
-    }, [account, stakingBalance]);
+        return accountWithStaking + (specialJetton?.toTon ?? 0n);
+    }, [account, stakingBalance, specialJetton?.toTon]);
 
     // Navigation
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
@@ -304,7 +307,7 @@ export const LedgerHomeFragment = fragment(() => {
                         </View>
                     </View>
                 </View>
-                <LedgerProductsComponent account={account} />
+                <LedgerProductsComponent testOnly={isTestnet} account={account} />
             </ScrollView>
         </View>
     );
@@ -317,6 +320,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Home', LedgerHomeFragment),
     fullScreen('LedgerStaking', StakingFragment),
     fullScreen('LedgerStakingPools', StakingPoolsFragment),
+    fullScreen('LedgerLiquidStaking', LiquidStakingFragment),
 ]
 
 export const LedgerNavigationStack = memo(() => {

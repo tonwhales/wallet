@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { View, Text, Pressable } from "react-native";
-import { ItemHeader } from "../../../components/ItemHeader";
-import { useTheme } from "../../../engine/hooks";
-import { Typography } from "../../../components/styles";
+import { ItemHeader } from "../ItemHeader";
+import { useTheme } from "../../engine/hooks";
+import { Typography } from "../styles";
 
 export const StakingPoolsHeader = memo((props: {
     text: string,

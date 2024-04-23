@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image, Dimensions } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
@@ -12,7 +12,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { KnownJettonMasters, KnownWallets } from '../../secure/KnownWallets';
+import { KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder, createSimpleOrder } from './ops/Order';
 import { useLinkNavigator } from "../../useLinkNavigator";
@@ -23,7 +23,7 @@ import { WImage } from '../../components/WImage';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -31,7 +31,7 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
-import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
+import { AddressInputAction, AddressInputState, TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
@@ -40,6 +40,7 @@ import { TransferHeader } from '../../components/transfer/TransferHeader';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { AnimTextInputRef } from '../../components/address/AddressDomainInput';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -63,6 +64,7 @@ export const SimpleTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
     const route = useRoute();
+    const knownWallets = KnownWallets(network.isTestnet);
     const isLedger = route.name === 'LedgerSimpleTransfer';
     const safeArea = useSafeAreaInsets();
     const acc = useSelectedAccount();
@@ -80,10 +82,11 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [addr]);
 
+    const txs = useAccountTransactions((ledgerAddress ?? acc!.address).toString({ testOnly: network.isTestnet })).data;
+
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
-    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
-        addressInputReducer(),
+    const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
         {
             input: params?.target || '',
             target: params?.target || '',
@@ -101,7 +104,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const jettonWallet = useJettonWallet(jetton?.toString({ testOnly: network.isTestnet }), true);
     const jettonMaster = useJettonMaster(jettonWallet?.master!);
-    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
+    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON';
 
     const targetAddressValid = useMemo(() => {
         if (target.length > 48) {
@@ -176,12 +179,10 @@ export const SimpleTransferFragment = fragment(() => {
         );
     }, [price, currency, estimation]);
 
-    const isVerified = useMemo(() => {
-        if (!jettonState || !jettonState.wallet.master) {
-            return true;
-        }
-        return !!KnownJettonMasters(network.isTestnet)[jettonState.wallet.master];
-    }, [jettonState]);
+    const { isSCAM, verified: isVerified } = useVerifyJetton({
+        ticker: jettonState?.master?.symbol,
+        master: jettonState?.wallet?.master
+    });
 
     const balance = useMemo(() => {
         let value: bigint;
@@ -525,7 +526,7 @@ export const SimpleTransferFragment = fragment(() => {
         setJetton(null);
     }, []);
 
-    const isKnown: boolean = !!KnownWallets(network.isTestnet)[target];
+    const isKnown: boolean = !!knownWallets[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -689,6 +690,7 @@ export const SimpleTransferFragment = fragment(() => {
                         address={targetAddressValid.address}
                         isTestnet={network.isTestnet}
                         bounceable={targetAddressValid.isBounceable}
+                        knownWallets={knownWallets}
                     />
                 )
             };
@@ -805,7 +807,7 @@ export const SimpleTransferFragment = fragment(() => {
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
                     <TransferAddressInput
-                        ref={refs[0]}
+                        ref={refs[0] as RefObject<AnimTextInputRef>}
                         acc={ledgerAddress ?? acc!.address}
                         theme={theme}
                         target={target}
@@ -815,13 +817,16 @@ export const SimpleTransferFragment = fragment(() => {
                         isTestnet={network.isTestnet}
                         index={0}
                         onFocus={onFocus}
-                        dispatch={dispatchAddressDomainInput}
+                        setAddressDomainInputState={setAddressDomainInputState}
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
                         onSearchItemSelected={() => {
                             scrollRef.current?.scrollTo({ y: 0 });
                         }}
+                        knownWallets={knownWallets}
+                        lastTwoTxs={txs?.slice(0, 2) ?? []}
+                        navigation={navigation}
                     />
                 </Animated.View>
                 {selected === 'address' && (
@@ -873,7 +878,7 @@ export const SimpleTransferFragment = fragment(() => {
                                                 />
                                             )}
                                             {!jettonState && (<IcTonIcon width={46} height={46} />)}
-                                            {isVerified && (
+                                            {isVerified ? (
                                                 <View style={{
                                                     justifyContent: 'center', alignItems: 'center',
                                                     height: 20, width: 20, borderRadius: 10,
@@ -885,7 +890,19 @@ export const SimpleTransferFragment = fragment(() => {
                                                         style={{ height: 20, width: 20 }}
                                                     />
                                                 </View>
-                                            )}
+                                            ) : (isSCAM && (
+                                                <View style={{
+                                                    justifyContent: 'center', alignItems: 'center',
+                                                    height: 20, width: 20, borderRadius: 10,
+                                                    position: 'absolute', right: -2, bottom: -2,
+                                                    backgroundColor: theme.surfaceOnBg
+                                                }}>
+                                                    <Image
+                                                        source={require('@assets/ic-jetton-scam.png')}
+                                                        style={{ height: 20, width: 20 }}
+                                                    />
+                                                </View>
+                                            ))}
                                         </View>
                                         <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
                                             <Text style={{
@@ -910,6 +927,14 @@ export const SimpleTransferFragment = fragment(() => {
                                                     }}
                                                     selectable={false}
                                                 >
+                                                    {isSCAM && (
+                                                        <>
+                                                            <Text style={{ color: theme.accentRed }}>
+                                                                {'SCAM'}
+                                                            </Text>
+                                                            {jettonState?.master.description ? ' • ' : ''}
+                                                        </>
+                                                    )}
                                                     {`${jettonState?.master.description ?? 'The Open Network'}`}
                                                 </Text>
                                             </Text>

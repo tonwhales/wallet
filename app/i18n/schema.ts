@@ -320,6 +320,7 @@ export type LocalizationSchema = {
                 deposit: string,
                 withdraw: string,
                 calc: string,
+                swap: string
             },
             pools: {
                 title: string,
@@ -351,6 +352,9 @@ export type LocalizationSchema = {
                 lockupsDescription: string,
                 tonkeeper: string,
                 tonkeeperDescription: string,
+                liquid: string,
+                liquidDescription: string,
+                rateTitle: string,
             },
             transfer: {
                 stakingWarning: string,
@@ -405,6 +409,10 @@ export type LocalizationSchema = {
             withdraw: string,
             sync: string,
             unstake: {
+                title: string,
+                message: string
+            },
+            unstakeLiquid: {
                 title: string,
                 message: string
             },
@@ -474,6 +482,8 @@ export type LocalizationSchema = {
                 basicAccount: string,
                 proAccount: string,
                 noCards: string,
+                prepaidCard: string,
+                prepaidCardDescription: string,
             },
             pageTitles: {
                 general: string,
@@ -678,6 +688,7 @@ export type LocalizationSchema = {
         depositOk: string,
         withdraw: string,
         withdrawAll: string,
+        withdrawLiquid: string,
         withdrawCompleted: string,
         withdrawRequested: string,
         upgrade: string,

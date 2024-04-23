@@ -22,7 +22,7 @@ import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
-import { StakingPoolHeader } from "./components/StakingPoolHeader";
+import { StakingPoolHeader } from "../../components/staking/StakingPoolHeader";
 import { Typography } from "../../components/styles";
 
 export const StakingFragment = fragment(() => {
@@ -36,7 +36,6 @@ export const StakingFragment = fragment(() => {
     const isLedger = route.name === 'LedgerStaking';
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-    const active = useStakingActive();
     const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
 
     const ledgerContext = useLedgerTransport();
@@ -92,42 +91,29 @@ export const StakingFragment = fragment(() => {
         + (pool?.params?.depositFee ?? 0n);
 
     const onTopUp = useCallback(() => {
-        if (isLedger) {
-            navigation.navigate('LedgerStakingTransfer', {
+        navigation.navigateStakingTransfer(
+            {
                 target: targetPool,
                 amount: transferAmount,
                 lockAddress: true,
                 lockComment: true,
                 action: 'top_up' as TransferAction,
-            });
-            return;
-        }
-        navigation.navigateStaking({
-            target: targetPool,
-            amount: transferAmount,
-            lockAddress: true,
-            lockComment: true,
-            action: 'top_up' as TransferAction,
-        });
-    }, [targetPool, pool, transferAmount]);
+            }, 
+            isLedger
+        );
+    }, [targetPool, transferAmount, isLedger]);
 
     const onUnstake = useCallback(() => {
-        if (isLedger) {
-            navigation.navigate('LedgerStakingTransfer', {
+        navigation.navigateStakingTransfer(
+            {
                 target: targetPool,
                 lockAddress: true,
                 lockComment: true,
                 action: 'withdraw' as TransferAction,
-            });
-            return;
-        }
-        navigation.navigateStaking({
-            target: targetPool,
-            lockAddress: true,
-            lockComment: true,
-            action: 'withdraw' as TransferAction,
-        });
-    }, [targetPool]);
+            },
+            isLedger
+        );
+    }, [targetPool, isLedger]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
@@ -247,7 +233,7 @@ export const StakingFragment = fragment(() => {
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                                 borderRadius: 20,
                                 marginBottom: 16, marginTop: 32,
                                 padding: 20
@@ -375,6 +361,7 @@ export const StakingFragment = fragment(() => {
                         <StakingPendingComponent
                             target={targetPool}
                             member={member}
+                            isLedger={isLedger}
                         />
                         {(type !== 'nominators' && !available) && (
                             <RestrictedPoolBanner type={type} />
@@ -388,7 +375,7 @@ export const StakingFragment = fragment(() => {
                     </View>
                 </View>
                 <View style={Platform.select({ android: { height: safeArea.bottom + 186 } })} />
-            </ScrollView >
+            </ScrollView>
         </View>
     );
 });

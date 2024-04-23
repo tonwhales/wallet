@@ -3,7 +3,7 @@ import { Pressable, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { avatarColors } from '../../../components/avatar/Avatar';
-import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
+import { KnownWallet } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
@@ -17,11 +17,10 @@ import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
-import { useVerifyJetton, useWalletSettings } from '../../../engine/hooks';
 import { avatarHash } from '../../../utils/avatarHash';
 import { WalletSettings } from '../../../engine/state/walletSettings';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
-import { usePeparedMessages } from '../../../engine/hooks';
+import { usePeparedMessages, useVerifyJetton } from '../../../engine/hooks';
 import { TxAvatar } from './TxAvatar';
 import { PreparedMessageView } from './PreparedMessageView';
 
@@ -42,6 +41,7 @@ export function TransactionView(props: {
     spamWallets: string[],
     appState?: AppState,
     bounceableFormat: boolean,
+    walletsSettings: { [key: string]: WalletSettings }
     knownWallets: { [key: string]: KnownWallet }
 }) {
     const {
@@ -64,7 +64,7 @@ export function TransactionView(props: {
     const parsedAddress = parsedOpAddr.address;
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
-    const preparedMessages = usePeparedMessages(tx.outMessages, isTestnet);
+    const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet);
 
     const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
@@ -126,6 +126,30 @@ export function TransactionView(props: {
             && !isTestnet
         ) && kind !== 'out';
 
+
+    if (preparedMessages.length > 1) {
+        return (
+            <>
+                {preparedMessages.map((m, i) => (
+                    <PreparedMessageView
+                        own={props.own}
+                        message={m}
+                        separator={false}
+                        theme={theme}
+                        navigation={props.navigation}
+                        onPress={() => props.onPress(props.tx)}
+                        onLongPress={() => props.onLongPress?.(props.tx)}
+                        contacts={props.contacts}
+                        isTestnet={props.isTestnet}
+                        bounceableFormat={props.bounceableFormat}
+                        walletsSettings={props.walletsSettings}
+                        time={tx.base.time}
+                        status={parsed.status}
+                    />
+                ))}
+            </>
+        );
+    }
     const amountColor = (kind === 'in')
         ? (spam ? theme.textPrimary : theme.accentGreen)
         : theme.textPrimary;
@@ -164,33 +188,18 @@ export function TransactionView(props: {
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center'
                 }}>
-                    {parsed.status === 'pending' ? (
-                        <PendingTransactionAvatar
-                            kind={kind}
-                            address={parsedAddressFriendly}
-                            avatarId={parsedAddressFriendly}
-                            knownWallets={knownWallets}
-                        />
-                    ) : (
-                        <Avatar
-                            size={48}
-                            address={parsedAddressFriendly}
-                            id={parsedAddressFriendly}
-                            borderWith={0}
-                            spam={spam}
-                            markContact={!!contact}
-                            icProps={{
-                                isOwn,
-                                backgroundColor: theme.backgroundPrimary,
-                                size: 18,
-                                borderWidth: 2
-                            }}
-                            theme={theme}
-                            knownWallets={knownWallets}
-                            backgroundColor={avatarColor}
-                            hash={walletSettings?.avatar}
-                        />
-                    )}
+                    <TxAvatar
+                        status={parsed.status}
+                        parsedAddressFriendly={parsedAddressFriendly}
+                        kind={kind}
+                        spam={spam}
+                        isOwn={isOwn}
+                        theme={theme}
+                        walletSettings={walletSettings}
+                        markContact={!!contact}
+                        avatarColor={avatarColor}
+                        knownWallets={knownWallets}
+                    />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>
                     <PerfView style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -234,7 +243,7 @@ export function TransactionView(props: {
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        {tx.outMessagesCount <= 1 && (
+                        {tx.base.outMessagesCount <= 1 && (
                             <>
                                 {known
                                     ? known.name
@@ -263,24 +272,30 @@ export function TransactionView(props: {
                             style={[{ color: amountColor, marginRight: 2 }, Typography.semiBold17_24]}
                             numberOfLines={1}
                         >
-                            {kind === 'in' ? '+' : '-'}
-                            <ValueComponent
-                                value={absAmount}
-                                decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
-                                precision={3}
-                                centFontStyle={{ fontSize: 15 }}
-                            />
-                            <Text style={{ fontSize: 15 }}>
-                                {symbolText}
-                                {isSCAMJetton && (
-                                    <Text style={{ color: theme.accentRed }}>
-                                        {' SCAM'}
+                            {tx.base.outMessagesCount > 1 ? (
+                                `${tx.base.outMessagesCount} ${t('common.messages').toLowerCase()}`
+                            ) : (
+                                <>
+                                    {kind === 'in' ? '+' : '-'}
+                                    <ValueComponent
+                                        value={absAmount}
+                                        decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
+                                        precision={3}
+                                        centFontStyle={{ fontSize: 15 }}
+                                    />
+                                    <Text style={{ fontSize: 15 }}>
+                                        {symbolText}
+                                        {isSCAMJetton && (
+                                            <Text style={{ color: theme.accentRed }}>
+                                                {' SCAM'}
+                                            </Text>
+                                        )}
                                     </Text>
-                                )}
-                            </Text>
+                                </>
+                            )}
                         </Text>
                     )}
-                    {item.kind !== 'token' && tx.outMessagesCount <= 1 && (
+                    {item.kind !== 'token' && tx.base.outMessagesCount <= 1 && (
                         <PriceComponent
                             amount={absAmount}
                             prefix={kind === 'in' ? '+' : '-'}

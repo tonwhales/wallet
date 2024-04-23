@@ -1,4 +1,4 @@
-import { AccountStatus, Address, Cell, MessageRelaxed } from '@ton/core';
+import { AccountStatus, Address, Cell } from '@ton/core';
 import { LocalizedResources } from '../../i18n/schema';
 import { JettonMasterState } from '../metadata/fetchJettonMasterContent';
 import { ContractMetadata } from '../metadata/Metadata';

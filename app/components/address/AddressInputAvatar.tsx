@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
+import { Avatar } from "../avatar/Avatar";
 import { KnownWallet } from "../../secure/KnownWallets";
 
 export const AddressInputAvatar = memo(({

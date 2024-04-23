@@ -48,6 +48,7 @@ type TransactionListItemProps = {
     spamWallets: string[],
     appState: AppState,
     bounceableFormat: boolean,
+    walletsSettings: { [key: string]: WalletSettings }
     knownWallets: { [key: string]: KnownWallet }
 }
 
@@ -77,6 +78,7 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.appState === next.appState
         && prev.onLongPress === next.onLongPress
         && prev.bounceableFormat === next.bounceableFormat
+        && prev.walletsSettings === next.walletsSettings
         && prev.knownWallets === next.knownWallets
 });
 TransactionListItem.displayName = 'TransactionListItem';
@@ -257,7 +259,7 @@ export const WalletTransactions = memo((props: {
         }
 
         const actionSheetOptions: ActionSheetOptions = {
-            options: tx.outMessagesCount > 1 ? [
+            options: tx.base.outMessagesCount > 1 ? [
                 t('common.cancel'),
                 t('txActions.txShare'),
             ] : [
@@ -331,6 +333,7 @@ export const WalletTransactions = memo((props: {
                     spamWallets={spamWallets}
                     appState={appState}
                     bounceableFormat={bounceableFormat}
+                    walletsSettings={walletsSettings}
                     knownWallets={knownWallets}
                 />
             )}

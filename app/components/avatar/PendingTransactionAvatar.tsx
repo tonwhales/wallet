@@ -2,9 +2,10 @@ import React, { memo, useEffect } from "react"
 import { StyleProp, View, ViewStyle, Image } from "react-native"
 import { avatarHash } from "../../utils/avatarHash";
 import { Avatar, avatarColors } from "./Avatar";
-import { KnownWallet } from "../secure/KnownWallets";
-import { useNetwork, useTheme, useWalletSettings } from "../engine/hooks";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import { KnownWallet } from "../../secure/KnownWallets";
+import { useWalletSettings } from "../../engine/hooks";
+import { ThemeType } from "../../engine/state/theme";
 
 const Color = require('color');
 
@@ -13,16 +14,16 @@ export const PendingTransactionAvatar = memo(({
     avatarId,
     address,
     kind,
-    knownWallets
+    knownWallets,
+    theme
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
     address?: string,
     kind: 'in' | 'out',
-    knownWallets: { [key: string]: KnownWallet }
+    knownWallets: { [key: string]: KnownWallet },
+    theme: ThemeType
 }) => {
-    const theme = useTheme();
-    const network = useNetwork();
     const [walletSettings,] = useWalletSettings(address);
     const avatarColorHash = walletSettings?.color ?? avatarHash(avatarId, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

@@ -7,7 +7,8 @@ export function useKnownJettons(isTestnet: boolean): KnownJettons | null {
     const full = useQuery({
         queryKey: Queries.Jettons().Known(),
         queryFn: fetchKnownJettons,
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        // staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 1000, // 5 minutes
         refetchOnMount: true,
         refetchOnWindowFocus: true,
     }).data ?? null;

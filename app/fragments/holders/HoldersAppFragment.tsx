@@ -19,6 +19,7 @@ export const HoldersAppFragment = fragment(() => {
     const params = useParams<HoldersAppParams>();
     const selected = useSelectedAccount();
     const status = useHoldersAccountStatus(selected!.address).data;
+    const url = holdersUrl(isTestnet);
 
     useEffect(() => {
         return () => {
@@ -41,7 +42,7 @@ export const HoldersAppFragment = fragment(() => {
                 title={t('products.holders.title')}
                 variant={params}
                 token={(status as { token: string }).token}
-                endpoint={holdersUrl}
+                endpoint={url}
             />
         </View>
     );

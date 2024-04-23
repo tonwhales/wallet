@@ -26,14 +26,16 @@ export const HoldersAccountItem = memo((props: {
     rightActionIcon?: any,
     single?: boolean,
     hidden?: boolean,
-    style?: StyleProp<ViewStyle>
+    style?: StyleProp<ViewStyle>,
+    isTestnet: boolean
 }) => {
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const isHoldersReady = useIsConnectAppReady(holdersUrl);
+    const url = holdersUrl(props.isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
 
     const needsEnrollment = useMemo(() => {
         if (!isHoldersReady) {
@@ -66,7 +68,7 @@ export const HoldersAccountItem = memo((props: {
                 : { type: 'account', id: props.account.id };
             navigation.navigate(
                 'HoldersLanding',
-                { endpoint: holdersUrl, onEnrollType: onEnrollType }
+                { endpoint: url, onEnrollType: onEnrollType }
             );
             return;
         }

@@ -36,7 +36,6 @@ export async function fetchKnownJettons(): Promise<KnownJettonByNet | null>{
 
         return null;
     } catch {
-        console.warn('Failed to parse jettons config');
         return null;
     }
 }

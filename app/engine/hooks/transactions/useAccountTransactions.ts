@@ -1,4 +1,4 @@
-import { Address } from '@ton/core';
+import { Address, Cell, MessageRelaxed, loadMessageRelaxed } from '@ton/core';
 import { useRawAccountTransactions } from './useRawAccountTransactions';
 import { ContractMetadata } from '../../metadata/Metadata';
 import { useContractMetadatas } from '../metadata/useContractMetadatas';
@@ -97,6 +97,8 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
                 verified: null,
                 op: null,
                 title: null,
+                outMessagesCount: base.outMessagesCount,
+                outMessages: base.outMessages,
             });
         }) || null;
     }, [baseTxs, metadatasMap, jettonMasterMetadatas]);

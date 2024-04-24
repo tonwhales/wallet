@@ -3,7 +3,7 @@ import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState 
 import { Platform, View, Text, Image, Alert, Keyboard, Pressable, TextInput } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Avatar } from "../components/Avatar";
+import { Avatar } from "../components/avatar/Avatar";
 import { ContactField } from "../components/Contacts/ContactField";
 import { RoundButton } from "../components/RoundButton";
 import { fragment } from "../fragment";

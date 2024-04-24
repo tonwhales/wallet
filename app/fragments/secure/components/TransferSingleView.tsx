@@ -20,7 +20,7 @@ import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
 import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
-import { Avatar, avatarColors } from "../../../components/Avatar";
+import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
 import { toBnWithDecimals } from "../../../utils/withDecimals";

@@ -8,7 +8,7 @@ import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
@@ -20,6 +20,7 @@ import { confirmAlert } from "../../../utils/confirmAlert";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { Typography } from "../../../components/styles";
 import { warn } from "../../../utils/log";
+import { WalletSettings } from "../../../engine/state/walletSettings";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -39,7 +40,6 @@ type TransactionListItemProps = {
     onLongPress?: (tx: TransactionDescription) => void,
     ledger?: boolean,
     navigation: TypedNavigation,
-    addToDenyList: (address: string | Address, reason: string) => void,
     spamMinAmount: bigint,
     dontShowComments: boolean,
     denyList: { [key: string]: { reason: string | null } },
@@ -48,6 +48,7 @@ type TransactionListItemProps = {
     spamWallets: string[],
     appState: AppState,
     bounceableFormat: boolean,
+    walletsSettings: { [key: string]: WalletSettings }
     knownWallets: { [key: string]: KnownWallet }
 }
 
@@ -71,13 +72,13 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.theme === next.theme
         && prev.section === next.section
         && prev.index === next.index
-        && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
         && prev.spamWallets === next.spamWallets
         && prev.appState === next.appState
         && prev.onLongPress === next.onLongPress
         && prev.bounceableFormat === next.bounceableFormat
+        && prev.walletsSettings === next.walletsSettings
         && prev.knownWallets === next.knownWallets
 });
 TransactionListItem.displayName = 'TransactionListItem';
@@ -112,6 +113,7 @@ export const WalletTransactions = memo((props: {
     const [pending,] = usePendingTransactions(props.address, isTestnet);
     const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const [walletsSettings,] = useWalletsSettings();
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -224,7 +226,9 @@ export const WalletTransactions = memo((props: {
         const handleAction = (eN?: number) => {
             switch (eN) {
                 case 1: {
-                    onShare(addressLink, t('txActions.share.address'));
+                    if (explorerTxLink) {
+                        onShare(explorerTxLink, t('txActions.share.transaction'));
+                    }
                     break;
                 }
                 case 2: {
@@ -232,9 +236,7 @@ export const WalletTransactions = memo((props: {
                     break;
                 }
                 case 3: {
-                    if (explorerTxLink) {
-                        onShare(explorerTxLink, t('txActions.share.transaction'));
-                    }
+                    onShare(addressLink, t('txActions.share.address'));
                     break;
                 }
                 case 4: {
@@ -257,11 +259,14 @@ export const WalletTransactions = memo((props: {
         }
 
         const actionSheetOptions: ActionSheetOptions = {
-            options: [
+            options: tx.base.outMessagesCount > 1 ? [
                 t('common.cancel'),
-                t('txActions.addressShare'),
-                !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
                 t('txActions.txShare'),
+            ] : [
+                t('common.cancel'),
+                t('txActions.txShare'),
+                !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
+                t('txActions.addressShare'),
                 ...(!spam ? [t('txActions.addressMarkSpam')] : []),
                 ...(canRepeat ? [t('txActions.txRepeat')] : []),
             ],
@@ -320,7 +325,6 @@ export const WalletTransactions = memo((props: {
                     onLongPress={onLongPress}
                     ledger={props.ledger}
                     navigation={navigation}
-                    addToDenyList={addToDenyList}
                     spamMinAmount={spamMinAmount}
                     dontShowComments={dontShowComments}
                     denyList={addressBook.denyList}
@@ -329,6 +333,7 @@ export const WalletTransactions = memo((props: {
                     spamWallets={spamWallets}
                     appState={appState}
                     bounceableFormat={bounceableFormat}
+                    walletsSettings={walletsSettings}
                     knownWallets={knownWallets}
                 />
             )}

@@ -4,7 +4,7 @@ import { View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
-import { PendingTransactionAvatar } from "../../../components/PendingTransactionAvatar";
+import { PendingTransactionAvatar } from "../../../components/avatar/PendingTransactionAvatar";
 import { useNetwork } from "../../../engine/hooks/network/useNetwork";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { t } from "../../../i18n/t";
@@ -16,7 +16,7 @@ import { Address } from "@ton/core";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
-import { Avatar } from "../../../components/Avatar";
+import { Avatar } from "../../../components/avatar/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useBounceableWalletFormat, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
@@ -112,6 +112,7 @@ const PendingTransactionView = memo(({
                             avatarId={targetFriendly ?? 'batch'}
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={knownWallets}
+                            theme={theme}
                         />
                     ) : (
                         <Avatar

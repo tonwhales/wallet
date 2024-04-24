@@ -44,9 +44,9 @@ export function getHoldersToken(address: string) {
 }
 
 export function useHoldersAccountStatus(address: string | Address) {
-    let { isTestnet } = useNetwork();
+    const { isTestnet } = useNetwork();
 
-    let addressString = useMemo(() => {
+    const addressString = useMemo(() => {
         if (address instanceof Address) {
             return address.toString({ testOnly: isTestnet });
         }
@@ -63,7 +63,7 @@ export function useHoldersAccountStatus(address: string | Address) {
                 return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment }; // This looks amazingly stupid
             }
 
-            const fetched = await fetchAccountState(token);
+            const fetched = await fetchAccountState(token, isTestnet);
 
             if (!fetched) {
                 return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment };

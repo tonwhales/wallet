@@ -57,7 +57,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const [lang, setLang] = useLanguage();
 
     const reboot = useReboot();
-    const clearHolders = useClearHolders();
+    const clearHolders = useClearHolders(isTestnet);
 
     const resetCache = useCallback(async () => {
         storagePersistence.clearAll();

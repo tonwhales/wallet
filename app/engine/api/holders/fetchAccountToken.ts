@@ -58,14 +58,15 @@ const keys = z.union([tonXKey, tonXLiteKey, tonconnectV2Key]);
 export type AccountKeyParam = z.infer<typeof keys>;
 
 export async function fetchAccountToken(key: AccountKeyParam, isTestnet: boolean): Promise<string> {
+    const endpoint = holdersEndpoint(isTestnet);
     const requestParams = {
         stack: 'ton',
         network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
         key: key
     };
 
-    let res = await axios.post(
-        'https://' + holdersEndpoint + '/v2/user/wallet/connect',
+    const res = await axios.post(
+        `https://${endpoint}/v2/user/wallet/connect`,
         requestParams
     );
 

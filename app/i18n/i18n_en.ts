@@ -1008,7 +1008,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         refresh: 'Reload',
         back: 'Back',
         forward: 'Forward',
-        share: 'Share'
+        share: 'Share',
+        search: {
+            placeholder: 'Search',
+            invalidUrl: 'Invalid URL',
+            urlNotReachable: 'URL is not reachable',
+        }
     }
 };
 

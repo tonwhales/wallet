@@ -11,6 +11,7 @@ import { TabHeader } from '../../components/topbar/TabHeader';
 import { useNetwork, useTheme } from '../../engine/hooks';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { BrowserTabs } from '../../components/browser/BrowserTabs';
+import { BrowserSearch } from '../../components/browser/BrowserSearch';
 
 export const BrowserFragment = fragment(() => {
     const theme = useTheme();
@@ -61,6 +62,7 @@ export const BrowserFragment = fragment(() => {
                 }
                 style={{ marginBottom: 8 }}
             />
+            <BrowserSearch navigation={navigation} theme={theme} />
             <BrowserTabs />
         </View>
     );

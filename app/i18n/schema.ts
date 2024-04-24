@@ -1010,7 +1010,12 @@ export type LocalizationSchema = {
         refresh: string,
         back: string,
         forward: string,
-        share: string
+        share: string,
+        search: {
+            placeholder: string,
+            invalidUrl: string,
+            urlNotReachable: string,
+        }
     }
 };
 

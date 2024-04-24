@@ -1008,7 +1008,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "refresh": "Обновить",
         "back": "Назад",
         "forward": "Вперед",
-        "share": "Поделиться"
+        "share": "Поделиться",
+        "search": {
+            "placeholder": "Поиск",
+            "invalidUrl": "Неверный URL",
+            "urlNotReachable": "URL недоступен"
+        }
     }
 };
 

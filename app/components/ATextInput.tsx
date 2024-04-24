@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -120,6 +120,7 @@ export interface ATextInputProps {
     hideClearButton?: boolean,
     maxLength?: number,
     screenWidth?: number,
+    inpoutMode?: InputModeOptions
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
@@ -136,18 +137,18 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         if (props.onFocus && typeof props.index === 'number') {
             props.onFocus(props.index);
         }
-    }, [props.index]);
+    }, [props.index, props.onFocus]);
     const onSubmit = useCallback(() => {
-        if (props.onSubmit && props.index) {
+        if (props.onSubmit && typeof props.index === 'number') {
             props.onSubmit(props.index);
         }
-    }, [props.index]);
+    }, [props.index, props.onSubmit]);
     const onBlur = useCallback(() => {
         setFocused(false);
         if (props.onBlur && typeof props.index === 'number') {
             props.onBlur(props.index);
         }
-    }, [props.index]);
+    }, [props.index, props.onBlur]);
 
     const tref = useRef<TextInput>(null);
     useImperativeHandle(ref, () => ({
@@ -292,6 +293,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                 onBlur={onBlur}
                                 onSubmitEditing={onSubmit}
                                 maxLength={props.maxLength}
+                                inputMode={props.inpoutMode}
                             />
                             {props.prefix && (
                                 <Text

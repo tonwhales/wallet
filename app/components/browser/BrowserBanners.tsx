@@ -46,7 +46,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
                     animated: true
                 });
             }
-        }, 1000 * 8);
+        }, 1000 * 3);
 
         return () => clearTimeout(timerId);
     }, [activeSlide, banners.length]);
@@ -107,7 +107,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
             style={{ flexGrow: 1, width: dimensions.screen.width }}
             contentContainerStyle={{ paddingVertical: 16 }}
             contentInsetAdjustmentBehavior={'never'}
-            decelerationRate={'fast'}
+            decelerationRate={Platform.select({ ios: 0.9, android: 1 })}
             automaticallyAdjustContentInsets={false}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}

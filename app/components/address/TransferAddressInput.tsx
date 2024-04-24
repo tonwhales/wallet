@@ -213,6 +213,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     }, [addressDomainInputState]);
 
+    // set input value on mount
+    useEffect(() => {
+        (ref as RefObject<AnimTextInputRef>)?.current?.setText(addressDomainInputState.input);
+    }, []);
+
     return (
         <View>
             <View

@@ -7,6 +7,8 @@ import Animated from "react-native-reanimated";
 import { ValueComponent } from "../ValueComponent";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
+import { Address } from "@ton/core";
+import { useBounceableWalletFormat } from "../../engine/hooks";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -14,25 +16,40 @@ export const TonProductComponent = memo(({
     theme,
     navigation,
     balance,
-    isLedger
+    isLedger,
+    address,
+    testOnly
 }: {
     theme: ThemeType,
     navigation: TypedNavigation,
     balance: bigint,
-    isLedger?: boolean
+    isLedger?: boolean,
+    address: Address,
+    testOnly?: boolean,
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const ledgerAddressStr = address?.toString({ bounceable: bounceableFormat, testOnly });
 
     const onTonPress = useCallback(() => {
+        if (balance === 0n) {
+            if (isLedger) {
+                navigation.navigate('LedgerReceive', { addr: ledgerAddressStr, ledger: true });
+            } else {
+                navigation.navigate('Receive');
+            }
+            return;
+        }
+
         navigation.navigate(isLedger ? 'LedgerSimpleTransfer' : 'SimpleTransfer');
-    }, []);
+    }, [ledgerAddressStr, balance]);
 
     return (
         <Pressable
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             style={({ pressed }) => {
-                return { flex: 1, paddingHorizontal: 16, marginBottom: 16, opacity: pressed ? 0.8 : 1 }
+                return { flex: 1, opacity: pressed ? 0.8 : 1 }
             }}
             onPress={onTonPress}
         >
@@ -92,6 +109,7 @@ export const TonProductComponent = memo(({
                         }}
                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         theme={theme}
+                        hideCentsIfNull
                     />
                 </View>
             </Animated.View>

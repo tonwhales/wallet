@@ -152,21 +152,6 @@ export const StakingPendingComponent = memo((
                     <Pressable
                         style={{ width: '100%', marginBottom: 20 }}
                         onPress={() => {
-                            if (isLedger) {
-                                navigation.navigateStakingTransfer(
-                                    {
-                                        target: target,
-                                        amount: member.withdraw,
-                                        lockAmount: true,
-                                        lockAddress: true,
-                                        lockComment: true,
-                                        action: 'withdraw_ready' as TransferAction,
-                                    },
-                                    isLedger
-                                );
-                                return;
-                            }
-
                             navigation.navigateStakingTransfer(
                                 {
                                     target: target,
@@ -174,7 +159,7 @@ export const StakingPendingComponent = memo((
                                     lockAmount: true,
                                     lockAddress: true,
                                     lockComment: true,
-                                    action: 'withdraw_ready' as TransferAction,
+                                    action: 'withdraw_ready' as TransferAction
                                 },
                                 isLedger
                             );

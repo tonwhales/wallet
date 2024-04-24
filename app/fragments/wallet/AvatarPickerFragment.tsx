@@ -5,13 +5,14 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { useCallback, useMemo, useState } from "react";
-import { Avatar, avatarColors, avatarImages } from "../../components/Avatar";
+import { Avatar, avatarColors, avatarImages } from "../../components/avatar/Avatar";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useDimensions } from "@react-native-community/hooks";
 import { Typography } from "../../components/styles";
+import { KnownWallets } from "../../secure/KnownWallets";
 
 export const AvatarPickerFragment = fragment(() => {
     const { callback, hash, initColor } = useParams<{ callback: (newHash: number, color: number) => void, hash: number, initColor: number }>();
@@ -19,6 +20,7 @@ export const AvatarPickerFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const selected = useSelectedAccount();
     const address = selected!.address;
     const dimentions = useDimensions();
@@ -55,7 +57,7 @@ export const AvatarPickerFragment = fragment(() => {
                     hash={hashState}
                     borderColor={theme.transparent}
                     theme={theme}
-                    isTestnet={isTestnet}
+                    knownWallets={knownWallets}
                     id={address.toString({ testOnly: isTestnet })}
                     backgroundColor={avatarColors[selectedColor]}
                 />
@@ -91,7 +93,7 @@ export const AvatarPickerFragment = fragment(() => {
                                     borderColor={theme.border}
                                     borderWith={0}
                                     theme={theme}
-                                    isTestnet={isTestnet}
+                                    knownWallets={knownWallets}
                                     id={address.toString({ testOnly: isTestnet })}
                                 />
                             </Pressable>

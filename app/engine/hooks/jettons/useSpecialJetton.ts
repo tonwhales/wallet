@@ -37,5 +37,5 @@ export function useSpecialJetton(address: Address) {
         console.warn('Failed to convert balance to TON');
     }
 
-    return { ...specialJetton, nano, toTon, masterContent };
+    return { ...specialJetton, nano, toTon, masterContent, master: Address.parse(specialJettonMaster) };
 }

@@ -15,6 +15,7 @@ import { useParams } from "../utils/useParams";
 import { StatusBar } from "expo-status-bar";
 import { useAddressBookContext } from "../engine/AddressBookContext";
 import { useDimensions } from "@react-native-community/hooks";
+import { KnownWallets } from "../secure/KnownWallets";
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-contacts-dark.webp'),
@@ -32,6 +33,7 @@ export const ContactsFragment = fragment(() => {
     const account = useSelectedAccount();
     const dimensions = useDimensions();
     const transactions = useAccountTransactions(account?.addressString ?? '').data ?? [];
+    const knownWallets = KnownWallets(isTestnet);
 
     const [search, setSearch] = useState('');
     const [searchFocused, setSearchFocused] = useState(false);
@@ -170,6 +172,7 @@ export const ContactsFragment = fragment(() => {
                                     key={`recent-${index}`}
                                     addr={a}
                                     testOnly={isTestnet}
+                                    knownWallets={knownWallets}
                                 />
                             );
                         })}
@@ -187,6 +190,7 @@ export const ContactsFragment = fragment(() => {
                                 addressFriendly={d[0]}
                                 action={callback}
                                 testOnly={isTestnet}
+                                knownWallets={knownWallets}
                             />
                         );
                     })}

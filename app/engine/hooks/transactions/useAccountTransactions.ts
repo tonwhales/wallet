@@ -92,6 +92,7 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
                 base: base,
                 icon: jettonMasterMetadata?.image?.preview256 ?? null,
                 masterMetadata: jettonMasterMetadata,
+                masterAddressStr: jettonMasterAddress,
                 metadata: metadata ? metadata.metadata : null,
                 verified: null,
                 op: null,

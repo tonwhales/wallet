@@ -42,6 +42,9 @@ export const LedgerProductsComponent = memo(({ account, testOnly }: { account: A
                         balance={account.balance}
                         theme={theme}
                         navigation={navigation}
+                        address={Address.parse(account.address)}
+                        testOnly={testOnly}
+                        isLedger={true}
                     />
 
                     <SpecialJettonProduct
@@ -51,6 +54,7 @@ export const LedgerProductsComponent = memo(({ account, testOnly }: { account: A
                         address={Address.parse(account.address)}
                         testOnly={testOnly}
                         divider={'top'}
+                        isLedger={true}
                     />
                 </View>
 

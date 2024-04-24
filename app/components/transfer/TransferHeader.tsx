@@ -7,17 +7,20 @@ import { useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 import { Address } from "@ton/core";
 import { Typography } from "../styles";
+import { KnownWallet } from "../../secure/KnownWallets";
 
 export const TransferHeader = memo(({
     theme,
     isTestnet,
     address,
-    bounceable
+    bounceable,
+    knownWallets
 }: {
     theme: ThemeType,
     isTestnet: boolean,
     address: Address,
-    bounceable?: boolean
+    bounceable?: boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
     const addressKey = address.toString({ testOnly: isTestnet });
     const addressFriendly = address.toString({ testOnly: isTestnet, bounceable });
@@ -46,9 +49,9 @@ export const TransferHeader = memo(({
                 address={addressKey}
                 borderWith={0}
                 theme={theme}
-                isTestnet={isTestnet}
                 hash={walletSettings?.avatar}
                 backgroundColor={avatarColor}
+                knownWallets={knownWallets}
             />
             <Text style={[{ color: theme.textPrimary, marginLeft: 6, minHeight: 24 }, Typography.medium17_24]}>
                 {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}

@@ -4,14 +4,15 @@ import { deleteHoldersToken } from "./useHoldersAccountStatus";
 import { extractDomain } from "../../utils/extractDomain";
 import { queryClient } from "../../clients";
 
-export function useClearHolders() {
+export function useClearHolders(isTestnet: boolean) {
     const [domainKeys, setDomainKeysState] = useDomainKeys();
 
     return async (address: string) => {
         deleteHoldersToken(address);
 
         const temp = { ...domainKeys };
-        const domain = extractDomain(holdersUrl);
+        const url = holdersUrl(isTestnet);
+        const domain = extractDomain(url);
         delete temp[domain.toLowerCase()];
 
         setDomainKeysState(temp);

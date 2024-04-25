@@ -2,7 +2,7 @@ import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useM
 import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
-import { avatarColors } from "../Avatar";
+import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AnimTextInputRef } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
@@ -212,6 +212,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             clearTimeout(timeout);
         }
     }, [addressDomainInputState]);
+
+    // set input value on mount
+    useEffect(() => {
+        (ref as RefObject<AnimTextInputRef>)?.current?.setText(addressDomainInputState.input);
+    }, []);
 
     return (
         <View>

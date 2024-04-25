@@ -473,6 +473,7 @@ export const HoldersAppComponent = memo((
     const accountsStatus = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
     const [currency,] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
+    const url = holdersUrl(isTestnet);
 
     const source = useMemo(() => {
         let route = '';
@@ -537,7 +538,7 @@ export const HoldersAppComponent = memo((
     //
     // Injection
     //
-    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(holdersUrl, navigation);
+    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(url, navigation);
 
     const injectSource = useMemo(() => {
         if (!selectedAccount) {

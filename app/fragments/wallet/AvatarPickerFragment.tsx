@@ -5,7 +5,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { useCallback, useMemo, useState } from "react";
-import { Avatar, avatarColors, avatarImages } from "../../components/Avatar";
+import { Avatar, avatarColors, avatarImages } from "../../components/avatar/Avatar";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

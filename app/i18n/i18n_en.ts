@@ -71,6 +71,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         save: 'Save',
         assets: 'Assets',
         message: 'Message',
+        messages: 'Messages',
         airdrop: 'Airdrop',
         myWallets: 'My wallets',
         showMore: 'Show more',

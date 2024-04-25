@@ -22,6 +22,7 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import { AddressFormatUpdate } from "./AddressFormatUpdate"
 import { TonProductComponent } from "./TonProductComponent"
 import { SpecialJettonProduct } from "./SpecialJettonProduct"
+import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHoldersWhitelisted"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -35,7 +36,10 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const banners = useBanners();
-    const isHoldersReady = useIsConnectAppReady(holdersUrl);
+    const url = holdersUrl(isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
+    const isHoldersWhitelisted = useIsHoldersWhitelisted(selected!.address, isTestnet);
+    const showHoldersBuiltInBanner = (holdersAccounts?.accounts?.length ?? 0) === 0 && isHoldersWhitelisted;
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
@@ -67,7 +71,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             navigation.navigate(
                 'HoldersLanding',
                 {
-                    endpoint: holdersUrl,
+                    endpoint: url,
                     onEnrollType: { type: 'create' }
                 }
             );
@@ -121,19 +125,14 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                             }}
                             onPress={() => navigation.navigate('Products')}
                         >
-                            <Text style={{
-                                fontSize: 15,
-                                fontWeight: '500',
-                                lineHeight: 20,
-                                color: theme.accent,
-                            }}>
+                            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
                                 {t('products.addNew')}
                             </Text>
                         </Pressable>
                     )}
                 </View>
 
-                {!!banners?.product && (
+                {(!isHoldersWhitelisted && !!banners?.product) && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                         <ProductBanner
                             title={banners.product.title}
@@ -145,7 +144,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     </View>
                 )}
 
-                {(holdersAccounts?.accounts?.length ?? 0) === 0 && isTestnet && (
+                {showHoldersBuiltInBanner && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}

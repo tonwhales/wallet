@@ -41,10 +41,6 @@ export const HoldersProductComponent = memo(() => {
         }, BigInt(0));
     }, [visibleAccountsList]);
 
-    if (!network.isTestnet) {
-        return null;
-    }
-
     if (!visibleAccountsList || visibleAccountsList?.length === 0) {
         return null;
     }
@@ -70,6 +66,7 @@ export const HoldersProductComponent = memo(() => {
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={() => markCard(item.id, true)}
                             style={{ paddingVertical: 0 }}
+                            isTestnet={network.isTestnet}
                         />
                     )
                 })}
@@ -81,6 +78,7 @@ export const HoldersProductComponent = memo(() => {
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={() => markPrepaidCard(item.card.id, true)}
                             style={{ paddingVertical: 0 }}
+                            isTestnet={network.isTestnet}
                         />
                     )
                 })}
@@ -103,6 +101,7 @@ export const HoldersProductComponent = memo(() => {
                             account={item}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={rightAction}
+                            isTestnet={network.isTestnet}
                         />
                     )
                 }}

@@ -10,13 +10,69 @@ import { useFocusEffect } from '@react-navigation/native';
 import { TabHeader } from '../../components/topbar/TabHeader';
 import { useNetwork, useTheme } from '../../engine/hooks';
 import { setStatusBarStyle } from 'expo-status-bar';
-import { BrowserTabs } from '../../components/browser/BrowserTabs';
-import { BrowserSearch } from '../../components/browser/BrowserSearch';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useDimensions } from '@react-native-community/hooks';
+import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchAccountState';
+
+type Item = {
+    key: string;
+    name: string;
+    url: string;
+    date: number;
+}
+
+type GroupedItems = {
+    name: string;
+    url: string;
+    items: Item[];
+};
+
+function groupItems(items: Item[]): GroupedItems[] {
+    let sorted = [...items].sort((a, b) => b.date - a.date);
+    let groups: GroupedItems[] = [];
+    for (let s of sorted) {
+        let g = groups.find((v) => v.url.toLowerCase() === s.url.toLowerCase());
+        if (g) {
+            g.items.push(s);
+        } else {
+            groups.push({
+                name: s.name, url: s.url,
+                items: [s]
+            });
+        }
+    }
+    return groups;
+}
+
+const EmptyIllustrations = {
+    dark: require('@assets/empty-connections-dark.webp'),
+    light: require('@assets/empty-connections.webp')
+}
 
 export const BrowserFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
+    const bottomBarHeight = useBottomTabBarHeight();
+    const dimensions = useDimensions();
+    const holdersUrl = resolveHoldersUrl(network.isTestnet);
+
+    const [installedExtensions,] = useExtensions();
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => {
+        const appData = getCachedAppData(ext.url);
+        return { ...ext, key, title: appData?.title || ext.title || ext.url }
+    });
+    
+    const tonconnectApps = Object
+        .entries(inastalledConnectApps)
+        .map(([key, ext]) => ({ ...ext, key }))
+        .filter((v) => v.url !== holdersUrl);
+
+    const removeExtension = useRemoveExtension();
+    const disconnectConnect = useDisconnectApp();
+
     const linkNavigator = useLinkNavigator(network.isTestnet);
 
     const onQRCodeRead = (src: string) => {

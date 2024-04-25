@@ -477,11 +477,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "title": "Банковский счет",
             "accounts": {
                 "title": 'Счета',
+                "prepaidTitle": 'Prepaid карты',
                 "account": 'Счет',
                 "basicAccount": 'Базовый счет',
                 "proAccount": 'Pro счет',
                 "noCards": "Нет карт",
-                "prepaidCard": "Prepaid карта",
+                "prepaidCard": "TonHub Prepaid *{{lastFourDigits}}",
                 "prepaidCardDescription": 'Пополняемая карта на каждый день',
             },
             "pageTitles": {

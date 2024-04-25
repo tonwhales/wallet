@@ -479,6 +479,7 @@ export type LocalizationSchema = {
             title: string,
             accounts: {
                 title: string,
+                prepaidTitle: string,
                 account: string,
                 basicAccount: string,
                 proAccount: string,

@@ -2,7 +2,7 @@ import { memo, useCallback } from "react";
 import { View, Image, Text, Platform, Alert } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { ConnectionButton } from "../ConnectionButton";
-import { useDisconnectApp, useExtensions, useRemoveExtension, useTheme, useTonConnectExtensions } from "../../engine/hooks";
+import { useDisconnectApp, useExtensions, useNetwork, useRemoveExtension, useTheme, useTonConnectExtensions } from "../../engine/hooks";
 import { getCachedAppData } from "../../engine/getters/getAppData";
 import { t } from "../../i18n/t";
 import { getDomainKey } from "../../engine/state/domainKeys";
@@ -11,6 +11,7 @@ import { extractDomain } from "../../engine/utils/extractDomain";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchAccountState';
 
 export const EmptyIllustrations = {
     dark: require('@assets/empty-connections-dark.webp'),
@@ -20,17 +21,23 @@ export const EmptyIllustrations = {
 export const BrowserExtensions = memo(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
+    const { isTestnet } = useNetwork();
     const bottomBarHeight = useBottomTabBarHeight();
     const dimensions = useDimensions();
     const navigation = useTypedNavigation();
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
+    const holdersUrl = resolveHoldersUrl(isTestnet);
 
     const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => {
         const appData = getCachedAppData(ext.url);
         return { ...ext, key, title: appData?.title || ext.title || ext.url }
     });
-    const tonconnectApps = Object.entries(inastalledConnectApps).map(([key, ext]) => ({ ...ext, key }));
+
+    const tonconnectApps = Object
+        .entries(inastalledConnectApps)
+        .map(([key, ext]) => ({ ...ext, key }))
+        .filter((v) => v.url !== holdersUrl);
 
     const removeExtension = useRemoveExtension();
     const disconnectConnect = useDisconnectApp();

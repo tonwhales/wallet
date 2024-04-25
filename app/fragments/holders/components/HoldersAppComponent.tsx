@@ -17,15 +17,14 @@ import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { useSelectedAccount } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
-import { useHoldersAccountStatus } from '../../../engine/hooks';
 import { HoldersAccountState, holdersUrl } from '../../../engine/api/holders/fetchAccountState';
-import { useHoldersAccounts } from '../../../engine/hooks';
-import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
+import { HoldersAccountStatus, getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppWebView';
 import { ThemeType } from '../../../engine/state/theme';
 import { useDimensions } from '@react-native-community/hooks';
+import { HoldersAccounts } from '../../../engine/hooks/holders/useHoldersAccounts';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
@@ -458,9 +457,10 @@ export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'accoun
 export const HoldersAppComponent = memo((
     props: {
         variant: HoldersAppParams,
-        token: string,
         title: string,
-        endpoint: string
+        endpoint: string,
+        status?: HoldersAccountStatus,
+        accounts?: HoldersAccounts,
     }
 ) => {
     const navigation = useTypedNavigation();
@@ -469,8 +469,8 @@ export const HoldersAppComponent = memo((
     const domain = useMemo(() => extractDomain(props.endpoint), []);
     const lang = getLocales()[0].languageCode;
     const acc = useMemo(() => getCurrentAddress(), []);
-    const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
-    const accountsStatus = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
+    const status = props.status;
+    const accountsStatus = props.accounts;
     const [currency,] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
     const url = holdersUrl(isTestnet);

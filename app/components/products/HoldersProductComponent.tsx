@@ -41,10 +41,6 @@ export const HoldersProductComponent = memo(() => {
         }, BigInt(0));
     }, [visibleAccountsList]);
 
-    if (!network.isTestnet) {
-        return null;
-    }
-
     if (!visibleAccountsList || visibleAccountsList?.length === 0) {
         return null;
     }

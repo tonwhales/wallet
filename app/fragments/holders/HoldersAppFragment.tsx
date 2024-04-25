@@ -11,7 +11,7 @@ import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
 import { useFocusEffect } from '@react-navigation/native';
 
-export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' };
+export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' } | { type: 'prepaid'; id: string};
 
 export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();
@@ -19,6 +19,7 @@ export const HoldersAppFragment = fragment(() => {
     const params = useParams<HoldersAppParams>();
     const selected = useSelectedAccount();
     const status = useHoldersAccountStatus(selected!.address).data;
+    const url = holdersUrl(isTestnet);
 
     useEffect(() => {
         return () => {
@@ -41,7 +42,7 @@ export const HoldersAppFragment = fragment(() => {
                 title={t('products.holders.title')}
                 variant={params}
                 token={(status as { token: string }).token}
-                endpoint={holdersUrl}
+                endpoint={url}
             />
         </View>
     );

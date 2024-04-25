@@ -54,7 +54,8 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
             // Check if app is already connected
             //
 
-            const app = connectApp(holdersUrl);
+            const url = holdersUrl(isTestnet);
+            const app = connectApp(url);
             const connections = app ? connectAppConnections(extensionKey(app.url)) : [];
             const isInjected = connections.find((item) => item.type === TonConnectBridgeType.Injected);
 
@@ -72,7 +73,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
                 // Create signnature and fetch token
                 //
 
-                const manifestUrl = `${holdersUrl}/jsons/tonconnect-manifest.json`;
+                const manifestUrl = `${url}/jsons/tonconnect-manifest.json`;
 
                 let manifest: AppManifest | null;
                 try {
@@ -130,7 +131,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
                         name: manifest.name,
                         // todo: use manifest.url instead of holdersUrl on stabel static endpoint
                         // url: manifest.url,
-                        url: holdersUrl,
+                        url,
                         iconUrl: manifest.iconUrl,
                         autoConnectDisabled: false,
                         manifestUrl,

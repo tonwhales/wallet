@@ -12,8 +12,9 @@ export const cardItemCodec = t.type({
   }),
 });
 
-export async function fetchCardItem(id: string) {
-  let res = await axios.post('https://' + holdersEndpoint + "/card/get", { id });
+export async function fetchCardItem(id: string, isTestnet: boolean) {
+  const endpoint = holdersEndpoint(isTestnet);
+  const res = await axios.post(`https://${endpoint}/card/get`, { id });
 
   if (!cardItemCodec.is(res.data)) {
     throw Error("Invalid card item response");

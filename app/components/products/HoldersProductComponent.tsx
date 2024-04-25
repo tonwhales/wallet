@@ -8,6 +8,7 @@ import { PerfText } from "../basic/PerfText";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { Typography } from "../styles";
+import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
 
 import IcHide from '@assets/ic-hide.svg';
 import IcHolders from '@assets/ic-holders-white.svg';
@@ -17,27 +18,34 @@ export const HoldersProductComponent = memo(() => {
     const theme = useTheme();
     const selected = useSelectedAccount();
     const accounts = useHoldersAccounts(selected!.address).data?.accounts;
+    const prePaid = useHoldersAccounts(selected!.address).data?.prepaidCards;
+
     const [hiddenCards, markCard] = useHoldersHiddenAccounts(selected!.address);
-    const visibleList = useMemo(() => {
+    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(selected!.address);
+
+    const visibleAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {
             return !hiddenCards.includes(item.id);
-        });
+        }).map((item) => ({ ...item, type: 'account' }));
     }, [hiddenCards, accounts]);
+
+    const visiblePrepaidList = useMemo(() => {
+        return (prePaid ?? []).filter((item) => {
+            return !hiddenPrepaidCards.includes(item.id);
+        }).map((item) => ({ card: item, type: 'prepaid' }));
+    }, [hiddenPrepaidCards, prePaid]);
+
     const totalBalance = useMemo(() => {
-        return visibleList?.reduce((acc, item) => {
+        return visibleAccountsList?.reduce((acc, item) => {
             return acc + BigInt(item.balance);
         }, BigInt(0));
-    }, [visibleList]);
+    }, [visibleAccountsList]);
 
-    if (!network.isTestnet) {
+    if (!visibleAccountsList || visibleAccountsList?.length === 0) {
         return null;
     }
 
-    if (!visibleList || visibleList?.length === 0) {
-        return null;
-    }
-
-    if (visibleList.length <= 3) {
+    if ((visibleAccountsList.length + visiblePrepaidList.length) <= 3) {
         return (
             <View style={{ marginBottom: 16, paddingHorizontal: 16, gap: 16 }}>
                 <View
@@ -50,14 +58,27 @@ export const HoldersProductComponent = memo(() => {
                         {t('products.holders.accounts.title')}
                     </Text>
                 </View>
-                {visibleList.map((item, index) => {
+                {visibleAccountsList.map((item, index) => {
                     return (
                         <HoldersAccountItem
                             key={`card-${index}`}
-                            account={item}
+                            account={{ ...item, type: 'account' }}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={() => markCard(item.id, true)}
                             style={{ paddingVertical: 0 }}
+                            isTestnet={network.isTestnet}
+                        />
+                    )
+                })}
+                {visiblePrepaidList.map((item, index) => {
+                    return (
+                        <HoldersAccountItem
+                            key={`card-${index}`}
+                            account={{ ...item, type: 'prepaid' }}
+                            rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                            rightAction={() => markPrepaidCard(item.card.id, true)}
+                            style={{ paddingVertical: 0 }}
+                            isTestnet={network.isTestnet}
                         />
                     )
                 })}
@@ -69,14 +90,18 @@ export const HoldersProductComponent = memo(() => {
         <View style={{ marginBottom: 16 }}>
             <CollapsibleCards
                 title={t('products.holders.accounts.title')}
-                items={visibleList}
+                items={[...visibleAccountsList, ...visiblePrepaidList]}
                 renderItem={(item, index) => {
+                    const rightAction = item.type === 'account'
+                        ? () => markCard(item.id, true)
+                        : () => markPrepaidCard(item.card.id, true);
                     return (
                         <HoldersAccountItem
                             key={`card-${index}`}
                             account={item}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                            rightAction={() => markCard(item.id, true)}
+                            rightAction={rightAction}
+                            isTestnet={network.isTestnet}
                         />
                     )
                 }}

@@ -15,12 +15,12 @@ export function useHoldersWatcher() {
     const cards = useHoldersAccounts(account?.address.toString({ testOnly: isTestnet }) ?? '');
 
     useEffect(() => {
-        let watcher: null | (() => void) = null;
+        let destroyWatcher: null | (() => void) = null;
 
-        const destroyWatcher = () => {
-            if (!!watcher) {
-                watcher();
-                watcher = null;
+        const destroy = () => {
+            if (!!destroyWatcher) {
+                destroyWatcher();
+                destroyWatcher = null;
             }
         };
 
@@ -29,12 +29,12 @@ export function useHoldersWatcher() {
             || status.data.state === HoldersAccountState.NeedEnrollment
             || status.data.state === HoldersAccountState.NeedKyc
         ) {
-            return destroyWatcher;
+            return destroy;
         }
 
         cards.refetch();
 
-        watcher = watchHoldersAccountUpdates(status.data.token, (event) => {
+        destroyWatcher = watchHoldersAccountUpdates(status.data.token, (event) => {
             if (
                 event.message === 'state_change'
                 || (event.type === 'error' && event.message === 'invalid_token')
@@ -56,6 +56,6 @@ export function useHoldersWatcher() {
             }
         }, isTestnet);
 
-        return destroyWatcher;
+        return destroy;
     }, [status.data, cards]);
 }

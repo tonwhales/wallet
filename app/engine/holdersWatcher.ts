@@ -18,7 +18,6 @@ export function useHoldersWatcher() {
         let watcher: null | (() => void) = null;
 
         const destroyWatcher = () => {
-            console.log('destroy');
             if (!!watcher) {
                 watcher();
                 watcher = null;

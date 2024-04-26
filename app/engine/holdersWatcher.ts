@@ -16,35 +16,47 @@ export function useHoldersWatcher() {
 
     useEffect(() => {
         let watcher: null | (() => void) = null;
-        if (!status.data?.state || status.data.state === HoldersAccountState.NeedEnrollment) {
-            return;
-        }
-        cards.refetch();
-        watcher = watchHoldersAccountUpdates(status.data.token, (event) => {
-            if (
-                event.type === 'error'
-                && event.message === 'invalid_token'
-                || event.message === 'state_change'
-            ) {
-                status.refetch();
-            }
-            if (event.type === 'connected') {
-                cards.refetch();
-            }
-            if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
-                cards.refetch();
-                queryClient.refetchQueries({ queryKey: Queries.Holders(account?.address.toString({ testOnly: isTestnet }) ?? '').Notifications(event.card) })
 
-                // TODO
-                // this.syncCardsTransactions();
-            }
-        }, isTestnet);
-
-        return () => {
+        const destroyWatcher = () => {
+            console.log('destroy');
             if (!!watcher) {
                 watcher();
                 watcher = null;
             }
         };
+
+        if (
+            !status.data?.state
+            || status.data.state === HoldersAccountState.NeedEnrollment
+            || status.data.state === HoldersAccountState.NeedKyc
+        ) {
+            return destroyWatcher;
+        }
+
+        cards.refetch();
+
+        watcher = watchHoldersAccountUpdates(status.data.token, (event) => {
+            if (
+                event.message === 'state_change'
+                || (event.type === 'error' && event.message === 'invalid_token')
+            ) {
+                status.refetch();
+                return;
+            }
+            if (event.type === 'connected') {
+                cards.refetch();
+                return;
+            }
+            if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
+                cards.refetch();
+                queryClient.refetchQueries({ queryKey: Queries.Holders(account?.address.toString({ testOnly: isTestnet }) ?? '').Notifications(event.card) })
+
+                return;
+                // TODO
+                // this.syncCardsTransactions();
+            }
+        }, isTestnet);
+
+        return destroyWatcher;
     }, [status.data, cards]);
 }

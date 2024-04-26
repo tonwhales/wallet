@@ -14,12 +14,11 @@ import { Typography } from "../styles";
 import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
-import { toNano } from "@ton/core";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
 export const HoldersAccountItem = memo((props: {
-    account: { type: 'account' } & GeneralHoldersAccount | { type: 'prepaid', card: PrePaidHoldersCard },
+    account: GeneralHoldersAccount,
     last?: boolean,
     first?: boolean,
     rightAction?: () => void
@@ -54,18 +53,13 @@ export const HoldersAccountItem = memo((props: {
     }, [holdersAccStatus, isHoldersReady]);
 
     const isPro = useMemo(() => {
-        if (props.account.type === 'prepaid') {
-            return false;
-        }
         return props.account.cards.find((card) => card.personalizationCode === 'black-pro') !== undefined;
     }, [props.account]);
 
     const onPress = useCallback(() => {
 
         if (needsEnrollment) {
-            const onEnrollType = props.account.type === 'prepaid'
-                ? { type: 'prepaid', id: props.account.card.id }
-                : { type: 'account', id: props.account.id };
+            const onEnrollType = { type: 'account', id: props.account.id };
             navigation.navigate(
                 'HoldersLanding',
                 { endpoint: url, onEnrollType: onEnrollType }
@@ -73,26 +67,18 @@ export const HoldersAccountItem = memo((props: {
             return;
         }
 
-        navigation.navigateHolders(props.account.type === 'prepaid'
-            ? { type: 'prepaid', id: props.account.card.id }
-            : { type: 'account', id: props.account.id }
-        );
+        navigation.navigateHolders({ type: 'account', id: props.account.id });
     }, [props.account, needsEnrollment]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     let title = t('products.holders.accounts.account');
 
-    if (props.account.type === 'account' && props.account?.name) {
+    if (!!props.account.name) {
         title = props.account.name;
-    } else if (props.account.type === 'prepaid') {
-        title = t('products.holders.accounts.prepaidCard');
     }
 
     let subtitle = isPro ? t('products.holders.accounts.proAccount') : t('products.holders.accounts.basicAccount');
-    if (props.account.type === 'prepaid') {
-        subtitle = t('products.holders.accounts.prepaidCardDescription');
-    }
 
     return (
         <Swipeable
@@ -154,16 +140,7 @@ export const HoldersAccountItem = memo((props: {
                                     </PerfText>
                                 </PerfText>
                             </View>
-                            {props.account.type === 'prepaid' ? (
-                                <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                    <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                        <ValueComponent value={toNano(props.account.card.fiatBalance)} precision={2} centFontStyle={{ color: theme.textSecondary }} />
-                                        <PerfText style={{ color: theme.textSecondary }}>
-                                            {` ${props.account.card.fiatCurrency}`}
-                                        </PerfText>
-                                    </PerfText>
-                                </View>
-                            ) : props.account.balance && (
+                            {!!props.account.balance && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                                     <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                         <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
@@ -193,26 +170,18 @@ export const HoldersAccountItem = memo((props: {
                             contentInset={Platform.select({ ios: { left: 78 } })}
                             contentOffset={Platform.select({ ios: { x: -78, y: 0 } })}
                             showsHorizontalScrollIndicator={false}
-                            alwaysBounceHorizontal={props.account.type === 'prepaid' ? false : props.account.cards.length > 0}
+                            alwaysBounceHorizontal={props.account.cards.length > 0}
                         >
-                            {props.account.type === 'prepaid' ? (
-                                <HoldersAccountCard
-                                    key={'card-item-prepaid'}
-                                    card={{ ...props.account.card, personalizationCode: 'black-pro' } as GeneralHoldersCard}
-                                    theme={theme}
-                                />
-                            ) : (
-                                props.account.cards.map((card, index) => {
-                                    return (
-                                        <HoldersAccountCard
-                                            key={`card-item-${index}`}
-                                            card={card as GeneralHoldersCard}
-                                            theme={theme}
-                                        />
-                                    )
-                                })
-                            )}
-                            {props.account.type === 'account' && props.account.cards.length === 0 && (
+                            {props.account.cards.map((card, index) => {
+                                return (
+                                    <HoldersAccountCard
+                                        key={`card-item-${index}`}
+                                        card={card as GeneralHoldersCard}
+                                        theme={theme}
+                                    />
+                                )
+                            })}
+                            {props.account.cards.length === 0 && (
                                 <PerfText style={[{ color: theme.textSecondary }, Typography.medium17_24]}>
                                     {t('products.holders.accounts.noCards')}
                                 </PerfText>

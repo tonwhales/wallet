@@ -15,19 +15,13 @@ export function useHoldersWatcher() {
     const cards = useHoldersAccounts(account?.address.toString({ testOnly: isTestnet }) ?? '');
 
     useEffect(() => {
-        let destroyWatcher: null | (() => void) = null;
-
-        if (
-            !status.data?.state
-            || status.data.state === HoldersAccountState.NeedEnrollment
-            || status.data.state === HoldersAccountState.NeedKyc
-        ) {
+        if (status?.data?.state !== HoldersAccountState.Ok) {
             return;
         }
 
         cards.refetch();
 
-        destroyWatcher = watchHoldersAccountUpdates(status.data.token, (event) => {
+        return watchHoldersAccountUpdates(status.data.token, (event) => {
             if (
                 event.message === 'state_change'
                 || (event.type === 'error' && event.message === 'invalid_token')
@@ -48,7 +42,5 @@ export function useHoldersWatcher() {
                 // this.syncCardsTransactions();
             }
         }, isTestnet);
-
-        return destroyWatcher;
     }, [status.data, cards]);
 }

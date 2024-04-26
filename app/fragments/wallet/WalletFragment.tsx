@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -26,6 +26,7 @@ import { BlurView } from 'expo-blur';
 import { Typography } from '../../components/styles';
 import { useSpecialJetton } from '../../engine/hooks/jettons/useSpecialJetton';
 import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
+import { WalletActions } from './views/WalletActions';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();

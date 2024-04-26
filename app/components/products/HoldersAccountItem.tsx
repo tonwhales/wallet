@@ -8,7 +8,7 @@ import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { useHoldersAccountStatus, useIsConnectAppReady, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
-import { GeneralHoldersAccount, GeneralHoldersCard, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
+import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
 import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-handler";
@@ -26,7 +26,8 @@ export const HoldersAccountItem = memo((props: {
     single?: boolean,
     hidden?: boolean,
     style?: StyleProp<ViewStyle>,
-    isTestnet: boolean
+    isTestnet: boolean,
+    hideCardsIfEmpty?: boolean
 }) => {
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
@@ -163,30 +164,34 @@ export const HoldersAccountItem = memo((props: {
                                 </View>
                             )}
                         </View>
-                        <ScrollView
-                            horizontal={true}
-                            style={[{ height: 46, marginTop: 10 }, Platform.select({ android: { marginLeft: 78 } })]}
-                            contentContainerStyle={{ gap: 8 }}
-                            contentInset={Platform.select({ ios: { left: 78 } })}
-                            contentOffset={Platform.select({ ios: { x: -78, y: 0 } })}
-                            showsHorizontalScrollIndicator={false}
-                            alwaysBounceHorizontal={props.account.cards.length > 0}
-                        >
-                            {props.account.cards.map((card, index) => {
-                                return (
-                                    <HoldersAccountCard
-                                        key={`card-item-${index}`}
-                                        card={card as GeneralHoldersCard}
-                                        theme={theme}
-                                    />
-                                )
-                            })}
-                            {props.account.cards.length === 0 && (
-                                <PerfText style={[{ color: theme.textSecondary }, Typography.medium17_24]}>
-                                    {t('products.holders.accounts.noCards')}
-                                </PerfText>
-                            )}
-                        </ScrollView>
+                        {!(props.hideCardsIfEmpty && props.account.cards.length === 0) ? (
+                            <ScrollView
+                                horizontal={true}
+                                style={[{ height: 46, marginTop: 10 }, Platform.select({ android: { marginLeft: 78 } })]}
+                                contentContainerStyle={{ gap: 8 }}
+                                contentInset={Platform.select({ ios: { left: 78 } })}
+                                contentOffset={Platform.select({ ios: { x: -78, y: 0 } })}
+                                showsHorizontalScrollIndicator={false}
+                                alwaysBounceHorizontal={props.account.cards.length > 0}
+                            >
+                                {props.account.cards.map((card, index) => {
+                                    return (
+                                        <HoldersAccountCard
+                                            key={`card-item-${index}`}
+                                            card={card as GeneralHoldersCard}
+                                            theme={theme}
+                                        />
+                                    )
+                                })}
+                                {props.account.cards.length === 0 && (
+                                    <PerfText style={[{ color: theme.textSecondary }, Typography.medium17_24]}>
+                                        {t('products.holders.accounts.noCards')}
+                                    </PerfText>
+                                )}
+                            </ScrollView>
+                        ) : (
+                            <View style={{ height: 20 }} />
+                        )}
                     </View>
                 </TouchableOpacity>
             </Animated.View>

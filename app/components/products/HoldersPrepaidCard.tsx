@@ -7,12 +7,13 @@ import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { useHoldersAccountStatus, useIsConnectAppReady, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
-import { PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
+import { GeneralHoldersCard, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
 import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import { toNano } from "@ton/core";
 import { CurrencySymbols } from "../../utils/formatCurrency";
+import { HoldersAccountCard } from "./HoldersAccountCard";
 
 export const HoldersPrepaidCard = memo((props: {
     card: PrePaidHoldersCard,
@@ -106,32 +107,40 @@ export const HoldersPrepaidCard = memo((props: {
                     onPress={onPress}
                     activeOpacity={0.8}
                 >
-                    <View style={{ flexDirection: 'row', flexGrow: 1, padding: 20, backgroundColor: theme.surfaceOnBg, alignItems: 'center' }}>
-                        <View style={{flexShrink: 1 }}>
-                            <PerfText
-                                style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                ellipsizeMode="tail"
-                                numberOfLines={1}
-                            >
-                                {title}
-                            </PerfText>
-                            <PerfText
-                                style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                numberOfLines={1}
-                                ellipsizeMode={'tail'}
-                            >
-                                <PerfText style={{ flexShrink: 1 }}>
-                                    {subtitle}
+                    <View style={{ flexGrow: 1, paddingVertical: 20, backgroundColor: theme.surfaceOnBg }}>
+                        <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
+                            <HoldersAccountCard
+                                key={'card-item-prepaid'}
+                                card={{ ...card, personalizationCode: 'black-pro' } as GeneralHoldersCard}
+                                theme={theme}
+                            />
+                            <View style={{ marginLeft: 12, flexShrink: 1 }}>
+
+                                <PerfText
+                                    style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                    ellipsizeMode="tail"
+                                    numberOfLines={1}
+                                >
+                                    {title}
                                 </PerfText>
-                            </PerfText>
-                        </View>
-                        <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                            <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                <ValueComponent value={toNano(card.fiatBalance)} precision={2} centFontStyle={{ color: theme.textSecondary }} />
-                                <PerfText style={{ color: theme.textSecondary }}>
-                                    {` ${CurrencySymbols[card.fiatCurrency].symbol}`}
+                                <PerfText
+                                    style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                    numberOfLines={1}
+                                    ellipsizeMode={'tail'}
+                                >
+                                    <PerfText style={{ flexShrink: 1 }}>
+                                        {subtitle}
+                                    </PerfText>
                                 </PerfText>
-                            </PerfText>
+                            </View>
+                            <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                                <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                    <ValueComponent value={toNano(card.fiatBalance)} precision={2} centFontStyle={{ color: theme.textSecondary }} />
+                                    <PerfText style={{ color: theme.textSecondary }}>
+                                        {` ${CurrencySymbols[card.fiatCurrency].symbol}`}
+                                    </PerfText>
+                                </PerfText>
+                            </View>
                         </View>
                     </View>
                 </TouchableOpacity>

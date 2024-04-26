@@ -17,19 +17,12 @@ export function useHoldersWatcher() {
     useEffect(() => {
         let destroyWatcher: null | (() => void) = null;
 
-        const destroy = () => {
-            if (!!destroyWatcher) {
-                destroyWatcher();
-                destroyWatcher = null;
-            }
-        };
-
         if (
             !status.data?.state
             || status.data.state === HoldersAccountState.NeedEnrollment
             || status.data.state === HoldersAccountState.NeedKyc
         ) {
-            return destroy;
+            return;
         }
 
         cards.refetch();
@@ -56,6 +49,6 @@ export function useHoldersWatcher() {
             }
         }, isTestnet);
 
-        return destroy;
+        return destroyWatcher;
     }, [status.data, cards]);
 }

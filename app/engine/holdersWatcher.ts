@@ -38,7 +38,7 @@ export function useHoldersWatcher() {
                 // TODO
                 // this.syncCardsTransactions();
             }
-        });
+        }, isTestnet);
 
         return () => {
             if (!!watcher) {

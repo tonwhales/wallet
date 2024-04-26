@@ -15,12 +15,12 @@ import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterCon
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
-import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
+import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
 import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
-import { Avatar, avatarColors } from "../../../components/Avatar";
+import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
 import { toBnWithDecimals } from "../../../utils/withDecimals";
@@ -84,6 +84,7 @@ export const TransferSingleView = memo(({
     const [walletsSettings,] = useWalletsSettings();
     const [price, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const holdersUrl = resolveHoldersUrl(isTestnet);
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];

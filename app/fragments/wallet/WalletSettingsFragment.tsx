@@ -5,7 +5,7 @@ import { getAppState } from "../../storage/appState";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { avatarHash } from "../../utils/avatarHash";
-import { Avatar, avatarColors, avatarImages } from "../../components/Avatar";
+import { Avatar, avatarColors, avatarImages } from "../../components/avatar/Avatar";
 import { useCallback, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";

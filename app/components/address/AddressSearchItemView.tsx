@@ -3,7 +3,7 @@ import { View, Text, Pressable, Image } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { Avatar, avatarColors } from "../Avatar";
+import { Avatar, avatarColors } from "../avatar/Avatar";
 import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
 import { avatarHash } from "../../utils/avatarHash";

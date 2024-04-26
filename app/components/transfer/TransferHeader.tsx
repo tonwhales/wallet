@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Text } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { ThemeType } from "../../engine/state/theme";
-import { Avatar, avatarColors } from "../Avatar";
+import { Avatar, avatarColors } from "../avatar/Avatar";
 import { useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 import { Address } from "@ton/core";

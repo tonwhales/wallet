@@ -79,6 +79,7 @@ export const HoldersHiddenAccounts = memo(() => {
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                             single={hiddenList.length === 1}
                             style={{ paddingVertical: 0 }}
+                            isTestnet={network.isTestnet}
                         />
                     )
                 }}

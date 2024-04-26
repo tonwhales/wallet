@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { valueText } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Avatar } from "../../components/Avatar";
+import { Avatar } from "../../components/avatar/Avatar";
 import { t } from "../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { PriceComponent } from "../../components/PriceComponent";

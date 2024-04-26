@@ -12,14 +12,14 @@ export const HoldersProductComponent = memo(() => {
     const accounts = useHoldersAccounts(selected!.address).data?.accounts;
     const prePaid = useHoldersAccounts(selected!.address).data?.prepaidCards;
 
-    const [hiddenCards, markCard] = useHoldersHiddenAccounts(selected!.address);
+    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(selected!.address);
     const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(selected!.address);
 
     const visibleAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {
-            return !hiddenCards.includes(item.id);
+            return !hiddenAccounts.includes(item.id);
         });
-    }, [hiddenCards, accounts]);
+    }, [hiddenAccounts, accounts]);
 
     const visiblePrepaidList = useMemo(() => {
         return (prePaid ?? []).filter((item) => {
@@ -33,7 +33,7 @@ export const HoldersProductComponent = memo(() => {
 
     return (
         <View style={{ marginBottom: 16 }}>
-            <HoldersAccounts theme={theme} isTestnet={network.isTestnet} markCard={markCard} accs={visibleAccountsList} />
+            <HoldersAccounts theme={theme} isTestnet={network.isTestnet} markCard={markAccount} accs={visibleAccountsList} />
             <HoldersCards theme={theme} isTestnet={network.isTestnet} markPrepaidCard={markPrepaidCard} cards={visiblePrepaidList} />
         </View>
     );

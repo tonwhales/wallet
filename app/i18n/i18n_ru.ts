@@ -484,6 +484,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "noCards": "Нет карт",
                 "prepaidCard": "TonHub Prepaid *{{lastFourDigits}}",
                 "prepaidCardDescription": 'Пополняемая карта на каждый день',
+                "hiddenCards": "Скрытые карты",
+                "hiddenAccounts": "Скрытые счета",
             },
             "pageTitles": {
                 "general": "Tonhub Cards",
@@ -498,7 +500,6 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "setUpCard": "Настройка карты",
                 "pin": "Смена PIN-кода"
             },
-            "hiddenCards": "Скрытые счета",
             "card": {
                 "card": "Карта",
                 "cards": "Карты Holders",

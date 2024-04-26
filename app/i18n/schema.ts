@@ -486,6 +486,8 @@ export type LocalizationSchema = {
                 noCards: string,
                 prepaidCard: string,
                 prepaidCardDescription: string,
+                hiddenAccounts: string,
+                hiddenCards: string,
             },
             pageTitles: {
                 general: string,
@@ -500,7 +502,6 @@ export type LocalizationSchema = {
                 setUpCard: string,
                 pin: string
             },
-            hiddenCards: string,
             card: {
                 card: string,
                 cards: string,

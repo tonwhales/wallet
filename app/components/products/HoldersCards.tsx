@@ -8,7 +8,6 @@ import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { PriceComponent } from "../PriceComponent";
-import { ValueComponent } from "../ValueComponent";
 import { toNano } from "@ton/core";
 
 import IcHide from '@assets/ic-hide.svg';
@@ -28,7 +27,7 @@ export const HoldersCards = memo(({ cards, theme, isTestnet, markPrepaidCard }: 
         return toNano((float ?? 0).toFixed(2));
     }, [cards]);
 
-    if (!cards) {
+    if (!cards || cards.length === 0) {
         return null;
     }
 

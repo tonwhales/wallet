@@ -8,7 +8,7 @@ import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
 import { StakingProductComponent } from "./StakingProductComponent"
 import { JettonsProductComponent } from "./JettonsProductComponent"
-import { HoldersHiddenAccounts } from "./HoldersHiddenCards"
+import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
 import { SelectedAccount } from "../../engine/types"
 import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
@@ -186,7 +186,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <JettonsProductComponent key={'jettons'} />
 
-                <HoldersHiddenAccounts key={'holders-hidden'} />
+                <HoldersHiddenProductComponent key={'holders-hidden'} />
 
                 <JettonsHiddenComponent key={'jettons-hidden'} />
             </View>

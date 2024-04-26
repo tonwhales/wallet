@@ -73,6 +73,7 @@ export type LocalizationSchema = {
         save: string,
         assets: string,
         message: string,
+        messages: string,
         airdrop: string,
         myWallets: string,
         showMore: string,
@@ -483,6 +484,8 @@ export type LocalizationSchema = {
                 basicAccount: string,
                 proAccount: string,
                 noCards: string,
+                prepaidCard: string,
+                prepaidCardDescription: string,
             },
             pageTitles: {
                 general: string,

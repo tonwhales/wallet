@@ -1,0 +1,20 @@
+{
+    "testnet": {
+        "tickers": [
+            "TON"
+        ],
+        "specialJetton": "kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD",
+        "masters": {}
+    },
+    "mainnet": {
+        "tickers": [
+            "TON",
+            "USDT",
+            "USD₮"
+        ],
+        "specialJetton": "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+        "masters": {
+            "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs": {}
+        }
+    }
+}

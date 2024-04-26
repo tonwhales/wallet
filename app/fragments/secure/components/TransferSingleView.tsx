@@ -7,23 +7,26 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { LedgerOrder, Order } from "../ops/Order";
+import { KnownWallets } from "../../../secure/KnownWallets";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
-import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
+import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
-import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
+import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
 import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
-import { Avatar, avatarColors } from "../../../components/Avatar";
+import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
 import { toBnWithDecimals } from "../../../utils/withDecimals";
 import { avatarHash } from "../../../utils/avatarHash";
+import { ContractMetadata } from "../../../engine/metadata/Metadata";
+import { Typography } from "../../../components/styles";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
@@ -37,6 +40,7 @@ export const TransferSingleView = memo(({
     jettonAmountString,
     target,
     fees,
+    metadata,
     jettonMaster,
     doSend,
     walletSettings,
@@ -59,6 +63,7 @@ export const TransferSingleView = memo(({
         bounceable?: boolean | undefined;
     },
     fees: bigint,
+    metadata: ContractMetadata | null,
     jettonMaster: JettonMasterState | null,
     doSend?: () => Promise<void>,
     walletSettings: WalletSettings | null,
@@ -72,12 +77,14 @@ export const TransferSingleView = memo(({
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const selected = useSelectedAccount();
     const ledgerTransport = useLedgerTransport();
     const appState = useAppState();
     const [walletsSettings,] = useWalletsSettings();
     const [price, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const holdersUrl = resolveHoldersUrl(isTestnet);
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
@@ -150,6 +157,11 @@ export const TransferSingleView = memo(({
         return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jettonMaster?.symbol ?? ''}`
     }, [amount, jettonAmountString, jettonMaster]);
 
+    const { isSCAM: isSCAMJetton } = useVerifyJetton({
+        ticker: jettonMaster?.symbol,
+        master: metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet })
+    });
+
     return (
         <View style={{ flexGrow: 1 }}>
             <ScrollView
@@ -221,7 +233,7 @@ export const TransferSingleView = memo(({
                                         markContact={!!contact}
                                         icProps={{ position: 'bottom' }}
                                         theme={theme}
-                                        isTestnet={isTestnet}
+                                        knownWallets={knownWallets}
                                     />
                                 )}
                             </View>
@@ -244,26 +256,25 @@ export const TransferSingleView = memo(({
                                     address={target.address}
                                     end={4}
                                     testOnly={isTestnet}
-                                    known={!!known}
+                                    known={!!known && !contact}
                                 />
                                 {isTargetLedger && ' (Ledger)'}
                             </Text>
                         </View>
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                             <Text
                                 minimumFontScale={0.4}
                                 adjustsFontSizeToFit={true}
                                 numberOfLines={1}
-                                style={{
-                                    color: theme.textPrimary,
-                                    fontWeight: '600',
-                                    fontSize: 27,
-                                    marginTop: 12,
-                                    lineHeight: 32
-                                }}
+                                style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold27_32]}
                             >
-                                {amountText}
+                                {amountText + (isSCAMJetton ? ' • ' : '')}
                             </Text>
+                            {isSCAMJetton && (
+                                <Text style={[{ color: theme.accentRed }, Typography.semiBold27_32]}>
+                                    {'SCAM'}
+                                </Text>
+                            )}
                         </View>
                         {!jettonAmountString && (
                             <PriceComponent

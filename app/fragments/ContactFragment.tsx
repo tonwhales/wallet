@@ -3,7 +3,7 @@ import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState 
 import { Platform, View, Text, Image, Alert, Keyboard, Pressable, TextInput } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Avatar } from "../components/Avatar";
+import { Avatar } from "../components/avatar/Avatar";
 import { ContactField } from "../components/Contacts/ContactField";
 import { RoundButton } from "../components/RoundButton";
 import { fragment } from "../fragment";
@@ -21,6 +21,7 @@ import { useBounceableWalletFormat, useContact, useNetwork, useRemoveContact, us
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { useContractInfo } from "../engine/hooks/metadata/useContractInfo";
+import { KnownWallets } from "../secure/KnownWallets";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -36,6 +37,7 @@ export const ContactFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
 
     const [address, setAddress] = useState(params.address ?? '');
     const parsed = useMemo(() => {
@@ -268,7 +270,7 @@ export const ContactFragment = fragment(() => {
                                 borderWith={2}
                                 borderColor={theme.surfaceOnElevation}
                                 theme={theme}
-                                isTestnet={isTestnet}
+                                knownWallets={knownWallets}
                                 hashColor
                             />
                         </View>

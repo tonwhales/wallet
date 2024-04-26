@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { dispatchMainButtonResponse, dispatchResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -19,11 +19,13 @@ import { QueryParamsState, extractWebViewQueryAPIParams } from "./utils/extractW
 import { useMarkBannerHidden } from "../../engine/hooks/banners/useHiddenBanners";
 import { isSafeDomain } from "./utils/isSafeDomain";
 import DeviceInfo from 'react-native-device-info';
+import { processEmitterMessage } from "./utils/processEmitterMessage";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
     useStatusBar?: boolean;
     useToaster?: boolean;
+    useEmitter?: boolean;
     useQueryAPI?: boolean;
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
@@ -172,6 +174,10 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 processed = processToasterMessage(parsed, toaster);
             }
 
+            if (props.useEmitter && !processed) {
+                processed = processEmitterMessage(parsed, setLoaded);
+            }
+
             if (processed) {
                 return;
             }
@@ -267,7 +273,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             }
         })();
     }, [
-        props.useMainButton, props.useStatusBar, props.injectionEngine,
+        props.useMainButton, props.useStatusBar,
+        props.useToaster, props.useEmitter,
+        props.injectionEngine,
         props.onMessage,
         ref,
         navigation, toaster,
@@ -322,6 +330,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         ${props.useMainButton ? mainButtonAPI : ''}
         ${props.useStatusBar ? statusBarAPI({ ...adjustedSafeArea, ...props.defaultSafeArea }) : ''}
         ${props.useToaster ? toasterAPI : ''}
+        ${props.useEmitter ? emitterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {
             if (!window.tonhub) {
@@ -334,7 +343,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         })();
         true;
         `
-    }, [props.injectedJavaScriptBeforeContentLoaded, props.useMainButton, props.useStatusBar, props.useToaster, safeArea]);
+    }, [
+        props.injectedJavaScriptBeforeContentLoaded,
+        props.useMainButton, props.useStatusBar, props.useToaster, props.useEmitter,
+        safeArea
+    ]);
 
     const Loader = props.loader ?? WebViewLoader;
 
@@ -344,6 +357,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [props.onContentProcessDidTerminate]);
 
     const onLoadEnd = useCallback(() => {
+        if (props.useEmitter) {
+            return;
+        }
         try {
             const powerState = DeviceInfo.getPowerStateSync();
             const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;

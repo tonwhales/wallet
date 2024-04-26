@@ -24,7 +24,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Typography } from '../../components/styles';
-import { WalletActions } from './views/WalletActions';
+import { useSpecialJetton } from '../../engine/hooks/jettons/useSpecialJetton';
 import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
@@ -33,6 +33,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const navigation = useTypedNavigation();
     const address = props.selectedAcc.address;
     const account = props.wallet;
+    const specialJetton = useSpecialJetton(address);
     const staking = useStaking();
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
@@ -52,8 +53,8 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
             return summ + BigInt(card.balance);
         }, 0n);
 
-        return (cardsBalance || 0n) + accountWithStaking;
-    }, [account, stakingBalance, holdersCards]);
+        return (cardsBalance || 0n) + accountWithStaking + (specialJetton?.toTon || 0n);
+    }, [account, stakingBalance, holdersCards, specialJetton?.toTon]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);

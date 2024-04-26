@@ -8,6 +8,7 @@ import { useLedgerTransport } from "../../fragments/ledger/components/TransportC
 import { Address } from "@ton/core";
 import { t } from "../../i18n/t";
 import { useNavigationState } from "@react-navigation/native";
+import { KnownWallets } from "../../secure/KnownWallets";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -17,6 +18,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
     const prevScreen = useNavigationState((state) => state.routes[state.index - 1]?.name);
     const { isTestnet } = useNetwork();
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const knownWallets = KnownWallets(isTestnet);
 
     const isPrevScreenLedger = prevScreen?.startsWith('Ledger') ?? false;
 
@@ -66,6 +68,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                         onSelect={onSelect}
                         bounceableFormat={bounceableFormat}
                         isTestnet={isTestnet}
+                        knownWallets={knownWallets}
                     />
                 )
             })}

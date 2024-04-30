@@ -133,21 +133,18 @@ export const WalletTransactions = memo((props: {
     }, [isTestnet, updateAddressBook]);
 
     const { transactionsSectioned } = useMemo(() => {
-        const sectioned = new Map<string, TransactionDescription[]>();
-        for (const t of props.txs) {
+        const sectioned = new Map<string, { title: string, data: TransactionDescription[] }>();
+        for (let i = 0; i < props.txs.length; i++) {
+            const t = props.txs[i];
             const time = getDateKey(t.base.time);
             const section = sectioned.get(time);
             if (section) {
-                section.push(t);
+                section.data.push(t);
             } else {
-                sectioned.set(time, [t]);
+                sectioned.set(time, { title: formatDate(t.base.time), data: [t] });
             }
         }
-        const sections = Array.from(sectioned).map(([time, data]) => ({
-            title: formatDate(data[0].base.time),
-            data,
-        }));
-        return { transactionsSectioned: sections };
+        return { transactionsSectioned: Array.from(sectioned.values()) };
     }, [props.txs]);
 
     const navigateToPreview = useCallback((transaction: TransactionDescription) => {

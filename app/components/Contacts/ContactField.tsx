@@ -1,9 +1,25 @@
-import React, { forwardRef, memo, useState } from "react";
+import React, { forwardRef, memo, useEffect, useState } from "react";
 import { TextInput } from "react-native";
 import { t } from "../../i18n/t";
 import { ATextInput } from "../ATextInput";
 import { useTheme } from '../../engine/hooks';
 import { useContactField } from '../../engine/hooks';
+
+function useDebounceInput(value: string, delay: number) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
 
 export const ContactField = memo(forwardRef((props: {
     input: {
@@ -16,10 +32,18 @@ export const ContactField = memo(forwardRef((props: {
     },
     fieldKey: string,
     index: number,
-    onFieldChange: (index: number, value: string) => void,
+    onFieldChange?: (index: number, value: string) => void,
 }, ref: React.ForwardedRef<TextInput>) => {
     const theme = useTheme();
     const [value, setValue] = useState(props.input.value || '');
+    const debouncedValue = useDebounceInput(value, 500);
+
+    useEffect(() => {
+        if (props.onFieldChange) {
+            props.onFieldChange(props.index, debouncedValue);
+        }
+    }, [debouncedValue]);
+
     let label = useContactField(props.fieldKey);
 
     if (props.fieldKey === 'lastName') {

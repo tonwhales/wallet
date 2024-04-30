@@ -27,8 +27,6 @@ export function useSetContact() {
                 return;
             }
 
-            delete doc.contacts[addressString].fields;
-
             contact.fields.forEach((field, index) => {
                 const existingFieldIndex = doc.contacts[addressString].fields?.findIndex((f) => f.key === field.key);
                 if (existingFieldIndex === -1 || existingFieldIndex === undefined) {

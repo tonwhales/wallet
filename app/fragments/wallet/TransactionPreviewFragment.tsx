@@ -69,6 +69,7 @@ const TransactionPreview = () => {
         }
     }, [ledgerContext?.addr?.address, selected]);
 
+    const jettons = useJettons(address!.toString({ testOnly: isTestnet }));
     const params = useParams<{ transaction: TransactionDescription }>();
 
     const tx = params.transaction;
@@ -112,7 +113,11 @@ const TransactionPreview = () => {
         );
     }, [price, currency, fees]);
 
-    let jetton = tx.masterMetadata;
+    let jetton = jettons.find((j) =>
+        !!tx.metadata?.jettonWallet?.master
+        && j.master.equals(tx.metadata?.jettonWallet?.master)
+    );
+
     let op: string;
     if (tx.op) {
         op = tx.op;

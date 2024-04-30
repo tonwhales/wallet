@@ -703,6 +703,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         productButtonTitle: 'Jettons',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
         hidden: 'Hidden jettons',
+        liquidPoolDescriptionDedust: 'Liquidity pool token for {{name0}} and {{name1}} on DeDust DEX',
+        liquidPoolDescriptionStonFi: 'Liquidity pool token for {{name0}} and {{name1}} on STON.fi DEX',
     },
     connections: {
         extensions: 'Extensions',

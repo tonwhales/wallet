@@ -19,16 +19,15 @@ import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { useEffect, useMemo, useState } from 'react';
-import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useJettons, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
-import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
-import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
 import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal } from '@ton/core';
 import { getLastBlock } from '../../engine/accountWatcher';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
+import { Jetton } from '../../engine/types';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 
 export type TransferFragmentProps = {
@@ -78,7 +77,7 @@ export type ConfirmLoadedPropsSingle = {
     fees: bigint,
     metadata: ContractMetadata,
     restricted: boolean,
-    jettonMaster: JettonMasterState | null
+    jetton: Jetton | null
     callback: ((ok: boolean, result: Cell | null) => void) | null
     back?: number
 }
@@ -119,6 +118,7 @@ export const TransferFragment = fragment(() => {
     const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const jettons = useJettons(selectedAccount?.address.toString({ testOnly: isTestnet }) || '');
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
     const [bounceableFormat,] = useBounceableWalletFormat();
@@ -180,7 +180,7 @@ export const TransferFragment = fragment(() => {
                     }),
                 ]);
 
-                let jettonMaster: JettonMasterState | null = null;
+                let jetton: Jetton | null = null;
                 let jettonTarget: typeof target | null = null;
                 let jettonTargetState: typeof state | null = null;
 
@@ -204,7 +204,7 @@ export const TransferFragment = fragment(() => {
                                         jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable }));
                                     }
 
-                                    jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, isTestnet);
+                                    jetton = jettons.find((j) => j.master.equals(metadata.jettonWallet!.master)) ?? null;
                                 }
                             }
                         }
@@ -347,7 +347,7 @@ export const TransferFragment = fragment(() => {
                     job,
                     fees,
                     metadata,
-                    jettonMaster,
+                    jetton,
                     callback: callback ? callback : null,
                     back: params.back
                 });
@@ -487,7 +487,7 @@ export const TransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, [netConfig, selectedAccount, bounceableFormat]);
+    }, [netConfig, selectedAccount, bounceableFormat, jettons]);
 
     return (
         <View style={{ flexGrow: 1 }}>

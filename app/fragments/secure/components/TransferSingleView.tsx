@@ -17,7 +17,7 @@ import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelect
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
-import { StoredOperation } from "../../../engine/types";
+import { Jetton, StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
 import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
 import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
@@ -148,14 +148,14 @@ export const TransferSingleView = memo(({
     }, [amount, jettonAmountString]);
 
     const amountText = useMemo(() => {
-        const decimals = jettonMaster?.decimals ?? 9;
+        const decimals = jetton?.decimals ?? 9;
         const textArr = valueText(
             jettonAmountString
                 ? { value: toBnWithDecimals(jettonAmountString, decimals), decimals }
                 : { value: amount, decimals: 9 }
         );
-        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jettonMaster?.symbol ?? ''}`
-    }, [amount, jettonAmountString, jettonMaster]);
+        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jetton?.symbol ?? ''}`
+    }, [amount, jettonAmountString, jetton]);
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
         ticker: jettonMaster?.symbol,

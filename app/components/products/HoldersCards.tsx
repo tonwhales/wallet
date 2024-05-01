@@ -146,6 +146,7 @@ export const HoldersCards = memo(({ cards, theme, isTestnet, markPrepaidCard }: 
                             <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                                 <PriceComponent
                                     amount={totalBalance}
+                                    priceUSD={1}
                                     style={{
                                         backgroundColor: 'transparent',
                                         paddingHorizontal: 0, paddingVertical: 0,

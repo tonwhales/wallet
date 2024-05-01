@@ -43,6 +43,7 @@ export const HoldersAccounts = memo(({ accs, theme, markCard, isTestnet }: { acc
                             rightAction={() => markCard(item.id, true)}
                             style={{ paddingVertical: 0 }}
                             isTestnet={isTestnet}
+                            hideCardsIfEmpty
                         />
                     )
                 })}

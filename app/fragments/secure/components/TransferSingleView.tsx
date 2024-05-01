@@ -17,7 +17,7 @@ import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelect
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
-import { StoredOperation } from "../../../engine/types";
+import { Jetton, StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
 import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
 import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
@@ -41,7 +41,7 @@ export const TransferSingleView = memo(({
     target,
     fees,
     metadata,
-    jettonMaster,
+    jetton,
     doSend,
     walletSettings,
     known,
@@ -64,7 +64,7 @@ export const TransferSingleView = memo(({
     },
     fees: bigint,
     metadata: ContractMetadata | null,
-    jettonMaster: JettonMasterState | null,
+    jetton: Jetton | null,
     doSend?: () => Promise<void>,
     walletSettings: WalletSettings | null,
     text: string | null,
@@ -148,18 +148,18 @@ export const TransferSingleView = memo(({
     }, [amount, jettonAmountString]);
 
     const amountText = useMemo(() => {
-        const decimals = jettonMaster?.decimals ?? 9;
+        const decimals = jetton?.decimals ?? 9;
         const textArr = valueText(
             jettonAmountString
                 ? { value: toBnWithDecimals(jettonAmountString, decimals), decimals }
                 : { value: amount, decimals: 9 }
         );
-        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jettonMaster?.symbol ?? ''}`
-    }, [amount, jettonAmountString, jettonMaster]);
+        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jetton?.symbol ?? ''}`
+    }, [amount, jettonAmountString, jetton]);
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
-        ticker: jettonMaster?.symbol,
-        master: metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet })
+        ticker: jetton?.symbol,
+        master: jetton?.master?.toString({ testOnly: isTestnet })
     });
 
     return (

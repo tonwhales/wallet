@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo, useRef } from "react";
-import { View, Pressable, StyleProp, ViewStyle } from "react-native";
+import { View, Pressable, StyleProp, ViewStyle, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -134,12 +134,12 @@ export const HoldersPrepaidCard = memo((props: {
                                 </PerfText>
                             </View>
                             <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                     <ValueComponent value={toNano(card.fiatBalance)} precision={2} centFontStyle={{ color: theme.textSecondary }} />
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${CurrencySymbols[card.fiatCurrency].symbol}`}
                                     </PerfText>
-                                </PerfText>
+                                </Text>
                             </View>
                         </View>
                     </View>

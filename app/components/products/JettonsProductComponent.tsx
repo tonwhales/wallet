@@ -20,7 +20,7 @@ export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] })
         return null;
     }
 
-    if (visibleList.length <= 3) {
+    if (visibleList.length < 3) {
         return (
             <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
                 <View
@@ -119,6 +119,10 @@ export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] })
                 }}
                 itemHeight={86}
                 theme={theme}
+                limitConfig={{
+                    maxItems: 4,
+                    fullList: { type: 'jettons' }
+                }}
             />
         </View>
     );

@@ -62,6 +62,10 @@ export const JettonsHiddenComponent = memo(({ jettons }: { jettons: Jetton[] }) 
                         />
                     )
                 }}
+                limitConfig={{
+                    maxItems: 4,
+                    fullList: { type: 'jettons' }
+                }}
             />
         </View>
     );

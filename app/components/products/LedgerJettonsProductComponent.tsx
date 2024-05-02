@@ -162,6 +162,10 @@ export const LedgerJettonsProductComponent = React.memo(() => {
                         />
                     )
                 }}
+                limitConfig={{
+                    maxItems: 4,
+                    fullList: { type: 'jettons', isLedger: true }
+                }}
             />
         </View >
     );

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { View, Pressable, Text } from 'react-native';
+import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
 import { memo, useCallback, useRef } from 'react';
-import { Swipeable, TouchableHighlight } from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
 import { PerfText } from '../basic/PerfText';
@@ -24,7 +24,8 @@ export const JettonProductItem = memo((props: {
     rightActionIcon?: any,
     single?: boolean,
     card?: boolean,
-    ledger?: boolean
+    ledger?: boolean,
+    itemStyle?: StyleProp<ViewStyle>
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -135,12 +136,12 @@ export const JettonProductItem = memo((props: {
                         onPressOut={onPressOut}
                         onPress={onPress}
                     >
-                        <View style={{
+                        <View style={[{
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
                             padding: 20,
                             backgroundColor: theme.surfaceOnBg
-                        }}>
+                        }, props.itemStyle]}>
                             <JettonIcon
                                 size={46}
                                 jetton={props.jetton}
@@ -236,7 +237,8 @@ export const JettonProductItem = memo((props: {
                         padding: 20,
                         backgroundColor: theme.surfaceOnBg
                     },
-                    animatedStyle
+                    animatedStyle,
+                    props.itemStyle
                 ]}>
                     <JettonIcon size={46} jetton={props.jetton} theme={theme} isTestnet={isTestnet} />
                     <View style={{ marginLeft: 12, flex: 1 }}>

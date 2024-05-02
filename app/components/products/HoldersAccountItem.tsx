@@ -196,7 +196,7 @@ export const HoldersAccountItem = memo((props: {
                     </View>
                 </TouchableOpacity>
             </Animated.View>
-        </Swipeable >
+        </Swipeable>
     );
 });
 HoldersAccountItem.displayName = 'HoldersAccountItem';

@@ -8,7 +8,7 @@ import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
 import { Jetton, TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
+import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
@@ -21,6 +21,7 @@ import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { Typography } from "../../../components/styles";
 import { warn } from "../../../utils/log";
 import { WalletSettings } from "../../../engine/state/walletSettings";
+import { useAddressBookContext } from "../../../engine/AddressBookContext";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -40,6 +41,7 @@ type TransactionListItemProps = {
     onLongPress?: (tx: TransactionDescription) => void,
     ledger?: boolean,
     navigation: TypedNavigation,
+    addToDenyList: (address: string | Address, reason: string) => void,
     spamMinAmount: bigint,
     dontShowComments: boolean,
     denyList: { [key: string]: { reason: string | null } },
@@ -73,6 +75,7 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.theme === next.theme
         && prev.section === next.section
         && prev.index === next.index
+        && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
         && prev.jettons === next.jettons
@@ -110,7 +113,9 @@ export const WalletTransactions = memo((props: {
     const knownWallets = KnownWallets(isTestnet);
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
-    const [addressBook, updateAddressBook] = useAddressBook();
+    const addressBookContext = useAddressBookContext();
+    const addressBook = addressBookContext.state;
+    const addToDenyList = useAddToDenyList();
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
     const [pending,] = usePendingTransactions(props.address, isTestnet);
@@ -119,18 +124,6 @@ export const WalletTransactions = memo((props: {
     const [walletsSettings,] = useWalletsSettings();
 
     const { showActionSheetWithOptions } = useActionSheet();
-
-    const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
-        let addr = '';
-
-        if (address instanceof Address) {
-            addr = address.toString({ testOnly: isTestnet });
-        } else {
-            addr = address;
-        }
-
-        return updateAddressBook((doc) => doc.denyList[addr] = { reason });
-    }, [isTestnet, updateAddressBook]);
 
     const { transactionsSectioned } = useMemo(() => {
         const sectioned = new Map<string, { title: string, data: TransactionDescription[] }>();
@@ -336,6 +329,7 @@ export const WalletTransactions = memo((props: {
                     bounceableFormat={bounceableFormat}
                     walletsSettings={walletsSettings}
                     knownWallets={knownWallets}
+                    addToDenyList={addToDenyList}
                 />
             )}
             onEndReached={() => props.onLoadMore()}

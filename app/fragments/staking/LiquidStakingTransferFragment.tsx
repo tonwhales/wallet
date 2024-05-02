@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
@@ -28,9 +28,9 @@ import { getLiquidStakingAddress } from '../../utils/KnownPools';
 import { storeLiquidDeposit, storeLiquidWithdraw } from '../../utils/LiquidStakingContract';
 import { ItemDivider } from '../../components/ItemDivider';
 import { Typography } from '../../components/styles';
+import { useValidAmount } from '../../utils/useValidAmount';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { useValidAmount } from '../../utils/useValidAmount';
 
 export type LiquidStakingTransferParams = Omit<StakingTransferParams, 'target'>;
 
@@ -101,15 +101,11 @@ export const LiquidStakingTransferFragment = fragment(() => {
     }
 
     if (params?.action === 'top_up' && params.amount) {
-        const depositRate = liquidStaking?.rateDeposit ?? 0n;
-        const ton = toNano(params.amount);
-        const computed = ton * depositRate;
-        const wsTon = fromNano(computed);
-
-        initAmount = {
-            ton: fromNano(ton),
-            wsTon
-        }
+        initAmount = reduceAmountState(
+            liquidStaking?.rateWithdraw ?? 0n,
+            liquidStaking?.rateDeposit ?? 0n,
+            'top_up'
+        )(initAmount, { type: 'ton', amount: fromNano(params.amount ?? 0n) });
     }
 
     const [amount, dispatchAmount] = useReducer(

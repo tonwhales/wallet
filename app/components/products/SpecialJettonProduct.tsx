@@ -11,6 +11,7 @@ import { Address } from "@ton/core";
 import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
 import { ItemDivider } from "../ItemDivider";
+import { useBounceableWalletFormat } from "../../engine/hooks";
 
 export const SpecialJettonProduct = memo(({
     theme,
@@ -31,8 +32,21 @@ export const SpecialJettonProduct = memo(({
     const specialJetton = useSpecialJetton(address);
     const content = specialJetton?.masterContent;
     const balance = specialJetton?.balance ?? 0n;
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const ledgerAddressStr = address?.toString({ bounceable: bounceableFormat, testOnly });
 
     const onPress = useCallback(() => {
+        const jetton = specialJetton ? { master: specialJetton?.master, data: specialJetton?.masterContent } : undefined;
+
+        if (balance === 0n) {
+            if (isLedger) {
+                navigation.navigate('LedgerReceive', { addr: ledgerAddressStr, ledger: true, jetton });
+            } else {
+                navigation.navigate('Receive', { jetton });
+            }
+            return;
+        }
+
         if (!specialJetton || !specialJetton.wallet) {
             return;
         }
@@ -54,15 +68,10 @@ export const SpecialJettonProduct = memo(({
 
         navigation.navigateSimpleTransfer(tx);
 
-    }, [specialJetton, isLedger]);
-
-    if (!specialJetton) {
-        return null;
-    }
+    }, [specialJetton, isLedger, ledgerAddressStr, balance]);
 
     return (
         <Pressable
-            disabled={!specialJetton || !specialJetton.wallet}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             style={({ pressed }) => {
@@ -89,23 +98,12 @@ export const SpecialJettonProduct = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
-                    {!!content?.image?.preview256 ? (
-                        <WImage
-                            src={content.image.preview256}
-                            blurhash={content.image.blurhash}
-                            width={46}
-                            heigh={46}
-                            borderRadius={23}
-                        />
-                    ) : (
-                        <Text
-                            style={[{ color: theme.white }, Typography.medium13_18]}
-                            ellipsizeMode="tail"
-                            numberOfLines={1}
-                        >
-                            {'TetherUSD₮'}
-                        </Text>
-                    )}
+                    <WImage
+                        requireSource={require('@assets/known/ic-usdt.png')}
+                        width={46}
+                        heigh={46}
+                        borderRadius={23}
+                    />
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         height: 20, width: 20, borderRadius: 10,
@@ -124,14 +122,14 @@ export const SpecialJettonProduct = memo(({
                         ellipsizeMode="tail"
                         numberOfLines={1}
                     >
-                        {content?.name ?? 'USDT'}
+                        {content?.name ?? 'TetherUSD₮'}
                     </Text>
                     <Text
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                         style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
                     >
-                        {content?.description ?? 'The Open Network'}
+                        {content?.description ?? 'Tether Token for Tether USD'}
                     </Text>
                 </View>
                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
@@ -144,11 +142,11 @@ export const SpecialJettonProduct = memo(({
                         />
                         <Text
                             style={{ color: theme.textSecondary, fontSize: 15 }}>
-                            {` ${content?.symbol ?? 'USDT'}`}
+                            {` ${content?.symbol ?? 'USD₮'}`}
                         </Text>
                     </Text>
                     <PriceComponent
-                        amount={specialJetton.nano}
+                        amount={specialJetton?.nano ?? 0n}
                         style={{
                             backgroundColor: 'transparent',
                             paddingHorizontal: 0, paddingVertical: 0,
@@ -158,6 +156,7 @@ export const SpecialJettonProduct = memo(({
                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         theme={theme}
                         priceUSD={1}
+                        hideCentsIfNull
                     />
                 </View>
             </Animated.View>

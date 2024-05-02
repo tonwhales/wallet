@@ -3,7 +3,7 @@ import { View, Text, Pressable, Image } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { Avatar, avatarColors } from "../Avatar";
+import { Avatar, avatarColors } from "../avatar/Avatar";
 import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
 import { avatarHash } from "../../utils/avatarHash";
@@ -30,7 +30,6 @@ export const AddressSearchItemView = memo(({
 }) => {
     const addressString = item.addr.address.toString({ testOnly });
     const contractInfo = useContractInfo(addressString);
-    const a = global.performance.now();
     const known = knownWallets[addressString];
 
     const settings = walletsSettings[addressString];
@@ -69,7 +68,7 @@ export const AddressSearchItemView = memo(({
                             borderWith={0}
                             markContact={item.type === 'contact'}
                             icProps={{
-                                isOwn: item.type === 'my-wallets',
+                                isOwn: item.type === 'own',
                                 backgroundColor: theme.elevation
                             }}
                             hash={settings?.avatar}

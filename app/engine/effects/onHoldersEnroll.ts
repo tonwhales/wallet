@@ -14,7 +14,7 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
         return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment }; // This looks amazingly stupid
     }
 
-    const fetched = await fetchAccountState(token);
+    const fetched = await fetchAccountState(token, isTestnet);
     if (!fetched) {
         return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment };
     }
@@ -27,7 +27,7 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
         let type = 'public';
 
         if (token) {
-            const res = await fetchAccountsList(token);
+            const res = await fetchAccountsList(token, isTestnet);
             accounts = res?.accounts;
             prepaidCards = res?.prepaidCards;
             type = 'private';

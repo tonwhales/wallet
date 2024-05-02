@@ -71,6 +71,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "save": "Сохранить",
         "assets": "Активы",
         "message": "Сообщение",
+        "messages": "Сообщения",
         "airdrop": "Airdrop",
         "myWallets": "Мои кошельки",
         "showMore": "Показать больше",
@@ -476,12 +477,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "title": "Банковский счет",
             "accounts": {
                 "title": 'Счета',
+                "prepaidTitle": 'Prepaid карты',
                 "account": 'Счет',
                 "basicAccount": 'Базовый счет',
                 "proAccount": 'Pro счет',
                 "noCards": "Нет карт",
-                "prepaidCard": "Prepaid карта",
+                "prepaidCard": "Tonhub Prepaid *{{lastFourDigits}}",
                 "prepaidCardDescription": 'Пополняемая карта на каждый день',
+                "hiddenCards": "Скрытые карты",
+                "hiddenAccounts": "Скрытые счета",
             },
             "pageTitles": {
                 "general": "Tonhub Cards",
@@ -496,7 +500,6 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "setUpCard": "Настройка карты",
                 "pin": "Смена PIN-кода"
             },
-            "hiddenCards": "Скрытые счета",
             "card": {
                 "card": "Карта",
                 "cards": "Карты Holders",
@@ -699,7 +702,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "token": "токен",
         "productButtonTitle": "Токены",
         "productButtonSubtitle": "{{jettonName}} и {{count}} других",
-        "hidden": "Скрытые токены"
+        "hidden": "Скрытые токены",
+        "liquidPoolDescriptionDedust": "Ликвидный пул для {{name0}} и {{name1}} на DeDust DEX",
+        "liquidPoolDescriptionStonFi": "Ликвидный пул для {{name0}} и {{name1}} на STON.fi DEX",
     },
     "connections": {
         "extensions": "Расширения",

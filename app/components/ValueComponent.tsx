@@ -99,11 +99,37 @@ export function ValueComponent(props: {
     }
     r = parts.join(' ');
 
+    let real;
+    try {
+        real = parseInt(r);
+    } catch (error) {
+        real = 0;
+    }
+
+    // Determine the precision of the value
     const precision = !!props.decimals
-        ? r.length > 1 ? 2 : props.decimals
+        ? (r.length >= 1) && real !== 0 ? 2 : props.decimals
         : props.precision
             ? props.precision
-            : r.length > 2 ? 2 : p[1].length
+            : r.length > 2 ? 2 : p[1].length;
+
+    // Convert the string to a numerical value for comparison
+    const numericalValue = parseFloat(t);
+
+    // Calculate the smallest value representable by the specified precision
+    const smallestRepresentableValue = 1 / Math.pow(10, precision);
+
+    // Check if the numerical value is less than the smallest representable value
+    if (numericalValue > 0 && numericalValue < smallestRepresentableValue) {
+        return (
+            <Text style={props.fontStyle}>
+                {`${props.prefix || ''}<0${decimalSeparator}`}
+                <Text style={[props.centFontStyle]}>
+                    {`${'0'.repeat(precision - 1)}1${props.suffix || ''}`}
+                </Text>
+            </Text>
+        );
+    }
 
     return (
         <Text style={props.fontStyle}>

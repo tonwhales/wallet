@@ -9,15 +9,16 @@ import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../../engine/hooks";
+import { useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { avatarHash } from "../../../utils/avatarHash";
 import { Typography } from "../../../components/styles";
 import { KnownWallets } from "../../../secure/KnownWallets";
+import { Address } from "@ton/core";
 
 import NoConnection from '@assets/ic-no-connection.svg';
 
-export const WalletHeader = memo(() => {
+export const WalletHeader = memo(({ address }: { address: Address }) => {
     const network = useNetwork();
     const knownWallets = KnownWallets(network.isTestnet);
     const theme = useTheme();
@@ -26,7 +27,6 @@ export const WalletHeader = memo(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
-    const address = useSelectedAccount()!.address;
     const currentWalletIndex = getAppState().selected;
     const [walletSettings,] = useWalletSettings(address);
 

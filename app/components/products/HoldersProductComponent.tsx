@@ -4,8 +4,9 @@ import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAc
 import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
 import { HoldersAccounts } from "./HoldersAccounts";
 import { HoldersCards } from "./HoldersCards";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
-export const HoldersProductComponent = memo(() => {
+export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccStatus?: HoldersAccountStatus }) => {
     const network = useNetwork();
     const theme = useTheme();
     const selected = useSelectedAccount();
@@ -33,8 +34,20 @@ export const HoldersProductComponent = memo(() => {
 
     return (
         <View style={{ marginBottom: 16 }}>
-            <HoldersAccounts theme={theme} isTestnet={network.isTestnet} markCard={markAccount} accs={visibleAccountsList} />
-            <HoldersCards theme={theme} isTestnet={network.isTestnet} markPrepaidCard={markPrepaidCard} cards={visiblePrepaidList} />
+            <HoldersAccounts
+                theme={theme}
+                isTestnet={network.isTestnet}
+                markAccount={markAccount}
+                accs={visibleAccountsList}
+                holdersAccStatus={holdersAccStatus}
+            />
+            <HoldersCards
+                theme={theme}
+                isTestnet={network.isTestnet}
+                markPrepaidCard={markPrepaidCard}
+                cards={visiblePrepaidList}
+                holdersAccStatus={holdersAccStatus}
+            />
         </View>
     );
 });

@@ -5,7 +5,7 @@ import { ValueComponent } from "../ValueComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { useHoldersAccountStatus, useIsConnectAppReady, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useIsConnectAppReady, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { GeneralHoldersCard, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -14,6 +14,7 @@ import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import { toNano } from "@ton/core";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { HoldersAccountCard } from "./HoldersAccountCard";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 export const HoldersPrepaidCard = memo((props: {
     card: PrePaidHoldersCard,
@@ -24,14 +25,14 @@ export const HoldersPrepaidCard = memo((props: {
     single?: boolean,
     hidden?: boolean,
     style?: StyleProp<ViewStyle>,
-    isTestnet: boolean
+    isTestnet: boolean,
+    holdersAccStatus?: HoldersAccountStatus
 }) => {
     const card = props.card;
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const selected = useSelectedAccount();
-    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const holdersAccStatus = props.holdersAccStatus;
     const url = holdersUrl(props.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
 

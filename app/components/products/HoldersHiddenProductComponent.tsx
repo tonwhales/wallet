@@ -7,6 +7,7 @@ import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAc
 import { Typography } from "../styles";
 import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
 import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 import Show from '@assets/ic-show.svg';
 
@@ -16,7 +17,7 @@ export const holdersCardImageMap: { [key: string]: any } = {
     'whales': require('@assets/holders/whales.png'),
 }
 
-export const HoldersHiddenProductComponent = memo(() => {
+export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holdersAccStatus?: HoldersAccountStatus }) => {
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
@@ -91,6 +92,7 @@ export const HoldersHiddenProductComponent = memo(() => {
                                     single={hiddenAccountsList.length === 1}
                                     style={{ paddingVertical: 0 }}
                                     isTestnet={network.isTestnet}
+                                    holdersAccStatus={holdersAccStatus}
                                 />
                             )
                         }}
@@ -141,6 +143,7 @@ export const HoldersHiddenProductComponent = memo(() => {
                                     single={hiddenPrepaidList.length === 1}
                                     style={{ paddingVertical: 0 }}
                                     isTestnet={network.isTestnet}
+                                    holdersAccStatus={holdersAccStatus}
                                 />
                             )
                         }}

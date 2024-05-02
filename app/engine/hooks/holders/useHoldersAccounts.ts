@@ -3,9 +3,15 @@ import { useNetwork } from "../network/useNetwork";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
-import { PrePaidHoldersCard, fetchAccountsList, fetchAccountsPublic } from "../../api/holders/fetchAccounts";
+import { GeneralHoldersAccount, PrePaidHoldersCard, fetchAccountsList, fetchAccountsPublic } from "../../api/holders/fetchAccounts";
 import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersAccountState } from "../../api/holders/fetchAccountState";
+
+export type HoldersAccounts = {
+    accounts: GeneralHoldersAccount[], 
+    type: 'public' | 'private', 
+    prepaidCards?: PrePaidHoldersCard[]
+}
 
 export function useHoldersAccounts(address: string | Address) {
     let { isTestnet } = useNetwork();
@@ -35,7 +41,7 @@ export function useHoldersAccounts(address: string | Address) {
             let prepaidCards: PrePaidHoldersCard[] | undefined;
             let type = 'public';
             if (token) {
-                const res = await fetchAccountsList(token);
+                const res = await fetchAccountsList(token, isTestnet);
                 type = 'private';
                 accounts = res?.accounts;
                 prepaidCards = res?.prepaidCards;
@@ -52,9 +58,8 @@ export function useHoldersAccounts(address: string | Address) {
                 return 0;
             });
 
-            return { accounts: sorted, type, prepaidCards };
-        },
-
+            return { accounts: sorted, type, prepaidCards } as HoldersAccounts;
+        }
     });
 
     return query;

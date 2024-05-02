@@ -26,14 +26,13 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
-    const params = useParams<{ addr?: string, ledger?: boolean }>();
+    const params = useParams<{ addr?: string, ledger?: boolean, jetton?: { master: Address, data: JettonMasterState } }>();
     const selected = useSelectedAccount();
     const [bounceableFormat,] = useBounceableWalletFormat();
 
     const qrSize = 262;
 
-    const [isSharing, setIsSharing] = useState(false);
-    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
+    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(params?.jetton ?? null);
 
     const friendly = useMemo(() => {
         if (params.addr) {
@@ -47,7 +46,7 @@ export const ReceiveFragment = fragment(() => {
         return selected!.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat });
     }, [params, selected, bounceableFormat]);
 
-    const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
+    const onAssetSelected = useCallback((selected?: { master: Address, wallet?: Address }) => {
         if (selected) {
             const data = getJettonMaster(selected.master, network.isTestnet);
             if (data) {
@@ -268,7 +267,6 @@ export const ReceiveFragment = fragment(() => {
                         }}
                         onScreenCapture={() => {
                             return new Promise((resolve, reject) => {
-                                setIsSharing(true);
                                 (async () => {
                                     setTimeout(async () => {
                                         try {
@@ -276,10 +274,8 @@ export const ReceiveFragment = fragment(() => {
                                                 height: 440,
                                                 quality: 1,
                                             });
-                                            setIsSharing(false);
                                             resolve({ uri: localUri });
                                         } catch {
-                                            setIsSharing(false);
                                             reject();
                                         }
                                     }, 150);

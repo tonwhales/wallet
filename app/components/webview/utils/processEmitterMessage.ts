@@ -18,7 +18,9 @@ export function processEmitterMessage(
     ) {
         switch (event) {
             case DAppEmitterEvents.APP_READY:
-                setLoaded(true);
+                setTimeout(() => {
+                    setLoaded(true);
+                }, 200);
                 break;
             default:
                 break;

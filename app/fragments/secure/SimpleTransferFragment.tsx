@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
@@ -18,12 +18,11 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { WImage } from '../../components/WImage';
+import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
+import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonWallet, useJettons, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -31,12 +30,14 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
-import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
+import { AddressInputState, TransferAddressInput } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TransferHeader } from '../../components/transfer/TransferHeader';
+import { JettonIcon } from '../../components/products/JettonIcon';
+import { AnimTextInputRef } from '../../components/address/AddressDomainInput';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -63,6 +64,7 @@ export const SimpleTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
     const route = useRoute();
+    const knownWallets = KnownWallets(network.isTestnet);
     const isLedger = route.name === 'LedgerSimpleTransfer';
     const safeArea = useSafeAreaInsets();
     const acc = useSelectedAccount();
@@ -80,10 +82,11 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [addr]);
 
+    const txs = useAccountTransactions((ledgerAddress ?? acc!.address).toString({ testOnly: network.isTestnet })).data;
+
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
-    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
-        addressInputReducer(),
+    const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
         {
             input: params?.target || '',
             target: params?.target || '',
@@ -97,11 +100,15 @@ export const SimpleTransferFragment = fragment(() => {
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = useState<bigint | null>(null);
-    const [jetton, setJetton] = useState<Address | null>(params?.jetton || null);
+    const [selectedJetton, setJetton] = useState<Address | null>(params?.jetton || null);
 
-    const jettonWallet = useJettonWallet(jetton?.toString({ testOnly: network.isTestnet }), true);
-    const jettonMaster = useJettonMaster(jettonWallet?.master!);
-    const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
+    const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
+    const jetton = useJettons(isLedger ? addr!.address : acc!.addressString)
+        .find((j) => (
+            jettonWallet?.master
+            && j.master.equals(Address.parse(jettonWallet.master))
+        ));
+    const symbol = jetton ? jetton.symbol : 'TON'
 
     const targetAddressValid = useMemo(() => {
         if (target.length > 48) {
@@ -115,15 +122,15 @@ export const SimpleTransferFragment = fragment(() => {
     }, [target]);
 
     const jettonState = useMemo(() => {
-        if (!jetton) {
+        if (!selectedJetton) {
             return null;
         }
 
-        if (!jettonWallet || !jettonMaster) {
+        if (!jettonWallet || !jetton) {
             return null;
         }
-        return { wallet: jettonWallet, master: jettonMaster, walletAddress: jetton };
-    }, [jetton, jettonMaster, jettonWallet]);
+        return { wallet: jettonWallet, master: jetton, walletAddress: selectedJetton };
+    }, [selectedJetton, jetton, jettonWallet]);
 
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
@@ -442,7 +449,7 @@ export const SimpleTransferFragment = fragment(() => {
                 let mTarget = target;
                 let mAmount = validAmount;
                 let mStateInit = stateInit;
-                let mJetton = jetton;
+                let mJetton = selectedJetton;
 
                 try {
                     mAmount = toNano(amount);
@@ -487,7 +494,7 @@ export const SimpleTransferFragment = fragment(() => {
                 });
             }
         }
-    }, [commentString, target, validAmount, stateInit, jetton,]);
+    }, [commentString, target, validAmount, stateInit, selectedJetton,]);
 
     const onAddAll = useCallback(() => {
         const amount = jettonState
@@ -523,7 +530,7 @@ export const SimpleTransferFragment = fragment(() => {
         setJetton(null);
     }, []);
 
-    const isKnown: boolean = !!KnownWallets(network.isTestnet)[target];
+    const isKnown: boolean = !!knownWallets[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -687,6 +694,7 @@ export const SimpleTransferFragment = fragment(() => {
                         address={targetAddressValid.address}
                         isTestnet={network.isTestnet}
                         bounceable={targetAddressValid.isBounceable}
+                        knownWallets={knownWallets}
                     />
                 )
             };
@@ -803,7 +811,7 @@ export const SimpleTransferFragment = fragment(() => {
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
                     <TransferAddressInput
-                        ref={refs[0]}
+                        ref={refs[0] as RefObject<AnimTextInputRef>}
                         acc={ledgerAddress ?? acc!.address}
                         theme={theme}
                         target={target}
@@ -813,13 +821,16 @@ export const SimpleTransferFragment = fragment(() => {
                         isTestnet={network.isTestnet}
                         index={0}
                         onFocus={onFocus}
-                        dispatch={dispatchAddressDomainInput}
+                        setAddressDomainInputState={setAddressDomainInputState}
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
                         onSearchItemSelected={() => {
                             scrollRef.current?.scrollTo({ y: 0 });
                         }}
+                        knownWallets={knownWallets}
+                        lastTwoTxs={txs?.slice(0, 2) ?? []}
+                        navigation={navigation}
                     />
                 </Animated.View>
                 {selected === 'address' && (
@@ -845,7 +856,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     isLedger ? 'LedgerAssets' : 'Assets',
                                     {
                                         callback: onAssetSelected,
-                                        selectedJetton: jettonState ? Address.parse(jettonState.master.address) : undefined
+                                        selectedJetton: jettonState ? Address.parse(jettonWallet!.master) : undefined
                                     }
                                 )}
                             >
@@ -860,42 +871,18 @@ export const SimpleTransferFragment = fragment(() => {
                                             justifyContent: 'center', alignItems: 'center',
                                             marginRight: 12
                                         }}>
-                                            {!!jettonState && (
-                                                <WImage
-                                                    src={jettonState.master.image?.preview256}
-                                                    blurhash={jettonState.master.image?.blurhash}
-                                                    width={46}
-                                                    heigh={46}
-                                                    borderRadius={23}
-                                                    lockLoading
+                                            {!!jettonState ? (
+                                                <JettonIcon
+                                                    isTestnet={network.isTestnet}
+                                                    theme={theme}
+                                                    size={46}
+                                                    jetton={jettonState.master}
+                                                    backgroundColor={theme.elevation}
+                                                    isSCAM={isSCAM}
                                                 />
+                                            ) : (
+                                                <IcTonIcon width={46} height={46} />
                                             )}
-                                            {!jettonState && (<IcTonIcon width={46} height={46} />)}
-                                            {isVerified ? (
-                                                <View style={{
-                                                    justifyContent: 'center', alignItems: 'center',
-                                                    height: 20, width: 20, borderRadius: 10,
-                                                    position: 'absolute', right: -2, bottom: 0,
-                                                    backgroundColor: theme.surfaceOnBg
-                                                }}>
-                                                    <Image
-                                                        source={require('@assets/ic-verified.png')}
-                                                        style={{ height: 20, width: 20 }}
-                                                    />
-                                                </View>
-                                            ) : (isSCAM && (
-                                                <View style={{
-                                                    justifyContent: 'center', alignItems: 'center',
-                                                    height: 20, width: 20, borderRadius: 10,
-                                                    position: 'absolute', right: -2, bottom: -2,
-                                                    backgroundColor: theme.surfaceOnBg
-                                                }}>
-                                                    <Image
-                                                        source={require('@assets/ic-jetton-scam.png')}
-                                                        style={{ height: 20, width: 20 }}
-                                                    />
-                                                </View>
-                                            ))}
                                         </View>
                                         <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
                                             <Text style={{

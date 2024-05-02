@@ -89,6 +89,7 @@ import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
 import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
+import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -265,6 +266,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Security', SecurityFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Contact', ContactFragment, safeArea),
+    modalScreen('ContactNew', ContactNewFragment, safeArea),
     modalScreen('SpamFilter', SpamFilterFragment, safeArea),
     modalScreen('Currency', CurrencyFragment, safeArea),
     modalScreen('Theme', ThemeFragment, safeArea),

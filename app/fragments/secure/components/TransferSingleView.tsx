@@ -7,6 +7,7 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { LedgerOrder, Order } from "../ops/Order";
+import { KnownWallets } from "../../../secure/KnownWallets";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
@@ -14,12 +15,12 @@ import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterCon
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
-import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
+import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
-import { StoredOperation } from "../../../engine/types";
+import { Jetton, StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
 import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
-import { Avatar, avatarColors } from "../../../components/Avatar";
+import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
 import { toBnWithDecimals } from "../../../utils/withDecimals";
@@ -40,7 +41,7 @@ export const TransferSingleView = memo(({
     target,
     fees,
     metadata,
-    jettonMaster,
+    jetton,
     doSend,
     walletSettings,
     known,
@@ -63,7 +64,7 @@ export const TransferSingleView = memo(({
     },
     fees: bigint,
     metadata: ContractMetadata | null,
-    jettonMaster: JettonMasterState | null,
+    jetton: Jetton | null,
     doSend?: () => Promise<void>,
     walletSettings: WalletSettings | null,
     text: string | null,
@@ -76,12 +77,14 @@ export const TransferSingleView = memo(({
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const selected = useSelectedAccount();
     const ledgerTransport = useLedgerTransport();
     const appState = useAppState();
     const [walletsSettings,] = useWalletsSettings();
     const [price, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const holdersUrl = resolveHoldersUrl(isTestnet);
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
@@ -145,18 +148,18 @@ export const TransferSingleView = memo(({
     }, [amount, jettonAmountString]);
 
     const amountText = useMemo(() => {
-        const decimals = jettonMaster?.decimals ?? 9;
+        const decimals = jetton?.decimals ?? 9;
         const textArr = valueText(
             jettonAmountString
                 ? { value: toBnWithDecimals(jettonAmountString, decimals), decimals }
                 : { value: amount, decimals: 9 }
         );
-        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jettonMaster?.symbol ?? ''}`
-    }, [amount, jettonAmountString, jettonMaster]);
+        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jetton?.symbol ?? ''}`
+    }, [amount, jettonAmountString, jetton]);
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
-        ticker: jettonMaster?.symbol,
-        master: metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet })
+        ticker: jetton?.symbol,
+        master: jetton?.master?.toString({ testOnly: isTestnet })
     });
 
     return (
@@ -230,7 +233,7 @@ export const TransferSingleView = memo(({
                                         markContact={!!contact}
                                         icProps={{ position: 'bottom' }}
                                         theme={theme}
-                                        isTestnet={isTestnet}
+                                        knownWallets={knownWallets}
                                     />
                                 )}
                             </View>

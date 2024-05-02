@@ -112,6 +112,7 @@ const MessagePreview = memo(({
                             android: { marginBottom: 16, }
                         })}
                         bounceable={bounceable}
+                        theme={theme}
                     />
                     {known && (
                         <View style={{ flexDirection: 'row' }}>

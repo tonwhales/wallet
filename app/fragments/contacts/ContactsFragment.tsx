@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
@@ -7,7 +7,6 @@ import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import LottieView from 'lottie-react-native';
 import { useSelectedAccount, useTheme, useAccountTransactions, useNetwork } from '../../engine/hooks';
 import { ScreenHeader, useScreenHeader } from "../../components/ScreenHeader";
 import { ContactTransactionView } from "../../components/Contacts/ContactTransactionView";
@@ -15,6 +14,8 @@ import { useParams } from "../../utils/useParams";
 import { StatusBar } from "expo-status-bar";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { useDimensions } from "@react-native-community/hooks";
+import { ATextInput } from "../../components/ATextInput";
+import { KnownWallets } from "../../secure/KnownWallets";
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-contacts-dark.webp'),
@@ -32,9 +33,9 @@ export const ContactsFragment = fragment(() => {
     const account = useSelectedAccount();
     const dimensions = useDimensions();
     const transactions = useAccountTransactions(account?.addressString ?? '').data ?? [];
+    const knownWallets = KnownWallets(isTestnet);
 
     const [search, setSearch] = useState('');
-    const [searchFocused, setSearchFocused] = useState(false);
 
     const transactionsAddresses = useMemo(() => {
         const addresses = new Set<string>();
@@ -47,9 +48,10 @@ export const ContactsFragment = fragment(() => {
         return Array.from(addresses).map((addr) => Address.parseFriendly(addr));
     }, [transactions]);
 
-    const contactsList = useMemo(() => {
+    const contactsEntries = Object.entries(contacts);
+    const contactsSearchList = useMemo(() => {
         if (search && search.length > 0) {
-            return Object.entries(contacts).filter((d) => {
+            return contactsEntries.filter((d) => {
                 const addr = d[0];
                 const contact = d[1];
                 const name = contact.name;
@@ -57,58 +59,49 @@ export const ContactsFragment = fragment(() => {
                 return (addr + name + (lastName ? ` ${lastName}` : '')).toLowerCase().includes(search.toLowerCase());
             });
         }
-        return Object.entries(contacts);
-    }, [contacts, search]);
-
+        return contactsEntries;
+    }, [contactsEntries, search]);
 
     const onAddContact = useCallback(() => {
-        navigation.navigate('Contact', { isNew: true });
+        navigation.navigate('ContactNew');
     }, []);
 
-    // 
-    // Lottie animation
-    // 
-    const anim = useRef<LottieView>(null);
-    useLayoutEffect(() => {
-        if (Platform.OS === 'ios') {
-            setTimeout(() => {
-                anim.current?.play()
-            }, 300);
-        }
-    }, []);
-
-    useScreenHeader(
-        navigation,
-        theme,
-        {
-            title: t('contacts.title'),
-            headerShown: true,
-            headerLargeTitle: true,
-            tintColor: theme.accent,
-            contentStyle: Platform.select({
-                ios: {
-                    borderTopEndRadius: 0, borderTopStartRadius: 0,
-                    paddingBottom: (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16,
-                    backgroundColor: theme.elevation
-                },
-                android: { backgroundColor: theme.backgroundPrimary }
-            }),
-            onClosePressed: Platform.OS === 'ios' ? navigation.goBack : undefined,
-            headerSearchBarOptions: Object.entries(contacts).length > 0 ? {
-                hideWhenScrolling: false,
-                hideNavigationBar: false,
-                onFocus: () => setSearchFocused(true),
-                onBlur: () => setSearchFocused(false),
-                onChangeText: (event) => setSearch(event.nativeEvent.text),
-                placeholder: t('contacts.search'),
-                onCancelButtonPress: () => setSearch('')
-            } : undefined,
-        }
-    );
+    if (Platform.OS === 'ios') {
+        useScreenHeader(
+            navigation,
+            theme,
+            {
+                title: t('contacts.title'),
+                headerShown: true,
+                headerLargeTitle: false,
+                tintColor: theme.accent,
+                contentStyle: Platform.select({
+                    ios: {
+                        borderTopEndRadius: 0, borderTopStartRadius: 0,
+                        paddingBottom: (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16,
+                        backgroundColor: theme.elevation
+                    },
+                    android: { backgroundColor: theme.backgroundPrimary }
+                }),
+                onClosePressed: Platform.OS === 'ios' ? navigation.goBack : undefined,
+                headerSearchBarOptions: Platform.select({
+                    android: undefined,
+                    ios: Object.entries(contacts).length > 0 ? {
+                        hideWhenScrolling: false,
+                        hideNavigationBar: false,
+                        onChangeText: (event: any) => setSearch(event.nativeEvent.text),
+                        placeholder: t('contacts.search'),
+                        onCancelButtonPress: () => setSearch(''),
+                    } : undefined,
+                }),
+                headerTintColor: theme.textPrimary
+            }
+        );
+    }
 
     return (
         <View style={{
-            flex: 1,
+            flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             paddingBottom: safeArea.bottom + 16,
         }}>
@@ -116,93 +109,125 @@ export const ContactsFragment = fragment(() => {
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'
             })} />
-            {(Object.entries(contacts).length <= 0) && (
-                <ScreenHeader
-                    title={t('contacts.title')}
-                    onClosePressed={navigation.goBack}
-                />
-            )}
-            {(!contactsList || contactsList.length === 0) ? (
+            {Platform.OS === 'ios' ? (
+                (Object.entries(contacts).length <= 0) && (
+                    <ScreenHeader
+                        title={t('contacts.title')}
+                        onClosePressed={navigation.goBack}
+                    />
+                )
+            ) : (
                 <>
-                    <View style={{ alignItems: 'center' }}>
-                        <View style={{
-                            justifyContent: 'center', alignItems: 'center',
-                            width: dimensions.screen.width - 32,
-                            height: (dimensions.screen.width - 32) * 0.72,
-                            borderRadius: 20, overflow: 'hidden',
-                            marginTop: 20
-                        }}>
-                            <Image
-                                resizeMode={'center'}
-                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -66 }}
-                                source={EmptyIllustrations[theme.style]}
-                            />
-                        </View>
-                        <View style={{ alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
-                            <Text style={{
-                                fontSize: 32, lineHeight: 38,
-                                fontWeight: '600',
-                                marginBottom: 16,
-                                textAlign: 'center',
-                                color: theme.textPrimary,
-                            }}
-                            >
-                                {t('contacts.empty')}
-                            </Text>
-                            <Text style={{
-                                fontSize: 17, lineHeight: 24,
-                                fontWeight: '400',
-                                color: theme.textSecondary,
-                                textAlign: 'center'
+                    <ScreenHeader
+                        title={t('contacts.title')}
+                        onClosePressed={navigation.goBack}
+                    />
+                    <ATextInput
+                        placeholder={t('contacts.search')}
+                        onValueChange={setSearch}
+                        value={search}
+                        style={{
+                            paddingHorizontal: 16, paddingVertical: 16,
+                            backgroundColor: theme.surfaceOnBg,
+                            margin: 16
+                        }}
+                    />
+                </>
+            )}
+            <ScrollView
+                contentInsetAdjustmentBehavior="automatic"
+                style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
+                showsVerticalScrollIndicator={true}
+            >
+                {contactsEntries.length === 0 ? (
+                    <>
+                        <View style={{ alignItems: 'center' }}>
+                            <View style={{
+                                justifyContent: 'center', alignItems: 'center',
+                                width: dimensions.screen.width - 32,
+                                height: (dimensions.screen.width - 32) * 0.72,
+                                borderRadius: 20, overflow: 'hidden',
+                                marginTop: 20
                             }}>
-                                {t('contacts.description')}
-                            </Text>
-                        </View>
+                                <Image
+                                    resizeMode={'center'}
+                                    style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -66 }}
+                                    source={EmptyIllustrations[theme.style]}
+                                />
+                            </View>
+                            <View style={{ alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
+                                <Text style={{
+                                    fontSize: 32, lineHeight: 38,
+                                    fontWeight: '600',
+                                    marginBottom: 16,
+                                    textAlign: 'center',
+                                    color: theme.textPrimary,
+                                }}
+                                >
+                                    {t('contacts.empty')}
+                                </Text>
+                                <Text style={{
+                                    fontSize: 17, lineHeight: 24,
+                                    fontWeight: '400',
+                                    color: theme.textSecondary,
+                                    textAlign: 'center'
+                                }}>
+                                    {t('contacts.description')}
+                                </Text>
+                            </View>
 
-                    </View>
-                    <ScrollView
-                        style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom, marginTop: 16 }}
-                        showsVerticalScrollIndicator={true}
-                    >
+                        </View>
                         {transactionsAddresses.map((a, index) => {
                             return (
                                 <ContactTransactionView
                                     key={`recent-${index}`}
                                     addr={a}
                                     testOnly={isTestnet}
+                                    knownWallets={knownWallets}
                                 />
                             );
                         })}
-                    </ScrollView>
-                </>
-            ) : (
-                <ScrollView
-                    style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
-                    showsVerticalScrollIndicator={true}
-                >
-                    {contactsList.map((d) => {
-                        return (
-                            <ContactItemView
-                                key={`contact-${d[0]}`}
-                                addressFriendly={d[0]}
-                                action={callback}
-                                testOnly={isTestnet}
-                            />
-                        );
-                    })}
-                </ScrollView>
-
-            )}
+                    </>
+                ) : (
+                    <>
+                        {contactsSearchList.map((d) => {
+                            return (
+                                <ContactItemView
+                                    key={`contact-${d[0]}`}
+                                    addressFriendly={d[0]}
+                                    action={callback}
+                                    testOnly={isTestnet}
+                                    knownWallets={knownWallets}
+                                />
+                            );
+                        })}
+                        {contactsSearchList.length === 0 && (
+                            <View style={{ alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
+                                <Text style={{
+                                    fontSize: 32, lineHeight: 38,
+                                    fontWeight: '600',
+                                    marginBottom: 16,
+                                    textAlign: 'center',
+                                    color: theme.textPrimary,
+                                }}
+                                >
+                                    {t('contacts.empty')}
+                                </Text>
+                            </View>
+                        )}
+                    </>
+                )}
+            </ScrollView>
             {!callback && (
                 <RoundButton
                     title={t('contacts.add')}
                     onPress={onAddContact}
                     style={[
                         { marginHorizontal: 16 },
-                        Platform.select({ ios: { marginBottom: (contactsList && contactsList.length > 0) ? 16 + 56 + safeArea.bottom : 0 } })
+                        Platform.select({ ios: { marginBottom: (contactsSearchList && contactsSearchList.length > 0) ? 16 + 56 + safeArea.bottom : 0 } })
                     ]}
                 />
             )}
         </View>
-    )
+    );
 });

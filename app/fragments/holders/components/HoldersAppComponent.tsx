@@ -32,116 +32,131 @@ export function normalizePath(path: string) {
 
 import IcHolders from '@assets/ic_holders.svg';
 
-const PulsingAccountPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
+const AccountPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
     const safeArea = useSafeAreaInsets();
 
     return (
-        <View style={{ flexGrow: 1, width: '100%' }}>
+        <View style={[
+            { flexGrow: 1, width: '100%' },
+            Platform.select({
+                ios: { paddingTop: safeArea.top - 8 },
+                android: { paddingTop: safeArea.top }
+            })
+        ]}>
             <View
-                style={{
-                    backgroundColor: theme.backgroundUnchangeable,
-                    height: Platform.OS === 'android' ? 296 : 324,
-                    position: 'absolute',
-                    top: -30 - 36 - safeArea.top,
-                    left: 0,
-                    right: 0,
-                    borderRadius: 20,
-                    alignItems: 'center',
-                    paddingHorizontal: 20,
-                    borderBottomLeftRadius: 20,
-                    borderBottomRightRadius: 20,
-                }}
+                style={[
+                    {
+                        backgroundColor: theme.backgroundUnchangeable,
+                        position: 'absolute', top: 0, left: 0, right: 0
+                    },
+                    Platform.select({
+                        ios: { height: safeArea.top - 8 },
+                        android: { height: safeArea.top }
+                    }),
+                ]}
             />
-            <View style={[
-                {
-                    height: 44,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 16,
-                    marginTop: safeArea.top - 59,
-                    width: '100%'
-                },
-            ]}>
-                <View style={{
-                    width: 32, height: 32,
-                    backgroundColor: '#1c1c1e',
-                    borderRadius: 16
-                }} />
-                <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{
+                backgroundColor: theme.backgroundUnchangeable,
+                borderBottomLeftRadius: 20,
+                borderBottomRightRadius: 20,
+                paddingTop: 8
+            }}>
+                <View style={[
+                    {
+                        height: 44,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingHorizontal: 16,
+                        width: '100%'
+                    },
+                ]}>
                     <View style={{
+                        width: 32, height: 32,
                         backgroundColor: '#1c1c1e',
-                        height: 28, width: 132,
-                        borderRadius: 20
+                        borderRadius: 16
+                    }} />
+                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{
+                            backgroundColor: '#1c1c1e',
+                            height: 28, width: 132,
+                            borderRadius: 20
+                        }} />
+                    </View>
+                    <View style={{
+                        width: 32, height: 32,
+                        backgroundColor: '#1c1c1e',
+                        borderRadius: 16
                     }} />
                 </View>
-                <View style={{
-                    width: 32, height: 32,
-                    backgroundColor: '#1c1c1e',
-                    borderRadius: 16
-                }} />
+                <View
+                    style={{
+                        height: 28,
+                        width: 78,
+                        backgroundColor: '#1c1c1e',
+                        borderRadius: 20,
+                        marginTop: 20 + 38 + 20,
+                        alignSelf: 'center'
+                    }}
+                />
+                <View
+                    style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        height: 96,
+                        borderRadius: 20,
+                        marginTop: 24,
+                        marginHorizontal: 16,
+                        marginBottom: - 48
+                    }}
+                />
             </View>
-            <View
-                style={{
-                    height: 26,
-                    width: 78,
-                    backgroundColor: '#1c1c1e',
-                    borderRadius: 20,
-                    marginTop: 20 + 38 + 24,
-                    alignSelf: 'center'
-                }}
-            />
-            <View
-                style={{
-                    backgroundColor: theme.surfaceOnBg,
-                    height: 96,
-                    borderRadius: 20,
-                    marginTop: 24,
-                    marginHorizontal: 16
-                }}
-            />
         </View>
     );
 });
 
-const PulsingCardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
+const CardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
     const dimensions = useDimensions();
+    const safeArea = useSafeAreaInsets();
 
     return (
-        <View style={{ flexGrow: 1, width: '100%' }}>
+        <View style={[
+            { flexGrow: 1, width: '100%' },
+            Platform.select({
+                ios: { paddingTop: safeArea.top - 8 },
+                android: { paddingTop: safeArea.top }
+            })
+        ]}>
             <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: '100%',
-                marginTop: 48,
-                gap: 28
+                marginTop: 44 + 24,
+                gap: 26
             }}>
                 <View
                     style={{
                         backgroundColor: theme.surfaceOnBg,
-                        width: (dimensions.screen.width - 56) * 0.1 - 8,
+                        width: 32,
                         height: 152,
-                        marginLeft: -16,
-                        borderTopEndRadius: 20,
-                        borderBottomEndRadius: 20
+                        borderTopEndRadius: 18,
+                        borderBottomEndRadius: 18
                     }}
                 />
                 <View
                     style={{
                         backgroundColor: theme.surfaceOnBg,
-                        width: dimensions.screen.width - 108,
-                        height: 186,
+                        width: dimensions.screen.width - 98,
+                        height: 184,
                         borderRadius: 20
                     }}
                 />
                 <View
                     style={{
                         backgroundColor: theme.surfaceOnBg,
-                        width: (dimensions.screen.width - 56) * 0.1 - 8,
+                        width: 32,
                         height: 152,
-                        marginRight: -16,
-                        borderTopStartRadius: 20,
-                        borderBottomStartRadius: 20
+                        borderTopStartRadius: 18,
+                        borderBottomStartRadius: 18
                     }}
                 />
             </View>
@@ -151,7 +166,8 @@ const PulsingCardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
                 height: 96,
                 width: dimensions.screen.width - 32,
                 marginTop: 38,
-                borderRadius: 20
+                borderRadius: 20,
+                opacity: 1
             }} />
         </View>
     );
@@ -159,6 +175,7 @@ const PulsingCardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
 
 export const HoldersPlaceholder = memo(() => {
     const animation = useSharedValue(0);
+    const safeArea = useSafeAreaInsets();
 
     useEffect(() => {
         animation.value =
@@ -197,7 +214,13 @@ export const HoldersPlaceholder = memo(() => {
     }, []);
 
     return (
-        <Animated.View style={animatedStyles}>
+        <Animated.View style={[
+            animatedStyles,
+            Platform.select({
+                ios: { paddingTop: safeArea.top - 8 },
+                android: { paddingTop: safeArea.top }
+            })
+        ]}>
             <IcHolders color={'#eee'} />
         </Animated.View>
     );
@@ -215,7 +238,7 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'a
         return {
             opacity: withTiming(
                 opacity.value,
-                { duration: 500 }
+                { duration: 350, easing: Easing.inOut(Easing.ease) },
             )
         };
     });
@@ -232,11 +255,11 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'a
 
     const placeholder = useMemo(() => {
         if (type === 'account') {
-            return <PulsingAccountPlaceholder theme={theme} />;
+            return <AccountPlaceholder theme={theme} />;
         }
 
         if (type === 'prepaid') {
-            return <PulsingCardPlaceholder theme={theme} />;
+            return <CardPlaceholder theme={theme} />;
         }
 
         return <HoldersPlaceholder />;
@@ -247,21 +270,30 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'a
             style={[
                 {
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    paddingTop: (type === 'account' || type === 'prepaid') ? 0 : safeArea.top,
                     backgroundColor: theme.backgroundPrimary,
                     alignItems: 'center'
                 },
-                animatedStyles
+                animatedStyles,
+                Platform.select({
+                    ios: { paddingTop: (type === 'account' || type === 'prepaid') ? 0 : safeArea.top },
+                    android: { paddingTop: 0 }
+                }),
             ]}
             pointerEvents={loaded ? 'none' : 'auto'}
         >
-            <View style={{ marginTop: 58, width: '100%', flexGrow: 1 }}>
-                {placeholder}
-            </View>
-            <ScreenHeader
-                onBackPressed={showClose ? navigation.goBack : undefined}
-                style={{ position: 'absolute', top: 32, left: 16, right: 0 }}
-            />
+            {placeholder}
+            {!loaded && (
+                <ScreenHeader
+                    onBackPressed={showClose ? navigation.goBack : undefined}
+                    style={[
+                        { position: 'absolute', top: 32, left: 16, right: 0 },
+                        Platform.select({
+                            ios: { top: 32 },
+                            android: { top: safeArea.top - 6 }
+                        })
+                    ]}
+                />
+            )}
         </Animated.View>
     );
 });

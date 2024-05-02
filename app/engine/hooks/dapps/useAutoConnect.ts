@@ -11,7 +11,7 @@ export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
     return async (endpoint: string) => {
         try {
             const app = connectApp(endpoint);
-            const connections = getConnections(extensionKey(endpoint));
+            const connections = app ? getConnections(extensionKey(app.url)) : [];
 
             if (
                 !app ||

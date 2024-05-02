@@ -116,4 +116,3 @@ export const PriceComponent = memo((
         </PerfView>
     );
 });
-PriceComponent.displayName = 'PriceComponent';

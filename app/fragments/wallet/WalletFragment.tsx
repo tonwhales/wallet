@@ -171,6 +171,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                 ios: { marginBottom: 24 + bottomBarHeight, },
                                 android: { marginBottom: 16, }
                             })}
+                            theme={theme}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>

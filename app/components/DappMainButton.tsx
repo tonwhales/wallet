@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Pressable, StyleProp, Text, View, ViewStyle, Platform } from 'react-native';
+import { ActivityIndicator, Pressable, StyleProp, View, ViewStyle, Platform } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
 import * as t from "io-ts";
 import { warn } from '../utils/log';

@@ -10,9 +10,8 @@ import { ShareButton } from "../../components/ShareButton";
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { KnownJettonMasters, KnownJettonTickers } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useIsScamJetton } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
@@ -27,14 +26,13 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
-    const params = useParams<{ addr?: string, ledger?: boolean }>();
+    const params = useParams<{ addr?: string, ledger?: boolean, jetton?: { master: Address, data: JettonMasterState } }>();
     const selected = useSelectedAccount();
     const [bounceableFormat,] = useBounceableWalletFormat();
 
     const qrSize = 262;
 
-    const [isSharing, setIsSharing] = useState(false);
-    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
+    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(params?.jetton ?? null);
 
     const friendly = useMemo(() => {
         if (params.addr) {
@@ -48,14 +46,7 @@ export const ReceiveFragment = fragment(() => {
         return selected!.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat });
     }, [params, selected, bounceableFormat]);
 
-    const isVerified = useMemo(() => {
-        if (!jetton) {
-            return true;
-        }
-        return !!KnownJettonMasters(network.isTestnet)[jetton?.master.toString({ testOnly: network.isTestnet })];
-    }, [jetton, network]);
-
-    const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
+    const onAssetSelected = useCallback((selected?: { master: Address, wallet?: Address }) => {
         if (selected) {
             const data = getJettonMaster(selected.master, network.isTestnet);
             if (data) {
@@ -76,7 +67,10 @@ export const ReceiveFragment = fragment(() => {
             + `/${friendly}`
     }, [jetton, network, friendly]);
 
-    const isSCAM = useIsScamJetton(jetton?.data.symbol, jetton?.master?.toString({ testOnly: network.isTestnet }));
+    const { isSCAM, verified: isVerified } = useVerifyJetton({
+        ticker: jetton?.data.symbol,
+        master: jetton?.master?.toString({ testOnly: network.isTestnet })
+    });
 
     return (
         <View
@@ -273,7 +267,6 @@ export const ReceiveFragment = fragment(() => {
                         }}
                         onScreenCapture={() => {
                             return new Promise((resolve, reject) => {
-                                setIsSharing(true);
                                 (async () => {
                                     setTimeout(async () => {
                                         try {
@@ -281,10 +274,8 @@ export const ReceiveFragment = fragment(() => {
                                                 height: 440,
                                                 quality: 1,
                                             });
-                                            setIsSharing(false);
                                             resolve({ uri: localUri });
                                         } catch {
-                                            setIsSharing(false);
                                             reject();
                                         }
                                     }, 150);

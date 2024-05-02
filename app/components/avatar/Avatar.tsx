@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Image } from 'react-native';
-import { avatarHash } from '../utils/avatarHash';
-import { KnownWallets } from '../secure/KnownWallets';
+import { avatarHash } from '../../utils/avatarHash';
 import { KnownAvatar } from './KnownAvatar';
 import FastImage from 'react-native-fast-image';
 import { ReactNode, memo } from 'react';
-import { PerfText } from './basic/PerfText';
-import { PerfView } from './basic/PerfView';
-import { ThemeType } from '../engine/state/theme';
+import { PerfText } from '../basic/PerfText';
+import { PerfView } from '../basic/PerfView';
+import { ThemeType } from '../../engine/state/theme';
+import { KnownWallet } from '../../secure/KnownWallets';
 
 export const avatarImages = [
     require('@assets/avatars/0.png'),
@@ -57,26 +57,28 @@ export const avatarColors = [
     '#FFA766'
 ];
 
+export type AvatarIcProps = {
+    isOwn?: boolean,
+    borderWidth?: number,
+    position?: 'top' | 'bottom' | 'left' | 'right',
+    backgroundColor?: string,
+    size?: number,
+};
+
 function resolveIc(
     params: {
         markContact?: boolean,
         isSpam?: boolean,
         verified?: boolean,
         dontShowVerified?: boolean,
-        icProps?: {
-            isOwn?: boolean,
-            borderWidth?: number,
-            position?: 'top' | 'bottom' | 'left' | 'right',
-            backgroundColor?: string,
-            size?: number,
-        },
+        icProps?: AvatarIcProps,
         icPosition: { top?: number, bottom?: number, left?: number, right?: number },
         icSize: number,
         known?: boolean,
         icOutline: number
     },
     theme: ThemeType
-): ReactNode | null {
+): React.ReactNode | null {
     const { markContact, verified, dontShowVerified, icProps, isSpam, icPosition, icSize, known, icOutline } = params;
 
     if (isSpam) {
@@ -162,24 +164,42 @@ export const Avatar = memo((props: {
     borderColor?: string,
     borderWith?: number,
     backgroundColor?: string,
-    icProps?: {
-        isOwn?: boolean,
-        borderWidth?: number,
-        position?: 'top' | 'bottom' | 'left' | 'right',
-        backgroundColor?: string,
-        size?: number,
-    },
+    icProps?: AvatarIcProps,
     theme: ThemeType,
-    isTestnet: boolean,
-    hashColor?: { hash: number } | boolean
+    hashColor?: { hash: number } | boolean,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
-    const { theme, isTestnet, address, id, markContact, verified, dontShowVerified, icProps, image, showSpambadge, spam, size, hash, hashColor, borderColor, borderWith, backgroundColor } = props;
-    const imgHash = hash ?? avatarHash(id, avatarImages.length);
-    let known = address ? KnownWallets(isTestnet)[address] : undefined;
-    let imgSource = avatarImages[imgHash];
-    let color = avatarColors[avatarHash(id, avatarColors.length)];
+    const { theme, address, hashColor, icProps, size, showSpambadge, spam, markContact, verified, dontShowVerified, borderColor, borderWith, image } = props
+    const known = address ? props.knownWallets[address] : undefined;
+    const hash = (props.hash !== undefined && props.hash !== null)
+        ? props.hash
+        : avatarHash(props.id, avatarImages.length);
+    const imgSource = avatarImages[hash];
+    const color = avatarColors[avatarHash(props.id, avatarColors.length)];
+
+    // resolve image
     let img: ReactNode;
-    let avatarBackgroundClr: string | undefined = backgroundColor ?? theme.surfaceOnElevation;
+
+    if (props.image) {
+        img = (
+            <FastImage
+                source={{ uri: props.image }}
+                style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
+            />
+        );
+    } else if (!known || (!known.ic) && imgSource) {
+        const animalSize = props.size + 8
+        img = (
+            <FastImage
+                source={imgSource}
+                style={{ width: animalSize, height: animalSize, borderRadius: animalSize / 2, overflow: 'hidden' }}
+            />
+        );
+    } else {
+        img = <KnownAvatar size={props.size} wallet={known} />;
+    }
+
+    let avatarBackgroundClr: string | undefined = props.backgroundColor ?? theme.surfaceOnElevation;
 
     if (!!known && !!known?.ic) {
         avatarBackgroundClr = theme.backgroundPrimary;

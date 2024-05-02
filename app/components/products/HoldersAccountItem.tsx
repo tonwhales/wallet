@@ -14,7 +14,6 @@ import { Typography } from "../styles";
 import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
-import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -27,14 +26,14 @@ export const HoldersAccountItem = memo((props: {
     single?: boolean,
     hidden?: boolean,
     style?: StyleProp<ViewStyle>,
-    holdersAccStatus?: HoldersAccountStatus
     isTestnet: boolean,
     hideCardsIfEmpty?: boolean
 }) => {
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const holdersAccStatus = props.holdersAccStatus;
+    const selected = useSelectedAccount();
+    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const url = holdersUrl(props.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
 

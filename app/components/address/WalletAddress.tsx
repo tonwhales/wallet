@@ -33,6 +33,8 @@ export const WalletAddress = memo((props: {
     const toaster = useToaster();
     const network = useNetwork();
     const theme = props.theme;
+    const navigation = useTypedNavigation();
+    const addToDenyList = useAddToDenyList();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const bounceable = (props.bounceable === undefined)
         ? bounceableFormat

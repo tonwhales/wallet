@@ -71,6 +71,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         save: 'Save',
         assets: 'Assets',
         message: 'Message',
+        messages: 'Messages',
         airdrop: 'Airdrop',
         myWallets: 'My wallets',
         showMore: 'Show more',
@@ -411,7 +412,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
             },
             unstakeLiquid: {
-                title: 'Wihdraw your wsTON',
+                title: 'Withdraw your wsTON',
                 message: 'You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on ',
             },
             learnMore: 'Info',
@@ -476,12 +477,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Bank account',
             accounts: {
                 title: 'Accounts',
+                prepaidTitle: 'Prepaid cards',
                 account: 'Account',
                 basicAccount: 'Basic account',
                 proAccount: 'Pro account',
                 noCards: 'No cards',
-                prepaidCard: 'Prepaid card',
+                prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
                 prepaidCardDescription: 'Reloadable card for everyday use',
+                hiddenCards: 'Hidden cards',
+                hiddenAccounts: 'Hidden accounts'
             },
             pageTitles: {
                 general: 'Tonhub Cards',
@@ -496,7 +500,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 setUpCard: 'Set up the card',
                 pin: 'Change PIN',
             },
-            hiddenCards: 'Hidden accounts',
             card: {
                 card: 'Card',
                 cards: 'Holders cards',
@@ -700,6 +703,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         productButtonTitle: 'Jettons',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
         hidden: 'Hidden jettons',
+        liquidPoolDescriptionDedust: 'Liquidity pool token for {{name0}} and {{name1}} on DeDust DEX',
+        liquidPoolDescriptionStonFi: 'Liquidity pool token for {{name0}} and {{name1}} on STON.fi DEX',
     },
     connections: {
         extensions: 'Extensions',

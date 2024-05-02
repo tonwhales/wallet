@@ -228,6 +228,7 @@ export const CollapsibleCards = memo(({
                         },
                         cardSecondLevelStyle,
                         theme.style === 'dark' ? {
+                            backgroundColor: theme.cardStackSecond,
                             shadowColor: '#000',
                             shadowOffset: { width: 0, height: 2 },
                             shadowOpacity: 0.15,

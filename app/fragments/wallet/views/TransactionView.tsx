@@ -2,14 +2,13 @@ import * as React from 'react';
 import { Pressable, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
-import { Avatar, avatarColors } from '../../../components/Avatar';
-import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { KnownJettonMasters, KnownJettonTickers, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
+import { avatarColors } from '../../../components/avatar/Avatar';
+import { KnownWallet } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
-import { TransactionDescription } from '../../../engine/types';
+import { Jetton, TransactionDescription } from '../../../engine/types';
 import { useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
@@ -18,9 +17,12 @@ import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
-import { useIsScamJetton, useWalletSettings } from '../../../engine/hooks';
 import { avatarHash } from '../../../utils/avatarHash';
+import { WalletSettings } from '../../../engine/state/walletSettings';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
+import { usePeparedMessages, useVerifyJetton } from '../../../engine/hooks';
+import { TxAvatar } from './TxAvatar';
+import { PreparedMessageView } from './PreparedMessageView';
 
 export function TransactionView(props: {
     own: Address,
@@ -31,7 +33,6 @@ export function TransactionView(props: {
     onPress: (src: TransactionDescription) => void,
     onLongPress?: (src: TransactionDescription) => void,
     ledger?: boolean,
-    addToDenyList: (address: string | Address, reason: string) => void,
     spamMinAmount: bigint,
     dontShowComments: boolean,
     denyList: { [key: string]: { reason: string | null } },
@@ -39,7 +40,9 @@ export function TransactionView(props: {
     isTestnet: boolean,
     spamWallets: string[],
     appState?: AppState,
-    bounceableFormat: boolean
+    bounceableFormat: boolean,
+    walletsSettings: { [key: string]: WalletSettings }
+    knownWallets: { [key: string]: KnownWallet }
 }) {
     const {
         theme,
@@ -48,6 +51,7 @@ export function TransactionView(props: {
         spamMinAmount, dontShowComments, spamWallets,
         contacts,
         isTestnet,
+        knownWallets
     } = props;
     const parsed = tx.base.parsed;
     const operation = tx.base.operation;
@@ -60,8 +64,9 @@ export function TransactionView(props: {
     const parsedAddress = parsedOpAddr.address;
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
+    const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet);
 
-    const [walletSettings,] = useWalletSettings(parsedAddressFriendly);
+    const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -98,8 +103,8 @@ export function TransactionView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[parsedAddressFriendly]) {
-        known = KnownWallets(isTestnet)[parsedAddressFriendly];
+    if (knownWallets[parsedAddressFriendly]) {
+        known = knownWallets[parsedAddressFriendly];
     }
     if (tx.title) {
         known = { name: tx.title };
@@ -117,16 +122,45 @@ export function TransactionView(props: {
         || (
             absAmount < spamMinAmount
             && !!tx.base.operation.comment
-            && !KnownWallets(isTestnet)[parsedAddressFriendly]
+            && !knownWallets[parsedAddressFriendly]
             && !isTestnet
         ) && kind !== 'out';
 
+
+    if (preparedMessages.length > 1) {
+        return (
+            <>
+                {preparedMessages.map((m, i) => (
+                    <PreparedMessageView
+                        own={props.own}
+                        message={m}
+                        separator={false}
+                        theme={theme}
+                        navigation={props.navigation}
+                        onPress={() => props.onPress(props.tx)}
+                        onLongPress={() => props.onLongPress?.(props.tx)}
+                        contacts={props.contacts}
+                        isTestnet={props.isTestnet}
+                        bounceableFormat={props.bounceableFormat}
+                        walletsSettings={props.walletsSettings}
+                        time={tx.base.time}
+                        status={parsed.status}
+                        knownWallets={knownWallets}
+                    />
+                ))}
+            </>
+        );
+    }
     const amountColor = (kind === 'in')
         ? (spam ? theme.textPrimary : theme.accentGreen)
         : theme.textPrimary;
 
-    const jettonMaster = tx.metadata?.jettonWallet?.master;
-    const isSCAMJetton = useIsScamJetton(tx.masterMetadata?.symbol, jettonMaster?.toString({ testOnly: isTestnet }));
+    const jettonMaster = tx.masterAddressStr ?? tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
+
+    const { isSCAM: isSCAMJetton } = useVerifyJetton({
+        ticker: item.kind === 'token' ? tx.masterMetadata?.symbol : undefined,
+        master: jettonMaster
+    });
 
     const symbolText = `${(item.kind === 'token')
         ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}`
@@ -155,32 +189,18 @@ export function TransactionView(props: {
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center'
                 }}>
-                    {parsed.status === 'pending' ? (
-                        <PendingTransactionAvatar
-                            kind={kind}
-                            address={parsedAddressFriendly}
-                            avatarId={parsedAddressFriendly}
-                        />
-                    ) : (
-                        <Avatar
-                            size={48}
-                            address={parsedAddressFriendly}
-                            id={parsedAddressFriendly}
-                            borderWith={0}
-                            spam={spam}
-                            markContact={!!contact}
-                            icProps={{
-                                isOwn,
-                                backgroundColor: theme.backgroundPrimary,
-                                size: 18,
-                                borderWidth: 2
-                            }}
-                            theme={theme}
-                            isTestnet={isTestnet}
-                            backgroundColor={avatarColor}
-                            hash={walletSettings?.avatar}
-                        />
-                    )}
+                    <TxAvatar
+                        status={parsed.status}
+                        parsedAddressFriendly={parsedAddressFriendly}
+                        kind={kind}
+                        spam={spam}
+                        isOwn={isOwn}
+                        theme={theme}
+                        walletSettings={walletSettings}
+                        markContact={!!contact}
+                        avatarColor={avatarColor}
+                        knownWallets={knownWallets}
+                    />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>
                     <PerfView style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -224,15 +244,20 @@ export function TransactionView(props: {
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        {known
-                            ? known.name
-                            : <AddressComponent
-                                testOnly={isTestnet}
-                                address={parsedOpAddr.address}
-                                bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
-                            />
-                        }
-                        {` • ${formatTime(tx.base.time)}`}
+                        {tx.base.outMessagesCount <= 1 && (
+                            <>
+                                {known
+                                    ? known.name
+                                    : <AddressComponent
+                                        testOnly={isTestnet}
+                                        address={parsedOpAddr.address}
+                                        bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
+                                    />
+                                }
+                                {' • '}
+                            </>
+                        )}
+                        {`${formatTime(tx.base.time)}`}
                     </Text>
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>
@@ -248,24 +273,30 @@ export function TransactionView(props: {
                             style={[{ color: amountColor, marginRight: 2 }, Typography.semiBold17_24]}
                             numberOfLines={1}
                         >
-                            {kind === 'in' ? '+' : '-'}
-                            <ValueComponent
-                                value={absAmount}
-                                decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
-                                precision={3}
-                                centFontStyle={{ fontSize: 15 }}
-                            />
-                            <Text style={{ fontSize: 15 }}>
-                                {symbolText}
-                                {isSCAMJetton && (
-                                    <Text style={{ color: theme.accentRed }}>
-                                        {' SCAM'}
+                            {tx.base.outMessagesCount > 1 ? (
+                                `${tx.base.outMessagesCount} ${t('common.messages').toLowerCase()}`
+                            ) : (
+                                <>
+                                    {kind === 'in' ? '+' : '-'}
+                                    <ValueComponent
+                                        value={absAmount}
+                                        decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
+                                        precision={3}
+                                        centFontStyle={{ fontSize: 15 }}
+                                    />
+                                    <Text style={{ fontSize: 15 }}>
+                                        {symbolText}
+                                        {isSCAMJetton && (
+                                            <Text style={{ color: theme.accentRed }}>
+                                                {' SCAM'}
+                                            </Text>
+                                        )}
                                     </Text>
-                                )}
-                            </Text>
+                                </>
+                            )}
                         </Text>
                     )}
-                    {item.kind !== 'token' && (
+                    {item.kind !== 'token' && tx.base.outMessagesCount <= 1 && (
                         <PriceComponent
                             amount={absAmount}
                             prefix={kind === 'in' ? '+' : '-'}

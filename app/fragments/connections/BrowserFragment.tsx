@@ -22,6 +22,7 @@ import { getCachedAppData } from '../../engine/getters/getAppData';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useDimensions } from '@react-native-community/hooks';
+import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchAccountState';
 
 type Item = {
     key: string;
@@ -65,6 +66,7 @@ export const BrowserFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const bottomBarHeight = useBottomTabBarHeight();
     const dimensions = useDimensions();
+    const holdersUrl = resolveHoldersUrl(network.isTestnet);
 
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
@@ -73,7 +75,11 @@ export const BrowserFragment = fragment(() => {
         const appData = getCachedAppData(ext.url);
         return { ...ext, key, title: appData?.title || ext.title || ext.url }
     });
-    const tonconnectApps = Object.entries(inastalledConnectApps).map(([key, ext]) => ({ ...ext, key }));
+    
+    const tonconnectApps = Object
+        .entries(inastalledConnectApps)
+        .map(([key, ext]) => ({ ...ext, key }))
+        .filter((v) => v.url !== holdersUrl);
 
     const removeExtension = useRemoveExtension();
     const disconnectConnect = useDisconnectApp();

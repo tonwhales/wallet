@@ -8,7 +8,7 @@ import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
 import { StakingProductComponent } from "./StakingProductComponent"
 import { JettonsProductComponent } from "./JettonsProductComponent"
-import { HoldersHiddenAccounts } from "./HoldersHiddenCards"
+import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
 import { SelectedAccount } from "../../engine/types"
 import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
@@ -22,7 +22,7 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import { AddressFormatUpdate } from "./AddressFormatUpdate"
 import { TonProductComponent } from "./TonProductComponent"
 import { SpecialJettonProduct } from "./SpecialJettonProduct"
-import { SpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton"
+import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHoldersWhitelisted"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -44,7 +44,10 @@ export const ProductsComponent = memo(({
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const jettons = useJettons(selected!.addressString);
     const banners = useBanners();
-    const isHoldersReady = useIsConnectAppReady(holdersUrl);
+    const url = holdersUrl(isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
+    const isHoldersWhitelisted = useIsHoldersWhitelisted(selected!.address, isTestnet);
+    const showHoldersBuiltInBanner = (holdersAccounts?.accounts?.length ?? 0) === 0 && isHoldersWhitelisted;
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
@@ -76,7 +79,7 @@ export const ProductsComponent = memo(({
             navigation.navigate(
                 'HoldersLanding',
                 {
-                    endpoint: holdersUrl,
+                    endpoint: url,
                     onEnrollType: { type: 'create' }
                 }
             );
@@ -130,19 +133,14 @@ export const ProductsComponent = memo(({
                             }}
                             onPress={() => navigation.navigate('Products')}
                         >
-                            <Text style={{
-                                fontSize: 15,
-                                fontWeight: '500',
-                                lineHeight: 20,
-                                color: theme.accent,
-                            }}>
+                            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
                                 {t('products.addNew')}
                             </Text>
                         </Pressable>
                     )}
                 </View>
 
-                {!!banners?.product && (
+                {(!isHoldersWhitelisted && !!banners?.product) && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                         <ProductBanner
                             title={banners.product.title}
@@ -154,7 +152,7 @@ export const ProductsComponent = memo(({
                     </View>
                 )}
 
-                {(holdersAccounts?.accounts?.length ?? 0) === 0 && isTestnet && (
+                {showHoldersBuiltInBanner && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}
@@ -176,6 +174,8 @@ export const ProductsComponent = memo(({
                         balance={tonBalance}
                         theme={theme}
                         navigation={navigation}
+                        address={selected.address}
+                        testOnly={isTestnet}
                     />
 
                     <SpecialJettonProduct
@@ -194,7 +194,7 @@ export const ProductsComponent = memo(({
                 {/* <JettonsProductComponent jettons={jettons} key={'jettons'} /> */}
                 <JettonsProductComponent jettons={[...jettons, ...jettons, ...jettons]} key={'jettons'} />
 
-                <HoldersHiddenAccounts holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
+                <HoldersHiddenProductComponent key={'holders-hidden'} />
 
                 <JettonsHiddenComponent jettons={jettons} key={'jettons-hidden'} />
             </View>

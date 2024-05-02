@@ -9,7 +9,7 @@ import { useNetwork } from "../network";
 
 export function useLogoutAndReset() {
     const { isTestnet } = useNetwork();
-    const clearHolders = useClearHolders();
+    const clearHolders = useClearHolders(isTestnet);
     const setAppState = useSetAppState();
     const setBiometricsState = useSetBiometricsState();
     const setPasscodeState = useSetPasscodeState();

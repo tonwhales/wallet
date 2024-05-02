@@ -24,6 +24,7 @@ export const Queries = {
         Status: () => ['holders', address, 'status'],
         Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
         Notifications: (id: string) => ['holders', address, 'events', id],
+        WhiteList: () => ['holders', address, 'whitelist'],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
@@ -42,6 +43,7 @@ export const Queries = {
             Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
+        Known: () => ['jettons', 'known'],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

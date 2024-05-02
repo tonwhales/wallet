@@ -47,7 +47,7 @@ export type StakingStatus = {
 
 export async function fetchStakingStatus(client: TonClient4, isTestnet: boolean): Promise<StakingStatus | null> {
     try {
-        const res = await axios.get(`${stakingIndexerUrl}/status${isTestnet ? 'testnet' : ''}`);
+        const res = await axios.get(`${stakingIndexerUrl}/status/${isTestnet ? 'testnet' : ''}`);
 
         if (res.status !== 200) {
             throw new Error('Failed to fetch staking status');

@@ -3,12 +3,14 @@ import { useCallback, useMemo } from "react";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
-import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
+import { HoldersAccountState, holdersUrl as resolveHoldersUrl } from "../../engine/api/holders/fetchAccountState";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
 import { ProductBanner } from "../../components/products/ProductBanner";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHoldersWhitelisted";
+import { Typography } from "../../components/styles";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -16,9 +18,11 @@ export const ProductsFragment = fragment(() => {
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const apy = useStakingApy()?.apy;
-    const seleted = useSelectedAccount();
-    const status = useHoldersAccountStatus(seleted!.address).data;
+    const selected = useSelectedAccount();
+    const status = useHoldersAccountStatus(selected!.address).data;
+    const holdersUrl = resolveHoldersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(holdersUrl);
+    const isHoldersWhitelisted = useIsHoldersWhitelisted(selected!.address, network.isTestnet);
 
     const apyWithFee = useMemo(() => {
         if (!!apy) {
@@ -60,27 +64,27 @@ export const ProductsFragment = fragment(() => {
                 <Pressable onPress={Platform.select({ ios: navigation.goBack })} style={{ flexGrow: 1 }} />
             )}
 
-            <View style={{
-                flexShrink: Platform.OS === 'ios' ? 1 : undefined,
-                flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                backgroundColor: theme.elevation,
-                borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
-                borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
-                paddingHorizontal: 16,
-                paddingTop: Platform.OS === 'android' ? 0 : 40,
-                paddingBottom: safeArea.bottom + 32
-            }}>
-                <Text
-                    style={{
-                        fontSize: 32,
-                        fontWeight: '600',
-                        marginBottom: 24,
-                        color: theme.textPrimary
-                    }}
-                >
+            <View style={[
+                {
+                    backgroundColor: theme.elevation,
+                    paddingHorizontal: 16,
+                    paddingBottom: safeArea.bottom + 32
+                },
+                Platform.select({
+                    ios: {
+                        flexShrink: 1,
+                        flexGrow: 0,
+                        borderTopEndRadius: 20,
+                        borderTopStartRadius: 20,
+                        paddingTop: 40
+                    },
+                    android: { flexGrow: 1 }
+                })
+            ]}>
+                <Text style={[{ marginBottom: 24, color: theme.textPrimary }, Typography.semiBold32_38]}>
                     {t('products.addNew')}
                 </Text>
-                {network.isTestnet && (
+                {isHoldersWhitelisted && (
                     <ProductBanner
                         title={t('products.holders.card.defaultTitle')}
                         subtitle={t('products.holders.card.defaultSubtitle')}
@@ -91,7 +95,7 @@ export const ProductsFragment = fragment(() => {
                         illustrationStyle={{ backgroundColor: theme.elevation }}
                     />
                 )}
-                <View style={{ marginTop: network.isTestnet ? 16 : 0 }}>
+                <View style={{ marginTop: isHoldersWhitelisted ? 16 : 0 }}>
                     <ProductBanner
                         onPress={() => {
                             navigation.goBack();

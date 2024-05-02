@@ -38,6 +38,7 @@ import { ItemDivider } from "../../../components/ItemDivider";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { Typography } from "../../../components/styles";
 
 type Props = {
     text: string | null,
@@ -715,15 +716,12 @@ export const TransferBatch = memo((props: Props) => {
                                                         paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
                                                         justifyContent: 'space-between', alignItems: 'center',
                                                         backgroundColor: 'white',
-                                                        opacity: pressed ? 0.5 : 1
+                                                        opacity: pressed ? 0.5 : 1,
+                                                        overflow: 'hidden'
                                                     }
                                                 }}
                                             >
-                                                <Text style={{
-                                                    fontSize: 15, lineHeight: 20,
-                                                    fontWeight: '400',
-                                                    color: theme.accentRed
-                                                }}>
+                                                <Text style={[{ color: theme.accentRed, flexShrink: 1 }, Typography.regular15_20]}>
                                                     {t('transfer.unusualJettonsGas')}
                                                 </Text>
                                                 <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />

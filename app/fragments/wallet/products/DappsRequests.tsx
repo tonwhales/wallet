@@ -53,3 +53,4 @@ export const DappsRequests = memo(() => {
         </View>
     );
 });
+DappsRequests.displayName = 'DappsRequests';

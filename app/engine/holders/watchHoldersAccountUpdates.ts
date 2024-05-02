@@ -5,12 +5,13 @@ let index = 0;
 
 const logger = createLogger('hold-watcher');
 
-export function watchHoldersAccountUpdates(token: string, handler: (event: any) => void) {
+export function watchHoldersAccountUpdates(token: string, handler: (event: any) => void, isTestnet: boolean) {
     let closed = false;
     let socket: WebSocket | null = null;
     let i = index++;
     function doOpen() {
-        let s = new WebSocket(`wss://${holdersEndpoint}/v2/updates`);
+        const endpoint = holdersEndpoint(isTestnet);
+        let s = new WebSocket(`wss://${endpoint}/v2/updates`);
         socket = s;
         socket.onopen = () => {
             socket!.send(JSON.stringify({ type: 'connect', token: token }));

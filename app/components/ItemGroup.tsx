@@ -9,7 +9,7 @@ export const ItemGroup = React.memo((props: { children?: any, style?: StyleProp<
             style={[{
                 backgroundColor: theme.surfaceOnElevation,
                 overflow: 'hidden',
-                borderRadius: 14,
+                borderRadius: 20,
                 alignItems: 'stretch',
                 flexDirection: 'column',
                 paddingHorizontal: 10,

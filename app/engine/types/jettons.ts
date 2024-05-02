@@ -1,4 +1,5 @@
 import { Address } from '@ton/core';
+import { LPAssetMetadata } from '../metadata/fetchJettonMasterContent';
 
 export type Jetton = {
     master: Address;
@@ -10,4 +11,6 @@ export type Jetton = {
     icon: string | null;
     decimals: number | null;
     disabled?: boolean;
+    assets?: [LPAssetMetadata, LPAssetMetadata] | null,
+    pool?: 'dedust' | 'ston-fi' | null
 };

@@ -161,7 +161,7 @@ export const StakingPendingComponent = memo((
                                     lockAmount: true,
                                     lockAddress: true,
                                     lockComment: true,
-                                    action: 'withdraw_ready' as TransferAction,
+                                    action: 'withdraw_ready' as TransferAction
                                 },
                                 { ledger: isLedger }
                             );

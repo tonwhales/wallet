@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useJettons, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useJettons, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -26,15 +26,7 @@ import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHolders
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
-export const ProductsComponent = memo(({
-    selected,
-    tonBalance,
-    specialJetton
-}: {
-    selected: SelectedAccount,
-    tonBalance: bigint,
-    specialJetton: SpecialJetton | null
-}) => {
+export const ProductsComponent = memo(({ selected, tonBalance }: { selected: SelectedAccount, tonBalance: bigint }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -182,7 +174,8 @@ export const ProductsComponent = memo(({
                         key={'special-jettton'}
                         theme={theme}
                         navigation={navigation}
-                        specialJetton={specialJetton}
+                        address={selected.address}
+                        testOnly={isTestnet}
                         divider={'top'}
                     />
                 </View>
@@ -191,10 +184,9 @@ export const ProductsComponent = memo(({
 
                 <StakingProductComponent key={'pool'} />
 
-                {/* <JettonsProductComponent jettons={jettons} key={'jettons'} /> */}
-                <JettonsProductComponent jettons={[...jettons, ...jettons, ...jettons]} key={'jettons'} />
+                <JettonsProductComponent jettons={jettons} key={'jettons'} />
 
-                <HoldersHiddenProductComponent key={'holders-hidden'} />
+                <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
 
                 <JettonsHiddenComponent jettons={jettons} key={'jettons-hidden'} />
             </View>

@@ -9,11 +9,24 @@ import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { PriceComponent } from "../PriceComponent";
 import { toNano } from "@ton/core";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 import IcHide from '@assets/ic-hide.svg';
 import IcHolders from '@assets/ic-holders-white.svg';
 
-export const HoldersCards = memo(({ cards, theme, isTestnet, markPrepaidCard }: { cards?: PrePaidHoldersCard[], theme: ThemeType, isTestnet: boolean, markPrepaidCard: (cardId: string, hidden: boolean) => void }) => {
+export const HoldersCards = memo(({
+    cards,
+    theme,
+    isTestnet,
+    markPrepaidCard,
+    holdersAccStatus
+}: {
+    cards?: PrePaidHoldersCard[],
+    theme: ThemeType,
+    isTestnet: boolean,
+    markPrepaidCard: (cardId: string, hidden: boolean) => void,
+    holdersAccStatus?: HoldersAccountStatus
+}) => {
     const totalBalance = useMemo(() => {
         const float = cards?.reduce((acc, item) => {
             try {
@@ -53,6 +66,7 @@ export const HoldersCards = memo(({ cards, theme, isTestnet, markPrepaidCard }: 
                             rightAction={() => markPrepaidCard(item.id, true)}
                             style={{ paddingVertical: 0 }}
                             isTestnet={isTestnet}
+                            holdersAccStatus={holdersAccStatus}
                         />
                     )
                 })}
@@ -73,6 +87,7 @@ export const HoldersCards = memo(({ cards, theme, isTestnet, markPrepaidCard }: 
                         rightAction={() => markPrepaidCard(item.id, true)}
                         style={{ paddingVertical: 0 }}
                         isTestnet={isTestnet}
+                        holdersAccStatus={holdersAccStatus}
                     />
                 );
             }}

@@ -14,6 +14,7 @@ import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSetti
 import { avatarHash } from "../../../utils/avatarHash";
 import { Typography } from "../../../components/styles";
 import { KnownWallets } from "../../../secure/KnownWallets";
+import { Address } from "@ton/core";
 
 import NoConnection from '@assets/ic-no-connection.svg';
 

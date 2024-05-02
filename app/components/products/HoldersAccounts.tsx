@@ -9,12 +9,25 @@ import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 import IcHide from '@assets/ic-hide.svg';
 import IcHolders from '@assets/ic-holders-white.svg';
 
-export const HoldersAccounts = memo(({ accs, theme, markCard, isTestnet }: { accs: GeneralHoldersAccount[], theme: ThemeType, markCard: (cardId: string, hidden: boolean) => void, isTestnet: boolean }) => {
-    
+export const HoldersAccounts = memo(({
+    accs,
+    theme,
+    markAccount,
+    isTestnet,
+    holdersAccStatus
+}: {
+    accs: GeneralHoldersAccount[],
+    theme: ThemeType,
+    markAccount: (cardId: string, hidden: boolean) => void,
+    isTestnet: boolean,
+    holdersAccStatus?: HoldersAccountStatus
+}) => {
+
     const totalBalance = useMemo(() => {
         return accs?.reduce((acc, item) => {
             return acc + BigInt(item.balance);
@@ -40,10 +53,11 @@ export const HoldersAccounts = memo(({ accs, theme, markCard, isTestnet }: { acc
                             key={`card-${index}`}
                             account={item}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                            rightAction={() => markCard(item.id, true)}
+                            rightAction={() => markAccount(item.id, true)}
                             style={{ paddingVertical: 0 }}
                             isTestnet={isTestnet}
                             hideCardsIfEmpty
+                            holdersAccStatus={holdersAccStatus}
                         />
                     )
                 })}
@@ -61,8 +75,9 @@ export const HoldersAccounts = memo(({ accs, theme, markCard, isTestnet }: { acc
                         key={`card-${index}`}
                         account={item}
                         rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                        rightAction={() => markCard(item.id, true)}
+                        rightAction={() => markAccount(item.id, true)}
                         isTestnet={isTestnet}
+                        holdersAccStatus={holdersAccStatus}
                     />
                 )
             }}

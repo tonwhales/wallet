@@ -314,11 +314,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         </View>
                     </View>
                 </View>
-                <ProductsComponent
-                    selected={props.selectedAcc}
-                    specialJetton={specialJetton}
-                    tonBalance={account?.balance ?? 0n}
-                />
+                <ProductsComponent selected={props.selectedAcc} tonBalance={account?.balance ?? 0n} />
             </ScrollView>
         </View>
     );

@@ -7,7 +7,8 @@ import Animated from "react-native-reanimated";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
-import { SpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
+import { Address } from "@ton/core";
+import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
 import { ItemDivider } from "../ItemDivider";
 import { useBounceableWalletFormat } from "../../engine/hooks";
@@ -16,16 +17,19 @@ export const SpecialJettonProduct = memo(({
     theme,
     navigation,
     isLedger,
-    divider,
-    specialJetton
+    address,
+    testOnly,
+    divider
 }: {
     theme: ThemeType,
     navigation: TypedNavigation,
     isLedger?: boolean,
-    divider?: 'top' | 'bottom',
-    specialJetton: SpecialJetton | null
+    address: Address,
+    testOnly: boolean,
+    divider?: 'top' | 'bottom'
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+    const specialJetton = useSpecialJetton(address);
     const content = specialJetton?.masterContent;
     const balance = specialJetton?.balance ?? 0n;
     const [bounceableFormat,] = useBounceableWalletFormat();
@@ -160,4 +164,3 @@ export const SpecialJettonProduct = memo(({
         </Pressable>
     );
 });
-SpecialJettonProduct.displayName = 'SpecialJettonProduct';

@@ -47,7 +47,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
     }
 
     return (
-        <View style={{ marginBottom: 16 }}>
+        <View>
             {hiddenAccountsList.length > 0 && (
                 <>
                     <View style={{

@@ -476,7 +476,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holders: {
             title: 'Bank account',
             accounts: {
-                title: 'Accounts',
+                title: 'Portfolios',
                 prepaidTitle: 'Prepaid cards',
                 account: 'Account',
                 basicAccount: 'Basic account',

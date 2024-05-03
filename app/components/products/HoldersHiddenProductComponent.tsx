@@ -147,6 +147,10 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                 />
                             )
                         }}
+                        limitConfig={{
+                            maxItems: 4,
+                            fullList: { type: 'holders-cards' }
+                        }}
                     />
                 </>
             )}

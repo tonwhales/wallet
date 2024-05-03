@@ -95,7 +95,7 @@ export const AnimatedChildrenCollapsible = memo(({
                     {additionalFirstItem}
                 </Animated.View>
             )}
-            {itemsToRender.map((item, index) => {
+            {itemsToRender.slice(0, limitConfig?.maxItems).map((item, index) => {
                 return (
                     <Animated.View
                         key={`collapsible-item-${index}`}
@@ -121,7 +121,7 @@ export const AnimatedChildrenCollapsible = memo(({
                     </Animated.View>
                 );
             })}
-            {!!limitConfig && (
+            {!!limitConfig && (itemsToRender.length > limitConfig.maxItems) && (
                 <Animated.View
                     style={[
                         {

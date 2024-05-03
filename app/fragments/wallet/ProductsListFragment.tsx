@@ -3,7 +3,7 @@ import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { useHoldersAccountStatus, useHoldersAccounts, useJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { useMemo } from "react";
+import { Suspense, memo, useMemo } from "react";
 import { Address } from "@ton/core";
 import { View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
@@ -15,18 +15,18 @@ import { JettonProductItem } from "../../components/products/JettonProductItem";
 import { Jetton } from "../../engine/types";
 import { GeneralHoldersAccount, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
+import { t } from "../../i18n/t";
 
 export type ProductsListFragmentParams = {
     type: 'holders-accounts' | 'holders-cards' | 'jettons',
     isLedger?: boolean
 };
 
-export const ProductsListFragment = fragment(() => {
+const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-accounts' | 'holders-cards' | 'jettons', isLedger: boolean }) => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
-    const { type } = useParams<ProductsListFragmentParams>();
-    const isLedger = useRoute().name === 'LedgerProductsList';
     const { isTestnet: testOnly } = useNetwork();
     const selected = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
@@ -60,6 +60,7 @@ export const ProductsListFragment = fragment(() => {
                             account={item}
                             isTestnet={testOnly}
                             holdersAccStatus={holdersAccStatus}
+                            itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                         />
                     );
                 },
@@ -75,6 +76,7 @@ export const ProductsListFragment = fragment(() => {
                             style={{ paddingVertical: 0 }}
                             isTestnet={testOnly}
                             holdersAccStatus={holdersAccStatus}
+                            itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                         />
                     );
                 },
@@ -82,16 +84,16 @@ export const ProductsListFragment = fragment(() => {
             };
         } else {
             return {
-                data: jettons ?? [],
+                data: jettons.sort((j) => {
+                    return j.balance > 0n ? -1 : 1;
+                }) ?? [],
                 renderItem: ({ item }: { item: Jetton }) => {
                     return (
                         <JettonProductItem
-                            jetton={item}
                             card
-                            itemStyle={{
-                                backgroundColor: theme.surfaceOnElevation
-                            }}
                             last
+                            jetton={item}
+                            itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                         />
                     );
                 },
@@ -100,12 +102,22 @@ export const ProductsListFragment = fragment(() => {
         }
     }, [holdersAccounts, holdersAccStatus, jettons]);
 
+    let title = t('products.holders.accounts.title');
+
+    if (type === 'holders-cards') {
+        title = t('products.holders.accounts.prepaidTitle');
+    }
+
+    if (type === 'jettons') {
+        title = t('jetton.productButtonTitle');
+    }
+
     return (
         <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 style={{ paddingHorizontal: 16 }}
                 onBackPressed={navigation.goBack}
-                title={type === 'holders-accounts' ? 'Holders Accounts' : type === 'holders-cards' ? 'Holders Cards' : 'Jettons'}
+                title={title}
             />
             <FlashList
                 data={items.data as any}
@@ -113,8 +125,20 @@ export const ProductsListFragment = fragment(() => {
                 estimatedItemSize={items.estimatedItemSize}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                contentInset={{ bottom: safeArea.bottom + 16 }}
+                contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}
+                keyExtractor={(item, index) => `${type}-${index}`}
             />
+        </View>
+    )
+});
+
+export const ProductsListFragment = fragment(() => {
+    const { type } = useParams<ProductsListFragmentParams>();
+    const isLedger = useRoute().name === 'LedgerProductsList';
+
+    return (
+        <View style={{ flexGrow: 1 }}>
+            <ProductsListComponent type={type} isLedger={isLedger} />
         </View>
     );
 });

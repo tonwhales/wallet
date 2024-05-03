@@ -133,15 +133,14 @@ export const AccountSelectorFragment = fragment(() => {
                         {t('common.wallets')}
                     </Text>}
                     <ScrollView
-                        style={{
-                        }}
                         contentContainerStyle={{
-                            paddingHorizontal: 16,
+                            paddingHorizontal: 16
                         }}
                         contentInset={{
                             bottom: safeArea.bottom + 16,
                             top: 16
                         }}
+                        contentOffset={{ y: -16, x: 0 }}
                     >
                         <WalletSelector onSelect={callback} />
                     </ScrollView>

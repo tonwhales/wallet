@@ -105,14 +105,12 @@ export const JettonProductItem = memo((props: {
                                     {
                                         padding: 20,
                                         justifyContent: 'center', alignItems: 'center',
-                                        borderRadius: 20,
                                         backgroundColor: theme.accent,
-                                        marginLeft: 10
                                     },
                                     props.card
                                         ? {
-                                            borderTopRightRadius: 20,
-                                            borderBottomRightRadius: 20,
+                                            borderRadius: 20,
+                                            marginLeft: 10
                                         } : {
                                             borderTopRightRadius: props.first ? 20 : 0,
                                             borderBottomRightRadius: props.last ? 20 : 0,
@@ -151,7 +149,7 @@ export const JettonProductItem = memo((props: {
                             />
                             <View style={{ marginLeft: 12, flex: 1 }}>
                                 <PerfText
-                                    style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                    style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
                                     ellipsizeMode="tail"
                                     numberOfLines={1}
                                 >
@@ -181,11 +179,15 @@ export const JettonProductItem = memo((props: {
                                         decimals={props.jetton.decimals}
                                         precision={1}
                                     />
-                                    {!!swapAmount && symbol.length <= 5 && (
+                                    {!!swapAmount ? (
                                         <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                             {` ${symbol}`}
                                         </Text>
-                                    )}
+                                    ) : (symbol.length <= 5 && (
+                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                            {` ${symbol}`}
+                                        </Text>
+                                    ))}
                                 </PerfText>
                                 {!!swapAmount ? (
                                     <PriceComponent
@@ -199,14 +201,11 @@ export const JettonProductItem = memo((props: {
                                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                         theme={theme}
                                     />
-                                ) : (symbol.length > 5
-                                    ? (
-                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                            {` ${symbol}`}
-                                        </Text>
-                                    )
-                                    : null
-                                )}
+                                ) : (symbol.length > 5 && (
+                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                        {` ${symbol}`}
+                                    </Text>
+                                ))}
                             </View>
                         </View>
                     </Pressable>
@@ -243,7 +242,7 @@ export const JettonProductItem = memo((props: {
                     <JettonIcon size={46} jetton={props.jetton} theme={theme} isTestnet={isTestnet} />
                     <View style={{ marginLeft: 12, flex: 1 }}>
                         <PerfText
-                            style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                            style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >
@@ -259,18 +258,39 @@ export const JettonProductItem = memo((props: {
                         </PerfText>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
-                        <PerfText style={{
-                            color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600',
-                        }}>
+                        <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                             <ValueComponent
                                 value={balance}
                                 decimals={props.jetton.decimals}
+                                precision={1}
                             />
+                            {!!swapAmount ? (
+                                <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                    {` ${symbol}`}
+                                </Text>
+                            ) : (symbol.length <= 5 && (
+                                <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                    {` ${symbol}`}
+                                </Text>
+                            ))}
+                        </PerfText>
+                        {!!swapAmount ? (
+                            <PriceComponent
+                                amount={toNano(swapAmount)}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                    height: undefined
+                                }}
+                                textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                theme={theme}
+                            />
+                        ) : (symbol.length > 5 && (
                             <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                 {` ${symbol}`}
                             </Text>
-                        </PerfText>
-                        <View style={{ flexGrow: 1 }} />
+                        ))}
                     </View>
                 </Animated.View>
                 {!props.last && (<View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />)}

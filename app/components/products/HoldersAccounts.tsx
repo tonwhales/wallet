@@ -36,7 +36,7 @@ export const HoldersAccounts = memo(({
 
     if (accs.length < 3) {
         return (
-            <View style={{ marginBottom: 16, paddingHorizontal: 16, gap: 16 }}>
+            <View style={{ paddingHorizontal: 16, gap: 16 }}>
                 <View
                     style={[{
                         flexDirection: 'row',

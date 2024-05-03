@@ -180,9 +180,9 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                     />
                 </View>
 
-                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
-
                 <StakingProductComponent key={'pool'} />
+
+                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
                 <JettonsProductComponent jettons={jettons} key={'jettons'} />
 

@@ -33,7 +33,7 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
     }
 
     return (
-        <View style={{ marginBottom: 16 }}>
+        <View style={{ marginBottom: (visiblePrepaidList.length + visibleAccountsList.length) > 0 ? 16 : 0 }}>
             <HoldersAccounts
                 theme={theme}
                 isTestnet={network.isTestnet}
@@ -41,7 +41,7 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
                 accs={visibleAccountsList}
                 holdersAccStatus={holdersAccStatus}
             />
-            <View style={{ marginTop: 16 }}>
+            <View style={{ marginTop: visiblePrepaidList.length > 0 ? 16 : 0 }}>
                 <HoldersCards
                     theme={theme}
                     isTestnet={network.isTestnet}

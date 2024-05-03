@@ -296,7 +296,7 @@ export const CollapsibleCards = memo(({
                     )
                 })}
             </Animated.View>
-            {!!limitConfig && (
+            {!!limitConfig && (items.length > limitConfig.maxItems) && (
                 <Animated.View
                     style={[
                         {

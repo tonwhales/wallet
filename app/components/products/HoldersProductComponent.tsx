@@ -41,13 +41,15 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
                 accs={visibleAccountsList}
                 holdersAccStatus={holdersAccStatus}
             />
-            <HoldersCards
-                theme={theme}
-                isTestnet={network.isTestnet}
-                markPrepaidCard={markPrepaidCard}
-                cards={visiblePrepaidList}
-                holdersAccStatus={holdersAccStatus}
-            />
+            <View style={{ marginTop: 16 }}>
+                <HoldersCards
+                    theme={theme}
+                    isTestnet={network.isTestnet}
+                    markPrepaidCard={markPrepaidCard}
+                    cards={visiblePrepaidList}
+                    holdersAccStatus={holdersAccStatus}
+                />
+            </View>
         </View>
     );
 });

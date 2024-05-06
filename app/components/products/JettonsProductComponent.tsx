@@ -120,7 +120,7 @@ export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] })
                 itemHeight={86}
                 theme={theme}
                 limitConfig={{
-                    maxItems: 4,
+                    maxItems: 10,
                     fullList: { type: 'jettons' }
                 }}
             />

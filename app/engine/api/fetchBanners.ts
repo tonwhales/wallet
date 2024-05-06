@@ -1,5 +1,5 @@
 import axios from "axios";
-import FastImage from "react-native-fast-image";
+import { Image as ExpoImage } from "expo-image";
 import { z } from 'zod';
 
 type BannersRequestParams = {
@@ -30,14 +30,14 @@ export async function fetchBanners(params: BannersRequestParams) {
     if (res.status !== 200) {
         return null;
     }
-    
+
     const parsed = bannersResponseCodec.safeParse(res.data);
     if (!parsed.success) {
         return null;
     }
 
     if (!!parsed.data.product) {
-        FastImage.preload([{ uri: parsed.data.product.image }]);
+        ExpoImage.prefetch([parsed.data.product.image]);
     }
 
     return parsed.data;

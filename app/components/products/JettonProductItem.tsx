@@ -50,8 +50,9 @@ export const JettonProductItem = memo((props: {
     let symbol = props.jetton.symbol ?? '';
 
     const onPress = useCallback(() => {
-        if (props.ledger) {
-            navigation.navigate('LedgerSimpleTransfer', {
+        navigation.navigate(
+            props.ledger ? 'LedgerSimpleTransfer' : 'SimpleTransfer',
+            {
                 amount: null,
                 target: null,
                 comment: null,
@@ -59,18 +60,8 @@ export const JettonProductItem = memo((props: {
                 stateInit: null,
                 job: null,
                 callback: null
-            });
-            return
-        }
-        navigation.navigateSimpleTransfer({
-            amount: null,
-            target: null,
-            comment: null,
-            jetton: props.jetton.wallet,
-            stateInit: null,
-            job: null,
-            callback: null
-        });
+            }
+        );
     }, [props.jetton, props.ledger]);
 
     return (
@@ -293,7 +284,17 @@ export const JettonProductItem = memo((props: {
                         ))}
                     </View>
                 </Animated.View>
-                {!props.last && (<View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />)}
+                {!props.last && !props.card && (
+                    <PerfView
+                        style={{
+                            backgroundColor: theme.divider,
+                            height: 1,
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 36, right: 36
+                        }}
+                    />
+                )}
             </Pressable>
         )
     );

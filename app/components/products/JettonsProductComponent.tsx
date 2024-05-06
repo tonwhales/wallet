@@ -58,7 +58,7 @@ export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] })
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
                 items={visibleList}
-                renderItem={(j,) => {
+                renderItem={(j) => {
                     if (!j) {
                         return null;
                     }

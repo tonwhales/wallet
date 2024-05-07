@@ -3,7 +3,7 @@ import { getLastBlock } from '../../accountWatcher';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { StakingPoolMember } from '../../types';
-
+import { getLiquidStakingAddress } from '../../../utils/KnownPools';
 
 function fetchStakingMemberQueryFn(client: TonClient4, isTestnet: boolean, pool: Address, member?: Address) {
     if (!member) {
@@ -33,6 +33,7 @@ export function stakingPoolMemberQuery(pool: Address, member: Address | undefine
         queryKey: Queries.StakingMember(pool.toString({ testOnly: isTestnet }), member?.toString({ testOnly: isTestnet }) || 'default-null'),
         queryFn: fetchStakingMemberQueryFn(client, isTestnet, pool, member),
         refetchOnMount: true,
+        staleTime: 1000 * 30
     };
 }
 
@@ -43,6 +44,8 @@ export function useStakingPoolMember(pool: Address, member: Address | undefined,
 
 export function useStakingPoolMembers(client: TonClient4, isTestnet: boolean, configs: { pool: Address, member: Address }[]) {
     return useQueries({
-        queries: configs.map(config => stakingPoolMemberQuery(config.pool, config.member, client, isTestnet))
+        queries: configs
+            .filter(c => !c.pool.equals(getLiquidStakingAddress(isTestnet)))
+            .map(config => stakingPoolMemberQuery(config.pool, config.member, client, isTestnet))
     }).map(a => a.data);
 }

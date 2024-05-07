@@ -3,7 +3,7 @@ import { View, Text, StyleProp, TextStyle, ViewStyle } from "react-native"
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
 import { ThemeType } from "../../engine/state/theme";
-import { useNetwork, useStakingApy, useTheme } from "../../engine/hooks";
+import { useNetwork, usePoolApy, useTheme } from "../../engine/hooks";
 import { StakingPoolState } from "../../engine/types";
 import { fromNano, toNano } from "@ton/core";
 import { ItemDivider } from "../ItemDivider";
@@ -26,7 +26,7 @@ const itemValueTextStyle = (theme: ThemeType) => ({
     fontWeight: '400'
 }) as StyleProp<TextStyle>;
 
-export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState, fee?: bigint | null }) => {
+export const PoolTransactionInfo = memo(({ pool, poolAddressString,  fee }: { pool: StakingPoolState, poolAddressString: string, fee?: bigint | null }) => {
     if (!pool) return null;
     const theme = useTheme();
     const network = useNetwork();
@@ -35,13 +35,12 @@ export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState
     const poolFee = pool.params.poolFee
         ? Number(toNano(fromNano(pool.params.poolFee))) / 100
         : undefined;
-    const apy = useStakingApy()?.apy;
+    const apy = usePoolApy(poolAddressString);
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
             return (apy - apy * (poolFee / 100)).toFixed(3)
         }
     }, [apy, poolFee]);
-
 
     return (
         <View>

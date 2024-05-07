@@ -42,6 +42,7 @@ export const StakingFragment = fragment(() => {
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
     const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
+    const knownPools = KnownPools(network.isTestnet);
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -73,10 +74,10 @@ export const StakingFragment = fragment(() => {
     }, [setPending]);
 
     let type: StakingPoolType = useMemo(() => {
-        if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
+        if (knownPools[params.pool].name.toLowerCase().includes('club')) {
             return 'club';
         }
-        if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('team')) {
+        if (knownPools[params.pool].name.toLowerCase().includes('team')) {
             return 'team';
         }
         return 'nominators'

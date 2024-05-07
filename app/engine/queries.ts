@@ -16,7 +16,7 @@ export const Queries = {
     StakingMember: (pool: string, member: string) => ['staking', 'member', pool, member],
     StakingStatus: (network: 'mainnet' | 'testnet') => ['staking', 'status', network],
     StakingLiquid: (pool: string) => ['staking', 'liquid', pool],
-    StakingLiquidMember: (pool: string, member: string) => ['staking', 'liquid', pool, member],
+    StakingLiquidMember: (pool: string, member: string) => ['staking', 'member', 'liquid', pool, member],
 
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({

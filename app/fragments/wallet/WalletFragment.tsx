@@ -63,7 +63,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
-            <WalletHeader />
+            <WalletHeader address={address} />
             <ScrollView
                 style={{ flexBasis: 0 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
@@ -171,6 +171,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                 ios: { marginBottom: 24 + bottomBarHeight, },
                                 android: { marginBottom: 16, }
                             })}
+                            theme={theme}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -313,11 +314,12 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         </View>
                     </View>
                 </View>
-                <ProductsComponent selected={props.selectedAcc} />
+                <ProductsComponent selected={props.selectedAcc} tonBalance={account?.balance ?? 0n} />
             </ScrollView>
         </View>
     );
 }
+WalletComponent.displayName = 'WalletComponent';
 
 const skeleton = (
     <View style={{ position: 'absolute', top: -100, bottom: 0, left: 0, right: 0 }}>
@@ -348,6 +350,7 @@ export const WalletFragment = fragment(() => {
         </>
     );
 });
+WalletFragment.displayName = 'WalletFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'WalletStack';

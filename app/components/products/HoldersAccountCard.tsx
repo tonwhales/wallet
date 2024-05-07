@@ -2,6 +2,8 @@ import { memo } from "react";
 import { View, Image, Text } from "react-native";
 import { GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { ThemeType } from "../../engine/state/theme";
+import { PerfView } from "../basic/PerfView";
+import { PerfText } from "../basic/PerfText";
 
 const cardImages = {
     'dark': {
@@ -36,13 +38,14 @@ export const HoldersAccountCard = memo(({ card, theme }: { card: GeneralHoldersC
     }
 
     return (
-        <View style={{ width: 46, height: 30, borderRadius: 6 }}>
+        <PerfView style={{ width: 46, height: 30, borderRadius: 6 }}>
             <Image source={cardImages[theme.style === 'dark' ? 'dark' : 'light'][imageType]} style={{ width: 46, height: 30 }} />
             {!!card.lastFourDigits && (
-                <Text style={{ position: 'absolute', left: 4, bottom: 3.5, fontSize: 7.5, fontWeight: '500', color: theme.textUnchangeable }}>
+                <PerfText style={{ position: 'absolute', left: 4, bottom: 3.5, fontSize: 7.5, fontWeight: '500', color: theme.textUnchangeable }}>
                     {card.lastFourDigits}
-                </Text>
+                </PerfText>
             )}
-        </View>
+        </PerfView>
     );
 });
+HoldersAccountCard.displayName = 'HoldersAccountCard';

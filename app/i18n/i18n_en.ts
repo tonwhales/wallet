@@ -477,12 +477,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Bank account',
             accounts: {
                 title: 'Accounts',
+                prepaidTitle: 'Prepaid cards',
                 account: 'Account',
                 basicAccount: 'Basic account',
                 proAccount: 'Pro account',
                 noCards: 'No cards',
-                prepaidCard: 'Prepaid card',
+                prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
                 prepaidCardDescription: 'Reloadable card for everyday use',
+                hiddenCards: 'Hidden cards',
+                hiddenAccounts: 'Hidden accounts'
             },
             pageTitles: {
                 general: 'Tonhub Cards',
@@ -497,7 +500,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 setUpCard: 'Set up the card',
                 pin: 'Change PIN',
             },
-            hiddenCards: 'Hidden accounts',
             card: {
                 card: 'Card',
                 cards: 'Holders cards',
@@ -701,6 +703,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         productButtonTitle: 'Jettons',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
         hidden: 'Hidden jettons',
+        liquidPoolDescriptionDedust: 'Liquidity pool token for {{name0}} and {{name1}} on DeDust DEX',
+        liquidPoolDescriptionStonFi: 'Liquidity pool token for {{name0}} and {{name1}} on STON.fi DEX',
     },
     connections: {
         extensions: 'Extensions',

@@ -228,6 +228,7 @@ export const MigrationFragment = systemFragment(() => {
                                             elipsise={{ start: 4, end: 10 }}
                                             value={v?.address.toString({ testOnly: isTestnet })}
                                             style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
+                                            theme={theme}
                                         />
                                         <Text style={{ color: theme.textPrimary }}>
                                             <ValueComponent

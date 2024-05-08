@@ -75,6 +75,21 @@ target 'WhalesApp' do
         end
       end
 
+      # Workaround for Flipper on XCode 15.3
+      if target.name == 'Flipper'
+        file_path = 'Pods/Flipper/xplat/Flipper/FlipperTransportTypes.h'
+        if (File.exist?(file_path))
+          contents = File.read(file_path)
+          if (!contents.include?('#include <functional>'))
+            mod_content = contents.gsub("#pragma once", "#pragma once\n#include <functional>")
+            File.chmod(0755, file_path)
+            File.open(file_path, 'w') do |file|
+              file.puts(mod_content)
+            end
+          end
+        end
+      end
+
     end
   end
 

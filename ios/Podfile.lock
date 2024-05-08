@@ -118,7 +118,7 @@ PODS:
     - MMKVCore (~> 1.3.5)
   - MMKVCore (1.3.5)
   - MultiplatformBleAdapter (0.1.9)
-  - OpenSSL-Universal (3.1.5004)
+  - OpenSSL-Universal (1.1.1100)
   - Permission-Camera (3.10.1):
     - RNPermissions
   - RCT-Folly (2021.07.22.00):
@@ -1052,6 +1052,6 @@ SPEC CHECKSUMS:
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 197361a94a2a9e6bf5386821e95d392599efd0dd
+PODFILE CHECKSUM: f2fbb795e6d2cd3c8d515bf8aea69068e34ca74c
 
 COCOAPODS: 1.12.1

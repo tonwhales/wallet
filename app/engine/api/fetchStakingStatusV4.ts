@@ -1,15 +1,30 @@
 import { ElectorContract, TonClient4, configParse15, configParse16, configParse17, configParseValidatorSet, loadConfigParamById } from "@ton/ton";
 import { StakingStatus } from "./fetchStakingStatus";
+import { fetchElections } from "./fetchElections";
 
-export async function fetchStakingStatusV4(client: TonClient4, lastSeqno: number): Promise<StakingStatus> {
+export async function fetchStakingStatusV4(
+    client: TonClient4,
+    lastSeqno: number,
+    maxLength: number | null,
+    isTestnet: boolean,
+    electionHistory?: {
+        id: number,
+        unfreezeAt: number,
+        stakeHeld: number,
+        bonuses: string,
+        totalStake: string
+    }[]
+): Promise<StakingStatus> {
     let [
         config,
         electionEntities,
-        elections
+        elections,
+        electionsHistory
     ] = await Promise.all([
         client.getConfig(lastSeqno, [15, 16, 17, 34]),
         client.open(ElectorContract.create()).getElectionEntities().then((v) => { return v?.entities; }),
         client.open(ElectorContract.create()).getPastElections(),
+        !electionHistory ? fetchElections(maxLength, isTestnet) : electionHistory
     ]);
 
     const config15 = configParse15(loadConfigParamById(config.config.cell, 15).beginParse());
@@ -72,6 +87,6 @@ export async function fetchStakingStatusV4(client: TonClient4, lastSeqno: number
         maxMainValidators,
         electionEntities: entities ?? [],
         complaints: [],
-        electionsHistory: []
+        electionsHistory: electionsHistory.reverse()
     };
 }

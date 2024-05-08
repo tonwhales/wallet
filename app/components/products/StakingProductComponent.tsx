@@ -15,9 +15,9 @@ import Animated from "react-native-reanimated";
 import { Address, address } from "@ton/core";
 import { LiquidStakingPool } from "../staking/LiquidStakingPool";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 
 import StakingIcon from '@assets/ic-staking.svg';
-import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 
 const style: StyleProp<ViewStyle> = {
     height: 86,

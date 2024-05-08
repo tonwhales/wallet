@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, ScrollView, Text, View } from "react-native";
+import { Platform, ScrollView, Text, View, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
@@ -36,6 +36,7 @@ import { AddressComponent } from "../../components/address/AddressComponent";
 import { avatarHash } from "../../utils/avatarHash";
 import { PreviewMessages } from "./views/preview/PreviewMessages";
 import { BatchAvatars } from "../../components/avatar/BatchAvatars";
+import { ItemDivider } from "../../components/ItemDivider";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -141,6 +142,37 @@ const TransactionPreview = () => {
             throw Error('Unknown kind');
         }
     }
+
+    const holdersOp = useMemo<
+        null
+        | { type: 'topUp', amount: string }
+        | {
+            type: 'limitsChange',
+            onetime: string | null,
+            daily: string | null,
+            monthly: string | null
+        }
+    >(
+        () => {
+            if (!operation.op?.res?.startsWith('known.holders.')) {
+                return null;
+            }
+
+            if (operation.op.res === 'known.holders.accountTopUp') {
+                return {
+                    type: 'topUp',
+                    amount: fromNano(operation.op.options.amount)
+                };
+            } else if (operation.op.res === 'known.holders.accountLimitsChange') {
+                const onetime = operation.op.options.onetime === '0' ? null : operation.op.options.onetime;
+                const daily = operation.op.options.daily === '0' ? null : operation.op.options.daily;
+                const monthly = operation.op.options.monthly === '0' ? null : operation.op.options.monthly;
+
+                return { type: 'limitsChange', onetime, daily, monthly };
+            }
+
+            return null;
+        }, [operation.op]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -255,50 +287,57 @@ const TransactionPreview = () => {
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
-                    {tx.base.outMessagesCount > 1 ? (
-                        <BatchAvatars
-                            messages={messages}
-                            size={68}
-                            icProps={{
-                                size: 28,
-                                borderWidth: 2,
-                                position: 'bottom'
-                            }}
-                            showSpambadge
-                            theme={theme}
-                            isTestnet={isTestnet}
-                            denyList={addressBook.state.denyList}
-                            contacts={addressBook.state.contacts}
-                            spamWallets={config?.wallets?.spam ?? []}
-                            ownAccounts={appState.addresses}
-                            walletsSettings={walletsSettings}
-                            backgroundColor={theme.surfaceOnBg}
-                            borderWidth={2.5}
-                            knownWallets={knownWallets}
-                            knownJettonMasters={knownJettonMasters}
+                    {!!holdersOp ? (
+                        <Image
+                            source={require('@assets/ic-holders-accounts.png')}
+                            style={{ width: 68, height: 68, borderRadius: 34 }}
                         />
                     ) : (
-                        <Avatar
-                            size={68}
-                            id={opAddressBounceable}
-                            address={opAddressBounceable}
-                            spam={spam}
-                            showSpambadge
-                            verified={verified}
-                            borderWith={2.5}
-                            borderColor={theme.surfaceOnElevation}
-                            backgroundColor={avatarColor}
-                            markContact={!!contact}
-                            icProps={{
-                                isOwn: isOwn,
-                                borderWidth: 2,
-                                position: 'bottom',
-                                size: 28
-                            }}
-                            theme={theme}
-                            knownWallets={knownWallets}
-                            hash={opAddressWalletSettings?.avatar}
-                        />
+                        tx.base.outMessagesCount > 1 ? (
+                            <BatchAvatars
+                                messages={messages}
+                                size={68}
+                                icProps={{
+                                    size: 28,
+                                    borderWidth: 2,
+                                    position: 'bottom'
+                                }}
+                                showSpambadge
+                                theme={theme}
+                                isTestnet={isTestnet}
+                                denyList={addressBook.state.denyList}
+                                contacts={addressBook.state.contacts}
+                                spamWallets={config?.wallets?.spam ?? []}
+                                ownAccounts={appState.addresses}
+                                walletsSettings={walletsSettings}
+                                backgroundColor={theme.surfaceOnBg}
+                                borderWidth={2.5}
+                                knownWallets={knownWallets}
+                                knownJettonMasters={knownJettonMasters}
+                            />
+                        ) : (
+                            <Avatar
+                                size={68}
+                                id={opAddressBounceable}
+                                address={opAddressBounceable}
+                                spam={spam}
+                                showSpambadge
+                                verified={verified}
+                                borderWith={2.5}
+                                borderColor={theme.surfaceOnElevation}
+                                backgroundColor={avatarColor}
+                                markContact={!!contact}
+                                icProps={{
+                                    isOwn: isOwn,
+                                    borderWidth: 2,
+                                    position: 'bottom',
+                                    size: 28
+                                }}
+                                theme={theme}
+                                knownWallets={knownWallets}
+                                hash={opAddressWalletSettings?.avatar}
+                            />
+                        )
                     )}
                     <PerfText
                         style={[
@@ -420,6 +459,72 @@ const TransactionPreview = () => {
                         )
                     )}
                 </PerfView>
+                {!!holdersOp && (
+                    <ItemGroup style={{ marginTop: 16 }}>
+                        {holdersOp.type === 'topUp' ? (
+                            <>
+                                <PerfView style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                                    <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                        {t('known.holders.topUpTitle')}
+                                    </PerfText>
+                                    <PerfView style={{ alignItems: 'flex-start' }}>
+                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                            {`${holdersOp.amount} TON`}
+                                        </PerfText>
+                                    </PerfView>
+                                </PerfView>
+                            </>
+                        ) : (
+                            <>
+                                <PerfView style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                                    <PerfText style={[{ color: theme.textSecondary, marginBottom: 8 }, Typography.regular17_24]}>
+                                        {t('known.holders.limitsTitle')}
+                                    </PerfText>
+                                    {!!holdersOp.onetime && (
+                                        <>
+                                            <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+                                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
+                                                    {t('known.holders.limitsOneTime')}
+                                                </PerfText>
+                                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                                    {`${holdersOp.onetime} TON`}
+                                                </PerfText>
+                                            </PerfView>
+                                            {(!!holdersOp.daily || !!holdersOp.monthly) && (
+                                                <ItemDivider marginHorizontal={0} />
+                                            )}
+                                        </>
+                                    )}
+                                    {!!holdersOp.daily && (
+                                        <>
+                                            <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+                                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
+                                                    {t('known.holders.limitsDaily')}
+                                                </PerfText>
+                                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                                    {`${holdersOp.daily} TON`}
+                                                </PerfText>
+                                            </PerfView>
+                                            {!!holdersOp.monthly && (
+                                                <ItemDivider marginHorizontal={0} />
+                                            )}
+                                        </>
+                                    )}
+                                    {!!holdersOp.monthly && (
+                                        <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+                                            <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
+                                                {t('known.holders.limitsMonthly')}
+                                            </PerfText>
+                                            <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                                {`${holdersOp.monthly} TON`}
+                                            </PerfText>
+                                        </PerfView>
+                                    )}
+                                </PerfView>
+                            </>
+                        )}
+                    </ItemGroup>
+                )}
                 {
                     tx.base.outMessagesCount > 1 ? (
                         <>

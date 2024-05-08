@@ -696,7 +696,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         upgradeOk: 'Upgrade completed',
         cashback: 'Cashback',
         tokenSent: 'Token sent',
-        tokenReceived: 'Token received'
+        tokenReceived: 'Token received',
+        holders: {
+            topUpTitle: 'Top up amount',
+            accountTopUp: 'Account top up of {{amount}} TON',
+            limitsTitle: 'Limits',
+            limitsOneTime: 'Per transaction',
+            limitsDaily: 'Daily',
+            limitsMonthly: 'Monthly',
+            accountLimitsChange: 'Account limits set',
+        }
     },
     jetton: {
         token: 'token',

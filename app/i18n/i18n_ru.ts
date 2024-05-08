@@ -696,7 +696,16 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "upgradeOk": "Обновление завершено",
         "cashback": "Кэшбек",
         "tokenSent": "Токен отправлен",
-        "tokenReceived": "Токен получен"
+        "tokenReceived": "Токен получен",
+        "holders": {
+            "topUpTitle": 'Сумма пополнения',
+            "accountTopUp": "Пополнение счета на {{amount}} TON",
+            "limitsTitle": 'Лимиты',
+            "limitsOneTime": 'На одну транзакцию',
+            "limitsDaily": 'Дневной',
+            "limitsMonthly": 'Месячный',
+            "accountLimitsChange": "Установлены лимиты счета"
+        }
     },
     "jetton": {
         "token": "токен",

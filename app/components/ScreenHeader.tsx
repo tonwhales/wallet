@@ -25,6 +25,7 @@ export function useScreenHeader(
 ) {
     useEffect(() => {
         navigation.setOptions({
+            ...options,
             headerShown: options.headerShown,
             headerSearchBarOptions: options.headerSearchBarOptions,
             contentStyle: options.contentStyle,

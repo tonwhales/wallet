@@ -1,6 +1,6 @@
-import { useAddressBook } from "./useAddressBook";
+import { useAddressBookContext } from "../../AddressBookContext";
 
 export function useContacts() {
-    const [addressBook,] = useAddressBook();
-    return addressBook.contacts;
+    const addressBookContext = useAddressBookContext();
+    return addressBookContext.state.contacts;
 }

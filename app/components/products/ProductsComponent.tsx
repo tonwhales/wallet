@@ -2,13 +2,13 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useJettons, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
 import { StakingProductComponent } from "./StakingProductComponent"
 import { JettonsProductComponent } from "./JettonsProductComponent"
-import { HoldersHiddenAccounts } from "./HoldersHiddenCards"
+import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
 import { SelectedAccount } from "../../engine/types"
 import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
@@ -26,15 +26,15 @@ import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHolders
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
-export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
+export const ProductsComponent = memo(({ selected, tonBalance }: { selected: SelectedAccount, tonBalance: bigint }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const totalStaked = useStaking().total;
-    const balance = useAccountLite(selected.address)?.balance ?? 0n;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const jettons = useJettons(selected!.addressString);
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
@@ -163,7 +163,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 }}>
                     <TonProductComponent
                         key={'ton-native'}
-                        balance={balance}
+                        balance={tonBalance}
                         theme={theme}
                         navigation={navigation}
                         address={selected.address}
@@ -180,16 +180,17 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     />
                 </View>
 
-                <HoldersProductComponent key={'holders'} />
+                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
                 <StakingProductComponent key={'pool'} />
 
-                <JettonsProductComponent key={'jettons'} />
+                <JettonsProductComponent jettons={jettons} key={'jettons'} />
 
-                <HoldersHiddenAccounts key={'holders-hidden'} />
+                <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
 
-                <JettonsHiddenComponent key={'jettons-hidden'} />
+                <JettonsHiddenComponent jettons={jettons} key={'jettons-hidden'} />
             </View>
         </View>
     );
-})
+});
+ProductsComponent.displayName = 'ProductsComponent';

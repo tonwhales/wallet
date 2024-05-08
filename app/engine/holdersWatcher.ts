@@ -38,8 +38,12 @@ export function useHoldersWatcher() {
                 queryClient.refetchQueries({ queryKey: Queries.Holders(account?.address.toString({ testOnly: isTestnet }) ?? '').Notifications(event.card) })
 
                 return;
-                // TODO
-                // this.syncCardsTransactions();
+            }
+
+            // Refetch cards if prepaid transaction 
+            if (event.type === 'prepaid_transaction') {
+                cards.refetch();
+                return;
             }
         }, isTestnet);
     }, [status.data, cards]);

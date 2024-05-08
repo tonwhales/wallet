@@ -442,7 +442,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdrawFee: 'Withdraw Fee',
                 withdrawRequestFee: 'Withdraw request Fee',
                 withdrawCompleteFee: 'Withdrawal completion request Fee',
-                depositFeeDescription: 'TON amount that will be deducted from deposit amout to cover the deposit action fees, unused amount will be returned to your wallet balance',
+                depositFeeDescription: 'TON amount that will be deducted from deposit amount to cover the deposit action fees, unused amount will be returned to your wallet balance',
                 withdrawFeeDescription: 'TON transfer amount needed to cover the withdraw action fees, unused amount will be returned to your wallet balance',
                 withdrawCompleteDescription: 'TON transfer amount needed to cover the withdraw completion action fees, unused amount will be returned to your wallet balance',
                 blockchainFee: 'Blockhain fee',
@@ -478,12 +478,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Bank account',
             accounts: {
                 title: 'Accounts',
+                prepaidTitle: 'Prepaid cards',
                 account: 'Account',
                 basicAccount: 'Basic account',
                 proAccount: 'Pro account',
                 noCards: 'No cards',
-                prepaidCard: 'Prepaid card',
+                prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
                 prepaidCardDescription: 'Reloadable card for everyday use',
+                hiddenCards: 'Hidden cards',
+                hiddenAccounts: 'Hidden accounts'
             },
             pageTitles: {
                 general: 'Tonhub Cards',
@@ -498,7 +501,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 setUpCard: 'Set up the card',
                 pin: 'Change PIN',
             },
-            hiddenCards: 'Hidden accounts',
             card: {
                 card: 'Card',
                 cards: 'Holders cards',
@@ -702,6 +704,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         productButtonTitle: 'Jettons',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
         hidden: 'Hidden jettons',
+        liquidPoolDescriptionDedust: 'Liquidity pool token for {{name0}} and {{name1}} on DeDust DEX',
+        liquidPoolDescriptionStonFi: 'Liquidity pool token for {{name0}} and {{name1}} on STON.fi DEX',
     },
     connections: {
         extensions: 'Extensions',

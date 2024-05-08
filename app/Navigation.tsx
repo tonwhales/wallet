@@ -35,8 +35,8 @@ import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
 import { LogoutFragment } from './fragments/LogoutFragment';
-import { ContactFragment } from './fragments/ContactFragment';
-import { ContactsFragment } from './fragments/ContactsFragment';
+import { ContactFragment } from './fragments/contacts/ContactFragment';
+import { ContactsFragment } from './fragments/contacts/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
@@ -90,6 +90,7 @@ import { BounceableFormatAboutFragment } from './fragments/utils/BounceableForma
 import { SwapFragment } from './fragments/integrations/SwapFragment';
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
+import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -267,6 +268,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Security', SecurityFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Contact', ContactFragment, safeArea),
+    modalScreen('ContactNew', ContactNewFragment, safeArea),
     modalScreen('SpamFilter', SpamFilterFragment, safeArea),
     modalScreen('Currency', CurrencyFragment, safeArea),
     modalScreen('Theme', ThemeFragment, safeArea),

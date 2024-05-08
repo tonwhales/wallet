@@ -11,6 +11,7 @@ import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
 import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
+import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -78,20 +79,31 @@ export class TypedNavigation {
         this.navigate('Transfer', tx);
     }
 
-    navigateStakingTransfer(params: StakingTransferParams, ledger?: boolean) {
-        if (ledger) {
-            this.navigate('LedgerStakingTransfer', params);
+    navigateStakingPool(params: StakingFragmentParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+        if (options?.ledger) {
+            action('LedgerStaking', params);
             return;
         }
-        this.navigate('StakingTransfer', params);
+        action('Staking', params);
     }
 
-    navigateLiquidStakingTransfer(params: LiquidStakingTransferParams, ledger?: boolean) {
-        if (ledger) {
-            this.navigate('LedgerLiquidStakingTransfer', params);
+    navigateStakingTransfer(params: StakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+        if (options?.ledger) {
+            action('LedgerStakingTransfer', params);
             return;
         }
-        this.navigate('LiquidStakingTransfer', params);
+        action('StakingTransfer', params);
+    }
+
+    navigateLiquidStakingTransfer(params: LiquidStakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+        if (options?.ledger) {
+            action('LedgerLiquidStakingTransfer', params);
+            return;
+        }
+        action('LiquidStakingTransfer', params);
     }
 
     navigateLiquidWithdrawAction(isLedger?: boolean) {
@@ -132,7 +144,7 @@ export class TypedNavigation {
         this.navigate('LedgerSignTransfer', params);
     }
 
-    navigateStakingCalculator(params: { target: Address }) {
+    navigateStakingCalculator(params: { target: string }) {
         this.navigate('StakingCalculator', params);
     }
 
@@ -143,7 +155,7 @@ export class TypedNavigation {
     navigateHolders(params: HoldersAppParams) {
         this.navigate('Holders', params);
     }
-    
+
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
     }

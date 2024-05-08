@@ -150,6 +150,10 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             let parsed = JSON.parse(nativeEvent.data);
             let processed = false;
 
+            if (!parsed?.data?.name) {
+                return;
+            }
+
             // Main button API
             if (props.useMainButton && ref) {
                 processed = processMainButtonMessage(
@@ -349,8 +353,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         safeArea
     ]);
 
-    const Loader = props.loader ?? WebViewLoader;
-
     const onContentProcessDidTerminate = useCallback(() => {
         dispatchMainButton({ type: 'hide' });
         props.onContentProcessDidTerminate?.();
@@ -452,7 +454,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     </Animated.View>
                 )}
             </KeyboardAvoidingView>
-            <Loader loaded={loaded} />
+            {!!props.loader ? props.loader({ loaded }) : <WebViewLoader loaded={loaded} />}
         </View>
     );
 }));

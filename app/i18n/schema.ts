@@ -480,12 +480,15 @@ export type LocalizationSchema = {
             title: string,
             accounts: {
                 title: string,
+                prepaidTitle: string,
                 account: string,
                 basicAccount: string,
                 proAccount: string,
                 noCards: string,
                 prepaidCard: string,
                 prepaidCardDescription: string,
+                hiddenAccounts: string,
+                hiddenCards: string,
             },
             pageTitles: {
                 general: string,
@@ -500,7 +503,6 @@ export type LocalizationSchema = {
                 setUpCard: string,
                 pin: string
             },
-            hiddenCards: string,
             card: {
                 card: string,
                 cards: string,
@@ -703,7 +705,9 @@ export type LocalizationSchema = {
         token: string,
         productButtonTitle: string,
         productButtonSubtitle: string,
-        hidden: string
+        hidden: string,
+        liquidPoolDescriptionDedust: string
+        liquidPoolDescriptionStonFi: string
     },
     connections: {
         extensions: string,

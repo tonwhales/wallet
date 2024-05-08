@@ -3,7 +3,7 @@ import { Queries } from '../../queries';
 import { PriceState, fetchPrice } from '../../api/fetchPrice';
 import { usePrimaryCurrency } from './usePrimaryCurrency';
 
-export function usePrice(): [PriceState, string] {
+export function usePriceQuery(): [PriceState, string] {
     let price = useQuery({
         queryKey: Queries.TonPrice(),
         queryFn: fetchPrice,

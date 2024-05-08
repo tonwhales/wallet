@@ -99,9 +99,16 @@ export function ValueComponent(props: {
     }
     r = parts.join(' ');
 
+    let real;
+    try {
+        real = parseInt(r);
+    } catch (error) {
+        real = 0;
+    }
+
     // Determine the precision of the value
     const precision = !!props.decimals
-        ? r.length > 1 ? 2 : props.decimals
+        ? (r.length >= 1) && real !== 0 ? 2 : props.decimals
         : props.precision
             ? props.precision
             : r.length > 2 ? 2 : p[1].length;

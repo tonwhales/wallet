@@ -13,12 +13,14 @@ export const StakingPendingComponent = memo((
         member,
         target,
         style,
-        isLedger
+        isLedger,
+        isTestnet
     }: {
         member?: StakingPoolMember | null,
         target: Address,
         style?: StyleProp<ViewStyle>,
-        isLedger?: boolean
+        isLedger?: boolean,
+        isTestnet: boolean
     }
 ) => {
     const theme = useTheme();
@@ -154,14 +156,14 @@ export const StakingPendingComponent = memo((
                         onPress={() => {
                             navigation.navigateStakingTransfer(
                                 {
-                                    target: target,
-                                    amount: member.withdraw,
+                                    target: target.toString({ testOnly: isTestnet }),
+                                    amount: member.withdraw.toString(),
                                     lockAmount: true,
                                     lockAddress: true,
                                     lockComment: true,
                                     action: 'withdraw_ready' as TransferAction
                                 },
-                                isLedger
+                                { ledger: isLedger }
                             );
                         }}
                     >

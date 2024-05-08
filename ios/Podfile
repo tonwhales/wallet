@@ -17,8 +17,7 @@ prepare_react_native_project!
 #   dependencies: {
 #     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
 # ```
-# remover because of XCode 15.3
-# flipper_config = FlipperConfiguration.enabled(["Debug", "Debug Testnet"])
+flipper_config = FlipperConfiguration.enabled(["Debug", "Debug Testnet"])
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -41,8 +40,7 @@ target 'WhalesApp' do
     #
     # Note that if you have use_frameworks! enabled, Flipper will not work and
     # you should disable the next line.
-    # remover because of XCode 15.3
-    # :flipper_configuration => flipper_config,
+    :flipper_configuration => flipper_config,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
@@ -72,6 +70,21 @@ target 'WhalesApp' do
       if (target.name&.eql?('React-Codegen'))
         target.build_configurations.each do |config|
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
+        end
+      end
+
+      # Workaround for Flipper on XCode 15.3
+      if target.name == 'Flipper'
+        file_path = 'Pods/Flipper/xplat/Flipper/FlipperTransportTypes.h'
+        if (File.exist?(file_path))
+          contents = File.read(file_path)
+          if (!contents.include?('#include <functional>'))
+            mod_content = contents.gsub("#pragma once", "#pragma once\n#include <functional>")
+            File.chmod(0755, file_path)
+            File.open(file_path, 'w') do |file|
+              file.puts(mod_content)
+            end
+          end
         end
       end
 

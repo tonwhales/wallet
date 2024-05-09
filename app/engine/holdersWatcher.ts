@@ -15,36 +15,36 @@ export function useHoldersWatcher() {
     const cards = useHoldersAccounts(account?.address.toString({ testOnly: isTestnet }) ?? '');
 
     useEffect(() => {
-        let watcher: null | (() => void) = null;
-        if (!status.data?.state || status.data.state === HoldersAccountState.NeedEnrollment) {
+        if (status?.data?.state !== HoldersAccountState.Ok) {
             return;
         }
+
         cards.refetch();
-        watcher = watchHoldersAccountUpdates(status.data.token, (event) => {
+
+        return watchHoldersAccountUpdates(status.data.token, (event) => {
             if (
-                event.type === 'error'
-                && event.message === 'invalid_token'
-                || event.message === 'state_change'
+                event.message === 'state_change'
+                || (event.type === 'error' && event.message === 'invalid_token')
             ) {
                 status.refetch();
+                return;
             }
             if (event.type === 'connected') {
                 cards.refetch();
+                return;
             }
             if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
                 cards.refetch();
                 queryClient.refetchQueries({ queryKey: Queries.Holders(account?.address.toString({ testOnly: isTestnet }) ?? '').Notifications(event.card) })
 
-                // TODO
-                // this.syncCardsTransactions();
+                return;
+            }
+
+            // Refetch cards if prepaid transaction 
+            if (event.type === 'prepaid_transaction') {
+                cards.refetch();
+                return;
             }
         }, isTestnet);
-
-        return () => {
-            if (!!watcher) {
-                watcher();
-                watcher = null;
-            }
-        };
     }, [status.data, cards]);
 }

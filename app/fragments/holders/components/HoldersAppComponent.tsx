@@ -17,15 +17,14 @@ import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { useSelectedAccount } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
-import { useHoldersAccountStatus } from '../../../engine/hooks';
 import { HoldersAccountState, holdersUrl } from '../../../engine/api/holders/fetchAccountState';
-import { useHoldersAccounts } from '../../../engine/hooks';
-import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
+import { HoldersAccountStatus, getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppWebView';
 import { ThemeType } from '../../../engine/state/theme';
 import { useDimensions } from '@react-native-community/hooks';
+import { HoldersAccounts } from '../../../engine/hooks/holders/useHoldersAccounts';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
@@ -33,323 +32,150 @@ export function normalizePath(path: string) {
 
 import IcHolders from '@assets/ic_holders.svg';
 
-function PulsingAccountPlaceholder(theme: ThemeType) {
+const AccountPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
     const safeArea = useSafeAreaInsets();
-    const animation = useSharedValue(0);
-
-    useEffect(() => {
-        animation.value =
-            withRepeat(
-                withTiming(1, {
-                    duration: 450,
-                    easing: Easing.bezier(0.42, 0, 1, 1)
-                }),
-                -1,
-                true,
-            );
-    }, []);
-
-    const animatedStyles = useAnimatedStyle(() => {
-        const scale = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 1.01],
-            Extrapolation.CLAMP,
-        )
-        return {
-            transform: [{ scale: scale }],
-        };
-    }, []);
 
     return (
-        <View style={{ flexGrow: 1, width: '100%' }}>
+        <View style={[
+            { flexGrow: 1, width: '100%' },
+            Platform.select({
+                ios: { paddingTop: safeArea.top - 8 },
+                android: { paddingTop: safeArea.top }
+            })
+        ]}>
             <View
-                style={{
-                    backgroundColor: theme.backgroundUnchangeable,
-                    height: Platform.OS === 'android' ? 296 : 324,
-                    position: 'absolute',
-                    top: -30 - 36 - safeArea.top,
-                    left: -4,
-                    right: -4,
-                    borderRadius: 20,
-                    alignItems: 'center',
-                    paddingHorizontal: 20,
-                    borderBottomLeftRadius: 28,
-                    borderBottomRightRadius: 28,
-                }}
-            />
-            <View style={[
-                {
-                    height: 44,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 16,
-                    marginTop: safeArea.top - 59
-                },
-            ]}>
-                <View style={{
-                    width: 32, height: 32,
-                    backgroundColor: '#1c1c1e',
-                    borderRadius: 16
-                }} />
-                <Animated.View
-                    style={[
-                        { height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' },
-                        animatedStyles
-                    ]}
-                >
-                    <View style={{ backgroundColor: '#1c1c1e', height: 28, width: 132, borderRadius: 20 }} />
-                </Animated.View>
-                <View style={{
-                    width: 32, height: 32,
-                    backgroundColor: '#1c1c1e',
-                    borderRadius: 16
-                }} />
-            </View>
-            <Animated.View
                 style={[
                     {
+                        backgroundColor: theme.backgroundUnchangeable,
+                        position: 'absolute', top: 0, left: 0, right: 0
+                    },
+                    Platform.select({
+                        ios: { height: safeArea.top - 8 },
+                        android: { height: safeArea.top }
+                    }),
+                ]}
+            />
+            <View style={{
+                backgroundColor: theme.backgroundUnchangeable,
+                borderBottomLeftRadius: 20,
+                borderBottomRightRadius: 20,
+                paddingTop: 8
+            }}>
+                <View style={[
+                    {
+                        height: 44,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingHorizontal: 16,
+                        width: '100%'
+                    },
+                ]}>
+                    <View style={{
+                        width: 32, height: 32,
                         backgroundColor: '#1c1c1e',
-                        height: 38,
-                        width: 142,
-                        borderRadius: 8,
-                        marginTop: 24,
-                        alignSelf: 'center'
-                    },
-                    animatedStyles
-                ]}
-            />
-            <Animated.View
-                style={[
-                    {
+                        borderRadius: 16
+                    }} />
+                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{
+                            backgroundColor: '#1c1c1e',
+                            height: 28, width: 132,
+                            borderRadius: 20
+                        }} />
+                    </View>
+                    <View style={{
+                        width: 32, height: 32,
                         backgroundColor: '#1c1c1e',
-                        height: 26,
-                        width: 78,
-                        borderRadius: 20,
-                        marginTop: 20,
-                        alignSelf: 'center'
-                    },
-                    animatedStyles
-                ]}
-            />
-            <Animated.View
-                style={[
-                    {
-                        backgroundColor: theme.surfaceOnBg,
-                        height: 96,
-                        borderRadius: 20,
-                        marginTop: 24,
-                        marginHorizontal: 20
-                    },
-                    animatedStyles
-                ]}
-            />
-        </View>
-    );
-}
-
-function PulsingAccountSkeleton(theme: ThemeType) {
-    const safeArea = useSafeAreaInsets();
-    const animation = useSharedValue(0);
-
-    useEffect(() => {
-        animation.value =
-            withRepeat(
-                withTiming(1, {
-                    duration: 450,
-                    easing: Easing.bezier(0.42, 0, 1, 1)
-                }),
-                -1,
-                true,
-            );
-    }, []);
-
-    const animatedStyles = useAnimatedStyle(() => {
-        const scale = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 1.01],
-            Extrapolation.CLAMP,
-        )
-        return {
-            transform: [{ scale: scale }],
-        };
-    }, []);
-
-    return (
-        <View style={{ flexGrow: 1, width: '100%' }}>
-            <View
-                style={{
-                    backgroundColor: theme.backgroundUnchangeable,
-                    height: Platform.OS === 'android' ? 296 : 324,
-                    position: 'absolute',
-                    top: -30 - 36 - safeArea.top,
-                    left: -4,
-                    right: -4,
-                    borderRadius: 20,
-                    alignItems: 'center',
-                    paddingHorizontal: 20,
-                    borderBottomLeftRadius: 28,
-                    borderBottomRightRadius: 28,
-                }}
-            />
-            <View style={[
-                {
-                    height: 44,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 16,
-                    marginTop: safeArea.top - 59
-                },
-            ]}>
-                <View style={{
-                    width: 32, height: 32,
-                    backgroundColor: '#1c1c1e',
-                    borderRadius: 16
-                }} />
-                <Animated.View
-                    style={[
-                        { height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' },
-                        animatedStyles
-                    ]}
-                >
-                    <View style={{ backgroundColor: '#1c1c1e', height: 28, width: 132, borderRadius: 20 }} />
-                </Animated.View>
-                <View style={{
-                    width: 32, height: 32,
-                    backgroundColor: '#1c1c1e',
-                    borderRadius: 16
-                }} />
-            </View>
-            <Animated.View
-                style={[
-                    {
-                        backgroundColor: '#1c1c1e',
-                        height: 38,
-                        width: 142,
-                        borderRadius: 8,
-                        marginTop: 24,
-                        alignSelf: 'center'
-                    },
-                    animatedStyles
-                ]}
-            />
-            <Animated.View
-                style={[
-                    {
-                        backgroundColor: '#1c1c1e',
-                        height: 26,
-                        width: 78,
-                        borderRadius: 20,
-                        marginTop: 20,
-                        alignSelf: 'center'
-                    },
-                    animatedStyles
-                ]}
-            />
-            <Animated.View
-                style={[
-                    {
-                        backgroundColor: theme.surfaceOnBg,
-                        height: 96,
-                        borderRadius: 20,
-                        marginTop: 24,
-                        marginHorizontal: 20
-                    },
-                    animatedStyles
-                ]}
-            />
-        </View>
-    );
-}
-
-function PulsingCardPlaceholder(theme: ThemeType) {
-    const dimensions = useDimensions();
-    const animation = useSharedValue(0);
-
-    useEffect(() => {
-        animation.value =
-            withRepeat(
-                withTiming(1, {
-                    duration: 450,
-                    easing: Easing.bezier(0.42, 0, 1, 1)
-                }),
-                -1,
-                true,
-            );
-    }, []);
-
-    const animatedStyles = useAnimatedStyle(() => {
-        const scale = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 1.03],
-            Extrapolation.CLAMP,
-        )
-        return {
-            transform: [{ scale: scale }],
-        };
-    }, []);
-
-    return (
-        <View style={{ flexGrow: 1, width: '100%' }}>
-            <Animated.View style={[
-                {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    marginTop: 48,
-                    gap: 28
-                },
-                animatedStyles
-            ]}>
+                        borderRadius: 16
+                    }} />
+                </View>
                 <View
                     style={{
-                        backgroundColor: theme.surfaceOnBg,
-                        width: (dimensions.screen.width - 56) * 0.1 - 8,
-                        height: 152,
-                        marginLeft: -16,
-                        borderTopEndRadius: 20,
-                        borderBottomEndRadius: 20
+                        height: 28,
+                        width: 78,
+                        backgroundColor: '#1c1c1e',
+                        borderRadius: 20,
+                        marginTop: 20 + 38 + 20,
+                        alignSelf: 'center'
                     }}
                 />
                 <View
                     style={{
                         backgroundColor: theme.surfaceOnBg,
-                        width: dimensions.screen.width - 108,
-                        height: 186,
+                        height: 96,
+                        borderRadius: 20,
+                        marginTop: 24,
+                        marginHorizontal: 16,
+                        marginBottom: - 48
+                    }}
+                />
+            </View>
+        </View>
+    );
+});
+
+const CardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
+    const dimensions = useDimensions();
+    const safeArea = useSafeAreaInsets();
+
+    return (
+        <View style={[
+            { flexGrow: 1, width: '100%' },
+            Platform.select({
+                ios: { paddingTop: safeArea.top - 8 },
+                android: { paddingTop: safeArea.top }
+            })
+        ]}>
+            <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                marginTop: 44 + 24,
+                gap: 26
+            }}>
+                <View
+                    style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        width: 32,
+                        height: 152,
+                        borderTopEndRadius: 18,
+                        borderBottomEndRadius: 18
+                    }}
+                />
+                <View
+                    style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        width: dimensions.screen.width - 98,
+                        height: 184,
                         borderRadius: 20
                     }}
                 />
                 <View
                     style={{
                         backgroundColor: theme.surfaceOnBg,
-                        width: (dimensions.screen.width - 56) * 0.1 - 8,
+                        width: 32,
                         height: 152,
-                        marginRight: -16,
-                        borderTopStartRadius: 20,
-                        borderBottomStartRadius: 20
+                        borderTopStartRadius: 18,
+                        borderBottomStartRadius: 18
                     }}
                 />
-            </Animated.View>
-            <Animated.View style={[
-                {
-                    backgroundColor: theme.surfaceOnBg,
-                    alignSelf: 'center',
-                    height: 96,
-                    width: dimensions.screen.width - 32,
-                    marginTop: 38,
-                    borderRadius: 20
-                },
-                animatedStyles
-            ]} />
+            </View>
+            <View style={{
+                backgroundColor: theme.surfaceOnBg,
+                alignSelf: 'center',
+                height: 96,
+                width: dimensions.screen.width - 32,
+                marginTop: 38,
+                borderRadius: 20,
+                opacity: 1
+            }} />
         </View>
     );
-}
+});
 
-export function HoldersPlaceholder() {
+export const HoldersPlaceholder = memo(() => {
     const animation = useSharedValue(0);
+    const safeArea = useSafeAreaInsets();
 
     useEffect(() => {
         animation.value =
@@ -388,13 +214,19 @@ export function HoldersPlaceholder() {
     }, []);
 
     return (
-        <Animated.View style={animatedStyles}>
+        <Animated.View style={[
+            animatedStyles,
+            Platform.select({
+                ios: { paddingTop: safeArea.top - 8 },
+                android: { paddingTop: safeArea.top }
+            })
+        ]}>
             <IcHolders color={'#eee'} />
         </Animated.View>
     );
-}
+});
 
-export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' | 'prepaid' }) {
+export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'account' | 'create' | 'prepaid' }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -406,7 +238,7 @@ export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'accoun
         return {
             opacity: withTiming(
                 opacity.value,
-                { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }
+                { duration: 350, easing: Easing.inOut(Easing.ease) },
             )
         };
     });
@@ -421,46 +253,58 @@ export function HoldersLoader({ loaded, type }: { loaded: boolean, type: 'accoun
         }, 3000);
     }, []);
 
-    let placeholder = <HoldersPlaceholder />;
+    const placeholder = useMemo(() => {
+        if (type === 'account') {
+            return <AccountPlaceholder theme={theme} />;
+        }
 
-    if (type === 'account') {
-        placeholder = <PulsingAccountPlaceholder {...theme} />;
-    }
+        if (type === 'prepaid') {
+            return <CardPlaceholder theme={theme} />;
+        }
 
-    if (type === 'prepaid') {
-        placeholder = <PulsingCardPlaceholder {...theme} />;
-    }
+        return <HoldersPlaceholder />;
+    }, [type, theme]);
 
     return (
         <Animated.View
             style={[
                 {
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    paddingTop: (type === 'account' || type === 'prepaid') ? 0 : safeArea.top,
                     backgroundColor: theme.backgroundPrimary,
                     alignItems: 'center'
                 },
-                animatedStyles
+                animatedStyles,
+                Platform.select({
+                    ios: { paddingTop: (type === 'account' || type === 'prepaid') ? 0 : safeArea.top },
+                    android: { paddingTop: 0 }
+                }),
             ]}
             pointerEvents={loaded ? 'none' : 'auto'}
         >
-            <View style={{ marginTop: 58, width: '100%', flexGrow: 1 }}>
-                {placeholder}
-            </View>
-            <ScreenHeader
-                onBackPressed={showClose ? navigation.goBack : undefined}
-                style={{ position: 'absolute', top: 32, left: 16, right: 0 }}
-            />
+            {placeholder}
+            {!loaded && (
+                <ScreenHeader
+                    onBackPressed={showClose ? navigation.goBack : undefined}
+                    style={[
+                        { position: 'absolute', top: 32, left: 16, right: 0 },
+                        Platform.select({
+                            ios: { top: 32 },
+                            android: { top: safeArea.top - 6 }
+                        })
+                    ]}
+                />
+            )}
         </Animated.View>
     );
-}
+});
 
 export const HoldersAppComponent = memo((
     props: {
         variant: HoldersAppParams,
-        token: string,
         title: string,
-        endpoint: string
+        endpoint: string,
+        status?: HoldersAccountStatus,
+        accounts?: HoldersAccounts,
     }
 ) => {
     const navigation = useTypedNavigation();
@@ -469,8 +313,8 @@ export const HoldersAppComponent = memo((
     const domain = useMemo(() => extractDomain(props.endpoint), []);
     const lang = getLocales()[0].languageCode;
     const acc = useMemo(() => getCurrentAddress(), []);
-    const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
-    const accountsStatus = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
+    const status = props.status;
+    const accountsStatus = props.accounts;
     const [currency,] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
     const url = holdersUrl(isTestnet);
@@ -528,6 +372,10 @@ export const HoldersAppComponent = memo((
         let prt = protectNavigation(event.url, props.endpoint);
         if (prt) {
             return true;
+        }
+
+        if (event.url === 'about:blank') {
+            return false;
         }
 
         // Resolve linking

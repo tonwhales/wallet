@@ -1,12 +1,6 @@
-import { useAddressBook } from './useAddressBook';
+import { useAddressBookContext } from '../../AddressBookContext';
 
 export function useContact(addressString?: string | null) {
-    const [full,] = useAddressBook();
-    if (!addressString) {
-        return null;
-    }
-    if (full.contacts[addressString]) {
-        return full.contacts[addressString];
-    }
-    return null;
+    const addressBookContext = useAddressBookContext();
+    return addressBookContext.asContact(addressString);
 }

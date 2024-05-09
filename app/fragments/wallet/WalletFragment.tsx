@@ -12,7 +12,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useAccountLite, useHoldersAccounts, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
+import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
@@ -36,16 +36,17 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const account = props.wallet;
     const specialJetton = useSpecialJetton(address);
     const staking = useStaking();
+    const liquidBalance = useLiquidStakingBalance(address);
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
     const showBuy = isNeocryptoAvailable();
 
     const stakingBalance = useMemo(() => {
-        if (!staking) {
+        if (!staking && !liquidBalance) {
             return 0n;
         }
-        return staking.total;
-    }, [staking]);
+        return liquidBalance + staking.total;
+    }, [staking, liquidBalance]);
 
     const balance = useMemo(() => {
         const accountWithStaking = (account ? account?.balance : 0n)
@@ -63,7 +64,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
-            <WalletHeader />
+            <WalletHeader address={address} />
             <ScrollView
                 style={{ flexBasis: 0 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
@@ -171,6 +172,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                 ios: { marginBottom: 24 + bottomBarHeight, },
                                 android: { marginBottom: 16, }
                             })}
+                            theme={theme}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -313,11 +315,12 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         </View>
                     </View>
                 </View>
-                <ProductsComponent selected={props.selectedAcc} />
+                <ProductsComponent selected={props.selectedAcc} tonBalance={account?.balance ?? 0n} />
             </ScrollView>
         </View>
     );
 }
+WalletComponent.displayName = 'WalletComponent';
 
 const skeleton = (
     <View style={{ position: 'absolute', top: -100, bottom: 0, left: 0, right: 0 }}>
@@ -348,6 +351,7 @@ export const WalletFragment = fragment(() => {
         </>
     );
 });
+WalletFragment.displayName = 'WalletFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'WalletStack';

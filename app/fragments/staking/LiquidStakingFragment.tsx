@@ -90,8 +90,8 @@ export const LiquidStakingFragment = fragment(() => {
 
     const onTopUp = useCallback(() => {
         navigation.navigateLiquidStakingTransfer(
-            { amount: transferAmount, action: 'top_up' as TransferAction },
-            isLedger
+            { amount: transferAmount.toString(), action: 'top_up' as TransferAction },
+            { ledger: isLedger }
         );
     }, [transferAmount, isLedger]);
 
@@ -254,6 +254,7 @@ export const LiquidStakingFragment = fragment(() => {
                             disableContextMenu
                             copyOnPress
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
+                            theme={theme}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -344,7 +345,7 @@ export const LiquidStakingFragment = fragment(() => {
                             </View>
                             <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                                 <Pressable
-                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPool })}
+                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPoolFriendly })}
                                     style={({ pressed }) => ({
                                         opacity: pressed ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,

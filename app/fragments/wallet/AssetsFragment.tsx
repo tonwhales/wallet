@@ -18,6 +18,7 @@ import { AssetsListItem } from "../../components/jettons/AssetsListItem";
 import { WImage } from "../../components/WImage";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
+import { JettonIcon } from "../../components/products/JettonIcon";
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

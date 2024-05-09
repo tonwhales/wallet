@@ -7,7 +7,7 @@ import { Pressable, View, Image, Text, Platform, ScrollView } from "react-native
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
-import { useAccountLite, useBounceableWalletFormat, useNetwork, useStaking, useTheme } from "../../engine/hooks";
+import { useAccountLite, useBounceableWalletFormat, useLiquidStakingBalance, useNetwork, useStaking, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
@@ -43,13 +43,14 @@ export const LedgerHomeFragment = fragment(() => {
     const account = useAccountLite(address!, { refetchOnMount: true })!;
     const staking = useStaking(address!);
     const specialJetton = useSpecialJetton(address!);
+    const liquidBalance = useLiquidStakingBalance(address!);
 
     const stakingBalance = useMemo(() => {
         if (!staking) {
             return 0n;
         }
-        return staking.total;
-    }, [staking]);
+        return liquidBalance + staking.total;
+    }, [staking, liquidBalance]);
 
     const balance = useMemo(() => {
         const accountWithStaking = (account ? BigInt(account.balance) : 0n)

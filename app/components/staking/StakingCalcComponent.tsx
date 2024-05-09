@@ -1,13 +1,11 @@
 import React, { memo, useMemo } from "react"
 import { View, Text, StyleProp, TextStyle, ViewStyle } from "react-native";
 import { t } from "../../i18n/t";
-import { bnIsLess } from "../../utils/bnComparison";
-import { parseAmountToNumber, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 import { ThemeType } from "../../engine/state/theme";
-import { useStakingApy, useTheme } from "../../engine/hooks";
-import { StakingPoolMember, StakingPoolState } from "../../engine/types";
+import { usePoolApy, useStakingApy, useTheme } from "../../engine/hooks";
+import { StakingPoolMember } from "../../engine/types";
 import { fromNano, toNano } from "@ton/core";
 
 const priceTextStyle = (theme: ThemeType) => ({ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }) as StyleProp<TextStyle>;
@@ -17,18 +15,22 @@ const itemValueTextStyle = (theme: ThemeType) => ({ color: theme.textPrimary, fo
 
 export const StakingCalcComponent = memo((
     {
+        poolAddressString,
         amount,
         topUp,
         member,
         fee
     }: {
+        poolAddressString: string,
         amount: bigint,
         topUp?: boolean,
         member?: StakingPoolMember | null,
         fee: bigint
     }) => {
     const theme = useTheme();
+    const poolApy = usePoolApy(poolAddressString);
     const apy = useStakingApy()?.apy;
+    
     const poolFee = fee / 100n;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {

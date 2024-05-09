@@ -27,7 +27,14 @@ export async function onBlockMissed(client: TonClient4, lastBlock: number, newBl
             let touched = new Set(missedBlocks.flatMap(a => a.shards.flatMap(a => a.transactions)).map(a => a.account));
 
             if (isTestnet) { // we get addresses without testOnly flag from the client, so we need to parse them
-                touched = new Set([...touched].map(a => Address.parse(a).toString({ testOnly: true })));
+                touched = new Set([...touched].map(a => {
+                    try {
+                        return Address.parse(a).toString({ testOnly: true });
+                    } catch (e) {
+                        console.warn('Failed to parse address', a, e);
+                        return a;
+                    }
+                }));
             }
 
             onAccountsTouched(touched);

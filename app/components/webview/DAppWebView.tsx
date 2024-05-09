@@ -413,7 +413,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     }
                 }}
                 onNavigationStateChange={(event: WebViewNavigation) => {
-                    console.log('onNavigationStateChange', event);
                     // Searching for supported query
                     onNavigation(event.url);
                 }}

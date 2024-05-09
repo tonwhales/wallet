@@ -6,6 +6,5 @@ export function isSafeDomain(domain: string) {
         || domain === 'tonhub.com' || domain.endsWith('.tonhub.com')
         || domain === 't.me' || domain.endsWith('.t.me')
         || domain === 'dedust.io' || domain.endsWith('.dedust.io')
-        || domain === 'tonhub.dedust.io' || domain.endsWith('tonhub.dedust.io')
     );
 }

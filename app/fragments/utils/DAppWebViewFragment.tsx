@@ -50,10 +50,11 @@ export type DAppWebViewFragmentParams = {
         refresh?: boolean;
         share?: boolean;
     };
+    safeMode?: boolean;
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState, controlls } = useParams<DAppWebViewFragmentParams>();
+    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState, controlls, safeMode } = useParams<DAppWebViewFragmentParams>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
@@ -106,14 +107,14 @@ export const DAppWebViewFragment = fragment(() => {
 
         // Secondary protection
         let prt = protectNavigation(event.url, url);
-        if (prt) {
+        if (prt || safeMode) {
             return true;
         }
 
         // Resolve linking
         Linking.openURL(event.url);
         return false;
-    }, []);
+    }, [safeMode]);
 
     const headerOnClose = useMemo(() => {
         if (!header?.onClose && !header?.onBack) {

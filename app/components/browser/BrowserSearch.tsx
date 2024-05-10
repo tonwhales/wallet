@@ -19,6 +19,7 @@ import { BrowserSearchSuggestion } from "../../engine/hooks/dapps/useDAppsSugges
 import { useWebSearchSuggestions } from "../../engine/hooks/dapps/useWebSearchSuggestions";
 import { SearchEngine } from "../../engine/state/searchEngine";
 import { LoadingIndicator } from "../LoadingIndicator";
+import { useKeyboard } from "@react-native-community/hooks";
 
 function normalizeUrl(url: string) {
     if (!url) {
@@ -101,7 +102,16 @@ export const SearchSuggestionItem = memo(({
                             />
                         </View>
                     )}
-                    <Text style={[{ color: theme.textPrimary, flexGrow: 1 }, Typography.medium15_20]}>{item?.title}</Text>
+                    <Text
+                        style={[
+                            { color: theme.textPrimary, flexGrow: 1, flexShrink: 1 },
+                            Typography.medium15_20
+                        ]}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                    >
+                        {item?.title}
+                    </Text>
                     {loading && (<LoadingIndicator simple />)}
                 </View>
             </Pressable>
@@ -126,20 +136,27 @@ export const SearchSuggestions = memo(({
     const itemHeight = 48;
     const dimensions = useWindowDimensions();
     const heightValue = useSharedValue(0);
+    const keyboard = useKeyboard();
 
     const animSearchStyle = useAnimatedStyle(() => {
         return {
-            height: withTiming(heightValue.value, { duration: 300, easing: Easing.bezier(0.25, 0.1, 0.25, 1) })
+            height: withTiming(heightValue.value, { duration: 300, easing: Easing.bezier(0.25, 0.1, 0.25, 1) }),
+            shadowColor: theme.textPrimary,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4
         };
     });
 
     useEffect(() => {
         const suggestionsLength = [...suggestions.dapps, ...suggestions.web].length;
         const contentHeight = suggestionsLength * (itemHeight + 18) + 24 + 16;
-        const maxHeight = (dimensions.height / 2) - 56 - 8;
+        const maxHeight = keyboard.keyboardShown
+            ? (dimensions.height / 2) - 56 - 8
+            : dimensions.height - 256;
         const toExpandTo = (contentHeight > maxHeight) ? maxHeight : contentHeight;
         heightValue.value = suggestionsLength > 0 ? toExpandTo : 0;
-    }, [suggestions]);
+    }, [suggestions, keyboard.keyboardShown]);
 
     return (
         <Animated.View style={[{
@@ -148,7 +165,7 @@ export const SearchSuggestions = memo(({
             borderBottomLeftRadius: 20,
             borderBottomRightRadius: 20,
             backgroundColor: theme.border,
-            zIndex: 1001
+            zIndex: 1001,
         }, animSearchStyle]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -253,14 +270,16 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                 share: true,
                 back: true,
                 forward: true
-            }
+            },
+            safeMode: true
         });
     }, []);
 
     const animBorderRadius = useSharedValue(20);
 
     useEffect(() => {
-        animBorderRadius.value = [...suggestions.dapps, ...suggestions.web].length > 0 ? 0 : 20;
+        const suggestionsLength = [...suggestions.dapps, ...suggestions.web].length;
+        animBorderRadius.value = suggestionsLength > 0 ? 0 : 20;
     }, [[...suggestions.dapps, ...suggestions.web].length]);
 
     const animStyle = useAnimatedStyle(() => {
@@ -282,8 +301,10 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,
                 backgroundColor: theme.border,
-                borderBottomWidth: 1,
-                borderBottomColor: theme.border
+                shadowColor: theme.textPrimary,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4
             }, animStyle]}>
                 <Ionicons name={'search'} size={24} color={theme.iconNav} />
                 <ATextInput

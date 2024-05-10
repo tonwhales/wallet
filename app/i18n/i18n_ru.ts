@@ -700,6 +700,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "holders": {
             "topUpTitle": 'Сумма пополнения',
             "accountTopUp": "Пополнение счета на {{amount}} TON",
+            "limitsChange": "Лимиты счета",
             "limitsTitle": 'Лимиты',
             "limitsOneTime": 'На одну транзакцию',
             "limitsDaily": 'Дневной',

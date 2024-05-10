@@ -700,6 +700,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holders: {
             topUpTitle: 'Top up amount',
             accountTopUp: 'Account top up of {{amount}} TON',
+            limitsChange: 'Limits change',
             limitsTitle: 'Limits',
             limitsOneTime: 'Per transaction',
             limitsDaily: 'Daily',

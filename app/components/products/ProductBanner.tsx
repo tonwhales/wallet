@@ -1,13 +1,13 @@
 import React, { memo } from "react";
 import { View, Text, Pressable, StyleProp, ViewStyle, ImageRequireSource } from "react-native";
 import { useTheme } from "../../engine/hooks";
-import FastImage, { Source } from "react-native-fast-image";
+import { ImageSource, Image as ExpoImage } from 'expo-image';;
 
 export const ProductBanner = memo((props: {
     onPress?: () => void,
     title: string,
     subtitle?: string,
-    illustration?: Source | ImageRequireSource,
+    illustration?: ImageSource | ImageRequireSource,
     reverse?: boolean,
     style?: StyleProp<ViewStyle>,
     illustrationStyle?: StyleProp<ViewStyle>,
@@ -38,7 +38,7 @@ export const ProductBanner = memo((props: {
                         backgroundColor: theme.surfaceOnBg,
                         borderRadius: 10
                     }, props.illustrationStyle]}>
-                        <FastImage resizeMode={'contain'} source={props.illustration} style={{ height: 74, width: 96 }} />
+                        <ExpoImage resizeMode={'contain'} source={props.illustration} style={{ height: 74, width: 96 }} />
                     </View>
                 )}
                 <View style={{
@@ -70,7 +70,7 @@ export const ProductBanner = memo((props: {
                 </View>
                 {(!!props.illustration && !props.reverse) && (
                     <View style={{ height: 74, width: 96, justifyContent: 'center', alignItems: 'center' }}>
-                        <FastImage resizeMode={'contain'} source={props.illustration} style={{ height: 74, width: 96 }} />
+                        <ExpoImage resizeMode={'contain'} source={props.illustration} style={{ height: 74, width: 96 }} />
                     </View>
                 )}
             </View>

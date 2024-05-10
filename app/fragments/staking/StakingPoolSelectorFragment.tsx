@@ -9,7 +9,7 @@ import { WImage } from "../../components/WImage";
 import { useParams } from "../../utils/useParams";
 import { useRoute } from "@react-navigation/native";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useClient4, useNetwork, useSelectedAccount, useStakingApy, useStakingPool, useStakingPoolMembers, useTheme } from "../../engine/hooks";
+import { useClient4, useNetwork, usePoolApy, useSelectedAccount, useStakingPool, useStakingPoolMembers, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -24,7 +24,7 @@ const PoolItem = memo(({ selected, pool, onSelect }: { selected?: boolean, pool:
     const knownPools = KnownPools(network.isTestnet);
     const selectedAcc = useSelectedAccount();
     const poolState = useStakingPool(pool, selectedAcc!.address);
-    const apy = useStakingApy()?.apy;
+    const apy = usePoolApy(pool.toString({ testOnly: network.isTestnet }));
 
     const poolFirendly = pool.toString({ testOnly: network.isTestnet });
     const name = knownPools[poolFirendly].name;

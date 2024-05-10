@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Image } from 'react-native';
 import { avatarHash } from '../../utils/avatarHash';
 import { KnownAvatar } from './KnownAvatar';
-import FastImage from 'react-native-fast-image';
+import { Image as ExpoImage } from 'expo-image';
 import { ReactNode, memo } from 'react';
 import { PerfText } from '../basic/PerfText';
 import { PerfView } from '../basic/PerfView';
@@ -182,7 +182,7 @@ export const Avatar = memo((props: {
 
     if (props.image) {
         img = (
-            <FastImage
+            <ExpoImage
                 source={{ uri: props.image }}
                 style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
             />
@@ -190,7 +190,7 @@ export const Avatar = memo((props: {
     } else if (!known || (!known.ic) && imgSource) {
         const animalSize = props.size + 8
         img = (
-            <FastImage
+            <ExpoImage
                 source={imgSource}
                 style={{ width: animalSize, height: animalSize, borderRadius: animalSize / 2, overflow: 'hidden' }}
             />
@@ -235,7 +235,7 @@ export const Avatar = memo((props: {
 
     if (image) {
         img = (
-            <FastImage
+            <ExpoImage
                 source={{ uri: image }}
                 style={{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden' }}
             />
@@ -243,7 +243,7 @@ export const Avatar = memo((props: {
     } else if (!known || (!known.ic) && imgSource) {
         const animalSize = size + 8
         img = (
-            <FastImage
+            <ExpoImage
                 source={imgSource}
                 style={{ width: animalSize, height: animalSize, borderRadius: animalSize / 2, overflow: 'hidden' }}
             />

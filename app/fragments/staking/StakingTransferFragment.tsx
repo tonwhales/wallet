@@ -32,8 +32,8 @@ import { useValidAmount } from '../../utils/useValidAmount';
 export type TransferAction = 'withdraw' | 'top_up' | 'withdraw_ready';
 
 export type StakingTransferParams = {
-    target: Address,
-    amount?: bigint | null,
+    target: string,
+    amount?: string | null,
     lockAmount?: boolean,
     lockComment?: boolean,
     lockAddress?: boolean,
@@ -61,6 +61,7 @@ export const StakingTransferFragment = fragment(() => {
     const route = useRoute();
     const [price, currency] = usePrice();
     const selected = useSelectedAccount();
+    const target = Address.parse(params.target);
 
     const isLedger = route.name === 'LedgerStakingTransfer';
 
@@ -76,7 +77,7 @@ export const StakingTransferFragment = fragment(() => {
     const ledgerAccountLite = useAccountLite(ledgerAddress);
     const account = isLedger ? ledgerAccountLite : accountLite;
     const safeArea = useSafeAreaInsets();
-    const pool = useStakingPool(params.target, isLedger ? ledgerAddress : selected!.address);
+    const pool = useStakingPool(target, isLedger ? ledgerAddress : selected!.address);
     const member = pool?.member;
 
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
@@ -167,7 +168,7 @@ export const StakingTransferFragment = fragment(() => {
             navigation.navigateLedgerSignTransfer({
                 order: {
                     type: 'ledger',
-                    target: params.target.toString({ testOnly: network.isTestnet }),
+                    target: target.toString({ testOnly: network.isTestnet }),
                     payload: ledgerPayload,
                     amount: transferAmount,
                     amountAll: false,
@@ -228,7 +229,7 @@ export const StakingTransferFragment = fragment(() => {
             order: {
                 type: 'order',
                 messages: [{
-                    target: params.target.toString({ testOnly: network.isTestnet }),
+                    target: target.toString({ testOnly: network.isTestnet }),
                     payload,
                     amount: transferAmount,
                     amountAll: false,
@@ -437,12 +438,16 @@ export const StakingTransferFragment = fragment(() => {
                     {params?.action === 'top_up' && pool && validAmount !== null && (
                         <>
                             <StakingCalcComponent
+                                poolAddressString={target.toString({ testOnly: network.isTestnet })}
                                 amount={validAmount}
                                 topUp={params?.action === 'top_up'}
                                 member={member}
                                 fee={pool.params.poolFee}
                             />
-                            <PoolTransactionInfo pool={pool} />
+                            <PoolTransactionInfo
+                                poolAddressString={target.toString({ testOnly: network.isTestnet })}
+                                pool={pool}
+                            />
                         </>
                     )}
                     {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (

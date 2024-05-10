@@ -161,7 +161,7 @@ const TransactionPreview = () => {
             if (operation.op.res === 'known.holders.accountTopUp') {
                 return {
                     type: 'topUp',
-                    amount: fromNano(operation.op.options.amount)
+                    amount: operation.op.options.amount
                 };
             } else if (operation.op.res === 'known.holders.accountLimitsChange') {
                 const onetime = operation.op.options.onetime === '0' ? null : operation.op.options.onetime;

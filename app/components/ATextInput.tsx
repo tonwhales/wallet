@@ -120,7 +120,8 @@ export interface ATextInputProps {
     hideClearButton?: boolean,
     maxLength?: number,
     screenWidth?: number,
-    inpoutMode?: InputModeOptions
+    inpoutMode?: InputModeOptions,
+    cursorColor?: string,
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
@@ -270,9 +271,9 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                 ]}
                                 selectionColor={Platform.select({
                                     ios: theme.accent,
-                                    android: 'rgba(0, 0, 0, 0.3)',
+                                    android: props.cursorColor ?? 'rgba(0, 0, 0, 0.3)',
                                 })}
-                                cursorColor={theme.textPrimary}
+                                cursorColor={props.cursorColor ?? theme.textPrimary}
                                 textAlign={props.textAlign}
                                 autoFocus={props.autoFocus}
                                 placeholderTextColor={theme.textSecondary}

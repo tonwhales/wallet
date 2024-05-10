@@ -52,7 +52,7 @@ export const BrowserTabs = memo(() => {
                     { flexDirection: 'row', gap: 8, paddingVertical: 8 },
                     Platform.select({ android: { paddingHorizontal: 8 } })
                 ]}
-                contentInset={{ right: 24, left: 24 }}
+                contentInset={{ right: 24, left: 16 }}
                 contentOffset={{ x: -24, y: 0 }}
                 showsHorizontalScrollIndicator={false}
             >

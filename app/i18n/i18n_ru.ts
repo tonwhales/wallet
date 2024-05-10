@@ -105,7 +105,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "telegram": "Telegram",
         "rateApp": "Оценить приложение",
         "deleteAccount": "Удалить аккаунт",
-        "theme": "Тема"
+        "theme": "Тема",
+        "searchEngine": "Поисковая система",
     },
     "theme": {
         "title": "Тема",
@@ -1017,7 +1018,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "search": {
             "placeholder": "Поиск",
             "invalidUrl": "Неверный URL",
-            "urlNotReachable": "URL недоступен"
+            "urlNotReachable": "URL недоступен",
+            "suggestions": {
+                "web": "Поиск в {{engine}}",
+                "ddg": "DuckDuckGo",
+                "google": "Google",
+            }
         }
     }
 };

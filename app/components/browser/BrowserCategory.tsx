@@ -67,7 +67,7 @@ export const BrowserCategory = memo(({
                 showsHorizontalScrollIndicator={false}
                 snapToInterval={dimensions.screen.width - 16}
                 decelerationRate={'fast'}
-                contentInset={{ left: 32, right: 32 }}
+                contentInset={{ left: 0, right: 32 }}
                 overScrollMode={'never'}
                 renderItem={({ item, index }) => (
                     <View

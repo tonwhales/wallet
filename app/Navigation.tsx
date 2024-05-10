@@ -90,6 +90,7 @@ import { BounceableFormatAboutFragment } from './fragments/utils/BounceableForma
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
+import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -277,6 +278,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
+    modalScreen('SearchEngine', SearchEngineFragment, safeArea),
 
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),

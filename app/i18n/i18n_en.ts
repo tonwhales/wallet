@@ -119,7 +119,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         actions: {
             receive: 'Receive',
             send: 'Send',
-            buy: 'Buy'
+            buy: 'Buy',
+            swap: 'Swap',
         },
         empty: {
             message: 'You have no transactions',

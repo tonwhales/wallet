@@ -87,6 +87,7 @@ import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
 import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
 import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
+import { SwapFragment } from './fragments/integrations/SwapFragment';
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
@@ -213,6 +214,7 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     transparentModalScreen('Products', ProductsFragment, safeArea),
+    modalScreen('Swap', SwapFragment, safeArea),
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),

@@ -19,6 +19,18 @@ const transactionResponse = t.type({
     result: t.union([c.cell, t.null])
 });
 
+const signRawMessageCodec = t.type({
+    address: t.string,
+    amount: c.bignum,
+    payload: t.union([t.string, t.undefined]),
+    stateInit: t.union([t.string, t.undefined])
+});
+
+const txParamsCodec = t.type({
+    valid_until: t.number,
+    messages: t.array(signRawMessageCodec)
+});
+
 const signCodec = t.type({
     network: t.union([t.literal('testnet'), t.literal('mainnet')]),
     textCell: c.cell,
@@ -132,6 +144,54 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                 callback: callback!,
                 name
             });
+
+            return await future;
+        });
+        return inj;
+    }, []);
+}
+
+export function useTonhubBridgeEngine(domain: string, name: string, isTestnet: boolean, url: string) {
+    const navigation = useTypedNavigation();
+
+    return React.useMemo(() => {
+        const inj = new InjectEngine('tonhub-bridge');
+        inj.registerMethod('send', txParamsCodec, transactionResponse, async (src) => {
+
+            // Callback
+            let callback: (ok: boolean, res: Cell | null) => void;
+            let future = new Promise<{ state: 'sent' | 'rejected', result: Cell | null }>((resolve) => {
+                callback = (ok, res) => {
+                    resolve({ state: ok ? 'sent' : 'rejected', result: res });
+                };
+            });
+
+            // Navigation
+            if (src.messages.length > 0) {
+                navigation.navigateTransfer({
+                    order: {
+                        type: 'order',
+                        messages: src.messages.map((m) => ({
+                            target: m.address,
+                            amount: m.amount,
+                            amountAll: false,
+                            payload: m.payload ? Cell.fromBoc(Buffer.from(m.payload, 'base64'))[0] : null,
+                            stateInit: m.stateInit ? Cell.fromBoc(Buffer.from(m.stateInit, 'base64'))[0] : null,
+                        })),
+                        app: {
+                            domain,
+                            title: name,
+                            url
+                        }
+                    },
+                    text: null,
+                    job: null,
+                    callback: callback!,
+                    back: 1
+                });
+            } else {
+                return { state: 'rejected', result: null } as { state: 'sent' | 'rejected', result: Cell | null };
+            }
 
             return await future;
         });

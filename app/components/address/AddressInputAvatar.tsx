@@ -1,8 +1,8 @@
 import { memo } from "react";
-import { Avatar } from "../Avatar";
 import { Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
-
+import { Avatar } from "../avatar/Avatar";
+import { KnownWallet } from "../../secure/KnownWallets";
 
 export const AddressInputAvatar = memo(({
     size,
@@ -13,7 +13,8 @@ export const AddressInputAvatar = memo(({
     markContact,
     hash,
     isLedger,
-    avatarColor
+    avatarColor,
+    knownWallets
 }: {
     size: number,
     theme: ThemeType,
@@ -23,7 +24,8 @@ export const AddressInputAvatar = memo(({
     markContact: boolean,
     hash: number | null
     isLedger?: boolean,
-    avatarColor: string
+    avatarColor: string,
+    knownWallets: { [key: string]: KnownWallet }
 }) => {
     if (isLedger) {
         return (
@@ -43,7 +45,7 @@ export const AddressInputAvatar = memo(({
                 borderColor={theme.elevation}
                 theme={theme}
                 hash={hash}
-                isTestnet={isTestnet}
+                knownWallets={knownWallets}
                 backgroundColor={avatarColor}
                 markContact={markContact}
                 icProps={{ isOwn }}
@@ -58,3 +60,5 @@ export const AddressInputAvatar = memo(({
         />
     );
 });
+
+AddressInputAvatar.displayName = 'AddressInputAvatar';

@@ -44,9 +44,9 @@ export function getHoldersToken(address: string) {
 }
 
 export function useHoldersAccountStatus(address: string | Address) {
-    let { isTestnet } = useNetwork();
+    const { isTestnet } = useNetwork();
 
-    let addressString = useMemo(() => {
+    const addressString = useMemo(() => {
         if (address instanceof Address) {
             return address.toString({ testOnly: isTestnet });
         }
@@ -60,16 +60,16 @@ export function useHoldersAccountStatus(address: string | Address) {
             const token = getHoldersToken(addr);
 
             if (!token) {
-                return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment }; // This looks amazingly stupid
+                return { state: HoldersAccountState.NeedEnrollment } as HoldersAccountStatus; // This looks amazingly stupid
             }
 
-            const fetched = await fetchAccountState(token);
+            const fetched = await fetchAccountState(token, isTestnet);
 
             if (!fetched) {
-                return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment };
+                return { state: HoldersAccountState.NeedEnrollment } as HoldersAccountStatus;
             }
 
-            return { ...fetched, token };
+            return { ...fetched, token } as HoldersAccountStatus;
         },
         refetchOnWindowFocus: true,
         refetchOnMount: true,

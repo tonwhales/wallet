@@ -8,12 +8,15 @@ export const Queries = {
         StakingPool: () => ({
             Status: () => ['account', address, 'staking', 'status'],
             Params: () => ['account', address, 'staking', 'params'],
-            Member: (member: string) => ['account', address, 'staking', 'member', member],
         }),
     }),
     Job: (address: string) => (['job', address]),
 
     StakingChart: (pool: string, fixedPeriod: 'week' | 'month' | 'year' | 'allTime', member: string) => ['staking', 'chart', pool, fixedPeriod, member, 'askdjsd'],
+    StakingMember: (pool: string, member: string) => ['staking', 'member', pool, member],
+    StakingStatus: (network: 'mainnet' | 'testnet') => ['staking', 'status', network],
+    StakingLiquid: (pool: string) => ['staking', 'liquid', pool],
+    StakingLiquidMember: (pool: string, member: string) => ['staking', 'member', 'liquid', pool, member],
 
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({
@@ -21,6 +24,7 @@ export const Queries = {
         Status: () => ['holders', address, 'status'],
         Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
         Notifications: (id: string) => ['holders', address, 'events', id],
+        WhiteList: () => ['holders', address, 'whitelist'],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
@@ -39,6 +43,7 @@ export const Queries = {
             Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
+        Known: () => ['jettons', 'known'],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({
@@ -47,6 +52,7 @@ export const Queries = {
         Stats: () => ['apps', url, 'stats'],
     }),
     APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
+    PoolApy: (pool: string) => (['staking', 'poolApy', pool]),
 
     Banners: (language: string, version: string, buildNumber: string) => (['banners', language, version, buildNumber]),
 }

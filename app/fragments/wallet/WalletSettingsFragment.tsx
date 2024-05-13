@@ -5,7 +5,7 @@ import { getAppState } from "../../storage/appState";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { avatarHash } from "../../utils/avatarHash";
-import { Avatar, avatarColors, avatarImages } from "../../components/Avatar";
+import { Avatar, avatarColors, avatarImages } from "../../components/avatar/Avatar";
 import { useCallback, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
@@ -17,10 +17,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
 import { Typography } from "../../components/styles";
 import { RoundButton } from "../../components/RoundButton";
+import { KnownWallets } from "../../secure/KnownWallets";
 
 export const WalletSettingsFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const toaster = useToaster();
     const appState = getAppState();
     const navigation = useTypedNavigation();
@@ -101,9 +103,8 @@ export const WalletSettingsFragment = fragment(() => {
                             borderColor={theme.surfaceOnElevation}
                             hash={avatar}
                             theme={theme}
-                            isTestnet={isTestnet}
+                            knownWallets={knownWallets}
                             id={address.toString({ testOnly: isTestnet })}
-                            // hashColor
                             backgroundColor={avatarColors[selectedColor]}
                         />
                         <Text style={[

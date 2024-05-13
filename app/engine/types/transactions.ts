@@ -150,4 +150,5 @@ export type TransactionDescription = {
     op: string | null;
     title: string | null;
     verified: boolean | null;
+    masterAddressStr: string | null | undefined;
 };

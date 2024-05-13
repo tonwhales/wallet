@@ -1,6 +1,6 @@
-import { useAddressBook } from "./useAddressBook";
+import { useAddressBookContext } from "../../AddressBookContext";
 
 export function useDenyList() {
-    const [addressBook,] = useAddressBook();
-    return addressBook.denyList;
+    const addressBookContext = useAddressBookContext();
+    return addressBookContext.state.denyList;
 }

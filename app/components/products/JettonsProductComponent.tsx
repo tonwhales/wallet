@@ -2,21 +2,19 @@ import React, { memo } from "react";
 import { View, Image, Text } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { useMarkJettonDisabled } from "../../engine/hooks/jettons/useMarkJettonDisabled";
-import { useJettons, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useTheme } from "../../engine/hooks";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { t } from "../../i18n/t";
 import { Typography } from "../styles";
+import { Jetton } from "../../engine/types";
 
 import IcHide from '@assets/ic-hide.svg';
 
-export const JettonsProductComponent = memo(() => {
+export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] }) => {
     const theme = useTheme();
     const markJettonDisabled = useMarkJettonDisabled();
-    const selected = useSelectedAccount();
-
-    const jettons = useJettons(selected!.addressString);
-    const visibleList = jettons.filter((j) => !j.disabled);
+    const visibleList = jettons.filter((j) => !j.disabled).filter((j) => j.balance > 0);
 
     if (visibleList.length === 0) {
         return null;
@@ -125,3 +123,4 @@ export const JettonsProductComponent = memo(() => {
         </View>
     );
 });
+JettonsProductComponent.displayName = 'JettonsProductComponent';

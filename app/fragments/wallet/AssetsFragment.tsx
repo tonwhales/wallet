@@ -6,18 +6,19 @@ import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { SelectableButton } from "../../components/SelectableButton";
-import { WImage } from "../../components/WImage";
-import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useJettons, useKnownJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Jetton } from "../../engine/types";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
+import { AssetsListItem } from "../../components/jettons/AssetsListItem";
+import { WImage } from "../../components/WImage";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
+import { JettonIcon } from "../../components/products/JettonIcon";
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -25,10 +26,12 @@ export const AssetsFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
+    const knownJettons = useKnownJettons(network.isTestnet);
+    const specialJettonMaster = knownJettons?.specialJetton ? Address.parse(knownJettons.specialJetton) : null;
 
     const { target, callback, selectedJetton } = useParams<{
         target: string,
-        callback?: (selected?: { wallet: Address, master: Address }) => void,
+        callback?: (selected?: { wallet?: Address, master: Address }) => void,
         selectedJetton?: Address
     }>();
 
@@ -44,6 +47,7 @@ export const AssetsFragment = fragment(() => {
 
     const ledgerJettons = useJettons(address?.toString({ testOnly: network.isTestnet }) || '') ?? [];
     const jettons = useJettons(selected!.address.toString({ testOnly: network.isTestnet })) ?? [];
+    const hasSpecialJetton = !!jettons.find((j) => j.master.toString({ testOnly: network.isTestnet }) === knownJettons?.specialJetton);
     const visibleList = jettons.filter((j) => !j.disabled);
 
     const onSelected = useCallback((jetton: Jetton) => {
@@ -102,7 +106,13 @@ export const AssetsFragment = fragment(() => {
         });
     }, [isLedgerScreen, callback]);
 
-    const onCallback = useCallback((selected?: { wallet: Address, master: Address }) => {
+    const onSpecialJettonSelected = useCallback(() => {
+        if (callback && specialJettonMaster) {
+            onCallback({ master: specialJettonMaster });
+        }
+    }, []);
+
+    const onCallback = useCallback((selected?: { wallet?: Address, master: Address }) => {
         if (callback) {
             setTimeout(() => {
                 navigation.goBack();
@@ -113,7 +123,10 @@ export const AssetsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 title={t('products.accounts')}
@@ -154,40 +167,48 @@ export const AssetsFragment = fragment(() => {
                         selected={!selectedJetton}
                         hideSelection={!callback}
                     />
+                    {!hasSpecialJetton && knownJettons?.specialJetton && (
+                        <SelectableButton
+                            key={'assets-special'}
+                            title={'TetherUSD₮'}
+                            subtitle={'Tether Token for Tether USD'}
+                            onSelect={onSpecialJettonSelected}
+                            selected={!!selectedJetton && specialJettonMaster?.equals(selectedJetton)}
+                            hideSelection={!callback}
+                            icon={
+                                <View style={{ width: 46, height: 46 }}>
+                                    <WImage
+                                        requireSource={require('@assets/known/ic-usdt.png')}
+                                        width={46}
+                                        heigh={46}
+                                        borderRadius={23}
+                                    />
+                                    <View style={{
+                                        justifyContent: 'center', alignItems: 'center',
+                                        height: 20, width: 20, borderRadius: 10,
+                                        position: 'absolute', right: -2, bottom: -2,
+                                        backgroundColor: theme.surfaceOnBg
+                                    }}>
+                                        <Image
+                                            source={require('@assets/ic-verified.png')}
+                                            style={{ height: 20, width: 20 }}
+                                        />
+                                    </View>
+                                </View>
+                            }
+                        />
+                    )}
                     {(isLedgerScreen ? ledgerJettons : visibleList).map((j) => {
-                        const verified = KnownJettonMasters(network.isTestnet)[j.master.toString()];
                         const selected = !!selectedJetton && j.master.equals(selectedJetton);
                         return (
-                            <SelectableButton
+                            <AssetsListItem
                                 key={'jt' + j.wallet.toString()}
-                                title={j.name}
-                                subtitle={j.description}
+                                jetton={j}
                                 onSelect={() => onSelected(j)}
-                                icon={
-                                    <View style={{ width: 46, height: 46 }}>
-                                        <WImage
-                                            src={j.icon ? j.icon : undefined}
-                                            width={46}
-                                            heigh={46}
-                                            borderRadius={23}
-                                        />
-                                        {verified && (
-                                            <View style={{
-                                                justifyContent: 'center', alignItems: 'center',
-                                                height: 20, width: 20, borderRadius: 10,
-                                                position: 'absolute', right: -2, bottom: -2,
-                                                backgroundColor: theme.surfaceOnBg
-                                            }}>
-                                                <Image
-                                                    source={require('@assets/ic-verified.png')}
-                                                    style={{ height: 20, width: 20 }}
-                                                />
-                                            </View>
-                                        )}
-                                    </View>
-                                }
+                                theme={theme}
                                 hideSelection={!callback}
                                 selected={selected}
+                                isTestnet={network.isTestnet}
                             />
                         );
                     })}

@@ -1,5 +1,6 @@
 import { StatusBarStyle } from "expo-status-bar";
 import { warn } from "../../../utils/log";
+import { Platform } from "react-native";
 
 export function processStatusBarMessage(
     parsed: any,
@@ -21,6 +22,9 @@ export function processStatusBarMessage(
                 }
                 break;
             case 'setStatusBarBackgroundColor':
+                if (Platform.OS !== 'android') {
+                    return true;
+                }
                 const backgroundColor = parsed.data.args[0];
                 setStatusBarBackgroundColor(backgroundColor, true);
                 break;

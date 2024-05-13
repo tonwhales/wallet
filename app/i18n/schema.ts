@@ -73,6 +73,7 @@ export type LocalizationSchema = {
         save: string,
         assets: string,
         message: string,
+        messages: string,
         airdrop: string,
         myWallets: string,
         showMore: string,
@@ -320,6 +321,7 @@ export type LocalizationSchema = {
                 deposit: string,
                 withdraw: string,
                 calc: string,
+                swap: string
             },
             pools: {
                 title: string,
@@ -351,6 +353,9 @@ export type LocalizationSchema = {
                 lockupsDescription: string,
                 tonkeeper: string,
                 tonkeeperDescription: string,
+                liquid: string,
+                liquidDescription: string,
+                rateTitle: string,
             },
             transfer: {
                 stakingWarning: string,
@@ -405,6 +410,10 @@ export type LocalizationSchema = {
             withdraw: string,
             sync: string,
             unstake: {
+                title: string,
+                message: string
+            },
+            unstakeLiquid: {
                 title: string,
                 message: string
             },
@@ -470,10 +479,15 @@ export type LocalizationSchema = {
             title: string,
             accounts: {
                 title: string,
+                prepaidTitle: string,
                 account: string,
                 basicAccount: string,
                 proAccount: string,
                 noCards: string,
+                prepaidCard: string,
+                prepaidCardDescription: string,
+                hiddenAccounts: string,
+                hiddenCards: string,
             },
             pageTitles: {
                 general: string,
@@ -488,7 +502,6 @@ export type LocalizationSchema = {
                 setUpCard: string,
                 pin: string
             },
-            hiddenCards: string,
             card: {
                 card: string,
                 cards: string,
@@ -678,6 +691,7 @@ export type LocalizationSchema = {
         depositOk: string,
         withdraw: string,
         withdrawAll: string,
+        withdrawLiquid: string,
         withdrawCompleted: string,
         withdrawRequested: string,
         upgrade: string,
@@ -690,7 +704,9 @@ export type LocalizationSchema = {
         token: string,
         productButtonTitle: string,
         productButtonSubtitle: string,
-        hidden: string
+        hidden: string,
+        liquidPoolDescriptionDedust: string
+        liquidPoolDescriptionStonFi: string
     },
     connections: {
         extensions: string,

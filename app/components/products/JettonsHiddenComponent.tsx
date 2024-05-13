@@ -3,17 +3,16 @@ import { View, Pressable, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { JettonProductItem } from "./JettonProductItem";
-import { useJettons, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useTheme } from "../../engine/hooks";
 import { useMarkJettonActive } from "../../engine/hooks/jettons/useMarkJettonActive";
 import { Typography } from "../styles";
+import { Jetton } from "../../engine/types";
 
 import Show from '@assets/ic-show.svg';
 
-export const JettonsHiddenComponent = memo(() => {
+export const JettonsHiddenComponent = memo(({ jettons }: { jettons: Jetton[] }) => {
     const theme = useTheme();
     const markJettonActive = useMarkJettonActive();
-    const selected = useSelectedAccount();
-    const jettons = useJettons(selected!.addressString);
     const hiddenList = jettons.filter((j: any) => j.disabled);
     const [collapsed, setCollapsed] = useState(true);
 
@@ -66,4 +65,5 @@ export const JettonsHiddenComponent = memo(() => {
             />
         </View>
     );
-})
+});
+JettonsHiddenComponent.displayName = 'JettonsHiddenComponent';

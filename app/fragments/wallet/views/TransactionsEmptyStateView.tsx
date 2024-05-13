@@ -9,6 +9,7 @@ import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../components/styles";
+import { isNeocryptoAvailable } from "../../../utils/isNeocryptoAvailable";
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-txs-dark.webp'),
@@ -22,6 +23,7 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     const ledgerContext = useLedgerTransport();
     const dimensions = useDimensions();
     const safeArea = useSafeAreaInsets();
+    const showBuy = isNeocryptoAvailable();
 
     const navigateReceive = useCallback(() => {
         if (isLedger && !!ledgerContext?.addr) {
@@ -73,7 +75,7 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
                     title={t('wallet.actions.receive')}
                     style={{ flex: 1, flexGrow: 1 }}
                 />
-                {(!network.isTestnet && !isLedger) && (
+                {(!network.isTestnet && !isLedger) && showBuy && (
                     <RoundButton
                         onPress={() => navigation.navigate('Buy')}
                         display={'secondary'}

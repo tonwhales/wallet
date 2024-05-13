@@ -471,7 +471,7 @@ export const TransferSingleView = memo(({
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                                    <View style={{ flexDirection: 'row', marginBottom: 16, justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
                                         <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                             {t('transfer.purpose')}
                                         </Text>

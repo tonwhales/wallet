@@ -131,6 +131,7 @@ export function useLinkNavigator(isTestnet: boolean) {
                                 base: base,
                                 icon: masterContent?.image?.preview256 ?? null,
                                 masterMetadata: masterContent,
+                                masterAddressStr: jettonMaster,
                                 metadata: parsedMetadata,
                                 verified: null,
                                 op: null,

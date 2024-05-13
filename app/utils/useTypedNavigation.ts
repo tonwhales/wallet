@@ -11,6 +11,7 @@ import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
 import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
+import { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFragment';
 import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
 
 type Base = NavigationProp<ParamListBase>;
@@ -181,6 +182,10 @@ export class TypedNavigation {
 
     navigateDAppWebView(params: DAppWebViewFragmentParams) {
         this.navigate('DAppWebView', params);
+    }
+
+    navigateProductsList(params: ProductsListFragmentParams) {
+        this.navigate(params.isLedger ? 'LedgerProductsList' : 'ProductsList', params);
     }
 }
 

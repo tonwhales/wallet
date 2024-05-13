@@ -50,17 +50,23 @@ export const JettonsHiddenComponent = memo(({ jettons }: { jettons: Jetton[] }) 
                 collapsed={collapsed}
                 items={hiddenList}
                 renderItem={(j, index) => {
+                    const length = hiddenList.length >= 4 ? 4 : hiddenList.length;
+                    const isLast = index === length - 1;
                     return (
                         <JettonProductItem
                             key={'jt' + j.wallet.toString()}
                             jetton={j}
                             first={index === 0}
-                            last={index === hiddenList.length - 1}
+                            last={isLast}
                             rightAction={() => markJettonActive(j.master)}
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                             single={hiddenList.length === 1}
                         />
                     )
+                }}
+                limitConfig={{
+                    maxItems: 4,
+                    fullList: { type: 'jettons' }
                 }}
             />
         </View>

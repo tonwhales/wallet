@@ -103,7 +103,7 @@ export const SimpleTransferFragment = fragment(() => {
     const [selectedJetton, setJetton] = useState<Address | null>(params?.jetton || null);
 
     const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
-    const jetton = useJettons(isLedger ? addr!.address : acc!.addressString)
+    const jetton = useJettons(isLedger ? ledgerAddress!.toString({ testOnly: network.isTestnet }) : acc!.addressString)
         .find((j) => (
             jettonWallet?.master
             && j.master.equals(Address.parse(jettonWallet.master))

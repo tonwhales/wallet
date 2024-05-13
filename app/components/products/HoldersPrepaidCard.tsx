@@ -25,6 +25,7 @@ export const HoldersPrepaidCard = memo((props: {
     single?: boolean,
     hidden?: boolean,
     style?: StyleProp<ViewStyle>,
+    itemStyle?: StyleProp<ViewStyle>,
     isTestnet: boolean,
     holdersAccStatus?: HoldersAccountStatus
 }) => {
@@ -71,34 +72,38 @@ export const HoldersPrepaidCard = memo((props: {
     const title = t('products.holders.accounts.prepaidCard', { lastFourDigits: card.lastFourDigits });
     const subtitle = t('products.holders.accounts.prepaidCardDescription');
 
+    const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
+        ? () => {
+            return (
+                <Pressable
+                    style={[
+                        {
+                            padding: 20,
+                            justifyContent: 'center', alignItems: 'center',
+                            borderRadius: 20,
+                            backgroundColor: theme.accent,
+                            marginLeft: 10
+                        }
+                    ]}
+                    onPress={() => {
+                        swipableRef.current?.close();
+                        if (props.rightAction) {
+                            props.rightAction();
+                        }
+                    }}
+                >
+                    {props.rightActionIcon}
+                </Pressable>
+            )
+        }
+        : undefined;
+
     return (
         <Swipeable
             ref={swipableRef}
             containerStyle={[{ flex: 1 }, props.style]}
             useNativeAnimations={true}
-            renderRightActions={() => {
-                return (
-                    <Pressable
-                        style={[
-                            {
-                                padding: 20,
-                                justifyContent: 'center', alignItems: 'center',
-                                borderRadius: 20,
-                                backgroundColor: theme.accent,
-                                marginLeft: 10
-                            }
-                        ]}
-                        onPress={() => {
-                            swipableRef.current?.close();
-                            if (props.rightAction) {
-                                props.rightAction();
-                            }
-                        }}
-                    >
-                        {props.rightActionIcon}
-                    </Pressable>
-                )
-            }}
+            renderRightActions={renderRightAction}
         >
             <Animated.View style={animatedStyle}>
                 <TouchableOpacity
@@ -108,7 +113,7 @@ export const HoldersPrepaidCard = memo((props: {
                     onPress={onPress}
                     activeOpacity={0.8}
                 >
-                    <View style={{ flexGrow: 1, paddingVertical: 20, backgroundColor: theme.surfaceOnBg }}>
+                    <View style={[{ flexGrow: 1, paddingVertical: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                             <HoldersAccountCard
                                 key={'card-item-prepaid'}

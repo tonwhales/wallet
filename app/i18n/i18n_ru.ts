@@ -119,7 +119,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "actions": {
             "receive": "Получить",
             "send": "Отправить",
-            "buy": "Купить"
+            "buy": "Купить",
+            "swap": "Обмен",
         },
         "empty": {
             "message": "У вас нет транзакций",
@@ -713,8 +714,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "productButtonTitle": "Токены",
         "productButtonSubtitle": "{{jettonName}} и {{count}} других",
         "hidden": "Скрытые токены",
-        "liquidPoolDescriptionDedust": "Ликвидный пул для {{name0}} и {{name1}} на DeDust DEX",
-        "liquidPoolDescriptionStonFi": "Ликвидный пул для {{name0}} и {{name1}} на STON.fi DEX",
+        "liquidPoolDescriptionDedust": "Ликвидность для {{name0}}/{{name1}} на DeDust DEX",
+        "liquidPoolDescriptionStonFi": "Ликвидность для {{name0}}/{{name1}} на STON.fi DEX",
     },
     "connections": {
         "extensions": "Расширения",

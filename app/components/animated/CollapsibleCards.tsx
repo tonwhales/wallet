@@ -4,6 +4,8 @@ import { ThemeType } from "../../engine/state/theme";
 import { t } from "../../i18n/t";
 import Animated, { Easing, Extrapolation, SharedValue, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Typography } from "../styles";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { ProductsListFragmentParams } from "../../fragments/wallet/ProductsListFragment";
 
 const CardItemWrapper = memo(({
     progress,
@@ -42,6 +44,11 @@ const CardItemWrapper = memo(({
     )
 });
 
+export type CollapsibleCardsLimitConfig = {
+    maxItems: number,
+    fullList: ProductsListFragmentParams,
+}
+
 export const CollapsibleCards = memo(({
     title,
     items,
@@ -50,6 +57,7 @@ export const CollapsibleCards = memo(({
     itemHeight = 86,
     theme,
     initialCollapsed = true,
+    limitConfig
 }: {
     title: string,
     items: any[],
@@ -58,7 +66,9 @@ export const CollapsibleCards = memo(({
     itemHeight?: number,
     theme: ThemeType,
     initialCollapsed?: boolean,
+    limitConfig?: CollapsibleCardsLimitConfig,
 }) => {
+    const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const [collapsed, setCollapsed] = useState(initialCollapsed);
 
@@ -273,7 +283,7 @@ export const CollapsibleCards = memo(({
                 </Animated.View>
             </View>
             <Animated.View style={{ paddingHorizontal: 16, overflow: 'hidden' }}>
-                {items.slice(3, undefined).map((item, index) => {
+                {items.slice(3, limitConfig?.maxItems).map((item, index) => {
                     const itemView = renderItem(item, index);
                     return (
                         <CardItemWrapper
@@ -286,6 +296,32 @@ export const CollapsibleCards = memo(({
                     )
                 })}
             </Animated.View>
+            {!!limitConfig && (items.length > limitConfig.maxItems) && (
+                <Animated.View
+                    style={[
+                        {
+                            width: '100%',
+                            flexDirection: 'row',
+                            justifyContent: 'center', alignItems: 'center',
+                            paddingHorizontal: 16
+                        },
+                        titleStyle
+                    ]}
+                >
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1
+                            }
+                        }}
+                        onPress={() => navigation.navigateProductsList(limitConfig.fullList)}
+                    >
+                        <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                            {t('common.showMore')}
+                        </Text>
+                    </Pressable>
+                </Animated.View>
+            )}
         </View>
     )
 });

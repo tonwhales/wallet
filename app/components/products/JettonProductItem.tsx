@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { View, Pressable, Text } from 'react-native';
+import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
 import { memo, useCallback, useRef } from 'react';
-import { Swipeable, TouchableHighlight } from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
 import { PerfText } from '../basic/PerfText';
@@ -24,7 +24,8 @@ export const JettonProductItem = memo((props: {
     rightActionIcon?: any,
     single?: boolean,
     card?: boolean,
-    ledger?: boolean
+    ledger?: boolean,
+    itemStyle?: StyleProp<ViewStyle>
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -49,8 +50,9 @@ export const JettonProductItem = memo((props: {
     let symbol = props.jetton.symbol ?? '';
 
     const onPress = useCallback(() => {
-        if (props.ledger) {
-            navigation.navigate('LedgerSimpleTransfer', {
+        navigation.navigate(
+            props.ledger ? 'LedgerSimpleTransfer' : 'SimpleTransfer',
+            {
                 amount: null,
                 target: null,
                 comment: null,
@@ -58,18 +60,8 @@ export const JettonProductItem = memo((props: {
                 stateInit: null,
                 job: null,
                 callback: null
-            });
-            return
-        }
-        navigation.navigateSimpleTransfer({
-            amount: null,
-            target: null,
-            comment: null,
-            jetton: props.jetton.wallet,
-            stateInit: null,
-            job: null,
-            callback: null
-        });
+            }
+        );
     }, [props.jetton, props.ledger]);
 
     return (
@@ -104,14 +96,12 @@ export const JettonProductItem = memo((props: {
                                     {
                                         padding: 20,
                                         justifyContent: 'center', alignItems: 'center',
-                                        borderRadius: 20,
                                         backgroundColor: theme.accent,
-                                        marginLeft: 10
                                     },
                                     props.card
                                         ? {
-                                            borderTopRightRadius: 20,
-                                            borderBottomRightRadius: 20,
+                                            borderRadius: 20,
+                                            marginLeft: 10
                                         } : {
                                             borderTopRightRadius: props.first ? 20 : 0,
                                             borderBottomRightRadius: props.last ? 20 : 0,
@@ -135,12 +125,12 @@ export const JettonProductItem = memo((props: {
                         onPressOut={onPressOut}
                         onPress={onPress}
                     >
-                        <View style={{
+                        <View style={[{
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
                             padding: 20,
                             backgroundColor: theme.surfaceOnBg
-                        }}>
+                        }, props.itemStyle]}>
                             <JettonIcon
                                 size={46}
                                 jetton={props.jetton}
@@ -150,7 +140,7 @@ export const JettonProductItem = memo((props: {
                             />
                             <View style={{ marginLeft: 12, flex: 1 }}>
                                 <PerfText
-                                    style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                    style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
                                     ellipsizeMode="tail"
                                     numberOfLines={1}
                                 >
@@ -180,11 +170,15 @@ export const JettonProductItem = memo((props: {
                                         decimals={props.jetton.decimals}
                                         precision={1}
                                     />
-                                    {!!swapAmount && symbol.length <= 5 && (
+                                    {!!swapAmount ? (
                                         <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                             {` ${symbol}`}
                                         </Text>
-                                    )}
+                                    ) : (symbol.length <= 5 && (
+                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                            {` ${symbol}`}
+                                        </Text>
+                                    ))}
                                 </PerfText>
                                 {!!swapAmount ? (
                                     <PriceComponent
@@ -198,14 +192,11 @@ export const JettonProductItem = memo((props: {
                                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                         theme={theme}
                                     />
-                                ) : (symbol.length > 5
-                                    ? (
-                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                            {` ${symbol}`}
-                                        </Text>
-                                    )
-                                    : null
-                                )}
+                                ) : (symbol.length > 5 && (
+                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                        {` ${symbol}`}
+                                    </Text>
+                                ))}
                             </View>
                         </View>
                     </Pressable>
@@ -236,12 +227,13 @@ export const JettonProductItem = memo((props: {
                         padding: 20,
                         backgroundColor: theme.surfaceOnBg
                     },
-                    animatedStyle
+                    animatedStyle,
+                    props.itemStyle
                 ]}>
                     <JettonIcon size={46} jetton={props.jetton} theme={theme} isTestnet={isTestnet} />
                     <View style={{ marginLeft: 12, flex: 1 }}>
                         <PerfText
-                            style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                            style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >
@@ -257,21 +249,52 @@ export const JettonProductItem = memo((props: {
                         </PerfText>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
-                        <PerfText style={{
-                            color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600',
-                        }}>
+                        <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                             <ValueComponent
                                 value={balance}
                                 decimals={props.jetton.decimals}
+                                precision={1}
                             />
+                            {!!swapAmount ? (
+                                <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                    {` ${symbol}`}
+                                </Text>
+                            ) : (symbol.length <= 5 && (
+                                <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                    {` ${symbol}`}
+                                </Text>
+                            ))}
+                        </PerfText>
+                        {!!swapAmount ? (
+                            <PriceComponent
+                                amount={toNano(swapAmount)}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                    height: undefined
+                                }}
+                                textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                theme={theme}
+                            />
+                        ) : (symbol.length > 5 && (
                             <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                 {` ${symbol}`}
                             </Text>
-                        </PerfText>
-                        <View style={{ flexGrow: 1 }} />
+                        ))}
                     </View>
                 </Animated.View>
-                {!props.last && (<View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />)}
+                {!props.last && !props.card && (
+                    <PerfView
+                        style={{
+                            backgroundColor: theme.divider,
+                            height: 1,
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 36, right: 36
+                        }}
+                    />
+                )}
             </Pressable>
         )
     );

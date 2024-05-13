@@ -12,6 +12,7 @@ import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
 import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
 import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
+import { HomeFragmentProps } from '../fragments/HomeFragment';
 
 type Base = NavigationProp<ParamListBase>;
 

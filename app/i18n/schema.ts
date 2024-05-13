@@ -998,7 +998,13 @@ export type LocalizationSchema = {
         newAddress: string,
         bannerTitle: string,
         bannerDescription: string,
-    }
+    },
+    swap: {
+        title: string,
+        description: string,
+        termsAndPrivacy: string,
+        dontShowTitle: string,
+    },
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

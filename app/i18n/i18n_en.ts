@@ -677,7 +677,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             message: 'Fill in the required fields -> Select cryptocurrency and specify wallet address and the amount to buy -> Proceed to checkout -> Enter your billing details correctly. Your credit card payment is securely processed by our Partners -> Complete purchase. No account needed!'
         },
         title: 'Buy TON with credit card for USD, EUR and RUB',
-        description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party.\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service. ',
+        description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service',
         doNotShow: 'Do not show it again for Neocrypto',
         termsAndPrivacy: 'I have read and agree to the ',
         confirm: {
@@ -996,7 +996,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         newAddress: 'New address',
         bannerTitle: 'Update your address',
         bannerDescription: 'From EQ to UQ',
-    }
+    },
+    swap: {
+        title: 'DeDust.io — AMM DEX on The Open Network',
+        description: 'You are about to use a Dedust.io service operated by an independent party not affiliated with Tonhub\nYou must agree to the Terms of Use and Privacy Policy to continue',
+        termsAndPrivacy: 'I have read and agree to the ',
+        dontShowTitle: 'Don\'t show it again for DeDust.io',
+    },
 };
 
 export default schema;

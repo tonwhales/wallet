@@ -11,6 +11,11 @@ const msgCodec = t.type({
 
 export class InjectEngine {
     #methods = new Map<string, { argCodec: t.Type<any>, responseCodec: t.Type<any>, handler: (src: any) => Promise<any> }>();
+    name?: string
+
+    constructor(name?: string) {
+        this.name = name;
+    }
 
     registerMethod<T, R>(name: string, argCodec: t.Type<T, any>, responseCodec: t.Type<R, any>, handler: (src: T) => Promise<R>) {
         if (this.#methods.has(name)) {

@@ -215,6 +215,7 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     transparentModalScreen('Products', ProductsFragment, safeArea),
+    modalScreen('ProductsList', ProductsListFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
 
     // dApps

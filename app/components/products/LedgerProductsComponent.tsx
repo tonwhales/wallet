@@ -14,12 +14,11 @@ import { Address } from "@ton/core";
 export const LedgerProductsComponent = memo(({ account, testOnly }: { account: AccountLite, testOnly: boolean }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
+    const address = Address.parse(account.address);
 
     return (
         <View>
-            <View style={{
-                backgroundColor: theme.backgroundPrimary,
-            }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary }}>
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',
@@ -59,11 +58,17 @@ export const LedgerProductsComponent = memo(({ account, testOnly }: { account: A
                 </View>
 
                 <View style={{ marginTop: 4 }}>
-                    <StakingProductComponent isLedger key={'pool'} />
+                    <StakingProductComponent
+                        isLedger
+                        key={'pool'}
+                        address={address}
+                    />
                 </View>
-                <View style={{ paddingHorizontal: 16 }}>
-                    <LedgerJettonsProductComponent key={'jettons'} />
-                </View>
+                <LedgerJettonsProductComponent
+                    address={address}
+                    testOnly={testOnly}
+                    key={'jettons'}
+                />
             </View>
         </View>
     );

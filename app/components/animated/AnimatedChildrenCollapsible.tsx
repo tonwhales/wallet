@@ -1,9 +1,13 @@
 import React from "react";
 import { ReactNode, memo, useEffect, useState } from "react"
-import { View, ViewStyle } from "react-native";
-import Animated, { Easing, FadeInUp, FadeOutUp, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { Pressable, View, ViewStyle, Text } from "react-native";
+import Animated, { Easing, Extrapolation, FadeInUp, FadeOutUp, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { StyleProp } from "react-native";
 import { useTheme } from "../../engine/hooks";
+import { CollapsibleCardsLimitConfig } from "./CollapsibleCards";
+import { t } from "../../i18n/t";
+import { Typography } from "../styles";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const AnimatedChildrenCollapsible = memo(({
     collapsed,
@@ -14,7 +18,8 @@ export const AnimatedChildrenCollapsible = memo(({
     dividerStyle,
     divider,
     additionalFirstItem,
-    style
+    style,
+    limitConfig
 }: {
     collapsed: boolean,
     items: any[],
@@ -24,8 +29,10 @@ export const AnimatedChildrenCollapsible = memo(({
     dividerStyle?: StyleProp<ViewStyle>,
     divider?: any,
     additionalFirstItem?: ReactNode,
-    style?: StyleProp<ViewStyle>
+    style?: StyleProp<ViewStyle>,
+    limitConfig?: CollapsibleCardsLimitConfig,
 }) => {
+    const navigation = useTypedNavigation();
     const theme = useTheme();
     const [itemsToRender, setItemsToRender] = useState<any[]>([]);
     const sharedHeight = useSharedValue(collapsed ? 0 : items.length * (itemHeight + (style as any)?.gap ?? 0));
@@ -37,6 +44,30 @@ export const AnimatedChildrenCollapsible = memo(({
         setItemsToRender(collapsed ? [] : items);
         sharedHeight.value = collapsed ? 0 : items.length * (itemHeight + (style as any)?.gap ?? 0);
     }, [collapsed, items]);
+
+    const progress = useSharedValue(collapsed ? 0 : 1);
+
+    useEffect(() => {
+        progress.value = withTiming(collapsed ? 0 : 1, {
+            duration: 300,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+        });
+    }, [collapsed]);
+
+    const titleStyle = useAnimatedStyle(() => ({
+        height: interpolate(
+            progress.value,
+            [0, 1],
+            [0, 48],
+            Extrapolation.CLAMP
+        ),
+        opacity: interpolate(
+            progress.value,
+            [0, 1],
+            [0, 1],
+            Extrapolation.CLAMP
+        )
+    }));
 
     return (
         <Animated.View style={[{ overflow: 'hidden' }, animStyle, style]}>
@@ -64,7 +95,7 @@ export const AnimatedChildrenCollapsible = memo(({
                     {additionalFirstItem}
                 </Animated.View>
             )}
-            {itemsToRender.map((item, index) => {
+            {itemsToRender.slice(0, limitConfig?.maxItems).map((item, index) => {
                 return (
                     <Animated.View
                         key={`collapsible-item-${index}`}
@@ -90,6 +121,32 @@ export const AnimatedChildrenCollapsible = memo(({
                     </Animated.View>
                 );
             })}
+            {!!limitConfig && (itemsToRender.length > limitConfig.maxItems) && (
+                <Animated.View
+                    style={[
+                        {
+                            width: '100%',
+                            flexDirection: 'row',
+                            justifyContent: 'center', alignItems: 'center',
+                            paddingHorizontal: 16
+                        },
+                        titleStyle
+                    ]}
+                >
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1
+                            }
+                        }}
+                        onPress={() => navigation.navigateProductsList(limitConfig.fullList)}
+                    >
+                        <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                            {t('common.showMore')}
+                        </Text>
+                    </Pressable>
+                </Animated.View>
+            )}
         </Animated.View>
     );
 });

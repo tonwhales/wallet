@@ -44,7 +44,7 @@ export const HoldersCards = memo(({
         return null;
     }
 
-    if (cards.length <= 3) {
+    if (cards.length < 3) {
         return (
             <View style={{ marginBottom: 16, paddingHorizontal: 16, gap: 16 }}>
                 <View
@@ -179,6 +179,10 @@ export const HoldersCards = memo(({
             }}
             itemHeight={84}
             theme={theme}
+            limitConfig={{
+                maxItems: 4,
+                fullList: { type: 'holders-cards' }
+            }}
         />
     );
 });

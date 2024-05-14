@@ -700,13 +700,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tokenReceived: 'Token received',
         holders: {
             topUpTitle: 'Top up amount',
-            accountTopUp: 'Account top up of {{amount}} TON',
+            accountTopUp: 'Top up of {{amount}} TON',
+            accountJettonTopUp: 'Account top up',
             limitsChange: 'Limits change',
             limitsTitle: 'Limits',
             limitsOneTime: 'Per transaction',
             limitsDaily: 'Daily',
             limitsMonthly: 'Monthly',
-            accountLimitsChange: 'Account limits set',
+            accountLimitsChange: 'Limits change',
         }
     },
     jetton: {

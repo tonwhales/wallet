@@ -700,13 +700,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "tokenReceived": "Токен получен",
         "holders": {
             "topUpTitle": 'Сумма пополнения',
-            "accountTopUp": "Пополнение счета на {{amount}} TON",
+            "accountTopUp": "Пополнение на {{amount}} TON",
+            "accountJettonTopUp": "Пополнение счета",
             "limitsChange": "Лимиты счета",
             "limitsTitle": 'Лимиты',
             "limitsOneTime": 'На одну транзакцию',
             "limitsDaily": 'Дневной',
             "limitsMonthly": 'Месячный',
-            "accountLimitsChange": "Установлены лимиты счета"
+            "accountLimitsChange": "Обновление лимитов"
         }
     },
     "jetton": {

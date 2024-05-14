@@ -703,6 +703,7 @@ export type LocalizationSchema = {
         holders: {
             topUpTitle: string,
             accountTopUp: string,
+            accountJettonTopUp: string,
             limitsChange: string,
             limitsTitle: string,
             limitsOneTime: string,

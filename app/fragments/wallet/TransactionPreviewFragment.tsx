@@ -37,6 +37,7 @@ import { avatarHash } from "../../utils/avatarHash";
 import { PreviewMessages } from "./views/preview/PreviewMessages";
 import { BatchAvatars } from "../../components/avatar/BatchAvatars";
 import { ItemDivider } from "../../components/ItemDivider";
+import { HoldersOpType, HoldersOpView } from "../../components/transfer/HoldersOpView";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -143,18 +144,9 @@ const TransactionPreview = () => {
         }
     }
 
-    const holdersOp = useMemo<
-        null
-        | { type: 'topUp', amount: string }
-        | {
-            type: 'limitsChange',
-            onetime: string | null,
-            daily: string | null,
-            monthly: string | null
-        }
-    >(
+    const holdersOp = useMemo<null | HoldersOpType>(
         () => {
-            if (!operation.op?.res?.startsWith('known.holders.')) {
+            if (!operation.op) {
                 return null;
             }
 
@@ -163,6 +155,8 @@ const TransactionPreview = () => {
                     type: 'topUp',
                     amount: operation.op.options.amount
                 };
+            } else if (operation.op.res === 'known.holders.accountJettonTopUp') {
+                return { type: 'jettonTopUp' };
             } else if (operation.op.res === 'known.holders.accountLimitsChange') {
                 const onetime = operation.op.options.onetime === '0' ? null : operation.op.options.onetime;
                 const daily = operation.op.options.daily === '0' ? null : operation.op.options.daily;
@@ -460,70 +454,10 @@ const TransactionPreview = () => {
                     )}
                 </PerfView>
                 {!!holdersOp && (
-                    <ItemGroup style={{ marginTop: 16 }}>
-                        {holdersOp.type === 'topUp' ? (
-                            <>
-                                <PerfView style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                                    <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                                        {t('known.holders.topUpTitle')}
-                                    </PerfText>
-                                    <PerfView style={{ alignItems: 'flex-start' }}>
-                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                            {`${holdersOp.amount} TON`}
-                                        </PerfText>
-                                    </PerfView>
-                                </PerfView>
-                            </>
-                        ) : (
-                            <>
-                                <PerfView style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                                    <PerfText style={[{ color: theme.textSecondary, marginBottom: 8 }, Typography.regular17_24]}>
-                                        {t('known.holders.limitsTitle')}
-                                    </PerfText>
-                                    {!!holdersOp.onetime && (
-                                        <>
-                                            <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
-                                                    {t('known.holders.limitsOneTime')}
-                                                </PerfText>
-                                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                    {`${holdersOp.onetime} TON`}
-                                                </PerfText>
-                                            </PerfView>
-                                            {(!!holdersOp.daily || !!holdersOp.monthly) && (
-                                                <ItemDivider marginHorizontal={0} />
-                                            )}
-                                        </>
-                                    )}
-                                    {!!holdersOp.daily && (
-                                        <>
-                                            <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
-                                                    {t('known.holders.limitsDaily')}
-                                                </PerfText>
-                                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                    {`${holdersOp.daily} TON`}
-                                                </PerfText>
-                                            </PerfView>
-                                            {!!holdersOp.monthly && (
-                                                <ItemDivider marginHorizontal={0} />
-                                            )}
-                                        </>
-                                    )}
-                                    {!!holdersOp.monthly && (
-                                        <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                                            <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
-                                                {t('known.holders.limitsMonthly')}
-                                            </PerfText>
-                                            <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                {`${holdersOp.monthly} TON`}
-                                            </PerfText>
-                                        </PerfView>
-                                    )}
-                                </PerfView>
-                            </>
-                        )}
-                    </ItemGroup>
+                    <HoldersOpView
+                        theme={theme}
+                        op={holdersOp}
+                    />
                 )}
                 {
                     tx.base.outMessagesCount > 1 ? (

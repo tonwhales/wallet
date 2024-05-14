@@ -11,7 +11,6 @@ import { KnownWallets } from "../../../secure/KnownWallets";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
-import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
@@ -27,13 +26,14 @@ import { toBnWithDecimals } from "../../../utils/withDecimals";
 import { avatarHash } from "../../../utils/avatarHash";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { Typography } from "../../../components/styles";
+import { ItemDivider } from "../../../components/ItemDivider";
+import { PerfText } from "../../../components/basic/PerfText";
+import { PerfView } from "../../../components/basic/PerfView";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
-import { ItemDivider } from "../../../components/ItemDivider";
-import { PerfText } from "../../../components/basic/PerfText";
-import { PerfView } from "../../../components/basic/PerfView";
+import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 
 export const TransferSingleView = memo(({
     operation,
@@ -88,6 +88,19 @@ export const TransferSingleView = memo(({
     const [price, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const holdersUrl = resolveHoldersUrl(isTestnet);
+    const targetContract = useContractInfo(target.address.toString({ testOnly: isTestnet }));
+
+    const isHoldersOp = useMemo(() => {
+        if (targetContract?.kind === 'jetton-card' && operation.op?.res === 'tx.tokenTransfer') {
+            operation.op.res = 'known.holders.accountJettonTopUp';
+            return true;
+        }
+
+        if (operation.op?.res.startsWith('known.holders.')) {
+            return true;
+        }
+
+    }, [operation.op?.res, targetContract?.kind]);
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
@@ -217,27 +230,34 @@ export const TransferSingleView = memo(({
                         }} />
                         <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                             <View style={{ width: 68, flexDirection: 'row', height: 68 }}>
-                                {isTargetLedger ? (
+                                {isHoldersOp ? (
                                     <Image
-                                        source={require('@assets/ledger_device.png')}
-                                        style={{ height: 68, width: 68 }}
+                                        source={require('@assets/ic-holders-accounts.png')}
+                                        style={{ width: 68, height: 68, borderRadius: 34 }}
                                     />
                                 ) : (
-                                    <Avatar
-                                        size={68}
-                                        id={targetString}
-                                        address={targetString}
-                                        hash={targetWalletSettings?.avatar}
-                                        spam={isSpam}
-                                        showSpambadge
-                                        borderWith={2}
-                                        borderColor={theme.surfaceOnElevation}
-                                        backgroundColor={avatarColor}
-                                        markContact={!!contact}
-                                        icProps={{ position: 'bottom' }}
-                                        theme={theme}
-                                        knownWallets={knownWallets}
-                                    />
+                                    isTargetLedger ? (
+                                        <Image
+                                            source={require('@assets/ledger_device.png')}
+                                            style={{ height: 68, width: 68 }}
+                                        />
+                                    ) : (
+                                        <Avatar
+                                            size={68}
+                                            id={targetString}
+                                            address={targetString}
+                                            hash={targetWalletSettings?.avatar}
+                                            spam={isSpam}
+                                            showSpambadge
+                                            borderWith={2}
+                                            borderColor={theme.surfaceOnElevation}
+                                            backgroundColor={avatarColor}
+                                            markContact={!!contact}
+                                            icProps={{ position: 'bottom' }}
+                                            theme={theme}
+                                            knownWallets={knownWallets}
+                                        />
+                                    )
                                 )}
                             </View>
                         </View>
@@ -475,9 +495,9 @@ export const TransferSingleView = memo(({
                                         <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                             {t('transfer.purpose')}
                                         </Text>
-                                            <Text style={[{ color: theme.textPrimary, textAlign: 'right' }, Typography.regular17_24]}>
-                                                {t(operation.op.res, operation.op.options)}
-                                            </Text>
+                                        <Text style={[{ color: theme.textPrimary, textAlign: 'right' }, Typography.regular17_24]}>
+                                            {t(operation.op.res, operation.op.options)}
+                                        </Text>
                                     </View>
                                     {operation.op.res === 'known.holders.limitsChange' && (
                                         <>

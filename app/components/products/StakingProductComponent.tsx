@@ -2,7 +2,7 @@ import React, { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useSelectedAccount, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
+import { useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
 import { ItemDivider } from "../ItemDivider";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
@@ -12,9 +12,8 @@ import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
-import { Address, address } from "@ton/core";
+import { Address } from "@ton/core";
 import { LiquidStakingPool } from "../staking/LiquidStakingPool";
-import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 
 import StakingIcon from '@assets/ic-staking.svg';
@@ -172,7 +171,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                                         <StakingIcon width={32} height={32} color={'white'} />
                                     </View>
                                 </View>
-                                <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                                <View style={{ flexShrink: 1 }}>
                                     <PerfText
                                         style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                                         ellipsizeMode="tail"

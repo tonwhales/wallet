@@ -7,9 +7,10 @@ import { HoldersAccountItem } from "./HoldersAccountItem";
 import { Typography } from "../styles";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
-import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { reduceHoldersBalances } from "../../utils/reduceHoldersBalances";
+import { usePrice } from "../../engine/PriceContext";
 
 import IcHide from '@assets/ic-hide.svg';
 import IcHolders from '@assets/ic-holders-white.svg';
@@ -27,12 +28,11 @@ export const HoldersAccounts = memo(({
     isTestnet: boolean,
     holdersAccStatus?: HoldersAccountStatus
 }) => {
+    const [price,] = usePrice();
 
     const totalBalance = useMemo(() => {
-        return accs?.reduce((acc, item) => {
-            return acc + BigInt(item.balance);
-        }, BigInt(0));
-    }, [accs]);
+        return reduceHoldersBalances(accs, price.price.usd);
+    }, [accs, price.price.usd]);
 
     if (accs.length < 3) {
         return (
@@ -149,12 +149,6 @@ export const HoldersAccounts = memo(({
                         </View>
                         {(!!totalBalance) && (
                             <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                    <ValueComponent value={totalBalance} precision={2} />
-                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {' TON'}
-                                    </Text>
-                                </Text>
                                 <PriceComponent
                                     amount={totalBalance}
                                     style={{
@@ -163,7 +157,7 @@ export const HoldersAccounts = memo(({
                                         alignSelf: 'flex-end',
                                         height: undefined
                                     }}
-                                    textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                    textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                     currencyCode={'EUR'}
                                     theme={theme}
                                 />

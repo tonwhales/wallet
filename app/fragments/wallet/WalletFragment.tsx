@@ -53,10 +53,10 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
         const accountWithStaking = (account ? account?.balance : 0n)
             + (stakingBalance || 0n)
 
-        const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price.price.usd);
+        const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);
 
         return (cardsBalance || 0n) + accountWithStaking + (specialJetton?.toTon || 0n);
-    }, [account, stakingBalance, holdersCards, specialJetton?.toTon, price.price.usd]);
+    }, [account, stakingBalance, holdersCards, specialJetton?.toTon, price?.price?.usd]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);

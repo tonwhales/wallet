@@ -41,8 +41,8 @@ export const HoldersOpView = memo(({ theme, op }: { theme: ThemeType, op: Holder
         );
     }
 
-    return ( // 
-        <ItemGroup>
+    return (
+        <ItemGroup style={{ marginTop: 16 }}>
             <PerfView style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                 <PerfText style={[{ color: theme.textSecondary, marginBottom: 8 }, Typography.regular17_24]}>
                     {t('known.holders.limitsTitle')}

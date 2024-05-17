@@ -146,7 +146,6 @@ export const TransferFragment = fragment(() => {
     const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
     const netConfig = useConfig();
     useEffect(() => {
-
         // Await data
         if (!netConfig) {
             return;
@@ -380,7 +379,7 @@ export const TransferFragment = fragment(() => {
                 try {
                     parsedDestFriendly = Address.parseFriendly(order.messages[i].target)
                 } catch { }
-                
+
                 const msg = internalFromSignRawMessage(order.messages[i]);
                 if (msg) {
                     inMsgs.push(msg);
@@ -481,13 +480,12 @@ export const TransferFragment = fragment(() => {
                 back: params.back,
                 totalAmount,
             });
-
         });
 
         return () => {
             exited = true;
         };
-    }, [netConfig, selectedAccount, bounceableFormat, jettons]);
+    }, [netConfig, selectedAccount, bounceableFormat]);
 
     return (
         <View style={{ flexGrow: 1 }}>

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, ScrollView, Text, View } from "react-native";
+import { Platform, ScrollView, Text, View, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
@@ -36,6 +36,8 @@ import { AddressComponent } from "../../components/address/AddressComponent";
 import { avatarHash } from "../../utils/avatarHash";
 import { PreviewMessages } from "./views/preview/PreviewMessages";
 import { BatchAvatars } from "../../components/avatar/BatchAvatars";
+import { ItemDivider } from "../../components/ItemDivider";
+import { HoldersOpType, HoldersOpView } from "../../components/transfer/HoldersOpView";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -141,6 +143,30 @@ const TransactionPreview = () => {
             throw Error('Unknown kind');
         }
     }
+
+    const holdersOp = useMemo<null | HoldersOpType>(
+        () => {
+            if (!operation.op) {
+                return null;
+            }
+
+            if (operation.op.res === 'known.holders.accountTopUp') {
+                return {
+                    type: 'topUp',
+                    amount: operation.op.options.amount
+                };
+            } else if (operation.op.res === 'known.holders.accountJettonTopUp') {
+                return { type: 'jettonTopUp' };
+            } else if (operation.op.res === 'known.holders.accountLimitsChange') {
+                const onetime = operation.op.options.onetime === '0' ? null : operation.op.options.onetime;
+                const daily = operation.op.options.daily === '0' ? null : operation.op.options.daily;
+                const monthly = operation.op.options.monthly === '0' ? null : operation.op.options.monthly;
+
+                return { type: 'limitsChange', onetime, daily, monthly };
+            }
+
+            return null;
+        }, [operation.op]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -255,50 +281,57 @@ const TransactionPreview = () => {
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
-                    {tx.base.outMessagesCount > 1 ? (
-                        <BatchAvatars
-                            messages={messages}
-                            size={68}
-                            icProps={{
-                                size: 28,
-                                borderWidth: 2,
-                                position: 'bottom'
-                            }}
-                            showSpambadge
-                            theme={theme}
-                            isTestnet={isTestnet}
-                            denyList={addressBook.state.denyList}
-                            contacts={addressBook.state.contacts}
-                            spamWallets={config?.wallets?.spam ?? []}
-                            ownAccounts={appState.addresses}
-                            walletsSettings={walletsSettings}
-                            backgroundColor={theme.surfaceOnBg}
-                            borderWidth={2.5}
-                            knownWallets={knownWallets}
-                            knownJettonMasters={knownJettonMasters}
+                    {!!holdersOp ? (
+                        <Image
+                            source={require('@assets/ic-holders-accounts.png')}
+                            style={{ width: 68, height: 68, borderRadius: 34 }}
                         />
                     ) : (
-                        <Avatar
-                            size={68}
-                            id={opAddressBounceable}
-                            address={opAddressBounceable}
-                            spam={spam}
-                            showSpambadge
-                            verified={verified}
-                            borderWith={2.5}
-                            borderColor={theme.surfaceOnElevation}
-                            backgroundColor={avatarColor}
-                            markContact={!!contact}
-                            icProps={{
-                                isOwn: isOwn,
-                                borderWidth: 2,
-                                position: 'bottom',
-                                size: 28
-                            }}
-                            theme={theme}
-                            knownWallets={knownWallets}
-                            hash={opAddressWalletSettings?.avatar}
-                        />
+                        tx.base.outMessagesCount > 1 ? (
+                            <BatchAvatars
+                                messages={messages}
+                                size={68}
+                                icProps={{
+                                    size: 28,
+                                    borderWidth: 2,
+                                    position: 'bottom'
+                                }}
+                                showSpambadge
+                                theme={theme}
+                                isTestnet={isTestnet}
+                                denyList={addressBook.state.denyList}
+                                contacts={addressBook.state.contacts}
+                                spamWallets={config?.wallets?.spam ?? []}
+                                ownAccounts={appState.addresses}
+                                walletsSettings={walletsSettings}
+                                backgroundColor={theme.surfaceOnBg}
+                                borderWidth={2.5}
+                                knownWallets={knownWallets}
+                                knownJettonMasters={knownJettonMasters}
+                            />
+                        ) : (
+                            <Avatar
+                                size={68}
+                                id={opAddressBounceable}
+                                address={opAddressBounceable}
+                                spam={spam}
+                                showSpambadge
+                                verified={verified}
+                                borderWith={2.5}
+                                borderColor={theme.surfaceOnElevation}
+                                backgroundColor={avatarColor}
+                                markContact={!!contact}
+                                icProps={{
+                                    isOwn: isOwn,
+                                    borderWidth: 2,
+                                    position: 'bottom',
+                                    size: 28
+                                }}
+                                theme={theme}
+                                knownWallets={knownWallets}
+                                hash={opAddressWalletSettings?.avatar}
+                            />
+                        )
                     )}
                     <PerfText
                         style={[
@@ -420,6 +453,12 @@ const TransactionPreview = () => {
                         )
                     )}
                 </PerfView>
+                {!!holdersOp && (
+                    <HoldersOpView
+                        theme={theme}
+                        op={holdersOp}
+                    />
+                )}
                 {
                     tx.base.outMessagesCount > 1 ? (
                         <>

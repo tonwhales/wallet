@@ -4,6 +4,7 @@ import { PendingTransactionAvatar } from "../../../components/avatar/PendingTran
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { Avatar } from "../../../components/avatar/Avatar";
 import { KnownWallet } from "../../../secure/KnownWallets";
+import { Image } from "react-native";
 
 export const TxAvatar = memo((
     {
@@ -16,7 +17,8 @@ export const TxAvatar = memo((
         walletSettings,
         markContact,
         avatarColor,
-        knownWallets
+        knownWallets,
+        isHolders
     }: {
         status: "failed" | "pending" | "success",
         parsedAddressFriendly: string,
@@ -27,9 +29,18 @@ export const TxAvatar = memo((
         walletSettings?: WalletSettings,
         markContact?: boolean,
         avatarColor: string,
-        knownWallets: { [key: string]: KnownWallet }
+        knownWallets: { [key: string]: KnownWallet },
+        isHolders?: boolean
     }
 ) => {
+
+    if (isHolders) {
+        return <Image
+            source={require('@assets/ic-holders-accounts.png')}
+            style={{ width: 46, height: 46, borderRadius: 23 }}
+        />;
+    }
+
     if (status === "pending") {
         return (
             <PendingTransactionAvatar

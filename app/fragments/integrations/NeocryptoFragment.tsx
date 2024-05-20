@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, Image, Platform, Pressable, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
@@ -12,6 +12,7 @@ import { useBounceableWalletFormat, useTheme } from '../../engine/hooks';
 import { useNetwork } from "../../engine/hooks/network/useNetwork";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { StatusBar } from "expo-status-bar";
+import { trackScreen } from "../../analytics/mixpanel";
 import { ConfirmLegal } from "../../components/ConfirmLegal";
 import { sharedStoragePersistence } from "../../storage/storage";
 

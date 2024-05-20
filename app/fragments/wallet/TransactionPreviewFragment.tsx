@@ -597,15 +597,23 @@ const TransactionPreview = () => {
                         <RoundButton
                             title={t('txPreview.sendAgain')}
                             style={{ flexGrow: 1 }}
-                            onPress={() => navigation.navigateSimpleTransfer({
-                                target: tx.base.parsed.resolvedAddress,
-                                comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
-                                amount: BigInt(tx.base.parsed.amount) > 0n ? BigInt(tx.base.parsed.amount) : -BigInt(tx.base.parsed.amount),
-                                job: null,
-                                stateInit: null,
-                                jetton: null,
-                                callback: null
-                            })}
+                            onPress={() => {
+                                const operation = tx.base.operation;
+                                const item = operation.items[0];
+                                const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+                                const opAddr = Address.parseFriendly(opAddressString);
+                                const bounceable = bounceableFormat ? true : opAddr.isBounceable;
+                                const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
+                                navigation.navigateSimpleTransfer({
+                                    target,
+                                    comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
+                                    amount: BigInt(tx.base.parsed.amount) > 0n ? BigInt(tx.base.parsed.amount) : -BigInt(tx.base.parsed.amount),
+                                    job: null,
+                                    stateInit: null,
+                                    jetton: null,
+                                    callback: null
+                                })
+                            }}
                         />
                     </PerfView>
                 )

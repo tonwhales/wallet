@@ -15,6 +15,7 @@ import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-ha
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -30,7 +31,8 @@ export const HoldersAccountItem = memo((props: {
     itemStyle?: StyleProp<ViewStyle>,
     isTestnet: boolean,
     hideCardsIfEmpty?: boolean,
-    holdersAccStatus?: HoldersAccountStatus
+    holdersAccStatus?: HoldersAccountStatus,
+    onBeforeOpen?: () => void
 }) => {
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
@@ -60,13 +62,12 @@ export const HoldersAccountItem = memo((props: {
     }, [props.account]);
 
     const onPress = useCallback(() => {
+        // Close full list modal (holders navigations is below it in the other nav stack)
+        props.onBeforeOpen?.();
 
         if (needsEnrollment) {
-            const onEnrollType = { type: 'account', id: props.account.id };
-            navigation.navigate(
-                'HoldersLanding',
-                { endpoint: url, onEnrollType: onEnrollType }
-            );
+            const onEnrollType: HoldersAppParams = { type: 'account', id: props.account.id };
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
             return;
         }
 

@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, Linking, View, Platform, Share, Pressable } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Linking, View, Platform, Share, Pressable, BackHandler } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -51,10 +51,11 @@ export type DAppWebViewFragmentParams = {
         share?: boolean;
     };
     safeMode?: boolean;
+    lockNativeBack?: boolean;
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState, controlls, safeMode } = useParams<DAppWebViewFragmentParams>();
+    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState, controlls, safeMode, lockNativeBack } = useParams<DAppWebViewFragmentParams>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
@@ -313,6 +314,22 @@ export const DAppWebViewFragment = fragment(() => {
 
     }, [controlls, headerOnClose, onShare]);
 
+    const onAndroidBackPressed = useCallback(() => {
+        if (webViewRef.current) {
+            webViewRef.current.goBack();
+            return true;
+        }
+
+        return false;
+    }, []);
+
+    useEffect(() => {
+        if (Platform.OS === 'android' && lockNativeBack) {
+            BackHandler.addEventListener('hardwareBackPress', onAndroidBackPressed);
+        }
+        return () => BackHandler.removeEventListener('hardwareBackPress', onAndroidBackPressed);
+    }, [onAndroidBackPressed, lockNativeBack]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
@@ -331,6 +348,7 @@ export const DAppWebViewFragment = fragment(() => {
                 source={{ uri: endpoint }}
                 {...webViewProps}
                 webviewDebuggingEnabled={isTestnet}
+                allowsBackForwardNavigationGestures={lockNativeBack}
                 refId={refId}
                 defaultQueryParamsState={{
                     backPolicy: 'back',

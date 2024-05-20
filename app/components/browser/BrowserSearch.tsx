@@ -285,7 +285,8 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                 back: true,
                 forward: true
             },
-            safeMode: true
+            safeMode: true,
+            lockNativeBack: true
         });
     }, []);
 

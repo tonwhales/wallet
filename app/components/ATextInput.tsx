@@ -120,7 +120,7 @@ export interface ATextInputProps {
     hideClearButton?: boolean,
     maxLength?: number,
     screenWidth?: number,
-    inpoutMode?: InputModeOptions,
+    inputMode?: InputModeOptions,
     cursorColor?: string,
 }
 
@@ -294,7 +294,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                 onBlur={onBlur}
                                 onSubmitEditing={onSubmit}
                                 maxLength={props.maxLength}
-                                inputMode={props.inpoutMode}
+                                inputMode={props.inputMode}
                             />
                             {props.prefix && (
                                 <Text

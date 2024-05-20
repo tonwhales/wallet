@@ -313,7 +313,7 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                     onValueChange={(text) => setSearch(text.toLowerCase())}
                     onSubmit={() => onSearch(search)}
                     keyboardType={'web-search'}
-                    inpoutMode={'url'}
+                    inputMode={'url'}
                     textContentType={'URL'}
                     placeholder={t('browser.search.placeholder')}
                     returnKeyType={'go'}

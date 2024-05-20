@@ -225,6 +225,7 @@ export const DAppWebViewFragment = fragment(() => {
 
         const options: string[] = [];
         const icons: React.ReactNode[] = [];
+        const actions: (() => void)[] = [];
         if (back) {
             options.push(t('browser.back'));
             icons.push(<Ionicons
@@ -232,6 +233,7 @@ export const DAppWebViewFragment = fragment(() => {
                 size={24}
                 color={theme.iconNav}
             />);
+            actions.push(() => webViewRef.current?.goBack());
         }
         if (forward) {
             options.push(t('browser.forward'));
@@ -240,6 +242,7 @@ export const DAppWebViewFragment = fragment(() => {
                 size={24}
                 color={theme.iconNav}
             />);
+            actions.push(() => webViewRef.current?.goForward());
         }
         if (refresh) {
             options.push(t('browser.refresh'));
@@ -248,6 +251,7 @@ export const DAppWebViewFragment = fragment(() => {
                 size={24}
                 color={theme.iconNav}
             />);
+            actions.push(() => webViewRef.current?.reload());
         }
         if (share) {
             options.push(t('browser.share'));
@@ -256,36 +260,17 @@ export const DAppWebViewFragment = fragment(() => {
                 size={24}
                 color={theme.iconNav}
             />);
+            actions.push(onShare);
         }
         options.push(t('common.cancel'));
 
 
         const handleAction = (eN?: number) => {
-            const iShare = options.findIndex((i) => i === t('browser.share'));
-            const iBack = options.findIndex((i) => i === t('browser.back'));
-            const iForward = options.findIndex((i) => i === t('browser.forward'));
-            const iRefresh = options.findIndex((i) => i === t('browser.refresh'));
-
-            switch (eN) {
-                case iShare: {
-                    onShare();
-                    break;
-                }
-                case iBack: {
-                    webViewRef.current?.goBack();
-                    break;
-                }
-                case iForward: {
-                    webViewRef.current?.goForward();
-                    break;
-                }
-                case iRefresh: {
-                    webViewRef.current?.reload();
-                    break;
-                }
-                default:
-                    break;
+            if (eN === undefined || eN === options.length - 1) {
+                return;
             }
+
+            actions[eN]();
         }
 
         const actionSheetOptions: ActionSheetOptions = {

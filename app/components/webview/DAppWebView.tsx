@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { dispatchMainButtonResponse, dispatchResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -34,6 +34,7 @@ export type DAppWebViewProps = WebViewProps & {
     refId?: string;
     defaultQueryParamsState?: QueryParamsState;
     onEnroll?: () => void;
+    defaultSafeArea?: { top?: number; right?: number; bottom?: number; left?: number; };
 }
 
 export type WebViewLoaderProps<T> = { loaded: boolean } & T;
@@ -50,7 +51,7 @@ function WebViewLoader(props: WebViewLoaderProps<{}>) {
             style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.backgroundPrimary }]}
             pointerEvents={props.loaded ? 'none' : 'box-none'}
         >
-            <ActivityIndicator size="large" color={theme.accent} />
+            <ActivityIndicator size={'small'} color={theme.accent} />
         </Animated.View>
     );
 };
@@ -225,13 +226,54 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         // Execute
         (async () => {
             if (!!props.injectionEngine && !!ref) {
-                let res = { type: 'error', message: 'Unknown error' };
+                let res: { type: 'error', message: string } | { type: 'ok', data: any } = { type: 'error', message: 'Unknown error' };
                 try {
                     res = await props.injectionEngine.execute(data);
                 } catch {
                     warn('Failed to execute inject engine operation');
                 }
-                dispatchResponse(ref as RefObject<WebView>, { id, data: res });
+                if (props.injectionEngine.name === 'tonhub-bridge') {
+                    let data: (
+                        {
+                            type: 'error',
+                            error: {
+                                code: number,
+                                message: string,
+                                data?: string
+                            }
+                        }
+                        | {
+                            type: 'success',
+                            result: string
+                        }
+                    ) = {
+                        type: 'error',
+                        error: {
+                            code: 100,
+                            message: 'Unknown error'
+                        }
+                    }
+                    if (res.type === 'ok') {
+                        if (res.data.state === 'sent') {
+                            data = {
+                                type: 'success',
+                                result: res.data.result
+                            }
+                        } else {
+                            data = {
+                                type: 'error',
+                                error: {
+                                    code: 300,
+                                    message: 'Transaction rejected'
+                                }
+                            }
+                        }
+                    }
+
+                    dispatchTonhubBridgeResponse(ref as RefObject<WebView>, { id, data });
+                } else {
+                    dispatchResponse(ref as RefObject<WebView>, { id, data: res });
+                }
             }
         })();
     }, [
@@ -290,7 +332,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
         return `
         ${props.useMainButton ? mainButtonAPI : ''}
-        ${props.useStatusBar ? statusBarAPI(adjustedSafeArea) : ''}
+        ${props.useStatusBar ? statusBarAPI({ ...adjustedSafeArea, ...props.defaultSafeArea }) : ''}
         ${props.useToaster ? toasterAPI : ''}
         ${props.useEmitter ? emitterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}

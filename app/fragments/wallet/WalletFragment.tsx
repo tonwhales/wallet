@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -26,7 +26,7 @@ import { BlurView } from 'expo-blur';
 import { Typography } from '../../components/styles';
 import { useSpecialJetton } from '../../engine/hooks/jettons/useSpecialJetton';
 import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
-import { isNeocryptoAvailable } from '../../utils/isNeocryptoAvailable';
+import { WalletActions } from './views/WalletActions';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -39,7 +39,6 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const liquidBalance = useLiquidStakingBalance(address);
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
-    const showBuy = isNeocryptoAvailable();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -175,145 +174,11 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             theme={theme}
                         />
                     </View>
-                    <View style={{ paddingHorizontal: 16 }}>
-                        <View style={{
-                            backgroundColor: theme.backgroundUnchangeable,
-                            position: 'absolute', top: Platform.OS === 'android' ? -1 : 0, left: 0, right: 0,
-                            height: '50%',
-                            borderBottomLeftRadius: 20,
-                            borderBottomRightRadius: 20,
-                        }} />
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnBg,
-                                borderRadius: 20,
-                                marginTop: 28,
-                                overflow: 'hidden'
-                            }}
-                            collapsable={false}
-                        >
-                            {!network.isTestnet && showBuy && (
-                                <View style={{
-                                    flexGrow: 1, flexBasis: 0,
-                                    marginRight: 7,
-                                    borderRadius: 14,
-                                    paddingVertical: 10
-                                }}>
-                                    <Pressable
-                                        onPress={onOpenBuy}
-                                        style={({ pressed }) => ({
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 10
-                                        })}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                            <View style={{
-                                                backgroundColor: theme.accent,
-                                                width: 32, height: 32,
-                                                borderRadius: 16,
-                                                alignItems: 'center', justifyContent: 'center'
-                                            }}>
-                                                <Image source={require('@assets/ic-buy.png')} />
-                                            </View>
-                                            <Text style={{
-                                                fontSize: 15, lineHeight: 20,
-                                                color: theme.textPrimary,
-                                                marginTop: 6,
-                                                fontWeight: '500'
-                                            }}
-                                                minimumFontScale={0.7}
-                                                adjustsFontSizeToFit
-                                                numberOfLines={1}
-                                            >
-                                                {t('wallet.actions.buy')}
-                                            </Text>
-                                        </View>
-                                    </Pressable>
-                                </View>
-                            )}
-                            <View style={{
-                                flexGrow: 1, flexBasis: 0,
-                                marginRight: 7,
-                                borderRadius: 14,
-                                paddingVertical: 10
-                            }}>
-                                <Pressable
-                                    onPress={() => navigation.navigate('Receive')}
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 10
-                                        }
-                                    }}
-                                >
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                        <View style={{
-                                            backgroundColor: theme.accent,
-                                            width: 32, height: 32,
-                                            borderRadius: 16,
-                                            alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            <Image source={require('@assets/ic_receive.png')} />
-                                        </View>
-                                        <Text
-                                            style={{
-                                                fontSize: 15, lineHeight: 20,
-                                                color: theme.textPrimary,
-                                                marginTop: 6,
-                                                fontWeight: '500'
-                                            }}
-                                            minimumFontScale={0.7}
-                                            adjustsFontSizeToFit
-                                            numberOfLines={1}
-                                        >
-                                            {t('wallet.actions.receive')}
-                                        </Text>
-                                    </View>
-                                </Pressable>
-                            </View>
-                            <View style={{
-                                flexGrow: 1, flexBasis: 0,
-                                marginRight: 7,
-                                borderRadius: 14,
-                                paddingVertical: 10,
-                            }}>
-                                <Pressable
-                                    onPress={() => navigation.navigateSimpleTransfer(nullTransfer)}
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 10
-                                        }
-                                    }}
-                                >
-                                    <View style={{ alignItems: 'center', borderRadius: 14, flexGrow: 1 }}>
-                                        <View style={{
-                                            backgroundColor: theme.accent,
-                                            width: 32, height: 32,
-                                            borderRadius: 16,
-                                            alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            <Image source={require('@assets/ic_send.png')} />
-                                        </View>
-                                        <Text
-                                            style={{
-                                                fontSize: 15,
-                                                color: theme.textPrimary,
-                                                marginTop: 6,
-                                                fontWeight: '500',
-                                            }}
-                                        >
-                                            {t('wallet.actions.send')}
-                                        </Text>
-                                    </View>
-                                </Pressable>
-                            </View>
-                        </View>
-                    </View>
+                    <WalletActions
+                        theme={theme}
+                        navigation={navigation}
+                        isTestnet={network.isTestnet}
+                    />
                 </View>
                 <ProductsComponent selected={props.selectedAcc} tonBalance={account?.balance ?? 0n} />
             </ScrollView>

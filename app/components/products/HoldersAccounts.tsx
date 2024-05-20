@@ -34,9 +34,9 @@ export const HoldersAccounts = memo(({
         }, BigInt(0));
     }, [accs]);
 
-    if (accs.length <= 3) {
+    if (accs.length < 3) {
         return (
-            <View style={{ marginBottom: 16, paddingHorizontal: 16, gap: 16 }}>
+            <View style={{ paddingHorizontal: 16, gap: 16 }}>
                 <View
                     style={[{
                         flexDirection: 'row',
@@ -174,6 +174,10 @@ export const HoldersAccounts = memo(({
             }}
             itemHeight={122}
             theme={theme}
+            limitConfig={{
+                maxItems: 4,
+                fullList: { type: 'holders-accounts' }
+            }}
         />
     );
 });

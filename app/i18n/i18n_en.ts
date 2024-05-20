@@ -120,7 +120,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         actions: {
             receive: 'Receive',
             send: 'Send',
-            buy: 'Buy'
+            buy: 'Buy',
+            swap: 'Swap',
         },
         empty: {
             message: 'You have no transactions',
@@ -477,7 +478,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holders: {
             title: 'Bank account',
             accounts: {
-                title: 'Accounts',
+                title: 'Portfolios',
                 prepaidTitle: 'Prepaid cards',
                 account: 'Account',
                 basicAccount: 'Basic account',
@@ -697,15 +698,26 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         upgradeOk: 'Upgrade completed',
         cashback: 'Cashback',
         tokenSent: 'Token sent',
-        tokenReceived: 'Token received'
+        tokenReceived: 'Token received',
+        holders: {
+            topUpTitle: 'Top up amount',
+            accountTopUp: 'Top up of {{amount}} TON',
+            accountJettonTopUp: 'Account top up',
+            limitsChange: 'Limits change',
+            limitsTitle: 'Limits',
+            limitsOneTime: 'Per transaction',
+            limitsDaily: 'Daily',
+            limitsMonthly: 'Monthly',
+            accountLimitsChange: 'Limits change',
+        }
     },
     jetton: {
         token: 'token',
         productButtonTitle: 'Jettons',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
         hidden: 'Hidden jettons',
-        liquidPoolDescriptionDedust: 'Liquidity pool token for {{name0}} and {{name1}} on DeDust DEX',
-        liquidPoolDescriptionStonFi: 'Liquidity pool token for {{name0}} and {{name1}} on STON.fi DEX',
+        liquidPoolDescriptionDedust: 'Liquidity for {{name0}}/{{name1}} on DeDust DEX',
+        liquidPoolDescriptionStonFi: 'Liquidity for {{name0}}/{{name1}} on STON.fi DEX',
     },
     connections: {
         extensions: 'Extensions',

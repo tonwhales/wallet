@@ -31,9 +31,17 @@ export function useBrowserWebSearchSuggestions(query: string, searchEngine: Sear
             } catch (e) {
                 const isCanceled = axios.isCancel(e);
 
+                // Add a default suggestion to search the web if the request failed
                 if (!isCanceled) {
-                    setSuggestions([]);
-                    console.warn(e);
+                    console.warn(`Failed to fetch suggestions for ${query} from ${searchEngine}`);
+
+                    let encodedQuery = encodeURIComponent(query);
+                    let baseUrl = searchEngine === 'google' ? 'https://www.google.com/search?q=' : 'https://duckduckgo.com/?q=';
+                    setSuggestions([{
+                        url: `${baseUrl}${encodedQuery}`,
+                        title: query,
+                        source: 'web-search'
+                    }]);
                 }
             }
         })();

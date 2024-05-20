@@ -153,6 +153,10 @@ export class TypedNavigation {
         this.navigateAndReplaceAll('LedgerApp');
     }
 
+    navigateHoldersLanding({ endpoint, onEnrollType }: { endpoint: string, onEnrollType: HoldersAppParams }) {
+        this.navigate('HoldersLanding', { endpoint, onEnrollType });
+    }
+
     navigateHolders(params: HoldersAppParams) {
         this.navigate('Holders', params);
     }

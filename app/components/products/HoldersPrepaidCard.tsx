@@ -15,6 +15,7 @@ import { toNano } from "@ton/core";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
 
 export const HoldersPrepaidCard = memo((props: {
     card: PrePaidHoldersCard,
@@ -27,7 +28,8 @@ export const HoldersPrepaidCard = memo((props: {
     style?: StyleProp<ViewStyle>,
     itemStyle?: StyleProp<ViewStyle>,
     isTestnet: boolean,
-    holdersAccStatus?: HoldersAccountStatus
+    holdersAccStatus?: HoldersAccountStatus,
+    onBeforeOpen?: () => void
 }) => {
     const card = props.card;
     const swipableRef = useRef<Swipeable>(null);
@@ -54,18 +56,17 @@ export const HoldersPrepaidCard = memo((props: {
     }, [holdersAccStatus, isHoldersReady]);
 
     const onPress = useCallback(() => {
+        // Close full list modal (holders navigations is below it in the other nav stack)
+        props.onBeforeOpen?.();
 
         if (needsEnrollment) {
-            const onEnrollType = { type: 'prepaid', id: card.id }
-            navigation.navigate(
-                'HoldersLanding',
-                { endpoint: url, onEnrollType: onEnrollType }
-            );
+            const onEnrollType: HoldersAppParams = { type: 'prepaid', id: card.id };
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
             return;
         }
 
         navigation.navigateHolders({ type: 'prepaid', id: card.id });
-    }, [card, needsEnrollment]);
+    }, [card, needsEnrollment, props.onBeforeOpen]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 

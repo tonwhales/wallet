@@ -36,7 +36,7 @@ export const HoldersAccounts = memo(({
 
     if (accs.length < 3) {
         return (
-            <View style={{ paddingHorizontal: 16, gap: 16 }}>
+            <View style={{ paddingHorizontal: 16 }}>
                 <View
                     style={[{
                         flexDirection: 'row',
@@ -47,20 +47,22 @@ export const HoldersAccounts = memo(({
                         {t('products.holders.accounts.title')}
                     </Text>
                 </View>
-                {accs.map((item, index) => {
-                    return (
-                        <HoldersAccountItem
-                            key={`card-${index}`}
-                            account={item}
-                            rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                            rightAction={() => markAccount(item.id, true)}
-                            style={{ paddingVertical: 0 }}
-                            isTestnet={isTestnet}
-                            hideCardsIfEmpty
-                            holdersAccStatus={holdersAccStatus}
-                        />
-                    )
-                })}
+                <View style={{ gap: 16, marginTop: 8 }}>
+                    {accs.map((item, index) => {
+                        return (
+                            <HoldersAccountItem
+                                key={`card-${index}`}
+                                account={item}
+                                rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                rightAction={() => markAccount(item.id, true)}
+                                style={{ paddingVertical: 0 }}
+                                isTestnet={isTestnet}
+                                hideCardsIfEmpty
+                                holdersAccStatus={holdersAccStatus}
+                            />
+                        )
+                    })}
+                </View>
             </View>
         );
     }

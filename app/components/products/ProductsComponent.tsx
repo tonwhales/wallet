@@ -109,9 +109,7 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',
-                    marginTop: 10,
-                    paddingVertical: 16,
-                    paddingHorizontal: 16
+                    padding: 16
                 }}>
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.products')}
@@ -156,34 +154,40 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                     </View>
                 )}
 
-                <View style={{
-                    marginHorizontal: 16, marginBottom: 16,
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20
-                }}>
-                    <TonProductComponent
-                        key={'ton-native'}
-                        balance={tonBalance}
-                        theme={theme}
-                        navigation={navigation}
-                        address={selected.address}
-                        testOnly={isTestnet}
-                    />
-
-                    <SpecialJettonProduct
-                        key={'special-jettton'}
-                        theme={theme}
-                        navigation={navigation}
-                        address={selected.address}
-                        testOnly={isTestnet}
-                        divider={'top'}
-                    />
-                </View>
-
                 <StakingProductComponent
                     key={'pool'}
                     address={selected.address}
                 />
+
+                <View style={{
+                    marginHorizontal: 16, marginBottom: 16
+                }}>
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('common.balances')}
+                    </Text>
+                    <View style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        borderRadius: 20, marginTop: 8
+                    }}>
+                        <TonProductComponent
+                            key={'ton-native'}
+                            balance={tonBalance}
+                            theme={theme}
+                            navigation={navigation}
+                            address={selected.address}
+                            testOnly={isTestnet}
+                        />
+
+                        <SpecialJettonProduct
+                            key={'special-jettton'}
+                            theme={theme}
+                            navigation={navigation}
+                            address={selected.address}
+                            testOnly={isTestnet}
+                            divider={'top'}
+                        />
+                    </View>
+                </View>
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 

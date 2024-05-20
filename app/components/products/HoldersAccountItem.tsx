@@ -18,6 +18,7 @@ import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccou
 import { WImage } from "../WImage";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
 import { toNano } from "@ton/core";
+import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -33,7 +34,8 @@ export const HoldersAccountItem = memo((props: {
     itemStyle?: StyleProp<ViewStyle>,
     isTestnet: boolean,
     hideCardsIfEmpty?: boolean,
-    holdersAccStatus?: HoldersAccountStatus
+    holdersAccStatus?: HoldersAccountStatus,
+    onBeforeOpen?: () => void
 }) => {
     const [price,] = usePrice();
     const jettonMasterContent = useJettonContent(props.account.cryptoCurrency.tokenContract ?? null);
@@ -76,13 +78,12 @@ export const HoldersAccountItem = memo((props: {
     }, [props.account]);
 
     const onPress = useCallback(() => {
+        // Close full list modal (holders navigations is below it in the other nav stack)
+        props.onBeforeOpen?.();
 
         if (needsEnrollment) {
-            const onEnrollType = { type: 'account', id: props.account.id };
-            navigation.navigate(
-                'HoldersLanding',
-                { endpoint: url, onEnrollType: onEnrollType }
-            );
+            const onEnrollType: HoldersAppParams = { type: 'account', id: props.account.id };
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
             return;
         }
 

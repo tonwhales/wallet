@@ -3,7 +3,7 @@ import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { useHoldersAccountStatus, useHoldersAccounts, useJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { Suspense, memo, useMemo } from "react";
+import { memo, useMemo } from "react";
 import { Address } from "@ton/core";
 import { View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
@@ -15,7 +15,6 @@ import { JettonProductItem } from "../../components/products/JettonProductItem";
 import { Jetton } from "../../engine/types";
 import { GeneralHoldersAccount, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
 import { t } from "../../i18n/t";
 
 export type ProductsListFragmentParams = {
@@ -61,6 +60,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             isTestnet={testOnly}
                             holdersAccStatus={holdersAccStatus}
                             itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
+                            onBeforeOpen={navigation.goBack}
                         />
                     );
                 },
@@ -77,6 +77,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             isTestnet={testOnly}
                             holdersAccStatus={holdersAccStatus}
                             itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
+                            onBeforeOpen={navigation.goBack}
                         />
                     );
                 },

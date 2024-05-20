@@ -77,6 +77,7 @@ export type LocalizationSchema = {
         airdrop: string,
         myWallets: string,
         showMore: string,
+        balances: string,
     },
     syncStatus: {
         connecting: string,
@@ -699,7 +700,18 @@ export type LocalizationSchema = {
         upgradeOk: string,
         cashback: string,
         tokenSent: string,
-        tokenReceived: string
+        tokenReceived: string,
+        holders: {
+            topUpTitle: string,
+            accountTopUp: string,
+            accountJettonTopUp: string,
+            limitsChange: string,
+            limitsTitle: string,
+            limitsOneTime: string,
+            limitsDaily: string,
+            limitsMonthly: string,
+            accountLimitsChange: string,
+        }
     },
     jetton: {
         token: string,
@@ -998,7 +1010,13 @@ export type LocalizationSchema = {
         newAddress: string,
         bannerTitle: string,
         bannerDescription: string,
-    }
+    },
+    swap: {
+        title: string,
+        description: string,
+        termsAndPrivacy: string,
+        dontShowTitle: string,
+    },
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

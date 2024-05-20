@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { fragment } from "../../fragment";
 import { Linking, Platform, View } from "react-native";
 import { useBounceableWalletFormat, useNetwork, usePrice, useTheme } from "../../engine/hooks";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { getPlatform } from "../../engine/tonconnect/config";
 import { tonhubBridgeSource } from "../apps/components/inject/createInjectSource";
 import { getCurrentAddress } from "../../storage/appState";
@@ -19,14 +19,24 @@ import WebView from "react-native-webview";
 import { SwapSkeleton } from "../../components/skeletons/SwapSkeleton";
 import { useTrackScreen } from "../../analytics/mixpanel";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { sharedStoragePersistence } from "../../storage/storage";
+import { t } from "../../i18n/t";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { ConfirmLegal } from "../../components/ConfirmLegal";
+
+const skipLegalDeDust = 'skipLegalDeDust';
+const logo = require('@assets/known/ic-dedust.png');
 
 export const SwapFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const [pushPemissions,] = usePermissions();
     const [, currency] = usePrice();
+    const [accepted, setAccepted] = useState(sharedStoragePersistence.getBoolean(skipLegalDeDust));
 
     const webViewRef = useRef<WebView>(null);
     const deDustUrl = 'https://tonhub.dedust.io/';
@@ -130,15 +140,32 @@ export const SwapFragment = fragment(() => {
                     ios: 'light'
                 })}
             />
-            <DAppWebView
-                ref={webViewRef}
-                source={{ uri: endpoint }}
-                {...webViewProps}
-                webviewDebuggingEnabled={isTestnet}
-                onContentProcessDidTerminate={webViewRef.current?.reload}
-                loader={(l) => <SwapSkeleton loaded={l.loaded} theme={theme} />}
-                defaultSafeArea={Platform.OS === 'ios' ? { bottom: safeArea.bottom - 8 } : { top: 16, bottom: 0 }}
-            />
+            {!accepted ? (
+                <>
+                    <ScreenHeader onClosePressed={navigation.goBack} title={t('wallet.actions.swap')} />
+                    <ConfirmLegal
+                        onConfirmed={() => setAccepted(true)}
+                        skipKey={skipLegalDeDust}
+                        title={t('swap.title')}
+                        description={t('swap.description')}
+                        termsAndPrivacy={t('swap.termsAndPrivacy')}
+                        dontShowTitle={t('swap.dontShowTitle')}
+                        privacyUrl={'https://tonhub.dedust.io/docs/privacy.pdf'}
+                        termsUrl={'https://tonhub.dedust.io/docs/term-of-use.pdf'}
+                        icon={logo}
+                    />
+                </>
+            ) : (
+                <DAppWebView
+                    ref={webViewRef}
+                    source={{ uri: endpoint }}
+                    {...webViewProps}
+                    webviewDebuggingEnabled={isTestnet}
+                    onContentProcessDidTerminate={webViewRef.current?.reload}
+                    loader={(l) => <SwapSkeleton loaded={l.loaded} theme={theme} />}
+                    defaultSafeArea={Platform.OS === 'ios' ? { bottom: safeArea.bottom - 8 } : { top: 16, bottom: 0 }}
+                />
+            )}
         </View>
     );
 });

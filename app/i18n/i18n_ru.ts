@@ -75,6 +75,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "airdrop": "Airdrop",
         "myWallets": "Мои кошельки",
         "showMore": "Показать больше",
+        "balances": "Балансы",
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -477,7 +478,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "holders": {
             "title": "Банковский счет",
             "accounts": {
-                "title": 'Счета',
+                "title": "Счета",
                 "prepaidTitle": 'Prepaid карты',
                 "account": 'Счет',
                 "basicAccount": 'Базовый счет',
@@ -677,7 +678,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "message": "Заполните обязательные поля -> Выберите криптовалюту, сумму для покупки и адрес кошелька -> Перейдите к оплате -> Укажите свой e-mail для связи и пройдите простую верификацию, которая займет не более 10 минут -> Завершите покупку. Регистрация не требуется!"
         },
         "title": "Покупайте TON с помощью кредитной карты за доллары США или евро",
-        "description": "Вы попадёте в Neocrypto. Услуги, связанные с платежами, предоставляются Neocrypto, отдельной платформой, принадлежащей третьей стороне.\n\nПожалуйста, прочитайте и согласитесь с Условиями обслуживания Neocrypto, прежде чем использовать их сервис.",
+        "description": "Вы попадёте в Neocrypto. Услуги, связанные с платежами, предоставляются Neocrypto, отдельной платформой, принадлежащей третьей стороне\n\nПожалуйста, прочитайте и согласитесь с Условиями обслуживания Neocrypto, прежде чем использовать их сервис",
         "doNotShow": "Больше не показывать для Neocrypto",
         "termsAndPrivacy": "Я прочитал и согласен с ",
         "confirm": {
@@ -697,7 +698,18 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "upgradeOk": "Обновление завершено",
         "cashback": "Кэшбек",
         "tokenSent": "Токен отправлен",
-        "tokenReceived": "Токен получен"
+        "tokenReceived": "Токен получен",
+        "holders": {
+            "topUpTitle": 'Сумма пополнения',
+            "accountTopUp": "Пополнение на {{amount}} TON",
+            "accountJettonTopUp": "Пополнение счета",
+            "limitsChange": "Лимиты счета",
+            "limitsTitle": 'Лимиты',
+            "limitsOneTime": 'На одну транзакцию',
+            "limitsDaily": 'Дневной',
+            "limitsMonthly": 'Месячный',
+            "accountLimitsChange": "Обновление лимитов"
+        }
     },
     "jetton": {
         "token": "токен",
@@ -996,7 +1008,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "newAddress": "Новый адрес",
         "bannerTitle": 'Обновите ваш адрес',
         "bannerDescription": 'С EQ на UQ',
-    }
+    },
+    "swap": {
+        "title": 'DeDust.io — AMM DEX на The Open Network',
+        "description": 'Вы собираетесь использовать сервис Dedust.io, который управляется независимой стороной, не связанной с Tonhub\nДля продолжения вам необходимо согласиться с Условиями использования и Политикой конфиденциальности',
+        "termsAndPrivacy": 'Я прочитал и согласен с ',
+        "dontShowTitle": 'Больше не показывать для DeDust.io',
+    },
 };
 
 export default schema;

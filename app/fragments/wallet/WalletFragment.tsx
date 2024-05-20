@@ -59,7 +59,6 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     }, [account, stakingBalance, holdersCards, specialJetton?.toTon, price?.price?.usd]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-    const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>

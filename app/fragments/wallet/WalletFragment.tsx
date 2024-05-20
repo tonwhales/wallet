@@ -12,7 +12,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
+import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, useNetwork, usePrice, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
@@ -27,6 +27,7 @@ import { Typography } from '../../components/styles';
 import { useSpecialJetton } from '../../engine/hooks/jettons/useSpecialJetton';
 import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
 import { WalletActions } from './views/WalletActions';
+import { reduceHoldersBalances } from '../../utils/reduceHoldersBalances';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -39,6 +40,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const liquidBalance = useLiquidStakingBalance(address);
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
+    const [price,] = usePrice();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -51,12 +53,10 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
         const accountWithStaking = (account ? account?.balance : 0n)
             + (stakingBalance || 0n)
 
-        const cardsBalance = holdersCards?.reduce((summ, card) => {
-            return summ + BigInt(card.balance);
-        }, 0n);
+        const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);
 
         return (cardsBalance || 0n) + accountWithStaking + (specialJetton?.toTon || 0n);
-    }, [account, stakingBalance, holdersCards, specialJetton?.toTon]);
+    }, [account, stakingBalance, holdersCards, specialJetton?.toTon, price?.price?.usd]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 

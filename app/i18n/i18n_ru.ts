@@ -505,7 +505,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "card": "Карта",
                 "cards": "Карты Holders",
                 "title": "Tonhub card {{cardNumber}}",
-                "defaultSubtitle": "Платите TON и USDT везде",
+                "defaultSubtitle": "Платите TON и USDT где угодно",
                 "defaultTitle": "Карты Tonhub",
                 "eurSubtitle": "Tonhub EUR",
                 "type": {

@@ -122,7 +122,7 @@ export const SpecialJettonProduct = memo(({
                         ellipsizeMode="tail"
                         numberOfLines={1}
                     >
-                        {content?.name ?? 'TetherUSD₮'}
+                        {'USD₮'}
                     </Text>
                     <Text
                         numberOfLines={1}

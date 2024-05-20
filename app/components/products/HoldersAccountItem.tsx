@@ -6,7 +6,7 @@ import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { useIsConnectAppReady, useTheme } from "../../engine/hooks";
+import { useIsConnectAppReady, useJettonContent, usePrice, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -15,6 +15,10 @@ import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-ha
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { WImage } from "../WImage";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
+import { toNano } from "@ton/core";
+import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -30,14 +34,28 @@ export const HoldersAccountItem = memo((props: {
     itemStyle?: StyleProp<ViewStyle>,
     isTestnet: boolean,
     hideCardsIfEmpty?: boolean,
-    holdersAccStatus?: HoldersAccountStatus
+    holdersAccStatus?: HoldersAccountStatus,
+    onBeforeOpen?: () => void
 }) => {
+    const [price,] = usePrice();
+    const jettonMasterContent = useJettonContent(props.account.cryptoCurrency.tokenContract ?? null);
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const holdersAccStatus = props.holdersAccStatus;
     const url = holdersUrl(props.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
+
+    const priceAmount = useMemo(() => {
+        const cryptoCurrency = props.account.cryptoCurrency;
+
+        if (cryptoCurrency.ticker === 'TON') {
+            return BigInt(props.account.balance);
+        }
+
+        const amount = toBnWithDecimals(props.account.balance, cryptoCurrency.decimals) / toNano(price.price.usd);
+        return toBnWithDecimals(amount, cryptoCurrency.decimals);
+    }, [props.account.balance, props.account.cryptoCurrency, price.price.usd]);
 
     const needsEnrollment = useMemo(() => {
         if (!isHoldersReady) {
@@ -60,13 +78,12 @@ export const HoldersAccountItem = memo((props: {
     }, [props.account]);
 
     const onPress = useCallback(() => {
+        // Close full list modal (holders navigations is below it in the other nav stack)
+        props.onBeforeOpen?.();
 
         if (needsEnrollment) {
-            const onEnrollType = { type: 'account', id: props.account.id };
-            navigation.navigate(
-                'HoldersLanding',
-                { endpoint: url, onEnrollType: onEnrollType }
-            );
+            const onEnrollType: HoldersAppParams = { type: 'account', id: props.account.id };
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
             return;
         }
 
@@ -126,9 +143,20 @@ export const HoldersAccountItem = memo((props: {
                 >
                     <View style={[{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
-                            <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                                <IcTonIcon width={46} height={46} />
-                            </View>
+                            {jettonMasterContent?.image ? (
+                                <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
+                                    <WImage
+                                        src={jettonMasterContent?.image?.preview256}
+                                        width={46}
+                                        heigh={46}
+                                        borderRadius={46}
+                                    />
+                                </View>
+                            ) : (
+                                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+                                    <IcTonIcon width={46} height={46} />
+                                </View>
+                            )}
                             <View style={{ marginLeft: 12, flexShrink: 1 }}>
                                 <PerfText
                                     style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
@@ -150,13 +178,18 @@ export const HoldersAccountItem = memo((props: {
                             {!!props.account.balance && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                        <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
+                                        <ValueComponent
+                                            value={props.account.balance}
+                                            precision={2}
+                                            centFontStyle={{ color: theme.textSecondary }}
+                                            decimals={props.account.cryptoCurrency.decimals}
+                                        />
                                         <PerfText style={{ color: theme.textSecondary }}>
-                                            {' TON'}
+                                            {` ${props.account.cryptoCurrency.ticker}`}
                                         </PerfText>
                                     </Text>
                                     <PriceComponent
-                                        amount={BigInt(props.account.balance)}
+                                        amount={priceAmount}
                                         style={{
                                             backgroundColor: 'transparent',
                                             paddingHorizontal: 0, paddingVertical: 0,

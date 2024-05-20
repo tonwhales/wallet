@@ -7,9 +7,10 @@ import { HoldersAccountItem } from "./HoldersAccountItem";
 import { Typography } from "../styles";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
-import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { reduceHoldersBalances } from "../../utils/reduceHoldersBalances";
+import { usePrice } from "../../engine/PriceContext";
 
 import IcHide from '@assets/ic-hide.svg';
 import IcHolders from '@assets/ic-holders-white.svg';
@@ -27,16 +28,15 @@ export const HoldersAccounts = memo(({
     isTestnet: boolean,
     holdersAccStatus?: HoldersAccountStatus
 }) => {
+    const [price,] = usePrice();
 
     const totalBalance = useMemo(() => {
-        return accs?.reduce((acc, item) => {
-            return acc + BigInt(item.balance);
-        }, BigInt(0));
-    }, [accs]);
+        return reduceHoldersBalances(accs, price.price.usd);
+    }, [accs, price.price.usd]);
 
     if (accs.length < 3) {
         return (
-            <View style={{ paddingHorizontal: 16, gap: 16 }}>
+            <View style={{ paddingHorizontal: 16 }}>
                 <View
                     style={[{
                         flexDirection: 'row',
@@ -47,20 +47,22 @@ export const HoldersAccounts = memo(({
                         {t('products.holders.accounts.title')}
                     </Text>
                 </View>
-                {accs.map((item, index) => {
-                    return (
-                        <HoldersAccountItem
-                            key={`card-${index}`}
-                            account={item}
-                            rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                            rightAction={() => markAccount(item.id, true)}
-                            style={{ paddingVertical: 0 }}
-                            isTestnet={isTestnet}
-                            hideCardsIfEmpty
-                            holdersAccStatus={holdersAccStatus}
-                        />
-                    )
-                })}
+                <View style={{ gap: 16, marginTop: 8 }}>
+                    {accs.map((item, index) => {
+                        return (
+                            <HoldersAccountItem
+                                key={`card-${index}`}
+                                account={item}
+                                rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                rightAction={() => markAccount(item.id, true)}
+                                style={{ paddingVertical: 0 }}
+                                isTestnet={isTestnet}
+                                hideCardsIfEmpty
+                                holdersAccStatus={holdersAccStatus}
+                            />
+                        )
+                    })}
+                </View>
             </View>
         );
     }
@@ -149,12 +151,6 @@ export const HoldersAccounts = memo(({
                         </View>
                         {(!!totalBalance) && (
                             <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                    <ValueComponent value={totalBalance} precision={2} />
-                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {' TON'}
-                                    </Text>
-                                </Text>
                                 <PriceComponent
                                     amount={totalBalance}
                                     style={{
@@ -163,7 +159,7 @@ export const HoldersAccounts = memo(({
                                         alignSelf: 'flex-end',
                                         height: undefined
                                     }}
-                                    textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                    textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                     currencyCode={'EUR'}
                                     theme={theme}
                                 />

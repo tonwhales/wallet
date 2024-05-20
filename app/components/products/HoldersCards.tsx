@@ -46,7 +46,7 @@ export const HoldersCards = memo(({
 
     if (cards.length < 3) {
         return (
-            <View style={{ marginBottom: 16, paddingHorizontal: 16, gap: 16 }}>
+            <View style={{ paddingHorizontal: 16 }}>
                 <View
                     style={[{
                         flexDirection: 'row',
@@ -57,19 +57,21 @@ export const HoldersCards = memo(({
                         {t('products.holders.accounts.prepaidTitle')}
                     </Text>
                 </View>
-                {cards.map((item, index) => {
-                    return (
-                        <HoldersPrepaidCard
-                            key={`card-${index}`}
-                            card={item}
-                            rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                            rightAction={() => markPrepaidCard(item.id, true)}
-                            style={{ paddingVertical: 0 }}
-                            isTestnet={isTestnet}
-                            holdersAccStatus={holdersAccStatus}
-                        />
-                    )
-                })}
+                <View style={{ gap: 16, marginTop: 8 }}>
+                    {cards.map((item, index) => {
+                        return (
+                            <HoldersPrepaidCard
+                                key={`card-${index}`}
+                                card={item}
+                                rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                rightAction={() => markPrepaidCard(item.id, true)}
+                                style={{ paddingVertical: 0 }}
+                                isTestnet={isTestnet}
+                                holdersAccStatus={holdersAccStatus}
+                            />
+                        )
+                    })}
+                </View>
             </View>
         );
     }

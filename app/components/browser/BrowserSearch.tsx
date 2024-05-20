@@ -328,7 +328,7 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                     editable={!lockSelection}
                     onSubmit={() => onSearch(search)}
                     keyboardType={'web-search'}
-                    inputMode={'url'}
+                    inputMode={'search'}
                     textContentType={'URL'}
                     placeholder={t('browser.search.placeholder')}
                     returnKeyType={'go'}

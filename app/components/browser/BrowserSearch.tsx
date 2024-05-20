@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, Platform, useWindowDimensions, Pressable } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
@@ -53,13 +53,15 @@ export const SearchSuggestionItem = memo(({
     itemHeight,
     theme,
     onSelect,
-    index
+    index,
+    disabled
 }: {
     item: BrowserSearchSuggestion,
     itemHeight: number,
     theme: ThemeType,
     onSelect: (url: string) => Promise<void>,
-    index: number
+    index: number,
+    disabled?: boolean
 }) => {
     const [loading, setLoading] = useState(false);
 
@@ -67,7 +69,7 @@ export const SearchSuggestionItem = memo(({
         setLoading(true);
         await onSelect(item.url);
         setLoading(false);
-    }, [item.url]);
+    }, [item.url, onSelect]);
 
     return (
         <View>
@@ -76,6 +78,7 @@ export const SearchSuggestionItem = memo(({
                 style={({ pressed }) => ({
                     opacity: pressed ? 0.5 : 1
                 })}
+                disabled={disabled}
                 onPress={action}
             >
                 <View
@@ -138,6 +141,8 @@ export const SearchSuggestions = memo(({
     const heightValue = useSharedValue(0);
     const keyboard = useKeyboard();
 
+    const [lockSelection, setLockSelection] = useState(false);
+
     const animSearchStyle = useAnimatedStyle(() => {
         return {
             height: withTiming(heightValue.value, { duration: 300, easing: Easing.bezier(0.25, 0.1, 0.25, 1) }),
@@ -158,6 +163,12 @@ export const SearchSuggestions = memo(({
         heightValue.value = suggestionsLength > 0 ? toExpandTo : 0;
     }, [suggestions, keyboard.keyboardShown]);
 
+    const onSelectItem = useCallback(async (url: string) => {
+        setLockSelection(true);
+        await onSelect(url);
+        setLockSelection(false);
+    }, [onSelect]);
+
     return (
         <Animated.View style={[{
             position: 'absolute',
@@ -170,6 +181,7 @@ export const SearchSuggestions = memo(({
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ gap: 8, padding: 16 }}
+                keyboardShouldPersistTaps={'always'}
             >
                 {suggestions.dapps.map((item, index) => (
                     <SearchSuggestionItem
@@ -178,7 +190,8 @@ export const SearchSuggestions = memo(({
                         item={item}
                         itemHeight={itemHeight}
                         theme={theme}
-                        onSelect={onSelect}
+                        onSelect={onSelectItem}
+                        disabled={lockSelection}
                     />
                 ))}
                 {suggestions.dapps.length > 0 && suggestions.web.length > 0 && (
@@ -196,7 +209,8 @@ export const SearchSuggestions = memo(({
                         item={item}
                         itemHeight={itemHeight}
                         theme={theme}
-                        onSelect={onSelect}
+                        onSelect={onSelectItem}
+                        disabled={lockSelection}
                     />
                 ))}
             </ScrollView>

@@ -75,6 +75,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "airdrop": "Airdrop",
         "myWallets": "Мои кошельки",
         "showMore": "Показать больше",
+        "balances": "Балансы",
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -477,7 +478,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "holders": {
             "title": "Банковский счет",
             "accounts": {
-                "title": 'Счета',
+                "title": "Счета",
                 "prepaidTitle": 'Prepaid карты',
                 "account": 'Счет',
                 "basicAccount": 'Базовый счет',

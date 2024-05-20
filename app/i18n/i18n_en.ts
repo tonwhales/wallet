@@ -75,6 +75,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         airdrop: 'Airdrop',
         myWallets: 'My wallets',
         showMore: 'Show more',
+        balances: 'Balances',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -477,7 +478,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holders: {
             title: 'Bank account',
             accounts: {
-                title: 'Portfolios',
+                title: 'Payment accounts',
                 prepaidTitle: 'Prepaid cards',
                 account: 'Account',
                 basicAccount: 'Basic account',

@@ -126,7 +126,8 @@ export const SearchSuggestions = memo(({
     theme,
     onSelect,
     suggestions,
-    searchEngine
+    searchEngine,
+    lockSelection
 }: {
     theme: ThemeType,
     onSelect: (url: string) => Promise<void>,
@@ -134,14 +135,13 @@ export const SearchSuggestions = memo(({
         dapps: BrowserSearchSuggestion[],
         web: BrowserSearchSuggestion[]
     },
-    searchEngine: SearchEngine
+    searchEngine: SearchEngine,
+    lockSelection?: boolean
 }) => {
     const itemHeight = 48;
     const dimensions = useWindowDimensions();
     const heightValue = useSharedValue(0);
     const keyboard = useKeyboard();
-
-    const [lockSelection, setLockSelection] = useState(false);
 
     const animSearchStyle = useAnimatedStyle(() => {
         return {
@@ -162,12 +162,6 @@ export const SearchSuggestions = memo(({
         const toExpandTo = (contentHeight > maxHeight) ? maxHeight : contentHeight;
         heightValue.value = suggestionsLength > 0 ? toExpandTo : 0;
     }, [suggestions, keyboard.keyboardShown]);
-
-    const onSelectItem = useCallback(async (url: string) => {
-        setLockSelection(true);
-        await onSelect(url);
-        setLockSelection(false);
-    }, [onSelect]);
 
     return (
         <Animated.View style={[{
@@ -190,7 +184,7 @@ export const SearchSuggestions = memo(({
                         item={item}
                         itemHeight={itemHeight}
                         theme={theme}
-                        onSelect={onSelectItem}
+                        onSelect={onSelect}
                         disabled={lockSelection}
                     />
                 ))}
@@ -209,7 +203,7 @@ export const SearchSuggestions = memo(({
                         item={item}
                         itemHeight={itemHeight}
                         theme={theme}
-                        onSelect={onSelectItem}
+                        onSelect={onSelect}
                         disabled={lockSelection}
                     />
                 ))}
@@ -223,12 +217,16 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
     const toaster = useToaster();
     const bottomBarHeight = useBottomTabBarHeight();
     const { suggestions, getSuggestions, searchEngine } = useWebSearchSuggestions(search);
+    const [lockSelection, setLockSelection] = useState(false);
 
     const onSearch = useCallback(async (text: string) => {
 
         if (!text) {
             return;
         }
+
+        // Lock selection to prevent multiple navigations
+        setLockSelection(true);
 
         let url = normalizeUrl(text);
         const currentSuggestions = getSuggestions();
@@ -272,6 +270,8 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                 </View>
             </View>
         );
+
+        setLockSelection(false);
 
         navigation.navigateDAppWebView({
             url,
@@ -325,6 +325,7 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                     index={0}
                     style={{ marginHorizontal: 16, flex: 1 }}
                     onValueChange={(text) => setSearch(text.toLowerCase())}
+                    editable={!lockSelection}
                     onSubmit={() => onSearch(search)}
                     keyboardType={'web-search'}
                     inputMode={'url'}
@@ -340,6 +341,7 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                 onSelect={onSearch}
                 suggestions={suggestions}
                 searchEngine={searchEngine}
+                lockSelection={lockSelection}
             />
         </View>
     );

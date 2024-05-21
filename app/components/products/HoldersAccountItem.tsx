@@ -21,6 +21,7 @@ import { toNano } from "@ton/core";
 import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { getAccountName } from "../../utils/holders/getaccountName";
 
 export const HoldersAccountItem = memo((props: {
     account: GeneralHoldersAccount,
@@ -45,6 +46,7 @@ export const HoldersAccountItem = memo((props: {
     const holdersAccStatus = props.holdersAccStatus;
     const url = holdersUrl(props.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
+    const name = getAccountName(props.account.accountIndex, props.account.name);
 
     const priceAmount = useMemo(() => {
         const cryptoCurrency = props.account.cryptoCurrency;
@@ -93,12 +95,6 @@ export const HoldersAccountItem = memo((props: {
     }, [props.account, needsEnrollment]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
-
-    let title = t('products.holders.accounts.account');
-
-    if (!!props.account.name) {
-        title = props.account.name;
-    }
 
     let subtitle = isPro ? t('products.holders.accounts.proAccount') : t('products.holders.accounts.basicAccount');
 
@@ -165,7 +161,7 @@ export const HoldersAccountItem = memo((props: {
                                     ellipsizeMode="tail"
                                     numberOfLines={1}
                                 >
-                                    {title}
+                                    {name}
                                 </PerfText>
                                 <PerfText
                                     style={[{ color: theme.textSecondary }, Typography.regular15_20]}

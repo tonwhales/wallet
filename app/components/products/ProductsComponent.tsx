@@ -106,32 +106,9 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                 <AddressFormatUpdate />
                 <DappsRequests />
                 <PendingTransactions />
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    padding: 16
-                }}>
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('common.products')}
-                    </Text>
-                    {!(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n) && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1
-                                }
-                            }}
-                            onPress={() => navigation.navigate('Products')}
-                        >
-                            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                                {t('products.addNew')}
-                            </Text>
-                        </Pressable>
-                    )}
-                </View>
 
                 {(!isHoldersWhitelisted && !!banners?.product) && (
-                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                    <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
                         <ProductBanner
                             title={banners.product.title}
                             subtitle={banners.product.description}
@@ -143,7 +120,10 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                 )}
 
                 {showHoldersBuiltInBanner && (
-                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                    <View style={{
+                        paddingHorizontal: 16, marginBottom: 16,
+                        marginTop: (!isHoldersWhitelisted && !!banners?.product) ? 0 : 16
+                    }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}
                             subtitle={t('products.holders.card.defaultSubtitle')}
@@ -154,13 +134,9 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                     </View>
                 )}
 
-                <StakingProductComponent
-                    key={'pool'}
-                    address={selected.address}
-                />
-
                 <View style={{
-                    marginHorizontal: 16, marginBottom: 16
+                    marginHorizontal: 16, marginBottom: 16,
+                    marginTop: (showHoldersBuiltInBanner || (!isHoldersWhitelisted && !!banners?.product)) ? 0 : 16
                 }}>
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.balances')}
@@ -188,6 +164,35 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                         />
                     </View>
                 </View>
+
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    padding: 16
+                }}>
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('common.products')}
+                    </Text>
+                    {!(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n) && (
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1
+                                }
+                            }}
+                            onPress={() => navigation.navigate('Products')}
+                        >
+                            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                                {t('products.addNew')}
+                            </Text>
+                        </Pressable>
+                    )}
+                </View>
+
+                <StakingProductComponent
+                    key={'pool'}
+                    address={selected.address}
+                />
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 

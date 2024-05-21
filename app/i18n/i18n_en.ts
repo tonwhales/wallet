@@ -488,7 +488,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
                 prepaidCardDescription: 'Reloadable card for everyday use',
                 hiddenCards: 'Hidden cards',
-                hiddenAccounts: 'Hidden accounts'
+                hiddenAccounts: 'Hidden accounts',
+                primaryName: 'Main account',
+                paymentName: 'Payment account {{accountIndex}}',
             },
             pageTitles: {
                 general: 'Tonhub Cards',
@@ -709,7 +711,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             limitsOneTime: 'Per transaction',
             limitsDaily: 'Daily',
             limitsMonthly: 'Monthly',
-            accountLimitsChange: 'Limits change',
+            accountLimitsChange: 'Limits change'
         }
     },
     jetton: {

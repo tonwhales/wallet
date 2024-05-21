@@ -67,7 +67,7 @@ export type LocalizationSchema = {
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
-        recent: string, 
+        recent: string,
         ok: string,
         attention: string,
         save: string,
@@ -491,6 +491,8 @@ export type LocalizationSchema = {
                 prepaidCardDescription: string,
                 hiddenAccounts: string,
                 hiddenCards: string,
+                primaryName: string,
+                paymentName: string,
             },
             pageTitles: {
                 general: string,
@@ -711,7 +713,7 @@ export type LocalizationSchema = {
             limitsOneTime: string,
             limitsDaily: string,
             limitsMonthly: string,
-            accountLimitsChange: string,
+            accountLimitsChange: string
         }
     },
     jetton: {

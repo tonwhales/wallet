@@ -38,7 +38,7 @@ export const HoldersAccountItem = memo((props: {
     onBeforeOpen?: () => void
 }) => {
     const [price,] = usePrice();
-    const jettonMasterContent = useJettonContent(props.account.cryptoCurrency.tokenContract ?? null);
+    const jettonMasterContent = useJettonContent(props?.account?.cryptoCurrency?.tokenContract ?? null);
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -48,6 +48,8 @@ export const HoldersAccountItem = memo((props: {
 
     const priceAmount = useMemo(() => {
         const cryptoCurrency = props.account.cryptoCurrency;
+
+        if (!props.account || !props.account.cryptoCurrency || !props.account.balance) return 0n;
 
         if (cryptoCurrency.ticker === 'TON') {
             return BigInt(props.account.balance);
@@ -182,10 +184,10 @@ export const HoldersAccountItem = memo((props: {
                                             value={props.account.balance}
                                             precision={2}
                                             centFontStyle={{ color: theme.textSecondary }}
-                                            decimals={props.account.cryptoCurrency.decimals}
+                                            decimals={props.account.cryptoCurrency?.decimals ?? 9}
                                         />
                                         <PerfText style={{ color: theme.textSecondary }}>
-                                            {` ${props.account.cryptoCurrency.ticker}`}
+                                            {` ${props.account.cryptoCurrency?.ticker}`}
                                         </PerfText>
                                     </Text>
                                     <PriceComponent

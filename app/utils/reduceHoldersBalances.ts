@@ -4,6 +4,8 @@ import { toBnWithDecimals } from "./withDecimals";
 
 export function reduceHoldersBalances(accs: GeneralHoldersAccount[], priceUSD: number) {
     return accs.reduce((acc, item) => {
+        if (!item || !item.cryptoCurrency || !item.balance) return acc;
+        
         if (item.cryptoCurrency.ticker === 'TON') {
             return acc + BigInt(item.balance);
         }

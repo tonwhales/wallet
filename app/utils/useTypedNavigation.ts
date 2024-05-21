@@ -185,6 +185,10 @@ export class TypedNavigation {
     }
 
     navigateDAppWebView(params: DAppWebViewFragmentParams) {
+        if (params.lockNativeBack) {
+            this.navigate('DAppWebViewLocked', params);
+            return;
+        }
         this.navigate('DAppWebView', params);
     }
 

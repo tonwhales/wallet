@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -120,6 +120,8 @@ export interface ATextInputProps {
     hideClearButton?: boolean,
     maxLength?: number,
     screenWidth?: number,
+    inputMode?: InputModeOptions,
+    cursorColor?: string,
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
@@ -136,18 +138,18 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         if (props.onFocus && typeof props.index === 'number') {
             props.onFocus(props.index);
         }
-    }, [props.index]);
+    }, [props.index, props.onFocus]);
     const onSubmit = useCallback(() => {
-        if (props.onSubmit && props.index) {
+        if (props.onSubmit && typeof props.index === 'number') {
             props.onSubmit(props.index);
         }
-    }, [props.index]);
+    }, [props.index, props.onSubmit]);
     const onBlur = useCallback(() => {
         setFocused(false);
         if (props.onBlur && typeof props.index === 'number') {
             props.onBlur(props.index);
         }
-    }, [props.index]);
+    }, [props.index, props.onBlur]);
 
     const tref = useRef<TextInput>(null);
     useImperativeHandle(ref, () => ({
@@ -269,9 +271,9 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                 ]}
                                 selectionColor={Platform.select({
                                     ios: theme.accent,
-                                    android: 'rgba(0, 0, 0, 0.3)',
+                                    android: props.cursorColor ?? 'rgba(0, 0, 0, 0.3)',
                                 })}
-                                cursorColor={theme.textPrimary}
+                                cursorColor={props.cursorColor ?? theme.textPrimary}
                                 textAlign={props.textAlign}
                                 autoFocus={props.autoFocus}
                                 placeholderTextColor={theme.textSecondary}
@@ -292,6 +294,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                 onBlur={onBlur}
                                 onSubmitEditing={onSubmit}
                                 maxLength={props.maxLength}
+                                inputMode={props.inputMode}
                             />
                             {props.prefix && (
                                 <Text

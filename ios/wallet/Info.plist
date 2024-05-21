@@ -48,6 +48,7 @@
 	<array>
 		<string>file</string>
 		<string>bnc</string>
+		<string>tg</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

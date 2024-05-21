@@ -6,7 +6,7 @@ import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
 import { openWithInApp } from '../utils/openWithInApp';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
@@ -14,7 +14,6 @@ import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
 import * as Application from 'expo-application';
-import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -232,6 +231,11 @@ export const SettingsFragment = fragment(() => {
                         title={t('settings.theme')}
                         onPress={() => navigation.navigate('Theme')}
                         hint={t(`theme.${themeStyle}`)}
+                    />
+                    <ItemButton
+                        leftIcon={require('@assets/ic-explorer.png')}
+                        title={t('settings.searchEngine')}
+                        onPress={() => navigation.navigate('SearchEngine')}
                     />
                 </View>
 

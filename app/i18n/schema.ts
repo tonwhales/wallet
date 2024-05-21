@@ -108,7 +108,8 @@ export type LocalizationSchema = {
         telegram: string,
         rateApp: string,
         deleteAccount: string,
-        theme: string
+        theme: string,
+        searchEngine: string
     },
     theme: {
         title: string,
@@ -1010,6 +1011,35 @@ export type LocalizationSchema = {
         newAddress: string,
         bannerTitle: string,
         bannerDescription: string,
+    },
+    browser: {
+        listings: {
+            categories: {
+                other: string,
+                exchange: string,
+                defi: string,
+                nft: string,
+                games: string,
+                social: string,
+                utils: string,
+                services: string,
+            },
+            title: string
+        },
+        refresh: string,
+        back: string,
+        forward: string,
+        share: string,
+        search: {
+            placeholder: string,
+            invalidUrl: string,
+            urlNotReachable: string,
+            suggestions: {
+                web: string,
+                ddg: string,
+                google: string
+            }
+        }
     },
     swap: {
         title: string,

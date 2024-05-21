@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform, View } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
@@ -91,6 +91,7 @@ import { SwapFragment } from './fragments/integrations/SwapFragment';
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
+import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
 
 const Stack = createNativeStackNavigator();
@@ -107,7 +108,14 @@ export function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets, hideHeader?: boolean, paddingBottom?: number) {
+export function genericScreen(
+    name: string,
+    component: React.ComponentType<any>,
+    safeArea: EdgeInsets,
+    hideHeader?: boolean,
+    paddingBottom?: number,
+    options?: NativeStackNavigationOptions
+) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
@@ -115,7 +123,8 @@ export function genericScreen(name: string, component: React.ComponentType<any>,
             component={component}
             options={{
                 headerShown: hideHeader ? false : Platform.OS === 'ios',
-                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) }
+                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) },
+                ...options
             }}
         />
     );
@@ -282,6 +291,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
+    modalScreen('SearchEngine', SearchEngineFragment, safeArea),
 
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),
@@ -296,6 +306,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
     fullScreen('AppStartAuth', AppStartAuthFragment),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
+    genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

@@ -350,3 +350,38 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
     return null;
 }
+
+export function normalizeUrl(url: string) {
+    if (!url) {
+        return null;
+    }
+
+    let trimmedURL = url.trim();
+
+    // check if scheme is present
+    if (trimmedURL.startsWith('//')) {
+        trimmedURL = `https:${trimmedURL}`;
+    } else if (!trimmedURL.includes('://')) {
+        trimmedURL = `https://${trimmedURL}`;
+    }
+
+    // normalize domain and scheme
+    let normalizedURL = '';
+    try {
+        let parsedUrl = new URL(trimmedURL);
+        let scheme = parsedUrl.protocol.toLowerCase();
+        let host = parsedUrl.host.toLowerCase(); // with port
+        let pathname = parsedUrl.pathname;
+        let search = parsedUrl.search;
+        let hash = parsedUrl.hash;
+        normalizedURL = `${scheme}//${host}${pathname}${search}${hash}`;
+    } catch (error) {
+        console.warn('Failed to normalize URL', error);
+    }
+
+    if (!isUrl(normalizedURL)) {
+        return null;
+    }
+
+    return normalizedURL;
+}

@@ -38,7 +38,8 @@ function normalizeUrl(url: string) {
     try {
         let domain = extractDomain(trimmedURL).toLowerCase();
         let scheme = trimmedURL.split('://')[0].toLowerCase();
-        normalizedURL = `${scheme}://${domain}`;
+        let path = trimmedURL.split(domain)[1];
+        normalizedURL = `${scheme}://${domain}${path}`;
     } catch (error) {
         console.warn('Failed to normalize URL', error);
     }

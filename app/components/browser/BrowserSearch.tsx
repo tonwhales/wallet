@@ -26,10 +26,21 @@ function normalizeUrl(url: string) {
         return null;
     }
 
-    let normalizedURL = url.trim().toLocaleLowerCase();
+    let trimmedURL = url.trim();
 
-    if (!isUrl(normalizedURL)) {
-        normalizedURL = `https://${url}`;
+    // check if scheme is present
+    if (!trimmedURL.startsWith('http://') && !trimmedURL.startsWith('https://')) {
+        trimmedURL = `https://${url}`;
+    }
+
+    // normalize domain and scheme
+    let normalizedURL = '';
+    try {
+        let domain = extractDomain(trimmedURL).toLowerCase();
+        let scheme = trimmedURL.split('://')[0].toLowerCase();
+        normalizedURL = `${scheme}://${domain}`;
+    } catch (error) {
+        console.warn('Failed to normalize URL', error);
     }
 
     if (!isUrl(normalizedURL)) {
@@ -335,6 +346,7 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                     returnKeyType={'go'}
                     value={search}
                     cursorColor={theme.accent}
+                    autoCapitalize={'none'}
                 />
             </Animated.View>
             <SearchSuggestions

@@ -337,7 +337,7 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                 <ATextInput
                     index={0}
                     style={{ marginHorizontal: 16, flex: 1 }}
-                    onValueChange={(text) => setSearch(text.toLowerCase())}
+                    onValueChange={setSearch}
                     editable={!lockSelection}
                     onSubmit={() => onSearch(search)}
                     keyboardType={'web-search'}

@@ -261,6 +261,13 @@ export const SimpleTransferFragment = fragment(() => {
             return null;
         }
 
+        if (
+            (!!known && known.requireMemo)
+            && (!commentString || commentString.length === 0)
+        ) {
+            return null;
+        }
+
         const estim = estimationRef.current ?? toNano('0.1');
 
         if (isLedger && ledgerAddress) {
@@ -321,7 +328,7 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known]);
 
     // Estimate fee
     const config = useConfig();
@@ -548,8 +555,6 @@ export const SimpleTransferFragment = fragment(() => {
         }
         setJetton(null);
     }, []);
-
-    const isKnown: boolean = !!knownWallets[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -1028,6 +1033,7 @@ export const SimpleTransferFragment = fragment(() => {
                             paddingVertical: 20,
                             paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
                             width: '100%', borderRadius: 20,
+                            overflow: 'hidden'
                         }}>
                             <ATextInput
                                 value={commentString}

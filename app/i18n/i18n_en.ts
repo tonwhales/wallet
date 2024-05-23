@@ -175,7 +175,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             addressIsNotActive: 'This wallet has no history',
             addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
             invalidTransaction: 'Invalid transaction',
-            memoRequired: 'Memo or rag is required in message'
+            memoRequired: 'Add a memo/tag to avoid losing funds',
         },
         sendAll: 'Max',
         scanQR: 'scan qr code',

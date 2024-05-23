@@ -160,8 +160,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "addressIsNotActive": "У кошелька получателя нет истории",
             "addressIsNotActiveDescription": "С данного кошелька не было совершено ни одной исходящей транзакции",
             "invalidTransaction": "Неверная транзакция",
-            // memoRequired: 'Memo or Tag is required'
-            "memoRequired": "Требуется мемо или тег в сообщении",
+            "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
         },
         "sendAll": "Max",
         "scanQR": "Считать QR код",

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import Animated, { FadeIn, FadeInUp, FadeOut, FadeOutDown, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, FadeInUp, FadeOut, FadeOutDown, LinearTransition, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTheme } from '../engine/hooks';
 import { useDimensions } from '@react-native-community/hooks';
@@ -337,7 +337,10 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                         {!!props.actionButtonRight
                             ? (props.actionButtonRight.component)
                             : !props.hideClearButton && focused && hasValue && (
-                                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                                <Animated.View
+                                    entering={FadeIn}
+                                    layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                                >
                                     <Pressable
                                         onPress={() => {
                                             if (props.onValueChange) {

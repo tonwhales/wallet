@@ -7,7 +7,7 @@ import { t } from "../../i18n/t";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { Typography } from "../styles";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { isUrl } from "../../utils/resolveUrl";
+import { isUrl, normalizeUrl } from "../../utils/resolveUrl";
 import axios from "axios";
 import { useToaster } from "../toast/ToastProvider";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -20,35 +20,6 @@ import { useWebSearchSuggestions } from "../../engine/hooks/dapps/useWebSearchSu
 import { SearchEngine } from "../../engine/state/searchEngine";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { useKeyboard } from "@react-native-community/hooks";
-
-function normalizeUrl(url: string) {
-    if (!url) {
-        return null;
-    }
-
-    let trimmedURL = url.trim();
-
-    // check if scheme is present
-    if (!trimmedURL.startsWith('http://') && !trimmedURL.startsWith('https://')) {
-        trimmedURL = `https://${url}`;
-    }
-
-    // normalize domain and scheme
-    let normalizedURL = '';
-    try {
-        let domain = extractDomain(trimmedURL).toLowerCase();
-        let scheme = trimmedURL.split('://')[0].toLowerCase();
-        normalizedURL = `${scheme}://${domain}`;
-    } catch (error) {
-        console.warn('Failed to normalize URL', error);
-    }
-
-    if (!isUrl(normalizedURL)) {
-        return null;
-    }
-
-    return normalizedURL;
-}
 
 async function checkUrlReachability(url: string) {
     try {
@@ -336,7 +307,7 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                 <ATextInput
                     index={0}
                     style={{ marginHorizontal: 16, flex: 1 }}
-                    onValueChange={(text) => setSearch(text.toLowerCase())}
+                    onValueChange={setSearch}
                     editable={!lockSelection}
                     onSubmit={() => onSearch(search)}
                     keyboardType={'web-search'}

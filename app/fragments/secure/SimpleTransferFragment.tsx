@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
+import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -1003,6 +1003,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 suffix={priceText}
                                 hideClearButton
                                 prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
+                                cursorColor={theme.accent}
                             />
                             {amountError && (
                                 <Animated.View entering={FadeIn} exiting={FadeOut.duration(100)}>
@@ -1048,11 +1049,21 @@ export const SimpleTransferFragment = fragment(() => {
                                 style={{ paddingHorizontal: 16 }}
                                 inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
                                 multiline
-                                error={commentError}
+                                cursorColor={theme.accent}
                             />
                         </View>
-                        {selected === 'comment' && (
-                            <Animated.View layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}>
+                        {!!commentError ? (
+                            <Animated.View
+                                style={{ marginTop: 2, marginLeft: 16 }}
+                                entering={FadeInUp} exiting={FadeOutDown}
+                                layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                            >
+                                <Text style={{ color: theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                    {commentError}
+                                </Text>
+                            </Animated.View>
+                        ) : ((selected === 'comment' && !known) && (
+                            <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
                                 <Text style={{
                                     color: theme.textSecondary,
                                     fontSize: 13, lineHeight: 18,
@@ -1063,7 +1074,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     {t('transfer.commentDescription')}
                                 </Text>
                             </Animated.View>
-                        )}
+                        ))}
                     </Animated.View>
                 </View>
                 <View style={{ marginTop: 16 }}>

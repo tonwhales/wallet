@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, Platform, useWindowDimensions, Pressable } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
@@ -20,6 +20,7 @@ import { useWebSearchSuggestions } from "../../engine/hooks/dapps/useWebSearchSu
 import { SearchEngine } from "../../engine/state/searchEngine";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { useKeyboard } from "@react-native-community/hooks";
+import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 
 async function checkUrlReachability(url: string) {
     try {
@@ -194,12 +195,18 @@ export const SearchSuggestions = memo(({
     );
 });
 
-export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, navigation: TypedNavigation }) => {
-    const [search, setSearch] = useState('');
+export const BrowserSearch = memo(({ theme, navigation, isTestnet }: { theme: ThemeType, navigation: TypedNavigation, isTestnet: boolean }) => {
+    const searchRef = useRef<string>('');
+    const [search, setSearch] = useState(searchRef.current);
     const toaster = useToaster();
     const bottomBarHeight = useBottomTabBarHeight();
     const { suggestions, getSuggestions, searchEngine } = useWebSearchSuggestions(search);
     const [lockSelection, setLockSelection] = useState(false);
+
+    const onSetSearch = useCallback((text: string) => {
+        setSearch(text);
+        searchRef.current = text;
+    }, []);
 
     const onSearch = useCallback(async (text: string) => {
 
@@ -255,6 +262,8 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
 
         setLockSelection(false);
 
+        trackEvent(MixpanelEvent.BrowserSearch, { url, query: searchRef.current }, isTestnet);
+
         navigation.navigateDAppWebView({
             url,
             header: { titleComponent: titleComponent },
@@ -308,7 +317,7 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
                 <ATextInput
                     index={0}
                     style={{ marginHorizontal: 16, flex: 1 }}
-                    onValueChange={setSearch}
+                    onValueChange={onSetSearch}
                     editable={!lockSelection}
                     onSubmit={() => onSearch(search)}
                     keyboardType={'web-search'}

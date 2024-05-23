@@ -22,6 +22,7 @@ const cardPublicSchema = z.object({
 
 const accountPublicSchema = z.object({
   id: z.string(),
+  accountIndex: z.number(),
   address: z.nullable(z.string()),
   state: z.string(),
   name: z.string().nullable().optional(),
@@ -45,8 +46,9 @@ export const accountsListPublicSchema = z.union([
 ]);
 
 export async function fetchAccountsPublic(address: string | Address, isTestnet: boolean) {
-  let res = await axios.post(
-    'https://' + holdersEndpoint + '/v2/public/accounts',
+  const endpoint = holdersEndpoint(isTestnet);
+  const res = await axios.post(
+    `https://${endpoint}/v2/public/accounts`,
     {
       walletKind: 'tonhub',
       network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
@@ -173,6 +175,7 @@ const cryptoCurrencyTicker = z.union([
 
 const accountSchema = z.object({
   id: z.string(),
+  accountIndex: z.number(),
   address: z.string().optional().nullable(),
   name: z.string().nullable().optional(),
   seed: z.string().nullable(),
@@ -214,9 +217,10 @@ export type HoldersAccount = z.infer<typeof accountSchema>;
 export type GeneralHoldersCard = z.infer<typeof generalCardSchema>;
 export type PrePaidHoldersCard = z.infer<typeof cardPrepaid>;
 
-export async function fetchAccountsList(token: string) {
+export async function fetchAccountsList(token: string, isTestnet: boolean) {
+  const endpoint = holdersEndpoint(isTestnet);
   let res = await axios.post(
-    'https://' + holdersEndpoint + '/v2/account/list',
+    `https://${endpoint}/v2/account/list`,
     { token },
     {
       headers: {

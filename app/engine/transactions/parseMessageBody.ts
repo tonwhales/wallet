@@ -17,7 +17,7 @@ export type SupportedMessage =
             responseDestination: Address | null;
             customPayload: Cell | null;
             forwardTonAmount: bigint;
-            forwardPayload: Cell;
+            forwardPayload: Cell | null;
         }
     } | {
         type: 'jetton::transfer_notification',
@@ -49,9 +49,21 @@ export type SupportedMessage =
     } | {
         type: 'withdraw::ok',
         data: {}
+    } | {
+        type: 'holders::account::top_up',
+        amount: bigint;
+    } | {
+        type: 'holders::account::limits_change',
+        data: {
+            onetime: bigint;
+            daily: bigint;
+            monthly: bigint;
+        }
     };
 
 export enum OperationType {
+    HoldersAccountTopUp = 0x59da2019,
+    HoldersAccountLimitsChange = 0x2bc69c40,
     JettonExcesses = 0xd53276db,
     JettonTransfer = 0xf8a7ea5,
     JettonTransferNotification = 0x7362d09c,
@@ -91,7 +103,11 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             let responseDestination = sc.loadMaybeAddress();
             let customPayload = sc.loadBit() ? sc.loadRef() : null;
             let forwardTonAmount = sc.loadCoins();
-            let forwardPayload = sc.loadBit() ? sc.loadRef() : sc.asCell();
+            let forwardPayload = null;
+            if (sc.remainingBits > 0) {
+                forwardPayload = sc.loadMaybeRef() ?? sc.asCell();
+            }
+
             return {
                 type: 'jetton::transfer',
                 data: {
@@ -163,6 +179,29 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             return {
                 type: 'withdraw::ok',
                 data: {}
+            };
+        }
+        case OperationType.HoldersAccountTopUp: {
+            sc.loadUint(64);
+            let amount = sc.loadCoins();
+            return {
+                type: 'holders::account::top_up',
+                amount
+            };
+        }
+        case OperationType.HoldersAccountLimitsChange: {
+            sc.loadUint(64);
+            let onetime = sc.loadCoins();
+            let daily = sc.loadCoins();
+            let monthly = sc.loadCoins();
+
+            return {
+                type: 'holders::account::limits_change',
+                data: {
+                    onetime,
+                    daily,
+                    monthly
+                }
             };
         }
         default:

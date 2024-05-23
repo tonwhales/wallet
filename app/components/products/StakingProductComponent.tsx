@@ -1,9 +1,9 @@
 import React, { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable, Image } from "react-native";
+import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
 import { useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
-import { StakingPool } from "../../fragments/staking/components/StakingPool";
+import { StakingPool } from "../staking/StakingPool";
 import { ItemDivider } from "../ItemDivider";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -12,6 +12,9 @@ import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
+import { Address } from "@ton/core";
+import { LiquidStakingPool } from "../staking/LiquidStakingPool";
+import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 
 import StakingIcon from '@assets/ic-staking.svg';
 
@@ -42,10 +45,11 @@ const subtitleStyle: StyleProp<TextStyle> = {
     lineHeight: 20
 }
 
-export const StakingProductComponent = memo(() => {
+export const StakingProductComponent = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const active = useStakingActive();
+    const active = useStakingActive(address);
+    const liquidBalance = useLiquidStakingBalance(address);
 
     const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
@@ -55,27 +59,45 @@ export const StakingProductComponent = memo(() => {
     }, [apy]);
 
     const totalBalance = useMemo(() => {
-        return active.reduce((acc, item) => {
+        return liquidBalance + active.reduce((acc, item) => {
             return acc + item.balance;
         }, 0n);
-    }, [active]);
+    }, [active, liquidBalance]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
-    if (active.length >= 2) {
+    if (!address) {
+        return null;
+    }
+
+    if ((active.length + (liquidBalance > 0n ? 1 : 0)) >= 2) {
         return (
             <View style={{ marginBottom: 16 }}>
                 <CollapsibleCards
                     title={t('products.staking.title')}
-                    items={[...active, { type: 'banner' }]}
-                    renderItem={(p: any, index: number) => {
+                    items={[...active, liquidBalance > 0n ? { type: 'liquid' } : null, { type: 'banner' }]}
+                    renderItem={(p: any) => {
                         if (!p) {
                             return null
                         }
+
+                        if (p.type === 'liquid') {
+                            return (
+                                <LiquidStakingPool
+                                    member={address}
+                                    style={[style, { padding: 0, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
+                                    hideCycle
+                                    hideHeader
+                                    iconBackgroundColor={theme.backgroundPrimary}
+                                    isLedger={isLedger}
+                                />
+                            )
+                        }
+
                         if (p.type === 'banner') {
                             return (
                                 <Pressable
-                                    onPress={() => navigation.navigate('StakingPools')}
+                                    onPress={() => navigation.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools')}
                                     style={({ pressed }) => {
                                         return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
                                     }}
@@ -111,14 +133,17 @@ export const StakingProductComponent = memo(() => {
                         }
                         return (
                             <StakingPool
+                                member={address}
                                 key={`active-${p.address.toString()}`}
-                                address={p.address}
+                                pool={p.address}
                                 balance={p.balance}
                                 style={{
                                     backgroundColor: theme.surfaceOnBg,
                                     paddingHorizontal: 20
                                 }}
+                                iconBackgroundColor={theme.backgroundPrimary}
                                 hideCycle
+                                isLedger={isLedger}
                             />
                         )
                     }}
@@ -146,7 +171,7 @@ export const StakingProductComponent = memo(() => {
                                         <StakingIcon width={32} height={32} color={'white'} />
                                     </View>
                                 </View>
-                                <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                                <View style={{ flexShrink: 1 }}>
                                     <PerfText
                                         style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                                         ellipsizeMode="tail"
@@ -181,7 +206,6 @@ export const StakingProductComponent = memo(() => {
                                                 height: undefined
                                             }}
                                             textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                            currencyCode={'EUR'}
                                             theme={theme}
                                         />
                                     </View>
@@ -192,7 +216,7 @@ export const StakingProductComponent = memo(() => {
                     itemHeight={86}
                 />
             </View>
-        )
+        );
     }
 
     return (
@@ -206,21 +230,35 @@ export const StakingProductComponent = memo(() => {
                 {!!active && active.map((p, i) => (
                     <View key={`active-${p.address.toString()}`}>
                         <StakingPool
-                            address={p.address}
+                            member={address}
+                            pool={p.address}
                             balance={p.balance}
                             style={{
                                 backgroundColor: theme.surfaceOnBg,
                                 paddingHorizontal: 20
                             }}
                             hideCycle
+                            iconBackgroundColor={theme.backgroundPrimary}
+                            isLedger={isLedger}
                         />
-                        <ItemDivider
-                            marginVertical={0}
-                        />
+                        <ItemDivider marginVertical={0} />
                     </View>
                 ))}
+                {liquidBalance > 0n && (
+                    <>
+                        <LiquidStakingPool
+                            isLedger={isLedger}
+                            member={address}
+                            style={{ backgroundColor: theme.surfaceOnBg, paddingTop: 10 }}
+                            hideCycle
+                            hideHeader
+                            iconBackgroundColor={theme.backgroundPrimary}
+                        />
+                        <ItemDivider marginVertical={0} />
+                    </>
+                )}
                 <Pressable
-                    onPress={() => navigation.navigate('StakingPools')}
+                    onPress={() => navigation.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools')}
                     style={({ pressed }) => {
                         return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
                     }}

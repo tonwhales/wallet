@@ -14,8 +14,9 @@ import { Mixpanel } from 'mixpanel-react-native';
 import { LogBox } from 'react-native';
 import { AddressBookLoader } from './engine/AddressBookContext';
 import { ThemeProvider } from './engine/ThemeContext';
+import { PriceLoader } from './engine/PriceContext';
 
-const PERSISTANCE_VERSION = '19';
+const PERSISTANCE_VERSION = '20';
 
 LogBox.ignoreAllLogs()
 
@@ -51,11 +52,13 @@ export const Root = memo(() => {
                     >
                         <RecoilRoot>
                             <ThemeProvider>
-                                <AddressBookLoader>
-                                    <LedgerTransportProvider>
-                                        <Navigation />
-                                    </LedgerTransportProvider>
-                                </AddressBookLoader>
+                                <PriceLoader>
+                                    <AddressBookLoader>
+                                        <LedgerTransportProvider>
+                                            <Navigation />
+                                        </LedgerTransportProvider>
+                                    </AddressBookLoader>
+                                </PriceLoader>
                             </ThemeProvider>
                         </RecoilRoot>
                     </PersistQueryClientProvider>

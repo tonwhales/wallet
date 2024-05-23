@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
+import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -12,7 +12,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useAccountLite, useHoldersAccounts, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
+import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, useNetwork, usePrice, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
@@ -24,6 +24,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Typography } from '../../components/styles';
+import { useSpecialJetton } from '../../engine/hooks/jettons/useSpecialJetton';
+import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
+import { WalletActions } from './views/WalletActions';
+import { reduceHoldersBalances } from '../../utils/reduceHoldersBalances';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -31,34 +35,34 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const navigation = useTypedNavigation();
     const address = props.selectedAcc.address;
     const account = props.wallet;
+    const specialJetton = useSpecialJetton(address);
     const staking = useStaking();
+    const liquidBalance = useLiquidStakingBalance(address);
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
+    const [price,] = usePrice();
 
     const stakingBalance = useMemo(() => {
-        if (!staking) {
+        if (!staking && !liquidBalance) {
             return 0n;
         }
-        return staking.total;
-    }, [staking]);
+        return liquidBalance + staking.total;
+    }, [staking, liquidBalance]);
 
     const balance = useMemo(() => {
         const accountWithStaking = (account ? account?.balance : 0n)
             + (stakingBalance || 0n)
 
-        const cardsBalance = holdersCards?.reduce((summ, card) => {
-            return summ + BigInt(card.balance);
-        }, 0n);
+        const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);
 
-        return (cardsBalance || 0n) + accountWithStaking;
-    }, [account, stakingBalance, holdersCards]);
+        return (cardsBalance || 0n) + accountWithStaking + (specialJetton?.toTon || 0n);
+    }, [account, stakingBalance, holdersCards, specialJetton?.toTon, price?.price?.usd]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-    const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
-            <WalletHeader />
+            <WalletHeader address={address} />
             <ScrollView
                 style={{ flexBasis: 0 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
@@ -166,153 +170,21 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                 ios: { marginBottom: 24 + bottomBarHeight, },
                                 android: { marginBottom: 16, }
                             })}
+                            theme={theme}
                         />
                     </View>
-                    <View style={{ paddingHorizontal: 16 }}>
-                        <View style={{
-                            backgroundColor: theme.backgroundUnchangeable,
-                            position: 'absolute', top: Platform.OS === 'android' ? -1 : 0, left: 0, right: 0,
-                            height: '50%',
-                            borderBottomLeftRadius: 20,
-                            borderBottomRightRadius: 20,
-                        }} />
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnBg,
-                                borderRadius: 20,
-                                marginTop: 28,
-                                overflow: 'hidden'
-                            }}
-                            collapsable={false}
-                        >
-                            {!network.isTestnet && (
-                                <View style={{
-                                    flexGrow: 1, flexBasis: 0,
-                                    marginRight: 7,
-                                    borderRadius: 14,
-                                    paddingVertical: 10
-                                }}>
-                                    <Pressable
-                                        onPress={onOpenBuy}
-                                        style={({ pressed }) => ({
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 10
-                                        })}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                            <View style={{
-                                                backgroundColor: theme.accent,
-                                                width: 32, height: 32,
-                                                borderRadius: 16,
-                                                alignItems: 'center', justifyContent: 'center'
-                                            }}>
-                                                <Image source={require('@assets/ic-buy.png')} />
-                                            </View>
-                                            <Text style={{
-                                                fontSize: 15, lineHeight: 20,
-                                                color: theme.textPrimary,
-                                                marginTop: 6,
-                                                fontWeight: '500'
-                                            }}
-                                                minimumFontScale={0.7}
-                                                adjustsFontSizeToFit
-                                                numberOfLines={1}
-                                            >
-                                                {t('wallet.actions.buy')}
-                                            </Text>
-                                        </View>
-                                    </Pressable>
-                                </View>
-                            )}
-                            <View style={{
-                                flexGrow: 1, flexBasis: 0,
-                                marginRight: 7,
-                                borderRadius: 14,
-                                paddingVertical: 10
-                            }}>
-                                <Pressable
-                                    onPress={() => navigation.navigate('Receive')}
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 10
-                                        }
-                                    }}
-                                >
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                        <View style={{
-                                            backgroundColor: theme.accent,
-                                            width: 32, height: 32,
-                                            borderRadius: 16,
-                                            alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            <Image source={require('@assets/ic_receive.png')} />
-                                        </View>
-                                        <Text
-                                            style={{
-                                                fontSize: 15, lineHeight: 20,
-                                                color: theme.textPrimary,
-                                                marginTop: 6,
-                                                fontWeight: '500'
-                                            }}
-                                            minimumFontScale={0.7}
-                                            adjustsFontSizeToFit
-                                            numberOfLines={1}
-                                        >
-                                            {t('wallet.actions.receive')}
-                                        </Text>
-                                    </View>
-                                </Pressable>
-                            </View>
-                            <View style={{
-                                flexGrow: 1, flexBasis: 0,
-                                marginRight: 7,
-                                borderRadius: 14,
-                                paddingVertical: 10,
-                            }}>
-                                <Pressable
-                                    onPress={() => navigation.navigateSimpleTransfer(nullTransfer)}
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 10
-                                        }
-                                    }}
-                                >
-                                    <View style={{ alignItems: 'center', borderRadius: 14, flexGrow: 1 }}>
-                                        <View style={{
-                                            backgroundColor: theme.accent,
-                                            width: 32, height: 32,
-                                            borderRadius: 16,
-                                            alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            <Image source={require('@assets/ic_send.png')} />
-                                        </View>
-                                        <Text
-                                            style={{
-                                                fontSize: 15,
-                                                color: theme.textPrimary,
-                                                marginTop: 6,
-                                                fontWeight: '500',
-                                            }}
-                                        >
-                                            {t('wallet.actions.send')}
-                                        </Text>
-                                    </View>
-                                </Pressable>
-                            </View>
-                        </View>
-                    </View>
+                    <WalletActions
+                        theme={theme}
+                        navigation={navigation}
+                        isTestnet={network.isTestnet}
+                    />
                 </View>
-                <ProductsComponent selected={props.selectedAcc} />
+                <ProductsComponent selected={props.selectedAcc} tonBalance={account?.balance ?? 0n} />
             </ScrollView>
         </View>
     );
 }
+WalletComponent.displayName = 'WalletComponent';
 
 const skeleton = (
     <View style={{ position: 'absolute', top: -100, bottom: 0, left: 0, right: 0 }}>
@@ -343,6 +215,7 @@ export const WalletFragment = fragment(() => {
         </>
     );
 });
+WalletFragment.displayName = 'WalletFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'WalletStack';
@@ -351,6 +224,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
+    fullScreen('LiquidStaking', LiquidStakingFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

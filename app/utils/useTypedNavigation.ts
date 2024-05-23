@@ -10,6 +10,9 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
+import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
+import { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFragment';
+import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -77,8 +80,39 @@ export class TypedNavigation {
         this.navigate('Transfer', tx);
     }
 
-    navigateStaking(params: StakingTransferParams) {
-        this.navigate('StakingTransfer', params);
+    navigateStakingPool(params: StakingFragmentParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+        if (options?.ledger) {
+            action('LedgerStaking', params);
+            return;
+        }
+        action('Staking', params);
+    }
+
+    navigateStakingTransfer(params: StakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+        if (options?.ledger) {
+            action('LedgerStakingTransfer', params);
+            return;
+        }
+        action('StakingTransfer', params);
+    }
+
+    navigateLiquidStakingTransfer(params: LiquidStakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+        if (options?.ledger) {
+            action('LedgerLiquidStakingTransfer', params);
+            return;
+        }
+        action('LiquidStakingTransfer', params);
+    }
+
+    navigateLiquidWithdrawAction(isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerLiquidStakingTransfer', { action: 'withdraw' });
+            return;
+        }
+        this.navigate('LiquidWithdrawAction');
     }
 
     navigateSimpleTransfer(tx: SimpleTransferParams) {
@@ -111,7 +145,7 @@ export class TypedNavigation {
         this.navigate('LedgerSignTransfer', params);
     }
 
-    navigateStakingCalculator(params: { target: Address }) {
+    navigateStakingCalculator(params: { target: string }) {
         this.navigate('StakingCalculator', params);
     }
 
@@ -119,10 +153,14 @@ export class TypedNavigation {
         this.navigateAndReplaceAll('LedgerApp');
     }
 
+    navigateHoldersLanding({ endpoint, onEnrollType }: { endpoint: string, onEnrollType: HoldersAppParams }) {
+        this.navigate('HoldersLanding', { endpoint, onEnrollType });
+    }
+
     navigateHolders(params: HoldersAppParams) {
         this.navigate('Holders', params);
     }
-    
+
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
     }
@@ -147,7 +185,15 @@ export class TypedNavigation {
     }
 
     navigateDAppWebView(params: DAppWebViewFragmentParams) {
+        if (params.lockNativeBack) {
+            this.navigate('DAppWebViewLocked', params);
+            return;
+        }
         this.navigate('DAppWebView', params);
+    }
+
+    navigateProductsList(params: ProductsListFragmentParams) {
+        this.navigate(params.isLedger ? 'LedgerProductsList' : 'ProductsList', params);
     }
 }
 

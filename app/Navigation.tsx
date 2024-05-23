@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform, View } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
@@ -25,20 +25,18 @@ import { AuthenticateFragment } from './fragments/secure/dapps/AuthenticateFragm
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
-import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
-import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
 import { LogoutFragment } from './fragments/LogoutFragment';
-import { ContactFragment } from './fragments/ContactFragment';
-import { ContactsFragment } from './fragments/ContactsFragment';
+import { ContactFragment } from './fragments/contacts/ContactFragment';
+import { ContactsFragment } from './fragments/contacts/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
@@ -89,6 +87,12 @@ import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
 import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
 import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
+import { SwapFragment } from './fragments/integrations/SwapFragment';
+import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
+import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
+import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
+import { SearchEngineFragment } from './fragments/SearchEngineFragment';
+import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -104,7 +108,14 @@ export function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets, hideHeader?: boolean, paddingBottom?: number) {
+export function genericScreen(
+    name: string,
+    component: React.ComponentType<any>,
+    safeArea: EdgeInsets,
+    hideHeader?: boolean,
+    paddingBottom?: number,
+    options?: NativeStackNavigationOptions
+) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
@@ -112,7 +123,8 @@ export function genericScreen(name: string, component: React.ComponentType<any>,
             component={component}
             options={{
                 headerShown: hideHeader ? false : Platform.OS === 'ios',
-                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) }
+                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) },
+                ...options
             }}
         />
     );
@@ -212,6 +224,8 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     transparentModalScreen('Products', ProductsFragment, safeArea),
+    modalScreen('ProductsList', ProductsListFragment, safeArea),
+    modalScreen('Swap', SwapFragment, safeArea),
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
@@ -238,11 +252,13 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // Staking
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('LiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     transparentModalScreen('StakingPoolSelector', StakingPoolSelectorFragment, safeArea),
     transparentModalScreen('StakingPoolSelectorLedger', StakingPoolSelectorFragment, safeArea),
     modalScreen('StakingOperations', StakingOperationsFragment, safeArea),
     modalScreen('StakingAnalytics', StakingAnalyticsFragment, safeArea),
+    transparentModalScreen('LiquidWithdrawAction', LiquidWithdrawActionFragment, safeArea),
 
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),
@@ -255,13 +271,16 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerTransactionPreview', TransactionPreviewFragment, safeArea),
     modalScreen('LedgerAssets', AssetsFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
+    modalScreen('LedgerProductsList', ProductsListFragment, safeArea),
 
     // Settings
     modalScreen('WalletBackup', WalletBackupFragment, safeArea),
     modalScreen('Security', SecurityFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Contact', ContactFragment, safeArea),
+    modalScreen('ContactNew', ContactNewFragment, safeArea),
     modalScreen('SpamFilter', SpamFilterFragment, safeArea),
     modalScreen('Currency', CurrencyFragment, safeArea),
     modalScreen('Theme', ThemeFragment, safeArea),
@@ -272,6 +291,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
+    modalScreen('SearchEngine', SearchEngineFragment, safeArea),
 
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),
@@ -286,6 +306,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
     fullScreen('AppStartAuth', AppStartAuthFragment),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
+    genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

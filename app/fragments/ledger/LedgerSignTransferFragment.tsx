@@ -28,7 +28,7 @@ import { confirmAlert } from '../../utils/confirmAlert';
 import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { TonTransport } from '@ton-community/ton-ledger';
-import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useTheme } from '../../engine/hooks';
+import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJettons, useNetwork, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { fromBnWithDecimals } from '../../utils/withDecimals';
@@ -39,6 +39,7 @@ import { TransferSingleView } from '../secure/components/TransferSingleView';
 import { RoundButton } from '../../components/RoundButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
+import { Jetton } from '../../engine/types';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -57,7 +58,7 @@ type ConfirmLoadedProps = {
     },
     text: string | null,
     order: LedgerOrder,
-    jettonMaster: JettonMasterState | null,
+    jetton: Jetton | null,
     fees: bigint,
     metadata: ContractMetadata,
     transport: TonTransport,
@@ -84,7 +85,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         target,
         text,
         order,
-        jettonMaster,
+        jetton,
         fees,
         metadata,
         transport,
@@ -101,14 +102,14 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
     // Resolve Jettion amount
     const jettonAmountString = useMemo(() => {
         try {
-            if (jettonMaster && payload) {
+            if (jetton && payload) {
                 const temp = payload;
                 if (temp) {
                     const parsing = temp.beginParse();
                     parsing.loadUint(32);
                     parsing.loadUint(64);
                     const unformatted = parsing.loadCoins();
-                    return fromBnWithDecimals(unformatted, jettonMaster.decimals);
+                    return fromBnWithDecimals(unformatted, jetton.decimals);
                 }
             }
         } catch { }
@@ -264,13 +265,14 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 contentContainerStyle={{ paddingBottom: 56 }}
             >
                 <TransferSingleView
+                    metadata={metadata}
                     operation={operation}
                     order={order}
                     amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
                     jettonAmountString={jettonAmountString}
                     target={target}
                     fees={fees}
-                    jettonMaster={jettonMaster}
+                    jetton={jetton}
                     walletSettings={walletSettings}
                     text={text}
                     known={known}
@@ -299,6 +301,7 @@ export const LedgerSignTransferFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const jettons = useJettons(ledgerContext.addr!.address);
 
     // Memmoize all parameters just in case
     const from = useMemo(() => ledgerContext?.addr, []);
@@ -438,9 +441,9 @@ export const LedgerSignTransferFragment = fragment(() => {
             }
 
             // Read jetton master
-            let jettonMaster: JettonMasterState | null = null;
+            let jetton: Jetton | null = null;
             if (metadata.jettonWallet) {
-                jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, network.isTestnet);
+                jetton = jettons.find((j) => j.master.equals(metadata.jettonWallet!.master)) ?? null;
             }
 
             // Estimate fee
@@ -467,7 +470,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                     bounceable: target.isBounceable
                 },
                 order,
-                jettonMaster,
+                jetton,
                 fees,
                 metadata,
                 addr: ledgerContext.addr,
@@ -479,7 +482,7 @@ export const LedgerSignTransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, [netConfig]);
+    }, [netConfig, jettons]);
 
     return (
         <View style={{ flexGrow: 1 }}>

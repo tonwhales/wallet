@@ -25,6 +25,7 @@ import { WalletItem } from "../../../components/wallet/WalletItem";
 import { Address } from "@ton/core";
 import Collapsible from "react-native-collapsible";
 import Animated, { FadeOutDown } from "react-native-reanimated";
+import { KnownWallets } from "../../../secure/KnownWallets";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
@@ -81,6 +82,7 @@ export const DappAuthComponent = memo(({
     const appState = useAppState();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
     const accounts = useMemo(() => appState.addresses
         .map((a, i) => ({ ...a, index: i }))
         .sort((a, b) => {
@@ -286,6 +288,7 @@ export const DappAuthComponent = memo(({
                             hideSelect
                             bounceableFormat={bounceableFormat}
                             isTestnet={isTestnet}
+                            knownWallets={knownWallets}
                         />
                         <View style={{ flexGrow: 1 }} />
                     </>
@@ -312,6 +315,7 @@ export const DappAuthComponent = memo(({
                                     style={{ marginBottom: 0 }}
                                     bounceableFormat={bounceableFormat}
                                     isTestnet={isTestnet}
+                                    knownWallets={knownWallets}
                                 />
                             )
                         })}
@@ -338,6 +342,7 @@ export const DappAuthComponent = memo(({
                                         onSelect={onAddressSelected}
                                         bounceableFormat={bounceableFormat}
                                         isTestnet={isTestnet}
+                                        knownWallets={knownWallets}
                                     />
                                 );
                             })}

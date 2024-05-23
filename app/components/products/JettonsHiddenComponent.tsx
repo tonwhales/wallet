@@ -3,17 +3,16 @@ import { View, Pressable, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { JettonProductItem } from "./JettonProductItem";
-import { useJettons, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useTheme } from "../../engine/hooks";
 import { useMarkJettonActive } from "../../engine/hooks/jettons/useMarkJettonActive";
 import { Typography } from "../styles";
+import { Jetton } from "../../engine/types";
 
 import Show from '@assets/ic-show.svg';
 
-export const JettonsHiddenComponent = memo(() => {
+export const JettonsHiddenComponent = memo(({ jettons }: { jettons: Jetton[] }) => {
     const theme = useTheme();
     const markJettonActive = useMarkJettonActive();
-    const selected = useSelectedAccount();
-    const jettons = useJettons(selected!.addressString);
     const hiddenList = jettons.filter((j: any) => j.disabled);
     const [collapsed, setCollapsed] = useState(true);
 
@@ -51,19 +50,26 @@ export const JettonsHiddenComponent = memo(() => {
                 collapsed={collapsed}
                 items={hiddenList}
                 renderItem={(j, index) => {
+                    const length = hiddenList.length >= 4 ? 4 : hiddenList.length;
+                    const isLast = index === length - 1;
                     return (
                         <JettonProductItem
                             key={'jt' + j.wallet.toString()}
                             jetton={j}
                             first={index === 0}
-                            last={index === hiddenList.length - 1}
+                            last={isLast}
                             rightAction={() => markJettonActive(j.master)}
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                             single={hiddenList.length === 1}
                         />
                     )
                 }}
+                limitConfig={{
+                    maxItems: 4,
+                    fullList: { type: 'jettons' }
+                }}
             />
         </View>
     );
-})
+});
+JettonsHiddenComponent.displayName = 'JettonsHiddenComponent';

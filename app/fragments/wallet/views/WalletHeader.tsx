@@ -2,29 +2,31 @@ import React from "react";
 import { memo, useCallback } from "react";
 import { Pressable, View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Avatar, avatarColors } from "../../../components/Avatar";
+import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { getAppState } from "../../../storage/appState";
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../../engine/hooks";
+import { useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { avatarHash } from "../../../utils/avatarHash";
+import { Typography } from "../../../components/styles";
+import { KnownWallets } from "../../../secure/KnownWallets";
+import { Address } from "@ton/core";
 
 import NoConnection from '@assets/ic-no-connection.svg';
-import { Typography } from "../../../components/styles";
 
-export const WalletHeader = memo(() => {
+export const WalletHeader = memo(({ address }: { address: Address }) => {
     const network = useNetwork();
+    const knownWallets = KnownWallets(network.isTestnet);
     const theme = useTheme();
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const syncState = useSyncState();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
-    const address = useSelectedAccount()!.address;
     const currentWalletIndex = getAppState().selected;
     const [walletSettings,] = useWalletSettings(address);
 
@@ -83,7 +85,7 @@ export const WalletHeader = memo(() => {
                             borderWith={0}
                             hash={walletSettings?.avatar}
                             theme={theme}
-                            isTestnet={network.isTestnet}
+                            knownWallets={knownWallets}
                             backgroundColor={avatarColor}
                         />
                     </View>

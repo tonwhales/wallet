@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { dispatchMainButtonResponse, dispatchResponse, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -19,11 +19,13 @@ import { QueryParamsState, extractWebViewQueryAPIParams } from "./utils/extractW
 import { useMarkBannerHidden } from "../../engine/hooks/banners/useHiddenBanners";
 import { isSafeDomain } from "./utils/isSafeDomain";
 import DeviceInfo from 'react-native-device-info';
+import { processEmitterMessage } from "./utils/processEmitterMessage";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
     useStatusBar?: boolean;
     useToaster?: boolean;
+    useEmitter?: boolean;
     useQueryAPI?: boolean;
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
@@ -32,6 +34,7 @@ export type DAppWebViewProps = WebViewProps & {
     refId?: string;
     defaultQueryParamsState?: QueryParamsState;
     onEnroll?: () => void;
+    defaultSafeArea?: { top?: number; right?: number; bottom?: number; left?: number; };
 }
 
 export type WebViewLoaderProps<T> = { loaded: boolean } & T;
@@ -48,7 +51,7 @@ function WebViewLoader(props: WebViewLoaderProps<{}>) {
             style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.backgroundPrimary }]}
             pointerEvents={props.loaded ? 'none' : 'box-none'}
         >
-            <ActivityIndicator size="large" color={theme.accent} />
+            <ActivityIndicator size={'small'} color={theme.accent} />
         </Animated.View>
     );
 };
@@ -147,6 +150,10 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             let parsed = JSON.parse(nativeEvent.data);
             let processed = false;
 
+            if (!parsed?.data?.name) {
+                return;
+            }
+
             // Main button API
             if (props.useMainButton && ref) {
                 processed = processMainButtonMessage(
@@ -169,6 +176,10 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             // Toaster API
             if (props.useToaster && !processed) {
                 processed = processToasterMessage(parsed, toaster);
+            }
+
+            if (props.useEmitter && !processed) {
+                processed = processEmitterMessage(parsed, setLoaded);
             }
 
             if (processed) {
@@ -215,17 +226,60 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         // Execute
         (async () => {
             if (!!props.injectionEngine && !!ref) {
-                let res = { type: 'error', message: 'Unknown error' };
+                let res: { type: 'error', message: string } | { type: 'ok', data: any } = { type: 'error', message: 'Unknown error' };
                 try {
                     res = await props.injectionEngine.execute(data);
                 } catch {
                     warn('Failed to execute inject engine operation');
                 }
-                dispatchResponse(ref as RefObject<WebView>, { id, data: res });
+                if (props.injectionEngine.name === 'tonhub-bridge') {
+                    let data: (
+                        {
+                            type: 'error',
+                            error: {
+                                code: number,
+                                message: string,
+                                data?: string
+                            }
+                        }
+                        | {
+                            type: 'success',
+                            result: string
+                        }
+                    ) = {
+                        type: 'error',
+                        error: {
+                            code: 100,
+                            message: 'Unknown error'
+                        }
+                    }
+                    if (res.type === 'ok') {
+                        if (res.data.state === 'sent') {
+                            data = {
+                                type: 'success',
+                                result: res.data.result
+                            }
+                        } else {
+                            data = {
+                                type: 'error',
+                                error: {
+                                    code: 300,
+                                    message: 'Transaction rejected'
+                                }
+                            }
+                        }
+                    }
+
+                    dispatchTonhubBridgeResponse(ref as RefObject<WebView>, { id, data });
+                } else {
+                    dispatchResponse(ref as RefObject<WebView>, { id, data: res });
+                }
             }
         })();
     }, [
-        props.useMainButton, props.useStatusBar, props.injectionEngine,
+        props.useMainButton, props.useStatusBar,
+        props.useToaster, props.useEmitter,
+        props.injectionEngine,
         props.onMessage,
         ref,
         navigation, toaster,
@@ -270,7 +324,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [props.onContentProcessDidTerminate, ref]);
 
     const injectedJavaScriptBeforeContentLoaded = useMemo(() => {
-        
+
         const adjustedSafeArea = Platform.select({
             ios: safeArea,
             android: { ...safeArea, bottom: 16 }
@@ -278,8 +332,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
         return `
         ${props.useMainButton ? mainButtonAPI : ''}
-        ${props.useStatusBar ? statusBarAPI(adjustedSafeArea) : ''}
+        ${props.useStatusBar ? statusBarAPI({ ...adjustedSafeArea, ...props.defaultSafeArea }) : ''}
         ${props.useToaster ? toasterAPI : ''}
+        ${props.useEmitter ? emitterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {
             if (!window.tonhub) {
@@ -292,9 +347,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         })();
         true;
         `
-    }, [props.injectedJavaScriptBeforeContentLoaded, props.useMainButton, props.useStatusBar, props.useToaster, safeArea]);
-
-    const Loader = props.loader ?? WebViewLoader;
+    }, [
+        props.injectedJavaScriptBeforeContentLoaded,
+        props.useMainButton, props.useStatusBar, props.useToaster, props.useEmitter,
+        safeArea
+    ]);
 
     const onContentProcessDidTerminate = useCallback(() => {
         dispatchMainButton({ type: 'hide' });
@@ -302,6 +359,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [props.onContentProcessDidTerminate]);
 
     const onLoadEnd = useCallback(() => {
+        if (props.useEmitter) {
+            return;
+        }
         try {
             const powerState = DeviceInfo.getPowerStateSync();
             const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;
@@ -393,7 +453,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     </Animated.View>
                 )}
             </KeyboardAvoidingView>
-            <Loader loaded={loaded} />
+            {!!props.loader ? props.loader({ loaded }) : <WebViewLoader loaded={loaded} />}
         </View>
     );
 }));

@@ -25,6 +25,7 @@ export function useScreenHeader(
 ) {
     useEffect(() => {
         navigation.setOptions({
+            ...options,
             headerShown: options.headerShown,
             headerSearchBarOptions: options.headerSearchBarOptions,
             contentStyle: options.contentStyle,
@@ -89,6 +90,7 @@ export type ScreenHeaderProps = {
     tintColor?: string,
     onBackPressed?: () => void,
     onClosePressed?: () => void,
+    closeButtonStyle?: StyleProp<ViewStyle>,
     rightButton?: ReactNode,
     leftButton?: ReactNode,
     titleComponent?: ReactNode,
@@ -104,6 +106,7 @@ export const ScreenHeader = memo((
         tintColor,
         onBackPressed,
         onClosePressed,
+        closeButtonStyle,
         leftButton,
         rightButton,
         titleComponent,
@@ -148,7 +151,7 @@ export const ScreenHeader = memo((
                         <View style={{ flexGrow: 1 }} />
                         <CloseButton
                             onPress={onClosePressed}
-                            style={{ marginRight: 16 }}
+                            style={[{ marginRight: 16 }, closeButtonStyle]}
                         />
                     </>
                 )}

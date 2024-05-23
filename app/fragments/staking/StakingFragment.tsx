@@ -16,28 +16,33 @@ import { KnownPools } from "../../utils/KnownPools";
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingActive, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
-import { StakingPoolHeader } from "./components/StakingPoolHeader";
+import { StakingPoolHeader } from "../../components/staking/StakingPoolHeader";
 import { Typography } from "../../components/styles";
+
+export type StakingFragmentParams = {
+    backToHome?: boolean;
+    pool: string;
+};
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const initParams = useParams<{ backToHome?: boolean, pool: string }>();
+    const initParams = useParams<StakingFragmentParams>();
     const [params, setParams] = useState(initParams);
     const navigation = useTypedNavigation();
     const route = useRoute();
     const isLedger = route.name === 'LedgerStaking';
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-    const active = useStakingActive();
     const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
+    const knownPools = KnownPools(network.isTestnet);
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -69,10 +74,10 @@ export const StakingFragment = fragment(() => {
     }, [setPending]);
 
     let type: StakingPoolType = useMemo(() => {
-        if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
+        if (knownPools[params.pool].name.toLowerCase().includes('club')) {
             return 'club';
         }
-        if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('team')) {
+        if (knownPools[params.pool].name.toLowerCase().includes('team')) {
             return 'team';
         }
         return 'nominators'
@@ -92,42 +97,29 @@ export const StakingFragment = fragment(() => {
         + (pool?.params?.depositFee ?? 0n);
 
     const onTopUp = useCallback(() => {
-        if (isLedger) {
-            navigation.navigate('LedgerStakingTransfer', {
-                target: targetPool,
-                amount: transferAmount,
+        navigation.navigateStakingTransfer(
+            {
+                target: targetPool.toString({ testOnly: network.isTestnet }),
+                amount: transferAmount.toString(),
                 lockAddress: true,
                 lockComment: true,
                 action: 'top_up' as TransferAction,
-            });
-            return;
-        }
-        navigation.navigateStaking({
-            target: targetPool,
-            amount: transferAmount,
-            lockAddress: true,
-            lockComment: true,
-            action: 'top_up' as TransferAction,
-        });
-    }, [targetPool, pool, transferAmount]);
+            },
+            { ledger: isLedger }
+        );
+    }, [targetPool, transferAmount, isLedger, network]);
 
     const onUnstake = useCallback(() => {
-        if (isLedger) {
-            navigation.navigate('LedgerStakingTransfer', {
-                target: targetPool,
+        navigation.navigateStakingTransfer(
+            {
+                target: targetPool.toString({ testOnly: network.isTestnet }),
                 lockAddress: true,
                 lockComment: true,
                 action: 'withdraw' as TransferAction,
-            });
-            return;
-        }
-        navigation.navigateStaking({
-            target: targetPool,
-            lockAddress: true,
-            lockComment: true,
-            action: 'withdraw' as TransferAction,
-        });
-    }, [targetPool]);
+            },
+            { ledger: isLedger }
+        );
+    }, [targetPool, isLedger, network]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
@@ -234,6 +226,7 @@ export const StakingFragment = fragment(() => {
                             copyOnPress
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
                             bounceable={true}
+                            theme={theme}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -247,7 +240,7 @@ export const StakingFragment = fragment(() => {
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                                 borderRadius: 20,
                                 marginBottom: 16, marginTop: 32,
                                 padding: 20
@@ -325,7 +318,7 @@ export const StakingFragment = fragment(() => {
                             </View>
                             <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                                 <Pressable
-                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPool })}
+                                    onPress={() => navigation.navigateStakingCalculator({ target: params.pool })}
                                     style={({ pressed }) => ({
                                         opacity: pressed ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,
@@ -373,8 +366,10 @@ export const StakingFragment = fragment(() => {
                             />
                         )}
                         <StakingPendingComponent
+                            isTestnet={network.isTestnet}
                             target={targetPool}
                             member={member}
+                            isLedger={isLedger}
                         />
                         {(type !== 'nominators' && !available) && (
                             <RestrictedPoolBanner type={type} />
@@ -388,7 +383,7 @@ export const StakingFragment = fragment(() => {
                     </View>
                 </View>
                 <View style={Platform.select({ android: { height: safeArea.bottom + 186 } })} />
-            </ScrollView >
+            </ScrollView>
         </View>
     );
 });

@@ -76,7 +76,7 @@ export function jettonWalletQueryFn(client: TonClient4, wallet: string, isTestne
     }
 }
 
-const currentJettonsVersion = 1;
+const currentJettonsVersion = 3;
 const jettonsVersionKey = 'jettons-version';
 
 function invalidateJettonsDataIfVersionChanged(queryClient: QueryClient) {
@@ -127,19 +127,22 @@ export function usePrefetchHints(queryClient: QueryClient, address?: string) {
                     }
                 }
 
-                if (result?.jettonWallet?.master) {
-                    let masterAddress = result!.jettonWallet!.master;
-                    try {
+                const masterAddress = result?.jettonWallet?.master;
+                let masterContent = masterAddress
+                    ? queryClient.getQueryData<JettonMasterState>(Queries.Jettons().MasterContent(masterAddress))
+                    : undefined;
 
-                        await queryClient.prefetchQuery({
-                            queryKey: Queries.Jettons().MasterContent(masterAddress),
-                            queryFn: jettonMasterContentQueryFn(masterAddress, isTestnet),
-                        });
-                    } catch (e) {
-                        console.log('Failed to prefetch jetton master content', e, masterAddress)
-                    }
+                if (masterAddress && !masterContent) {
+                    let masterAddress = result!.jettonWallet!.master;
+                    await queryClient.prefetchQuery({
+                        queryKey: Queries.Jettons().MasterContent(masterAddress),
+                        queryFn: jettonMasterContentQueryFn(masterAddress, isTestnet),
+                    });
                 }
-                if (result?.jettonMaster) {
+
+                masterContent = queryClient.getQueryData<JettonMasterState>(Queries.Jettons().MasterContent(hint));
+
+                if (result?.jettonMaster && !masterContent) {
                     await queryClient.prefetchQuery({
                         queryKey: Queries.Jettons().MasterContent(hint),
                         queryFn: jettonMasterContentQueryFn(hint, isTestnet),

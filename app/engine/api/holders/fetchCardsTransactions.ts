@@ -211,16 +211,21 @@ export async function fetchCardsTransactions(
     token: string,
     id: string,
     limit = 40,
+    isTestnet: boolean,
     cursor?: string | undefined,
-    order?: 'asc' | 'desc'
+    order?: 'asc' | 'desc',
 ) {
-    const res = await axios.post(`https://${holdersEndpoint}/v2/card/events`, {
-        cardId: id,
-        token,
-        cursor,
-        limit,
-        order,
-    });
+    const endpoint = holdersEndpoint(isTestnet);
+    const res = await axios.post(
+        `https://${endpoint}/v2/card/events`,
+        {
+            cardId: id,
+            token,
+            cursor,
+            limit,
+            order,
+        }
+    );
 
     if (!res.data.ok) {
         throw Error('Error fetching events');

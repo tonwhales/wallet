@@ -3,7 +3,7 @@ import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storagePersistence, storageQuery } from '../../storage/storage';
+import { storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import * as Application from 'expo-application';
@@ -30,6 +30,9 @@ import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { queryClient } from '../../engine/clients';
+import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
+import { Item } from '../../components/Item';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -39,6 +42,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const offlineApp = useOfflineApp();
+    const countryCodes = getCountryCodes();
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
@@ -54,11 +58,12 @@ export const DeveloperToolsFragment = fragment(() => {
     const [lang, setLang] = useLanguage();
 
     const reboot = useReboot();
-    const clearHolders = useClearHolders();
+    const clearHolders = useClearHolders(isTestnet);
 
     const resetCache = useCallback(async () => {
+        queryClient.clear();
+        queryClient.invalidateQueries();
         storagePersistence.clearAll();
-        storageQuery.clearAll();
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
         reboot();
@@ -170,6 +175,11 @@ export const DeveloperToolsFragment = fragment(() => {
                                     <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                                 </View>
                             )}
+
+                        <View style={{ width: '100%', marginBottom: 16 }}>
+                            <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
+                            <Item title={"Country code"} hint={countryCodes.countryCode} />
+                        </View>
                     </View>
                     <View style={{
                         marginTop: 16,

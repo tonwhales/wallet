@@ -13,7 +13,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { ScreenHeader, useScreenHeader } from '../../components/ScreenHeader';
-import { Avatar, avatarColors } from '../../components/Avatar';
+import { Avatar, avatarColors } from '../../components/avatar/Avatar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as ScreenCapture from 'expo-screen-capture';
 import { useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
@@ -22,11 +22,13 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { StatusBar } from 'expo-status-bar';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { avatarHash } from '../../utils/avatarHash';
+import { KnownWallets } from '../../secure/KnownWallets';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const network = useNetwork();
+    const knownWallets = KnownWallets(network.isTestnet);
     const navigation = useTypedNavigation();
     const route = useRoute();
     const init = route.name === 'WalletBackupInit';
@@ -187,7 +189,7 @@ export const WalletBackupFragment = systemFragment(() => {
                                 borderColor={theme.elevation}
                                 borderWith={3}
                                 theme={theme}
-                                isTestnet={network.isTestnet}
+                                knownWallets={knownWallets}
                                 backgroundColor={avatarColor}
                             />
                         </View>

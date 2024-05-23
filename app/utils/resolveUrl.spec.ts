@@ -132,7 +132,7 @@ describe('isUrl', () => {
     });
 
     describe('should normalize urls', () => {
-        let urls = [
+        let validUrls = [
             'example.com',
             '//example.com',
             'ftp://example.com',
@@ -152,10 +152,24 @@ describe('isUrl', () => {
             'https://t.me/toncoin?address=EQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB38_&utm_source=tonhub&utm_content=extension&ref=tonhub&lang=ru&currency=USD&themeStyle=dark&theme-style=dark&theme=holders&pushNotifications=true&refId=browser-banner-27'
         ];
 
+        let invalidUrls = [
+            'dsjfklj":///fks;lkc',
+            'это не ссылка',
+            'this is not a link',
+            '##$#@!##',
+            'https://',
+            'http://'
+        ];
 
-        for (let url of urls) {
+        for (let url of validUrls) {
             it(url, () => {
                 expect(normalizeUrl(url)).not.toBeNull();
+            });
+        }
+
+        for (let url of invalidUrls) {
+            it(url, () => {
+                expect(normalizeUrl(url)).toBeNull();
             });
         }
     });

@@ -16,12 +16,12 @@ import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { WImage } from "../WImage";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
+import { toBnWithDecimals } from "../../utils/withDecimals";
 import { toNano } from "@ton/core";
 import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
+import { getAccountName } from "../../utils/holders/getAccountName";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { getAccountName } from "../../utils/holders/getaccountName";
 
 export const HoldersAccountItem = memo((props: {
     account: GeneralHoldersAccount,

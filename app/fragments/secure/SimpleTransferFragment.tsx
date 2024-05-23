@@ -235,6 +235,20 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, []);
 
+    // Resolve known wallets params
+    const known = knownWallets[targetAddressValid?.address.toString({ testOnly: network.isTestnet }) ?? ''];
+
+    // Resolve memo error string
+    const commentError = useMemo(() => {
+        if (!known || !known.requireMemo) {
+            return undefined;
+        }
+        if (!commentString || commentString.length === 0) {
+            return t('transfer.error.memoRequired');
+        }
+        return undefined;
+    }, [commentString, known]);
+
     // Resolve order
     const order = useMemo(() => {
         if (validAmount === null) {
@@ -244,6 +258,13 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             Address.parseFriendly(target);
         } catch (e) {
+            return null;
+        }
+
+        if (
+            (!!known && known.requireMemo)
+            && (!commentString || commentString.length === 0)
+        ) {
             return null;
         }
 
@@ -307,7 +328,7 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known]);
 
     // Estimate fee
     const config = useConfig();
@@ -534,8 +555,6 @@ export const SimpleTransferFragment = fragment(() => {
         }
         setJetton(null);
     }, []);
-
-    const isKnown: boolean = !!knownWallets[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -1014,6 +1033,7 @@ export const SimpleTransferFragment = fragment(() => {
                             paddingVertical: 20,
                             paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
                             width: '100%', borderRadius: 20,
+                            overflow: 'hidden'
                         }}>
                             <ATextInput
                                 value={commentString}
@@ -1021,13 +1041,14 @@ export const SimpleTransferFragment = fragment(() => {
                                 ref={refs[2]}
                                 onFocus={onFocus}
                                 onValueChange={setComment}
-                                placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                 keyboardType={'default'}
                                 autoCapitalize={'sentences'}
-                                label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                 style={{ paddingHorizontal: 16 }}
                                 inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
                                 multiline
+                                error={commentError}
                             />
                         </View>
                         {selected === 'comment' && (

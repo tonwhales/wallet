@@ -288,7 +288,8 @@ export const BrowserSearch = memo(({ theme, navigation }: { theme: ThemeType, na
 
     return (
         <View style={{
-            zIndex: 1000
+            zIndex: 1000,
+            marginBottom: 16
         }}>
             <Animated.View style={[{
                 flexDirection: 'row',

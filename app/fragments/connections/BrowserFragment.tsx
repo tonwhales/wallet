@@ -62,7 +62,7 @@ export const BrowserFragment = fragment(() => {
                 }
                 style={{ marginBottom: 8 }}
             />
-            <BrowserSearch navigation={navigation} theme={theme} />
+            <BrowserSearch navigation={navigation} theme={theme} isTestnet />
             <BrowserTabs />
         </View>
     );

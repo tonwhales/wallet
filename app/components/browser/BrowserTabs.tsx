@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, View } from "react-native";
 import { PressableChip } from "../PressableChip";
 import { t } from "../../i18n/t";
@@ -13,7 +13,8 @@ export const BrowserTabs = memo(() => {
     const theme = useTheme();
     const listings = useBrowserListings().data || [];
     const hasListings = !!listings && listings.length > 0;
-    const [tab, setTab] = useState(hasListings ? 0 : 1);
+    const tabRef = useRef(hasListings ? 0 : 1);
+    const [tab, setTab] = useState(tabRef.current);
 
     const chipsScrollRef = useRef<ScrollView>(null);
 
@@ -29,11 +30,20 @@ export const BrowserTabs = memo(() => {
         return <BrowserConnections />;
     }, [tab, listings]);
 
-    useEffect(() => {
-        if (tab === 0 && !hasListings) {
-            setTab(1);
-        }
+    const onSetTab = useCallback((index: number) => {
+        tabRef.current = index;
+        setTab(index);
+    }, []);
 
+    useEffect(() => {
+        if (tabRef.current === 1 && !hasListings) {
+            onSetTab(1);
+        } else if (tabRef.current === 1 && hasListings) {
+            onSetTab(0);
+        }
+    }, [hasListings]);
+
+    useEffect(() => {
         if (chipsScrollRef.current) {
             if (tab === 0) {
                 chipsScrollRef.current.scrollTo({ x: -24, y: 0, animated: true });
@@ -41,7 +51,7 @@ export const BrowserTabs = memo(() => {
                 chipsScrollRef.current.scrollToEnd({ animated: true });
             }
         }
-    }, [hasListings, tab]);
+    }, [tab]);
 
     return (
         <View>
@@ -58,7 +68,7 @@ export const BrowserTabs = memo(() => {
             >
                 {!!listings && listings.length > 0 && (
                     <PressableChip
-                        onPress={() => setTab(0)}
+                        onPress={() => onSetTab(0)}
                         style={[
                             { backgroundColor: tab === 0 ? theme.accent : theme.border },
                             Platform.select({ android: { marginLeft: 16 } })
@@ -68,7 +78,7 @@ export const BrowserTabs = memo(() => {
                     />
                 )}
                 <PressableChip
-                    onPress={() => setTab(1)}
+                    onPress={() => onSetTab(1)}
                     style={[
                         { backgroundColor: tab === 1 ? theme.accent : theme.border },
                         (!listings || listings.length <= 0) && Platform.select({ android: { marginLeft: 16 } })
@@ -77,7 +87,7 @@ export const BrowserTabs = memo(() => {
                     text={t('connections.extensions')}
                 />
                 <PressableChip
-                    onPress={() => setTab(2)}
+                    onPress={() => onSetTab(2)}
                     style={{ backgroundColor: tab === 2 ? theme.accent : theme.border }}
                     textStyle={{ color: tab === 2 ? theme.white : theme.textPrimary, }}
                     text={t('connections.connections')}

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
+import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -235,6 +235,20 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, []);
 
+    // Resolve known wallets params
+    const known = knownWallets[targetAddressValid?.address.toString({ testOnly: network.isTestnet }) ?? ''];
+
+    // Resolve memo error string
+    const commentError = useMemo(() => {
+        if (!known || !known.requireMemo) {
+            return undefined;
+        }
+        if (!commentString || commentString.length === 0) {
+            return t('transfer.error.memoRequired');
+        }
+        return undefined;
+    }, [commentString, known]);
+
     // Resolve order
     const order = useMemo(() => {
         if (validAmount === null) {
@@ -244,6 +258,13 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             Address.parseFriendly(target);
         } catch (e) {
+            return null;
+        }
+
+        if (
+            (!!known && known.requireMemo)
+            && (!commentString || commentString.length === 0)
+        ) {
             return null;
         }
 
@@ -307,7 +328,7 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known]);
 
     // Estimate fee
     const config = useConfig();
@@ -534,8 +555,6 @@ export const SimpleTransferFragment = fragment(() => {
         }
         setJetton(null);
     }, []);
-
-    const isKnown: boolean = !!knownWallets[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -984,6 +1003,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 suffix={priceText}
                                 hideClearButton
                                 prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
+                                cursorColor={theme.accent}
                             />
                             {amountError && (
                                 <Animated.View entering={FadeIn} exiting={FadeOut.duration(100)}>
@@ -1014,6 +1034,7 @@ export const SimpleTransferFragment = fragment(() => {
                             paddingVertical: 20,
                             paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
                             width: '100%', borderRadius: 20,
+                            overflow: 'hidden'
                         }}>
                             <ATextInput
                                 value={commentString}
@@ -1021,17 +1042,28 @@ export const SimpleTransferFragment = fragment(() => {
                                 ref={refs[2]}
                                 onFocus={onFocus}
                                 onValueChange={setComment}
-                                placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                 keyboardType={'default'}
                                 autoCapitalize={'sentences'}
-                                label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                 style={{ paddingHorizontal: 16 }}
                                 inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
                                 multiline
+                                cursorColor={theme.accent}
                             />
                         </View>
-                        {selected === 'comment' && (
-                            <Animated.View layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}>
+                        {!!commentError ? (
+                            <Animated.View
+                                style={{ marginTop: 2, marginLeft: 16 }}
+                                entering={FadeInUp} exiting={FadeOutDown}
+                                layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                            >
+                                <Text style={{ color: theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                    {commentError}
+                                </Text>
+                            </Animated.View>
+                        ) : ((selected === 'comment' && !known) && (
+                            <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
                                 <Text style={{
                                     color: theme.textSecondary,
                                     fontSize: 13, lineHeight: 18,
@@ -1042,7 +1074,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     {t('transfer.commentDescription')}
                                 </Text>
                             </Animated.View>
-                        )}
+                        ))}
                     </Animated.View>
                 </View>
                 <View style={{ marginTop: 16 }}>

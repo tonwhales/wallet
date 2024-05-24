@@ -29,6 +29,7 @@ import { KnownWallets } from "../../../secure/KnownWallets";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
+import { normalizeUrl } from "../../../utils/resolveUrl";
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -119,10 +120,15 @@ export const DappAuthComponent = memo(({
         if (state.type !== 'initing') {
             return '';
         }
+        const urlStr = state.app ? state.app.url : state.url;
         try {
-            return extractDomain(state.app ? state.app.url : state.url);
+            const normalized = normalizeUrl(urlStr);
+            if (!normalized) {
+                return urlStr;
+            }
+            return extractDomain(normalized);
         } catch {
-            return '';
+            return urlStr;
         }
     }, [state]);
 
@@ -172,7 +178,7 @@ export const DappAuthComponent = memo(({
         <View style={[
             { flexGrow: 1 },
             Platform.select({
-                android: { 
+                android: {
                     backgroundColor: theme.backgroundPrimary,
                     paddingTop: safeArea.top
                 },

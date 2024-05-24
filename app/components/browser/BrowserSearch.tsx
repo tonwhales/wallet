@@ -24,9 +24,9 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 
 async function checkUrlReachability(url: string) {
     try {
-        await axios.head(url);
+        await axios.head(url, { timeout: 5000 });
         return true;
-    } catch (error) {
+    } catch {
         return false;
     }
 };
@@ -279,6 +279,9 @@ export const BrowserSearch = memo(({ theme, navigation, isTestnet }: { theme: Th
             safeMode: true,
             lockNativeBack: true
         });
+
+        // Reset search
+        onSetSearch('');
     }, []);
 
     const animBorderRadius = useSharedValue(20);
@@ -329,6 +332,7 @@ export const BrowserSearch = memo(({ theme, navigation, isTestnet }: { theme: Th
                     cursorColor={theme.accent}
                     autoCapitalize={'none'}
                 />
+                {lockSelection && (<LoadingIndicator style={{ position: 'absolute', top: 0, bottom: 0, right: 16 }} simple />)}
             </Animated.View>
             <SearchSuggestions
                 theme={theme}

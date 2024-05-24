@@ -15,6 +15,7 @@ import { sha256_sync } from '@ton/crypto';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
 import { AppManifest } from '../api/fetchManifest';
+import { normalizeUrl } from '../../utils/resolveUrl';
 
 export class ConnectReplyBuilder {
   request: ConnectRequest;
@@ -37,7 +38,8 @@ export class ConnectReplyBuilder {
   ): TonProofItemReply {
     const timestamp = getTimeSec();
     const timestampBuffer = new Int64LE(timestamp).toBuffer();
-    const domain = extractDomain(this.manifest.url);
+    const normalizedUrl = normalizeUrl(this.manifest.url) ?? this.manifest.url;
+    const domain = extractDomain(normalizedUrl);
     const domainBuffer = Buffer.from(domain);
     const domainLengthBuffer = Buffer.allocUnsafe(4);
     domainLengthBuffer.writeInt32LE(domainBuffer.byteLength);

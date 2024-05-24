@@ -3,6 +3,7 @@ import { connectExtensionsMapAtom } from "../../state/tonconnect";
 import { useMemo } from "react";
 import { Trie } from "../../../utils/wordsListTrie";
 import { extractDomain } from "../../utils/extractDomain";
+import { normalizeUrl } from "../../../utils/resolveUrl";
 
 export type BrowserSearchSuggestion = {
     source: 'dapp' | 'web-search';
@@ -84,7 +85,8 @@ export function useDAppsSuggestions(query: string) {
             Object.values(acc).forEach(app => {
                 const nameItems = app.name.split(' ');
                 const appKeys = [app.url];
-                const domain = extractDomain(app.url);
+                const normalizedUrl = normalizeUrl(app.url) ?? app.url;
+                const domain = extractDomain(normalizedUrl);
 
                 // add full name to appKeys
                 appKeys.push(`${app.name}_${app.url}`);

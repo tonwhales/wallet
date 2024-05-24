@@ -24,6 +24,8 @@ export enum MixpanelEvent {
     Transfer = 'transfer',
     TransferCancel = 'transfer_cancel',
     ProductBannerClick = 'product_banner_click',
+    BrowserBannerShown = 'browser_banner_shown',
+    BrowserSearch = 'browser_search',
 }
 
 let mixpanel = __DEV__

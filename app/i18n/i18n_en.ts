@@ -75,6 +75,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         airdrop: 'Airdrop',
         myWallets: 'My wallets',
         showMore: 'Show more',
+        balances: 'Balances',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -105,7 +106,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         telegram: 'Telegram',
         rateApp: 'Rate app',
         deleteAccount: 'Delete account',
-        theme: 'Theme'
+        theme: 'Theme',
+        searchEngine: 'Search engine',
     },
     theme: {
         title: 'Theme',
@@ -119,7 +121,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         actions: {
             receive: 'Receive',
             send: 'Send',
-            buy: 'Buy'
+            buy: 'Buy',
+            swap: 'Swap',
         },
         empty: {
             message: 'You have no transactions',
@@ -172,6 +175,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             addressIsNotActive: 'This wallet has no history',
             addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
             invalidTransaction: 'Invalid transaction',
+            memoRequired: 'Add a memo/tag to avoid losing funds',
         },
         sendAll: 'Max',
         scanQR: 'scan qr code',
@@ -183,7 +187,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         purpose: 'Purpose of transaction',
         comment: 'Message (optional)',
         commentDescription: 'Message will be visible to everyone on the blockchain',
-        commentRequired: 'Check your message before sending',
+        commentRequired: 'Check your memo/tag before sending',
         commentLabel: 'Message',
         checkComment: 'Check before sending',
         confirmTitle: 'Confirm transaction',
@@ -476,7 +480,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holders: {
             title: 'Bank account',
             accounts: {
-                title: 'Accounts',
+                title: 'Payment accounts',
                 prepaidTitle: 'Prepaid cards',
                 account: 'Account',
                 basicAccount: 'Basic account',
@@ -485,7 +489,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
                 prepaidCardDescription: 'Reloadable card for everyday use',
                 hiddenCards: 'Hidden cards',
-                hiddenAccounts: 'Hidden accounts'
+                hiddenAccounts: 'Hidden accounts',
+                primaryName: 'Main account',
+                paymentName: 'Payment account {{accountIndex}}',
             },
             pageTitles: {
                 general: 'Tonhub Cards',
@@ -504,8 +510,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 card: 'Card',
                 cards: 'Holders cards',
                 title: 'Tonhub card {{cardNumber}}',
-                defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
-                defaultTitle: 'Tonhub Bank Card',
+                defaultSubtitle: 'Pay with TON and USDT everythere',
+                defaultTitle: 'Tonhub cards',
                 eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Physical Card',
@@ -676,7 +682,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             message: 'Fill in the required fields -> Select cryptocurrency and specify wallet address and the amount to buy -> Proceed to checkout -> Enter your billing details correctly. Your credit card payment is securely processed by our Partners -> Complete purchase. No account needed!'
         },
         title: 'Buy TON with credit card for USD, EUR and RUB',
-        description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party.\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service. ',
+        description: 'You will be taken to Neocrypto. Services relating to payments are provided by Neocrypto, which is a separate platform owned by a third party\n\nPlease read and agree to Neocrypto\'s Terms of Service before using their service',
         doNotShow: 'Do not show it again for Neocrypto',
         termsAndPrivacy: 'I have read and agree to the ',
         confirm: {
@@ -696,15 +702,26 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         upgradeOk: 'Upgrade completed',
         cashback: 'Cashback',
         tokenSent: 'Token sent',
-        tokenReceived: 'Token received'
+        tokenReceived: 'Token received',
+        holders: {
+            topUpTitle: 'Top up amount',
+            accountTopUp: 'Top up of {{amount}} TON',
+            accountJettonTopUp: 'Account top up',
+            limitsChange: 'Limits change',
+            limitsTitle: 'Limits',
+            limitsOneTime: 'Per transaction',
+            limitsDaily: 'Daily',
+            limitsMonthly: 'Monthly',
+            accountLimitsChange: 'Limits change'
+        }
     },
     jetton: {
         token: 'token',
         productButtonTitle: 'Jettons',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
         hidden: 'Hidden jettons',
-        liquidPoolDescriptionDedust: 'Liquidity pool token for {{name0}} and {{name1}} on DeDust DEX',
-        liquidPoolDescriptionStonFi: 'Liquidity pool token for {{name0}} and {{name1}} on STON.fi DEX',
+        liquidPoolDescriptionDedust: 'Liquidity for {{name0}}/{{name1}} on DeDust DEX',
+        liquidPoolDescriptionStonFi: 'Liquidity for {{name0}}/{{name1}} on STON.fi DEX',
     },
     connections: {
         extensions: 'Extensions',
@@ -995,7 +1012,42 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         newAddress: 'New address',
         bannerTitle: 'Update your address',
         bannerDescription: 'From EQ to UQ',
-    }
+    },
+    browser: {
+        listings: {
+            categories: {
+                other: 'Other',
+                exchange: 'Exchanges',
+                defi: 'DeFi',
+                nft: 'NFT',
+                games: 'Games',
+                social: 'Social',
+                utils: 'Utilities',
+                services: 'Services'
+            },
+            title: 'For you'
+        },
+        refresh: 'Reload',
+        back: 'Back',
+        forward: 'Forward',
+        share: 'Share',
+        search: {
+            placeholder: 'Search',
+            invalidUrl: 'Invalid URL',
+            urlNotReachable: 'URL is not reachable',
+            suggestions: {
+                web: 'Search in {{engine}}',
+                ddg: 'DuckDuckGo',
+                google: 'Google',
+            }
+        }
+    },
+    swap: {
+        title: 'DeDust.io — AMM DEX on The Open Network',
+        description: 'You are about to use a Dedust.io service operated by an independent party not affiliated with Tonhub\nYou must agree to the Terms of Use and Privacy Policy to continue',
+        termsAndPrivacy: 'I have read and agree to the ',
+        dontShowTitle: 'Don\'t show it again for DeDust.io',
+    },
 };
 
 export default schema;

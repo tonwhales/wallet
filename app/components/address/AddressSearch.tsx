@@ -21,7 +21,8 @@ export type AddressSearchItem = {
     searchable: string,
     type: 'contact' | 'known' | 'unknown' | 'own',
     icon?: string,
-    isLedger?: boolean
+    isLedger?: boolean,
+    known?: boolean,
 };
 
 export const AddressSearch = memo(({

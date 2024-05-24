@@ -1,5 +1,5 @@
 import { Address } from "@ton/core";
-import { resolveUrl, isUrl } from "./resolveUrl";
+import { resolveUrl, isUrl, normalizeUrl } from "./resolveUrl";
 
 describe('resolveUrl', () => {
     it('should handle plain address', () => {
@@ -129,5 +129,48 @@ describe('isUrl', () => {
         expect(isUrl('//app.aaaaaa.com')).toBe(false);
         expect(isUrl('app.evaa.finance')).toBe(false);
         expect(isUrl('https://app.evaa.finance')).toBe(true);
+    });
+
+    describe('should normalize urls', () => {
+        let validUrls = [
+            'example.com',
+            '//example.com',
+            'ftp://example.com',
+            'http://example.com',
+            'https://example.com',
+            'https://example.com/',
+            'https://example.com/qwer?asd=123',
+            'https://example.com/asd/qwe?zxc=123#xxx',
+            'https://example.com/asd/qwe/?zxc=123#xxx',
+            'https://example.com:8080/asd/qwe?zxc=123#xxx',
+            'https://example.com/qwer?asd=123://456',
+            'http://EXAMPLE.com',
+            'http://EXAMPLE.com/QWERTY',
+            'HTTP://EXAMPLE.com/QWERTY',
+            'HTTPS://EXAMPLE.COM:8080/ASD/qwe?ZXC=123#XXX',
+            'ton://transfer/EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N',
+            'https://t.me/toncoin?address=EQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB38_&utm_source=tonhub&utm_content=extension&ref=tonhub&lang=ru&currency=USD&themeStyle=dark&theme-style=dark&theme=holders&pushNotifications=true&refId=browser-banner-27'
+        ];
+
+        let invalidUrls = [
+            'dsjfklj":///fks;lkc',
+            'это не ссылка',
+            'this is not a link',
+            '##$#@!##',
+            'https://',
+            'http://'
+        ];
+
+        for (let url of validUrls) {
+            it(url, () => {
+                expect(normalizeUrl(url)).not.toBeNull();
+            });
+        }
+
+        for (let url of invalidUrls) {
+            it(url, () => {
+                expect(normalizeUrl(url)).toBeNull();
+            });
+        }
     });
 });

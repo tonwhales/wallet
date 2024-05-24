@@ -67,7 +67,7 @@ export type LocalizationSchema = {
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
-        recent: string, 
+        recent: string,
         ok: string,
         attention: string,
         save: string,
@@ -77,6 +77,7 @@ export type LocalizationSchema = {
         airdrop: string,
         myWallets: string,
         showMore: string,
+        balances: string,
     },
     syncStatus: {
         connecting: string,
@@ -107,7 +108,8 @@ export type LocalizationSchema = {
         telegram: string,
         rateApp: string,
         deleteAccount: string,
-        theme: string
+        theme: string,
+        searchEngine: string
     },
     theme: {
         title: string,
@@ -121,7 +123,8 @@ export type LocalizationSchema = {
         actions: {
             receive: string,
             send: string,
-            buy: string
+            buy: string,
+            swap: string,
         },
         empty: {
             message: string,
@@ -174,6 +177,7 @@ export type LocalizationSchema = {
             addressIsNotActive: string
             addressIsNotActiveDescription: string,
             invalidTransaction: string,
+            memoRequired: string
         },
         sendAll: string,
         scanQR: string,
@@ -488,6 +492,8 @@ export type LocalizationSchema = {
                 prepaidCardDescription: string,
                 hiddenAccounts: string,
                 hiddenCards: string,
+                primaryName: string,
+                paymentName: string,
             },
             pageTitles: {
                 general: string,
@@ -698,7 +704,18 @@ export type LocalizationSchema = {
         upgradeOk: string,
         cashback: string,
         tokenSent: string,
-        tokenReceived: string
+        tokenReceived: string,
+        holders: {
+            topUpTitle: string,
+            accountTopUp: string,
+            accountJettonTopUp: string,
+            limitsChange: string,
+            limitsTitle: string,
+            limitsOneTime: string,
+            limitsDaily: string,
+            limitsMonthly: string,
+            accountLimitsChange: string
+        }
     },
     jetton: {
         token: string,
@@ -997,7 +1014,42 @@ export type LocalizationSchema = {
         newAddress: string,
         bannerTitle: string,
         bannerDescription: string,
-    }
+    },
+    browser: {
+        listings: {
+            categories: {
+                other: string,
+                exchange: string,
+                defi: string,
+                nft: string,
+                games: string,
+                social: string,
+                utils: string,
+                services: string,
+            },
+            title: string
+        },
+        refresh: string,
+        back: string,
+        forward: string,
+        share: string,
+        search: {
+            placeholder: string,
+            invalidUrl: string,
+            urlNotReachable: string,
+            suggestions: {
+                web: string,
+                ddg: string,
+                google: string
+            }
+        }
+    },
+    swap: {
+        title: string,
+        description: string,
+        termsAndPrivacy: string,
+        dontShowTitle: string,
+    },
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

@@ -106,12 +106,69 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                 <AddressFormatUpdate />
                 <DappsRequests />
                 <PendingTransactions />
+
+                {(!isHoldersWhitelisted && !!banners?.product) && (
+                    <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
+                        <ProductBanner
+                            title={banners.product.title}
+                            subtitle={banners.product.description}
+                            onPress={() => onProductBannerPress(banners.product!)}
+                            illustration={{ uri: banners.product.image }}
+                            reverse
+                        />
+                    </View>
+                )}
+
+                {showHoldersBuiltInBanner && (
+                    <View style={{
+                        paddingHorizontal: 16, marginBottom: 16,
+                        marginTop: (!isHoldersWhitelisted && !!banners?.product) ? 0 : 16
+                    }}>
+                        <ProductBanner
+                            title={t('products.holders.card.defaultTitle')}
+                            subtitle={t('products.holders.card.defaultSubtitle')}
+                            onPress={onHoldersPress}
+                            illustration={require('@assets/banners/banner-holders.webp')}
+                            reverse
+                        />
+                    </View>
+                )}
+
+                <View style={{
+                    marginHorizontal: 16, marginBottom: 16,
+                    marginTop: (showHoldersBuiltInBanner || (!isHoldersWhitelisted && !!banners?.product)) ? 0 : 16
+                }}>
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('common.balances')}
+                    </Text>
+                    <View style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        borderRadius: 20, marginTop: 8
+                    }}>
+                        <TonProductComponent
+                            key={'ton-native'}
+                            balance={tonBalance}
+                            theme={theme}
+                            navigation={navigation}
+                            address={selected.address}
+                            testOnly={isTestnet}
+                        />
+
+                        <SpecialJettonProduct
+                            key={'special-jettton'}
+                            theme={theme}
+                            navigation={navigation}
+                            address={selected.address}
+                            testOnly={isTestnet}
+                            divider={'top'}
+                        />
+                    </View>
+                </View>
+
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',
-                    marginTop: 10,
-                    paddingVertical: 16,
-                    paddingHorizontal: 16
+                    padding: 16
                 }}>
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.products')}
@@ -132,57 +189,12 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                     )}
                 </View>
 
-                {(!isHoldersWhitelisted && !!banners?.product) && (
-                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
-                        <ProductBanner
-                            title={banners.product.title}
-                            subtitle={banners.product.description}
-                            onPress={() => onProductBannerPress(banners.product!)}
-                            illustration={{ uri: banners.product.image }}
-                            reverse
-                        />
-                    </View>
-                )}
-
-                {showHoldersBuiltInBanner && (
-                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
-                        <ProductBanner
-                            title={t('products.holders.card.defaultTitle')}
-                            subtitle={t('products.holders.card.defaultSubtitle')}
-                            onPress={onHoldersPress}
-                            illustration={require('@assets/banners/banner-holders.webp')}
-                            reverse
-                        />
-                    </View>
-                )}
-
-                <View style={{
-                    marginHorizontal: 16, marginBottom: 16,
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20
-                }}>
-                    <TonProductComponent
-                        key={'ton-native'}
-                        balance={tonBalance}
-                        theme={theme}
-                        navigation={navigation}
-                        address={selected.address}
-                        testOnly={isTestnet}
-                    />
-
-                    <SpecialJettonProduct
-                        key={'special-jettton'}
-                        theme={theme}
-                        navigation={navigation}
-                        address={selected.address}
-                        testOnly={isTestnet}
-                        divider={'top'}
-                    />
-                </View>
+                <StakingProductComponent
+                    key={'pool'}
+                    address={selected.address}
+                />
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
-
-                <StakingProductComponent key={'pool'} />
 
                 <JettonsProductComponent jettons={jettons} key={'jettons'} />
 

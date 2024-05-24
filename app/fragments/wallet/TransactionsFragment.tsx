@@ -115,7 +115,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                                 loading={txs.loading}
                                 ledger={props.isLedger}
                                 theme={theme}
-                                header={<PendingTransactions viewType={'history'} />}
+                                header={<PendingTransactions
+                                    viewType={'history'}
+                                    address={address.toString({ testOnly: isTestnet })}
+                                />}
                                 jettons={jettons}
                             />
                         )

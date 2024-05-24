@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
+import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -38,6 +38,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { TransferHeader } from '../../components/transfer/TransferHeader';
 import { JettonIcon } from '../../components/products/JettonIcon';
 import { AnimTextInputRef } from '../../components/address/AddressDomainInput';
+import { Typography } from '../../components/styles';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -99,11 +100,12 @@ export const SimpleTransferFragment = fragment(() => {
     const [commentString, setComment] = useState(params?.comment || '');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
-    const [estimation, setEstimation] = useState<bigint | null>(null);
     const [selectedJetton, setJetton] = useState<Address | null>(params?.jetton || null);
+    const estimationRef = useRef<bigint | null>(null);
+    const [estimation, setEstimation] = useState<bigint | null>(estimationRef.current);
 
     const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
-    const jetton = useJettons(isLedger ? addr!.address : acc!.addressString)
+    const jetton = useJettons(isLedger ? ledgerAddress!.toString({ testOnly: network.isTestnet }) : acc!.addressString)
         .find((j) => (
             jettonWallet?.master
             && j.master.equals(Address.parse(jettonWallet.master))
@@ -233,6 +235,20 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, []);
 
+    // Resolve known wallets params
+    const known = knownWallets[targetAddressValid?.address.toString({ testOnly: network.isTestnet }) ?? ''];
+
+    // Resolve memo error string
+    const commentError = useMemo(() => {
+        if (!known || !known.requireMemo) {
+            return undefined;
+        }
+        if (!commentString || commentString.length === 0) {
+            return t('transfer.error.memoRequired');
+        }
+        return undefined;
+    }, [commentString, known]);
+
     // Resolve order
     const order = useMemo(() => {
         if (validAmount === null) {
@@ -245,11 +261,19 @@ export const SimpleTransferFragment = fragment(() => {
             return null;
         }
 
+        if (
+            (!!known && known.requireMemo)
+            && (!commentString || commentString.length === 0)
+        ) {
+            return null;
+        }
+
+        const estim = estimationRef.current ?? toNano('0.1');
+
         if (isLedger && ledgerAddress) {
             // Resolve jetton order
             if (jettonState) {
-                const txForwardAmount = toNano('0.05')
-                    + (estimation ?? toNano('0.1'));
+                const txForwardAmount = toNano('0.05') + estim;
                 return createLedgerJettonOrder({
                     wallet: jettonState.walletAddress,
                     target: target,
@@ -277,8 +301,7 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Resolve jetton order
         if (jettonState) {
-            const txForwardAmount = toNano('0.05')
-                + (estimation ?? toNano('0.1'));
+            const txForwardAmount = toNano('0.05') + estim;
 
             return createJettonOrder({
                 wallet: jettonState.walletAddress,
@@ -305,7 +328,7 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, estimation]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known]);
 
     // Estimate fee
     const config = useConfig();
@@ -319,9 +342,10 @@ export const SimpleTransferFragment = fragment(() => {
                 }
 
                 // Load app state
-                const currentAddress = getCurrentAddress();
+                const currentAcc = getCurrentAddress();
+                const address = ledgerAddress ?? currentAcc.address;
 
-                let seqno = await fetchSeqno(client, await getLastBlock(), ledgerAddress ?? currentAddress.address);
+                let seqno = await fetchSeqno(client, await getLastBlock(), address);
 
                 // Parse order
                 let intMessage: MessageRelaxed;
@@ -347,14 +371,14 @@ export const SimpleTransferFragment = fragment(() => {
                     const body = comment(commentString);
 
                     intMessage = internal({
-                        to: currentAddress.address,
+                        to: address,
                         value: 0n,
                         init: internalStateInit,
                         bounce: false,
                         body,
                     });
 
-                    const state = await backoff('transfer', () => client.getAccount(block.last.seqno, currentAddress.address));
+                    const state = await backoff('transfer', () => client.getAccount(block.last.seqno, address));
                     storageStats = state.account.storageStat ? [state.account.storageStat] : [];
                 } else {
                     if (order.type === 'order') {
@@ -386,20 +410,21 @@ export const SimpleTransferFragment = fragment(() => {
                         const body = order.payload ? resolveLedgerPayload(order.payload) : comment(commentString);
 
                         intMessage = internal({
-                            to: currentAddress.address,
+                            to: address,
                             value: 0n,
                             init: internalStateInit,
                             bounce: false,
                             body,
                         });
 
-                        const state = await backoff('transfer', () => client.getAccount(block.last.seqno, currentAddress.address));
+                        const state = await backoff('transfer', () => client.getAccount(block.last.seqno, address));
                         storageStats = state.account.storageStat ? [state.account.storageStat] : [];
                     }
                 }
 
                 // Load contract
-                const contract = await contractFromPublicKey(currentAddress.publicKey);
+                const pubKey = ledgerContext.addr?.publicKey ?? currentAcc.publicKey;
+                const contract = await contractFromPublicKey(pubKey);
 
                 // Create transfer
                 let transfer = contract.createTransfer({
@@ -430,6 +455,7 @@ export const SimpleTransferFragment = fragment(() => {
 
                     let local = estimateFees(config, inMsg.endCell(), [outMsg.endCell()], storageStats);
                     setEstimation(local);
+                    estimationRef.current = local;
                 }
             });
         });
@@ -529,8 +555,6 @@ export const SimpleTransferFragment = fragment(() => {
         }
         setJetton(null);
     }, []);
-
-    const isKnown: boolean = !!knownWallets[target];
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -979,6 +1003,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 suffix={priceText}
                                 hideClearButton
                                 prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
+                                cursorColor={theme.accent}
                             />
                             {amountError && (
                                 <Animated.View entering={FadeIn} exiting={FadeOut.duration(100)}>
@@ -1009,6 +1034,7 @@ export const SimpleTransferFragment = fragment(() => {
                             paddingVertical: 20,
                             paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
                             width: '100%', borderRadius: 20,
+                            overflow: 'hidden'
                         }}>
                             <ATextInput
                                 value={commentString}
@@ -1016,22 +1042,28 @@ export const SimpleTransferFragment = fragment(() => {
                                 ref={refs[2]}
                                 onFocus={onFocus}
                                 onValueChange={setComment}
-                                placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                 keyboardType={'default'}
                                 autoCapitalize={'sentences'}
-                                label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                 style={{ paddingHorizontal: 16 }}
-                                inputStyle={{
-                                    flexShrink: 1,
-                                    fontSize: 17,
-                                    fontWeight: '400', color: theme.textPrimary,
-                                    textAlignVertical: 'center',
-                                }}
+                                inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
                                 multiline
+                                cursorColor={theme.accent}
                             />
                         </View>
-                        {selected === 'comment' && (
-                            <Animated.View layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}>
+                        {!!commentError ? (
+                            <Animated.View
+                                style={{ marginTop: 2, marginLeft: 16 }}
+                                entering={FadeInUp} exiting={FadeOutDown}
+                                layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                            >
+                                <Text style={{ color: theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                    {commentError}
+                                </Text>
+                            </Animated.View>
+                        ) : ((selected === 'comment' && !known) && (
+                            <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
                                 <Text style={{
                                     color: theme.textSecondary,
                                     fontSize: 13, lineHeight: 18,
@@ -1042,7 +1074,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     {t('transfer.commentDescription')}
                                 </Text>
                             </Animated.View>
-                        )}
+                        ))}
                     </Animated.View>
                 </View>
                 <View style={{ marginTop: 16 }}>

@@ -55,4 +55,5 @@ export const Queries = {
     PoolApy: (pool: string) => (['staking', 'poolApy', pool]),
 
     Banners: (language: string, version: string, buildNumber: string) => (['banners', language, version, buildNumber]),
+    BrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', network]),
 }

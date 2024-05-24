@@ -22,6 +22,7 @@ const cardPublicSchema = z.object({
 
 const accountPublicSchema = z.object({
   id: z.string(),
+  accountIndex: z.number(),
   address: z.nullable(z.string()),
   state: z.string(),
   name: z.string().nullable().optional(),
@@ -174,6 +175,7 @@ const cryptoCurrencyTicker = z.union([
 
 const accountSchema = z.object({
   id: z.string(),
+  accountIndex: z.number(),
   address: z.string().optional().nullable(),
   name: z.string().nullable().optional(),
   seed: z.string().nullable(),

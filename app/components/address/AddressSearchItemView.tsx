@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { View, Text, Pressable, Image } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
@@ -43,13 +43,15 @@ export const AddressSearchItemView = memo(({
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
+    const action = useCallback(() => {
+        if (onPress) {
+            onPress({ ...item, addr: { ...item.addr, isBounceable: bounceable }, known: !!known });
+        }
+    }, [onPress, item, known, bounceable]);
+
     return (
         <Pressable
-            onPress={
-                () => onPress
-                    ? onPress({ ...item, addr: { ...item.addr, isBounceable: bounceable } })
-                    : undefined
-            }
+            onPress={action}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
         >

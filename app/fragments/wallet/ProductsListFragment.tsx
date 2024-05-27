@@ -47,15 +47,16 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
 
     const items = useMemo<{
         data: (GeneralHoldersAccount | PrePaidHoldersCard | Jetton)[],
-        renderItem: ({ item }: { item: any }) => any,
+        renderItem: ({ item, index }: { item: any, index: number }) => any,
         estimatedItemSize: number
     }>(() => {
         if (type === 'holders-accounts') {
             return {
                 data: holdersAccounts?.accounts ?? [],
-                renderItem: ({ item }: { item: GeneralHoldersAccount }) => {
+                renderItem: ({ item, index }: { item: GeneralHoldersAccount, index: number }) => {
                     return (
                         <HoldersAccountItem
+                            key={`${item.id}-${index}`}
                             account={item}
                             isTestnet={testOnly}
                             holdersAccStatus={holdersAccStatus}
@@ -69,9 +70,10 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
         } else if (type === 'holders-cards') {
             return {
                 data: holdersAccounts?.prepaidCards ?? [],
-                renderItem: ({ item }: { item: PrePaidHoldersCard }) => {
+                renderItem: ({ item, index }: { item: PrePaidHoldersCard, index: number }) => {
                     return (
                         <HoldersPrepaidCard
+                            key={`${item.id}-${index}`}
                             card={item}
                             style={{ paddingVertical: 0 }}
                             isTestnet={testOnly}
@@ -88,9 +90,10 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                 data: jettons.sort((j) => {
                     return j.balance > 0n ? -1 : 1;
                 }) ?? [],
-                renderItem: ({ item }: { item: Jetton }) => {
+                renderItem: ({ item, index }: { item: Jetton, index: number }) => {
                     return (
                         <JettonProductItem
+                            key={`${item.wallet.toString({ testOnly })}-${index}`}
                             card
                             last
                             jetton={item}

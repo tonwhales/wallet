@@ -1,4 +1,4 @@
-import { SetterOrUpdater, useRecoilCallback, useRecoilState } from "recoil";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import { ConnectedAppsMap, connectExtensionsMapAtom } from "../../state/tonconnect";
 import { useSelectedAccount } from "../appstate";
 

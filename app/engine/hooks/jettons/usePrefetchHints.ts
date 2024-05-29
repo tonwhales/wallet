@@ -13,66 +13,127 @@ import { tryFetchJettonWallet } from '../../metadata/introspections/tryFetchJett
 import { TonClient4 } from '@ton/ton';
 import { QueryClient } from '@tanstack/react-query';
 import { storage } from '../../../storage/storage';
+import { create, keyResolver, windowedFiniteBatchScheduler } from "@yornaath/batshit";
+import { clients } from '../../clients';
+import { AsyncLock } from 'teslabot';
+
+
+let jettonFetchersLock = new AsyncLock();
+let contractMetadatasApi = create({
+    fetcher: async (addressesString: string[]) => {
+        return await jettonFetchersLock.inLock(async () => {
+            log('[contract-metadata-query] fetching batch of ' + addressesString.length);
+            let measurement = performance.now();
+
+            let result = await Promise.all(addressesString.map(async (addressString) => {
+                let client = clients.ton['mainnet'];
+                let isTestnet = false;
+
+                let address = Address.parse(addressString);
+                let metadata = await fetchMetadata(client, await getLastBlock(), address, isTestnet);
+
+                return {
+                    jettonMaster: metadata.jettonMaster ? {
+                        content: metadata.jettonMaster.content,
+                        mintable: metadata.jettonMaster.mintalbe,
+                        owner: metadata.jettonMaster.owner?.toString({ testOnly: isTestnet }) ?? null,
+                        totalSupply: metadata.jettonMaster.totalSupply.toString(10),
+                    } : null,
+                    jettonWallet: metadata.jettonWallet ? {
+                        balance: metadata.jettonWallet.balance.toString(10),
+                        master: metadata.jettonWallet.master.toString({ testOnly: isTestnet }),
+                        owner: metadata.jettonWallet.owner.toString({ testOnly: isTestnet }),
+                        address: addressString,
+                    } : null,
+                    seqno: metadata.seqno,
+                    address: address.toString({ testOnly: isTestnet }),
+                }
+            }));
+
+            log('[contract-metadata-query] fetched in ' + (performance.now() - measurement));
+            return result;
+        })
+    },
+    resolver: keyResolver('address'),
+    scheduler: windowedFiniteBatchScheduler({ windowMs: 1000, maxBatchSize: 40 }),
+})
 
 export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, addressString: string) {
     return async (): Promise<StoredContractMetadata> => {
-        log('[contract-metadata] fetching ' + addressString);
-
-        let address = Address.parse(addressString);
-        let metadata = await fetchMetadata(client, await getLastBlock(), address, isTestnet);
-
-        log('[contract-metadata] fetched ' + addressString);
-        return {
-            jettonMaster: metadata.jettonMaster ? {
-                content: metadata.jettonMaster.content,
-                mintable: metadata.jettonMaster.mintalbe,
-                owner: metadata.jettonMaster.owner?.toString({ testOnly: isTestnet }) ?? null,
-                totalSupply: metadata.jettonMaster.totalSupply.toString(10),
-            } : null,
-            jettonWallet: metadata.jettonWallet ? {
-                balance: metadata.jettonWallet.balance.toString(10),
-                master: metadata.jettonWallet.master.toString({ testOnly: isTestnet }),
-                owner: metadata.jettonWallet.owner.toString({ testOnly: isTestnet }),
-                address: addressString,
-            } : null,
-            seqno: metadata.seqno,
-            address: address.toString({ testOnly: isTestnet }),
-        }
+        return contractMetadatasApi.fetch(addressString);
     }
 }
+
+let jettonMastersApi = create({
+    fetcher: async (masters: string[]) => {
+        return await jettonFetchersLock.inLock(async () => {
+            let result: (JettonMasterState & { address: string })[] = [];
+            log('[jetton-master-content-query] fetching batch of ' + masters.length);
+            let measurement = performance.now();
+
+            await Promise.all(masters.map(async (master) => {
+                let address = Address.parse(master);
+                let masterContent = await fetchJettonMasterContent(address, false);
+                if (!masterContent) {
+                    return null;
+                }
+
+                result.push({
+                    ...masterContent,
+                    address: address.toString({ testOnly: false }),
+                });
+            }));
+
+            log('[jetton-master-content-query] fetched in ' + (performance.now() - measurement));
+
+            return result;
+        });
+    },
+    resolver: keyResolver('address'),
+    scheduler: windowedFiniteBatchScheduler({ windowMs: 1000, maxBatchSize: 10 })
+})
 
 export function jettonMasterContentQueryFn(master: string, isTestnet: boolean) {
     return async (): Promise<(JettonMasterState & { address: string }) | null> => {
-        log('[jetton-master-content-query] fetching ' + master);
-        let address = Address.parse(master);
-        let masterContent = await fetchJettonMasterContent(address, isTestnet);
-        log('[jetton-master-content-query] fetched ' + master);
-        if (!masterContent) {
-            return null;
-        }
-
-        return {
-            ...masterContent,
-            address: address.toString({ testOnly: isTestnet }),
-        };
+        return jettonMastersApi.fetch(master);
     }
 }
 
+let jettonWalletsApi = create({
+    fetcher: async (wallets: string[]) => {
+        return await jettonFetchersLock.inLock(async () => {
+            let result: StoredJettonWallet[] = [];
+            log('[jetton-wallet-content-query] fetching batch of ' + wallets.length);
+            let measurement = performance.now();
+            await Promise.all(wallets.map(async (wallet) => {
+                let client = clients.ton['mainnet'];
+                let isTestnet = false;
+
+                let address = Address.parse(wallet);
+                let data = await tryFetchJettonWallet(client, await getLastBlock(), address);
+                if (!data) {
+                    return;
+                }
+
+                result.push({
+                    balance: data.balance.toString(10),
+                    master: data.master.toString({ testOnly: isTestnet }),
+                    owner: data.owner.toString({ testOnly: isTestnet }),
+                    address: wallet,
+                });
+            }));
+            log('[jetton-wallet-content-query] fetched in ' + (performance.now() - measurement));
+            return result;
+        });
+    },
+    resolver: keyResolver('address'),
+    scheduler: windowedFiniteBatchScheduler({ windowMs: 1000, maxBatchSize: 10 })
+});
+
+
 export function jettonWalletQueryFn(client: TonClient4, wallet: string, isTestnet: boolean) {
     return async (): Promise<StoredJettonWallet | null> => {
-        log('[jetton-wallet-content-query] fetching ' + wallet);
-        let address = Address.parse(wallet);
-        let data = await tryFetchJettonWallet(client, await getLastBlock(), address);
-        if (!data) {
-            return null;
-        }
-
-        return {
-            balance: data.balance.toString(10),
-            master: data.master.toString({ testOnly: isTestnet }),
-            owner: data.owner.toString({ testOnly: isTestnet }),
-            address: wallet,
-        }
+        return jettonWalletsApi.fetch(wallet);
     }
 }
 
@@ -82,7 +143,7 @@ const jettonsVersionKey = 'jettons-version';
 function invalidateJettonsDataIfVersionChanged(queryClient: QueryClient) {
     try {
         const lastVersion = storage.getNumber(jettonsVersionKey);
-    
+
         if (!lastVersion || lastVersion < currentJettonsVersion) {
             storage.set(jettonsVersionKey, currentJettonsVersion);
             queryClient.invalidateQueries(['jettons', 'master']);

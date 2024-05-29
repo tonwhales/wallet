@@ -43,7 +43,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
 
     const holdersAccounts = useHoldersAccounts(addressStr).data;
     const holdersAccStatus = useHoldersAccountStatus(addressStr).data;
-    const jettons = useJettons(addressStr);
+    const jettons = useJettons('ProductsListFragment', addressStr);
 
     const items = useMemo<{
         data: (GeneralHoldersAccount | PrePaidHoldersCard | Jetton)[],

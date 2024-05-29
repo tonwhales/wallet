@@ -26,14 +26,12 @@ import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { confirmAlert } from '../../utils/confirmAlert';
 import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
-import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { TonTransport } from '@ton-community/ton-ledger';
 import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJettons, useNetwork, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { fromBnWithDecimals } from '../../utils/withDecimals';
 import { Address, Cell, SendMode, WalletContractV4, beginCell, external, internal, storeMessage, storeMessageRelaxed } from '@ton/ton';
-import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
 import { estimateFees } from '../../utils/estimateFees';
 import { TransferSingleView } from '../secure/components/TransferSingleView';
 import { RoundButton } from '../../components/RoundButton';
@@ -301,7 +299,7 @@ export const LedgerSignTransferFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const jettons = useJettons(ledgerContext.addr!.address);
+    const jettons = useJettons('LedgerSignTransferFragment', ledgerContext.addr!.address);
 
     // Memmoize all parameters just in case
     const from = useMemo(() => ledgerContext?.addr, []);

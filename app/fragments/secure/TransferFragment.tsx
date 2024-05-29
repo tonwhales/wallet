@@ -19,7 +19,7 @@ import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { useEffect, useMemo, useState } from 'react';
-import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useJettons, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
 import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal } from '@ton/core';
@@ -118,7 +118,6 @@ export const TransferFragment = fragment(() => {
     const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const jettons = useJettons(selectedAccount?.address.toString({ testOnly: isTestnet }) || '');
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
     const [bounceableFormat,] = useBounceableWalletFormat();
@@ -179,7 +178,6 @@ export const TransferFragment = fragment(() => {
                     }),
                 ]);
 
-                let jetton: Jetton | null = null;
                 let jettonTarget: typeof target | null = null;
                 let jettonTargetState: typeof state | null = null;
 
@@ -202,8 +200,6 @@ export const TransferFragment = fragment(() => {
                                         const bounceable = await resolveBounceableTag(jettonTargetAddress, { testOnly: isTestnet, bounceableFormat });
                                         jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable }));
                                     }
-
-                                    jetton = jettons.find((j) => j.master.equals(metadata.jettonWallet!.master)) ?? null;
                                 }
                             }
                         }

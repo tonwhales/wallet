@@ -46,7 +46,6 @@ type TransactionListItemProps = {
     dontShowComments: boolean,
     denyList: { [key: string]: { reason: string | null } },
     contacts: { [key: string]: AddressContact },
-    jettons: Jetton[],
     isTestnet: boolean,
     spamWallets: string[],
     appState: AppState,
@@ -78,7 +77,6 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
-        && prev.jettons === next.jettons
         && prev.spamWallets === next.spamWallets
         && prev.appState === next.appState
         && prev.onLongPress === next.onLongPress
@@ -104,7 +102,6 @@ export const WalletTransactions = memo((props: {
     },
     ledger?: boolean,
     theme: ThemeType,
-    jettons: Jetton[]
 }) => {
     const bottomBarHeight = useBottomTabBarHeight();
     const theme = props.theme;
@@ -328,7 +325,6 @@ export const WalletTransactions = memo((props: {
                     isTestnet={isTestnet}
                     spamWallets={spamWallets}
                     appState={appState}
-                    jettons={props.jettons}
                     bounceableFormat={bounceableFormat}
                     walletsSettings={walletsSettings}
                     knownWallets={knownWallets}

@@ -10,7 +10,7 @@ import { Typography } from "../styles";
 
 export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { address: Address, testOnly: boolean }) => {
     const theme = useTheme();
-    const jettons = useJettons(address.toString({ testOnly })) ?? [];
+    const jettons = useJettons('LedgerJettonsProductComponent', address.toString({ testOnly })) ?? [];
 
     if (jettons.length === 0) {
         return null;

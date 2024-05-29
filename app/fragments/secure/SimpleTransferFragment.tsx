@@ -22,7 +22,7 @@ import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRe
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonWallet, useJettons, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
+import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonContent, useJettonWallet, useJettons, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -105,11 +105,7 @@ export const SimpleTransferFragment = fragment(() => {
     const [estimation, setEstimation] = useState<bigint | null>(estimationRef.current);
 
     const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
-    const jetton = useJettons(isLedger ? ledgerAddress!.toString({ testOnly: network.isTestnet }) : acc!.addressString)
-        .find((j) => (
-            jettonWallet?.master
-            && j.master.equals(Address.parse(jettonWallet.master))
-        ));
+    const jetton = useJettonContent(jettonWallet?.master ?? null);
     const symbol = jetton ? jetton.symbol : 'TON'
 
     const targetAddressValid = useMemo(() => {
@@ -895,18 +891,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             justifyContent: 'center', alignItems: 'center',
                                             marginRight: 12
                                         }}>
-                                            {!!jettonState ? (
-                                                <JettonIcon
-                                                    isTestnet={network.isTestnet}
-                                                    theme={theme}
-                                                    size={46}
-                                                    jetton={jettonState.master}
-                                                    backgroundColor={theme.elevation}
-                                                    isSCAM={isSCAM}
-                                                />
-                                            ) : (
-                                                <IcTonIcon width={46} height={46} />
-                                            )}
+                                            <IcTonIcon width={46} height={46} />
                                         </View>
                                         <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
                                             <Text style={{

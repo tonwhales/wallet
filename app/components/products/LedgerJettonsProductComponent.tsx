@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { View, Text, Image } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { t } from "../../i18n/t";
-import { useJettons, useTheme } from "../../engine/hooks";
+import { useHints, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -10,7 +10,17 @@ import { Typography } from "../styles";
 
 export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { address: Address, testOnly: boolean }) => {
     const theme = useTheme();
-    const jettons = useJettons(address.toString({ testOnly })) ?? [];
+    const hints = useHints(address.toString({ testOnly })) ?? [];
+    const jettons = hints
+        .map((s) => {
+            try {
+                let wallet = Address.parse(s);
+                return wallet;
+            } catch {
+                return null;
+            }
+        })
+        .filter((j) => !!j) as Address[];
 
     if (jettons.length === 0) {
         return null;
@@ -35,12 +45,13 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                 {jettons.map((j, index) => {
                     return (
                         <JettonProductItem
-                            key={'jt' + j.wallet.toString()}
-                            jetton={j}
+                            key={'jt' + j.toString({ testOnly })}
+                            wallet={j}
                             first={index === 0}
                             last={index === jettons.length - 1}
                             single={jettons.length === 1}
                             ledger
+                            owner={address}
                         />
                     )
                 })}
@@ -59,10 +70,11 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                     }
                     return (
                         <JettonProductItem
-                            key={'jt' + j.wallet.toString()}
-                            jetton={j}
+                            key={'jt' + j.wallet.toString({ testOnly })}
+                            wallet={j}
                             card
                             ledger
+                            owner={address}
                         />
                     )
                 }}

@@ -5,7 +5,8 @@ import { useNetwork } from "../network";
 export function useMarkJettonDisabled() {
     const [, update] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
     const { isTestnet } = useNetwork();
-    return (master: Address) => {
-        return update((src) => src.disabled[master.toString({ testOnly: isTestnet })] = { reason: 'disabled' });
+    return (address: Address | string) => {
+        const addressStr = typeof address === 'string' ? address : address.toString({ testOnly: isTestnet });
+        return update((src) => src.disabled[addressStr] = { reason: 'disabled' });
     }
 }

@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useJettons, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -34,7 +34,7 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
     const totalStaked = useStaking().total;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const jettons = useJettons(selected!.addressString);
+    // const jettons = useJettons(selected!.addressString);
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
@@ -196,11 +196,11 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
-                <JettonsProductComponent jettons={jettons} key={'jettons'} />
+                <JettonsProductComponent owner={selected.address} key={'jettons'} />
 
                 <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
 
-                <JettonsHiddenComponent jettons={jettons} key={'jettons-hidden'} />
+                <JettonsHiddenComponent owner={selected.address} key={'jettons-hidden'} />
             </View>
         </View>
     );

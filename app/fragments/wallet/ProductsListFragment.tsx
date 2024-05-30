@@ -1,7 +1,7 @@
 import { useRoute } from "@react-navigation/native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
-import { useHoldersAccountStatus, useHoldersAccounts, useJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHints, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { memo, useMemo } from "react";
 import { Address } from "@ton/core";
@@ -12,7 +12,6 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { HoldersAccountItem } from "../../components/products/HoldersAccountItem";
 import { HoldersPrepaidCard } from "../../components/products/HoldersPrepaidCard";
 import { JettonProductItem } from "../../components/products/JettonProductItem";
-import { Jetton } from "../../engine/types";
 import { GeneralHoldersAccount, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
@@ -43,10 +42,10 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
 
     const holdersAccounts = useHoldersAccounts(addressStr).data;
     const holdersAccStatus = useHoldersAccountStatus(addressStr).data;
-    const jettons = useJettons(addressStr);
+    const jettons = useHints(addressStr);
 
     const items = useMemo<{
-        data: (GeneralHoldersAccount | PrePaidHoldersCard | Jetton)[],
+        data: (GeneralHoldersAccount | PrePaidHoldersCard | string)[],
         renderItem: ({ item, index }: { item: any, index: number }) => any,
         estimatedItemSize: number
     }>(() => {
@@ -87,22 +86,26 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
             };
         } else {
             return {
-                data: jettons.sort((j) => {
-                    return j.balance > 0n ? -1 : 1;
-                }) ?? [],
-                renderItem: ({ item, index }: { item: Jetton, index: number }) => {
-                    return (
-                        <JettonProductItem
-                            key={`${item.wallet.toString({ testOnly })}-${index}`}
-                            card
-                            last
-                            jetton={item}
-                            itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
-                            ledger={isLedger}
-                        />
-                    );
+                data: jettons ?? [],
+                renderItem: ({ item, index }: { item: string, index: number }) => {
+                    try {
+                        const wallet = Address.parse(item);
+                        return (
+                            <JettonProductItem
+                                key={`${item}-${index}`}
+                                card
+                                last
+                                wallet={wallet}
+                                itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
+                                ledger={isLedger}
+                                owner={selected!.address}
+                            />
+                        )
+                    } catch (error) {
+                        return null;
+                    }
                 },
-                estimatedItemSize: 86
+                estimatedItemSize: 102
             };
         }
     }, [holdersAccounts, holdersAccStatus, jettons]);

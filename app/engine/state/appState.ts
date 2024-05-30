@@ -9,6 +9,8 @@ export const appStateAtom = atom({
     default: getAppState(),
 });
 
+const NICK_ADDRESS = Address.parse('UQDz0wQL6EEdgbPkFgS7nNmywzr468AvgLyhH7PIMALxPEND');
+
 export const selectedAccountSelector = selector({
     key: 'wallet/selectedAccount',
     get: ({ get }) => {
@@ -23,10 +25,12 @@ export const selectedAccountSelector = selector({
             mixpanelIdentify(selected.address.toString({ testOnly: isTestnet }), isTestnet);
         }
 
+
         if (selected) {
             return {
                 ...selected,
-                addressString: selected.address.toString({ testOnly: isTestnet }),
+                address: NICK_ADDRESS,
+                addressString: NICK_ADDRESS.toString({ testOnly: isTestnet }),
             };
         }
 

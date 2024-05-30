@@ -98,6 +98,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             last
                             jetton={item}
                             itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
+                            ledger={isLedger}
                         />
                     );
                 },

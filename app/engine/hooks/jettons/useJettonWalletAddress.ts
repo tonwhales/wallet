@@ -17,7 +17,7 @@ export function jettonWalletAddressQueryFn(client: TonClient4, master: string, w
     }
 }
 
-export function useJettonWalletAddress(master: string | undefined, wallet: string | undefined) {
+export function useJettonWalletAddress(master?: string | null, wallet?: string | null) {
     let isTestnet = useNetwork().isTestnet;
     let client = useClient4(isTestnet);
 

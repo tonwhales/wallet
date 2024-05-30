@@ -22,7 +22,7 @@ import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRe
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonContent, useJettonWallet, useJettons, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
+import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonContent, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -891,7 +891,18 @@ export const SimpleTransferFragment = fragment(() => {
                                             justifyContent: 'center', alignItems: 'center',
                                             marginRight: 12
                                         }}>
-                                            <IcTonIcon width={46} height={46} />
+                                            {!!jettonState ? (
+                                                <JettonIcon
+                                                    isTestnet={network.isTestnet}
+                                                    theme={theme}
+                                                    size={46}
+                                                    jetton={jettonState.master}
+                                                    backgroundColor={theme.elevation}
+                                                    isSCAM={isSCAM}
+                                                />
+                                            ) : (
+                                                <IcTonIcon width={46} height={46} />
+                                            )}
                                         </View>
                                         <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
                                             <Text style={{

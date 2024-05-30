@@ -15,6 +15,7 @@ import { fromNano, toNano } from '@ton/core';
 import { JettonIcon } from './JettonIcon';
 import { Typography } from '../styles';
 import { PerfView } from '../basic/PerfView';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 
 export const JettonProductItem = memo((props: {
     jetton: Jetton,
@@ -45,9 +46,22 @@ export const JettonProductItem = memo((props: {
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
+    let jetton = props.jetton;
     let name = props.jetton.name;
     let description = props.jetton.description;
     let symbol = props.jetton.symbol ?? '';
+
+    const masterState: JettonMasterState & { address: string } = {
+        address: jetton.master.toString({ testOnly: isTestnet }),
+        symbol: jetton.symbol,
+        name: jetton.name,
+        description: jetton.description,
+        decimals: jetton.decimals,
+        assets: jetton.assets ?? undefined,
+        pool: jetton.pool ?? undefined,
+        originalImage: jetton.icon,
+        image: jetton.icon ? { preview256: jetton.icon, blurhash: '' } : null,
+    }
 
     const onPress = useCallback(() => {
         navigation.navigate(
@@ -133,7 +147,7 @@ export const JettonProductItem = memo((props: {
                         }, props.itemStyle]}>
                             <JettonIcon
                                 size={46}
-                                jetton={props.jetton}
+                                jetton={masterState}
                                 theme={theme}
                                 isTestnet={isTestnet}
                                 backgroundColor={theme.surfaceOnElevation}
@@ -230,7 +244,12 @@ export const JettonProductItem = memo((props: {
                     animatedStyle,
                     props.itemStyle
                 ]}>
-                    <JettonIcon size={46} jetton={props.jetton} theme={theme} isTestnet={isTestnet} />
+                    <JettonIcon 
+                    size={46} 
+                    jetton={masterState} 
+                    theme={theme} 
+                    isTestnet={isTestnet}
+                     />
                     <View style={{ marginLeft: 12, flex: 1 }}>
                         <PerfText
                             style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}

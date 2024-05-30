@@ -1,11 +1,12 @@
 import { memo } from "react";
 import { View, Image, Pressable, Text } from "react-native";
 import { Jetton } from "../../engine/types";
-import { WImage } from "../WImage";
 import { ThemeType } from "../../engine/state/theme";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Typography } from "../styles";
 import { useVerifyJetton } from "../../engine/hooks";
+import { JettonIcon } from "../products/JettonIcon";
+import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -29,6 +30,18 @@ export const AssetsListItem = memo(({
         master: jetton.master.toString({ testOnly: isTestnet })
     });
 
+    const masterState: JettonMasterState & { address: string } = {
+        address: jetton.master.toString({ testOnly: isTestnet }),
+        symbol: jetton.symbol,
+        name: jetton.name,
+        description: jetton.description,
+        decimals: jetton.decimals,
+        assets: jetton.assets ?? undefined,
+        pool: jetton.pool ?? undefined,
+        originalImage: jetton.icon,
+        image: jetton.icon ? { preview256: jetton.icon, blurhash: '' } : null,
+    }
+
     return (
         <Animated.View entering={FadeIn} exiting={FadeOut}>
             <Pressable
@@ -45,11 +58,13 @@ export const AssetsListItem = memo(({
             >
                 <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
                     <View style={{ width: 46, height: 46 }}>
-                        <WImage
-                            src={jetton.icon ? jetton.icon : undefined}
-                            width={46}
-                            heigh={46}
-                            borderRadius={23}
+                        <JettonIcon
+                            isTestnet={isTestnet}
+                            theme={theme}
+                            size={46}
+                            jetton={masterState}
+                            backgroundColor={theme.elevation}
+                            isSCAM={isSCAM}
                         />
                         {verified ? (
                             <View style={{

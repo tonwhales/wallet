@@ -27,7 +27,6 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
-import { Jetton } from '../../engine/types';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 
 export type TransferFragmentProps = {
@@ -77,7 +76,6 @@ export type ConfirmLoadedPropsSingle = {
     fees: bigint,
     metadata: ContractMetadata,
     restricted: boolean,
-    jetton: Jetton | null
     callback: ((ok: boolean, result: Cell | null) => void) | null
     back?: number
 }
@@ -342,7 +340,6 @@ export const TransferFragment = fragment(() => {
                     job,
                     fees,
                     metadata,
-                    jetton,
                     callback: callback ? callback : null,
                     back: params.back
                 });

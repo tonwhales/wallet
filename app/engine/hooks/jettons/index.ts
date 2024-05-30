@@ -12,3 +12,4 @@ export { useKnownJettons } from './useKnownJettons';
 export { useKnownTickers } from './useKnownTickers';
 export { useKnownJettonsMasters } from './useKnownJettonsMasters';
 export { useVerifyJetton } from './useVerifyJetton';
+export { useJetton } from './useJetton';

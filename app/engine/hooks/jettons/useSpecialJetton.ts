@@ -1,12 +1,14 @@
 import { Address, toNano } from "@ton/core";
-import { useJettonContent, useJettons, useKnownJettons, useNetwork, usePrice } from "..";
+import { useJettonContent, useJettonWallet, useJettonWalletAddress, useKnownJettons, useNetwork, usePrice } from "..";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { Jetton } from '../../types';
 
 export function useSpecialJetton(address: Address) {
     const { isTestnet: testOnly } = useNetwork();
     const knownJettons = useKnownJettons(testOnly);
-    const specialJettonMaster = knownJettons?.specialJetton;
-    const jettons = useJettons(address.toString({ testOnly }));
+    const specialJettonMaster = knownJettons?.specialJetton ?? undefined;
+    let walletAddress = useJettonWalletAddress(specialJettonMaster, address.toString()).data;
+    let wallet = useJettonWallet(walletAddress);
     const masterContent = useJettonContent(specialJettonMaster ?? null);
     const [price,] = usePrice();
 
@@ -21,9 +23,16 @@ export function useSpecialJetton(address: Address) {
         return null;
     }
 
-    const specialJetton = specialJettonMaster
-        ? jettons.find(j => j.master.toString({ testOnly }) === specialJettonMaster)
-        : null;
+    const specialJetton: Jetton | null = walletAddress ? {
+        balance: BigInt(wallet?.balance ?? 0n),
+        decimals: masterContent?.decimals ?? 6,
+        description: masterContent?.description ?? '',
+        name: masterContent?.name ?? '',
+        symbol: masterContent?.symbol ?? '',
+        icon: masterContent?.image?.preview256 ?? '',
+        master: Address.parse(specialJettonMaster),
+        wallet: Address.parse(walletAddress),
+    } : null;
 
     const balanceString = fromBnWithDecimals(specialJetton?.balance ?? 0n, masterContent?.decimals ?? 6);
     const nano = toNano(balanceString);

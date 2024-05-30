@@ -15,7 +15,7 @@ import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { TransferSingleView } from "./TransferSingleView";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode } from "@ton/core";
-import { useAccountLite, useClient4, useCommitCommand, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
+import { useAccountLite, useClient4, useCommitCommand, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
@@ -34,23 +34,17 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const registerPending = useRegisterPending();
     const [walletSettings,] = useWalletSettings(selected?.address);
 
-    let {
-        restricted,
-        target,
-        jettonTarget,
-        text,
-        order,
-        job,
-        fees,
-        metadata,
-        jetton,
-        callback,
-        back
-    } = props;
+    let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback } = props;
+
+    const jetton = useJetton(selected!.address, metadata?.jettonWallet?.master, true);
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
-    let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target) }, isTestnet);
+    let operation = resolveOperation({
+        body,
+        amount: order.messages[0].amount,
+        account: Address.parse(order.messages[0].target)
+    }, isTestnet);
 
     const amount = useMemo(() => {
         if (order.messages[0].amountAll) {
@@ -71,19 +65,26 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     return fromBnWithDecimals(unformatted, jetton.decimals);
                 }
             }
-        } catch (e) {
-            console.warn(e);
+        } catch {
+            console.warn('Failed to parse jetton amount');
         }
 
         return undefined;
-    }, [order]);
+    }, [order, jetton]);
 
     // Tracking
     const success = useRef(false);
     useEffect(() => {
         return () => {
             if (!success.current) {
-                trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
+                trackEvent(
+                    MixpanelEvent.TransferCancel,
+                    {
+                        target: order.messages[0].target,
+                        amount: order.messages[0].amount.toString(10)
+                    },
+                    isTestnet
+                );
             }
         }
     }, []);
@@ -304,7 +305,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         } else {
             navigation.popToTop();
         }
-    }, [registerPending]);
+    }, [registerPending, jettonAmountString, jetton]);
 
     return (
         <TransferSingleView

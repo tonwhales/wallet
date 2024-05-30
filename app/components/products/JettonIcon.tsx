@@ -1,9 +1,9 @@
 import { memo } from "react";
-import { Jetton } from "../../engine/types";
 import { View, Image } from "react-native";
 import { WImage } from "../WImage";
 import { ThemeType } from "../../engine/state/theme";
 import { useKnownJettons } from "../../engine/hooks";
+import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -16,7 +16,7 @@ export const JettonIcon = memo(({
     isSCAM
 }: {
     size: number,
-    jetton: Jetton,
+    jetton: JettonMasterState & { address: string },
     theme: ThemeType,
     isTestnet: boolean,
     backgroundColor?: string,
@@ -93,12 +93,12 @@ export const JettonIcon = memo(({
         );
     }
 
-    const isKnown = !!knownJettonMasters[jetton.master.toString({ testOnly: isTestnet })];
+    const isKnown = !!knownJettonMasters[jetton.address];
 
     return (
         <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 0 }}>
             <WImage
-                src={jetton.icon ? jetton.icon : undefined}
+                src={jetton.image?.preview256 ?? undefined}
                 width={size}
                 heigh={size}
                 borderRadius={size}

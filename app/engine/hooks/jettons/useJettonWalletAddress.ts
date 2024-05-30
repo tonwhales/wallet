@@ -17,12 +17,14 @@ export function jettonWalletAddressQueryFn(client: TonClient4, master: string, w
     }
 }
 
-export function useJettonWalletAddress(master: string, wallet: string) {
+export function useJettonWalletAddress(master?: string | null, wallet?: string | null, suspense: boolean = false) {
     let isTestnet = useNetwork().isTestnet;
     let client = useClient4(isTestnet);
 
     return useQuery({
-        queryKey: Queries.Jettons().Address(wallet).Wallet(master),
-        queryFn: jettonWalletAddressQueryFn(client, master, wallet, isTestnet),
+        queryKey: Queries.Jettons().Address(wallet!).Wallet(master!),
+        queryFn: jettonWalletAddressQueryFn(client, master!, wallet!, isTestnet),
+        enabled: !!master && !!wallet,
+        suspense
     })
 }

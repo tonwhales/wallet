@@ -29,11 +29,11 @@ import { Typography } from "../../../components/styles";
 import { ItemDivider } from "../../../components/ItemDivider";
 import { PerfText } from "../../../components/basic/PerfText";
 import { PerfView } from "../../../components/basic/PerfView";
+import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
-import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 
 export const TransferSingleView = memo(({
     operation,

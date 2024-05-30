@@ -21,7 +21,7 @@ import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { confirmAlert } from '../../utils/confirmAlert';
@@ -88,12 +88,11 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         setTransferState
     } = props;
 
-    const jetton = useJetton(ledgerAddress!, metadata?.jettonWallet?.master);
+    const jetton = useJetton(ledgerAddress!, metadata?.jettonWallet?.master, true);
 
     // Resolve operation
     let payload = order.payload ? resolveLedgerPayload(order.payload) : null;
     let body = payload ? parseBody(payload) : null;
-    // let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target) }, network.isTestnet);
 
     // Resolve Jettion amount
@@ -110,7 +109,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 }
             }
         } catch { }
-    }, [order]);
+    }, [order, jetton, payload]);
 
     // Resolve operation
     let path = pathFromAccountNumber(addr.acc, network.isTestnet);
@@ -282,6 +281,18 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 title={t('hardwareWallet.actions.confirmOnLedger')}
                 style={{ marginHorizontal: 16, marginBottom: 16 }}
             />
+        </View>
+    );
+});
+
+const Skeleton = memo(() => {
+    return (
+        <View style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        }}>
+            <View style={{ flexGrow: 1, alignItems: 'center' }}>
+                <TransferSkeleton />
+            </View>
         </View>
     );
 });
@@ -515,18 +526,14 @@ export const LedgerSignTransferFragment = fragment(() => {
             />
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 {!loadedProps ? (
-                    <View style={{
-                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    }}>
-                        <View style={{ flexGrow: 1, alignItems: 'center' }}>
-                            <TransferSkeleton />
-                        </View>
-                    </View>
+                    <Skeleton />
                 ) : (
-                    <LedgerTransferLoaded
-                        {...loadedProps}
-                        setTransferState={setTransferState}
-                    />
+                    <Suspense fallback={<Skeleton />}>
+                        <LedgerTransferLoaded
+                            {...loadedProps}
+                            setTransferState={setTransferState}
+                        />
+                    </Suspense>
                 )}
             </View>
         </View>

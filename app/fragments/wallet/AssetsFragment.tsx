@@ -44,8 +44,8 @@ export const AssetsFragment = fragment(() => {
         }
     }, [ledgerTransport, isLedgerScreen]);
 
-    const ledgerJettons = useJettons('LedgerAssetsFragment', address?.toString({ testOnly: network.isTestnet }) || '') ?? [];
-    const jettons = useJettons('AssetsFragment', selected!.address.toString({ testOnly: network.isTestnet })) ?? [];
+    const ledgerJettons = useJettons(address?.toString({ testOnly: network.isTestnet }) || '') ?? [];
+    const jettons = useJettons(selected!.address.toString({ testOnly: network.isTestnet })) ?? [];
     const hasSpecialJetton = !!jettons.find((j) => j.master.toString({ testOnly: network.isTestnet }) === knownJettons?.specialJetton);
     const visibleList = jettons.filter((j) => !j.disabled);
 

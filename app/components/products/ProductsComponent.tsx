@@ -34,12 +34,12 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
     const totalStaked = useStaking().total;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const jettons = useJettons(selected!.addressString);
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const isHoldersWhitelisted = useIsHoldersWhitelisted(selected!.address, isTestnet);
     const showHoldersBuiltInBanner = (holdersAccounts?.accounts?.length ?? 0) === 0 && isHoldersWhitelisted;
-    const jettons = useJettons('ProductsComponent', selected!.addressString);
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {

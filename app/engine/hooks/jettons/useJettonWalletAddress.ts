@@ -17,7 +17,7 @@ export function jettonWalletAddressQueryFn(client: TonClient4, master: string, w
     }
 }
 
-export function useJettonWalletAddress(master?: string | null, wallet?: string | null) {
+export function useJettonWalletAddress(master?: string | null, wallet?: string | null, suspense: boolean = false) {
     let isTestnet = useNetwork().isTestnet;
     let client = useClient4(isTestnet);
 
@@ -25,5 +25,6 @@ export function useJettonWalletAddress(master?: string | null, wallet?: string |
         queryKey: Queries.Jettons().Address(wallet!).Wallet(master!),
         queryFn: jettonWalletAddressQueryFn(client, master!, wallet!, isTestnet),
         enabled: !!master && !!wallet,
+        suspense
     })
 }

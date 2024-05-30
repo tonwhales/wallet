@@ -4,9 +4,9 @@ import { jettonMasterContentQueryFn } from './usePrefetchHints';
 import { useNetwork } from '../network/useNetwork';
 import { JettonMasterState } from '../../metadata/fetchJettonMasterContent';
 
-export function useJettonContent(master: string | null): (JettonMasterState & { address: string }) | null {
+export function useJettonContent(master: string | null, suspense: boolean = false): (JettonMasterState & { address: string }) | null {
     const { isTestnet } = useNetwork();
-    
+
     return useQuery({
         queryKey: Queries.Jettons().MasterContent(master ?? ''),
         queryFn: async () => {
@@ -16,5 +16,6 @@ export function useJettonContent(master: string | null): (JettonMasterState & { 
             return await jettonMasterContentQueryFn(master, isTestnet)();
         },
         enabled: !!master,
+        suspense
     }).data ?? null;
 }

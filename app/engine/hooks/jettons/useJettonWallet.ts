@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { Address } from '@ton/core';
 import { Queries } from '../../queries';
 import { jettonWalletQueryFn } from './usePrefetchHints';
 import { useNetwork } from '../network/useNetwork';
@@ -13,7 +12,7 @@ export function useJettonWallet(wallet: string | null | undefined, suspense: boo
         queryKey: Queries.Account(wallet!).JettonWallet(),
         queryFn: jettonWalletQueryFn(client4, wallet!, isTestnet),
         enabled: !!wallet,
-        suspense,
+        suspense
     });
 
     return query.data;

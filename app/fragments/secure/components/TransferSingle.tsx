@@ -34,20 +34,9 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const registerPending = useRegisterPending();
     const [walletSettings,] = useWalletSettings(selected?.address);
 
-    let {
-        restricted,
-        target,
-        jettonTarget,
-        text,
-        order,
-        job,
-        fees,
-        metadata,
-        callback,
-        back
-    } = props;
+    let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback } = props;
 
-    const jetton = useJetton(selected!.address, metadata?.jettonWallet?.master);
+    const jetton = useJetton(selected!.address, metadata?.jettonWallet?.master, true);
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
@@ -76,12 +65,12 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     return fromBnWithDecimals(unformatted, jetton.decimals);
                 }
             }
-        } catch (e) {
-            console.warn(e);
+        } catch {
+            console.warn('Failed to parse jetton amount');
         }
 
         return undefined;
-    }, [order]);
+    }, [order, jetton]);
 
     // Tracking
     const success = useRef(false);
@@ -316,7 +305,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         } else {
             navigation.popToTop();
         }
-    }, [registerPending]);
+    }, [registerPending, jettonAmountString, jetton]);
 
     return (
         <TransferSingleView

@@ -3,19 +3,18 @@ import { useJettonContent, useJettonWallet, useJettonWalletAddress, useNetwork }
 import { t } from "../../../i18n/t";
 import { Jetton } from "../../types";
 
-export function useJetton(owner: Address | string, master?: Address | string): Jetton | null {
+export function useJetton(owner: Address | string, master?: Address | string, suspense?: boolean): Jetton | null {
     const { isTestnet: testOnly } = useNetwork();
     const masterStr = typeof master === 'string' ? master : (master?.toString({ testOnly }) ?? null);
     const ownerStr = typeof owner === 'string' ? owner : owner.toString({ testOnly });
 
-    const content = useJettonContent(masterStr);
-    const walletStr = useJettonWalletAddress(masterStr, ownerStr).data;
-    const wallet = useJettonWallet(walletStr);
+    const content = useJettonContent(masterStr, suspense);
+    const walletStr = useJettonWalletAddress(masterStr, ownerStr, suspense).data;
+    const wallet = useJettonWallet(walletStr, suspense);
 
     if (!content || !walletStr || !wallet) {
         return null;
     }
-
 
     let name = content.name ?? '';
     let symbol = content.symbol ?? '';

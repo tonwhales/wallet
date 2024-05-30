@@ -6,13 +6,11 @@ import { Jetton } from '../../types';
 import { useCloudValue } from '../cloud';
 import { t } from '../../../i18n/t';
 
-let rerenderCounter = 0;
-
-export function useJettons(source: string, owner: string, skipWallets?: boolean): Jetton[] {
+export function useJettons(owner: string): Jetton[] {
     // TODO sync jetton wallet
     let hints = useFilteredHints(owner, (a) => !!a.jettonWallet && a.jettonWallet?.owner === owner && !!a.jettonWallet.master);
     let masterContents = useJettonContents(hints.map(a => a.jettonWallet!.master));
-    let actualBalances = !skipWallets ? useJettonWallets(hints.map(a => a.address)) : [];
+    let actualBalances = useJettonWallets(hints.map(a => a.address));
     let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     let jettons: Jetton[] = hints
@@ -57,6 +55,5 @@ export function useJettons(source: string, owner: string, skipWallets?: boolean)
             };
         });
 
-    console.log(source, 'jettons rerendered: ', ++rerenderCounter, 'list length: ', jettons.length);
     return jettons;
 }

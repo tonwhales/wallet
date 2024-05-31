@@ -76,6 +76,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         myWallets: 'My wallets',
         showMore: 'Show more',
         balances: 'Balances',
+        loading: 'Loading...',
     },
     syncStatus: {
         connecting: 'Connecting',

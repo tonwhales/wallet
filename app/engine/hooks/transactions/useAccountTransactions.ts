@@ -29,6 +29,7 @@ export function parseStoredMetadata(metadata: StoredContractMetadata): ContractM
             balance: BigInt(metadata.jettonWallet.balance),
             master: Address.parse(metadata.jettonWallet.master),
             owner: Address.parse(metadata.jettonWallet.owner),
+            address: Address.parse(metadata.jettonWallet.address),
         } : undefined,
         seqno: metadata.seqno,
     };

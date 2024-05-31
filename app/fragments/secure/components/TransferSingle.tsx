@@ -36,7 +36,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
     let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback } = props;
 
-    const jetton = useJetton(selected!.address, metadata?.jettonWallet?.master, true);
+    const jetton = useJetton({ owner: selected!.address, master: metadata?.jettonWallet?.master, wallet: metadata?.jettonWallet?.address }, true);
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;

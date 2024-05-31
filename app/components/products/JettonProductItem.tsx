@@ -42,12 +42,14 @@ type JettonProductItemProps = {
         hideSelection?: boolean,
     }
     selected?: boolean,
+    hideIfEmpty?: boolean
 };
 
 const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loading' | 'failed' }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const toaster = useToaster();
+    const swipableRef = useRef<Swipeable>(null);
 
     const onPressed = useCallback(() => {
         copyText(props.wallet.toString({ testOnly }));
@@ -59,58 +61,163 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
     }, [props.wallet]);
 
     return (
-        <Pressable style={[
-            {
-                flexDirection: 'row',
-                borderRadius: 20,
-                overflow: 'hidden',
-                padding: 20,
-                alignItems: 'center',
-                flex: 1,
-                backgroundColor: theme.surfaceOnBg
-            },
-            props.itemStyle
-        ]}
-            onPress={onPressed}
-        >
-            <View style={{
-                height: 46,
-                width: 46,
-                borderRadius: 23,
-                backgroundColor: theme.elevation,
-                overflow: 'hidden'
-            }} >
-                <Image
-                    style={{ width: 46, height: 46, borderRadius: 23 }}
-                    placeholder={require('@assets/ic_app_placeholder.png')}
-                    placeholderContentFit={'contain'}
-                />
-            </View>
-            <View style={{ marginLeft: 12, flex: 1 }}>
-                <PerfText
-                    style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
-                    ellipsizeMode="tail"
-                    numberOfLines={1}
+        (props.rightAction) ? (
+            <Swipeable
+                ref={swipableRef}
+                overshootRight={false}
+                containerStyle={[{ flex: 1 }, props.itemStyle]}
+                useNativeAnimations={true}
+                childrenContainerStyle={[
+                    {
+                        flex: 1,
+                        overflow: 'hidden'
+                    },
+                    props.card
+                        ? { borderRadius: 20 }
+                        : {
+                            borderTopLeftRadius: props.first ? 20 : 0,
+                            borderTopRightRadius: props.first ? 20 : 0,
+                            borderBottomLeftRadius: props.last ? 20 : 0,
+                            borderBottomRightRadius: props.last ? 20 : 0,
+                        },
+                    // props.itemStyle
+                ]}
+                renderRightActions={() => {
+                    return (
+                        <Pressable
+                            style={[
+                                {
+                                    padding: 20,
+                                    justifyContent: 'center', alignItems: 'center',
+                                    backgroundColor: theme.accent,
+                                },
+                                props.card
+                                    ? {
+                                        borderRadius: 20,
+                                        marginLeft: 10
+                                    } : {
+                                        borderTopRightRadius: props.first ? 20 : 0,
+                                        borderBottomRightRadius: props.last ? 20 : 0,
+                                    }
+                            ]}
+                            onPress={() => {
+                                swipableRef.current?.close();
+                                if (props.rightAction) {
+                                    props.rightAction();
+                                }
+                            }}
+                        >
+                            {props.rightActionIcon}
+                        </Pressable>
+                    )
+                }}
+            >
+                <Pressable
+                    style={{
+                        flexDirection: 'row',
+                        borderRadius: 20,
+                        overflow: 'hidden',
+                        padding: 20,
+                        alignItems: 'center',
+                        flex: 1,
+                        backgroundColor: theme.surfaceOnBg
+                    }}
+                    onPress={onPressed}
                 >
-                    {'Loading...'}
-                </PerfText>
-                <PerfText
-                    numberOfLines={1} ellipsizeMode={'tail'}
-                    style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                >
-                    <PerfText style={{ flexShrink: 1 }}>
-                        {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                    <View style={{
+                        height: 46,
+                        width: 46,
+                        borderRadius: 23,
+                        backgroundColor: theme.elevation,
+                        overflow: 'hidden'
+                    }} >
+                        <Image
+                            style={{ width: 46, height: 46, borderRadius: 23 }}
+                            placeholder={require('@assets/ic_app_placeholder.png')}
+                            placeholderContentFit={'contain'}
+                        />
+                    </View>
+                    <View style={{ marginLeft: 12, flex: 1 }}>
+                        <PerfText
+                            style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {t('common.loading')}
+                        </PerfText>
+                        <PerfText
+                            numberOfLines={1} ellipsizeMode={'tail'}
+                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                        >
+                            <PerfText style={{ flexShrink: 1 }}>
+                                {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                            </PerfText>
+                        </PerfText>
+                    </View>
+                    {props.type === 'loading' ? (
+                        <LoadingIndicator simple />
+                    ) : (
+                        <PerfText style={[{ flexShrink: 1, color: theme.warning }, Typography.regular15_20]}>
+                            {t('common.error')}
+                        </PerfText>
+                    )}
+                </Pressable>
+            </Swipeable>
+        ) : (
+
+            <Pressable style={[
+                {
+                    flexDirection: 'row',
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    padding: 20,
+                    alignItems: 'center',
+                    flex: 1,
+                    backgroundColor: theme.surfaceOnBg
+                },
+                props.itemStyle
+            ]}
+                onPress={onPressed}
+            >
+                <View style={{
+                    height: 46,
+                    width: 46,
+                    borderRadius: 23,
+                    backgroundColor: theme.elevation,
+                    overflow: 'hidden'
+                }} >
+                    <Image
+                        style={{ width: 46, height: 46, borderRadius: 23 }}
+                        placeholder={require('@assets/ic_app_placeholder.png')}
+                        placeholderContentFit={'contain'}
+                    />
+                </View>
+                <View style={{ marginLeft: 12, flex: 1 }}>
+                    <PerfText
+                        style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                    >
+                        {t('common.loading')}
                     </PerfText>
-                </PerfText>
-            </View>
-            {props.type === 'loading' ? (
-                <LoadingIndicator simple />
-            ) : (
-                <PerfText style={[{ flexShrink: 1, color: theme.warning }, Typography.regular15_20]}>
-                    {t('common.error')}
-                </PerfText>
-            )}
-        </Pressable>
+                    <PerfText
+                        numberOfLines={1} ellipsizeMode={'tail'}
+                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                    >
+                        <PerfText style={{ flexShrink: 1 }}>
+                            {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                        </PerfText>
+                    </PerfText>
+                </View>
+                {props.type === 'loading' ? (
+                    <LoadingIndicator simple />
+                ) : (
+                    <PerfText style={[{ flexShrink: 1, color: theme.warning }, Typography.regular15_20]}>
+                        {t('common.error')}
+                    </PerfText>
+                )}
+            </Pressable>
+        )
     );
 });
 
@@ -126,7 +233,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const jettonWallet = useJettonWallet(props.wallet.toString({ testOnly: isTestnet }));
-    const jetton = useJetton(props.owner?.toString({ testOnly: isTestnet }), jettonWallet?.master, true);
+    const jetton = useJetton({ owner: props.owner, master: jettonWallet?.master, wallet: props.wallet }, true);
     const swap = useJettonSwap(jetton?.master.toString({ testOnly: isTestnet }));
     const navigation = useTypedNavigation();
     const balance = jetton?.balance ?? 0n;
@@ -168,6 +275,9 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     }, [jetton, props.ledger, props.selectParams?.onSelect]);
 
     if (!jetton) {
+        if (props.hideIfEmpty) {
+            return null;
+        }
         return (<JettonItemSekeleton {...props} type={'failed'} />);
     }
 

@@ -88,7 +88,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         setTransferState
     } = props;
 
-    const jetton = useJetton(ledgerAddress!, metadata?.jettonWallet?.master, true);
+    const jetton = useJetton({ owner: ledgerAddress!, master: metadata?.jettonWallet?.master, wallet: metadata.jettonWallet?.address }, true);
 
     // Resolve operation
     let payload = order.payload ? resolveLedgerPayload(order.payload) : null;

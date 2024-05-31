@@ -36,6 +36,7 @@ export const AssetsListItem = memo(({
                 selectedFn,
                 hideSelection
             }}
+            hideIfEmpty
             itemStyle={{
                 backgroundColor: theme.surfaceOnElevation
             }}

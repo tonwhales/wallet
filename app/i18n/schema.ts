@@ -78,6 +78,7 @@ export type LocalizationSchema = {
         myWallets: string,
         showMore: string,
         balances: string,
+        loading: string,
     },
     syncStatus: {
         connecting: string,

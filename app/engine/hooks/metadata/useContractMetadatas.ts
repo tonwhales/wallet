@@ -11,7 +11,7 @@ export function useContractMetadatas(contracts: string[]) {
     return useQueries({
         queries: contracts.map(m => ({
             queryKey: Queries.ContractMetadata(m),
-            queryFn: contractMetadataQueryFn(client, isTestnet, m),
+            queryFn: contractMetadataQueryFn(isTestnet, m),
             staleTime: Infinity,
             cacheTime: Infinity,
         })),

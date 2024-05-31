@@ -3,23 +3,25 @@ import { useJettonContent, useJettonWallet, useJettonWalletAddress, useNetwork }
 import { t } from "../../../i18n/t";
 import { Jetton } from "../../types";
 
-export function useJetton(owner: Address | string, master?: Address | string, suspense?: boolean): Jetton | null {
+export function useJetton(params: { owner: Address | string, master?: Address | string, wallet?: Address | string }, suspense?: boolean): Jetton | null {
     const { isTestnet: testOnly } = useNetwork();
+    const { owner, master, wallet } = params;
     const masterStr = typeof master === 'string' ? master : (master?.toString({ testOnly }) ?? null);
     const ownerStr = typeof owner === 'string' ? owner : owner.toString({ testOnly });
-
+    
     const content = useJettonContent(masterStr, suspense);
-    const walletStr = useJettonWalletAddress(masterStr, ownerStr, suspense).data;
-    const wallet = useJettonWallet(walletStr, suspense);
+    const walletAddressStr = useJettonWalletAddress(masterStr, ownerStr, suspense).data;
+    const walletStr = walletAddressStr ?? (typeof wallet === 'string' ? wallet : wallet?.toString({ testOnly }));
+    const walletContent = useJettonWallet(walletStr, suspense);
 
-    if (!content || !walletStr || !wallet) {
+    if (!content || !walletContent || !walletStr) {
         return null;
     }
 
     let name = content.name ?? '';
     let symbol = content.symbol ?? '';
     let description = content.description ?? '';
-    let balance = wallet?.balance ?? 0;
+    let balance = walletContent?.balance ?? 0;
 
     if (content.assets) {
         const asset0Symbol = content.assets[0].type === 'native' ? 'TON' : content.assets[0].metadata.symbol;
@@ -41,7 +43,7 @@ export function useJetton(owner: Address | string, master?: Address | string, su
     return {
         balance: BigInt(balance),
         wallet: Address.parse(walletStr),
-        master: Address.parse(wallet.master),
+        master: Address.parse(walletContent.master),
         name,
         symbol,
         description,

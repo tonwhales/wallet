@@ -3,7 +3,8 @@ import { Address } from "@ton/core"
 export type JettonWallet = {
     balance: bigint,
     owner: Address,
-    master: Address
+    master: Address,
+    address: Address
 };
 
 export type JettonMaster = {

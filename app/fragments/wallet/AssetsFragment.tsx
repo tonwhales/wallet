@@ -8,7 +8,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { SelectableButton } from "../../components/SelectableButton";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useJettons, useKnownJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useCloudValue, useHints, useKnownJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Jetton } from "../../engine/types";
@@ -19,6 +19,7 @@ import { WImage } from "../../components/WImage";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
 
+// TODO: refactor this fragment with FlashList (for large jettons list)
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -27,6 +28,7 @@ export const AssetsFragment = fragment(() => {
     const selected = useSelectedAccount();
     const knownJettons = useKnownJettons(network.isTestnet);
     const specialJettonMaster = knownJettons?.specialJetton ? Address.parse(knownJettons.specialJetton) : null;
+    let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const { target, callback, selectedJetton } = useParams<{
         target: string,
@@ -38,16 +40,25 @@ export const AssetsFragment = fragment(() => {
     const isLedgerScreen = route.name === 'LedgerAssets';
 
     const ledgerTransport = useLedgerTransport();
-    const address = useMemo(() => {
+    const ledgerAddress = useMemo(() => {
         if (isLedgerScreen && !!ledgerTransport?.addr) {
             return Address.parse(ledgerTransport.addr.address);
         }
     }, [ledgerTransport, isLedgerScreen]);
 
-    const ledgerJettons = useJettons(address?.toString({ testOnly: network.isTestnet }) || '') ?? [];
-    const jettons = useJettons(selected!.address.toString({ testOnly: network.isTestnet })) ?? [];
-    const hasSpecialJetton = !!jettons.find((j) => j.master.toString({ testOnly: network.isTestnet }) === knownJettons?.specialJetton);
-    const visibleList = jettons.filter((j) => !j.disabled);
+    const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
+    const hints = (useHints(owner.toString({ testOnly: network.isTestnet })) ?? [])
+        .map((s) => {
+            try {
+                let wallet = Address.parse(s);
+                return wallet;
+            } catch {
+                return null;
+            }
+        })
+        .filter((j) => !!j) as Address[];
+    const hasSpecialJetton = !!hints.find((j) => j.toString({ testOnly: network.isTestnet }) === knownJettons?.specialJetton);
+    const visibleList = hints.filter((j) => !disabledState.disabled[j.toString({ testOnly: network.isTestnet })] || isLedgerScreen);
 
     const onSelected = useCallback((jetton: Jetton) => {
         if (callback) {
@@ -197,20 +208,22 @@ export const AssetsFragment = fragment(() => {
                             }
                         />
                     )}
-                    {(isLedgerScreen ? ledgerJettons : visibleList).map((j) => {
-                        const selected = !!selectedJetton && j.master.equals(selectedJetton);
-                        return (
-                            <AssetsListItem
-                                key={'jt' + j.wallet.toString()}
-                                jetton={j}
-                                onSelect={() => onSelected(j)}
-                                theme={theme}
-                                hideSelection={!callback}
-                                selected={selected}
-                                isTestnet={network.isTestnet}
-                            />
-                        );
-                    })}
+                    <View style={{ gap: 16 }}>
+                        {visibleList.map((j) => {
+                            return (
+                                <AssetsListItem
+                                    key={'asset-jt' + j.toString({ testOnly: network.isTestnet })}
+                                    wallet={j}
+                                    owner={owner}
+                                    onSelect={onSelected}
+                                    hideSelection={!callback}
+                                    selected={selectedJetton}
+                                    isTestnet={network.isTestnet}
+                                    theme={theme}
+                                />
+                            );
+                        })}
+                    </View>
                 </View>
             </ScrollView>
         </View>

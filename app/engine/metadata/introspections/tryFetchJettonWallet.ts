@@ -48,6 +48,7 @@ export async function tryFetchJettonWallet(client: TonClient4, seqno: number, ad
     return {
         balance,
         owner,
-        master
+        master,
+        address
     };
 }

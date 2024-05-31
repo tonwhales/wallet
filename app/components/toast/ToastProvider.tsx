@@ -7,13 +7,13 @@ import { useTheme } from "../../engine/hooks";
 import { z } from "zod";
 
 import DoneIcon from '@assets/ic-done.svg';
+import ErrorIcon from '@assets/ic-error-alert.svg';
+import WarningIcon from '@assets/ic-warning.svg';
 
 const Icons = {
-    // 'warning': require('@assets/ic-warning.svg'),
-    'warning': null,
+    'warning': WarningIcon,
     'default': DoneIcon,
-    // 'error': require('@assets/ic-error.svg'),
-    'error': null,
+    'error': ErrorIcon,
     'success': DoneIcon
 }
 
@@ -100,23 +100,25 @@ export const Toast = memo(({
     }, [onDestroy]);
 
     return (
-        <View style={[
-            {
-                height: 44,
-                flexDirection: 'row',
-                borderRadius: 16,
-                padding: 10, paddingHorizontal: 16,
-                alignItems: 'center', justifyContent: 'center',
-                marginTop: 8
-            },
-            ToastStyle[type].view
-        ]}>
-            {Icon && (
-                <Icon height={24} width={24} style={{ height: 24, width: 24, marginRight: 12 }} color={theme.white} />
-            )}
-            <Text style={[{ fontSize: 15, lineHeight: 20 }, ToastStyle[type].text]}>
-                {message}
-            </Text>
+        <View style={{ paddingHorizontal: 16 }}>
+            <View style={[
+                {
+                    minHeight: 44,
+                    flexDirection: 'row',
+                    borderRadius: 16,
+                    padding: 10, paddingHorizontal: 16,
+                    alignItems: 'center', justifyContent: 'center',
+                    marginTop: 8
+                },
+                ToastStyle[type].view
+            ]}>
+                {Icon && (
+                    <Icon height={24} width={24} style={{ height: 24, width: 24, marginRight: 12 }} color={theme.white} />
+                )}
+                <Text style={[{ fontSize: 15, lineHeight: 20, textAlign: !!Icon ? 'left' : 'center' }, ToastStyle[type].text]}>
+                    {message}
+                </Text>
+            </View>
         </View>
     );
 });
@@ -153,7 +155,7 @@ export function processToasterMessage(parsed: any, toaster: ToasterType) {
             return true;
         }
     }
-    
+
     return false;
 }
 

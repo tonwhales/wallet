@@ -1,5 +1,3 @@
-import * as React from 'react';
-import { Alert } from 'react-native';
 import { t } from './i18n/t';
 import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
@@ -9,14 +7,24 @@ import { useSelectedAccount } from './engine/hooks';
 import { jettonWalletAddressQueryFn } from './engine/hooks/jettons/useJettonWalletAddress';
 import { useQueryClient } from '@tanstack/react-query';
 import { Address } from '@ton/core';
+import { ToastDuration, useToaster } from './components/toast/ToastProvider';
+import { useCallback } from 'react';
+import { jettonWalletQueryFn } from './engine/hooks/jettons/usePrefetchHints';
+import { useGlobalLoader } from './components/useGlobalLoader';
+import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
 
-export function useLinkNavigator(isTestnet: boolean) {
+export function useLinkNavigator(
+    isTestnet: boolean,
+    toastProps?: { duration?: ToastDuration, marginBottom?: number }
+) {
     const navigation = useTypedNavigation();
     const client = useClient4(isTestnet);
     const selected = useSelectedAccount();
     const queryClient = useQueryClient();
+    const toaster = useToaster();
+    const loader = useGlobalLoader();
 
-    const handler = React.useCallback(async (resolved: ResolvedUrl) => {
+    const handler = useCallback(async (resolved: ResolvedUrl) => {
         if (resolved.type === 'transaction') {
             if (resolved.payload) {
                 navigation.navigateTransfer({
@@ -51,16 +59,53 @@ export function useLinkNavigator(isTestnet: boolean) {
                 return;
             }
 
-            // TODO: replace with getter
-            const jettonWallet = await queryClient.fetchQuery({
-                queryKey: Queries.Jettons().Address(selected!.addressString).Wallet(resolved.jettonMaster.toString({ testOnly: isTestnet })),
-                queryFn: jettonWalletAddressQueryFn(client, resolved.jettonMaster.toString({ testOnly: isTestnet }), selected!.addressString, isTestnet)
-            });
+            const hideloader = loader.show();
 
-            if (!jettonWallet) {
-                Alert.alert(t('transfer.wrongJettonTitle'), t('transfer.wrongJettonMessage'));
+            let jettonWalletAddress = queryClient.getQueryData<string | null>(Queries.Account(selected.addressString).JettonWallet());
+
+            if (!jettonWalletAddress) {
+                try {
+                    jettonWalletAddress = await queryClient.fetchQuery({
+                        queryKey: Queries.Jettons().Address(selected!.addressString).Wallet(resolved.jettonMaster.toString({ testOnly: isTestnet })),
+                        queryFn: jettonWalletAddressQueryFn(client, resolved.jettonMaster.toString({ testOnly: isTestnet }), selected!.addressString, isTestnet)
+                    });
+                } catch {
+                    console.warn('Failed to fetch jetton wallet address', selected!.addressString, resolved.jettonMaster.toString({ testOnly: isTestnet }));
+                }
+            }
+
+            if (!jettonWalletAddress) {
+                toaster.show({
+                    message: t('transfer.wrongJettonTitle'),
+                    ...toastProps, type: 'error'
+                });
+                hideloader();
                 return;
             }
+
+            let jettonWallet = queryClient.getQueryData<StoredJettonWallet | null>(Queries.Account(jettonWalletAddress!).JettonWallet());
+
+            if (!jettonWallet) {
+                try {
+                    jettonWallet = await queryClient.fetchQuery({
+                        queryKey: Queries.Account(jettonWalletAddress!).JettonWallet(),
+                        queryFn: jettonWalletQueryFn(jettonWalletAddress!, isTestnet),
+                    });
+                } catch {                    
+                    console.warn('Failed to fetch jetton wallet', jettonWalletAddress);
+                }
+            }
+
+            if (!jettonWallet) {
+                toaster.show({
+                    message: t('transfer.wrongJettonMessage'),
+                    ...toastProps, type: 'error'
+                });
+                hideloader();
+                return;
+            }
+
+            hideloader();
 
             navigation.navigateSimpleTransfer({
                 target: resolved.address.toString({ testOnly: isTestnet }),
@@ -68,10 +113,12 @@ export function useLinkNavigator(isTestnet: boolean) {
                 amount: resolved.amount,
                 stateInit: null,
                 job: null,
-                jetton: Address.parse(jettonWallet),
-                callback: null
+                jetton: Address.parse(jettonWalletAddress),
+                callback: null,
+                payload: resolved.payload
             });
         }
+
         if (resolved.type === 'connect') {
             navigation.navigate('Authenticate', {
                 session: resolved.session,
@@ -88,7 +135,7 @@ export function useLinkNavigator(isTestnet: boolean) {
                 image: resolved.customImage
             });
         }
-    }, []);
+    }, [selected]);
 
     return handler;
 }

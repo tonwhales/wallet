@@ -199,7 +199,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         contact: 'Your contact',
         firstTime: 'Sending first time',
         requestsToSign: '{{app}} requests to sign',
-        smartContract: 'Smart contract transaction',
+        smartContract: 'Smart contract operation',
         txsSummary: 'Total',
         txsTotal: 'Total amount',
         gasDetails: 'Gas details',

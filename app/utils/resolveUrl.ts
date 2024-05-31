@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, Cell } from "@ton/core";
+import { Address, Cell, toNano } from "@ton/core";
 import Url from 'url-parse';
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
@@ -18,7 +18,10 @@ export type ResolvedUrl = {
     address: Address,
     jettonMaster: Address,
     comment: string | null,
-    amount: bigint | null
+    amount: bigint | null,
+    payload: Cell | null,
+    feeAmount: bigint | null,
+    forwardAmount: bigint | null
 } | {
     type: 'connect',
     session: string,
@@ -39,6 +42,75 @@ export function isUrl(str: string): boolean {
         return true;
     } catch {
         return false;
+    }
+}
+
+function resolveTransferUrl(url: Url<Record<string, string | undefined>>): ResolvedUrl {
+    let rawAddress = url.pathname.slice(1).endsWith('/') ? url.pathname.slice(1, -1) : url.pathname.slice(1);
+    let address = Address.parseFriendly(rawAddress).address;
+    let comment: string | null = null;
+    let amount: bigint | null = null;
+    let payload: Cell | null = null;
+    let stateInit: Cell | null = null;
+    let jettonMaster: Address | null = null;
+    let feeAmount: bigint | null = null;
+    let forwardAmount: bigint | null = null;
+
+    if (url.query) {
+        const keys = Object.keys(url.query);
+        for (let key in url.query) {
+            if (key.toLowerCase() === 'text') {
+                comment = url.query[key]!;
+            }
+            if (key.toLowerCase() === 'amount') {
+                if (keys.find((p) => p.toLowerCase() === 'jetton') !== undefined) {
+                    amount = toNano(url.query[key]!.replace(',', '.').replaceAll(' ', ''));
+                } else {
+                    amount = BigInt(url.query[key]!);
+                }
+            }
+            if (key.toLowerCase() === 'bin') {
+                payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+            }
+            if (key.toLowerCase() === 'init') {
+                stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+            }
+            if (key.toLowerCase() === 'jetton') {
+                try {
+                    jettonMaster = Address.parseFriendly(url.query[key]!).address;
+                } catch (e) {
+                    warn('Invalid jetton master address');
+                }
+            }
+            if (key.toLowerCase() === 'fee-amount') {
+                feeAmount = BigInt(url.query[key]!);
+            }
+            if (key.toLowerCase() === 'forward-amount') {
+                forwardAmount = BigInt(url.query[key]!);
+            }
+        }
+    }
+
+    if (jettonMaster) {
+        return {
+            type: 'jetton-transaction',
+            address,
+            jettonMaster,
+            comment,
+            amount,
+            payload,
+            feeAmount,
+            forwardAmount
+        }
+    }
+
+    return {
+        type: 'transaction',
+        address,
+        comment,
+        amount,
+        payload,
+        stateInit
     }
 }
 
@@ -66,53 +138,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
         // ton url
         if ((url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:') && url.host.toLowerCase() === 'transfer' && url.pathname.startsWith('/')) {
-            let rawAddress = url.pathname.slice(1).endsWith('/') ? url.pathname.slice(1, -1) : url.pathname.slice(1);
-            let address = Address.parseFriendly(rawAddress).address;
-            let comment: string | null = null;
-            let amount: bigint | null = null;
-            let payload: Cell | null = null;
-            let stateInit: Cell | null = null;
-            let jettonMaster: Address | null = null;
-            if (url.query) {
-                for (let key in url.query) {
-                    if (key.toLowerCase() === 'text') {
-                        comment = url.query[key]!;
-                    }
-                    if (key.toLowerCase() === 'amount') {
-                        amount = BigInt(url.query[key]!);
-                    }
-                    if (key.toLowerCase() === 'bin') {
-                        payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
-                    }
-                    if (key.toLowerCase() === 'init') {
-                        stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
-                    }
-                    if (key.toLowerCase() === 'jetton') {
-                        try {
-                            jettonMaster = Address.parseFriendly(url.query[key]!).address;
-                        } catch (e) {
-                            warn('Invalid jetton master address');
-                        }
-                    }
-                }
-            }
-            if (jettonMaster) {
-                return {
-                    type: 'jetton-transaction',
-                    address,
-                    jettonMaster,
-                    comment,
-                    amount
-                }
-            }
-            return {
-                type: 'transaction',
-                address,
-                comment,
-                amount,
-                payload,
-                stateInit
-            }
+            return resolveTransferUrl(url);
         }
 
         // ton url connect
@@ -137,103 +163,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
             && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
-            let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
-            let comment: string | null = null;
-            let amount: bigint | null = null;
-            let payload: Cell | null = null;
-            let stateInit: Cell | null = null;
-            let jettonMaster: Address | null = null;
-            if (url.query) {
-                for (let key in url.query) {
-                    if (key.toLowerCase() === 'text') {
-                        comment = url.query[key]!;
-                    }
-                    if (key.toLowerCase() === 'amount') {
-                        amount = BigInt(url.query[key]!);
-                    }
-                    if (key.toLowerCase() === 'bin') {
-                        payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
-                    }
-                    if (key.toLowerCase() === 'init') {
-                        stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
-                    }
-                    if (key.toLowerCase() === 'jetton') {
-                        try {
-                            jettonMaster = Address.parseFriendly(url.query[key]!).address;
-                        } catch (e) {
-                            warn('Invalid jetton master address');
-                        }
-                    }
-                }
-            }
-            if (jettonMaster) {
-                return {
-                    type: 'jetton-transaction',
-                    address,
-                    jettonMaster,
-                    comment,
-                    amount
-                }
-            }
-            return {
-                type: 'transaction',
-                address,
-                comment,
-                amount,
-                payload,
-                stateInit
-            }
-        }
-
-        if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
-            && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
-            let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
-            let comment: string | null = null;
-            let amount: bigint | null = null;
-            let payload: Cell | null = null;
-            let stateInit: Cell | null = null;
-            let jettonMaster: Address | null = null;
-            if (url.query) {
-                for (let key in url.query) {
-                    if (key.toLowerCase() === 'text') {
-                        comment = url.query[key]!;
-                    }
-                    if (key.toLowerCase() === 'amount') {
-                        amount = BigInt(url.query[key]!);
-                    }
-                    if (key.toLowerCase() === 'bin') {
-                        payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
-                    }
-                    if (key.toLowerCase() === 'init') {
-                        stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
-                    }
-                    if (key.toLowerCase() === 'jetton') {
-                        try {
-                            jettonMaster = Address.parseFriendly(url.query[key]!).address;
-                        } catch (e) {
-                            warn('Invalid jetton master address');
-                        }
-                    }
-                }
-            }
-            if (jettonMaster) {
-                return {
-                    type: 'jetton-transaction',
-                    address,
-                    jettonMaster,
-                    comment,
-                    amount
-                }
-            }
-            return {
-                type: 'transaction',
-                address,
-                comment,
-                amount,
-                payload,
-                stateInit
-            }
+            return resolveTransferUrl(url);
         }
 
         // HTTP(s) Sign Url

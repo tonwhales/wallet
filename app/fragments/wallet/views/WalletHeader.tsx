@@ -15,6 +15,7 @@ import { avatarHash } from "../../../utils/avatarHash";
 import { Typography } from "../../../components/styles";
 import { KnownWallets } from "../../../secure/KnownWallets";
 import { Address } from "@ton/core";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 import NoConnection from '@assets/ic-no-connection.svg';
 
@@ -22,7 +23,8 @@ export const WalletHeader = memo(({ address }: { address: Address }) => {
     const network = useNetwork();
     const knownWallets = KnownWallets(network.isTestnet);
     const theme = useTheme();
-    const linkNavigator = useLinkNavigator(network.isTestnet);
+    const bottomBarHeight = useBottomTabBarHeight();
+    const linkNavigator = useLinkNavigator(network.isTestnet, { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) });
     const syncState = useSyncState();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();

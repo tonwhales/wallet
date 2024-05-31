@@ -26,28 +26,33 @@ const metadataBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
             return await jettonFetchersLock.inLock(async () => {
                 log(`[contract-metadata] 🟡 batch: ${addressesString.length}`);
                 let measurement = performance.now();
+                let result: StoredContractMetadata[] = [];
 
-                let result = await Promise.all(addressesString.map(async (addressString) => {
+                await Promise.all(addressesString.map(async (addressString) => {
+                    try {
+                        let address = Address.parse(addressString);
+                        let metadata = await fetchMetadata(client, await getLastBlock(), address, isTestnet);
 
-                    let address = Address.parse(addressString);
-                    let metadata = await fetchMetadata(client, await getLastBlock(), address, isTestnet);
-
-                    return {
-                        jettonMaster: metadata.jettonMaster ? {
-                            content: metadata.jettonMaster.content,
-                            mintable: metadata.jettonMaster.mintalbe,
-                            owner: metadata.jettonMaster.owner?.toString({ testOnly: isTestnet }) ?? null,
-                            totalSupply: metadata.jettonMaster.totalSupply.toString(10),
-                        } : null,
-                        jettonWallet: metadata.jettonWallet ? {
-                            balance: metadata.jettonWallet.balance.toString(10),
-                            master: metadata.jettonWallet.master.toString({ testOnly: isTestnet }),
-                            owner: metadata.jettonWallet.owner.toString({ testOnly: isTestnet }),
-                            address: addressString,
-                        } : null,
-                        seqno: metadata.seqno,
-                        address: address.toString({ testOnly: isTestnet }),
+                        result.push({
+                            jettonMaster: metadata.jettonMaster ? {
+                                content: metadata.jettonMaster.content,
+                                mintable: metadata.jettonMaster.mintalbe,
+                                owner: metadata.jettonMaster.owner?.toString({ testOnly: isTestnet }) ?? null,
+                                totalSupply: metadata.jettonMaster.totalSupply.toString(10),
+                            } : null,
+                            jettonWallet: metadata.jettonWallet ? {
+                                balance: metadata.jettonWallet.balance.toString(10),
+                                master: metadata.jettonWallet.master.toString({ testOnly: isTestnet }),
+                                owner: metadata.jettonWallet.owner.toString({ testOnly: isTestnet }),
+                                address: addressString,
+                            } : null,
+                            seqno: metadata.seqno,
+                            address: address.toString({ testOnly: isTestnet }),
+                        });
+                    } catch {
+                        console.warn(`[contract-metadata] 🔴 ${addressString}`);
                     }
+
                 }));
 
                 log('[contract-metadata] 🟢 in ' + (performance.now() - measurement).toFixed(1));
@@ -68,16 +73,20 @@ const masterBatcher = memoize((isTestnet: boolean) => {
                 let measurement = performance.now();
 
                 await Promise.all(masters.map(async (master) => {
-                    let address = Address.parse(master);
-                    let masterContent = await fetchJettonMasterContent(address, isTestnet);
-                    if (!masterContent) {
-                        return null;
-                    }
+                    try {
+                        let address = Address.parse(master);
+                        let masterContent = await fetchJettonMasterContent(address, isTestnet);
+                        if (!masterContent) {
+                            return null;
+                        }
 
-                    result.push({
-                        ...masterContent,
-                        address: address.toString({ testOnly: isTestnet }),
-                    });
+                        result.push({
+                            ...masterContent,
+                            address: address.toString({ testOnly: isTestnet }),
+                        });
+                    } catch {
+                        console.warn(`[jetton-master] 🔴 ${master}`);
+                    }
                 }));
 
                 log(`[jetton-master] 🟢 in ${(performance.now() - measurement).toFixed(1)}`);
@@ -85,6 +94,7 @@ const masterBatcher = memoize((isTestnet: boolean) => {
                 return result;
             });
         },
+
         resolver: keyResolver('address'),
         scheduler: windowedFiniteBatchScheduler({ windowMs: 1000, maxBatchSize: 10 })
     })
@@ -98,20 +108,23 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                 log(`[jetton-wallet] 🟡 batch ${wallets.length}`);
                 let measurement = performance.now();
                 await Promise.all(wallets.map(async (wallet) => {
-
-                    let address = Address.parse(wallet);
-
-                    let data = await tryFetchJettonWallet(client, await getLastBlock(), address);
-                    if (!data) {
-                        return;
+                    try {
+                        let address = Address.parse(wallet);
+    
+                        let data = await tryFetchJettonWallet(client, await getLastBlock(), address);
+                        if (!data) {
+                            return;
+                        }
+    
+                        result.push({
+                            balance: data.balance.toString(10),
+                            master: data.master.toString({ testOnly: isTestnet }),
+                            owner: data.owner.toString({ testOnly: isTestnet }),
+                            address: wallet
+                        });
+                    } catch (error) {
+                        console.warn(`[jetton-wallet] 🔴 ${wallet}`, error);
                     }
-
-                    result.push({
-                        balance: data.balance.toString(10),
-                        master: data.master.toString({ testOnly: isTestnet }),
-                        owner: data.owner.toString({ testOnly: isTestnet }),
-                        address: wallet
-                    });
                 }));
                 log(`[jetton-wallet] 🟢 in ${(performance.now() - measurement).toFixed(1)}`);
                 return result;

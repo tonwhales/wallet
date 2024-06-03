@@ -336,7 +336,8 @@ export const TransferBatch = memo((props: Props) => {
             return;
         }
 
-        let seqno = await fetchSeqno(client, await getLastBlock(), selected.address);
+        let lastBlock = await getLastBlock();
+        let seqno = await fetchSeqno(client, lastBlock, selected.address);
 
         // Create transfer
         let transfer: Cell;
@@ -390,6 +391,7 @@ export const TransferBatch = memo((props: Props) => {
             amount: totalAmount * (BigInt(-1)),
             address: null,
             seqno: seqno,
+            blockSeqno: lastBlock,
             body: { type: 'batch' },
             time: Math.floor(Date.now() / 1000),
             hash: msg.hash(),

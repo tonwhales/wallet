@@ -196,7 +196,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             return;
         }
 
-        let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, await getLastBlock(), selected!.address));
+        let lastBlock = await getLastBlock();
+        let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, lastBlock, selected!.address));
 
         // Create transfer
         let transfer: Cell;
@@ -292,6 +293,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             address: target.address,
             bounceable: target.bounceable,
             seqno: seqno,
+            blockSeqno: lastBlock,
             body: body,
             time: Math.floor(Date.now() / 1000),
             hash: msg.hash(),

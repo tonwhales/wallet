@@ -24,6 +24,7 @@ export type PendingTransaction = {
     address: Address | null,
     bounceable?: boolean,
     seqno: number,
+    blockSeqno: number,
     body: PendingTransactionBody | null,
     time: number,
     hash: Buffer,

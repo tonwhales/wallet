@@ -56,4 +56,6 @@ export const Queries = {
 
     Banners: (language: string, version: string, buildNumber: string) => (['banners', language, version, buildNumber]),
     BrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', network]),
+
+    AppConfig: (network: 'mainnet' | 'testnet') => (['appConfig', network]),
 }

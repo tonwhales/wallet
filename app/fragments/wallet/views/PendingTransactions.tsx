@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { memo } from "react";
 import { View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
@@ -25,6 +25,8 @@ import { TonClient4 } from "@ton/ton";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { fetchRoughBlockCreationTime } from "../../../engine/api/fetchRoughBlockCreationTime";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
+import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
+import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
 
 async function checkIfTxFailed(client: TonClient4, block: number, tx: PendingTransaction, txTimeout: number = 60) {
     const currentBlock = await getLastBlock();
@@ -78,6 +80,24 @@ const PendingTransactionView = memo(({
     const [settings,] = useWalletSettings(targetFriendly);
     const knownWallets = KnownWallets(isTestnet);
     const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
+    const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
+
+    const isHoldersOp = useMemo(() => {
+        if (targetContract?.kind === 'jetton-card' && tx.body?.type === 'token') {
+            return true;
+        }
+
+        if (tx.body?.type === 'payload') {
+            const body = parseMessageBody(tx.body.cell);
+            if (!!body && (
+                body.type === 'holders::account::top_up'
+                || body.type === 'holders::account::limits_change'
+            )) {
+                return true;
+            }
+        }
+
+    }, [tx, targetContract?.kind]);
 
     const failedRef = useRef(false);
     const [failed, setFailed] = useState(failedRef.current);
@@ -199,6 +219,7 @@ const PendingTransactionView = memo(({
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={knownWallets}
                             theme={theme}
+                            holders={isHoldersOp}
                         />
                     ) : (
                         <Avatar

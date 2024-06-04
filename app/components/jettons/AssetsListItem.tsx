@@ -1,123 +1,45 @@
-import { memo } from "react";
-import { View, Image, Pressable, Text } from "react-native";
+import { memo, useCallback } from "react";
 import { Jetton } from "../../engine/types";
-import { WImage } from "../WImage";
 import { ThemeType } from "../../engine/state/theme";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { Typography } from "../styles";
-import { useVerifyJetton } from "../../engine/hooks";
-
-import IcCheck from "@assets/ic-check.svg";
+import { Address } from "@ton/core";
+import { JettonProductItem } from "../products/JettonProductItem";
 
 export const AssetsListItem = memo(({
-    jetton,
+    wallet,
+    owner,
     onSelect,
-    theme,
     selected,
     hideSelection,
-    isTestnet
+    isTestnet,
+    theme
 }: {
-    jetton: Jetton,
+    wallet: Address,
+    owner: Address,
     onSelect: (j: Jetton) => void,
-    theme: ThemeType,
-    selected?: boolean,
+    selected?: Address,
     hideSelection?: boolean,
-    isTestnet: boolean
+    isTestnet: boolean,
+    theme: ThemeType
 }) => {
-    const { verified, isSCAM } = useVerifyJetton({
-        ticker: jetton.symbol,
-        master: jetton.master.toString({ testOnly: isTestnet })
-    });
+
+    const selectedFn = useCallback((j: Jetton) => {
+        return j.master.toString({ testOnly: isTestnet }) === selected?.toString({ testOnly: isTestnet })
+    }, [selected, isTestnet]);
 
     return (
-        <Animated.View entering={FadeIn} exiting={FadeOut}>
-            <Pressable
-                style={{
-                    backgroundColor: theme.surfaceOnElevation,
-                    padding: 20,
-                    marginBottom: 16,
-                    borderRadius: 20,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}
-                onPress={() => onSelect(jetton)}
-            >
-                <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                    <View style={{ width: 46, height: 46 }}>
-                        <WImage
-                            src={jetton.icon ? jetton.icon : undefined}
-                            width={46}
-                            heigh={46}
-                            borderRadius={23}
-                        />
-                        {verified ? (
-                            <View style={{
-                                justifyContent: 'center', alignItems: 'center',
-                                height: 20, width: 20, borderRadius: 10,
-                                position: 'absolute', right: -2, bottom: -2,
-                                backgroundColor: theme.surfaceOnBg
-                            }}>
-                                <Image
-                                    source={require('@assets/ic-verified.png')}
-                                    style={{ height: 20, width: 20 }}
-                                />
-                            </View>
-                        ) : (isSCAM && (
-                            <View style={{
-                                justifyContent: 'center', alignItems: 'center',
-                                height: 20, width: 20, borderRadius: 10,
-                                position: 'absolute', right: -2, bottom: -2,
-                                backgroundColor: theme.surfaceOnBg
-                            }}>
-                                <Image
-                                    source={require('@assets/ic-jetton-scam.png')}
-                                    style={{ height: 20, width: 20 }}
-                                />
-                            </View>
-                        ))}
-                    </View>
-                </View>
-                <View style={{ justifyContent: 'center', flexGrow: 1, flex: 1 }}>
-                    <Text style={[{ flexShrink: 1, color: theme.textPrimary, marginBottom: 2 }, Typography.semiBold17_24]}>
-                        {jetton.name}
-                    </Text>
-                    <Text
-                        numberOfLines={1}
-                        style={{
-                            flexShrink: 1,
-                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                            color: theme.textSecondary,
-                        }}
-                    >
-                        {isSCAM && (
-                            <>
-                                <Text style={{ color: theme.accentRed }}>
-                                    {'SCAM'}
-                                </Text>
-                                {jetton.description ? ' • ' : ''}
-                            </>
-                        )}
-                        {jetton.description}
-                    </Text>
-                </View>
-                {!hideSelection && (
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        height: 24, width: 24,
-                        backgroundColor: selected ? theme.accent : theme.divider,
-                        borderRadius: 12
-                    }}>
-                        {selected && (
-                            <IcCheck
-                                color={theme.white}
-                                height={16} width={16}
-                                style={{ height: 16, width: 16 }}
-                            />
-                        )}
-                    </View>
-                )}
-            </Pressable>
-        </Animated.View>
+        <JettonProductItem
+            wallet={wallet}
+            owner={owner}
+            card
+            selectParams={{
+                onSelect,
+                selectedFn,
+                hideSelection
+            }}
+            hideIfEmpty
+            itemStyle={{
+                backgroundColor: theme.surfaceOnElevation
+            }}
+        />
     );
 });

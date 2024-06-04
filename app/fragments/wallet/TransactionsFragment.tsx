@@ -5,7 +5,7 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useHoldersAccounts, useJettons, useTheme } from '../../engine/hooks';
+import { useHoldersAccounts, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useAccountTransactions } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
@@ -29,7 +29,6 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
     const { isTestnet } = useNetwork();
     const address = props.account;
     const theme = props.theme;
-    const jettons = useJettons(address.toString({ testOnly: isTestnet }));
     const txs = useAccountTransactions(address.toString({ testOnly: isTestnet }), { refetchOnMount: true });
     const holdersAccounts = useHoldersAccounts(address).data;
     const holdersCards = holdersAccounts?.type === 'private'
@@ -119,7 +118,6 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                                     viewType={'history'}
                                     address={address.toString({ testOnly: isTestnet })}
                                 />}
-                                jettons={jettons}
                             />
                         )
                     } else {

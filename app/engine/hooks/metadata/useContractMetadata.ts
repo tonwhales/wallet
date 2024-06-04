@@ -10,7 +10,7 @@ export function useContractMetadata(contract: string | null) {
 
     return useQuery({
         queryKey: Queries.ContractMetadata(contract!),
-        queryFn: contractMetadataQueryFn(client, isTestnet, contract!),
+        queryFn: contractMetadataQueryFn(isTestnet, contract!),
         staleTime: Infinity,
         enabled: contract !== null,
     }).data ?? null;

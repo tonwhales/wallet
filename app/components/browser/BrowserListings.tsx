@@ -104,7 +104,7 @@ export const BrowserListings = memo(({
             contentOffset={{ y: -56, x: 0 }}
             onScroll={onScroll}
             scrollEventThrottle={16}
-            contentContainerStyle={{ paddingBottom: 56 + 52 + 32 + bottomBarHeight }}
+            contentContainerStyle={Platform.select({ android: { paddingBottom: 56 + 52 + 32 + bottomBarHeight } })}
         >
             <BrowserBanners banners={banners} />
             <BrowserCategories list={list} />

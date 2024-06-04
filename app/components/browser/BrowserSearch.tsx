@@ -7,7 +7,7 @@ import { t } from "../../i18n/t";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { Typography } from "../styles";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { isUrl, normalizeUrl } from "../../utils/resolveUrl";
+import { normalizeUrl } from "../../utils/resolveUrl";
 import axios from "axios";
 import { useToaster } from "../toast/ToastProvider";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -195,7 +195,15 @@ export const SearchSuggestions = memo(({
     );
 });
 
-export const BrowserSearch = memo(({ theme, navigation, isTestnet }: { theme: ThemeType, navigation: TypedNavigation, isTestnet: boolean }) => {
+export const BrowserSearch = memo(({
+    theme,
+    navigation,
+    isTestnet
+}: {
+    theme: ThemeType,
+    navigation: TypedNavigation,
+    isTestnet: boolean
+}) => {
     const searchRef = useRef<string>('');
     const [search, setSearch] = useState(searchRef.current);
     const toaster = useToaster();

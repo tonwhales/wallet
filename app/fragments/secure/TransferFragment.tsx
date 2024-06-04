@@ -214,11 +214,11 @@ export const TransferFragment = fragment(() => {
                     backoff('txLoad-conf', () => fetchConfig()),
                     backoff('txLoad', async () => {
                         return Promise.all([
-                            backoff('txLoad-meta', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet, true)),
-                            backoff('txLoad-acc', () => client.getAccount(block.last.seqno, target.address)),
-                            backoff('txLoad-seq', () => fetchSeqno(client, block.last.seqno, target.address))
+                            fetchMetadata(client, block.last.seqno, target.address, isTestnet, true),
+                            client.getAccount(block.last.seqno, target.address),
+                            fetchSeqno(client, block.last.seqno, target.address)
                         ])
-                    }),
+                    })
                 ]);
 
                 let jetton: Jetton | null = null;
@@ -461,10 +461,10 @@ export const TransferFragment = fragment(() => {
                         },
                     });
                 } else {
-                    onError({ 
+                    onError({
                         title: t('transfer.error.invalidTransaction'),
                         message: t('transfer.error.invalidTransactionMessage')
-                     });
+                    });
 
                     exited = true;
                     if (params && params.job) {

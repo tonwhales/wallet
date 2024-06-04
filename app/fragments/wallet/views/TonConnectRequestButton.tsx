@@ -28,11 +28,6 @@ function checkNetworkAndFrom(
     const { request, isTestnet } = params;
     const toasterErrorProps: { type: 'error', marginBottom: number } = { type: 'error', marginBottom: toastProps.marginBottom };
 
-    console.log({
-        network: request.network,
-        from: request.from,
-    });
-
     if (!!request.network) {
         const walletNetwork = isTestnet ? CHAIN.TESTNET : CHAIN.MAINNET;
         if (request.network !== walletNetwork) {

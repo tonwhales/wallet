@@ -18,15 +18,15 @@ import { TransferBatch } from './components/TransferBatch';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useJettons, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { Suspense, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
 import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal } from '@ton/core';
+import { getLastBlock } from '../../engine/accountWatcher';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
-import { Jetton } from '../../engine/types';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 import { useToaster } from '../../components/toast/ToastProvider';
 
@@ -77,7 +77,6 @@ export type ConfirmLoadedPropsSingle = {
     fees: bigint,
     metadata: ContractMetadata,
     restricted: boolean,
-    jetton: Jetton | null
     callback: ((ok: boolean, result: Cell | null) => void) | null
     back?: number
 }
@@ -103,12 +102,29 @@ export type ConfirmLoadedPropsBatch = {
 
 export type ConfirmLoadedProps = ConfirmLoadedPropsSingle | ConfirmLoadedPropsBatch;
 
-const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
-    if (props.type === 'single') {
-        return <TransferSingle {...props} />
-    }
+const Skeleton = memo(() => {
+    return (
+        <View style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        }}>
+            <View style={{ flexGrow: 1, alignItems: 'center' }}>
+                <TransferSkeleton />
+            </View>
+        </View>
+    );
+});
 
-    return <TransferBatch {...props} />;
+const TransferLoaded = memo((props: ConfirmLoadedProps) => {
+
+    return (
+        <Suspense fallback={<Skeleton />}>
+            {props.type === 'single' ? (
+                <TransferSingle {...props} />
+            ) : (
+                <TransferBatch {...props} />
+            )}
+        </Suspense>
+    );
 });
 
 export const TransferFragment = fragment(() => {
@@ -119,7 +135,6 @@ export const TransferFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const toaster = useToaster();
-    const jettons = useJettons(selectedAccount?.address.toString({ testOnly: isTestnet }) || '');
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
     const [bounceableFormat,] = useBounceableWalletFormat();
@@ -221,7 +236,6 @@ export const TransferFragment = fragment(() => {
                     })
                 ]);
 
-                let jetton: Jetton | null = null;
                 let jettonTarget: typeof target | null = null;
                 let jettonTargetState: typeof state | null = null;
 
@@ -244,8 +258,6 @@ export const TransferFragment = fragment(() => {
                                         const bounceable = await resolveBounceableTag(jettonTargetAddress, { testOnly: isTestnet, bounceableFormat });
                                         jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable }));
                                     }
-
-                                    jetton = jettons.find((j) => j.master.equals(metadata.jettonWallet!.master)) ?? null;
                                 }
                             }
                         }
@@ -384,7 +396,6 @@ export const TransferFragment = fragment(() => {
                     job,
                     fees,
                     metadata,
-                    jetton,
                     callback: callback ? callback : null,
                     back: params.back
                 });

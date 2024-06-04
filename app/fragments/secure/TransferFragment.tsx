@@ -18,7 +18,7 @@ import { TransferBatch } from './components/TransferBatch';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
-import { Suspense, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, memo, useEffect, useMemo, useState } from 'react';
 import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
@@ -134,7 +134,6 @@ export const TransferFragment = fragment(() => {
     const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const toaster = useToaster();
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
     const [bounceableFormat,] = useBounceableWalletFormat();
@@ -539,13 +538,7 @@ export const TransferFragment = fragment(() => {
             />
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 {!loadedProps ? (
-                    <View style={{
-                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    }}>
-                        <View style={{ flexGrow: 1, alignItems: 'center' }}>
-                            <TransferSkeleton />
-                        </View>
-                    </View>
+                    <Skeleton />
                 ) : (
                     <TransferLoaded {...loadedProps} />
                 )}

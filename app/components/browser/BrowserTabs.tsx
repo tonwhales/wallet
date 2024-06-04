@@ -66,6 +66,7 @@ export const BrowserTabs = memo(({ onScroll }: { onScroll?: ((event: NativeSynth
                 contentInset={{ right: 24, left: 16 }}
                 contentOffset={{ x: -24, y: 0 }}
                 showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: 8 }}
             >
                 {!!listings && listings.length > 0 && (
                     <PressableChip

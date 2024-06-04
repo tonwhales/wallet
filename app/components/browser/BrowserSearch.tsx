@@ -307,10 +307,7 @@ export const BrowserSearch = memo(({
     });
 
     return (
-        <View style={{
-            zIndex: 1000,
-            marginBottom: 16
-        }}>
+        <View style={{ marginBottom: 16 }}>
             <Animated.View style={[{
                 flexDirection: 'row',
                 alignItems: 'center',

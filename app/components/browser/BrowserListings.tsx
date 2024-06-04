@@ -1,9 +1,8 @@
 import { memo, useMemo } from "react";
-import { BrowserListingsWithCategory, useBrowserListings } from "../../engine/hooks/banners/useBrowserListings";
+import { BrowserListingsWithCategory } from "../../engine/hooks/banners/useBrowserListings";
 import { t } from "../../i18n/t";
 import { BrowserBanners } from "./BrowserBanners";
 import { BrowserCategories } from "./BrowserCategories";
-import { ScrollView } from "react-native-gesture-handler";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { NativeScrollEvent, NativeSyntheticEvent, Platform, View } from "react-native";
 import Animated from "react-native-reanimated";
@@ -105,10 +104,10 @@ export const BrowserListings = memo(({
             contentOffset={{ y: -56, x: 0 }}
             onScroll={onScroll}
             scrollEventThrottle={16}
+            contentContainerStyle={{ paddingBottom: 56 + 52 + 32 + bottomBarHeight }}
         >
             <BrowserBanners banners={banners} />
             <BrowserCategories list={list} />
-            {Platform.OS === 'android' && <View style={{ height: bottomBarHeight + 32, width: '100%' }} />}
         </Animated.ScrollView>
     );
 });

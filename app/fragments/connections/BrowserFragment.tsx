@@ -12,7 +12,7 @@ import { useNetwork, useTheme } from '../../engine/hooks';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { BrowserTabs } from '../../components/browser/BrowserTabs';
 import { BrowserSearch } from '../../components/browser/BrowserSearch';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const BrowserFragment = fragment(() => {
@@ -31,7 +31,7 @@ export const BrowserFragment = fragment(() => {
         }]
     }));
     const tabsAnimStyle = useAnimatedStyle(() => ({
-        transform: [{ translateY: -tabsTranslateY.value }]
+        transform: [{ translateY: withTiming(-tabsTranslateY.value, { duration: 250 }) }]
     }));
 
     const onQRCodeRead = (src: string) => {
@@ -55,7 +55,7 @@ export const BrowserFragment = fragment(() => {
         <View style={{ flex: 1 }}>
             <View style={{ height: 44, marginBottom: 8 }} />
             <View style={{ marginTop: 44 + 8 }}>
-                <Animated.View style={searchAnimStyle}>
+                <Animated.View style={[searchAnimStyle, { zIndex: 1005 }]}>
                     <BrowserSearch
                         navigation={navigation}
                         theme={theme}
@@ -65,24 +65,31 @@ export const BrowserFragment = fragment(() => {
                 <Animated.View style={tabsAnimStyle}>
                     <BrowserTabs
                         onScroll={(e) => {
-                            console.log(e.nativeEvent.contentOffset.y);
-                            if (e.nativeEvent.contentOffset.y < 58 + 16 && e.nativeEvent.contentOffset.y >= 29) {
-                                tabsTranslateY.value = e.nativeEvent.contentOffset.y;
-                            } else if (e.nativeEvent.contentOffset.y < 0 && e.nativeEvent.contentOffset.y < 29) {
+                            const addOffset = safeArea.top > 0 ? 8 : 0;
+                            const offset = Math.floor(e.nativeEvent.contentOffset.y);
+                            if (
+                                offset > 29
+                                && offset < 58 + 16 + 29
+                            ) {
+                                cancelAnimation(tabsTranslateY);
+                                tabsTranslateY.value = 58 + 24 + addOffset;
+                            } else if (offset < 29) {
+                                cancelAnimation(tabsTranslateY);
                                 tabsTranslateY.value = 0;
-                            } else {
-                                tabsTranslateY.value = 58 + 16;
                             }
-                            if (e.nativeEvent.contentOffset.y > 29) {
-                                searchTranslateY.value = e.nativeEvent.contentOffset.y - 29;
+
+                            if (offset > 29) {
+                                cancelAnimation(searchTranslateY);
+                                searchTranslateY.value = 58 + 29 + addOffset;
                             } else {
+                                cancelAnimation(searchTranslateY);
                                 searchTranslateY.value = 0;
                             }
                         }}
                     />
                 </Animated.View>
             </View>
-            <View style={{ height: 44, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1001 }}>
+            <View style={{ height: 44, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1006 }}>
                 <TabHeader
                     title={t('home.browser')}
                     style={{
@@ -96,7 +103,8 @@ export const BrowserFragment = fragment(() => {
                                 opacity: pressed ? 0.5 : 1,
                                 backgroundColor: theme.surfaceOnBg,
                                 height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
-                                borderRadius: 16
+                                borderRadius: 16,
+                                marginTop: safeArea.top
                             })}
                             onPress={openScanner}
                         >

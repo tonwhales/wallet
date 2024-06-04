@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useCallback, useState } from 'react';
-import { Pressable, View, Image } from 'react-native';
+import { Pressable, View, Image, Platform } from 'react-native';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { resolveUrl } from '../../utils/resolveUrl';
@@ -12,7 +12,7 @@ import { useNetwork, useTheme } from '../../engine/hooks';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { BrowserTabs } from '../../components/browser/BrowserTabs';
 import { BrowserSearch } from '../../components/browser/BrowserSearch';
-import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, SharedValue, cancelAnimation, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const BrowserFragment = fragment(() => {
@@ -54,7 +54,7 @@ export const BrowserFragment = fragment(() => {
     return (
         <View style={{ flex: 1 }}>
             <View style={{ height: 44, marginBottom: 8 }} />
-            <View style={{ marginTop: 44 + 8 }}>
+            <View style={{ marginTop: safeArea.top }}>
                 <Animated.View style={[searchAnimStyle, { zIndex: 1005 }]}>
                     <BrowserSearch
                         navigation={navigation}
@@ -65,25 +65,29 @@ export const BrowserFragment = fragment(() => {
                 <Animated.View style={tabsAnimStyle}>
                     <BrowserTabs
                         onScroll={(e) => {
-                            const addOffset = safeArea.top > 0 ? 8 : 0;
+                            const setNewOffset = (value: SharedValue<number>, offset: number) => {
+                                cancelAnimation(value);
+                                value.value = offset;
+                            }
+                            const addOffset = safeArea.top <= 20 ? 8 : 0;
                             const offset = Math.floor(e.nativeEvent.contentOffset.y);
+                            const height = 44 + safeArea.top;
+
                             if (
                                 offset > 29
-                                && offset < 58 + 16 + 29
+                                && offset < height + 29
                             ) {
-                                cancelAnimation(tabsTranslateY);
-                                tabsTranslateY.value = 58 + 24 + addOffset;
+                                let newOffset = height - 16 + addOffset;
+                                setNewOffset(tabsTranslateY, newOffset);
                             } else if (offset < 29) {
-                                cancelAnimation(tabsTranslateY);
-                                tabsTranslateY.value = 0;
+                                setNewOffset(tabsTranslateY, 0);
                             }
 
                             if (offset > 29) {
-                                cancelAnimation(searchTranslateY);
-                                searchTranslateY.value = 58 + 29 + addOffset;
+                                let newOffset = height + 29 + addOffset;
+                                setNewOffset(searchTranslateY, newOffset);
                             } else {
-                                cancelAnimation(searchTranslateY);
-                                searchTranslateY.value = 0;
+                                setNewOffset(searchTranslateY, 0);
                             }
                         }}
                     />

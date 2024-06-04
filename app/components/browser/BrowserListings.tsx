@@ -4,7 +4,7 @@ import { t } from "../../i18n/t";
 import { BrowserBanners } from "./BrowserBanners";
 import { BrowserCategories } from "./BrowserCategories";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { NativeScrollEvent, NativeSyntheticEvent, Platform, View } from "react-native";
+import { NativeScrollEvent, NativeSyntheticEvent, Platform } from "react-native";
 import Animated from "react-native-reanimated";
 
 export type BrowserBannerItem = BrowserListingsWithCategory & { banner_type: 'bannerItem' };
@@ -100,11 +100,14 @@ export const BrowserListings = memo(({
         <Animated.ScrollView
             style={{ flexGrow: 1, flexShrink: 1 }}
             showsVerticalScrollIndicator={false}
-            contentInset={{ top: 0.1, left: 0, bottom: 56 + 52 + 32 + bottomBarHeight, right: 0 }}
+            contentInset={{ top: 0.1, left: 0, bottom: 156, right: 0 }}
             contentOffset={{ y: -56, x: 0 }}
             onScroll={onScroll}
             scrollEventThrottle={16}
-            contentContainerStyle={Platform.select({ android: { paddingBottom: 56 + 52 + 32 + bottomBarHeight } })}
+            contentContainerStyle={Platform.select({
+                android: { paddingBottom: 56 + 52 + 32 + bottomBarHeight },
+                ios: { paddingBottom: 156 }
+            })}
         >
             <BrowserBanners banners={banners} />
             <BrowserCategories list={list} />

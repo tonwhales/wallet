@@ -6,7 +6,7 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { SendTransactionRequest } from "../../../engine/tonconnect/types";
 import { DappRequestButton } from "./DappRequestButton";
 import { PreparedConnectRequest } from "../../../engine/hooks/dapps/usePrepareConnectRequest";
-import { ToastProps, Toaster, useToaster } from "../../../components/toast/ToastProvider";
+import { Toaster, useToaster } from "../../../components/toast/ToastProvider";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { Address } from "@ton/core";
@@ -22,8 +22,7 @@ type TonConnectRequestButtonProps = {
 function checkNetworkAndFrom(
     params: { request: PreparedConnectRequest, isTestnet: boolean, },
     toaster: Toaster,
-    toastProps: { marginBottom: number },
-    connectCallback: () => void
+    toastProps: { marginBottom: number }
 ) {
     const { request, isTestnet } = params;
     const toasterErrorProps: { type: 'error', marginBottom: number } = { type: 'error', marginBottom: toastProps.marginBottom };
@@ -36,8 +35,6 @@ function checkNetworkAndFrom(
                 message: t('products.transactionRequest.wrongNetwork'),
             });
 
-            connectCallback();
-            
             return false;
         }
     }
@@ -53,8 +50,6 @@ function checkNetworkAndFrom(
                     message: t('products.transactionRequest.wrongFrom'),
                 });
 
-                connectCallback();
-
                 return false;
             }
 
@@ -63,8 +58,6 @@ function checkNetworkAndFrom(
                 ...toasterErrorProps,
                 message: t('products.transactionRequest.invalidFrom'),
             });
-
-            connectCallback();
 
             return false;
         }
@@ -103,11 +96,11 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
                     ios: { marginBottom: 24 + bottomBarHeight, },
                     android: { marginBottom: 16 },
                     default: { marginBottom: 16 },
-                }),
-                () => connectCallback(false, null, prepared.request, prepared.sessionCrypto)
+                })
             );
 
             if (!isValid) {
+                connectCallback(false, null, prepared.request, prepared.sessionCrypto);
                 return;
             }
 

@@ -221,18 +221,11 @@ export const TransferFragment = fragment(() => {
                 }
 
                 // Fetch data
-                const [
-                    config,
-                    [metadata, state, seqno]
-                ] = await Promise.all([
+                const [config, metadata, state, seqno] = await Promise.all([
                     backoff('txLoad-conf', () => fetchConfig()),
-                    backoff('txLoad', async () => {
-                        return Promise.all([
-                            fetchMetadata(client, block.last.seqno, target.address, isTestnet, true),
-                            client.getAccount(block.last.seqno, target.address),
-                            fetchSeqno(client, block.last.seqno, target.address)
-                        ])
-                    })
+                    backoff('txLoad-meta', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet, true)),
+                    backoff('txLoad-acc', () => client.getAccount(block.last.seqno, target.address)),
+                    backoff('txLoad-seqno', () => fetchSeqno(client, block.last.seqno, target.address))
                 ]);
 
                 let jettonTarget: typeof target | null = null;

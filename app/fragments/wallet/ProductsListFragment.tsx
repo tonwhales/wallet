@@ -1,7 +1,7 @@
 import { useRoute } from "@react-navigation/native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
-import { useHints, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { memo, useMemo } from "react";
 import { Address } from "@ton/core";
@@ -15,6 +15,7 @@ import { JettonProductItem } from "../../components/products/JettonProductItem";
 import { GeneralHoldersAccount, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
+import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 
 export type ProductsListFragmentParams = {
     type: 'holders-accounts' | 'holders-cards' | 'jettons',
@@ -42,7 +43,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
 
     const holdersAccounts = useHoldersAccounts(addressStr).data;
     const holdersAccStatus = useHoldersAccountStatus(addressStr).data;
-    const jettons = useHints(addressStr);
+    const { hints: jettons } = useSortedHints(addressStr);
 
     const items = useMemo<{
         data: (GeneralHoldersAccount | PrePaidHoldersCard | string)[],

@@ -3,7 +3,7 @@ import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storagePersistence } from '../../storage/storage';
+import { storagePersistence, storageQuery } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import * as Application from 'expo-application';
@@ -63,6 +63,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const resetCache = useCallback(async () => {
         queryClient.clear();
         queryClient.invalidateQueries();
+        storageQuery.clearAll();
         storagePersistence.clearAll();
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);

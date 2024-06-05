@@ -166,6 +166,7 @@ export type LocalizationSchema = {
         confirm: string,
         error: {
             invalidAddress: string,
+            invalidAddressMessage: string,
             invalidAmount: string,
             invalidDomain: string,
             invalidDomainString: string,
@@ -178,6 +179,7 @@ export type LocalizationSchema = {
             addressIsNotActive: string
             addressIsNotActiveDescription: string,
             invalidTransaction: string,
+            invalidTransactionMessage: string,
             memoRequired: string
         },
         sendAll: string,
@@ -301,6 +303,9 @@ export type LocalizationSchema = {
             title: string,
             subtitle: string,
             groupTitle: string,
+            wrongNetwork: string,
+            wrongFrom: string,
+            invalidFrom: string,
         },
         signatureRequest: {
             title: string,

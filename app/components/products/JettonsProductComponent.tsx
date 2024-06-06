@@ -16,7 +16,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const markJettonDisabled = useMarkJettonDisabled();
-    const { hints, refreshAllHintsWeights } = useSortedHints(owner.toString({ testOnly }));
+    const { hints } = useSortedHints(owner.toString({ testOnly }));
     let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const visibleList = hints
@@ -74,7 +74,6 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
                 items={visibleList}
-                onCollapsed={refreshAllHintsWeights}
                 renderItem={(wallet) => {
                     if (!wallet) {
                         return null;

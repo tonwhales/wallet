@@ -1,4 +1,4 @@
-import { ReactNode, memo, useCallback, useEffect, useState } from "react";
+import { ReactNode, memo, useEffect, useState } from "react";
 import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { t } from "../../i18n/t";
@@ -57,8 +57,7 @@ export const CollapsibleCards = memo(({
     itemHeight = 86,
     theme,
     initialCollapsed = true,
-    limitConfig,
-    onCollapsed,
+    limitConfig
 }: {
     title: string,
     items: any[],
@@ -67,19 +66,11 @@ export const CollapsibleCards = memo(({
     itemHeight?: number,
     theme: ThemeType,
     initialCollapsed?: boolean,
-    limitConfig?: CollapsibleCardsLimitConfig,
-    onCollapsed?: (collapsed: boolean) => void
+    limitConfig?: CollapsibleCardsLimitConfig
 }) => {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const [collapsed, setCollapsed] = useState(initialCollapsed);
-
-    const onSetCollapsed = useCallback((collapsed: boolean) => {
-        setCollapsed(collapsed);
-        if (onCollapsed) {
-            onCollapsed(collapsed);
-        }
-    }, [onCollapsed]);
 
     const progress = useSharedValue(initialCollapsed ? 0 : 1);
 
@@ -209,7 +200,7 @@ export const CollapsibleCards = memo(({
                             opacity: pressed ? 0.5 : 1
                         }
                     }}
-                    onPress={() => onSetCollapsed(!collapsed)}
+                    onPress={() => setCollapsed(!collapsed)}
                 >
                     <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
                         {t('common.hide')}
@@ -222,7 +213,7 @@ export const CollapsibleCards = memo(({
                         faceStyle,
                         { borderRadius: 20, overflow: 'hidden' }
                     ]}>
-                        <Pressable onPress={() => onSetCollapsed(!collapsed)}>
+                        <Pressable onPress={() => setCollapsed(!collapsed)}>
                             {renderFace && renderFace()}
                         </Pressable>
                     </Animated.View>

@@ -1,6 +1,6 @@
-import { Pressable, View, Text, RefreshControlProps, RefreshControl, Platform } from "react-native";
+import { Pressable, View, Text, Platform, useWindowDimensions } from "react-native";
 import { ItemSwitch } from "../Item";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
@@ -16,10 +16,79 @@ import Modal from "react-native-modal";
 import { RoundButton } from "../RoundButton";
 import { Typography } from "../styles";
 import { ItemDivider } from "../ItemDivider";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { PerfView } from "../basic/PerfView";
+import { LoadingIndicator } from "../LoadingIndicator";
+
+const EmptyListItem = memo(() => {
+    const theme = useTheme();
+
+    return (
+        <PerfView style={[
+            {
+                flexDirection: 'row',
+                borderRadius: 20,
+                overflow: 'hidden',
+                padding: 20,
+                alignItems: 'center',
+                height: 86,
+                backgroundColor: theme.surfaceOnBg
+            },
+        ]}
+        >
+            <View style={{
+                height: 46,
+                width: 46,
+                borderRadius: 23,
+                backgroundColor: theme.divider,
+                overflow: 'hidden',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }} >
+                <LoadingIndicator simple color={theme.textPrimary} />
+            </View>
+            <View style={{ marginLeft: 12, flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                <PerfView>
+                    <PerfView style={{
+                        height: 20, width: 100,
+                        backgroundColor: theme.textSecondary,
+                        borderRadius: 8,
+                        marginBottom: 4,
+                        opacity: 0.5
+                    }} />
+                    <PerfView style={{
+                        height: 20, width: 150,
+                        backgroundColor: theme.textSecondary,
+                        borderRadius: 8,
+                        marginBottom: 4,
+                        opacity: 0.3
+                    }} />
+                </PerfView>
+                <PerfView style={{ alignItems: 'flex-end' }}>
+                    <PerfView style={{
+                        height: 20, width: 86,
+                        backgroundColor: theme.textSecondary,
+                        borderRadius: 8,
+                        marginBottom: 8,
+                        opacity: 0.5
+                    }} />
+                    <PerfView style={{
+                        height: 20, width: 30,
+                        backgroundColor: theme.textSecondary,
+                        borderRadius: 8,
+                        marginBottom: 4,
+                        opacity: 0.5
+                    }} />
+                </PerfView>
+            </View>
+        </PerfView>
+    )
+});
 
 export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
+    const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
@@ -38,7 +107,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
     }, [selected, ledgerContext, testOnly]);
 
     const [filter, setFilter] = useState<HintsFilter[]>(['scam']);
-    const { hints: jettons, refreshAllHintsWeights } = useSortedHints(addressStr, filter);
+    const { hints: jettons } = useSortedHints(addressStr, filter);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -84,22 +153,36 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                         return null;
                     }
                 }}
-                refreshControl={<RefreshControl refreshing={false} onRefresh={refreshAllHintsWeights} />}
                 estimatedItemSize={102}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                 contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}
                 keyExtractor={(item, index) => `jetton-i-${index}`}
                 ListEmptyComponent={(
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0, bottom: 0,
-                        justifyContent: 'center', alignItems: 'center'
-                    }}>
-                        <Text style={[Typography.semiBold27_32, { color: theme.textPrimary }]}>
-                            {'No jettons found'}
-                        </Text>
-                    </View>
+                    filter.length === 1 && filter.includes('scam') ? (
+                        <View style={{
+                            alignItems: 'center',
+                            height: dimentions.height - (safeArea.bottom + safeArea.top + 44 + 32 + 32),
+                            width: '100%',
+                            gap: 8
+                        }}>
+                            <EmptyListItem />
+                            <EmptyListItem />
+                            <EmptyListItem />
+                            <EmptyListItem />
+                            <EmptyListItem />
+                        </View>
+                    ) : (
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            height: dimentions.height - (safeArea.bottom + safeArea.top + 44 + 32 + 32),
+                            width: '100%',
+                        }}>
+                            <Text style={[Typography.semiBold27_32, { color: theme.textSecondary }]}>
+                                {'No jettons found'}
+                            </Text>
+                        </View>
+                    )
                 )}
                 ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
             />
@@ -128,17 +211,32 @@ const JettonsFilterModal = memo(({
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
 
-    const [showScam, setShowScam] = useState(!filter.includes('scam'));
-    const [showUnverified, setShowUnverified] = useState(!filter.includes('verified'));
-    const [showZeroBalance, setShowZeroBalance] = useState(!filter.includes('balance'));
-    const [showNotReady, setShowNotReady] = useState(!filter.includes('ready'));
+    const [value, setValue] = useState<HintsFilter[]>(filter);
 
     useEffect(() => {
-        setShowScam(!filter.includes('scam'));
-        setShowUnverified(!filter.includes('verified'));
-        setShowZeroBalance(!filter.includes('balance'));
-        setShowNotReady(!filter.includes('ready'));
+        setValue(filter);
     }, [filter]);
+
+    const scamHeight = useSharedValue(0);
+
+    const scamStyle = useAnimatedStyle(() => {
+        return {
+            height: withTiming(scamHeight.value, { duration: 300 }),
+            overflow: 'hidden'
+        };
+    })
+
+    useEffect(() => {
+        scamHeight.value = value.includes('verified') ? 0 : 72;
+    }, [value]);
+
+    const onUpdateValue = useCallback((key: HintsFilter) => {
+        if (value.includes(key)) {
+            setValue(value.filter((v) => v !== key));
+        } else {
+            setValue([...value, key]);
+        }
+    }, [value]);
 
     return (
         <Modal
@@ -146,52 +244,49 @@ const JettonsFilterModal = memo(({
             avoidKeyboard
             onBackdropPress={() => setModalVisible(false)}
         >
-            <View style={{
-                marginTop: safeArea.top + 16,
-                paddingTop: 16,
-                backgroundColor: theme.elevation,
-                borderRadius: 20,
-                overflow: 'hidden',
-                justifyContent: 'center',
-                flexShrink: 1
-            }}>
+            <View
+                style={{
+                    marginTop: safeArea.top + 16,
+                    paddingTop: 16,
+                    backgroundColor: theme.elevation,
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    flexShrink: 1
+                }}
+            >
                 <Text style={[Typography.semiBold24_30, { color: theme.textPrimary, textAlign: 'center' }]}>
                     {t('common.show')}
                 </Text>
                 <ItemDivider />
                 <ItemSwitch
-                    title={'SCAM'}
-                    value={showScam}
-                    onChange={setShowScam}
-                />
-                <ItemSwitch
                     title={t('common.unverified')}
-                    value={showUnverified}
-                    onChange={setShowUnverified}
+                    value={!value.includes('verified')}
+                    onChange={() => onUpdateValue('verified')}
                 />
+                <Animated.View style={scamStyle}>
+                    <ItemSwitch
+                        title={'SCAM'}
+                        value={!value.includes('scam')}
+                        onChange={() => onUpdateValue('scam')}
+                    />
+                </Animated.View>
                 <ItemSwitch
                     title={t('jetton.emptyBalance')}
-                    value={showZeroBalance}
-                    onChange={setShowZeroBalance}
+                    value={!value.includes('balance')}
+                    onChange={() => onUpdateValue('balance')}
                 />
                 <ItemSwitch
                     title={t('common.notFound')}
-                    value={showNotReady}
-                    onChange={setShowNotReady}
+                    value={!value.includes('ready')}
+                    onChange={() => onUpdateValue('ready')}
                 />
                 <RoundButton
                     title={t('common.apply')}
                     style={{ marginHorizontal: 16, marginBottom: 16 }}
                     onPress={() => {
                         setModalVisible(false);
-                        setFilter(
-                            [
-                                ...(showScam ? [] : ['scam']),
-                                ...(showUnverified ? [] : ['verified']),
-                                ...(showZeroBalance ? [] : ['balance']),
-                                ...(showNotReady ? [] : ['ready'])
-                            ] as HintsFilter[]
-                        );
+                        setFilter(value);
                     }}
                 />
             </View>

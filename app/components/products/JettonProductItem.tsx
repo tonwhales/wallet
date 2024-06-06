@@ -194,7 +194,6 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
                 </Pressable>
             </Swipeable>
         ) : (
-
             <Pressable style={[
                 {
                     flexDirection: 'row',

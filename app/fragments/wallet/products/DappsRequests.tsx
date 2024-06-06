@@ -47,7 +47,7 @@ export const DappsRequests = memo(() => {
                             key={`tonconnect-req-${index}`}
                             request={r}
                             divider={index < tonconnectRequests.length - 1}
-                            isTestnet
+                            isTestnet={isTestnet}
                         />
                     );
                 })}

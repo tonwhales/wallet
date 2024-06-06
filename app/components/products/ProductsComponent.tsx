@@ -98,6 +98,8 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
 
     }, [selected, isTestnet]);
 
+    const showAddNewProduct = !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
+
     return (
         <View>
             <View style={{
@@ -165,29 +167,27 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                     </View>
                 </View>
 
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    padding: 16
-                }}>
+                <Pressable
+                    style={({ pressed }) => (
+                        {
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', alignItems: 'center',
+                            padding: 16,
+                            opacity: showAddNewProduct && pressed ? 0.5 : 1
+                        }
+                    )}
+                    disabled={!showAddNewProduct}
+                    onPress={() => navigation.navigate('Products')}
+                >
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.products')}
                     </Text>
-                    {!(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n) && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1
-                                }
-                            }}
-                            onPress={() => navigation.navigate('Products')}
-                        >
-                            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                                {t('products.addNew')}
-                            </Text>
-                        </Pressable>
+                    {showAddNewProduct && (
+                        <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                            {t('products.addNew')}
+                        </Text>
                     )}
-                </View>
+                </Pressable>
 
                 <StakingProductComponent
                     key={'pool'}

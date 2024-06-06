@@ -80,7 +80,6 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
                             borderBottomLeftRadius: props.last ? 20 : 0,
                             borderBottomRightRadius: props.last ? 20 : 0,
                         },
-                    // props.itemStyle
                 ]}
                 renderRightActions={() => {
                     return (
@@ -480,9 +479,17 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         </PerfText>
                         <PerfText
                             numberOfLines={1} ellipsizeMode={'tail'}
-                            style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
+                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         >
                             <PerfText style={{ flexShrink: 1 }}>
+                                {isSCAM && (
+                                    <>
+                                        <PerfText style={{ color: theme.accentRed }}>
+                                            {'SCAM'}
+                                        </PerfText>
+                                        {description ? ' • ' : ''}
+                                    </>
+                                )}
                                 {description}
                             </PerfText>
                         </PerfText>

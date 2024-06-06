@@ -1,4 +1,4 @@
-import { DependencyList, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useHints, useNetwork } from "..";
 import { Address } from "@ton/core";
 import { queryClient } from "../../clients";
@@ -6,24 +6,13 @@ import { Queries } from "../../queries";
 import { StoredContractMetadata, StoredJettonWallet } from "../../metadata/StoredMetadata";
 import { verifyJetton } from "./useVerifyJetton";
 import { JettonMasterState } from "../../metadata/fetchJettonMasterContent";
-
-function useThrottledMemo<T>(
-    factory: () => T, deps: DependencyList | undefined,
-    throttle: number = 1000
-): T {
-    const [value, setValue] = useState<T>(factory());
-    useEffect(() => {
-        const timer = setTimeout(() => setValue(factory()), throttle);
-        return () => clearTimeout(timer);
-    }, deps);
-    return value;
-}
+import { useThrottledMemo } from "../../../utils/useThottledMemo";
 
 function computeHintWeight(
     hint: string,
     isTestnet: boolean,
     weights: {
-        loaded: number;
+        ready: number;
         scam: number;
         balance: number;
         verified: number;
@@ -37,65 +26,99 @@ function computeHintWeight(
 
     const { verified, isSCAM } = verifyJetton({ ticker: masterContent?.symbol, master: masterStr }, isTestnet);
 
-    let weight = 0;
+    let weight = 1;
     if (!!jettonWallet && !!masterContent) {
+        const hasBalance = BigInt(jettonWallet.balance) > 0n;
 
-        weight = weights.loaded;
-
-        if (isSCAM) {
+        if (!isSCAM) {
+            weight += 1;
+        } else {
             weight += weights.scam;
         }
 
-        const hasBalance = BigInt(jettonWallet.balance) > 0n;
         if (hasBalance) {
+            weight += 1;
+        } else {
             weight += weights.balance;
         }
 
         if (verified) {
+            weight += 1;
+        } else {
             weight += weights.verified;
         }
+    } else {
+        weight += weights.ready;
+        weight += weights.verified;
     }
 
     return weight;
 }
 
-const weights = {
-    loaded: 1,
-    scam: -1,
-    balance: 1,
-    verified: 1
-};
+export type HintsFilter = 'scam' | 'balance' | 'verified' | 'ready';
+
+function getWeights(filter?: HintsFilter[]): { ready: number, scam: number, balance: number, verified: number } {
+
+    if (!filter) {
+        return {
+            ready: 0,
+            scam: -1,
+            balance: 0,
+            verified: 0
+        };
+    }
+
+    return {
+        ready: filter.includes('ready') ? -4 : 0,
+        scam: filter.includes('scam') ? -4 : -1,
+        balance: filter.includes('balance') ? -4 : 0,
+        verified: filter.includes('verified') ? -4 : 0
+    };
+}
 
 export function useSortedHints(
     owner?: string,
-    filterFn?: (hint: string) => boolean,
+    filter?: HintsFilter[]
 ): {
     hints: string[],
-    setHintWeight: (hint: string, weight: number) => void,
-    updateAllHints: (updater: (hint: string, prevWeight?: number) => number) => void,
-    refreshHintWeight: (hint: string) => void,
-    refreshAllHintWeights: () => void,
+    refreshAllHintsWeights: () => void,
 } {
     const hints = useHints(owner);
     const { isTestnet } = useNetwork();
 
-    const filteredHints = useMemo(() => {
-        if (!filterFn) {
-            return hints;
-        }
-
-        return hints.filter(filterFn);
-    }, [hints, filterFn]);
+    const filteredHints = useThrottledMemo(() => {
+        return hints;
+    }, [hints], 500);
 
     const weightedHintsRef = useRef(new Map<string, number>());
     const [weightedHints, setWeightedHints] = useState(weightedHintsRef.current);
 
     const getHintWeight = useCallback((hint: string) => {
-        return computeHintWeight(hint, isTestnet, weights);
-    }, [isTestnet]);
+        return computeHintWeight(hint, isTestnet, getWeights(filter));
+    }, [isTestnet, filter]);
+
+    const onSetWeightedHints = useCallback((next: Map<string, number>) => {
+        weightedHintsRef.current = next;
+        setWeightedHints(next);
+    }, []);
+
+    const updateTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const refreshAllHintsWeights = useCallback(() => {
+        if (updateTimerRef.current) {
+            clearTimeout(updateTimerRef.current);
+        }
+
+        updateTimerRef.current = setTimeout(() => {
+            const newHints = new Map<string, number>();
+            weightedHintsRef.current.forEach((weight, hint) => {
+                const newWeight = getHintWeight(hint);
+                newHints.set(hint, newWeight);
+            });
+            onSetWeightedHints(newHints);
+        }, 150);
+    }, [getHintWeight]);
 
     useEffect(() => {
-        console.log('Updating hint weights');
         const next = new Map<string, number>();
 
         filteredHints.forEach((hint) => {
@@ -103,45 +126,9 @@ export function useSortedHints(
             next.set(hint, weight);
         });
 
-        weightedHintsRef.current = next;
-        setWeightedHints(next);
+        onSetWeightedHints(next);
 
     }, [filteredHints, getHintWeight]);
-
-    const updateAllHints = useCallback((updater: (hint: string, prevWeight?: number) => number) => {
-        console.log('Updating all hint weights');
-        const newHints = new Map<string, number>();
-        weightedHintsRef.current.forEach((weight, hint) => {
-            newHints.set(hint, updater(hint, weight));
-        });
-        weightedHintsRef.current = newHints;
-        setWeightedHints(weightedHintsRef.current);
-    }, []);
-
-    const setHintWeight = useCallback((hint: string, weight: number) => {
-        console.log('Setting hint weight');
-        weightedHintsRef.current.set(hint, weight);
-        setWeightedHints(weightedHintsRef.current);
-    }, []);
-
-    const refreshHintWeight = useCallback((hint: string) => {
-        console.log('Refreshing hint weight');
-        const weight = getHintWeight(hint);
-        weightedHintsRef.current.set(hint, weight);
-        setWeightedHints(weightedHintsRef.current);
-        return weight;
-    }, [isTestnet, getHintWeight]);
-
-    const refreshAllHintWeights = useCallback(() => {
-        console.log('Refreshing all hint weights');
-        const newHints = new Map<string, number>();
-        weightedHintsRef.current.forEach((weight, hint) => {
-            const newWeight = getHintWeight(hint);
-            newHints.set(hint, newWeight);
-        });
-        weightedHintsRef.current = newHints;
-        setWeightedHints(weightedHintsRef.current);
-    }, [getHintWeight]);
 
     const throttledHints = useThrottledMemo(() => {
         return Array.from(weightedHints.entries()).sort((a, b) => {
@@ -150,8 +137,8 @@ export function useSortedHints(
             }
 
             return a[1] > b[1] ? -1 : 1;
-        }).map(([hint]) => hint);
-    }, [weightedHints], 1000);
+        }).filter(([, wieght]) => wieght >= 0).map(([hint]) => hint);
+    }, [weightedHints], 500);
 
-    return { hints: throttledHints, setHintWeight, updateAllHints, refreshHintWeight, refreshAllHintWeights };
+    return { hints: throttledHints, refreshAllHintsWeights };
 }

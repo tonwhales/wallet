@@ -77,6 +77,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         showMore: 'Show more',
         balances: 'Balances',
         loading: 'Loading...',
+        notFound: 'Not found',
+        unverified: 'Unverified',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -723,6 +725,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         hidden: 'Hidden jettons',
         liquidPoolDescriptionDedust: 'Liquidity for {{name0}}/{{name1}} on DeDust DEX',
         liquidPoolDescriptionStonFi: 'Liquidity for {{name0}}/{{name1}} on STON.fi DEX',
+        emptyBalance: 'Empty balance',
     },
     connections: {
         extensions: 'Extensions',

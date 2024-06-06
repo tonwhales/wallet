@@ -3,7 +3,7 @@ import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { memo, useMemo } from "react";
+import { Suspense, memo, useMemo } from "react";
 import { Address } from "@ton/core";
 import { View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
@@ -11,18 +11,17 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { HoldersAccountItem } from "../../components/products/HoldersAccountItem";
 import { HoldersPrepaidCard } from "../../components/products/HoldersPrepaidCard";
-import { JettonProductItem } from "../../components/products/JettonProductItem";
 import { GeneralHoldersAccount, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
-import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
+import { JettonsList } from "../../components/products/JettonsList";
 
 export type ProductsListFragmentParams = {
     type: 'holders-accounts' | 'holders-cards' | 'jettons',
     isLedger?: boolean
 };
 
-const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-accounts' | 'holders-cards' | 'jettons', isLedger: boolean }) => {
+const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-accounts' | 'holders-cards', isLedger: boolean }) => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
@@ -43,10 +42,9 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
 
     const holdersAccounts = useHoldersAccounts(addressStr).data;
     const holdersAccStatus = useHoldersAccountStatus(addressStr).data;
-    const { hints: jettons } = useSortedHints(addressStr);
 
     const items = useMemo<{
-        data: (GeneralHoldersAccount | PrePaidHoldersCard | string)[],
+        data: (GeneralHoldersAccount | PrePaidHoldersCard)[],
         renderItem: ({ item, index }: { item: any, index: number }) => any,
         estimatedItemSize: number
     }>(() => {
@@ -67,7 +65,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                 },
                 estimatedItemSize: 122
             };
-        } else if (type === 'holders-cards') {
+        } else {
             return {
                 data: holdersAccounts?.prepaidCards ?? [],
                 renderItem: ({ item, index }: { item: PrePaidHoldersCard, index: number }) => {
@@ -85,48 +83,15 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                 },
                 estimatedItemSize: 84
             };
-        } else {
-            return {
-                data: jettons ?? [],
-                renderItem: ({ item, index }: { item: string, index: number }) => {
-                    try {
-                        const wallet = Address.parse(item);
-                        return (
-                            <JettonProductItem
-                                key={`${item}-${index}`}
-                                card
-                                last
-                                wallet={wallet}
-                                itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
-                                ledger={isLedger}
-                                owner={selected!.address}
-                            />
-                        )
-                    } catch (error) {
-                        return null;
-                    }
-                },
-                estimatedItemSize: 102
-            };
         }
-    }, [holdersAccounts, holdersAccStatus, jettons]);
-
-    let title = t('products.holders.accounts.title');
-
-    if (type === 'holders-cards') {
-        title = t('products.holders.accounts.prepaidTitle');
-    }
-
-    if (type === 'jettons') {
-        title = t('jetton.productButtonTitle');
-    }
+    }, [holdersAccounts, holdersAccStatus]);
 
     return (
         <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 style={{ paddingHorizontal: 16 }}
                 onBackPressed={navigation.goBack}
-                title={title}
+                title={type === 'holders-cards' ? t('products.holders.accounts.prepaidTitle') : t('products.holders.accounts.title')}
             />
             <FlashList
                 data={items.data as any}
@@ -147,7 +112,13 @@ export const ProductsListFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <ProductsListComponent type={type} isLedger={isLedger} />
+            {type === 'jettons' ? (
+                <Suspense fallback={<View style={{ backgroundColor: 'red', height: 500, width: 500 }} />}>
+                    <JettonsList isLedger={isLedger} />
+                </Suspense>
+            ) : (
+                <ProductsListComponent type={type} isLedger={isLedger} />
+            )}
         </View>
     );
 });

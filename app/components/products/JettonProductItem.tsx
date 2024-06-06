@@ -4,7 +4,7 @@ import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
-import { Suspense, memo, useCallback, useRef } from 'react';
+import { Suspense, memo, useCallback, useEffect, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useJetton, useJettonWallet, useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { PerfText } from '../basic/PerfText';
@@ -42,7 +42,8 @@ type JettonProductItemProps = {
         hideSelection?: boolean,
     }
     selected?: boolean,
-    hideIfEmpty?: boolean
+    hideIfEmpty?: boolean,
+    onReady?: (address: string) => void,
 };
 
 const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loading' | 'failed' }) => {
@@ -128,39 +129,68 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
                         height: 46,
                         width: 46,
                         borderRadius: 23,
-                        backgroundColor: theme.elevation,
-                        overflow: 'hidden'
+                        backgroundColor: theme.divider,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center'
                     }} >
-                        <Image
-                            style={{ width: 46, height: 46, borderRadius: 23 }}
-                            placeholder={require('@assets/ic_app_placeholder.png')}
-                            placeholderContentFit={'contain'}
-                        />
+                        {props.type === 'loading' ? (
+                            <LoadingIndicator simple color={theme.textPrimary} />
+                        ) : (
+
+                            <Image
+                                style={{ width: 46, height: 46, borderRadius: 23 }}
+                                placeholder={require('@assets/ic_app_placeholder.png')}
+                                placeholderContentFit={'contain'}
+                            />
+                        )}
                     </View>
-                    <View style={{ marginLeft: 12, flex: 1 }}>
-                        <PerfText
-                            style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
-                            ellipsizeMode="tail"
-                            numberOfLines={1}
-                        >
-                            {t('common.loading')}
-                        </PerfText>
-                        <PerfText
-                            numberOfLines={1} ellipsizeMode={'tail'}
-                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                        >
-                            <PerfText style={{ flexShrink: 1 }}>
-                                {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                    <View style={{ marginLeft: 12, flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <PerfView>
+                            {props.type === 'loading' ? (
+
+                                <PerfView style={{
+                                    height: 20, width: 100,
+                                    backgroundColor: theme.textSecondary,
+                                    borderRadius: 8,
+                                    marginBottom: 4,
+                                    opacity: 0.5
+                                }} />
+                            ) : (
+                                <PerfText
+                                    style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
+                                    ellipsizeMode="tail"
+                                    numberOfLines={1}
+                                >
+                                    {t('common.notFound')}
+                                </PerfText>
+                            )}
+                            <PerfText
+                                numberOfLines={1} ellipsizeMode={'tail'}
+                                style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                            >
+                                <PerfText style={{ flexShrink: 1 }}>
+                                    {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                                </PerfText>
                             </PerfText>
-                        </PerfText>
+                        </PerfView>
+                        <PerfView style={{ alignItems: 'flex-end' }}>
+                            <PerfView style={{
+                                height: 20, width: 86,
+                                backgroundColor: theme.textSecondary,
+                                borderRadius: 8,
+                                marginBottom: 8,
+                                opacity: 0.5
+                            }} />
+                            <PerfView style={{
+                                height: 20, width: 30,
+                                backgroundColor: theme.textSecondary,
+                                borderRadius: 8,
+                                marginBottom: 4,
+                                opacity: 0.5
+                            }} />
+                        </PerfView>
                     </View>
-                    {props.type === 'loading' ? (
-                        <LoadingIndicator simple />
-                    ) : (
-                        <PerfText style={[{ flexShrink: 1, color: theme.warning }, Typography.regular15_20]}>
-                            {t('common.error')}
-                        </PerfText>
-                    )}
                 </Pressable>
             </Swipeable>
         ) : (
@@ -183,39 +213,67 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
                     height: 46,
                     width: 46,
                     borderRadius: 23,
-                    backgroundColor: theme.elevation,
-                    overflow: 'hidden'
+                    backgroundColor: theme.divider,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center'
                 }} >
-                    <Image
-                        style={{ width: 46, height: 46, borderRadius: 23 }}
-                        placeholder={require('@assets/ic_app_placeholder.png')}
-                        placeholderContentFit={'contain'}
-                    />
+                    {props.type === 'loading' ? (
+                        <LoadingIndicator simple color={theme.textPrimary} />
+                    ) : (
+
+                        <Image
+                            style={{ width: 46, height: 46, borderRadius: 23 }}
+                            placeholder={require('@assets/ic_app_placeholder.png')}
+                            placeholderContentFit={'contain'}
+                        />
+                    )}
                 </View>
-                <View style={{ marginLeft: 12, flex: 1 }}>
-                    <PerfText
-                        style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {t('common.loading')}
-                    </PerfText>
-                    <PerfText
-                        numberOfLines={1} ellipsizeMode={'tail'}
-                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                    >
-                        <PerfText style={{ flexShrink: 1 }}>
-                            {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                <View style={{ marginLeft: 12, flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <PerfView>
+                        {props.type === 'loading' ? (
+                            <PerfView style={{
+                                height: 20, width: 100,
+                                backgroundColor: theme.textSecondary,
+                                borderRadius: 8,
+                                marginBottom: 4,
+                                opacity: 0.5
+                            }} />
+                        ) : (
+                            <PerfText
+                                style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
+                                ellipsizeMode="tail"
+                                numberOfLines={1}
+                            >
+                                {t('common.notFound')}
+                            </PerfText>
+                        )}
+                        <PerfText
+                            numberOfLines={1} ellipsizeMode={'tail'}
+                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                        >
+                            <PerfText style={{ flexShrink: 1 }}>
+                                {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                            </PerfText>
                         </PerfText>
-                    </PerfText>
+                    </PerfView>
+                    <PerfView style={{ alignItems: 'flex-end' }}>
+                        <PerfView style={{
+                            height: 20, width: 86,
+                            backgroundColor: theme.textSecondary,
+                            borderRadius: 8,
+                            marginBottom: 8,
+                            opacity: 0.5
+                        }} />
+                        <PerfView style={{
+                            height: 20, width: 30,
+                            backgroundColor: theme.textSecondary,
+                            borderRadius: 8,
+                            marginBottom: 4,
+                            opacity: 0.5
+                        }} />
+                    </PerfView>
                 </View>
-                {props.type === 'loading' ? (
-                    <LoadingIndicator simple />
-                ) : (
-                    <PerfText style={[{ flexShrink: 1, color: theme.warning }, Typography.regular15_20]}>
-                        {t('common.error')}
-                    </PerfText>
-                )}
             </Pressable>
         )
     );
@@ -243,7 +301,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
         : null;
     const swipableRef = useRef<Swipeable>(null);
 
-    const { verified, isSCAM } = useVerifyJetton({
+    const { isSCAM } = useVerifyJetton({
         ticker: jetton?.symbol,
         master: jetton?.master.toString({ testOnly: isTestnet })
     });

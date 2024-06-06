@@ -126,7 +126,7 @@ function useSubToHintChange(
 
     useEffect(() => {
         const unsub = queryClient.getQueryCache().subscribe((e: QueryCacheNotifyEvent) => {
-            if (e.type === 'observerResultsUpdated' || e.type === 'updated') {
+            if (e.type === 'updated') {
                 const queryKey = e.query.queryKey;
 
                 if (queryKey[0] === 'contractMetadata') {

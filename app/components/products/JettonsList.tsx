@@ -16,7 +16,7 @@ import Modal from "react-native-modal";
 import { RoundButton } from "../RoundButton";
 import { Typography } from "../styles";
 import { ItemDivider } from "../ItemDivider";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { Easing, LinearTransition, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
 
@@ -110,7 +110,10 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
     const { hints: jettons } = useSortedHints(addressStr, filter);
 
     return (
-        <View style={{ flexGrow: 1 }}>
+        <Animated.View
+            style={{ flexGrow: 1 }}
+            layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+        >
             <ScreenHeader
                 style={{ paddingHorizontal: 16, marginTop: Platform.OS === 'android' ? safeArea.top : 0 }}
                 onBackPressed={navigation.goBack}
@@ -192,7 +195,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                 filter={filter}
                 setModalVisible={setModalVisible}
             />
-        </View>
+        </Animated.View>
     );
 });
 

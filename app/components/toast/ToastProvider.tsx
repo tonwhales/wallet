@@ -38,14 +38,14 @@ export type ToastProps = {
     marginBottom?: number
 }
 
-type ToasterType = {
+export type Toaster = {
     show: (props: ToastProps) => void,
     clear: () => void,
     push: (props: ToastProps) => void,
     pop: () => void
 }
 
-const ToastContext = createContext<ToasterType | null>(null);
+const ToastContext = createContext<Toaster | null>(null);
 
 export const Toast = memo(({
     message,
@@ -124,7 +124,7 @@ export const Toast = memo(({
 });
 
 
-export function processToasterMessage(parsed: any, toaster: ToasterType) {
+export function processToasterMessage(parsed: any, toaster: Toaster) {
     if (typeof parsed.data.name === 'string' && (parsed.data.name as string).startsWith('toaster.')) {
         const actionType = parsed.data.name.split('.')[1];
         const actionArgs = parsed.data.args;

@@ -1,13 +1,29 @@
 import { useConnectAppByClientSessionId } from "../../hooks/dapps/useConnectApp";
-import { SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from "@tonconnect/protocol";
+import { CHAIN, SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from "@tonconnect/protocol";
 import { sendTonConnectResponse } from "../../api/sendTonConnectResponse";
 import { getTimeSec } from "../../../utils/getTimeSec";
 import { warn } from "../../../utils/log";
 import { Cell, fromNano, toNano } from "@ton/core";
 import { useDeleteActiveRemoteRequests } from "./useDeleteActiveRemoteRequests";
 import { SendTransactionRequest, SignRawParams } from '../../tonconnect/types';
+import { ConnectedApp } from "./useTonConnectExtenstions";
 
-export function usePrepareConnectRequest() {
+export type PreparedConnectRequest = {
+  request: SendTransactionRequest,
+  sessionCrypto: SessionCrypto,
+  messages: {
+    amount: bigint,
+    target: string,
+    amountAll: boolean,
+    payload: Cell | null,
+    stateInit: Cell | null
+  }[],
+  app: ConnectedApp | null,
+  network?: CHAIN,
+  from?: string
+}
+
+export function usePrepareConnectRequest(): (request: { from: string } & SendTransactionRequest) => PreparedConnectRequest | undefined {
   const findConnectedAppByClientSessionId = useConnectAppByClientSessionId();
   const deleteActiveRemoteRequest = useDeleteActiveRemoteRequests();
 
@@ -81,7 +97,9 @@ export function usePrepareConnectRequest() {
       request,
       sessionCrypto,
       messages,
-      app: connectedApp
+      app: connectedApp,
+      network: params.network,
+      from: params.from
     }
   }
 }

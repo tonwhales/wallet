@@ -182,26 +182,22 @@ export const CollapsibleCards = memo(({
     return (
         <View>
             <Animated.View
-                style={[
-                    {
-                        flexDirection: 'row',
-                        justifyContent: 'space-between', alignItems: 'center',
-                        paddingHorizontal: 16
-                    },
-                    titleStyle
-                ]}
+                style={titleStyle}
             >
-                <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                    {title}
-                </Text>
                 <Pressable
                     style={({ pressed }) => {
                         return {
-                            opacity: pressed ? 0.5 : 1
+                            opacity: pressed ? 0.5 : 1,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', alignItems: 'center',
+                            paddingHorizontal: 16
                         }
                     }}
                     onPress={() => setCollapsed(!collapsed)}
                 >
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {title}
+                    </Text>
                     <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
                         {t('common.hide')}
                     </Text>

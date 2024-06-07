@@ -11,7 +11,7 @@ const contentCodec = z.object({
     name: z.string().nullable(),
     description: z.string().nullable().optional(),
     symbol: z.string().nullable(),
-    decimals: z.number().nullable(),
+    decimals: z.union([z.number(), z.string()]).nullable().optional(),
     originalImage: z.string().nullable().optional(),
     image: imagePreview.nullable(),
 });
@@ -49,6 +49,10 @@ export async function fetchJettonMasterContent(address: Address, isTestnet: bool
                 data: JSON.stringify(res.data),
             });
             return null;
+        }
+
+        if (typeof parsed.data.decimals === 'string') {
+            parsed.data.decimals = parseInt(parsed.data.decimals);
         }
 
         return parsed.data as JettonMasterState;

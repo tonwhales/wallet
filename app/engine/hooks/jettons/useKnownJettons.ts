@@ -63,6 +63,4 @@ export function getKnownJettons(isTestnet: boolean) {
         specialJetton,
         masters
     }
-
-    return useKnownJettons(isTestnet);
 }

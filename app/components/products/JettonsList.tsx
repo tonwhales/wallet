@@ -6,7 +6,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
-import { HintsFilter, useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
+import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 import { ScreenHeader } from "../ScreenHeader";
 import { t } from "../../i18n/t";
 import { Image } from "expo-image";
@@ -19,6 +19,8 @@ import { ItemDivider } from "../ItemDivider";
 import Animated, { Easing, LinearTransition, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
+import { HintsFilter, getHintWeights } from "../../engine/hooks/jettons/useSortedHintsWatcher";
+import { computeHintWeight } from "../../utils/computeHintWeight";
 
 const EmptyListItem = memo(() => {
     const theme = useTheme();
@@ -106,8 +108,33 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
         return selected!.address.toString({ testOnly });
     }, [selected, ledgerContext, testOnly]);
 
-    const [filter, setFilter] = useState<HintsFilter[]>(['scam']);
-    const { hints: jettons } = useSortedHints(addressStr, filter);
+    const [filter, setFilter] = useState<HintsFilter[] | undefined>();
+    const jettons = useSortedHints(addressStr);
+    const [filteredJettons, setFilteredJettons] = useState(jettons);
+
+    useEffect(() => {
+        if (!filter) {
+            setFilteredJettons(jettons);
+            return;
+        }
+
+        const newJettons: { [key: string]: number } = {};
+
+        jettons.forEach((j) => {
+            newJettons[j] = computeHintWeight(j, testOnly, getHintWeights(filter));
+        });
+
+        const sortedJettons = Object.entries(newJettons)
+            .filter(([_, weight]) => weight > 0)
+            .sort((a, b) => {
+                if (a[1] === b[1]) {
+                    return 0;
+                }
+
+                return a[1] > b[1] ? -1 : 1;
+            });
+        setFilteredJettons(sortedJettons.map(([j]) => j));
+    }, [jettons, filter]);
 
     return (
         <Animated.View
@@ -137,7 +164,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                 }
             />
             <FlashList
-                data={jettons}
+                data={filteredJettons}
                 renderItem={({ item, index }: { item: string, index: number }) => {
                     try {
                         const wallet = Address.parse(item);
@@ -162,7 +189,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                 contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}
                 keyExtractor={(item, index) => `jetton-i-${index}`}
                 ListEmptyComponent={(
-                    filter.length === 1 && filter.includes('scam') ? (
+                    (filter?.length === 1 && filter?.includes('scam')) ? (
                         <View style={{
                             alignItems: 'center',
                             height: dimentions.height - (safeArea.bottom + safeArea.top + 44 + 32 + 32),
@@ -208,16 +235,16 @@ const JettonsFilterModal = memo(({
 }: {
     isModalVisible: boolean,
     setFilter: (filter: HintsFilter[]) => void,
-    filter: HintsFilter[],
+    filter: HintsFilter[] | undefined,
     setModalVisible: (visible: boolean) => void
 }) => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
 
-    const [value, setValue] = useState<HintsFilter[]>(filter);
+    const [value, setValue] = useState<HintsFilter[]>([]);
 
     useEffect(() => {
-        setValue(filter);
+        setValue(filter ?? []);
     }, [filter]);
 
     const scamHeight = useSharedValue(0);
@@ -278,11 +305,6 @@ const JettonsFilterModal = memo(({
                     title={t('jetton.emptyBalance')}
                     value={!value.includes('balance')}
                     onChange={() => onUpdateValue('balance')}
-                />
-                <ItemSwitch
-                    title={t('common.notFound')}
-                    value={!value.includes('ready')}
-                    onChange={() => onUpdateValue('ready')}
                 />
                 <RoundButton
                     title={t('common.apply')}

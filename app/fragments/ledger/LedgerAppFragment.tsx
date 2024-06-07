@@ -10,6 +10,7 @@ import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
 import { SettingsFragment } from '../SettingsFragment';
+import { useSortedHintsWatcher } from "../../engine/hooks/jettons/useSortedHintsWatcher";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,6 +24,9 @@ export const LedgerAppFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
+
+    // Register hints watcher
+    useSortedHintsWatcher(ledgerContext.addr?.address);
 
     if (
         !ledgerContext?.tonTransport

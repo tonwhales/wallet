@@ -50,7 +50,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useNetwork, useTheme } from './engine/hooks';
+import { useNetwork, useSelectedAccount, useTheme } from './engine/hooks';
 import { useNavigationTheme } from './engine/hooks';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
@@ -93,6 +93,7 @@ import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStaking
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
+import { useSortedHintsWatcher } from './engine/hooks/jettons/useSortedHintsWatcher';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -416,6 +417,10 @@ export const Navigation = memo(() => {
 
     // clear pending txs on account change
     usePendingWatcher();
+
+    // Jetton hints watcher
+    const selected = appState.addresses.find((value, index) => index === appState.selected)?.address.toString({ testOnly: isTestnet });
+    useSortedHintsWatcher(selected);
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>

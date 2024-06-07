@@ -15,7 +15,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const markJettonActive = useMarkJettonActive();
-    const { hints } = useSortedHints(owner.toString({ testOnly }));
+    const hints = useSortedHints(owner.toString({ testOnly }));
     let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const hiddenList = hints

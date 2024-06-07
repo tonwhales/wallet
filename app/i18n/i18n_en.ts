@@ -166,6 +166,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         confirm: 'Are you sure want to proceed?',
         error: {
             invalidAddress: 'Invalid address',
+            invalidAddressMessage: 'Please check the recipient address',
             invalidAmount: 'Invalid amount',
             invalidDomain: 'Invalid domain',
             invalidDomainString: 'Minimum 4 characters, maximum 126 characters. Latin letters (a-z), numbers (0-9) and a hyphen (-) are allowed. A hyphen cannot be at the beginning or end.',
@@ -178,6 +179,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             addressIsNotActive: 'This wallet has no history',
             addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
             invalidTransaction: 'Invalid transaction',
+            invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
         },
         sendAll: 'Max',
@@ -301,6 +303,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Transaction requested',
             subtitle: 'Press to view request',
             groupTitle: 'Transaction requests',
+            wrongNetwork: 'Wrong network',
+            wrongFrom: 'Wrong sender',
+            invalidFrom: 'Invalid sender address',
         },
         signatureRequest: {
             title: 'Signature requested',

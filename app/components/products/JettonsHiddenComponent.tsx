@@ -38,29 +38,23 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
 
     return (
         <View style={{ marginBottom: 16 }}>
-            <View style={{
+            <Pressable style={({ pressed }) => ({
                 flexDirection: 'row',
                 justifyContent: 'space-between', alignItems: 'center',
                 paddingVertical: 12,
                 marginBottom: 4,
                 paddingHorizontal: 16,
-            }}>
+                opacity: pressed ? 0.5 : 1
+            })}
+                onPress={() => setCollapsed(!collapsed)}
+            >
                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                     {t('jetton.hidden')}
                 </Text>
-                <Pressable
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.5 : 1
-                        }
-                    }}
-                    onPress={() => setCollapsed(!collapsed)}
-                >
-                    <Text style={[{ color: theme.accent }, Typography.medium17_24]}>
-                        {collapsed ? t('common.show') : t('common.hide')}
-                    </Text>
-                </Pressable>
-            </View>
+                <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                    {collapsed ? t('common.show') : t('common.hide')}
+                </Text>
+            </Pressable>
             <AnimatedChildrenCollapsible
                 showDivider={false}
                 collapsed={collapsed}

@@ -35,10 +35,12 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { AppInfo } from "../../../components/ConnectedAppButton";
 import { ItemDivider } from "../../../components/ItemDivider";
+import { Typography } from "../../../components/styles";
+import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
+import { copyText } from "../../../utils/copyText";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { Typography } from "../../../components/styles";
 
 type Props = {
     text: string | null,
@@ -85,6 +87,7 @@ export const TransferBatch = memo((props: Props) => {
     const denyList = addressBook.denyList;
     const serverConfig = useServerConfig();
     const knownWallets = KnownWallets(isTestnet);
+    const toaster = useToaster();
 
     const appData = useAppData(props.order.app?.url || '');
     const appManifest = useAppManifest(props.order.app?.url || '');
@@ -213,6 +216,15 @@ export const TransferBatch = memo((props: Props) => {
             message: t('transfer.unusualJettonsGasMessage'),
         })
     }, [gas]);
+
+    const onCopyAddress = useCallback((address: string) => {
+        copyText(address);
+        toaster.show({
+            message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+            type: 'default',
+            duration: ToastDuration.SHORT,
+        });
+    }, []);
 
     // Tracking
     const success = useRef(false);
@@ -778,7 +790,16 @@ export const TransferBatch = memo((props: Props) => {
                                     </View>
                                 </View>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Pressable
+                                    style={({ pressed }) => ({
+                                        opacity: pressed ? 0.5 : 1,
+                                        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
+                                    })}
+                                    onPress={() => onCopyAddress(i.message.addr.address.toString({
+                                        testOnly: isTestnet,
+                                        bounceable: i.message.addr.bounceable
+                                    }))}
+                                >
                                     <Text style={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
                                         color: theme.textSecondary,
@@ -854,7 +875,7 @@ export const TransferBatch = memo((props: Props) => {
                                             </View>
                                         )}
                                     </View>
-                                </View>
+                                </Pressable>
                                 {!!i.jettonAmount && (
                                     <>
                                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />

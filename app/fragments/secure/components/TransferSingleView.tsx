@@ -30,6 +30,8 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { PerfText } from "../../../components/basic/PerfText";
 import { PerfView } from "../../../components/basic/PerfView";
 import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
+import { copyText } from "../../../utils/copyText";
+import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
@@ -77,6 +79,7 @@ export const TransferSingleView = memo(({
     isLedger?: boolean,
     contact?: AddressContact | null
 }) => {
+    const toaster = useToaster();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -154,6 +157,15 @@ export const TransferSingleView = memo(({
                 || target.domain
                 || null
     }
+
+    const onCopyAddress = useCallback((address: string) => {
+        copyText(address);
+        toaster.show({
+            message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+            type: 'default',
+            duration: ToastDuration.SHORT,
+        });
+    }, []);
 
     const jettonsGasAlert = useCallback(() => {
         if (!jettonAmountString) return;
@@ -355,7 +367,13 @@ export const TransferSingleView = memo(({
                             </View>
                         </View>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                        <Pressable
+                            style={({ pressed }) => ({
+                                paddingHorizontal: 10, justifyContent: 'center',
+                                opacity: pressed ? 0.5 : 1,
+                            })}
+                            onPress={() => onCopyAddress(to.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }))}
+                        >
                             <Text style={{
                                 fontSize: 13, lineHeight: 18, fontWeight: '400',
                                 color: theme.textSecondary,
@@ -398,7 +416,7 @@ export const TransferSingleView = memo(({
                                     <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
                                 </Pressable>
                             )}
-                        </View>
+                        </Pressable>
                         {!!operation.op && !jettonAmountString && (
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />

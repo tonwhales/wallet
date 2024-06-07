@@ -1,10 +1,21 @@
-import BN from "bn.js";
 import { Address, Cell, toNano } from "@ton/core";
 import Url from 'url-parse';
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
 import { ConnectQrQuery } from "../engine/tonconnect/types";
+
+enum ResolveUrlError {
+    InvalidUrl = 'InvalidUrl',
+    InvalidAddress = 'InvalidAddress',
+    InvalidPayload = 'InvalidPayload',
+    InvalidStateInit = 'InvalidStateInit',
+    InvalidJetton = 'InvalidJetton',
+    InvalidEndpoint = 'InvalidEndpoint',
+    InvalidJettonFee = 'InvalidJettonFee',
+    InvalidJettonForward = 'InvalidJettonForward',
+    InvalidJettonAmounts = 'InvalidJettonAmounts',
+}
 
 export type ResolvedUrl = {
     type: 'transaction',
@@ -34,6 +45,9 @@ export type ResolvedUrl = {
 } | {
     type: 'tonconnect',
     query: ConnectQrQuery
+} | {
+    type: 'error',
+    error: ResolveUrlError
 }
 
 export function isUrl(str: string): boolean {
@@ -115,7 +129,6 @@ function resolveTransferUrl(url: Url<Record<string, string | undefined>>): Resol
 }
 
 export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
-
 
     // Try address parsing
     try {

@@ -306,8 +306,8 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Resolve jetton order
         if (jettonState) {
-            const txAmount = forwardAmount ?? (toNano('0.05') + estim);
-            const tonAmount = feeAmount ?? 1n;
+            const txAmount = feeAmount ?? (toNano('0.05') + estim);
+            const tonAmount = forwardAmount ?? 1n;
 
             return createJettonOrder({
                 wallet: jettonState.walletAddress,

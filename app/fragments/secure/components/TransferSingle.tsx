@@ -267,7 +267,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         let body: PendingTransactionBody | null = order.messages[0].payload
-            ? { type: 'payload', cell: order.messages[0].payload }
+            ? { type: 'payload', cell: order.messages[0].payload, stateInit: order.messages[0].stateInit }
             : (text && text.length > 0
                 ? { type: 'comment', comment: text }
                 : null
@@ -276,7 +276,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         if (jettonTarget && jetton && jettonAmountString) {
             body = {
                 type: 'token',
-                master: jetton,
+                jetton: jetton,
                 target: jettonTarget.address,
                 bounceable: jettonTarget.bounceable,
                 amount: toBnWithDecimals(jettonAmountString, jetton.decimals ?? 9),

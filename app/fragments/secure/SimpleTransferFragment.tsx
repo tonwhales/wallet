@@ -617,7 +617,10 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Check amount
         if (balance < validAmount || balance === 0n) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
+            Alert.alert(
+                t('common.error'),
+                t('transfer.error.notEnoughCoins')
+            );
             return;
         }
         if (validAmount === 0n) {

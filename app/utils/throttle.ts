@@ -3,14 +3,23 @@ export function throttle(
     wait: number
 ) {
     let timer: NodeJS.Timeout | null;
+    let lastArgs: any[] | null = null;
 
     return function (this: any, ...args: any[]) {
         if (timer) {
-            clearTimeout(timer);
+            lastArgs = args;
+            return;
         }
 
+        // run the function immediately
+        func.apply(this, args);
+
+        // set the timer to apply new arguments after the wait time
         timer = setTimeout(() => {
-            func.apply(this, args);
+            if (lastArgs) {
+                func.apply(this, lastArgs);
+                lastArgs = null;
+            }
             timer = null;
         }, wait);
     };

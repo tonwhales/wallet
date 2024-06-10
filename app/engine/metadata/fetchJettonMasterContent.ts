@@ -32,7 +32,7 @@ const masterContentCodec = z.intersection(
 );
 
 export type LPAssetMetadata = z.infer<typeof lpAssetCodec>;
-export type JettonMasterState = z.infer<typeof masterContentCodec>;
+export type JettonMasterState = z.infer<typeof masterContentCodec> & { decimals: number | null };
 
 export async function fetchJettonMasterContent(address: Address, isTestnet: boolean): Promise<JettonMasterState | null> {
     const res = await axios.get(

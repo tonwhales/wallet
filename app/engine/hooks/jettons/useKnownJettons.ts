@@ -3,6 +3,7 @@ import { Queries } from "../../queries";
 import { KnownJettons, fetchKnownJettons } from "../../api/fetchKnownJettons";
 import { KnownJettonMastersMainnet, KnownJettonMastersTestnet, KnownJettonTickers, SpecialJettonMainnet, SpecialJettonTestnet } from "../../../secure/KnownWallets";
 import { queryClient } from "../../clients";
+import { getQueryData } from "../../utils/getQueryData";
 
 export function useKnownJettons(isTestnet: boolean): KnownJettons | null {
     const full = useQuery({
@@ -32,7 +33,8 @@ export function useKnownJettons(isTestnet: boolean): KnownJettons | null {
 }
 
 export function getKnownJettons(isTestnet: boolean) {
-    const full = queryClient.getQueryData<
+    const cache = queryClient.getQueryCache();
+    const full = getQueryData<
         {
             mainnet: {
                 tickers: string[];
@@ -45,7 +47,7 @@ export function getKnownJettons(isTestnet: boolean) {
                 specialJetton?: string | null | undefined;
             };
         } | null
-    >(Queries.Jettons().Known());
+    >(cache, Queries.Jettons().Known());
 
     const knownJettons = (isTestnet ? full?.testnet : full?.mainnet) ?? null
 

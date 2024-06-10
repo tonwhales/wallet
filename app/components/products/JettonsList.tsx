@@ -19,8 +19,7 @@ import { ItemDivider } from "../ItemDivider";
 import Animated, { Easing, LinearTransition, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
-import { HintsFilter, getHintWeights } from "../../engine/hooks/jettons/useSortedHintsWatcher";
-import { computeHintWeight } from "../../utils/computeHintWeight";
+import { filterHint, getHint, HintsFilter } from "../../utils/hintSortFilter";
 
 const EmptyListItem = memo(() => {
     const theme = useTheme();
@@ -108,32 +107,17 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
         return selected!.address.toString({ testOnly });
     }, [selected, ledgerContext, testOnly]);
 
-    const [filter, setFilter] = useState<HintsFilter[] | undefined>();
+    const [filter, setFilter] = useState<HintsFilter[]>([]);
     const jettons = useSortedHints(addressStr);
     const [filteredJettons, setFilteredJettons] = useState(jettons);
 
     useEffect(() => {
-        if (!filter) {
-            setFilteredJettons(jettons);
-            return;
-        }
+        setFilteredJettons(
+            jettons
+                .map((h) => getHint(h, testOnly))
+                .filter(filterHint(filter)).map((x) => x.address)
+        );
 
-        const newJettons: { [key: string]: number } = {};
-
-        jettons.forEach((j) => {
-            newJettons[j] = computeHintWeight(j, testOnly, getHintWeights(filter));
-        });
-
-        const sortedJettons = Object.entries(newJettons)
-            .filter(([_, weight]) => weight > 0)
-            .sort((a, b) => {
-                if (a[1] === b[1]) {
-                    return 0;
-                }
-
-                return a[1] > b[1] ? -1 : 1;
-            });
-        setFilteredJettons(sortedJettons.map(([j]) => j));
     }, [jettons, filter]);
 
     return (

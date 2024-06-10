@@ -135,14 +135,14 @@ describe('resolveUrl', () => {
         const payload = comment('test').toBoc({ idx: false }).toString('base64');
         const invalidPayload = 'invalid payload' + comment('test').toBoc({ idx: false }).toString('base64'); 
 
-        const testValidUrl = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${feeAmount}&forward-amount=${forwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
-        const testInvalidAmount = `${testUrlBase}/${address}?amount=${invalidAmount}&fee-amount=${feeAmount}&forward-amount=${forwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
-        const testInvalidFeeAmount = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${invalidFeeAmount}&forward-amount=${forwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
-        const testInvalidForwardAmount = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${feeAmount}&forward-amount=${invalidForwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
-        const testFailedFeeAmount = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${failedFeeAmount}&forward-amount=${forwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
-        const testInvalidPayload = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${feeAmount}&forward-amount=${forwardAmount}&bin=${invalidPayload}&jetton=${jettonMasterAddress}`;
+        const validUrl = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${feeAmount}&forward-amount=${forwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
+        const invalidAmountUrl = `${testUrlBase}/${address}?amount=${invalidAmount}&fee-amount=${feeAmount}&forward-amount=${forwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
+        const invalidFeeAmountUrl = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${invalidFeeAmount}&forward-amount=${forwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
+        const invalidForwardAmountUrl = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${feeAmount}&forward-amount=${invalidForwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
+        const failedFeeAmountUrl = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${failedFeeAmount}&forward-amount=${forwardAmount}&bin=${payload}&jetton=${jettonMasterAddress}`;
+        const invalidPayloadUrl = `${testUrlBase}/${address}?amount=${jettonAmount}&fee-amount=${feeAmount}&forward-amount=${forwardAmount}&bin=${invalidPayload}&jetton=${jettonMasterAddress}`;
 
-        let res = resolveUrl(testValidUrl, false)!;
+        let res = resolveUrl(validUrl, false)!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
 
@@ -158,7 +158,7 @@ describe('resolveUrl', () => {
         expect(res.jettonMaster.equals(Address.parse(jettonMasterAddress))).toBe(true);
 
         // Invalid amount
-        res = resolveUrl(testInvalidAmount, false)!;
+        res = resolveUrl(invalidAmountUrl, false)!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
         expect(res.type).toEqual('error');
@@ -170,7 +170,7 @@ describe('resolveUrl', () => {
         }
 
         // Invalid fee amount
-        res = resolveUrl(testInvalidFeeAmount, false)!;
+        res = resolveUrl(invalidFeeAmountUrl, false)!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
         expect(res.type).toEqual('error');
@@ -182,7 +182,7 @@ describe('resolveUrl', () => {
         }
 
         // Invalid forward amount
-        res = resolveUrl(testInvalidForwardAmount, false)!;
+        res = resolveUrl(invalidForwardAmountUrl, false)!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
         expect(res.type).toEqual('error');
@@ -194,7 +194,7 @@ describe('resolveUrl', () => {
         }
 
         // Failed amounts
-        res = resolveUrl(testFailedFeeAmount, false)!;
+        res = resolveUrl(failedFeeAmountUrl, false)!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
         expect(res.type).toEqual('error');
@@ -206,7 +206,7 @@ describe('resolveUrl', () => {
         }
 
         // Invalid payload
-        res = resolveUrl(testInvalidPayload, false)!;
+        res = resolveUrl(invalidPayloadUrl, false)!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
         expect(res.type).toEqual('error');

@@ -115,7 +115,9 @@ export function useLinkNavigator(
                 job: null,
                 jetton: Address.parse(jettonWalletAddress),
                 callback: null,
-                payload: resolved.payload
+                payload: resolved.payload,
+                feeAmount: resolved.feeAmount,
+                forwardAmount: resolved.forwardAmount,
             });
         }
 

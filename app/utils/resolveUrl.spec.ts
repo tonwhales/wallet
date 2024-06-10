@@ -121,9 +121,9 @@ describe('resolveUrl', () => {
         const testUrlBase = `ton://transfer`;
 
         const address = 'UQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqByL6';
-        const jettonMasterAddress = 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs';
+        const jettonMasterAddress = 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs'; // USDT master
 
-        const jettonAmount = '1000000000';
+        const jettonAmount = '10'; // 10.0 tokens
         const feeAmount = '5000000000';
         const forwardAmount = '1000000000';
 

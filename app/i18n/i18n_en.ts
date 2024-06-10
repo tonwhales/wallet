@@ -171,7 +171,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             sendingToYourself: 'You can\'t send coins to yourself',
             zeroCoins: 'Unfortunately you can\'t send zero coins',
             zeroCoinsAlert: 'You are trying to send zero coins',
-            notEnoughCoins: 'You don\'t have enough TON on your wallets balance',
+            notEnoughCoins: 'You don\'t have enough funds on your balance',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
             addressIsNotActive: 'This wallet has no history',

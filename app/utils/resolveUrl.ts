@@ -5,13 +5,12 @@ import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
 import { ConnectQrQuery } from "../engine/tonconnect/types";
 
-enum ResolveUrlError {
-    InvalidUrl = 'InvalidUrl',
+export enum ResolveUrlError {
     InvalidAddress = 'InvalidAddress',
     InvalidPayload = 'InvalidPayload',
     InvalidStateInit = 'InvalidStateInit',
     InvalidJetton = 'InvalidJetton',
-    InvalidEndpoint = 'InvalidEndpoint',
+    InvalidAmount = 'InvalidAmount',
     InvalidJettonFee = 'InvalidJettonFee',
     InvalidJettonForward = 'InvalidJettonForward',
     InvalidJettonAmounts = 'InvalidJettonAmounts',
@@ -60,8 +59,26 @@ export function isUrl(str: string): boolean {
 }
 
 function resolveTransferUrl(url: Url<Record<string, string | undefined>>): ResolvedUrl {
-    let rawAddress = url.pathname.slice(1).endsWith('/') ? url.pathname.slice(1, -1) : url.pathname.slice(1);
-    let address = Address.parseFriendly(rawAddress).address;
+    let rawAddress = url.pathname;
+
+    if (rawAddress.startsWith('/transfer/')) {
+        rawAddress = rawAddress.slice('/transfer/'.length);
+    } else if (rawAddress.startsWith('/TRANSFER/')) {
+        rawAddress = rawAddress.slice('/TRANSFER/'.length);
+    }
+
+    if (rawAddress.slice(1).endsWith('/')) {
+        rawAddress = rawAddress.slice(1, -1);
+    } else if (rawAddress.startsWith('/')) {
+        rawAddress = rawAddress.slice(1);
+    }
+
+    let address: Address;
+    try {
+        address = Address.parseFriendly(rawAddress).address;
+    } catch (e) {
+        return { type: 'error', error: ResolveUrlError.InvalidAddress };
+    }
     let comment: string | null = null;
     let amount: bigint | null = null;
     let payload: Cell | null = null;
@@ -77,35 +94,59 @@ function resolveTransferUrl(url: Url<Record<string, string | undefined>>): Resol
                 comment = url.query[key]!;
             }
             if (key.toLowerCase() === 'amount') {
-                if (keys.find((p) => p.toLowerCase() === 'jetton') !== undefined) {
-                    amount = toNano(url.query[key]!.replace(',', '.').replaceAll(' ', ''));
-                } else {
-                    amount = BigInt(url.query[key]!);
+                try {
+                    if (keys.find((p) => p.toLowerCase() === 'jetton') !== undefined) {
+                        amount = toNano(url.query[key]!.replace(',', '.').replaceAll(' ', ''));
+                    } else {
+                        amount = BigInt(url.query[key]!);
+                    }
+                } catch {
+                    return { type: 'error', error: ResolveUrlError.InvalidAmount };
                 }
             }
             if (key.toLowerCase() === 'bin') {
-                payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                try {
+                    payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                } catch {
+                    return { type: 'error', error: ResolveUrlError.InvalidPayload };
+                }
             }
             if (key.toLowerCase() === 'init') {
-                stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                try {
+                    stateInit = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
+                } catch {
+                    return { type: 'error', error: ResolveUrlError.InvalidStateInit };
+                }
             }
             if (key.toLowerCase() === 'jetton') {
                 try {
                     jettonMaster = Address.parseFriendly(url.query[key]!).address;
-                } catch (e) {
-                    warn('Invalid jetton master address');
+                } catch {
+                    return { type: 'error', error: ResolveUrlError.InvalidJetton };
                 }
             }
             if (key.toLowerCase() === 'fee-amount') {
-                feeAmount = BigInt(url.query[key]!);
+                try {
+                    feeAmount = BigInt(url.query[key]!);
+                } catch {
+                    return { type: 'error', error: ResolveUrlError.InvalidJettonFee };
+                }
             }
             if (key.toLowerCase() === 'forward-amount') {
-                forwardAmount = BigInt(url.query[key]!);
+                try {
+                    forwardAmount = BigInt(url.query[key]!);
+                } catch {
+                    return { type: 'error', error: ResolveUrlError.InvalidJettonForward };
+                }
             }
         }
     }
 
     if (jettonMaster) {
+        if (!!feeAmount && !!forwardAmount && feeAmount < forwardAmount) {
+            return { type: 'error', error: ResolveUrlError.InvalidJettonAmounts };
+        }
+
         return {
             type: 'jetton-transaction',
             address,

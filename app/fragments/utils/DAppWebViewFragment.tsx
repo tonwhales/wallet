@@ -356,6 +356,7 @@ export const DAppWebViewFragment = fragment(() => {
                     lockScroll: false,
                     ...defaultQueryParamsState
                 }}
+                originWhitelist={['http:\/\/*', 'https:\/\/*', 'tg:*']}
             />
         </View>
     );

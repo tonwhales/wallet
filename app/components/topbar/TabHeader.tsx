@@ -26,7 +26,8 @@ export const TabHeader = memo(({
                 marginTop: safeArea.top,
                 flexDirection: 'row',
                 backgroundColor: theme.backgroundPrimary,
-            }, style
+            }, 
+            style
         ]}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <Text

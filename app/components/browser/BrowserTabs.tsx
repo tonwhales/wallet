@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, View } from "react-native";
+import { NativeScrollEvent, Platform, View } from "react-native";
 import { PressableChip } from "../PressableChip";
 import { t } from "../../i18n/t";
 import { useTheme } from "../../engine/hooks";
@@ -8,8 +8,9 @@ import { BrowserListings } from "./BrowserListings";
 import { BrowserConnections } from "./BrowserConnections";
 import { useBrowserListings } from "../../engine/hooks/banners/useBrowserListings";
 import { ScrollView } from "react-native-gesture-handler";
+import { NativeSyntheticEvent } from "react-native";
 
-export const BrowserTabs = memo(() => {
+export const BrowserTabs = memo(({ onScroll }: { onScroll?: ((event: NativeSyntheticEvent<NativeScrollEvent>) => void) }) => {
     const theme = useTheme();
     const listings = useBrowserListings().data || [];
     const hasListings = !!listings && listings.length > 0;
@@ -20,15 +21,15 @@ export const BrowserTabs = memo(() => {
 
     const tabComponent = useMemo(() => {
         if (tab === 0) {
-            return <BrowserListings listings={listings} />;
+            return <BrowserListings onScroll={onScroll} listings={listings} />;
         }
 
         if (tab === 1) {
-            return <BrowserExtensions />;
+            return <BrowserExtensions onScroll={onScroll} />;
         }
 
-        return <BrowserConnections />;
-    }, [tab, listings]);
+        return <BrowserConnections onScroll={onScroll} />;
+    }, [tab, listings, onScroll]);
 
     const onSetTab = useCallback((index: number) => {
         tabRef.current = index;
@@ -65,6 +66,7 @@ export const BrowserTabs = memo(() => {
                 contentInset={{ right: 24, left: 16 }}
                 contentOffset={{ x: -24, y: 0 }}
                 showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: 8 }}
             >
                 {!!listings && listings.length > 0 && (
                     <PressableChip

@@ -77,18 +77,6 @@ const PendingTransactionView = memo(({
             return true;
         }
 
-        if (tx.body?.type === 'payload') {
-            const body = parseMessageBody(tx.body.cell);
-            if (!!body && (
-                body.type === 'holders::account::top_up'
-                || body.type === 'holders::account::limits_change'
-            )) {
-                return true;
-            }
-        }
-
-    }, [tx, targetContract?.kind]);
-
     const [failed, setFailed] = useState(false);
 
     // Resolve built-in known wallets

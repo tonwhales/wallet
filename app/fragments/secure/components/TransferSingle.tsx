@@ -196,7 +196,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             return;
         }
 
-        let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, await getLastBlock(), selected!.address));
+        let lastBlock = await getLastBlock();
+        let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, lastBlock, selected!.address));
 
         // Create transfer
         let transfer: Cell;
@@ -266,7 +267,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         let body: PendingTransactionBody | null = order.messages[0].payload
-            ? { type: 'payload', cell: order.messages[0].payload }
+            ? { type: 'payload', cell: order.messages[0].payload, stateInit: order.messages[0].stateInit }
             : (text && text.length > 0
                 ? { type: 'comment', comment: text }
                 : null
@@ -275,7 +276,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         if (jettonTarget && jetton && jettonAmountString) {
             body = {
                 type: 'token',
-                master: jetton,
+                jetton: jetton,
                 target: jettonTarget.address,
                 bounceable: jettonTarget.bounceable,
                 amount: toBnWithDecimals(jettonAmountString, jetton.decimals ?? 9),
@@ -292,6 +293,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             address: target.address,
             bounceable: target.bounceable,
             seqno: seqno,
+            blockSeqno: lastBlock,
             body: body,
             time: Math.floor(Date.now() / 1000),
             hash: msg.hash(),

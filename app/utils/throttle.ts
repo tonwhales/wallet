@@ -1,6 +1,7 @@
 export function throttle(
     func: (...args: any[]) => void,
-    wait: number
+    wait: number,
+    notImmediate: boolean = false
 ) {
     let timer: NodeJS.Timeout | null;
     let lastArgs: any[] | null = null;
@@ -13,6 +14,10 @@ export function throttle(
 
         // run the function immediately
         func.apply(this, args);
+      
+        if (!notImmediate) {
+            func.apply(this, args);
+        }
 
         // set the timer to apply new arguments after the wait time
         timer = setTimeout(() => {

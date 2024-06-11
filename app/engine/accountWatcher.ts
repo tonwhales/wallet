@@ -6,7 +6,7 @@ import { onBlockMissed } from './effects/onBlockMissed';
 import { useAppVisible, useNetwork } from './hooks';
 import { clients } from './clients';
 import { useSetRecoilState } from 'recoil';
-import { blockWatcherAtom } from './state/blockWatcherState';
+import { blockWatcherAtom, lastWatchedBlockAtom } from './state/blockWatcherState';
 import { Address } from '@ton/core';
 
 let lastBlockResolve: ((block: number) => void) | undefined;
@@ -21,6 +21,7 @@ export function getLastBlock() {
 export function useBlocksWatcher() {
     const { isTestnet } = useNetwork();
     const setState = useSetRecoilState(blockWatcherAtom);
+    const setLastBlock = useSetRecoilState(lastWatchedBlockAtom);
     const appStateVisible = useAppVisible();
 
     useEffect(() => {
@@ -37,6 +38,7 @@ export function useBlocksWatcher() {
                 lastBlockResolve?.(data.seqno);
                 lastBlockResolve = undefined;
                 lastBlockPromise = Promise.resolve(data.seqno);
+                setLastBlock({ seqno: data.seqno, lastUtime: data.lastUtime });
 
                 // get last block from storage & compare to check for missed blocks
                 const lastBlock = storage.getNumber('lastBlock') || data.seqno;

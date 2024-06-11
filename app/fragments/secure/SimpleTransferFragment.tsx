@@ -47,6 +47,9 @@ export type SimpleTransferParams = {
     target?: string | null,
     comment?: string | null,
     amount?: bigint | null,
+    payload?: Cell | null,
+    feeAmount?: bigint | null,
+    forwardAmount?: bigint | null,
     stateInit?: Cell | null,
     job?: string | null,
     jetton?: Address | null,
@@ -103,6 +106,12 @@ export const SimpleTransferFragment = fragment(() => {
     const [selectedJetton, setJetton] = useState<Address | null>(params?.jetton || null);
     const estimationRef = useRef<bigint | null>(null);
     const [estimation, setEstimation] = useState<bigint | null>(estimationRef.current);
+
+    // custom payload
+    const payload = params.payload ?? null
+    // jetton transfer params
+    const forwardAmount = params.forwardAmount ?? null;
+    const feeAmount = params.feeAmount ?? null;
 
     const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
     const jetton = useJettonContent(jettonWallet?.master ?? null);
@@ -297,7 +306,8 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Resolve jetton order
         if (jettonState) {
-            const txForwardAmount = toNano('0.05') + estim;
+            const txAmount = feeAmount ?? (toNano('0.05') + estim);
+            const tonAmount = forwardAmount ?? 1n;
 
             return createJettonOrder({
                 wallet: jettonState.walletAddress,
@@ -306,9 +316,9 @@ export const SimpleTransferFragment = fragment(() => {
                 responseTarget: acc!.address,
                 text: commentString,
                 amount: validAmount,
-                tonAmount: 1n,
-                txAmount: txForwardAmount,
-                payload: null
+                tonAmount,
+                txAmount,
+                payload: payload
             }, network.isTestnet);
         }
 
@@ -317,7 +327,7 @@ export const SimpleTransferFragment = fragment(() => {
             target: target,
             domain: domain,
             text: commentString,
-            payload: null,
+            payload: payload,
             amount: (validAmount === accountLite?.balance) ? toNano('0') : validAmount,
             amountAll: validAmount === accountLite?.balance,
             stateInit,
@@ -607,7 +617,10 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Check amount
         if (balance < validAmount || balance === 0n) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
+            Alert.alert(
+                t('common.error'),
+                t('transfer.error.notEnoughCoins')
+            );
             return;
         }
         if (validAmount === 0n) {
@@ -1032,21 +1045,27 @@ export const SimpleTransferFragment = fragment(() => {
                             width: '100%', borderRadius: 20,
                             overflow: 'hidden'
                         }}>
-                            <ATextInput
-                                value={commentString}
-                                index={2}
-                                ref={refs[2]}
-                                onFocus={onFocus}
-                                onValueChange={setComment}
-                                placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
-                                keyboardType={'default'}
-                                autoCapitalize={'sentences'}
-                                label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
-                                style={{ paddingHorizontal: 16 }}
-                                inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
-                                multiline
-                                cursorColor={theme.accent}
-                            />
+                            {payload ? (
+                                <Text style={[{ color: theme.textPrimary, marginHorizontal: 16 }, Typography.regular17_24]}>
+                                    {t('transfer.smartContract')}
+                                </Text>
+                            ) : (
+                                <ATextInput
+                                    value={commentString}
+                                    index={2}
+                                    ref={refs[2]}
+                                    onFocus={onFocus}
+                                    onValueChange={setComment}
+                                    placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
+                                    keyboardType={'default'}
+                                    autoCapitalize={'sentences'}
+                                    label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
+                                    style={{ paddingHorizontal: 16 }}
+                                    inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
+                                    multiline
+                                    cursorColor={theme.accent}
+                                />
+                            )}
                         </View>
                         {!!commentError ? (
                             <Animated.View

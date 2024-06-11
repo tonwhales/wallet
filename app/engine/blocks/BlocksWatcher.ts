@@ -7,11 +7,12 @@ const MESSAGE_TIMEOUT = 15000;
 const CONNECTION_TIMEOUT = 5000;
 
 type BlockRef = { seqno: number };
-type BlockChanged = { seqno: number, changed: { [key: string]: { hash: string, lt: string } } };
+type BlockChanged = { seqno: number, changed: { [key: string]: { hash: string, lt: string } }, lastUtime: number };
 
 const changeCodec = t.type({
     changed: t.record(t.string, t.type({ hash: t.string, lt: t.string })),
-    seqno: t.number
+    seqno: t.number,
+    lastUtime: t.number,
 });
 
 export interface BlocksWatcher {

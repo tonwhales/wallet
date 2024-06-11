@@ -18,16 +18,16 @@ import { TransferBatch } from './components/TransferBatch';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
-import { Suspense, memo, useEffect, useMemo, useState } from 'react';
+import { Suspense, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
 import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal } from '@ton/core';
-import { getLastBlock } from '../../engine/accountWatcher';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
+import { useToaster } from '../../components/toast/ToastProvider';
 
 export type TransferFragmentProps = {
     text: string | null,
@@ -133,6 +133,7 @@ export const TransferFragment = fragment(() => {
     const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const toaster = useToaster();
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
     const [bounceableFormat,] = useBounceableWalletFormat();
@@ -159,6 +160,32 @@ export const TransferFragment = fragment(() => {
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
     const netConfig = useConfig();
+
+    const onError = useCallback(({ message, title }: { message?: string, title: string }) => {
+        toaster.show({
+            type: 'error',
+            message: title,
+        });
+
+        Alert.alert(
+            title,
+            message,
+            [{
+                text: t('common.close'),
+                onPress: () => {
+                    if (params.back && params.back > 0) {
+                        for (let i = 0; i < params.back; i++) {
+                            navigation.goBack();
+                        }
+                    } else {
+                        navigation.popToTop();
+                    }
+                }
+            }]
+        );
+
+    }, []);
+
     useEffect(() => {
         // Await data
         if (!netConfig) {
@@ -167,30 +194,38 @@ export const TransferFragment = fragment(() => {
 
         let exited = false;
 
-        backoff('transfer', async () => {
+        backoff('txLoad', async () => {
             // Get contract
             const contract = contractFromPublicKey(from.publicKey);
             const tonDnsRootAddress = Address.parse(netConfig.rootDnsAddress);
 
             const emptySecret = Buffer.alloc(64);
 
+            let block = await backoff('txLoad-blc', () => client.getLastBlock());
+
             if (order.messages.length === 1) {
-                let target = Address.parseFriendly(params.order.messages[0].target);
+                let target: {
+                    isBounceable: boolean;
+                    isTestOnly: boolean;
+                    address: Address;
+                };
+
+                try {
+                    target = Address.parseFriendly(params.order.messages[0].target);
+                } catch (error) {
+                    onError({
+                        title: t('transfer.error.invalidAddress'),
+                        message: t('transfer.error.invalidAddressMessage')
+                    });
+                    return;
+                }
 
                 // Fetch data
-                const [
-                    config,
-                    [metadata, state, seqno]
-                ] = await Promise.all([
-                    backoff('transfer', () => fetchConfig()),
-                    backoff('transfer', async () => {
-                        let block = await backoff('transfer', () => client.getLastBlock());
-                        return Promise.all([
-                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet, true)),
-                            backoff('transfer', () => client.getAccount(block.last.seqno, target.address)),
-                            backoff('transfer', () => fetchSeqno(client, block.last.seqno, target.address))
-                        ])
-                    }),
+                const [config, metadata, state, seqno] = await Promise.all([
+                    backoff('txLoad-conf', () => fetchConfig()),
+                    backoff('txLoad-meta', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet, true)),
+                    backoff('txLoad-acc', () => client.getAccount(block.last.seqno, target.address)),
+                    backoff('txLoad-seqno', () => fetchSeqno(client, block.last.seqno, target.address))
                 ]);
 
                 let jettonTarget: typeof target | null = null;
@@ -222,8 +257,7 @@ export const TransferFragment = fragment(() => {
                 }
 
                 if (jettonTarget) {
-                    let block = await backoff('transfer', () => client.getLastBlock());
-                    jettonTargetState = await backoff('transfer', () => client.getAccount(block.last.seqno, target.address));
+                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, target.address));
                 }
 
                 if (order.domain) {
@@ -271,10 +305,7 @@ export const TransferFragment = fragment(() => {
                             throw Error('Error resolving wallet address');
                         }
                     } catch (e) {
-                        Alert.alert(t('transfer.error.invalidDomain'), undefined, [{
-                            text: t('common.close'),
-                            onPress: () => navigation.goBack()
-                        }]);
+                        onError({ title: t('transfer.error.invalidDomain') });
                         return;
                     }
                 }
@@ -296,7 +327,7 @@ export const TransferFragment = fragment(() => {
                     body,
                 });
 
-                const accSeqno = await backoff('transfer-seqno', async () => fetchSeqno(client, await getLastBlock(), contract.address));
+                const accSeqno = await backoff('txLoad-seqno', async () => fetchSeqno(client, block.last.seqno, contract.address));
 
                 let transfer = contract.createTransfer({
                     seqno: accSeqno,
@@ -367,8 +398,7 @@ export const TransferFragment = fragment(() => {
                 return;
             }
 
-            const block = await backoff('transfer', () => client.getLastBlock());
-            const config = await backoff('transfer', () => fetchConfig());
+            const config = await backoff('txLoad-cfg', () => fetchConfig());
 
             const outMsgs: Cell[] = [];
             const storageStats: ({
@@ -402,8 +432,8 @@ export const TransferFragment = fragment(() => {
 
                     // Fetch data
                     const [metadata, state] = await Promise.all([
-                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, to, isTestnet, true)),
-                        backoff('transfer', () => client.getAccount(block.last.seqno, to))
+                        backoff(`txLoad-meta${i}`, () => fetchMetadata(client, block.last.seqno, to, isTestnet, true)),
+                        backoff(`txLoad-acc${i}`, () => client.getAccount(block.last.seqno, to))
                     ]);
 
                     storageStats.push(state!.account.storageStat);
@@ -434,18 +464,11 @@ export const TransferFragment = fragment(() => {
                         },
                     });
                 } else {
-                    Alert.alert(t('transfer.error.invalidTransaction'), undefined, [{
-                        text: t('common.back'),
-                        onPress: () => {
-                            if (params.back && params.back > 0) {
-                                for (let i = 0; i < params.back; i++) {
-                                    navigation.goBack();
-                                }
-                            } else {
-                                navigation.popToTop();
-                            }
-                        }
-                    }]);
+                    onError({
+                        title: t('transfer.error.invalidTransaction'),
+                        message: t('transfer.error.invalidTransactionMessage')
+                    });
+
                     exited = true;
                     if (params && params.job) {
                         commitCommand(false, params.job, new Cell());
@@ -459,7 +482,8 @@ export const TransferFragment = fragment(() => {
             }
 
             // Create transfer
-            const accountSeqno = await fetchSeqno(client, block.last.seqno, contract.address);
+            const accountSeqno = await backoff('txLoad-seqno', async () => fetchSeqno(client, block.last.seqno, contract.address));
+
             let transfer = await contract.createTransfer({
                 seqno: accountSeqno,
                 secretKey: emptySecret,
@@ -507,7 +531,13 @@ export const TransferFragment = fragment(() => {
             />
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 {!loadedProps ? (
-                    <Skeleton />
+                    <View style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    }}>
+                        <View style={{ flexGrow: 1, alignItems: 'center' }}>
+                            <TransferSkeleton />
+                        </View>
+                    </View>
                 ) : (
                     <TransferLoaded {...loadedProps} />
                 )}

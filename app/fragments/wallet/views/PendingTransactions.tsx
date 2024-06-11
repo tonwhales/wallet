@@ -72,11 +72,6 @@ const PendingTransactionView = memo(({
     const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
     const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
 
-    const isHoldersOp = useMemo(() => {
-        if (targetContract?.kind === 'jetton-card' && tx.body?.type === 'token') {
-            return true;
-        }
-
     const [failed, setFailed] = useState(false);
 
     // Resolve built-in known wallets

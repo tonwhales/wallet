@@ -138,7 +138,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "receive": {
         "title": "Получить",
-        "subtitle": "Отправляйте на этот адрес только TON. Другие активы будут потеряны навсегда",
+        "subtitle": "Отправляйте на этот адрес только токены блокчейна TON. Другие активы будут потеряны навсегда",
         "share": {
             "title": "My Tonhub Address"
         }
@@ -149,6 +149,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "confirm": "Вы уверены, что хотите продолжить?",
         "error": {
             "invalidAddress": "Неверный адрес",
+            "invalidAddressMessage": "Пожалуйста, проверьте адрес получателя",
             "invalidDomain": "Неверный домен",
             "invalidDomainString": "Минимум 4 символа, максимум 126 символов. Допустимы латинские буквы (a-z), цифры (0-9) и дефис (-). Дефис не может находиться в начале или конце.",
             "invalidAmount": "Неверное количество",
@@ -161,6 +162,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "addressIsNotActive": "У кошелька получателя нет истории",
             "addressIsNotActiveDescription": "С данного кошелька не было совершено ни одной исходящей транзакции",
             "invalidTransaction": "Неверная транзакция",
+            "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
             "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
         },
         "sendAll": "Max",
@@ -184,7 +186,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "contact": "Ваш контакт",
         "firstTime": "Отправка первый раз",
         "requestsToSign": "{{app}} запрашивает подпись транзакции",
-        "smartContract": "Смарт-контракт транзакция",
+        "smartContract": "Смарт-контракт операция",
         "txsSummary": "Итого",
         "txsTotal": "Общая сумма",
         "gasDetails": "Детали комиссий",
@@ -299,6 +301,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "title": "Запрос на транзакцию",
             "subtitle": "Нажмите, чтобы посмотреть запрос",
             "groupTitle": "Запросы на подтверждение",
+            "wrongNetwork": "Неверная сеть",
+            "wrongFrom": "Неверный адрес отправитель",
+            "invalidFrom": "Невалидный адрес отправителя"
         },
         "signatureRequest": {
             "title": "Запрос на подпись",

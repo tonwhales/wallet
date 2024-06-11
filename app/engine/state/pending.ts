@@ -3,12 +3,12 @@ import { Address, Cell } from "@ton/core";
 import { Jetton } from "../types";
 
 export type PendingTransactionBody =
-    | { type: 'payload', cell: Cell }
+    | { type: 'payload', cell: Cell, stateInit?: Cell | null }
     | { type: 'comment', comment: string }
     | {
         type: 'token',
         amount: bigint,
-        master: Jetton,
+        jetton: Jetton,
         target: Address,
         bounceable?: boolean,
         comment: string | null

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { memo } from "react";
 import { View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
@@ -22,6 +22,8 @@ import { useBounceableWalletFormat, useSelectedAccount, useWalletSettings } from
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
+import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
+import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
 import { useLastWatchedBlock } from "../../../engine/hooks/useLastWatchedBlock";
 import { throttle } from "../../../utils/throttle";
 
@@ -70,6 +72,24 @@ const PendingTransactionView = memo(({
     const [settings,] = useWalletSettings(targetFriendly);
     const knownWallets = KnownWallets(isTestnet);
     const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
+    const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
+
+    const isHoldersOp = useMemo(() => {
+        if (targetContract?.kind === 'jetton-card' && tx.body?.type === 'token') {
+            return true;
+        }
+
+        if (tx.body?.type === 'payload') {
+            const body = parseMessageBody(tx.body.cell);
+            if (!!body && (
+                body.type === 'holders::account::top_up'
+                || body.type === 'holders::account::limits_change'
+            )) {
+                return true;
+            }
+        }
+
+    }, [tx, targetContract?.kind]);
 
     const [failed, setFailed] = useState(false);
 
@@ -161,6 +181,7 @@ const PendingTransactionView = memo(({
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={knownWallets}
                             theme={theme}
+                            holders={isHoldersOp}
                         />
                     ) : (
                         <Avatar

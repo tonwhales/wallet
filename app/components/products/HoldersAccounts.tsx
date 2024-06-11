@@ -160,7 +160,6 @@ export const HoldersAccounts = memo(({
                                         height: undefined
                                     }}
                                     textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    currencyCode={'EUR'}
                                     theme={theme}
                                 />
                             </View>

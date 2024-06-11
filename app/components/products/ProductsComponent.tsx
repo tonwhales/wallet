@@ -68,13 +68,7 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigate(
-                'HoldersLanding',
-                {
-                    endpoint: url,
-                    onEnrollType: { type: 'create' }
-                }
-            );
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: 'create' } });
             return;
         }
         navigation.navigateHolders({ type: 'create' });

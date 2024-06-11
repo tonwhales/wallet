@@ -67,13 +67,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigate(
-                'HoldersLanding',
-                {
-                    endpoint: url,
-                    onEnrollType: { type: 'create' }
-                }
-            );
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: 'create' } });
             return;
         }
         navigation.navigateHolders({ type: 'create' });

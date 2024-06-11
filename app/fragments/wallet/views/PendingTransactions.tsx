@@ -18,35 +18,25 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/avatar/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useBounceableWalletFormat, useClient4, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
+import { useBounceableWalletFormat, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
-import { TonClient4 } from "@ton/ton";
-import { getLastBlock } from "../../../engine/accountWatcher";
-import { fetchRoughBlockCreationTime } from "../../../engine/api/fetchRoughBlockCreationTime";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
-import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
-import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
+import { useLastWatchedBlock } from "../../../engine/hooks/useLastWatchedBlock";
+import { throttle } from "../../../utils/throttle";
 
-async function checkIfTxFailed(client: TonClient4, block: number, tx: PendingTransaction, txTimeout: number = 60) {
-    const currentBlock = await getLastBlock();
-    const blockToCheck = block + 25;
+function checkIfTxFailed(tx: PendingTransaction, txTimeout: number = 60, lastWatchedBlock: { seqno: number, lastUtime: number } | null) {
+    const currentBlock = lastWatchedBlock?.seqno ?? 0;
+    const blockToCheck = tx.blockSeqno + 20;
 
-    if (block === currentBlock || blockToCheck >= currentBlock) {
+    if (tx.blockSeqno === currentBlock || blockToCheck >= currentBlock) {
         return false;
     }
 
-    let blockCreatedAt = 0;
-
-    // fetch block creation time
-    try {
-        blockCreatedAt = await fetchRoughBlockCreationTime(currentBlock, client);
-    } catch (error) {
-        return false;
-    }
+    let blockCreatedAt = lastWatchedBlock?.lastUtime ?? 0;
 
     // check if block was created after transaction expiration date
-    return blockCreatedAt > (tx.time + txTimeout) * 1000;
+    return blockCreatedAt > (tx.time + txTimeout);
 }
 
 const PendingTransactionView = memo(({
@@ -70,7 +60,7 @@ const PendingTransactionView = memo(({
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const client = useClient4(isTestnet);
+    const lastBlock = useLastWatchedBlock();
     const navigation = useTypedNavigation();
     const body = tx.body;
     const targetFriendly = body?.type === 'token'
@@ -99,8 +89,7 @@ const PendingTransactionView = memo(({
 
     }, [tx, targetContract?.kind]);
 
-    const failedRef = useRef(false);
-    const [failed, setFailed] = useState(failedRef.current);
+    const [failed, setFailed] = useState(false);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -120,8 +109,11 @@ const PendingTransactionView = memo(({
             ? tx.amount
             : -tx.amount;
 
-    const removeTimeout = useRef<NodeJS.Timeout | null>(null);
-    const failedCheckInterval = useRef<NodeJS.Timeout | null>(null);
+    const throttledAction = useCallback(throttle(
+        (action: () => void) => action(),
+        15 * 1000,
+        true
+    ), []);
 
     useEffect(() => {
         // Remove transaction from pending list
@@ -133,58 +125,26 @@ const PendingTransactionView = memo(({
             }
 
             // on main tab remove after 15 seconds
-            removeTimeout.current = setTimeout(() => {
-                onRemove(tx.id);
-            }, 15000);
+            throttledAction(() => onRemove(tx.id));
         }
-
-        return () => {
-            if (removeTimeout.current) {
-                clearTimeout(removeTimeout.current);
-            }
-        };
     }, [tx.status, onRemove]);
 
     useEffect(() => {
-        // Check if transaction failed after 25 blocks every 5 seconds
+        // Check if transaction failed
         if (tx.status === 'pending') {
-            failedCheckInterval.current = setInterval(async () => {
+            const failed = checkIfTxFailed(tx, txTimeout, lastBlock);
 
-                const failed = await checkIfTxFailed(client, tx.blockSeqno, tx, txTimeout);
+            if (failed) {
+                // set failed flag
+                setFailed(true);
 
-                if (failed) {
-
-                    // set failed flag
-                    failedRef.current = true;
-                    setFailed(true);
-
-                    if (failedCheckInterval.current) {
-                        clearInterval(failedCheckInterval.current);
-                    }
-
-                    if (onRemove) {
-                        if (removeTimeout.current) {
-                            clearTimeout(removeTimeout.current);
-                        }
-
-                        // remove after 15 seconds delay
-                        removeTimeout.current = setTimeout(() => {
-                            onRemove(tx.id);
-                        }, 15000);
-                    }
+                if (onRemove) {
+                    // remove after 15 seconds delay
+                    throttledAction(() => onRemove(tx.id));
                 }
-            }, 5000);
+            }
         }
-
-        return () => {
-            if (failedCheckInterval.current) {
-                clearInterval(failedCheckInterval.current);
-            }
-            if (removeTimeout.current) {
-                clearTimeout(removeTimeout.current);
-            }
-        };
-    }, [client, tx.blockSeqno, tx.id, tx.status, onRemove]);
+    }, [lastBlock, tx.blockSeqno, tx.id, tx.status, onRemove]);
 
     return (
         <Animated.View
@@ -203,7 +163,7 @@ const PendingTransactionView = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}
-                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx })}
+                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx, failed })}
             >
                 <View style={{
                     width: 46, height: 46,
@@ -288,10 +248,10 @@ const PendingTransactionView = memo(({
                         {'-'}
                         <ValueComponent
                             value={amount}
-                            decimals={(body?.type === 'token' && body.master.decimals) ? body.master.decimals : undefined}
+                            decimals={(body?.type === 'token' && body.jetton.decimals) ? body.jetton.decimals : undefined}
                             precision={3}
                         />
-                        {body?.type === 'token' && body.master.symbol ? ` ${body.master.symbol}` : ' TON'}
+                        {body?.type === 'token' && body.jetton.symbol ? ` ${body.jetton.symbol}` : ' TON'}
                     </Text>
                     {tx.body?.type !== 'token' && (
                         <PriceComponent

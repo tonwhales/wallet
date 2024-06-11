@@ -26,7 +26,7 @@ import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHolders
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
-export const ProductsComponent = memo(({ selected, tonBalance }: { selected: SelectedAccount, tonBalance: bigint }) => {
+export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -34,7 +34,6 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
     const totalStaked = useStaking().total;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    // const jettons = useJettons(selected!.addressString);
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
@@ -149,7 +148,6 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                     }}>
                         <TonProductComponent
                             key={'ton-native'}
-                            balance={tonBalance}
                             theme={theme}
                             navigation={navigation}
                             address={selected.address}

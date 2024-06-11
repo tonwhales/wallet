@@ -13,6 +13,8 @@ export function throttle(
         }
 
         // run the function immediately
+        func.apply(this, args);
+      
         if (!notImmediate) {
             func.apply(this, args);
         }

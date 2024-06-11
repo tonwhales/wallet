@@ -79,6 +79,8 @@ export type LocalizationSchema = {
         showMore: string,
         balances: string,
         loading: string,
+        notFound: string,
+        unverified: string,
     },
     syncStatus: {
         connecting: string,
@@ -728,8 +730,9 @@ export type LocalizationSchema = {
         productButtonTitle: string,
         productButtonSubtitle: string,
         hidden: string,
-        liquidPoolDescriptionDedust: string
-        liquidPoolDescriptionStonFi: string
+        liquidPoolDescriptionDedust: string,
+        liquidPoolDescriptionStonFi: string,
+        emptyBalance: string,
     },
     connections: {
         extensions: string,

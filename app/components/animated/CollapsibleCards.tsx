@@ -66,7 +66,7 @@ export const CollapsibleCards = memo(({
     itemHeight?: number,
     theme: ThemeType,
     initialCollapsed?: boolean,
-    limitConfig?: CollapsibleCardsLimitConfig,
+    limitConfig?: CollapsibleCardsLimitConfig
 }) => {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();

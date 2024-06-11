@@ -56,6 +56,7 @@ export const ItemSwitch = memo((props: {
                 alignItems: 'center', justifyContent: 'space-between',
                 flexDirection: 'row',
                 padding: 20,
+                minHeight: 72
             }}
             disabled={props.disabled}
         >

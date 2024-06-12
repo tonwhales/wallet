@@ -4,9 +4,13 @@ import { ThemeType } from "../../../engine/state/theme";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { WalletActionButton } from "./WalletActionButton";
 import { isNeocryptoAvailable } from "../../../utils/isNeocryptoAvailable";
+import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 
 export const WalletActions = memo(({ theme, navigation, isTestnet }: { theme: ThemeType, navigation: TypedNavigation, isTestnet: boolean }) => {
     const showBuy = isNeocryptoAvailable();
+    const appConfig = useAppConfig();
+    const showSwap = appConfig?.features?.swap;
+    
     return (
         <View style={{ paddingHorizontal: 16 }}>
             <View style={{
@@ -42,14 +46,13 @@ export const WalletActions = memo(({ theme, navigation, isTestnet }: { theme: Th
                     navigation={navigation}
                     theme={theme}
                 />
-                {/* TODO: enable when dedust swap will be ready for release */}
-                {/* {!isTestnet && (
+                {!isTestnet && showSwap && (
                     <WalletActionButton
                         type={'swap'}
                         navigation={navigation}
                         theme={theme}
                     />
-                )} */}
+                )}
                 <WalletActionButton
                     type={'send'}
                     navigation={navigation}

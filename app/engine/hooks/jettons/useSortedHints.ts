@@ -6,7 +6,7 @@ import { z } from "zod";
 const sortedHintsKey = 'sortedHints';
 const weightedHintsCodec = z.array(z.string());
 
-function getSortedHints(address?: string): string[] {
+export function getSortedHints(address?: string): string[] {
     if (!address) {
         return [];
     }

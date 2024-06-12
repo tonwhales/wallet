@@ -733,6 +733,7 @@ export type LocalizationSchema = {
         liquidPoolDescriptionDedust: string,
         liquidPoolDescriptionStonFi: string,
         emptyBalance: string,
+        jettonsNotFound: string,
     },
     connections: {
         extensions: string,

@@ -78,7 +78,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "balances": "Балансы",
         "loading": 'Загрузка...',
         "notFound": "Не найден",
-        "unverified": "Неверифицированые",
+        "unverified": "Неверифицированные",
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -304,7 +304,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "subtitle": "Нажмите, чтобы посмотреть запрос",
             "groupTitle": "Запросы на подтверждение",
             "wrongNetwork": "Неверная сеть",
-            "wrongFrom": "Неверный адрес отправитель",
+            "wrongFrom": "Неверный адрес отправителя",
             "invalidFrom": "Невалидный адрес отправителя"
         },
         "signatureRequest": {
@@ -731,6 +731,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "liquidPoolDescriptionDedust": "Ликвидность для {{name0}}/{{name1}} на DeDust DEX",
         "liquidPoolDescriptionStonFi": "Ликвидность для {{name0}}/{{name1}} на STON.fi DEX",
         "emptyBalance": 'Пустой баланс',
+        "jettonsNotFound": 'Токены не найдены'
     },
     "connections": {
         "extensions": "Расширения",

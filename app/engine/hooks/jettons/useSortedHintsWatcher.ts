@@ -7,6 +7,7 @@ import { QueryCacheNotifyEvent } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { getQueryData } from "../../utils/getQueryData";
 import { throttle } from "../../../utils/throttle";
+import { log } from "../../../utils/log";
 
 function useSubToHintChange(
     onChangeMany: () => void,

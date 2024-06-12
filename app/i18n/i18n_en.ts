@@ -731,6 +731,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         liquidPoolDescriptionDedust: 'Liquidity for {{name0}}/{{name1}} on DeDust DEX',
         liquidPoolDescriptionStonFi: 'Liquidity for {{name0}}/{{name1}} on STON.fi DEX',
         emptyBalance: 'Empty balance',
+        jettonsNotFound: 'No jettons found'
     },
     connections: {
         extensions: 'Extensions',

@@ -25,8 +25,8 @@ const EmptyListItem = memo(() => {
     const theme = useTheme();
 
     return (
-        <PerfView style={[
-            {
+        <PerfView
+            style={{
                 flexDirection: 'row',
                 borderRadius: 20,
                 overflow: 'hidden',
@@ -34,8 +34,7 @@ const EmptyListItem = memo(() => {
                 alignItems: 'center',
                 height: 86,
                 backgroundColor: theme.surfaceOnBg
-            },
-        ]}
+            }}
         >
             <View style={{
                 height: 46,
@@ -149,16 +148,15 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
             />
             <FlashList
                 data={filteredJettons}
-                renderItem={({ item, index }: { item: string, index: number }) => {
+                renderItem={({ item }: { item: string }) => {
                     try {
                         const wallet = Address.parse(item);
                         return (
                             <JettonProductItem
-                                key={`${item}-${index}`}
                                 card
                                 last
                                 wallet={wallet}
-                                itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
+                                itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
                                 ledger={isLedger}
                                 owner={selected!.address}
                             />
@@ -167,7 +165,8 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                         return null;
                     }
                 }}
-                estimatedItemSize={102}
+                // to see less blank space
+                estimatedItemSize={80}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                 contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}
@@ -193,7 +192,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                             width: '100%',
                         }}>
                             <Text style={[Typography.semiBold27_32, { color: theme.textSecondary }]}>
-                                {'No jettons found'}
+                                {t('jetton.jettonsNotFound')}
                             </Text>
                         </View>
                     )

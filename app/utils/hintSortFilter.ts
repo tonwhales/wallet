@@ -8,6 +8,7 @@ import { getQueryData } from "../engine/utils/getQueryData";
 
 type Hint = {
     address: string,
+    loaded?: boolean;
     swap?: bigint | null;
     verified?: boolean;
     isSCAM?: boolean;
@@ -35,6 +36,11 @@ export function getHintWeights(filter?: HintsFilter[]): { scam: number, balance:
 
 export function filterHint(filter: HintsFilter[]): (hint: Hint) => boolean {
     return (hint: Hint) => {
+
+        if (!hint.loaded) {
+            return false;
+        }
+        
         if (filter.includes('verified') && !hint.verified) {
             return false;
         }
@@ -67,7 +73,7 @@ export function getHint(hint: string, isTestnet: boolean): Hint {
             return { address: hint };
         }
 
-        return { address: hint, swap, verified, isSCAM, balance: BigInt(jettonWallet.balance) };
+        return { address: hint, swap, verified, isSCAM, balance: BigInt(jettonWallet.balance), loaded: true };
     } catch {
         return { address: hint };
     }

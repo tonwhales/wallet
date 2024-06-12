@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from "react"
-import { StyleProp, ViewStyle, TextStyle } from "react-native"
+import { StyleProp, ViewStyle, TextStyle, Text } from "react-native"
 import { CurrencySymbols, formatCurrency } from "../utils/formatCurrency"
 import { usePrice } from "../engine/hooks";
 import { fromNano } from "@ton/core";
@@ -103,12 +103,12 @@ export const PriceComponent = memo((
                     />
                 </PerfView>
             )}
-            <PerfText style={[{ color: theme.surfaceOnBg, textAlign: 'center' }, Typography.medium15_20, textStyle]}>
+            <Text style={[{ color: theme.surfaceOnBg, textAlign: 'center' }, Typography.medium15_20, textStyle]}>
                 {`${integer}${decimalPoint ?? ','}`}
-                <PerfText key={`cents-${currency}`} style={centsTextStyle}>
+                <Text style={centsTextStyle}>
                     {cents}
-                </PerfText>
-            </PerfText>
+                </Text>
+            </Text>
         </PerfView>
     );
 });

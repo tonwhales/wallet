@@ -4,7 +4,7 @@ import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
-import { Suspense, memo, useCallback, useEffect, useRef } from 'react';
+import { Suspense, memo, useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useJetton, useJettonWallet, useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { PerfText } from '../basic/PerfText';
@@ -42,7 +42,6 @@ type JettonProductItemProps = {
         hideSelection?: boolean,
     }
     selected?: boolean,
-    hideIfEmpty?: boolean,
     onReady?: (address: string) => void,
 };
 
@@ -114,6 +113,7 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
             >
                 <Pressable
                     style={{
+                        height: 86,
                         flexDirection: 'row',
                         borderRadius: 20,
                         overflow: 'hidden',
@@ -195,6 +195,7 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
         ) : (
             <Pressable style={[
                 {
+                    height: 86,
                     flexDirection: 'row',
                     borderRadius: 20,
                     overflow: 'hidden',
@@ -331,10 +332,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     }, [jetton, props.ledger, props.selectParams?.onSelect]);
 
     if (!jetton) {
-        if (props.hideIfEmpty) {
-            return null;
-        }
-        return (<JettonItemSekeleton {...props} type={'failed'} />);
+        return null;
     }
 
     let name = jetton.name;
@@ -436,22 +434,22 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 >
                                     {name}
                                 </PerfText>
-                                <PerfText
+                                <Text
                                     numberOfLines={1} ellipsizeMode={'tail'}
                                     style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                 >
-                                    <PerfText style={{ flexShrink: 1 }}>
+                                    <Text style={{ flexShrink: 1 }}>
                                         {isSCAM && (
                                             <>
-                                                <PerfText style={{ color: theme.accentRed }}>
+                                                <Text style={{ color: theme.accentRed }}>
                                                     {'SCAM'}
-                                                </PerfText>
+                                                </Text>
                                                 {description ? ' • ' : ''}
                                             </>
                                         )}
                                         {description}
-                                    </PerfText>
-                                </PerfText>
+                                    </Text>
+                                </Text>
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
                                 <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
@@ -534,22 +532,22 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         >
                             {name}
                         </PerfText>
-                        <PerfText
+                        <Text
                             numberOfLines={1} ellipsizeMode={'tail'}
                             style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         >
-                            <PerfText style={{ flexShrink: 1 }}>
+                            <Text style={{ flexShrink: 1 }}>
                                 {isSCAM && (
                                     <>
-                                        <PerfText style={{ color: theme.accentRed }}>
+                                        <Text style={{ color: theme.accentRed }}>
                                             {'SCAM'}
-                                        </PerfText>
+                                        </Text>
                                         {description ? ' • ' : ''}
                                     </>
                                 )}
                                 {description}
-                            </PerfText>
-                        </PerfText>
+                            </Text>
+                        </Text>
                     </View>
                     {!props.selectParams ? (
                         <View style={{ alignItems: 'flex-end' }}>

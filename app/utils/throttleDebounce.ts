@@ -1,10 +1,11 @@
-export function throttle(
+export function throttleDebounce(
     func: (...args: any[]) => void,
     wait: number,
     notImmediate: boolean = false
 ) {
     let timer: NodeJS.Timeout | null;
     let lastArgs: any[] | null = null;
+    let calledOnce = false;
 
     return function (this: any, ...args: any[]) {
         if (timer) {
@@ -12,11 +13,11 @@ export function throttle(
             return;
         }
 
-        // run the function immediately
-        func.apply(this, args);
-      
-        if (!notImmediate) {
+        if (!calledOnce && !notImmediate) {
             func.apply(this, args);
+            calledOnce = true;
+        } else {
+            lastArgs = args;
         }
 
         // set the timer to apply new arguments after the wait time

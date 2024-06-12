@@ -25,7 +25,7 @@ import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
 import { useLastWatchedBlock } from "../../../engine/hooks/useLastWatchedBlock";
-import { throttle } from "../../../utils/throttle";
+import { throttleDebounce } from "../../../utils/throttleDebounce";
 
 function checkIfTxFailed(tx: PendingTransaction, txTimeout: number = 60, lastWatchedBlock: { seqno: number, lastUtime: number } | null) {
     const currentBlock = lastWatchedBlock?.seqno ?? 0;
@@ -111,7 +111,7 @@ const PendingTransactionView = memo(({
             ? tx.amount
             : -tx.amount;
 
-    const throttledAction = useCallback(throttle(
+    const throttledAction = useCallback(throttleDebounce(
         (action: () => void) => action(),
         15 * 1000,
         true

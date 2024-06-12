@@ -6,7 +6,7 @@ import { queryClient } from "../../clients";
 import { QueryCacheNotifyEvent } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { getQueryData } from "../../utils/getQueryData";
-import { throttle } from "../../../utils/throttle";
+import { throttleDebounce } from "../../../utils/throttleDebounce";
 
 function useSubToHintChange(
     onChangeMany: () => void,
@@ -38,7 +38,7 @@ export function useSortedHintsWatcher(address?: string) {
     const { isTestnet } = useNetwork();
     const [, setSortedHints] = useSortedHintsState(address);
 
-    const resyncAllHintsWeights = useCallback(throttle(() => {
+    const resyncAllHintsWeights = useCallback(throttleDebounce(() => {
         const hints = getQueryData<string[]>(queryClient.getQueryCache(), Queries.Hints(address ?? ''));
         if (!hints) {
             return;

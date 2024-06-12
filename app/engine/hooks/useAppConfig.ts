@@ -7,9 +7,7 @@ export function useAppConfig(): AppConfig {
     const { isTestnet } = useNetwork();
     const defaultConfig: AppConfig = {
         txTimeout: 60,
-        features: {
-            swap: false,
-        },
+        features: { swap: true }
     };
 
     const remoteConfig = useQuery({
@@ -24,8 +22,11 @@ export function useAppConfig(): AppConfig {
         },
         staleTime: 1000 * 60 * 5, // 5 minutes
         refetchOnMount: true,
-        refetchOnWindowFocus: true,
+        refetchOnWindowFocus: true
     });
 
-    return remoteConfig.data ?? defaultConfig;
+    return {
+        ...defaultConfig,
+        ...remoteConfig.data,
+    };
 }

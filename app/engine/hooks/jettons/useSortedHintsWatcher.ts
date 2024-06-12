@@ -7,7 +7,6 @@ import { QueryCacheNotifyEvent } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { getQueryData } from "../../utils/getQueryData";
 import { throttle } from "../../../utils/throttle";
-import { log } from "../../../utils/log";
 
 // check if two arrays are equal by content invariant of the order
 function areArraysEqualByContent<T>(a: T[], b: T[]): boolean {

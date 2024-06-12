@@ -3,7 +3,7 @@ import { useTheme } from "../../engine/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useDimensions } from "@react-native-community/hooks";
-import { View, Image, Text, Platform, Alert } from "react-native";
+import { View, Image, Text, Platform, Alert, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { EmptyIllustrations } from "./BrowserExtensions";
 import { t } from "../../i18n/t";
@@ -43,7 +43,7 @@ function groupItems(items: Item[]): GroupedItems[] {
     return groups;
 }
 
-export const BrowserConnections = memo(() => {
+export const BrowserConnections = memo(({ onScroll }: { onScroll?: ((event: NativeSyntheticEvent<NativeScrollEvent>) => void) }) => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const bottomBarHeight = useBottomTabBarHeight();
@@ -111,6 +111,8 @@ export const BrowserConnections = memo(() => {
                 exiting={FadeOut}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                 style={{ flexGrow: 1, marginTop: 24, }}
+                onScroll={onScroll}
+                scrollEventThrottle={16}
             >
                 <View style={{
                     marginBottom: 16, marginTop: 0,

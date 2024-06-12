@@ -1,11 +1,11 @@
 import { memo, useMemo } from "react";
-import { BrowserListingsWithCategory, useBrowserListings } from "../../engine/hooks/banners/useBrowserListings";
+import { BrowserListingsWithCategory } from "../../engine/hooks/banners/useBrowserListings";
 import { t } from "../../i18n/t";
 import { BrowserBanners } from "./BrowserBanners";
 import { BrowserCategories } from "./BrowserCategories";
-import { ScrollView } from "react-native-gesture-handler";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Platform, View } from "react-native";
+import { NativeScrollEvent, NativeSyntheticEvent, Platform } from "react-native";
+import Animated from "react-native-reanimated";
 
 export type BrowserBannerItem = BrowserListingsWithCategory & { banner_type: 'bannerItem' };
 export type BrowserListingItem = BrowserListingsWithCategory & { banner_type: 'listItem' };
@@ -28,7 +28,13 @@ const initOthersCategory = {
 const supportedCategories = ['other', 'exchange', 'defi', 'nft', 'games', 'social', 'utils', 'services'];
 type SupportedCategory = 'other' | 'exchange' | 'defi' | 'nft' | 'games' | 'social' | 'utils' | 'services';
 
-export const BrowserListings = memo(({ listings }: { listings: BrowserListingsWithCategory[] }) => {
+export const BrowserListings = memo(({
+    listings,
+    onScroll
+}: {
+    listings: BrowserListingsWithCategory[],
+    onScroll?: ((event: NativeSyntheticEvent<NativeScrollEvent>) => void)
+}) => {
     const bottomBarHeight = useBottomTabBarHeight();
     const { banners, list } = useMemo(() => {
         let banners: BrowserBannerItem[] = [];
@@ -91,15 +97,20 @@ export const BrowserListings = memo(({ listings }: { listings: BrowserListingsWi
     }, [listings]);
 
     return (
-        <ScrollView
+        <Animated.ScrollView
             style={{ flexGrow: 1, flexShrink: 1 }}
             showsVerticalScrollIndicator={false}
-            contentInset={{ top: 0.1, left: 0, bottom: 56 + 52 + 32 + bottomBarHeight, right: 0 }}
+            contentInset={{ top: 0.1, left: 0, bottom: 156, right: 0 }}
             contentOffset={{ y: -56, x: 0 }}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            contentContainerStyle={Platform.select({
+                android: { paddingBottom: 56 + 52 + 32 + bottomBarHeight },
+                ios: { paddingBottom: 156 }
+            })}
         >
             <BrowserBanners banners={banners} />
             <BrowserCategories list={list} />
-            {Platform.OS === 'android' && <View style={{ height: bottomBarHeight + 32, width: '100%' }} />}
-        </ScrollView>
+        </Animated.ScrollView>
     );
 });

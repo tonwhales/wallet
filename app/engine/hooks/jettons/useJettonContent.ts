@@ -7,7 +7,7 @@ import { JettonMasterState } from '../../metadata/fetchJettonMasterContent';
 export function useJettonContent(master: string | null, suspense: boolean = false): (JettonMasterState & { address: string }) | null {
     const { isTestnet } = useNetwork();
 
-    return useQuery({
+    const data = useQuery({
         queryKey: Queries.Jettons().MasterContent(master ?? ''),
         queryFn: async () => {
             if (!master) {
@@ -18,4 +18,14 @@ export function useJettonContent(master: string | null, suspense: boolean = fals
         enabled: !!master,
         suspense
     }).data ?? null;
+
+    if (data?.symbol === 'USD₮') {
+        data.symbol = 'USDT';
+    }
+
+    if (data?.name === 'USD₮' || data?.name === 'TetherUSD₮') {
+        data.name = 'USDT';
+    }
+
+    return data;
 }

@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { View, Image, Text, Platform, Alert } from "react-native";
+import { View, Image, Text, Platform, Alert, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { ConnectionButton } from "../ConnectionButton";
 import { useDisconnectApp, useExtensions, useNetwork, useRemoveExtension, useTheme, useTonConnectExtensions } from "../../engine/hooks";
@@ -18,7 +18,7 @@ export const EmptyIllustrations = {
     light: require('@assets/empty-connections.webp')
 }
 
-export const BrowserExtensions = memo(() => {
+export const BrowserExtensions = memo(({ onScroll }: { onScroll?: ((event: NativeSyntheticEvent<NativeScrollEvent>) => void) }) => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const { isTestnet } = useNetwork();
@@ -109,7 +109,9 @@ export const BrowserExtensions = memo(() => {
             entering={FadeIn}
             exiting={FadeOut}
             contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
-            style={{ flexGrow: 1, marginTop: 24, }}
+            style={{ flexGrow: 1, marginTop: 24 }}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
         >
             <View style={{
                 marginBottom: 16, marginTop: 0,

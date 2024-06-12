@@ -8,26 +8,26 @@ import { ValueComponent } from "../ValueComponent";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { Address } from "@ton/core";
-import { useBounceableWalletFormat } from "../../engine/hooks";
+import { useAccountLite, useBounceableWalletFormat } from "../../engine/hooks";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
 export const TonProductComponent = memo(({
     theme,
     navigation,
-    balance,
     isLedger,
     address,
     testOnly
 }: {
     theme: ThemeType,
     navigation: TypedNavigation,
-    balance: bigint,
     isLedger?: boolean,
     address: Address,
     testOnly?: boolean,
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+    const accountLite = useAccountLite(address);
+    const balance = accountLite?.balance ?? 0n;
     const [bounceableFormat,] = useBounceableWalletFormat();
     const ledgerAddressStr = address?.toString({ bounceable: bounceableFormat, testOnly });
 

@@ -26,7 +26,7 @@ import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHolders
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
-export const ProductsComponent = memo(({ selected, tonBalance }: { selected: SelectedAccount, tonBalance: bigint }) => {
+export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -34,7 +34,6 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
     const totalStaked = useStaking().total;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    // const jettons = useJettons(selected!.addressString);
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
@@ -68,13 +67,7 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigate(
-                'HoldersLanding',
-                {
-                    endpoint: url,
-                    onEnrollType: { type: 'create' }
-                }
-            );
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: 'create' } });
             return;
         }
         navigation.navigateHolders({ type: 'create' });
@@ -97,6 +90,8 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
         });
 
     }, [selected, isTestnet]);
+
+    const showAddNewProduct = !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
 
     return (
         <View>
@@ -147,7 +142,6 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                     }}>
                         <TonProductComponent
                             key={'ton-native'}
-                            balance={tonBalance}
                             theme={theme}
                             navigation={navigation}
                             address={selected.address}
@@ -165,29 +159,27 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                     </View>
                 </View>
 
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    padding: 16
-                }}>
+                <Pressable
+                    style={({ pressed }) => (
+                        {
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', alignItems: 'center',
+                            padding: 16,
+                            opacity: showAddNewProduct && pressed ? 0.5 : 1
+                        }
+                    )}
+                    disabled={!showAddNewProduct}
+                    onPress={() => navigation.navigate('Products')}
+                >
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.products')}
                     </Text>
-                    {!(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n) && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1
-                                }
-                            }}
-                            onPress={() => navigation.navigate('Products')}
-                        >
-                            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                                {t('products.addNew')}
-                            </Text>
-                        </Pressable>
+                    {showAddNewProduct && (
+                        <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                            {t('products.addNew')}
+                        </Text>
                     )}
-                </View>
+                </Pressable>
 
                 <StakingProductComponent
                     key={'pool'}

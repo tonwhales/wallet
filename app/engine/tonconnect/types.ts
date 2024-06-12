@@ -1,6 +1,6 @@
 import { RefObject } from 'react';
 import WebView, { WebViewMessageEvent } from 'react-native-webview';
-import { AppRequest, ConnectEvent, ConnectEventError as IConnectEventError, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
+import { AppRequest, ConnectEvent, ConnectEventError as IConnectEventError, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse, CHAIN } from '@tonconnect/protocol';
 import { ConnectItemReply, KeyPair } from '@tonconnect/protocol';
 
 export enum CONNECT_ITEM_ERROR_CODES {
@@ -32,6 +32,8 @@ export interface SignRawMessage {
 export type SignRawParams = {
   valid_until: number;
   messages: SignRawMessage[];
+  network?: CHAIN;
+  from?: string;
 };
 
 export type ConnectedAppConnectionRemote = {
@@ -64,14 +66,6 @@ export type TonConnectExtension = {
   image: string | null;
   termsOfUseUrl: string | null;
   privacyPolicyUrl: string | null;
-}
-
-export type ConnectedApp = {
-  date: number,
-  name: string,
-  url: string,
-  iconUrl: string,
-  autoConnectDisabled: boolean,
 }
 
 export enum WebViewBridgeMessageType {

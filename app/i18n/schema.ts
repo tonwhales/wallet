@@ -79,6 +79,8 @@ export type LocalizationSchema = {
         showMore: string,
         balances: string,
         loading: string,
+        notFound: string,
+        unverified: string,
     },
     syncStatus: {
         connecting: string,
@@ -166,6 +168,7 @@ export type LocalizationSchema = {
         confirm: string,
         error: {
             invalidAddress: string,
+            invalidAddressMessage: string,
             invalidAmount: string,
             invalidDomain: string,
             invalidDomainString: string,
@@ -178,6 +181,7 @@ export type LocalizationSchema = {
             addressIsNotActive: string
             addressIsNotActiveDescription: string,
             invalidTransaction: string,
+            invalidTransactionMessage: string,
             memoRequired: string
         },
         sendAll: string,
@@ -301,6 +305,9 @@ export type LocalizationSchema = {
             title: string,
             subtitle: string,
             groupTitle: string,
+            wrongNetwork: string,
+            wrongFrom: string,
+            invalidFrom: string,
         },
         signatureRequest: {
             title: string,
@@ -723,8 +730,10 @@ export type LocalizationSchema = {
         productButtonTitle: string,
         productButtonSubtitle: string,
         hidden: string,
-        liquidPoolDescriptionDedust: string
-        liquidPoolDescriptionStonFi: string
+        liquidPoolDescriptionDedust: string,
+        liquidPoolDescriptionStonFi: string,
+        emptyBalance: string,
+        jettonsNotFound: string,
     },
     connections: {
         extensions: string,

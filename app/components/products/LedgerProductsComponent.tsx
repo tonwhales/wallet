@@ -5,16 +5,15 @@ import { StakingProductComponent } from "./StakingProductComponent";
 import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
 import { useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
-import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TonProductComponent } from "./TonProductComponent";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
 import { Address } from "@ton/core";
 
-export const LedgerProductsComponent = memo(({ account, testOnly }: { account: AccountLite, testOnly: boolean }) => {
+export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const address = Address.parse(account.address);
+    const address = Address.parse(addr);
 
     return (
         <View>
@@ -38,10 +37,9 @@ export const LedgerProductsComponent = memo(({ account, testOnly }: { account: A
                 }}>
                     <TonProductComponent
                         key={'ton-native'}
-                        balance={account.balance}
                         theme={theme}
                         navigation={navigation}
-                        address={Address.parse(account.address)}
+                        address={address}
                         testOnly={testOnly}
                         isLedger={true}
                     />
@@ -50,7 +48,7 @@ export const LedgerProductsComponent = memo(({ account, testOnly }: { account: A
                         key={'special-jettton'}
                         theme={theme}
                         navigation={navigation}
-                        address={Address.parse(account.address)}
+                        address={address}
                         testOnly={testOnly}
                         divider={'top'}
                         isLedger={true}

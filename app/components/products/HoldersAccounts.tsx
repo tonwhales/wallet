@@ -31,8 +31,8 @@ export const HoldersAccounts = memo(({
     const [price,] = usePrice();
 
     const totalBalance = useMemo(() => {
-        return reduceHoldersBalances(accs, price.price.usd);
-    }, [accs, price.price.usd]);
+        return reduceHoldersBalances(accs, price?.price?.usd ?? 0);
+    }, [accs, price?.price?.usd]);
 
     if (accs.length < 3) {
         return (
@@ -160,7 +160,6 @@ export const HoldersAccounts = memo(({
                                         height: undefined
                                     }}
                                     textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    currencyCode={'EUR'}
                                     theme={theme}
                                 />
                             </View>

@@ -2,12 +2,13 @@ import React, { memo } from "react";
 import { View, Image, Text } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { useMarkJettonDisabled } from "../../engine/hooks/jettons/useMarkJettonDisabled";
-import { useCloudValue, useHints, useNetwork, useTheme } from "../../engine/hooks";
+import { useCloudValue, useNetwork, useTheme } from "../../engine/hooks";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { t } from "../../i18n/t";
 import { Typography } from "../styles";
 import { Address } from "@ton/core";
+import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 
 import IcHide from '@assets/ic-hide.svg';
 
@@ -15,7 +16,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const markJettonDisabled = useMarkJettonDisabled();
-    const hints = useHints(owner.toString({ testOnly }));
+    const hints = useSortedHints(owner.toString({ testOnly }));
     let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const visibleList = hints

@@ -93,6 +93,7 @@ import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStaking
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
+import { SortedHintsWatcher } from './components/SortedHintsWatcher';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -417,6 +418,9 @@ export const Navigation = memo(() => {
     // clear pending txs on account change
     usePendingWatcher();
 
+    // Jetton hints watcher
+    const selected = appState.addresses.find((value, index) => index === appState.selected)?.address.toString({ testOnly: isTestnet });
+
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>
             <NavigationContainer
@@ -438,6 +442,7 @@ export const Navigation = memo(() => {
                 </Stack.Navigator>
             </NavigationContainer>
             <HintsPrefetcher />
+            <SortedHintsWatcher owner={selected} />
             <Splash hide={hideSplash} />
         </View>
     );

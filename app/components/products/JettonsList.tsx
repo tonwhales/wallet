@@ -165,8 +165,8 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                         return null;
                     }
                 }}
-                // set 76 as the estimated height of the item to see less blank space
-                estimatedItemSize={76}
+                // to see less blank space
+                estimatedItemSize={80}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                 contentInset={{ bottom: safeArea.bottom + 16, top: 16 }}

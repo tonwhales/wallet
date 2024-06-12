@@ -7,7 +7,6 @@ import { QueryCacheNotifyEvent } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { getQueryData } from "../../utils/getQueryData";
 import { throttleDebounce } from "../../../utils/throttleDebounce";
-import { log } from "../../../utils/log";
 
 // check if two arrays are equal by content invariant of the order
 function areArraysEqualByContent<T>(a: T[], b: T[]): boolean {
@@ -68,8 +67,7 @@ export function useSortedHintsWatcher(address?: string) {
     const { isTestnet } = useNetwork();
     const [, setSortedHints] = useSortedHintsState(address);
 
-    const resyncAllHintsWeights = useCallback(throttleDebounce((source?: string) => {
-        log(`🔄 resyncAllHintsWeights ${source}`);
+    const resyncAllHintsWeights = useCallback(throttleDebounce(() => {
         const hints = getQueryData<string[]>(queryClient.getQueryCache(), Queries.Hints(address ?? ''));
         if (!hints) {
             return;
@@ -80,7 +78,7 @@ export function useSortedHintsWatcher(address?: string) {
             .sort(compareHints).filter(filterHint([])).map((x) => x.address);
 
         setSortedHints(sorted);
-    }, 2 * 1000), [setSortedHints]);
+    }, 3 * 1000), [setSortedHints]);
 
     useSubToHintChange(resyncAllHintsWeights, address ?? '');
 }

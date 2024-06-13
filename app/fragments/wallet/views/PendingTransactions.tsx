@@ -144,7 +144,7 @@ const PendingTransactionView = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}
-                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx, failed: tx.status === 'timed-out' })}
+                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx, timedOut: tx.status === 'timed-out' })}
             >
                 <View style={{
                     width: 46, height: 46,

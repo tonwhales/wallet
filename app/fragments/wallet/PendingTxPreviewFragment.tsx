@@ -121,7 +121,7 @@ const PendingTxPreview = () => {
     const [walletSettings,] = useWalletSettings(selected.address);
     const [bounceableFormat,] = useBounceableWalletFormat();
 
-    const params = useParams<{ transaction: PendingTransaction, failed?: boolean }>();
+    const params = useParams<{ transaction: PendingTransaction, timedOut?: boolean }>();
     const tx = params.transaction;
     const repeatTransfer = useMemo(() => pendingTxToSimpleTransferParams(tx, isTestnet), [tx, isTestnet]);
     const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
@@ -180,7 +180,7 @@ const PendingTxPreview = () => {
     if (tx.status === 'sent') {
         op = t('tx.sent');
     } 
-    if (params.failed) {
+    if (params.timedOut) {
         op = t('tx.timeout');
     }
 
@@ -437,7 +437,7 @@ const PendingTxPreview = () => {
                     />
                 </PerfView>
             </ScrollView>
-            {params.failed && !!repeatTransfer && (
+            {params.timedOut && !!repeatTransfer && (
                 <PerfView style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
                     <RoundButton
                         title={t('txPreview.sendAgain')}

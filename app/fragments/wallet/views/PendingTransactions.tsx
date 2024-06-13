@@ -125,7 +125,7 @@ const PendingTransactionView = memo(({
                 timeOut?.(tx.id);
             }
         }
-    }, [lastBlock, timeOut]);
+    }, [lastBlock, timeOut, tx.status]);
 
     return (
         <Animated.View

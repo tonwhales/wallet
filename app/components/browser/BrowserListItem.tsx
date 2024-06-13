@@ -55,6 +55,8 @@ export const BrowserListItem = memo(({
         );
 
         navigation.navigateDAppWebView({
+            lockNativeBack: true,
+            safeMode: true,
             url: item.product_url,
             title: item.title ?? undefined,
             header: { titleComponent },

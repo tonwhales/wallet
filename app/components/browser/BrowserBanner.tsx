@@ -81,6 +81,8 @@ export const BrowserBanner = memo(({
         );
 
         navigation.navigateDAppWebView({
+            lockNativeBack: true,
+            safeMode: true,
             url: banner.product_url,
             title: banner.title ?? undefined,
             header: { titleComponent: titleComponent },
@@ -92,7 +94,7 @@ export const BrowserBanner = memo(({
                 share: true,
                 back: true,
                 forward: true
-            }
+            },
         });
     }, [banner]);
 

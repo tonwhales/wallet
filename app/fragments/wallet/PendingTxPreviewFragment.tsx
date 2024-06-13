@@ -18,7 +18,7 @@ import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
 import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
-import { Address, fromNano, toNano } from "@ton/core";
+import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
@@ -123,7 +123,7 @@ const PendingTxPreview = () => {
 
     const params = useParams<{ transaction: PendingTransaction, timedOut?: boolean }>();
     const tx = params.transaction;
-    const repeatTransfer = useMemo(() => pendingTxToSimpleTransferParams(tx, isTestnet), [tx, isTestnet]);
+    const repeatTransfer = useMemo(() => pendingTxToTransferParams(tx, isTestnet), [tx, isTestnet]);
     const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
     const amount = tx.body?.type === 'token'
         ? tx.body.amount

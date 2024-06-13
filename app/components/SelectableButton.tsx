@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../engine/hooks";
 
@@ -12,20 +12,22 @@ export const SelectableButton = memo((
         selected,
         onSelect,
         icon,
-        hideSelection
+        hideSelection,
+        style
     }: {
         title: string,
         subtitle: string,
         selected?: boolean,
         onSelect?: () => void,
         icon?: any,
-        hideSelection?: boolean
+        hideSelection?: boolean,
+        style?: StyleProp<ViewStyle>
     }
 ) => {
     const theme = useTheme();
 
     return (
-        <Animated.View entering={FadeIn} exiting={FadeOut}>
+        <Animated.View style={style} entering={FadeIn} exiting={FadeOut}>
             <Pressable
                 style={{
                     backgroundColor: theme.surfaceOnElevation,

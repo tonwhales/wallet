@@ -21,7 +21,7 @@ import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { filterHint, getHint, HintsFilter } from "../../utils/hintSortFilter";
 
-export const EmptyListItem = memo(() => {
+const EmptyListItem = memo(() => {
     const theme = useTheme();
 
     return (

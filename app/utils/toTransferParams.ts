@@ -7,6 +7,7 @@ import { TransactionDescription } from "../engine/types";
 
 export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
 
+// Map pending transaction obj to transfer params for navigator
 export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: boolean): RepeatTxParams | null {
     if (!tx.address) {
         return null;
@@ -75,6 +76,7 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
     };
 }
 
+// Map transaction preview obj to transfer params for navigator
 export function previewToTransferParams(
     tx: TransactionDescription,
     isTestnet: boolean,

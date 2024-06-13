@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -21,7 +21,7 @@ import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
+import { PendingTransactionsList } from "../wallet/views/PendingTransactions";
 import { StakingPoolHeader } from "../../components/staking/StakingPoolHeader";
 import { Typography } from "../../components/styles";
 
@@ -67,11 +67,41 @@ export const StakingFragment = fragment(() => {
         });
     }, [pendingTxs, targetPool]);
 
-    const removePending = useCallback((id: string) => {
-        setPending((prev) => {
-            return prev.filter((tx) => tx.id !== id);
-        });
+    const setPendingRef = useRef(setPending);
+    useEffect(() => {
+        setPendingRef.current = setPending;
     }, [setPending]);
+
+    const removePending = useCallback((ids: string[]) => {
+        if (ids.length === 0) {
+            return;
+        }
+        setPendingRef.current((prev) => {
+            return prev.filter((tx) => !ids.includes(tx.id));
+        });
+    }, []);
+
+    const markAsTimedOut = useCallback((id: string) => {
+        setPendingRef.current((prev) => {
+            return prev.map((tx) => {
+                if (tx.id === id) {
+                    return { ...tx, status: 'timed-out' };
+                }
+                return tx;
+            });
+        });
+    }, []);
+
+    useEffect(() => {
+        // Remove transactions after 15 seconds of changing status
+        setTimeout(() => {
+            const toRemove = pendingPoolTxs
+                .filter((tx) => tx.status !== 'pending')
+                .map((tx) => tx.id);
+
+            removePending(toRemove);
+        }, 15 * 1000);
+    }, [pendingPoolTxs]);
 
     let type: StakingPoolType = useMemo(() => {
         if (knownPools[params.pool].name.toLowerCase().includes('club')) {
@@ -358,10 +388,10 @@ export const StakingFragment = fragment(() => {
                             />
                         )}
                         {!!pendingPoolTxs && pendingPoolTxs.length > 0 && (
-                            <PendingTransactionsView
+                            <PendingTransactionsList
                                 theme={theme}
-                                pending={pendingPoolTxs}
-                                removePending={removePending}
+                                txs={pendingPoolTxs}
+                                timeOut={markAsTimedOut}
                                 style={{ marginBottom: 16 }}
                             />
                         )}

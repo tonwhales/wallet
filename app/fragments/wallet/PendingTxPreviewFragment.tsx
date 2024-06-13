@@ -34,7 +34,7 @@ import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { RoundButton } from "../../components/RoundButton";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { TransferFragmentProps } from "../secure/TransferFragment";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 
 type PendingTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
 
@@ -181,7 +181,7 @@ const PendingTxPreview = () => {
         op = t('tx.sent');
     } 
     if (params.failed) {
-        op = t('tx.failed');
+        op = t('tx.timeout');
     }
 
     // Resolve built-in known wallets

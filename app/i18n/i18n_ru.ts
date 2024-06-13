@@ -272,7 +272,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "tokenTransfer": "Трансфер токенов",
         "airdrop": "Airdrop",
         "failed": "Ошибка",
-        "timeout": "Время отрпавки истекло",
+        "timeout": "Время отправки истекло",
         "batch": "Несколько операций"
     },
     "txPreview": {

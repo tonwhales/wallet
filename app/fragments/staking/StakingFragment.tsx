@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -16,7 +16,7 @@ import { KnownPools } from "../../utils/KnownPools";
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useNetwork, usePendingActions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -41,7 +41,6 @@ export const StakingFragment = fragment(() => {
     const isLedger = route.name === 'LedgerStaking';
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-    const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
     const knownPools = KnownPools(network.isTestnet);
 
     const ledgerContext = useLedgerTransport();
@@ -53,44 +52,17 @@ export const StakingFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
 
     const targetPool = Address.parse(params.pool);
-    const pool = useStakingPool(targetPool, ledgerAddress);
+    const memberAddress = isLedger ? ledgerAddress : selected?.address;
+    const pool = useStakingPool(targetPool, memberAddress);
     const member = pool?.member;
-    const config = useStakingWalletConfig(
-        isLedger
-            ? ledgerAddress!.toString({ testOnly: network.isTestnet })
-            : selected!.address.toString({ testOnly: network.isTestnet })
-    );
+    const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: network.isTestnet }));
+    const { state: pendingTxs, removePending, markAsTimedOut } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
             return tx.address?.equals(targetPool);
         });
     }, [pendingTxs, targetPool]);
-
-    const setPendingRef = useRef(setPending);
-    useEffect(() => {
-        setPendingRef.current = setPending;
-    }, [setPending]);
-
-    const removePending = useCallback((ids: string[]) => {
-        if (ids.length === 0) {
-            return;
-        }
-        setPendingRef.current((prev) => {
-            return prev.filter((tx) => !ids.includes(tx.id));
-        });
-    }, []);
-
-    const markAsTimedOut = useCallback((id: string) => {
-        setPendingRef.current((prev) => {
-            return prev.map((tx) => {
-                if (tx.id === id) {
-                    return { ...tx, status: 'timed-out' };
-                }
-                return tx;
-            });
-        });
-    }, []);
 
     useEffect(() => {
         // Remove transactions after 15 seconds of changing status

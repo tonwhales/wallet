@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import { memo } from "react";
 import { View, Text, Pressable, StyleProp, ViewStyle, Image } from "react-native";
-import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { PendingTransactionAvatar } from "../../../components/avatar/PendingTransactionAvatar";
@@ -18,7 +17,7 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/avatar/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useBounceableWalletFormat, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
+import { useBounceableWalletFormat, usePendingActions, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
@@ -313,34 +312,8 @@ PendingTransactionsList.displayName = 'PendingTransactionsView';
 export const PendingTransactions = memo(({ address, viewType = 'main' }: { address?: string, viewType?: 'history' | 'main' }) => {
     const account = useSelectedAccount();
     const network = useNetwork();
-    const [pending, setPending] = usePendingTransactions(address ?? account?.addressString ?? '', network.isTestnet);
+    const { state: pending, removePending, markAsTimedOut } = usePendingActions(address ?? account?.addressString ?? '', network.isTestnet);
     const theme = useTheme();
-
-    const setPendingRef = useRef(setPending);
-
-    useEffect(() => {
-        setPendingRef.current = setPending;
-    }, [setPending]);
-
-    const removePending = useCallback((ids: string[]) => {
-        if (ids.length === 0) {
-            return;
-        }
-        setPendingRef.current((prev) => {
-            return prev.filter((tx) => !ids.includes(tx.id));
-        });
-    }, []);
-
-    const markAsTimedOut = useCallback((id: string) => {
-        setPendingRef.current((prev) => {
-            return prev.map((tx) => {
-                if (tx.id === id) {
-                    return { ...tx, status: 'timed-out' };
-                }
-                return tx;
-            });
-        });
-    }, []);
 
     const txs = useMemo(() => {
         // Show only pending on history tab

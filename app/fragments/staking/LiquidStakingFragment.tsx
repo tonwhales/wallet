@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -11,7 +11,7 @@ import { t } from "../../i18n/t";
 import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useLiquidStakingMember, useNetwork, usePendingTransactions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
+import { useLiquidStakingMember, useNetwork, usePendingActions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -35,7 +35,6 @@ export const LiquidStakingFragment = fragment(() => {
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
     const liquidStaking = useLiquidStaking().data;
-    const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;
@@ -46,6 +45,7 @@ export const LiquidStakingFragment = fragment(() => {
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
     const nominator = useLiquidStakingMember(memberAddress)?.data;
     const apy = useStakingApy()?.apy;
+    const { state: pendingTxs, removePending, markAsTimedOut } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
 
     const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
     const apyWithFee = useMemo(() => {
@@ -75,31 +75,6 @@ export const LiquidStakingFragment = fragment(() => {
             return tx.address?.equals(targetPool);
         });
     }, [pendingTxs, targetPool]);
-
-    const setPendingRef = useRef(setPending);
-    useEffect(() => {
-        setPendingRef.current = setPending;
-    }, [setPending]);
-
-    const removePending = useCallback((ids: string[]) => {
-        if (ids.length === 0) {
-            return;
-        }
-        setPendingRef.current((prev) => {
-            return prev.filter((tx) => !ids.includes(tx.id));
-        });
-    }, []);
-
-    const markAsTimedOut = useCallback((id: string) => {
-        setPendingRef.current((prev) => {
-            return prev.map((tx) => {
-                if (tx.id === id) {
-                    return { ...tx, status: 'timed-out' };
-                }
-                return tx;
-            });
-        });
-    }, []);
 
     useEffect(() => {
         // Remove transactions after 15 seconds of changing status

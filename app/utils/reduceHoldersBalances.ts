@@ -9,7 +9,7 @@ export function reduceHoldersBalances(accs: GeneralHoldersAccount[], priceUSD: n
         if (item.cryptoCurrency.ticker === 'TON') {
             return acc + BigInt(item.balance);
         }
-        const amount = toBnWithDecimals(item.balance, item.cryptoCurrency.decimals) / toNano(priceUSD);
+        const amount = toBnWithDecimals(item.balance, item.cryptoCurrency.decimals) / toNano(priceUSD ?? 1);
         return acc + toBnWithDecimals(amount, item.cryptoCurrency.decimals);
     }, BigInt(0));
 }

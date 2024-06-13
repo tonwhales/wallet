@@ -18,7 +18,7 @@ import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
 import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
-import { Address, fromNano, toNano } from "@ton/core";
+import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
@@ -32,79 +32,7 @@ import { PendingTransaction } from "../../engine/state/pending";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { RoundButton } from "../../components/RoundButton";
-import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
-import { TransferFragmentProps } from "../secure/TransferFragment";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
-
-type PendingTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
-
-function pendingTxToSimpleTransferParams(tx: PendingTransaction, testOnly: boolean): PendingTxParams | null {
-    if (!tx.address) {
-        return null;
-    }
-
-    // Skip batch transactions
-    if (tx.body?.type === 'batch') {
-        return null;
-    }
-
-    if (tx.body?.type === 'token') {
-        const amount = fromBnWithDecimals(tx.body.amount, tx.body.jetton.decimals ?? 9);
-
-        return {
-            type: 'simple',
-            target: tx.body.target.toString({ testOnly: true, bounceable: tx.body.bounceable }),
-            comment: tx.body.comment,
-            amount: toNano(amount),
-            stateInit: null,
-            job: null,
-            jetton: tx.body.jetton.wallet,
-            callback: null
-        };
-    }
-
-    if (tx.body?.type === 'payload') {
-        return {
-            type: 'transfer',
-            text: null,
-            job: null,
-            order: {
-                type: 'order',
-                messages: [{
-                    target: tx.address?.toString({ testOnly, bounceable: tx.bounceable }) || '',
-                    amount: -tx.amount,
-                    amountAll: false,
-                    stateInit: tx.body.stateInit || null,
-                    payload: tx.body.cell
-                }]
-            }
-        };
-    }
-
-    if (tx.body?.type === 'comment') {
-        return {
-            type: 'simple',
-            target: tx.address?.toString({ testOnly, bounceable: tx.bounceable }) || '',
-            comment: tx.body.comment,
-            amount: -tx.amount,
-            stateInit: null,
-            job: null,
-            jetton: null,
-            callback: null
-        };
-    }
-
-    return {
-        type: 'simple',
-        target: tx.address.toString({ testOnly, bounceable: tx.bounceable }),
-        comment: null,
-        amount: -tx.amount,
-        stateInit: null,
-        job: null,
-        jetton: null,
-        callback: null
-    };
-}
+import { pendingTxToTransferParams } from "../../utils/toTransferParams";
 
 const PendingTxPreview = () => {
     const theme = useTheme();
@@ -123,7 +51,7 @@ const PendingTxPreview = () => {
 
     const params = useParams<{ transaction: PendingTransaction, failed?: boolean }>();
     const tx = params.transaction;
-    const repeatTransfer = useMemo(() => pendingTxToSimpleTransferParams(tx, isTestnet), [tx, isTestnet]);
+    const repeatTransfer = useMemo(() => pendingTxToTransferParams(tx, isTestnet), [tx, isTestnet]);
     const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
     const amount = tx.body?.type === 'token'
         ? tx.body.amount

@@ -72,7 +72,7 @@ export const AssetsFragment = fragment(() => {
             }));
 
         return [{ type: 'ton' }, ...filtered] as ListItem[];
-    }, []);
+    }, [disabledState, network, isLedgerScreen, hints]);
 
     const onSelected = useCallback((jetton: Jetton) => {
         if (callback) {

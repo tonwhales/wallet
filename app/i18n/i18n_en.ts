@@ -146,6 +146,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tokenTransfer: 'Token transfer',
         airdrop: 'Airdrop',
         failed: 'Failed',
+        timeout: 'Timed out',
         batch: 'Batch'
     },
     txPreview: {

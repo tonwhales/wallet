@@ -32,7 +32,79 @@ import { PendingTransaction } from "../../engine/state/pending";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { RoundButton } from "../../components/RoundButton";
-import { pendingTxToTransferParams } from "../../utils/toTransferParams";
+import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
+import { TransferFragmentProps } from "../secure/TransferFragment";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
+
+type PendingTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
+
+function pendingTxToSimpleTransferParams(tx: PendingTransaction, testOnly: boolean): PendingTxParams | null {
+    if (!tx.address) {
+        return null;
+    }
+
+    // Skip batch transactions
+    if (tx.body?.type === 'batch') {
+        return null;
+    }
+
+    if (tx.body?.type === 'token') {
+        const amount = fromBnWithDecimals(tx.body.amount, tx.body.jetton.decimals ?? 9);
+
+        return {
+            type: 'simple',
+            target: tx.body.target.toString({ testOnly: true, bounceable: tx.body.bounceable }),
+            comment: tx.body.comment,
+            amount: toNano(amount),
+            stateInit: null,
+            job: null,
+            jetton: tx.body.jetton.wallet,
+            callback: null
+        };
+    }
+
+    if (tx.body?.type === 'payload') {
+        return {
+            type: 'transfer',
+            text: null,
+            job: null,
+            order: {
+                type: 'order',
+                messages: [{
+                    target: tx.address?.toString({ testOnly, bounceable: tx.bounceable }) || '',
+                    amount: -tx.amount,
+                    amountAll: false,
+                    stateInit: tx.body.stateInit || null,
+                    payload: tx.body.cell
+                }]
+            }
+        };
+    }
+
+    if (tx.body?.type === 'comment') {
+        return {
+            type: 'simple',
+            target: tx.address?.toString({ testOnly, bounceable: tx.bounceable }) || '',
+            comment: tx.body.comment,
+            amount: -tx.amount,
+            stateInit: null,
+            job: null,
+            jetton: null,
+            callback: null
+        };
+    }
+
+    return {
+        type: 'simple',
+        target: tx.address.toString({ testOnly, bounceable: tx.bounceable }),
+        comment: null,
+        amount: -tx.amount,
+        stateInit: null,
+        job: null,
+        jetton: null,
+        callback: null
+    };
+}
 
 const PendingTxPreview = () => {
     const theme = useTheme();
@@ -49,7 +121,7 @@ const PendingTxPreview = () => {
     const [walletSettings,] = useWalletSettings(selected.address);
     const [bounceableFormat,] = useBounceableWalletFormat();
 
-    const params = useParams<{ transaction: PendingTransaction, failed?: boolean }>();
+    const params = useParams<{ transaction: PendingTransaction, timedOut?: boolean }>();
     const tx = params.transaction;
     const repeatTransfer = useMemo(() => pendingTxToTransferParams(tx, isTestnet), [tx, isTestnet]);
     const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
@@ -108,8 +180,8 @@ const PendingTxPreview = () => {
     if (tx.status === 'sent') {
         op = t('tx.sent');
     } 
-    if (params.failed) {
-        op = t('tx.failed');
+    if (params.timedOut) {
+        op = t('tx.timeout');
     }
 
     // Resolve built-in known wallets
@@ -365,7 +437,7 @@ const PendingTxPreview = () => {
                     />
                 </PerfView>
             </ScrollView>
-            {params.failed && !!repeatTransfer && (
+            {params.timedOut && !!repeatTransfer && (
                 <PerfView style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
                     <RoundButton
                         title={t('txPreview.sendAgain')}

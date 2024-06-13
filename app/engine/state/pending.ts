@@ -15,7 +15,7 @@ export type PendingTransactionBody =
     }
     | { type: 'batch' };
 
-export type PendingTransactionStatus = 'pending' | 'sent';
+export type PendingTransactionStatus = 'pending' | 'sent' | 'timed-out';
 
 export type PendingTransaction = {
     id: string,

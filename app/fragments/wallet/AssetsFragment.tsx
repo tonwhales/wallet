@@ -173,7 +173,6 @@ export const AssetsFragment = fragment(() => {
 
                     return (
                         <SelectableButton
-                            key={'assets-ton'}
                             title={'TON'}
                             subtitle={t('common.balance')}
                             onSelect={onTonSelected}

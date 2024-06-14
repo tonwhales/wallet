@@ -4,7 +4,6 @@ import { useNetwork } from '../network/useNetwork';
 import { Queries } from '../../queries';
 import { fetchMetadata } from '../../metadata/fetchMetadata';
 import { getLastBlock } from '../../accountWatcher';
-import { useClient4 } from '../network/useClient4';
 import { JettonMasterState, fetchJettonMasterContent } from '../../metadata/fetchJettonMasterContent';
 import { Address } from '@ton/core';
 import { StoredContractMetadata, StoredJettonWallet } from '../../metadata/StoredMetadata';
@@ -17,6 +16,7 @@ import { create, keyResolver, windowedFiniteBatchScheduler } from "@yornaath/bat
 import { clients } from '../../clients';
 import { AsyncLock } from 'teslabot';
 import memoize from '../../../utils/memoize';
+import { tryGetJettonWallet } from '../../metadata/introspections/tryGetJettonWallet';
 
 let jettonFetchersLock = new AsyncLock();
 
@@ -135,6 +135,44 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
     })
 });
 
+const walletAddressBatcher = memoize((client: TonClient4, isTestnet: boolean, owner: string) => {
+    return create({
+        fetcher: async (masters: string[]) => {
+            return await jettonFetchersLock.inLock(async () => {
+                let result: { wallet: string, master: string }[] = [];
+                let lastBlock = await getLastBlock();
+                log(`[wallet-address] 🟡 batch ${masters.length}`);
+                let measurement = performance.now();
+                await Promise.all(masters.map(async (master) => {
+                    try {
+                        let wallet = await tryGetJettonWallet(
+                            client,
+                            lastBlock,
+                            { address: Address.parse(owner), master: Address.parse(master) }
+                        );
+                        if (!wallet) {
+                            return;
+                        }
+
+                        result.push({
+                            wallet: wallet.toString({ testOnly: isTestnet }),
+                            master: master
+                        });
+                    } catch (error) {
+                        console.warn(`[jetton-wallet-address] 🔴 ${owner}`, error);
+                    }
+                }));
+                log(`[wallet-address] 🟢 in ${(performance.now() - measurement).toFixed(1)}`);
+                return result;
+            });
+        },
+        resolver: (items: { wallet: string, master: string }[], query) => {
+            return items.find(i => i.master === query)?.wallet ?? null;
+        },
+        scheduler: windowedFiniteBatchScheduler({ windowMs: 1000, maxBatchSize: 10 })
+    });
+});
+
 export function contractMetadataQueryFn(isTestnet: boolean, addressString: string) {
     return async (): Promise<StoredContractMetadata> => {
         return metadataBatcher(clients.ton[isTestnet ? 'testnet' : 'mainnet'], isTestnet).fetch(addressString);
@@ -151,6 +189,12 @@ export function jettonMasterContentQueryFn(master: string, isTestnet: boolean) {
 export function jettonWalletQueryFn(wallet: string, isTestnet: boolean) {
     return async (): Promise<StoredJettonWallet | null> => {
         return walletBatcher(clients.ton[isTestnet ? 'testnet' : 'mainnet'], isTestnet).fetch(wallet);
+    }
+}
+
+export function jettonWalletAddressQueryFn(master: string, owner: string, isTestnet: boolean) {
+    return async (): Promise<string | null> => {
+        return walletAddressBatcher(clients.ton[isTestnet ? 'testnet' : 'mainnet'], isTestnet, owner).fetch(master);
     }
 }
 
@@ -174,7 +218,6 @@ function invalidateJettonsDataIfVersionChanged(queryClient: QueryClient) {
 export function usePrefetchHints(queryClient: QueryClient, address?: string) {
     const hints = useHints(address);
     const { isTestnet } = useNetwork();
-    const client = useClient4(isTestnet);
 
     useEffect(() => {
         if (!address) {
@@ -217,6 +260,10 @@ export function usePrefetchHints(queryClient: QueryClient, address?: string) {
                         queryKey: Queries.Jettons().MasterContent(masterAddress),
                         queryFn: jettonMasterContentQueryFn(masterAddress, isTestnet),
                     });
+                    await queryClient.prefetchQuery({
+                        queryKey: Queries.Jettons().Address(address).Wallet(masterAddress),
+                        queryFn: jettonWalletAddressQueryFn(masterAddress, address, isTestnet),
+                    });
                 }
 
                 masterContent = queryClient.getQueryData<JettonMasterState>(Queries.Jettons().MasterContent(hint));
@@ -225,6 +272,10 @@ export function usePrefetchHints(queryClient: QueryClient, address?: string) {
                     await queryClient.prefetchQuery({
                         queryKey: Queries.Jettons().MasterContent(hint),
                         queryFn: jettonMasterContentQueryFn(hint, isTestnet),
+                    });
+                    await queryClient.prefetchQuery({
+                        queryKey: Queries.Jettons().Address(address).Wallet(hint),
+                        queryFn: jettonWalletAddressQueryFn(hint, address, isTestnet),
                     });
                 }
             }));

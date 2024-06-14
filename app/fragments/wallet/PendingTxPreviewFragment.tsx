@@ -18,7 +18,7 @@ import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
 import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
-import { Address, fromNano, toNano } from "@ton/core";
+import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
@@ -34,7 +34,7 @@ import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { RoundButton } from "../../components/RoundButton";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { TransferFragmentProps } from "../secure/TransferFragment";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 
 type PendingTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
 
@@ -121,9 +121,9 @@ const PendingTxPreview = () => {
     const [walletSettings,] = useWalletSettings(selected.address);
     const [bounceableFormat,] = useBounceableWalletFormat();
 
-    const params = useParams<{ transaction: PendingTransaction, failed?: boolean }>();
+    const params = useParams<{ transaction: PendingTransaction, timedOut?: boolean }>();
     const tx = params.transaction;
-    const repeatTransfer = useMemo(() => pendingTxToSimpleTransferParams(tx, isTestnet), [tx, isTestnet]);
+    const repeatTransfer = useMemo(() => pendingTxToTransferParams(tx, isTestnet), [tx, isTestnet]);
     const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
     const amount = tx.body?.type === 'token'
         ? tx.body.amount
@@ -180,8 +180,8 @@ const PendingTxPreview = () => {
     if (tx.status === 'sent') {
         op = t('tx.sent');
     } 
-    if (params.failed) {
-        op = t('tx.failed');
+    if (params.timedOut) {
+        op = t('tx.timeout');
     }
 
     // Resolve built-in known wallets
@@ -437,7 +437,7 @@ const PendingTxPreview = () => {
                     />
                 </PerfView>
             </ScrollView>
-            {params.failed && !!repeatTransfer && (
+            {params.timedOut && !!repeatTransfer && (
                 <PerfView style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
                     <RoundButton
                         title={t('txPreview.sendAgain')}

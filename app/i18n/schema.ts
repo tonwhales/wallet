@@ -148,6 +148,7 @@ export type LocalizationSchema = {
         tokenTransfer: string,
         airdrop: string,
         failed: string,
+        timeout: string,
         batch: string
     },
     txPreview: {

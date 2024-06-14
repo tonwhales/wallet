@@ -58,7 +58,6 @@ import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
 import { useTonconnectWatcher } from './engine/tonconnectWatcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
-import { usePendingWatcher } from './engine/hooks';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
@@ -94,6 +93,7 @@ import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
 import { SortedHintsWatcher } from './components/SortedHintsWatcher';
+import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -415,9 +415,6 @@ export const Navigation = memo(() => {
     // Watch for holders updates
     useHoldersWatcher();
 
-    // clear pending txs on account change
-    usePendingWatcher();
-
     // Jetton hints watcher
     const selected = appState.addresses.find((value, index) => index === appState.selected)?.address.toString({ testOnly: isTestnet });
 
@@ -443,6 +440,7 @@ export const Navigation = memo(() => {
             </NavigationContainer>
             <HintsPrefetcher />
             <SortedHintsWatcher owner={selected} />
+            <PendingTxsWatcher />
             <Splash hide={hideSplash} />
         </View>
     );

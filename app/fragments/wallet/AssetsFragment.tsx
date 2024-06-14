@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { View, ScrollView, Image } from "react-native";
+import { View, Image, Text, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -8,26 +8,28 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { SelectableButton } from "../../components/SelectableButton";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useCloudValue, useHints, useKnownJettons, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useCloudValue, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Jetton } from "../../engine/types";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { AssetsListItem } from "../../components/jettons/AssetsListItem";
-import { WImage } from "../../components/WImage";
+import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
+import { FlashList } from "@shopify/flash-list";
+import { Typography } from "../../components/styles";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
 
-// TODO: refactor this fragment with FlashList (for large jettons list)
+type ListItem = { type: 'jetton', address: Address } | { type: 'ton' };
+
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
+    const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
-    const knownJettons = useKnownJettons(network.isTestnet);
-    const specialJettonMaster = knownJettons?.specialJetton ? Address.parse(knownJettons.specialJetton) : null;
     let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const { target, callback, selectedJetton } = useParams<{
@@ -47,18 +49,30 @@ export const AssetsFragment = fragment(() => {
     }, [ledgerTransport, isLedgerScreen]);
 
     const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
-    const hints = (useHints(owner.toString({ testOnly: network.isTestnet })) ?? [])
-        .map((s) => {
+
+    const sortedHints = useSortedHints(owner.toString({ testOnly: network.isTestnet }));
+
+    const hints = useMemo(() => {
+        return sortedHints.map((s) => {
             try {
                 let wallet = Address.parse(s);
                 return wallet;
             } catch {
                 return null;
             }
-        })
-        .filter((j) => !!j) as Address[];
-    const hasSpecialJetton = !!hints.find((j) => j.toString({ testOnly: network.isTestnet }) === knownJettons?.specialJetton);
-    const visibleList = hints.filter((j) => !disabledState.disabled[j.toString({ testOnly: network.isTestnet })] || isLedgerScreen);
+        }).filter((j) => !!j) as Address[];
+    }, [sortedHints]);
+
+    const visibleList = useMemo(() => {
+        const filtered = hints
+            .filter((j) => !disabledState.disabled[j.toString({ testOnly: network.isTestnet })] || isLedgerScreen)
+            .map((j) => ({
+                type: 'jetton',
+                address: j
+            }));
+
+        return [{ type: 'ton' }, ...filtered] as ListItem[];
+    }, [disabledState, network, isLedgerScreen, hints]);
 
     const onSelected = useCallback((jetton: Jetton) => {
         if (callback) {
@@ -116,12 +130,6 @@ export const AssetsFragment = fragment(() => {
         });
     }, [isLedgerScreen, callback]);
 
-    const onSpecialJettonSelected = useCallback(() => {
-        if (callback && specialJettonMaster) {
-            onCallback({ master: specialJettonMaster });
-        }
-    }, []);
-
     const onCallback = useCallback((selected?: { wallet?: Address, master: Address }) => {
         if (callback) {
             setTimeout(() => {
@@ -145,54 +153,32 @@ export const AssetsFragment = fragment(() => {
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
             />
-            <ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
-                contentContainerStyle={{ paddingHorizontal: 16 }}
-                contentInset={{ bottom: safeArea.bottom + 16 }}
-            >
-                <View style={{
-                    borderRadius: 14,
-                }}>
-                    <SelectableButton
-                        key={'assets-ton'}
-                        title={'TON'}
-                        subtitle={t('common.balance')}
-                        onSelect={onTonSelected}
-                        icon={
-                            <View style={{ width: 46, height: 46 }}>
-                                <TonIcon width={46} height={46} />
-                                <View style={{
-                                    justifyContent: 'center', alignItems: 'center',
-                                    height: 20, width: 20, borderRadius: 10,
-                                    position: 'absolute', right: -2, bottom: -2,
-                                    backgroundColor: theme.surfaceOnBg
-                                }}>
-                                    <Image
-                                        source={require('@assets/ic-verified.png')}
-                                        style={{ height: 20, width: 20 }}
-                                    />
-                                </View>
-                            </View>
-                        }
-                        selected={!selectedJetton}
-                        hideSelection={!callback}
-                    />
-                    {!hasSpecialJetton && knownJettons?.specialJetton && (
+            <FlashList
+                data={visibleList}
+                renderItem={({ item }: { item: ListItem }) => {
+                    if (item.type !== 'ton') {
+                        const wallet = item.address;
+                        return (
+                            <AssetsListItem
+                                wallet={wallet}
+                                owner={owner}
+                                onSelect={onSelected}
+                                hideSelection={!callback}
+                                selected={selectedJetton}
+                                isTestnet={network.isTestnet}
+                                theme={theme}
+                            />
+                        )
+                    }
+
+                    return (
                         <SelectableButton
-                            key={'assets-special'}
-                            title={'TetherUSD₮'}
-                            subtitle={'Tether Token for Tether USD'}
-                            onSelect={onSpecialJettonSelected}
-                            selected={!!selectedJetton && specialJettonMaster?.equals(selectedJetton)}
-                            hideSelection={!callback}
+                            title={'TON'}
+                            subtitle={t('common.balance')}
+                            onSelect={onTonSelected}
                             icon={
                                 <View style={{ width: 46, height: 46 }}>
-                                    <WImage
-                                        requireSource={require('@assets/known/ic-usdt.png')}
-                                        width={46}
-                                        heigh={46}
-                                        borderRadius={23}
-                                    />
+                                    <TonIcon width={46} height={46} />
                                     <View style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 20, width: 20, borderRadius: 10,
@@ -206,26 +192,32 @@ export const AssetsFragment = fragment(() => {
                                     </View>
                                 </View>
                             }
+                            style={{ height: 86 }}
+                            selected={!selectedJetton}
+                            hideSelection={!callback}
                         />
-                    )}
-                    <View style={{ gap: 16 }}>
-                        {visibleList.map((j) => {
-                            return (
-                                <AssetsListItem
-                                    key={'asset-jt' + j.toString({ testOnly: network.isTestnet })}
-                                    wallet={j}
-                                    owner={owner}
-                                    onSelect={onSelected}
-                                    hideSelection={!callback}
-                                    selected={selectedJetton}
-                                    isTestnet={network.isTestnet}
-                                    theme={theme}
-                                />
-                            );
-                        })}
+                    )
+                }}
+                // to see less blank space
+                estimatedItemSize={80}
+                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
+                contentContainerStyle={{ paddingHorizontal: 16 }}
+                contentInset={{ bottom: safeArea.bottom + 16 }}
+                keyExtractor={(item, index) => `jetton-i-${index}`}
+                ListEmptyComponent={(
+                    <View style={{
+                        justifyContent: 'center', alignItems: 'center',
+                        height: dimentions.height - (safeArea.bottom + safeArea.top + 44 + 32 + 32),
+                        width: '100%',
+                    }}>
+                        <Text style={[Typography.semiBold27_32, { color: theme.textSecondary }]}>
+                            {t('jetton.jettonsNotFound')}
+                        </Text>
                     </View>
-                </View>
-            </ScrollView>
+                )}
+                ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
+            />
         </View>
     );
 });

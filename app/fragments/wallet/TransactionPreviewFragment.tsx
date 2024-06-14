@@ -37,6 +37,7 @@ import { avatarHash } from "../../utils/avatarHash";
 import { PreviewMessages } from "./views/preview/PreviewMessages";
 import { BatchAvatars } from "../../components/avatar/BatchAvatars";
 import { HoldersOpType, HoldersOpView } from "../../components/transfer/HoldersOpView";
+import { previewToTransferParams } from "../../utils/toTransferParams";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -83,6 +84,10 @@ const TransactionPreview = () => {
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
     const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
+
+    const repeatParams = useMemo(() => {
+        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger)
+    }, [tx, isTestnet, bounceableFormat, isLedger]);
 
     const preparedMessages = usePeparedMessages(messages, isTestnet);
     const [walletsSettings,] = useWalletsSettings();
@@ -586,33 +591,21 @@ const TransactionPreview = () => {
                     )
                 }
             </ScrollView>
-            {
-                tx.base.parsed.kind === 'out' && (tx.base.parsed.body?.type !== 'payload') && !isLedger && (
-                    <PerfView style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
-                        <RoundButton
-                            title={t('txPreview.sendAgain')}
-                            style={{ flexGrow: 1 }}
-                            onPress={() => {
-                                const operation = tx.base.operation;
-                                const item = operation.items[0];
-                                const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-                                const opAddr = Address.parseFriendly(opAddressString);
-                                const bounceable = bounceableFormat ? true : opAddr.isBounceable;
-                                const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
-                                navigation.navigateSimpleTransfer({
-                                    target,
-                                    comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
-                                    amount: BigInt(tx.base.parsed.amount) > 0n ? BigInt(tx.base.parsed.amount) : -BigInt(tx.base.parsed.amount),
-                                    job: null,
-                                    stateInit: null,
-                                    jetton: null,
-                                    callback: null
-                                })
-                            }}
-                        />
-                    </PerfView>
-                )
-            }
+            {!!repeatParams && (
+                <PerfView style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
+                    <RoundButton
+                        title={t('txPreview.sendAgain')}
+                        style={{ flexGrow: 1 }}
+                        onPress={() => {
+                            if (repeatParams.type === 'simple') {
+                                navigation.navigateSimpleTransfer(repeatParams);
+                            } else {
+                                navigation.navigateTransfer(repeatParams);
+                            }
+                        }}
+                    />
+                </PerfView>
+            )}
         </PerfView>
     );
 }

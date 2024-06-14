@@ -4,12 +4,11 @@ import { ResolvedUrl } from './utils/resolveUrl';
 import { Queries } from './engine/queries';
 import { useClient4 } from './engine/hooks';
 import { useSelectedAccount } from './engine/hooks';
-import { jettonWalletAddressQueryFn } from './engine/hooks/jettons/useJettonWalletAddress';
 import { useQueryClient } from '@tanstack/react-query';
 import { Address } from '@ton/core';
 import { ToastDuration, useToaster } from './components/toast/ToastProvider';
 import { useCallback } from 'react';
-import { jettonWalletQueryFn } from './engine/hooks/jettons/usePrefetchHints';
+import { jettonWalletAddressQueryFn, jettonWalletQueryFn } from './engine/hooks/jettons/usePrefetchHints';
 import { useGlobalLoader } from './components/useGlobalLoader';
 import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
 
@@ -67,7 +66,7 @@ export function useLinkNavigator(
                 try {
                     jettonWalletAddress = await queryClient.fetchQuery({
                         queryKey: Queries.Jettons().Address(selected!.addressString).Wallet(resolved.jettonMaster.toString({ testOnly: isTestnet })),
-                        queryFn: jettonWalletAddressQueryFn(client, resolved.jettonMaster.toString({ testOnly: isTestnet }), selected!.addressString, isTestnet)
+                        queryFn: jettonWalletAddressQueryFn(resolved.jettonMaster.toString({ testOnly: isTestnet }), selected!.addressString, isTestnet)
                     });
                 } catch {
                     console.warn('Failed to fetch jetton wallet address', selected!.addressString, resolved.jettonMaster.toString({ testOnly: isTestnet }));

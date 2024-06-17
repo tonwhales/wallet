@@ -11,6 +11,7 @@ import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
 import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
+import { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFragment';
 import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
 import { HomeFragmentProps } from '../fragments/HomeFragment';
 
@@ -153,6 +154,10 @@ export class TypedNavigation {
         this.navigateAndReplaceAll('LedgerApp');
     }
 
+    navigateHoldersLanding({ endpoint, onEnrollType }: { endpoint: string, onEnrollType: HoldersAppParams }) {
+        this.navigate('HoldersLanding', { endpoint, onEnrollType });
+    }
+
     navigateHolders(params: HoldersAppParams) {
         this.navigate('Holders', params);
     }
@@ -181,11 +186,15 @@ export class TypedNavigation {
     }
 
     navigateDAppWebView(params: DAppWebViewFragmentParams) {
+        if (params.lockNativeBack) {
+            this.navigate('DAppWebViewLocked', params);
+            return;
+        }
         this.navigate('DAppWebView', params);
     }
 
-    navigateAndReplaceHome(params?: HomeFragmentProps) {
-        this.navigateAndReplaceAll('Home', params);
+    navigateProductsList(params: ProductsListFragmentParams) {
+        this.navigate(params.isLedger ? 'LedgerProductsList' : 'ProductsList', params);
     }
 }
 

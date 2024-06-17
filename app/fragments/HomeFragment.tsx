@@ -42,12 +42,11 @@ export const HomeFragment = fragment(() => {
     const network = useNetwork();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const { navigateTo } = useParams<HomeFragmentProps>();
-    const navigation = useTypedNavigation();
+    const navigation = useTypedNavigation()
     const loader = useGlobalLoader()
     const [tonXRequest,] = useCurrentJob();
     const [tonconnectRequests,] = useConnectPendingRequests();
-    const linkNavigator = useLinkNavigator(network.isTestnet);
+    const linkNavigator = useLinkNavigator(network.isTestnet, { marginBottom: Platform.select({ ios: 32 + 64, android: 16 })});
 
     const [curve, setCurve] = useState<number | undefined>(undefined);
 

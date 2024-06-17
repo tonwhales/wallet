@@ -12,6 +12,7 @@ import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragmen
 import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
 import { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFragment';
 import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
+import { PendingTxPreviewParams } from '../fragments/wallet/PendingTxPreviewFragment';
 import { HomeFragmentProps } from '../fragments/HomeFragment';
 
 type Base = NavigationProp<ParamListBase>;

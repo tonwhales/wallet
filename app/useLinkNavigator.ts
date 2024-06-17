@@ -191,7 +191,7 @@ export function useLinkNavigator(
                         ));
 
                         // Find metadata for the base address
-                        const metadata = metadatas.find(m => m?.address === tx.parsed.resolvedAddress) ?? null;
+                        const metadata = metadatas.find(m => m?.address === tx!.parsed.resolvedAddress) ?? null;
                         const parsedMetadata = metadata ? parseStoredMetadata(metadata) : null;
                         const jettonMaster = getJettonMasterAddressFromMetadata(metadata);
                         // Fetch jetton master content

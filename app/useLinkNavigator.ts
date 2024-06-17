@@ -159,14 +159,16 @@ export function useLinkNavigator(
                     let txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
                     let tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
 
-                    // If transaction is not found in the list, invalidate the cache and try to fetch it again
-                    await queryClient.invalidateQueries({
-                        queryKey: Queries.Transactions(resolved.address),
-                        refetchPage: (last, index, allPages) => index == 0,
-                    });
+                    if (!tx) {
+                        // If transaction is not found in the list, invalidate the cache and try to fetch it again
+                        await queryClient.invalidateQueries({
+                            queryKey: Queries.Transactions(resolved.address),
+                            refetchPage: (last, index, allPages) => index == 0,
+                        });
 
-                    txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
-                    tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
+                        txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
+                        tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
+                    }
 
                     // If transaction is not found in the list, fetch it from the server
                     if (!tx) {

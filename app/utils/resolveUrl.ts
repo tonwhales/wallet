@@ -213,25 +213,6 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             }
         }
 
-        // ton url tx
-        if (
-            (url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:')
-            && url.host.toLowerCase() === 'tx'
-            && url.pathname.startsWith('/')
-        ) {
-            const address = decodeURIComponent(url.pathname.slice(1).split('/')[0]);
-            const txId = url.pathname.slice(1).split('/')[1].split('_');
-            const lt = txId[0];
-            const hash = decodeURIComponent(txId[1]);
-
-            return {
-                type: 'tx',
-                address,
-                hash,
-                lt
-            }
-        }
-
         // HTTP(s) url
         if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
             && (SupportedDomains.find((d) => d === url.host.toLowerCase()))

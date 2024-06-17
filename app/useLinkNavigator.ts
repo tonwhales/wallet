@@ -223,11 +223,14 @@ export function useLinkNavigator(
                             const address = Address.parse(resolved.address);
                             const index = appState.addresses.findIndex((a) => a.address.equals(address));
 
-                            // Select new address
-                            updateAppState({ ...appState, selected: index }, isTestnet);
+                            if (index === -1) {
+                                // Select new address
+                                updateAppState({ ...appState, selected: index }, isTestnet);
+    
+                                // navigate to home with tx to be opened after
+                                navigation.navigateAndReplaceHome({ navigateTo: { type: 'tx', transaction } });
+                            }
 
-                            // navigate to home with tx to be opened after
-                            navigation.navigateAndReplaceHome({ navigateTo: { type: 'tx', transaction } });
                         }
                     }
                 }

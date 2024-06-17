@@ -45,6 +45,11 @@ export type ResolvedUrl = {
     type: 'tonconnect',
     query: ConnectQrQuery
 } | {
+    type: 'tx',
+    address: string,
+    hash: string,
+    lt: string
+} | {
     type: 'error',
     error: ResolveUrlError
 }
@@ -210,6 +215,25 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 type: 'connect',
                 session,
                 endpoint
+            }
+        }
+
+        // ton url tx
+        if (
+            (url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:')
+            && url.host.toLowerCase() === 'tx'
+            && url.pathname.startsWith('/')
+        ) {
+            const address = decodeURIComponent(url.pathname.slice(1).split('/')[0]);
+            const txId = url.pathname.slice(1).split('/')[1].split('_');
+            const lt = txId[0];
+            const hash = decodeURIComponent(txId[1]);
+
+            return {
+                type: 'tx',
+                address,
+                hash,
+                lt
             }
         }
 

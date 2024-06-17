@@ -2,9 +2,9 @@ import { t } from './i18n/t';
 import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
 import { Queries } from './engine/queries';
-import { useAccountTransactions, useClient4, useSetAppState } from './engine/hooks';
+import { useSetAppState } from './engine/hooks';
 import { useSelectedAccount } from './engine/hooks';
-import { useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, useQueryClient } from '@tanstack/react-query';
 import { Address } from '@ton/core';
 import { fetchAccountTransactions } from './engine/api/fetchAccountTransactions';
 import { contractMetadataQueryFn, jettonMasterContentQueryFn } from './engine/hooks/jettons/usePrefetchHints';
@@ -15,6 +15,11 @@ import { ToastDuration, useToaster } from './components/toast/ToastProvider';
 import { jettonWalletAddressQueryFn, jettonWalletQueryFn } from './engine/hooks/jettons/usePrefetchHints';
 import { useGlobalLoader } from './components/useGlobalLoader';
 import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
+import { createBackoff } from './utils/time';
+import { getQueryData } from './engine/utils/getQueryData';
+import { StoredTransaction } from './engine/types';
+
+const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
 export function useLinkNavigator(
     isTestnet: boolean,
@@ -24,7 +29,6 @@ export function useLinkNavigator(
     const selected = useSelectedAccount();
     const updateAppState = useSetAppState();
     const queryClient = useQueryClient();
-    const txs = useAccountTransactions(selected?.addressString ?? '', { refetchOnMount: true });
     const toaster = useToaster();
     const loader = useGlobalLoader();
 
@@ -95,7 +99,7 @@ export function useLinkNavigator(
                         queryKey: Queries.Account(jettonWalletAddress!).JettonWallet(),
                         queryFn: jettonWalletQueryFn(jettonWalletAddress!, isTestnet),
                     });
-                } catch {                    
+                } catch {
                     console.warn('Failed to fetch jetton wallet', jettonWalletAddress);
                 }
             }
@@ -151,42 +155,63 @@ export function useLinkNavigator(
             try {
                 if (!!selected?.addressString) {
                     const isSelectedAddress = selected?.address.equals(Address.parse(resolved.address));
-                    let transaction = isSelectedAddress ? txs.data?.find(tx => tx.id === `${lt}_${hash}`) : undefined;
+                    const queryCache = queryClient.getQueryCache();
+                    let txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
+                    let tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
+
+                    // If transaction is not found in the list, invalidate the cache and try to fetch it again
+                    await queryClient.invalidateQueries({
+                        queryKey: Queries.Transactions(resolved.address),
+                        refetchPage: (last, index, allPages) => index == 0,
+                    });
+
+                    txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
+                    tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
 
                     // If transaction is not found in the list, fetch it from the server
-                    if (!transaction) {
-                        const rawTxs = await fetchAccountTransactions(resolved.address, isTestnet, { lt, hash });
+                    if (!tx) {
+                        // Try to fetch transaction from the server
+                        const rawTxs = await infoBackoff('tx', async () => await fetchAccountTransactions(selected.addressString, isTestnet, { lt, hash }));;
                         if (rawTxs.length > 0) {
-                            const base = rawTxs[0];
-
-                            // Fetch metadata for all mentioned addresses
-                            const metadatas = (await Promise.all(base.parsed.mentioned.map(async (address) => {
-                                return await (contractMetadataQueryFn(isTestnet, address)());
-                            })));
-
-                            // Find metadata for the base address
-                            const metadata = metadatas.find(m => m?.address === base.parsed.resolvedAddress) ?? null;
-                            const parsedMetadata = metadata ? parseStoredMetadata(metadata) : null;
-                            const jettonMaster = getJettonMasterAddressFromMetadata(metadata);
-                            // Fetch jetton master content
-                            const masterContent = jettonMaster ? await jettonMasterContentQueryFn(jettonMaster, isTestnet)() : null;
-
-                            transaction = {
-                                id: `${base.lt}_${base.hash}`,
-                                base: base,
-                                icon: masterContent?.image?.preview256 ?? null,
-                                masterMetadata: masterContent,
-                                masterAddressStr: jettonMaster,
-                                metadata: parsedMetadata,
-                                verified: null,
-                                op: null,
-                                title: null
-                            };
+                            tx = rawTxs[0];
                         }
                     }
 
-                    // If transaction is found, navigate to it
-                    if (transaction) {
+                    if (!!tx) {
+                        // Fetch metadata for all mentioned addresses
+                        const metadatas = (await Promise.all(
+                            tx.parsed.mentioned.map(async (address) => {
+                                return await queryClient.fetchQuery({
+                                    queryKey: Queries.ContractMetadata(address),
+                                    queryFn: contractMetadataQueryFn(isTestnet, address),
+                                });
+                            })
+                        ));
+
+                        // Find metadata for the base address
+                        const metadata = metadatas.find(m => m?.address === tx.parsed.resolvedAddress) ?? null;
+                        const parsedMetadata = metadata ? parseStoredMetadata(metadata) : null;
+                        const jettonMaster = getJettonMasterAddressFromMetadata(metadata);
+                        // Fetch jetton master content
+                        const masterContent = jettonMaster
+                            ? await queryClient.fetchQuery({
+                                queryKey: Queries.Jettons().MasterContent(jettonMaster),
+                                queryFn: jettonMasterContentQueryFn(jettonMaster, isTestnet),
+                            })
+                            : null;
+
+                        // Create tx param body
+                        const transaction = {
+                            id: `${tx.lt}_${tx.hash}`,
+                            base: tx,
+                            icon: masterContent?.image?.preview256 ?? null,
+                            masterMetadata: masterContent,
+                            masterAddressStr: jettonMaster,
+                            metadata: parsedMetadata,
+                            verified: null,
+                            op: null,
+                            title: null
+                        };
 
                         // If transaction is for the selected address, navigate to it
                         if (isSelectedAddress) {
@@ -196,8 +221,10 @@ export function useLinkNavigator(
                             const address = Address.parse(resolved.address);
                             const index = appState.addresses.findIndex((a) => a.address.equals(address));
 
+                            // Select new address
                             updateAppState({ ...appState, selected: index }, isTestnet);
 
+                            // navigate to home with tx to be opened after
                             navigation.navigateAndReplaceHome({ navigateTo: { type: 'tx', transaction } });
                         }
                     }
@@ -205,11 +232,11 @@ export function useLinkNavigator(
             } catch {
                 throw Error('Failed to resolve transaction link');
             } finally {
+                // Hide loader
                 hideloader();
             }
-
         }
-    }, [selected, txs, updateAppState]);
+    }, [selected, updateAppState]);
 
     return handler;
 }

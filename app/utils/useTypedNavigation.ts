@@ -1,6 +1,5 @@
-import * as React from 'react';
 import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
-import { Address, Cell } from '@ton/core';
+import { Cell } from '@ton/core';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
@@ -191,6 +190,10 @@ export class TypedNavigation {
             return;
         }
         this.navigate('DAppWebView', params);
+    }
+
+    navigateAndReplaceHome(params?: HomeFragmentProps) {
+        this.navigateAndReplaceAll('Home', params);
     }
 
     navigateProductsList(params: ProductsListFragmentParams) {

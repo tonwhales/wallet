@@ -6,8 +6,12 @@ import { useAccountTransactions, useClient4, useSetAppState } from './engine/hoo
 import { useSelectedAccount } from './engine/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { Address } from '@ton/core';
-import { ToastDuration, useToaster } from './components/toast/ToastProvider';
+import { fetchAccountTransactions } from './engine/api/fetchAccountTransactions';
+import { contractMetadataQueryFn, jettonMasterContentQueryFn } from './engine/hooks/jettons/usePrefetchHints';
+import { getJettonMasterAddressFromMetadata, parseStoredMetadata } from './engine/hooks/transactions/useAccountTransactions';
+import { getAppState } from './storage/appState';
 import { useCallback } from 'react';
+import { ToastDuration, useToaster } from './components/toast/ToastProvider';
 import { jettonWalletAddressQueryFn, jettonWalletQueryFn } from './engine/hooks/jettons/usePrefetchHints';
 import { useGlobalLoader } from './components/useGlobalLoader';
 import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
@@ -17,10 +21,10 @@ export function useLinkNavigator(
     toastProps?: { duration?: ToastDuration, marginBottom?: number }
 ) {
     const navigation = useTypedNavigation();
-    const client = useClient4(isTestnet);
     const selected = useSelectedAccount();
     const updateAppState = useSetAppState();
     const queryClient = useQueryClient();
+    const txs = useAccountTransactions(selected?.addressString ?? '', { refetchOnMount: true });
     const toaster = useToaster();
     const loader = useGlobalLoader();
 
@@ -137,7 +141,75 @@ export function useLinkNavigator(
                 image: resolved.customImage
             });
         }
-    }, [selected]);
+
+        if (resolved.type === 'tx') {
+            const hideloader = loader.show();
+
+            let lt = resolved.lt;
+            let hash = resolved.hash;
+
+            try {
+                if (!!selected?.addressString) {
+                    const isSelectedAddress = selected?.address.equals(Address.parse(resolved.address));
+                    let transaction = isSelectedAddress ? txs.data?.find(tx => tx.id === `${lt}_${hash}`) : undefined;
+
+                    // If transaction is not found in the list, fetch it from the server
+                    if (!transaction) {
+                        const rawTxs = await fetchAccountTransactions(resolved.address, isTestnet, { lt, hash });
+                        if (rawTxs.length > 0) {
+                            const base = rawTxs[0];
+
+                            // Fetch metadata for all mentioned addresses
+                            const metadatas = (await Promise.all(base.parsed.mentioned.map(async (address) => {
+                                return await (contractMetadataQueryFn(isTestnet, address)());
+                            })));
+
+                            // Find metadata for the base address
+                            const metadata = metadatas.find(m => m?.address === base.parsed.resolvedAddress) ?? null;
+                            const parsedMetadata = metadata ? parseStoredMetadata(metadata) : null;
+                            const jettonMaster = getJettonMasterAddressFromMetadata(metadata);
+                            // Fetch jetton master content
+                            const masterContent = jettonMaster ? await jettonMasterContentQueryFn(jettonMaster, isTestnet)() : null;
+
+                            transaction = {
+                                id: `${base.lt}_${base.hash}`,
+                                base: base,
+                                icon: masterContent?.image?.preview256 ?? null,
+                                masterMetadata: masterContent,
+                                masterAddressStr: jettonMaster,
+                                metadata: parsedMetadata,
+                                verified: null,
+                                op: null,
+                                title: null
+                            };
+                        }
+                    }
+
+                    // If transaction is found, navigate to it
+                    if (transaction) {
+
+                        // If transaction is for the selected address, navigate to it
+                        if (isSelectedAddress) {
+                            navigation.navigate('Transaction', { transaction });
+                        } else { // If transaction is for another address, navigate to the address first
+                            const appState = getAppState();
+                            const address = Address.parse(resolved.address);
+                            const index = appState.addresses.findIndex((a) => a.address.equals(address));
+
+                            updateAppState({ ...appState, selected: index }, isTestnet);
+
+                            navigation.navigateAndReplaceHome({ navigateTo: { type: 'tx', transaction } });
+                        }
+                    }
+                }
+            } catch {
+                throw Error('Failed to resolve transaction link');
+            } finally {
+                hideloader();
+            }
+
+        }
+    }, [selected, txs, updateAppState]);
 
     return handler;
 }

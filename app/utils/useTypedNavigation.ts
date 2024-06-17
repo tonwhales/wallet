@@ -13,6 +13,7 @@ import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragmen
 import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
 import { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFragment';
 import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
+import { PendingTxPreviewParams } from '../fragments/wallet/PendingTxPreviewFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -194,6 +195,10 @@ export class TypedNavigation {
 
     navigateProductsList(params: ProductsListFragmentParams) {
         this.navigate(params.isLedger ? 'LedgerProductsList' : 'ProductsList', params);
+    }
+
+    navigatePendingTx(params: PendingTxPreviewParams) {
+        this.navigate('PendingTransaction', params);
     }
 }
 

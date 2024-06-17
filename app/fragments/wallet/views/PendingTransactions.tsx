@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { memo } from "react";
 import { View, Text, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { PendingTransaction } from "../../../engine/state/pending";
@@ -127,6 +127,14 @@ const PendingTransactionView = memo(({
         }
     }, [lastBlock, timeOut, tx.status]);
 
+    const onOpen = useCallback(() => {
+        navigation.navigatePendingTx({ 
+            transaction: tx,
+            timedOut: tx.status === 'timed-out',
+            isHolders: isHoldersOp
+         });
+    }, [isHoldersOp]);
+
     return (
         <Animated.View
             entering={FadeInDown}
@@ -144,7 +152,7 @@ const PendingTransactionView = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}
-                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx, timedOut: tx.status === 'timed-out' })}
+                onPress={onOpen}
             >
                 <View style={{
                     width: 46, height: 46,

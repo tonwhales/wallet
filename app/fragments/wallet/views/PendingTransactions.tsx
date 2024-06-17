@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { memo } from "react";
-import { View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
-import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
+import { View, Text, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { PendingTransactionAvatar } from "../../../components/avatar/PendingTransactionAvatar";
@@ -18,29 +17,50 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/avatar/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useBounceableWalletFormat, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
+import { useBounceableWalletFormat, usePendingActions, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
+import { useAppConfig } from "../../../engine/hooks/useAppConfig";
+import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
+import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
+import { useLastWatchedBlock } from "../../../engine/hooks/useLastWatchedBlock";
+
+function checkIfTxFailed(tx: PendingTransaction, txTimeout: number = 60, lastWatchedBlock: { seqno: number, lastUtime: number } | null) {
+    const currentBlock = lastWatchedBlock?.seqno ?? 0;
+    const blockToCheck = tx.blockSeqno + 20;
+
+    if (tx.blockSeqno === currentBlock || blockToCheck >= currentBlock) {
+        return false;
+    }
+
+    let blockCreatedAt = lastWatchedBlock?.lastUtime ?? 0;
+
+    // check if block was created after transaction expiration date
+    return blockCreatedAt > (tx.time + txTimeout);
+}
 
 const PendingTransactionView = memo(({
     tx,
     first,
     last,
     single,
-    onRemove,
+    timeOut,
     viewType = 'main',
-    bounceableFormat
+    bounceableFormat,
+    txTimeout
 }: {
     tx: PendingTransaction,
     first?: boolean,
     last?: boolean,
     single?: boolean,
-    onRemove?: (id: string) => void,
+    timeOut?: (id: string) => void,
     viewType?: 'history' | 'main',
-    bounceableFormat?: boolean
+    bounceableFormat?: boolean,
+    txTimeout: number
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const lastBlock = useLastWatchedBlock();
     const navigation = useTypedNavigation();
     const body = tx.body;
     const targetFriendly = body?.type === 'token'
@@ -50,6 +70,24 @@ const PendingTransactionView = memo(({
     const [settings,] = useWalletSettings(targetFriendly);
     const knownWallets = KnownWallets(isTestnet);
     const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
+    const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
+
+    const isHoldersOp = useMemo(() => {
+        if (targetContract?.kind === 'jetton-card' && tx.body?.type === 'token') {
+            return true;
+        }
+
+        if (tx.body?.type === 'payload') {
+            const body = parseMessageBody(tx.body.cell);
+            if (!!body && (
+                body.type === 'holders::account::top_up'
+                || body.type === 'holders::account::limits_change'
+            )) {
+                return true;
+            }
+        }
+
+    }, [tx, targetContract?.kind]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -62,23 +100,32 @@ const PendingTransactionView = memo(({
         }
     }
 
+    const status = useMemo(() => {
+        if (tx.status === 'timed-out') {
+            return t('tx.timeout');
+        } else if (tx.status === 'sent') {
+            return t('tx.sent');
+        }
+        return t('tx.sending');
+    }, [tx.status]);
+
     const amount = body?.type === 'token'
         ? body.amount
         : tx.amount > 0n
             ? tx.amount
             : -tx.amount;
 
+    // check if transaction timed out after 20 blocks and tx timeout
     useEffect(() => {
-        if (onRemove && tx.status === 'sent') {
-            if (viewType === 'history') {
-                onRemove(tx.id);
-                return;
+        if (tx.status === 'pending') {
+            const failed = checkIfTxFailed(tx, txTimeout, lastBlock);
+
+            // mark as timed out
+            if (failed) {
+                timeOut?.(tx.id);
             }
-            setTimeout(() => {
-                onRemove(tx.id);
-            }, 15000);
         }
-    }, [tx.status, onRemove]);
+    }, [lastBlock, timeOut, tx.status]);
 
     return (
         <Animated.View
@@ -97,7 +144,7 @@ const PendingTransactionView = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}
-                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx })}
+                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx, timedOut: tx.status === 'timed-out' })}
             >
                 <View style={{
                     width: 46, height: 46,
@@ -105,7 +152,7 @@ const PendingTransactionView = memo(({
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center',
                 }}>
-                    {tx.status === 'pending' ? (
+                    {(tx.status === 'pending') ? (
                         <PendingTransactionAvatar
                             kind={'out'}
                             address={targetFriendly}
@@ -113,36 +160,47 @@ const PendingTransactionView = memo(({
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={knownWallets}
                             theme={theme}
+                            holders={isHoldersOp}
                         />
                     ) : (
-                        <Avatar
-                            address={targetFriendly}
-                            verified
-                            size={46}
-                            borderWith={0}
-                            hash={settings?.avatar}
-                            id={targetFriendly ?? 'batch'}
-                            theme={theme}
-                            knownWallets={knownWallets}
-                            backgroundColor={theme.backgroundPrimary}
-                            hashColor
-                            icProps={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
-                        />
+                        isHoldersOp ? (
+                            <Image
+                                source={require('@assets/ic-holders-accounts.png')}
+                                style={{ width: 46, height: 46, borderRadius: 23 }}
+                            />
+                        ) : (
+                            <Avatar
+                                address={targetFriendly}
+                                verified={tx.status === 'sent'}
+                                size={46}
+                                borderWith={0}
+                                hash={settings?.avatar}
+                                id={targetFriendly ?? 'batch'}
+                                theme={theme}
+                                knownWallets={knownWallets}
+                                backgroundColor={theme.backgroundPrimary}
+                                hashColor
+                                icProps={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
+                            />
+                        )
                     )}
                 </View>
                 <View style={{ flex: 1, marginRight: 4 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Text
-                            style={{ color: theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
+                            style={[{ color: tx.status === 'timed-out' ? theme.warning : theme.textPrimary, flexShrink: 1 }, Typography.semiBold17_24]}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
-                            {tx.status === 'pending' ? t('tx.sending') : t('tx.sent')}
+                            {status}
                         </Text>
                     </View>
                     {known ? (
                         <Text
-                            style={{ color: theme.textSecondary, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
+                            style={[
+                                { color: theme.textSecondary, marginRight: 8, marginTop: 2 },
+                                Typography.regular15_20
+                            ]}
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
@@ -150,7 +208,10 @@ const PendingTransactionView = memo(({
                         </Text>
                     ) : (
                         <Text
-                            style={{ color: theme.textSecondary, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
+                            style={[
+                                { color: theme.textSecondary, marginRight: 8, marginTop: 2 },
+                                Typography.regular15_20
+                            ]}
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
@@ -169,22 +230,16 @@ const PendingTransactionView = memo(({
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text
-                        style={{
-                            color: theme.textPrimary,
-                            fontWeight: '600',
-                            lineHeight: 24,
-                            fontSize: 17,
-                            marginRight: 2,
-                        }}
+                        style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
                         numberOfLines={1}
                     >
                         {'-'}
                         <ValueComponent
                             value={amount}
-                            decimals={(body?.type === 'token' && body.master.decimals) ? body.master.decimals : undefined}
+                            decimals={(body?.type === 'token' && body.jetton.decimals) ? body.jetton.decimals : undefined}
                             precision={3}
                         />
-                        {body?.type === 'token' && body.master.symbol ? ` ${body.master.symbol}` : ' TON'}
+                        {body?.type === 'token' && body.jetton.symbol ? ` ${body.jetton.symbol}` : ' TON'}
                     </Text>
                     {tx.body?.type !== 'token' && (
                         <PriceComponent
@@ -197,11 +252,7 @@ const PendingTransactionView = memo(({
                                 alignSelf: 'flex-end',
                             }}
                             theme={theme}
-                            textStyle={{
-                                color: theme.textSecondary,
-                                fontWeight: '400',
-                                fontSize: 15, lineHeight: 20
-                            }}
+                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         />
                     )}
                 </View>
@@ -214,22 +265,23 @@ const PendingTransactionView = memo(({
 });
 PendingTransactionView.displayName = 'PendingTransactionView';
 
-export const PendingTransactionsView = memo((
+export const PendingTransactionsList = memo((
     {
         theme,
-        pending,
-        removePending,
+        txs,
+        timeOut,
         style,
         viewType = 'main'
     }: {
         theme: ThemeType,
-        pending: PendingTransaction[],
-        removePending: (id: string) => void,
+        txs: PendingTransaction[],
+        timeOut?: (id: string) => void,
         style?: StyleProp<ViewStyle>,
         viewType?: 'history' | 'main'
     }
 ) => {
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const appConfig = useAppConfig();
 
     return (
         <View style={[
@@ -240,41 +292,56 @@ export const PendingTransactionsView = memo((
             },
             style
         ]}>
-            {pending.map((tx, i) => (
+            {txs.map((tx, i) => (
                 <PendingTransactionView
                     key={tx.id}
                     tx={tx}
                     first={i === 0}
-                    last={i === pending.length - 1}
-                    onRemove={() => removePending(tx.id)}
+                    last={i === txs.length - 1}
+                    timeOut={timeOut}
                     viewType={viewType}
                     bounceableFormat={bounceableFormat}
+                    txTimeout={appConfig.txTimeout}
                 />
             ))}
         </View>
     );
 });
-PendingTransactionsView.displayName = 'PendingTransactionsView';
+PendingTransactionsList.displayName = 'PendingTransactionsView';
 
 export const PendingTransactions = memo(({ address, viewType = 'main' }: { address?: string, viewType?: 'history' | 'main' }) => {
     const account = useSelectedAccount();
     const network = useNetwork();
-    const [pending, setPending] = usePendingTransactions(address ?? account?.addressString ?? '', network.isTestnet);
+    const { state: pending, removePending, markAsTimedOut } = usePendingActions(address ?? account?.addressString ?? '', network.isTestnet);
     const theme = useTheme();
 
-    const removePending = useCallback((id: string) => {
-        setPending((prev) => {
-            return prev.filter((tx) => tx.id !== id);
-        });
-    }, [setPending]);
+    const txs = useMemo(() => {
+        // Show only pending on history tab
+        if (viewType === 'history') {
+            return pending.filter((tx) => tx.status !== 'sent' && tx.status !== 'timed-out');
+        }
 
-    if (pending.length <= 0) {
+        return pending;
+    }, [pending]);
+
+    useEffect(() => {
+        // Remove transactions after 15 seconds of changing status
+        setTimeout(() => {
+            const toRemove = pending
+                .filter((tx) => tx.status !== 'pending')
+                .map((tx) => tx.id);
+
+            removePending(toRemove);
+        }, 15 * 1000);
+    }, [pending]);
+
+    if (txs.length <= 0) {
         return null;
     }
 
     return (
         <View style={{ paddingHorizontal: 16 }}>
-            {pending.length > 0 && (
+            {txs.length > 0 && (
                 <Animated.View
                     entering={FadeInDown}
                     exiting={FadeOutUp}
@@ -290,10 +357,10 @@ export const PendingTransactions = memo(({ address, viewType = 'main' }: { addre
                     </Text>
                 </Animated.View>
             )}
-            <PendingTransactionsView
+            <PendingTransactionsList
                 theme={theme}
-                pending={pending}
-                removePending={removePending}
+                txs={txs}
+                timeOut={markAsTimedOut}
                 viewType={viewType}
             />
         </View>

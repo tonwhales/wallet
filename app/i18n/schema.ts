@@ -67,7 +67,7 @@ export type LocalizationSchema = {
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
-        recent: string, 
+        recent: string,
         ok: string,
         attention: string,
         save: string,
@@ -77,6 +77,10 @@ export type LocalizationSchema = {
         airdrop: string,
         myWallets: string,
         showMore: string,
+        balances: string,
+        loading: string,
+        notFound: string,
+        unverified: string,
     },
     syncStatus: {
         connecting: string,
@@ -107,7 +111,8 @@ export type LocalizationSchema = {
         telegram: string,
         rateApp: string,
         deleteAccount: string,
-        theme: string
+        theme: string,
+        searchEngine: string
     },
     theme: {
         title: string,
@@ -121,7 +126,8 @@ export type LocalizationSchema = {
         actions: {
             receive: string,
             send: string,
-            buy: string
+            buy: string,
+            swap: string,
         },
         empty: {
             message: string,
@@ -142,6 +148,7 @@ export type LocalizationSchema = {
         tokenTransfer: string,
         airdrop: string,
         failed: string,
+        timeout: string,
         batch: string
     },
     txPreview: {
@@ -162,6 +169,7 @@ export type LocalizationSchema = {
         confirm: string,
         error: {
             invalidAddress: string,
+            invalidAddressMessage: string,
             invalidAmount: string,
             invalidDomain: string,
             invalidDomainString: string,
@@ -174,6 +182,8 @@ export type LocalizationSchema = {
             addressIsNotActive: string
             addressIsNotActiveDescription: string,
             invalidTransaction: string,
+            invalidTransactionMessage: string,
+            memoRequired: string
         },
         sendAll: string,
         scanQR: string,
@@ -296,6 +306,9 @@ export type LocalizationSchema = {
             title: string,
             subtitle: string,
             groupTitle: string,
+            wrongNetwork: string,
+            wrongFrom: string,
+            invalidFrom: string,
         },
         signatureRequest: {
             title: string,
@@ -488,6 +501,8 @@ export type LocalizationSchema = {
                 prepaidCardDescription: string,
                 hiddenAccounts: string,
                 hiddenCards: string,
+                primaryName: string,
+                paymentName: string,
             },
             pageTitles: {
                 general: string,
@@ -698,15 +713,28 @@ export type LocalizationSchema = {
         upgradeOk: string,
         cashback: string,
         tokenSent: string,
-        tokenReceived: string
+        tokenReceived: string,
+        holders: {
+            topUpTitle: string,
+            accountTopUp: string,
+            accountJettonTopUp: string,
+            limitsChange: string,
+            limitsTitle: string,
+            limitsOneTime: string,
+            limitsDaily: string,
+            limitsMonthly: string,
+            accountLimitsChange: string
+        }
     },
     jetton: {
         token: string,
         productButtonTitle: string,
         productButtonSubtitle: string,
         hidden: string,
-        liquidPoolDescriptionDedust: string
-        liquidPoolDescriptionStonFi: string
+        liquidPoolDescriptionDedust: string,
+        liquidPoolDescriptionStonFi: string,
+        emptyBalance: string,
+        jettonsNotFound: string,
     },
     connections: {
         extensions: string,
@@ -997,7 +1025,42 @@ export type LocalizationSchema = {
         newAddress: string,
         bannerTitle: string,
         bannerDescription: string,
-    }
+    },
+    browser: {
+        listings: {
+            categories: {
+                other: string,
+                exchange: string,
+                defi: string,
+                nft: string,
+                games: string,
+                social: string,
+                utils: string,
+                services: string,
+            },
+            title: string
+        },
+        refresh: string,
+        back: string,
+        forward: string,
+        share: string,
+        search: {
+            placeholder: string,
+            invalidUrl: string,
+            urlNotReachable: string,
+            suggestions: {
+                web: string,
+                ddg: string,
+                google: string
+            }
+        }
+    },
+    swap: {
+        title: string,
+        description: string,
+        termsAndPrivacy: string,
+        dontShowTitle: string,
+    },
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

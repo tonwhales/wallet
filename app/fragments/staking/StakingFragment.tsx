@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -16,12 +16,12 @@ import { KnownPools } from "../../utils/KnownPools";
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useNetwork, usePendingActions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
+import { PendingTransactionsList } from "../wallet/views/PendingTransactions";
 import { StakingPoolHeader } from "../../components/staking/StakingPoolHeader";
 import { Typography } from "../../components/styles";
 
@@ -41,7 +41,6 @@ export const StakingFragment = fragment(() => {
     const isLedger = route.name === 'LedgerStaking';
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-    const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
     const knownPools = KnownPools(network.isTestnet);
 
     const ledgerContext = useLedgerTransport();
@@ -53,13 +52,11 @@ export const StakingFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
 
     const targetPool = Address.parse(params.pool);
-    const pool = useStakingPool(targetPool, ledgerAddress);
+    const memberAddress = isLedger ? ledgerAddress : selected?.address;
+    const pool = useStakingPool(targetPool, memberAddress);
     const member = pool?.member;
-    const config = useStakingWalletConfig(
-        isLedger
-            ? ledgerAddress!.toString({ testOnly: network.isTestnet })
-            : selected!.address.toString({ testOnly: network.isTestnet })
-    );
+    const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: network.isTestnet }));
+    const { state: pendingTxs, removePending, markAsTimedOut } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
@@ -67,11 +64,16 @@ export const StakingFragment = fragment(() => {
         });
     }, [pendingTxs, targetPool]);
 
-    const removePending = useCallback((id: string) => {
-        setPending((prev) => {
-            return prev.filter((tx) => tx.id !== id);
-        });
-    }, [setPending]);
+    useEffect(() => {
+        // Remove transactions after 15 seconds of changing status
+        setTimeout(() => {
+            const toRemove = pendingPoolTxs
+                .filter((tx) => tx.status !== 'pending')
+                .map((tx) => tx.id);
+
+            removePending(toRemove);
+        }, 15 * 1000);
+    }, [pendingPoolTxs]);
 
     let type: StakingPoolType = useMemo(() => {
         if (knownPools[params.pool].name.toLowerCase().includes('club')) {
@@ -358,10 +360,10 @@ export const StakingFragment = fragment(() => {
                             />
                         )}
                         {!!pendingPoolTxs && pendingPoolTxs.length > 0 && (
-                            <PendingTransactionsView
+                            <PendingTransactionsList
                                 theme={theme}
-                                pending={pendingPoolTxs}
-                                removePending={removePending}
+                                txs={pendingPoolTxs}
+                                timeOut={markAsTimedOut}
                                 style={{ marginBottom: 16 }}
                             />
                         )}

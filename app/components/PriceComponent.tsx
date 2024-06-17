@@ -1,11 +1,12 @@
 import React, { memo, useMemo } from "react"
-import { StyleProp, ViewStyle, TextStyle } from "react-native"
+import { StyleProp, ViewStyle, TextStyle, Text } from "react-native"
 import { CurrencySymbols, formatCurrency } from "../utils/formatCurrency"
 import { usePrice } from "../engine/hooks";
 import { fromNano } from "@ton/core";
 import { ThemeType } from "../engine/state/theme";
 import { PerfView } from "./basic/PerfView";
 import { PerfText } from "./basic/PerfText";
+import { Typography } from "./styles";
 
 import TonSign from '@assets/ic_ton_sign.svg';
 
@@ -102,17 +103,12 @@ export const PriceComponent = memo((
                     />
                 </PerfView>
             )}
-            <PerfText style={[{
-                color: theme.surfaceOnBg,
-                fontSize: 15, fontWeight: '500',
-                textAlign: "center",
-                lineHeight: 20
-            }, textStyle]}>
+            <Text style={[{ color: theme.surfaceOnBg, textAlign: 'center' }, Typography.medium15_20, textStyle]}>
                 {`${integer}${decimalPoint ?? ','}`}
-                <PerfText style={centsTextStyle}>
+                <Text style={centsTextStyle}>
                     {cents}
-                </PerfText>
-            </PerfText>
+                </Text>
+            </Text>
         </PerfView>
     );
 });

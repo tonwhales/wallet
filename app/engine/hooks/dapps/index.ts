@@ -24,3 +24,6 @@ export { useSetAppsConnectionsState } from './useSetTonconnectConnections';
 export { useConnectExtensions as useTonConnectExtensions } from './useTonConnectExtenstions';
 export { useWebViewBridge } from './useWebViewBridge';
 export { useIsConnectAppReady } from '../dapps/useIsConnectAppReady';
+export { useBrowserWebSearchSuggestions } from './useBrowserWebSearchSuggestions';
+export { useDAppsSuggestions } from './useDAppsSuggestions';
+export { useSearchEngine } from './useSearchEngine';

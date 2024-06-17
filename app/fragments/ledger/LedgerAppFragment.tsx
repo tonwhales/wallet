@@ -10,6 +10,7 @@ import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
 import { SettingsFragment } from '../SettingsFragment';
+import { SortedHintsWatcher } from "../../components/SortedHintsWatcher";
 
 const Tab = createBottomTabNavigator();
 
@@ -99,6 +100,7 @@ export const LedgerAppFragment = fragment(() => {
                     component={SettingsFragment}
                 />
             </Tab.Navigator>
+            <SortedHintsWatcher owner={ledgerContext.addr?.address} />
         </View>
     );
 })

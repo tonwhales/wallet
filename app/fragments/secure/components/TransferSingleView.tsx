@@ -11,7 +11,6 @@ import { KnownWallets } from "../../../secure/KnownWallets";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
-import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
@@ -27,6 +26,12 @@ import { toBnWithDecimals } from "../../../utils/withDecimals";
 import { avatarHash } from "../../../utils/avatarHash";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { Typography } from "../../../components/styles";
+import { ItemDivider } from "../../../components/ItemDivider";
+import { PerfText } from "../../../components/basic/PerfText";
+import { PerfView } from "../../../components/basic/PerfView";
+import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
+import { copyText } from "../../../utils/copyText";
+import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
@@ -74,6 +79,7 @@ export const TransferSingleView = memo(({
     isLedger?: boolean,
     contact?: AddressContact | null
 }) => {
+    const toaster = useToaster();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -85,6 +91,19 @@ export const TransferSingleView = memo(({
     const [price, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const holdersUrl = resolveHoldersUrl(isTestnet);
+    const targetContract = useContractInfo(target.address.toString({ testOnly: isTestnet }));
+
+    const isHoldersOp = useMemo(() => {
+        if (targetContract?.kind === 'jetton-card' && operation.op?.res === 'tx.tokenTransfer') {
+            operation.op.res = 'known.holders.accountJettonTopUp';
+            return true;
+        }
+
+        if (operation.op?.res.startsWith('known.holders.')) {
+            return true;
+        }
+
+    }, [operation.op?.res, targetContract?.kind]);
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
@@ -138,6 +157,15 @@ export const TransferSingleView = memo(({
                 || target.domain
                 || null
     }
+
+    const onCopyAddress = useCallback((address: string) => {
+        copyText(address);
+        toaster.show({
+            message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+            type: 'default',
+            duration: ToastDuration.SHORT,
+        });
+    }, []);
 
     const jettonsGasAlert = useCallback(() => {
         if (!jettonAmountString) return;
@@ -214,27 +242,34 @@ export const TransferSingleView = memo(({
                         }} />
                         <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                             <View style={{ width: 68, flexDirection: 'row', height: 68 }}>
-                                {isTargetLedger ? (
+                                {isHoldersOp ? (
                                     <Image
-                                        source={require('@assets/ledger_device.png')}
-                                        style={{ height: 68, width: 68 }}
+                                        source={require('@assets/ic-holders-accounts.png')}
+                                        style={{ width: 68, height: 68, borderRadius: 34 }}
                                     />
                                 ) : (
-                                    <Avatar
-                                        size={68}
-                                        id={targetString}
-                                        address={targetString}
-                                        hash={targetWalletSettings?.avatar}
-                                        spam={isSpam}
-                                        showSpambadge
-                                        borderWith={2}
-                                        borderColor={theme.surfaceOnElevation}
-                                        backgroundColor={avatarColor}
-                                        markContact={!!contact}
-                                        icProps={{ position: 'bottom' }}
-                                        theme={theme}
-                                        knownWallets={knownWallets}
-                                    />
+                                    isTargetLedger ? (
+                                        <Image
+                                            source={require('@assets/ledger_device.png')}
+                                            style={{ height: 68, width: 68 }}
+                                        />
+                                    ) : (
+                                        <Avatar
+                                            size={68}
+                                            id={targetString}
+                                            address={targetString}
+                                            hash={targetWalletSettings?.avatar}
+                                            spam={isSpam}
+                                            showSpambadge
+                                            borderWith={2}
+                                            borderColor={theme.surfaceOnElevation}
+                                            backgroundColor={avatarColor}
+                                            markContact={!!contact}
+                                            icProps={{ position: 'bottom' }}
+                                            theme={theme}
+                                            knownWallets={knownWallets}
+                                        />
+                                    )
                                 )}
                             </View>
                         </View>
@@ -332,7 +367,13 @@ export const TransferSingleView = memo(({
                             </View>
                         </View>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                        <Pressable
+                            style={({ pressed }) => ({
+                                paddingHorizontal: 10, justifyContent: 'center',
+                                opacity: pressed ? 0.5 : 1,
+                            })}
+                            onPress={() => onCopyAddress(to.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }))}
+                        >
                             <Text style={{
                                 fontSize: 13, lineHeight: 18, fontWeight: '400',
                                 color: theme.textSecondary,
@@ -375,7 +416,7 @@ export const TransferSingleView = memo(({
                                     <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
                                 </Pressable>
                             )}
-                        </View>
+                        </Pressable>
                         {!!operation.op && !jettonAmountString && (
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
@@ -406,13 +447,13 @@ export const TransferSingleView = memo(({
                                             </View>
                                         ) : (
                                             <View style={{
-                                                height: 46, width: 34,
+                                                height: 34, width: 34,
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
                                                 <Image
-                                                    style={{ height: 46, width: 34 }}
-                                                    source={require('@assets/ic_sign_card.png')}
+                                                    style={{ height: 34, width: 34 }}
+                                                    source={require('@assets/ic-holders-accounts.png')}
                                                 />
                                             </View>
                                         )}
@@ -456,7 +497,7 @@ export const TransferSingleView = memo(({
                                             }}>
                                                 <Image
                                                     style={{ height: 46, width: 34, }}
-                                                    source={require('@assets/ic_sign_card.png')}
+                                                    source={require('@assets/ic-holders-accounts.png')}
                                                 />
                                             </View>
                                         )}
@@ -467,18 +508,59 @@ export const TransferSingleView = memo(({
                         {!!operation.op && (
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                                <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: theme.textSecondary,
-                                    }}>
-                                        {t('transfer.purpose')}
-                                    </Text>
-                                    <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary, textAlign: 'right' }}>
+                                <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                                        <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                            {t('transfer.purpose')}
+                                        </Text>
+                                        <Text style={[{ color: theme.textPrimary, textAlign: 'right' }, Typography.regular17_24]}>
                                             {t(operation.op.res, operation.op.options)}
                                         </Text>
                                     </View>
+                                    {operation.op.res === 'known.holders.limitsChange' && (
+                                        <>
+                                            {!!operation.op.options.onetime && (
+                                                <>
+                                                    <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+                                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
+                                                            {t('known.holders.limitsOneTime')}
+                                                        </PerfText>
+                                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                                            {`${operation.op.options.onetime} TON`}
+                                                        </PerfText>
+                                                    </PerfView>
+                                                    {(!!operation.op.options.daily || !!operation.op.options.monthly) && (
+                                                        <ItemDivider marginHorizontal={0} />
+                                                    )}
+                                                </>
+                                            )}
+                                            {!!operation.op.options.daily && (
+                                                <>
+                                                    <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+                                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
+                                                            {t('known.holders.limitsDaily')}
+                                                        </PerfText>
+                                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                                            {`${operation.op.options.daily} TON`}
+                                                        </PerfText>
+                                                    </PerfView>
+                                                    {!!operation.op.options.monthly && (
+                                                        <ItemDivider marginHorizontal={0} />
+                                                    )}
+                                                </>
+                                            )}
+                                            {!!operation.op.options.monthly && (
+                                                <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
+                                                    <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
+                                                        {t('known.holders.limitsMonthly')}
+                                                    </PerfText>
+                                                    <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                                        {`${operation.op.options.monthly} TON`}
+                                                    </PerfText>
+                                                </PerfView>
+                                            )}
+                                        </>
+                                    )}
                                 </View>
                             </>
                         )}

@@ -3,7 +3,7 @@ import { Queries } from "../../queries";
 import { fetchContractInfo } from "../../api/fetchContractInfo";
 
 export function useContractInfo(addressString: string | null) {
-    return useQuery({
+    const query = useQuery({
         queryKey: Queries.ContractInfo(addressString ?? ''),
         queryFn: async () => {
             if (!addressString) {
@@ -11,6 +11,9 @@ export function useContractInfo(addressString: string | null) {
             }
             return await fetchContractInfo(addressString);
         },
+        refetchOnMount: true,
         staleTime: Infinity,
-    }).data ?? null;
+    });
+
+    return query.data ?? null;
 }

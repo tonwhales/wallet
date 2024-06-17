@@ -1,11 +1,12 @@
 import React, { memo, useEffect } from "react"
-import { StyleProp, View, ViewStyle, Image } from "react-native"
+import { StyleProp, View, ViewStyle } from "react-native"
 import { avatarHash } from "../../utils/avatarHash";
 import { Avatar, avatarColors } from "./Avatar";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { useWalletSettings } from "../../engine/hooks";
 import { ThemeType } from "../../engine/state/theme";
+import { Image } from "expo-image";
 
 const Color = require('color');
 
@@ -15,14 +16,16 @@ export const PendingTransactionAvatar = memo(({
     address,
     kind,
     knownWallets,
-    theme
+    theme,
+    holders
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
     address?: string,
     kind: 'in' | 'out',
     knownWallets: { [key: string]: KnownWallet },
-    theme: ThemeType
+    theme: ThemeType,
+    holders?: boolean
 }) => {
     const [walletSettings,] = useWalletSettings(address);
     const avatarColorHash = walletSettings?.color ?? avatarHash(avatarId, avatarColors.length);
@@ -57,16 +60,23 @@ export const PendingTransactionAvatar = memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                <Avatar
-                    address={address}
-                    size={46}
-                    id={avatarId}
-                    hash={walletSettings.avatar}
-                    borderWith={0}
-                    backgroundColor={avatarColor}
-                    theme={theme}
-                    knownWallets={knownWallets}
-                />
+                {holders ? (
+                    <Image
+                        source={require('@assets/ic-holders-accounts.png')}
+                        style={{ width: 46, height: 46, borderRadius: 23 }}
+                    />
+                ) : (
+                    <Avatar
+                        address={address}
+                        size={46}
+                        id={avatarId}
+                        hash={walletSettings.avatar}
+                        borderWith={0}
+                        backgroundColor={avatarColor}
+                        theme={theme}
+                        knownWallets={knownWallets}
+                    />
+                )}
             </View>
             <Animated.View style={[
                 {

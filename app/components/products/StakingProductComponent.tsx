@@ -2,7 +2,7 @@ import React, { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useSelectedAccount, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
+import { useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
 import { ItemDivider } from "../ItemDivider";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
@@ -14,7 +14,6 @@ import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
 import { Address } from "@ton/core";
 import { LiquidStakingPool } from "../staking/LiquidStakingPool";
-import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 
 import StakingIcon from '@assets/ic-staking.svg';
@@ -46,23 +45,11 @@ const subtitleStyle: StyleProp<TextStyle> = {
     lineHeight: 20
 }
 
-export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean }) => {
+export const StakingProductComponent = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const ledgerContext = useLedgerTransport();
-    const selectedAccount = useSelectedAccount()?.address;
-
-    const ledgerAddress = useMemo(() => {
-        if (!isLedger || !ledgerContext?.addr?.address) return;
-        try {
-            return Address.parse(ledgerContext?.addr?.address);
-        } catch { }
-    }, [ledgerContext?.addr?.address]);
-
-    const account = isLedger ? ledgerAddress : selectedAccount;
-
-    const active = useStakingActive(account);
-    const liquidBalance = useLiquidStakingBalance(account);
+    const active = useStakingActive(address);
+    const liquidBalance = useLiquidStakingBalance(address);
 
     const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
@@ -79,7 +66,7 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
-    if (!account) {
+    if (!address) {
         return null;
     }
 
@@ -97,7 +84,7 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
                         if (p.type === 'liquid') {
                             return (
                                 <LiquidStakingPool
-                                    member={account}
+                                    member={address}
                                     style={[style, { padding: 0, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
                                     hideCycle
                                     hideHeader
@@ -146,7 +133,7 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
                         }
                         return (
                             <StakingPool
-                                member={account}
+                                member={address}
                                 key={`active-${p.address.toString()}`}
                                 pool={p.address}
                                 balance={p.balance}
@@ -184,7 +171,7 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
                                         <StakingIcon width={32} height={32} color={'white'} />
                                     </View>
                                 </View>
-                                <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                                <View style={{ flexShrink: 1 }}>
                                     <PerfText
                                         style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                                         ellipsizeMode="tail"
@@ -243,7 +230,7 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
                 {!!active && active.map((p, i) => (
                     <View key={`active-${p.address.toString()}`}>
                         <StakingPool
-                            member={account}
+                            member={address}
                             pool={p.address}
                             balance={p.balance}
                             style={{
@@ -261,7 +248,7 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
                     <>
                         <LiquidStakingPool
                             isLedger={isLedger}
-                            member={account}
+                            member={address}
                             style={{ backgroundColor: theme.surfaceOnBg, paddingTop: 10 }}
                             hideCycle
                             hideHeader

@@ -46,7 +46,6 @@ type TransactionListItemProps = {
     dontShowComments: boolean,
     denyList: { [key: string]: { reason: string | null } },
     contacts: { [key: string]: AddressContact },
-    jettons: Jetton[],
     isTestnet: boolean,
     spamWallets: string[],
     appState: AppState,
@@ -78,7 +77,6 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
-        && prev.jettons === next.jettons
         && prev.spamWallets === next.spamWallets
         && prev.appState === next.appState
         && prev.onLongPress === next.onLongPress
@@ -104,7 +102,6 @@ export const WalletTransactions = memo((props: {
     },
     ledger?: boolean,
     theme: ThemeType,
-    jettons: Jetton[]
 }) => {
     const bottomBarHeight = useBottomTabBarHeight();
     const theme = props.theme;
@@ -174,18 +171,21 @@ export const WalletTransactions = memo((props: {
         const amount = BigInt(tx.base.parsed.amount);
         const operation = tx.base.operation;
         const item = operation.items[0];
-        const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        const opAddr = Address.parseFriendly(opAddressString);
+        const bounceable = bounceableFormat ? true : opAddr.isBounceable;
+        const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
         const jetton = item.kind === 'token' ? tx.metadata?.jettonWallet?.master : null;
         navigation.navigateSimpleTransfer({
-            target: opAddress,
+            target,
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
             amount: amount < 0n ? -amount : amount,
             job: null,
             stateInit: null,
             jetton: jetton,
             callback: null
-        })
-    }, [navigation]);
+        });
+    }, [navigation, isTestnet, bounceableFormat]);
 
     const onLongPress = (tx: TransactionDescription) => {
         const operation = tx.base.operation;
@@ -325,7 +325,6 @@ export const WalletTransactions = memo((props: {
                     isTestnet={isTestnet}
                     spamWallets={spamWallets}
                     appState={appState}
-                    jettons={props.jettons}
                     bounceableFormat={bounceableFormat}
                     walletsSettings={walletsSettings}
                     knownWallets={knownWallets}

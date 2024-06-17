@@ -75,6 +75,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "airdrop": "Airdrop",
         "myWallets": "Мои кошельки",
         "showMore": "Показать больше",
+        "balances": "Балансы",
+        "loading": 'Загрузка...',
+        "notFound": "Не найден",
+        "unverified": "Неверифицированные",
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -105,7 +109,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "telegram": "Telegram",
         "rateApp": "Оценить приложение",
         "deleteAccount": "Удалить аккаунт",
-        "theme": "Тема"
+        "theme": "Тема",
+        "searchEngine": "Поисковая система",
     },
     "theme": {
         "title": "Тема",
@@ -119,7 +124,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "actions": {
             "receive": "Получить",
             "send": "Отправить",
-            "buy": "Купить"
+            "buy": "Купить",
+            "swap": "Обмен",
         },
         "empty": {
             "message": "У вас нет транзакций",
@@ -134,7 +140,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "receive": {
         "title": "Получить",
-        "subtitle": "Отправляйте на этот адрес только TON. Другие активы будут потеряны навсегда",
+        "subtitle": "Отправляйте на этот адрес только токены блокчейна TON. Другие активы будут потеряны навсегда",
         "share": {
             "title": "My Tonhub Address"
         }
@@ -145,6 +151,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "confirm": "Вы уверены, что хотите продолжить?",
         "error": {
             "invalidAddress": "Неверный адрес",
+            "invalidAddressMessage": "Пожалуйста, проверьте адрес получателя",
             "invalidDomain": "Неверный домен",
             "invalidDomainString": "Минимум 4 символа, максимум 126 символов. Допустимы латинские буквы (a-z), цифры (0-9) и дефис (-). Дефис не может находиться в начале или конце.",
             "invalidAmount": "Неверное количество",
@@ -156,7 +163,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "addressCantReceive": "Адрес получателя не может принимать монеты",
             "addressIsNotActive": "У кошелька получателя нет истории",
             "addressIsNotActiveDescription": "С данного кошелька не было совершено ни одной исходящей транзакции",
-            "invalidTransaction": "Неверная транзакция"
+            "invalidTransaction": "Неверная транзакция",
+            "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
+            "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
         },
         "sendAll": "Max",
         "scanQR": "Считать QR код",
@@ -168,7 +177,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "purpose": "Цель транзакции",
         "comment": "Cообщение (необязательно)",
         "commentDescription": "Сообщение будет видно всем в блокчейне",
-        "commentRequired": "Проверьте сообщение перед отправкой",
+        "commentRequired": "Проверьте мемо/тег перед отправкой",
         "commentLabel": "Сообщение",
         "checkComment": "Проверьте перед отправкой",
         "confirmTitle": "Подтверждение транзакции",
@@ -179,7 +188,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "contact": "Ваш контакт",
         "firstTime": "Отправка первый раз",
         "requestsToSign": "{{app}} запрашивает подпись транзакции",
-        "smartContract": "Смарт-контракт транзакция",
+        "smartContract": "Смарт-контракт операция",
         "txsSummary": "Итого",
         "txsTotal": "Общая сумма",
         "gasDetails": "Детали комиссий",
@@ -263,6 +272,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "tokenTransfer": "Трансфер токенов",
         "airdrop": "Airdrop",
         "failed": "Ошибка",
+        "timeout": "Время отправки истекло",
         "batch": "Несколько операций"
     },
     "txPreview": {
@@ -294,6 +304,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "title": "Запрос на транзакцию",
             "subtitle": "Нажмите, чтобы посмотреть запрос",
             "groupTitle": "Запросы на подтверждение",
+            "wrongNetwork": "Неверная сеть",
+            "wrongFrom": "Неверный адрес отправителя",
+            "invalidFrom": "Невалидный адрес отправителя"
         },
         "signatureRequest": {
             "title": "Запрос на подпись",
@@ -476,7 +489,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "holders": {
             "title": "Банковский счет",
             "accounts": {
-                "title": 'Счета',
+                "title": "Счета",
                 "prepaidTitle": 'Prepaid карты',
                 "account": 'Счет',
                 "basicAccount": 'Базовый счет',
@@ -486,6 +499,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "prepaidCardDescription": 'Пополняемая карта на каждый день',
                 "hiddenCards": "Скрытые карты",
                 "hiddenAccounts": "Скрытые счета",
+                "primaryName": 'Основной счет',
+                "paymentName": 'Платежный счет {{accountIndex}}'
             },
             "pageTitles": {
                 "general": "Tonhub Cards",
@@ -504,8 +519,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "card": "Карта",
                 "cards": "Карты Holders",
                 "title": "Tonhub card {{cardNumber}}",
-                "defaultSubtitle": "Платите в TON, конвертация в EUR с комиссией 0%",
-                "defaultTitle": "Tonhub Bank Card",
+                "defaultSubtitle": "Платите TON и USDT где угодно",
+                "defaultTitle": "Карты Tonhub",
                 "eurSubtitle": "Tonhub EUR",
                 "type": {
                     "physical": "Физическая карта",
@@ -676,7 +691,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "message": "Заполните обязательные поля -> Выберите криптовалюту, сумму для покупки и адрес кошелька -> Перейдите к оплате -> Укажите свой e-mail для связи и пройдите простую верификацию, которая займет не более 10 минут -> Завершите покупку. Регистрация не требуется!"
         },
         "title": "Покупайте TON с помощью кредитной карты за доллары США или евро",
-        "description": "Вы попадёте в Neocrypto. Услуги, связанные с платежами, предоставляются Neocrypto, отдельной платформой, принадлежащей третьей стороне.\n\nПожалуйста, прочитайте и согласитесь с Условиями обслуживания Neocrypto, прежде чем использовать их сервис.",
+        "description": "Вы попадёте в Neocrypto. Услуги, связанные с платежами, предоставляются Neocrypto, отдельной платформой, принадлежащей третьей стороне\n\nПожалуйста, прочитайте и согласитесь с Условиями обслуживания Neocrypto, прежде чем использовать их сервис",
         "doNotShow": "Больше не показывать для Neocrypto",
         "termsAndPrivacy": "Я прочитал и согласен с ",
         "confirm": {
@@ -696,15 +711,28 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "upgradeOk": "Обновление завершено",
         "cashback": "Кэшбек",
         "tokenSent": "Токен отправлен",
-        "tokenReceived": "Токен получен"
+        "tokenReceived": "Токен получен",
+        "holders": {
+            "topUpTitle": 'Сумма пополнения',
+            "accountTopUp": "Пополнение на {{amount}} TON",
+            "accountJettonTopUp": "Пополнение счета",
+            "limitsChange": "Лимиты счета",
+            "limitsTitle": 'Лимиты',
+            "limitsOneTime": 'На одну транзакцию',
+            "limitsDaily": 'Дневной',
+            "limitsMonthly": 'Месячный',
+            "accountLimitsChange": "Обновление лимитов"
+        }
     },
     "jetton": {
         "token": "токен",
         "productButtonTitle": "Токены",
         "productButtonSubtitle": "{{jettonName}} и {{count}} других",
         "hidden": "Скрытые токены",
-        "liquidPoolDescriptionDedust": "Ликвидный пул для {{name0}} и {{name1}} на DeDust DEX",
-        "liquidPoolDescriptionStonFi": "Ликвидный пул для {{name0}} и {{name1}} на STON.fi DEX",
+        "liquidPoolDescriptionDedust": "Ликвидность для {{name0}}/{{name1}} на DeDust DEX",
+        "liquidPoolDescriptionStonFi": "Ликвидность для {{name0}}/{{name1}} на STON.fi DEX",
+        "emptyBalance": 'Пустой баланс',
+        "jettonsNotFound": 'Токены не найдены'
     },
     "connections": {
         "extensions": "Расширения",
@@ -995,7 +1023,42 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "newAddress": "Новый адрес",
         "bannerTitle": 'Обновите ваш адрес',
         "bannerDescription": 'С EQ на UQ',
-    }
+    },
+    "browser": {
+        "listings": {
+            "categories": {
+                "other": "Другое",
+                "exchange": "Обмены",
+                "defi": "DeFi",
+                "nft": "NFT",
+                "games": "Игры",
+                "social": "Социальные",
+                "utils": "Утилиты",
+                "services": "Сервисы"
+            },
+            "title": "Рекомендации",
+        },
+        "refresh": "Обновить",
+        "back": "Назад",
+        "forward": "Вперед",
+        "share": "Поделиться",
+        "search": {
+            "placeholder": "Поиск",
+            "invalidUrl": "Неверный URL",
+            "urlNotReachable": "URL недоступен",
+            "suggestions": {
+                "web": "Поиск в {{engine}}",
+                "ddg": "DuckDuckGo",
+                "google": "Google",
+            }
+        }
+    },
+    "swap": {
+        "title": 'DeDust.io — AMM DEX на The Open Network',
+        "description": 'Вы собираетесь использовать сервис Dedust.io, который управляется независимой стороной, не связанной с Tonhub\nДля продолжения вам необходимо согласиться с Условиями использования и Политикой конфиденциальности',
+        "termsAndPrivacy": 'Я прочитал и согласен с ',
+        "dontShowTitle": 'Больше не показывать для DeDust.io',
+    },
 };
 
 export default schema;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform, View } from 'react-native';
 import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
@@ -58,7 +58,6 @@ import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
 import { useTonconnectWatcher } from './engine/tonconnectWatcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
-import { usePendingWatcher } from './engine/hooks';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
@@ -87,9 +86,14 @@ import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
 import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
 import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
+import { SwapFragment } from './fragments/integrations/SwapFragment';
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
+import { SearchEngineFragment } from './fragments/SearchEngineFragment';
+import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
+import { SortedHintsWatcher } from './components/SortedHintsWatcher';
+import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -105,7 +109,14 @@ export function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets, hideHeader?: boolean, paddingBottom?: number) {
+export function genericScreen(
+    name: string,
+    component: React.ComponentType<any>,
+    safeArea: EdgeInsets,
+    hideHeader?: boolean,
+    paddingBottom?: number,
+    options?: NativeStackNavigationOptions
+) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
@@ -113,7 +124,8 @@ export function genericScreen(name: string, component: React.ComponentType<any>,
             component={component}
             options={{
                 headerShown: hideHeader ? false : Platform.OS === 'ios',
-                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) }
+                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) },
+                ...options
             }}
         />
     );
@@ -213,6 +225,8 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     transparentModalScreen('Products', ProductsFragment, safeArea),
+    modalScreen('ProductsList', ProductsListFragment, safeArea),
+    modalScreen('Swap', SwapFragment, safeArea),
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
@@ -260,6 +274,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
+    modalScreen('LedgerProductsList', ProductsListFragment, safeArea),
 
     // Settings
     modalScreen('WalletBackup', WalletBackupFragment, safeArea),
@@ -277,6 +292,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
+    modalScreen('SearchEngine', SearchEngineFragment, safeArea),
 
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),
@@ -291,6 +307,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
     fullScreen('AppStartAuth', AppStartAuthFragment),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
+    genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();
@@ -398,8 +415,8 @@ export const Navigation = memo(() => {
     // Watch for holders updates
     useHoldersWatcher();
 
-    // clear pending txs on account change
-    usePendingWatcher();
+    // Jetton hints watcher
+    const selected = appState.addresses.find((value, index) => index === appState.selected)?.address.toString({ testOnly: isTestnet });
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>
@@ -422,6 +439,8 @@ export const Navigation = memo(() => {
                 </Stack.Navigator>
             </NavigationContainer>
             <HintsPrefetcher />
+            <SortedHintsWatcher owner={selected} />
+            <PendingTxsWatcher />
             <Splash hide={hideSplash} />
         </View>
     );

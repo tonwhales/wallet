@@ -2,11 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { jettonMasterContentQueryFn } from './usePrefetchHints';
 import { useNetwork } from '../network/useNetwork';
+import { JettonMasterState } from '../../metadata/fetchJettonMasterContent';
 
-export function useJettonContent(master: string | null) {
+export function useJettonContent(master: string | null, suspense: boolean = false): (JettonMasterState & { address: string }) | null {
     const { isTestnet } = useNetwork();
-    
-    return useQuery({
+
+    const data = useQuery({
         queryKey: Queries.Jettons().MasterContent(master ?? ''),
         queryFn: async () => {
             if (!master) {
@@ -15,5 +16,16 @@ export function useJettonContent(master: string | null) {
             return await jettonMasterContentQueryFn(master, isTestnet)();
         },
         enabled: !!master,
+        suspense
     }).data ?? null;
+
+    if (data?.symbol === 'USD₮') {
+        data.symbol = 'USDT';
+    }
+
+    if (data?.name === 'USD₮' || data?.name === 'TetherUSD₮') {
+        data.name = 'USDT';
+    }
+
+    return data;
 }

@@ -31,6 +31,8 @@ import { AddressComponent } from "../../components/address/AddressComponent";
 import { PendingTransaction } from "../../engine/state/pending";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../engine/transactions/resolveOperation";
+import { RoundButton } from "../../components/RoundButton";
+import { pendingTxToTransferParams } from "../../utils/toTransferParams";
 
 const PendingTxPreview = () => {
     const theme = useTheme();
@@ -47,8 +49,9 @@ const PendingTxPreview = () => {
     const [walletSettings,] = useWalletSettings(selected.address);
     const [bounceableFormat,] = useBounceableWalletFormat();
 
-    const params = useParams<{ transaction: PendingTransaction }>();
+    const params = useParams<{ transaction: PendingTransaction, timedOut?: boolean }>();
     const tx = params.transaction;
+    const repeatTransfer = useMemo(() => pendingTxToTransferParams(tx, isTestnet), [tx, isTestnet]);
     const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
     const amount = tx.body?.type === 'token'
         ? tx.body.amount
@@ -100,10 +103,13 @@ const PendingTxPreview = () => {
         );
     }, [price, currency, fees]);
 
-    let jetton = tx.body?.type === 'token' ? tx.body.master : null;
+    let jetton = tx.body?.type === 'token' ? tx.body.jetton : null;
     let op = t('tx.sending');
     if (tx.status === 'sent') {
         op = t('tx.sent');
+    } 
+    if (params.timedOut) {
+        op = t('tx.timeout');
     }
 
     // Resolve built-in known wallets
@@ -359,6 +365,21 @@ const PendingTxPreview = () => {
                     />
                 </PerfView>
             </ScrollView>
+            {params.timedOut && !!repeatTransfer && (
+                <PerfView style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
+                    <RoundButton
+                        title={t('txPreview.sendAgain')}
+                        style={{ flexGrow: 1 }}
+                        onPress={() => {
+                            if (repeatTransfer.type === 'simple') {
+                                navigation.navigateSimpleTransfer(repeatTransfer);
+                            } else if (repeatTransfer.type === 'transfer') {
+                                navigation.navigateTransfer(repeatTransfer);
+                            }
+                        }}
+                    />
+                </PerfView>
+            )}
         </PerfView>
     );
 }

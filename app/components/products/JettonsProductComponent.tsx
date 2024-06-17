@@ -2,25 +2,40 @@ import React, { memo } from "react";
 import { View, Image, Text } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { useMarkJettonDisabled } from "../../engine/hooks/jettons/useMarkJettonDisabled";
-import { useTheme } from "../../engine/hooks";
+import { useCloudValue, useNetwork, useTheme } from "../../engine/hooks";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { t } from "../../i18n/t";
 import { Typography } from "../styles";
-import { Jetton } from "../../engine/types";
+import { Address } from "@ton/core";
+import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 
 import IcHide from '@assets/ic-hide.svg';
 
-export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] }) => {
+export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
+    const { isTestnet: testOnly } = useNetwork();
     const markJettonDisabled = useMarkJettonDisabled();
-    const visibleList = jettons.filter((j) => !j.disabled).filter((j) => j.balance > 0);
+    const hints = useSortedHints(owner.toString({ testOnly }));
+    let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+
+    const visibleList = hints
+        .filter((s) => !disabledState.disabled[s])
+        .map((s) => {
+            try {
+                let wallet = Address.parse(s);
+                return wallet;
+            } catch {
+                return null;
+            }
+        })
+        .filter((j) => !!j) as Address[];
 
     if (visibleList.length === 0) {
         return null;
     }
 
-    if (visibleList.length <= 3) {
+    if (visibleList.length < 3) {
         return (
             <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
                 <View
@@ -36,16 +51,17 @@ export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] })
                         {t('jetton.productButtonTitle')}
                     </Text>
                 </View>
-                {visibleList.map((j, index) => {
+                {visibleList.map((wallet, index) => {
                     return (
                         <JettonProductItem
-                            key={'jt' + j.wallet.toString()}
-                            jetton={j}
+                            key={'jt' + wallet.toString({ testOnly })}
+                            wallet={wallet}
                             first={index === 0}
                             last={index === visibleList.length - 1}
-                            rightAction={() => markJettonDisabled(j.master)}
+                            rightAction={() => markJettonDisabled(wallet)}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             single={visibleList.length === 1}
+                            owner={owner}
                         />
                     )
                 })}
@@ -58,17 +74,18 @@ export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] })
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
                 items={visibleList}
-                renderItem={(j,) => {
-                    if (!j) {
+                renderItem={(wallet) => {
+                    if (!wallet) {
                         return null;
                     }
                     return (
                         <JettonProductItem
-                            key={'jt' + j.wallet.toString()}
-                            jetton={j}
-                            rightAction={() => markJettonDisabled(j.master)}
+                            key={'jt' + wallet.toString({ testOnly })}
+                            wallet={wallet}
+                            rightAction={() => markJettonDisabled(wallet)}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             card
+                            owner={owner}
                         />
                     )
                 }}
@@ -119,6 +136,10 @@ export const JettonsProductComponent = memo(({ jettons }: { jettons: Jetton[] })
                 }}
                 itemHeight={86}
                 theme={theme}
+                limitConfig={{
+                    maxItems: 10,
+                    fullList: { type: 'jettons' }
+                }}
             />
         </View>
     );

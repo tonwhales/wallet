@@ -8,7 +8,7 @@ import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
-import { Jetton, TransactionDescription } from '../../../engine/types';
+import { TransactionDescription } from '../../../engine/types';
 import { useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
@@ -100,6 +100,8 @@ export function TransactionView(props: {
             }
         }
     }, [operation.op, parsed]);
+
+    const holdersOp = operation.op?.res?.startsWith('known.holders.');
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -200,6 +202,7 @@ export function TransactionView(props: {
                         markContact={!!contact}
                         avatarColor={avatarColor}
                         knownWallets={knownWallets}
+                        isHolders={holdersOp}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>

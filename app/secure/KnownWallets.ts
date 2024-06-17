@@ -56,8 +56,15 @@ const Img_BitGo = require('@assets/known/bitgo.png');
 const Img_BitCom = require('@assets/known/bitcom.png');
 const Img_AvanChange = require('@assets/known/avanchange.png');
 const Img_FixedFloat = require('@assets/known/fixedfloat.png');
+const Img_Bybit = require('@assets/known/bybit.png');
+const Img_Binance = require('@assets/known/binance_logo.png');
 
-export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
+export type KnownWallet = {
+    name: string,
+    ic?: any,
+    colors?: { primary: string, secondary: string },
+    requireMemo?: boolean
+};
 
 const knownWalletsTestnet = {
     [Address.parse('kQDV1LTU0sWojmDUV4HulrlYPpxLWSUjM6F3lUurMbwhales').toString({ testOnly: true })]: {
@@ -134,7 +141,8 @@ const knownWalletsMainnet = {
             primary: '#65C6FF',
             secondary: '#DEEFFC'
         },
-        ic: Img_Whales
+        ic: Img_Whales,
+        requireMemo: true
     },
     [Address.parse('EQCY4M6TZYnOMnGBQlqi_nyeaIB1LeBFfGgP4uXQ1VWhales').toString()]: {
         name: 'Whales Nominators 2',
@@ -142,7 +150,8 @@ const knownWalletsMainnet = {
             primary: '#65C6FF',
             secondary: '#DEEFFC'
         },
-        ic: Img_Whales
+        ic: Img_Whales,
+        requireMemo: true
     },
     [Address.parse('EQCOj4wEjXUR59Kq0KeXUJouY5iAcujkmwJGsYX7qPnITEAM').toString()]: {
         name: 'Whales Team 1',
@@ -150,7 +159,8 @@ const knownWalletsMainnet = {
             primary: '#65C6FF',
             secondary: '#DEEFFC'
         },
-        ic: Img_Team_1
+        ic: Img_Team_1,
+        requireMemo: true
     },
     [Address.parse('EQBI-wGVp_x0VFEjd7m9cEUD3tJ_bnxMSp0Tb9qz757ATEAM').toString()]: {
         name: 'Whales Team 2',
@@ -158,7 +168,8 @@ const knownWalletsMainnet = {
             primary: '#65C6FF',
             secondary: '#DEEFFC'
         },
-        ic: Img_Team_2
+        ic: Img_Team_2,
+        requireMemo: true
     },
     [Address.parse('EQBeNwQShukLyOWjKWZ0Oxoe5U3ET-ApQIWYeC4VLZ4tmeTm').toString()]: {
         name: 'Whales Pool Withdraw 1',
@@ -230,7 +241,8 @@ const knownWalletsMainnet = {
             primary: '#2c3556',
             secondary: '#7f88b5'
         },
-        ic: Img_Neocrypto
+        ic: Img_Neocrypto,
+        requireMemo: true
     },
 
     // Tegro
@@ -240,7 +252,8 @@ const knownWalletsMainnet = {
             primary: '#2c3556',
             secondary: '#7f88b5'
         },
-        ic: Img_Tegro_Money_bot
+        ic: Img_Tegro_Money_bot,
+        requireMemo: true
     },
     [Address.parse('EQC9hxkJ9YQVhonPhlIMVMjvojVZlz3cSwggy9EsUUgywsRY').toString()]: {
         name: 'Tegro TON bot',
@@ -248,7 +261,8 @@ const knownWalletsMainnet = {
             primary: '#2c3556',
             secondary: '#7f88b5'
         },
-        ic: Img_Tegro_TON_bot
+        ic: Img_Tegro_TON_bot,
+        requireMemo: true
     },
 
 
@@ -267,7 +281,8 @@ const knownWalletsMainnet = {
             primary: '#2c3556',
             secondary: '#7f88b5'
         },
-        ic: Img_kingyTON
+        ic: Img_kingyTON,
+        requireMemo: true
     },
     [Address.parse('EQAj-RQTlNNwjkuRVYWdfamU0jjvQbH31lkxTw-osulj4oqm').toString()]: {
         name: 'kingyru',
@@ -352,7 +367,8 @@ const knownWalletsMainnet = {
             primary: '#8c5bd8',
             secondary: '#20d7e0'
         },
-        ic: Img_venera
+        ic: Img_venera,
+        requireMemo: true
     },
 
     [Address.parse('EQBX63RAdgShn34EAFMV73Cut7Z15lUZd1hnVva68SEl7sxi').toString()]: {
@@ -361,7 +377,8 @@ const knownWalletsMainnet = {
             primary: '#16b979',
             secondary: '#259D68'
         },
-        ic: Img_MEXC
+        ic: Img_MEXC,
+        requireMemo: true
     },
     [Address.parse('EQBYtJtQzU3M-AI23gFM91tW6kYlblVtjej59gS8P3uJ_ePN').toString()]: {
         name: 'ePN Partners 1',
@@ -369,7 +386,8 @@ const knownWalletsMainnet = {
             primary: '#ec557c',
             secondary: '#E01447'
         },
-        ic: Img_ePN_1
+        ic: Img_ePN_1,
+        requireMemo: true
     },
     [Address.parse('EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN').toString()]: {
         name: 'ePN Partners 2',
@@ -377,7 +395,8 @@ const knownWalletsMainnet = {
             primary: '#ec557c',
             secondary: '#E01447'
         },
-        ic: Img_ePN_2
+        ic: Img_ePN_2,
+        requireMemo: true
     },
     [Address.parse('EQDhGXtbR6ejNQucRcoyzwiaF2Ke-5T8reptsiuZ_mLockup').toString()]: {
         name: 'Lockups 1',
@@ -385,7 +404,8 @@ const knownWalletsMainnet = {
             primary: '#65C6FF',
             secondary: '#DEEFFC'
         },
-        ic: Img_Lockups_1
+        ic: Img_Lockups_1,
+        requireMemo: true
     },
     [Address.parse('EQDg5ThqQ1t9eriIv2HkH6XUiUs_Wd4YmXZeGpnPzwLockup').toString()]: {
         name: 'Lockups 2',
@@ -393,7 +413,8 @@ const knownWalletsMainnet = {
             primary: '#65C6FF',
             secondary: '#DEEFFC'
         },
-        ic: Img_Lockups_2
+        ic: Img_Lockups_2,
+        requireMemo: true
     },
     [Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON').toString()]: {
         name: 'Whales Liquid',
@@ -401,7 +422,8 @@ const knownWalletsMainnet = {
             primary: '#65C6FF',
             secondary: '#DEEFFC'
         },
-        ic: Img_Liquid
+        ic: Img_Liquid,
+        requireMemo: true
     },
 
     // Bridges
@@ -448,107 +470,171 @@ const knownWalletsMainnet = {
     // Custodians
     [Address.parse('EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxLiE').toString()]: {
         name: 'CryptoBot',
-        ic: Img_CryptoBot
+        ic: Img_CryptoBot,
+        requireMemo: true
     },
     [Address.parse('EQDd3NPNrWCvTA1pOJ9WetUdDCY_pJaNZVq0JMaara-TIp90').toString()]: {
         name: 'Wallet Bot',
-        ic: Img_WalletBot
+        ic: Img_WalletBot,
+        requireMemo: true
     },
     [Address.parse('EQBDanbCeUqI4_v-xrnAN0_I2wRvEIaLg1Qg2ZN5c6Zl1KOh').toString()]: {
         name: 'Wallet Bot',
-        ic: Img_WalletBot
+        ic: Img_WalletBot,
+        requireMemo: true
     },
 
     [Address.parse('EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka95J1JJwXXf4a8').toString()]: {
         name: 'OKX',
-        ic: Img_OKX
+        ic: Img_OKX,
+        requireMemo: true
     },
     [Address.parse('EQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXGkS').toString()]: {
         name: 'OKX',
-        ic: Img_OKX
+        ic: Img_OKX,
+        requireMemo: true
     },
     [Address.parse('EQABMMdzRuntgt9nfRB61qd1wR-cGPagXA3ReQazVYUNrT7p').toString()]: {
         name: 'EXMO Deposit',
-        ic: Img_EXMO_Deposit
+        ic: Img_EXMO_Deposit,
+        requireMemo: true
     },
     [Address.parse('EQB5lISMH8vLxXpqWph7ZutCS4tU4QdZtrUUpmtgDCsO73JR').toString()]: {
         name: 'EXMO Withdraw',
-        ic: Img_EXMO
+        ic: Img_EXMO,
+        requireMemo: true
     },
     [Address.parse('EQCNGVeTuq2aCMRtw1OuvpmTQdq9B3IblyXxnhirw9ENkhLa').toString()]: {
         name: 'EXMO Cold Storage 1',
-        ic: Img_EXMO_Cold_Storage
+        ic: Img_EXMO_Cold_Storage,
+        requireMemo: true
     },
     [Address.parse('EQAmq4rnY6OnwwZ9iCt7Ac1dNyVMuHaPV7akfAACjv_HuO5H').toString()]: {
         name: 'EXMO Cold Storage 2',
-        ic: Img_EXMO_Cold_Storage
+        ic: Img_EXMO_Cold_Storage,
+        requireMemo: true
     },
     [Address.parse('EQA0KjWeODV8CDloEp_d3fBJ71xHMVv77ydQWjVr-fAtZSqw').toString()]: {
         name: 'CoinEx',
-        ic: Img_CoinEx
+        ic: Img_CoinEx,
+        requireMemo: true
     },
     [Address.parse('EQBVXzBT4lcTA3S7gxrg4hnl5fnsDKj4oNEzNp09aQxkwj1f').toString()]: {
         name: 'Huobi Deposit',
-        ic: Img_Huobi
+        ic: Img_Huobi,
+        requireMemo: true
     },
     [Address.parse('EQCFr3jo0DXpIBF82mVGFc3zcdRkSAtinhENPFMQ2FqzYqDB').toString()]: {
         name: 'Huobi',
-        ic: Img_Huobi
+        ic: Img_Huobi,
+        requireMemo: true
     },
     [Address.parse('EQDOPNz5UIm3XuXOmCSk_1BvQLdQkMS-lmN8K404sQlyJPrd').toString()]: {
         name: 'TonMobile Service',
-        ic: Img_Tonmobile
+        ic: Img_Tonmobile,
+        requireMemo: true
     },
     [Address.parse('EQCA1BI4QRZ8qYmskSRDzJmkucGodYRTZCf_b9hckjla6dZl').toString()]: {
         name: 'Kucoin',
-        ic: Img_Kucoin
+        ic: Img_Kucoin,
+        requireMemo: true
     },
     [Address.parse('EQCzflcDPbIdELlQ5hQ7ZYwQw79CW9GTAllgrvfyLbz0_OZs').toString()]: {
         name: 'Kucoin Withdraw',
-        ic: Img_Kucoin
+        ic: Img_Kucoin,
+        requireMemo: true
     },
     [Address.parse('EQChSx9FI4Wyu5hK0sREHh0jyuBx_fwJbfulPrujtv8dENct').toString()]: {
         name: 'Lbank',
-        ic: Img_Lbank
+        ic: Img_Lbank,
+        requireMemo: true
     },
     [Address.parse('EQB1cmpxb3R-YLA3HLDV01Rx6OHpMQA_7MOglhqL2CwJx_dz').toString()]: {
         name: 'Rocket Bot',
-        ic: Img_Rocket_Bot
+        ic: Img_Rocket_Bot,
+        requireMemo: true
     },
     [Address.parse('EQDB3GVLWYq4TNpPEjcu_tiQfO3wkBhlpYZJCHNz4BscJPaV').toString()]: {
         name: 'xRocket Bot',
-        ic: { uri: 'https://static.ton-rocket.com/icons/main_bot.png' }
+        ic: { uri: 'https://static.ton-rocket.com/icons/main_bot.png' },
+        requireMemo: true
     },
     [Address.parse('EQAJfclKb4fFi0tWg-PVgwwdXxHRImLWbO9_7HZcpIlCWkTg').toString()]: {
         name: 'BitGo FTX Bankruptcy Custody',
-        ic: Img_BitGo
+        ic: Img_BitGo,
+        requireMemo: true
     },
-    [Address.parse('EQDD8dqOzaj4zUK6ziJOo_G2lx6qf1TEktTRkFJ7T1c_fPQb').toString()]: { name: 'Bybit' },
+    [Address.parse('EQDD8dqOzaj4zUK6ziJOo_G2lx6qf1TEktTRkFJ7T1c_fPQb').toString()]: {
+        name: 'Bybit',
+        requireMemo: true,
+        ic: Img_Bybit
+    },
     [Address.parse('EQAAi7CI6B441YOCaQEJNWcCfMFXXsdErDVPpO7sMC0WbSVp').toString()]: {
         name: 'bit.com',
-        ic: Img_BitCom
+        ic: Img_BitCom,
+        requireMemo: true
     },
     [Address.parse('EQChN26L-fJm7HxrEc5uXNAqm9o2O56oiKLiOdI4NXK8mm96').toString()]: {
         name: 'AvanChange',
-        ic: Img_AvanChange
+        ic: Img_AvanChange,
+        requireMemo: true
     },
-    [Address.parse('EQAYgkeNrvG37SAMu9wgG9TtCyTC5fGkx8Fa6347GnWRk0v_').toString()]: { name: 'Coinone Deposit' },
-    [Address.parse('EQCk0gcrHtwTVfx_vuAJW-7HiJotPPqp7c8s6eEoYxq71hcS').toString()]: { name: 'Coinone Withdrawal' },
-    [Address.parse('EQDz9O0JE6tVXQI3RQWPGmxVpJ1Idlk8ub2rH3gKmbGFvCuG').toString()]: { name: 'Paribu' },
-    [Address.parse('EQD5hzUJ3lovl_eygF9feq-rRH9DyR51HMjvq8bS6gnXimGv').toString()]: { name: 'BingX' },
+    [Address.parse('EQAYgkeNrvG37SAMu9wgG9TtCyTC5fGkx8Fa6347GnWRk0v_').toString()]: {
+        name: 'Coinone Deposit',
+        requireMemo: true
+    },
+    [Address.parse('EQCk0gcrHtwTVfx_vuAJW-7HiJotPPqp7c8s6eEoYxq71hcS').toString()]: {
+        name: 'Coinone Withdrawal',
+        requireMemo: true
+    },
+    [Address.parse('EQDz9O0JE6tVXQI3RQWPGmxVpJ1Idlk8ub2rH3gKmbGFvCuG').toString()]: {
+        name: 'Paribu',
+        requireMemo: true
+    },
+    [Address.parse('EQD5hzUJ3lovl_eygF9feq-rRH9DyR51HMjvq8bS6gnXimGv').toString()]: {
+        name: 'BingX',
+        requireMemo: true
+    },
     [Address.parse('EQDftQdPITnb-x8-gj3f15dtpQbn94F1yYxiftLoQPeGBizQ').toString()]: {
         name: 'FixedFloat',
-        ic: Img_FixedFloat
+        ic: Img_FixedFloat,
+        requireMemo: true
     },
-    [Address.parse('EQC0lrj3O0af8GotieYsTXChA_wijIIVN7Sd_wkgYLwoH07q').toString()]: { name: 'Gate.io' },
+    [Address.parse('EQC0lrj3O0af8GotieYsTXChA_wijIIVN7Sd_wkgYLwoH07q').toString()]: {
+        name: 'Gate.io',
+        requireMemo: true
+    },
+    [Address.parse('EQD5mxRgCuRNLxKxeOjG6r14iSroLF5FtomPnet-sgP5xNJb').toString()]: {
+        name: 'Binance',
+        requireMemo: true,
+        ic: Img_Binance
+    },
 
     // Defi
-    [Address.parse('EQCjk1hh952vWaE9bRguFkAhDAL5jj3xj9p0uPWrFBq_GEMS').toString()]: { name: 'Getgems Marketplace' },
-    [Address.parse('EQBYTuYbLf8INxFtD8tQeNk5ZLy-nAX9ahQbG_yl1qQ-GEMS').toString()]: { name: 'Getgems Sales' },
-    [Address.parse('0:4d695da777df8e1839965cd8a9e928b3b328321ab85dec243e86427ac66edbe8').toString()]: { name: 'OTC Market' },
-    [Address.parse('EQAWcJ0nO3WtNlSmUjKcqv4735YCviRqu7LMNJoPXsdHVLC9').toString()]: { name: 'Megaton Finance' },
-    [Address.parse('EQAxC3GzQBgjlvW6CJAwgaHvarTfVxo8p7Be_6RMSjsPki6s').toString()]: { name: 'Megaton Finance Dex' },
-    [Address.parse('EQB3ncyBUTjZUA5EnFKR5_EnOMI9V1tTEAAPaiU71gc4TiUt').toString()]: { name: 'STON.fi Dex' },
+    [Address.parse('EQCjk1hh952vWaE9bRguFkAhDAL5jj3xj9p0uPWrFBq_GEMS').toString()]: {
+        name: 'Getgems Marketplace',
+        requireMemo: true
+    },
+    [Address.parse('EQBYTuYbLf8INxFtD8tQeNk5ZLy-nAX9ahQbG_yl1qQ-GEMS').toString()]: {
+        name: 'Getgems Sales',
+        requireMemo: true
+    },
+    [Address.parse('0:4d695da777df8e1839965cd8a9e928b3b328321ab85dec243e86427ac66edbe8').toString()]: {
+        name: 'OTC Market',
+        requireMemo: true
+    },
+    [Address.parse('EQAWcJ0nO3WtNlSmUjKcqv4735YCviRqu7LMNJoPXsdHVLC9').toString()]: {
+        name: 'Megaton Finance',
+        requireMemo: true
+    },
+    [Address.parse('EQAxC3GzQBgjlvW6CJAwgaHvarTfVxo8p7Be_6RMSjsPki6s').toString()]: {
+        name: 'Megaton Finance Dex',
+        requireMemo: true
+    },
+    [Address.parse('EQB3ncyBUTjZUA5EnFKR5_EnOMI9V1tTEAAPaiU71gc4TiUt').toString()]: {
+        name: 'STON.fi Dex',
+        requireMemo: true
+    },
 }
 
 export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet } = (isTestnet: boolean) => {
@@ -584,7 +670,8 @@ export const KnownJettonMastersMainnet: { [key: string]: any } = {
     'EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O': {}, // GRAM
 
     'EQCDkrpCu-FFVPQJnManjlf8XCN75wjX_AKrrEFFQ1mfJqZo': {}, // YO
-    'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs': {} // USD₮
+    'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs': {}, // USD₮
+    'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT': {} // NOT
 }
 
 export const KnownJettonTickers = [

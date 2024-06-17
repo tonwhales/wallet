@@ -29,5 +29,25 @@ export function formatSupportedBody(supportedMessage: SupportedMessage): { res: 
     if (supportedMessage.type === 'jetton::transfer_notification') {
         return { res: 'known.tokenReceived' };
     }
+    if (supportedMessage.type === 'holders::account::top_up') {
+        return {
+            res: 'known.holders.accountTopUp',
+            options: { amount: fromNano(supportedMessage.amount) }
+        };
+    }
+    if (supportedMessage.type === 'holders::account::limits_change') {
+        const onetime = supportedMessage.data.onetime;
+        const daily = supportedMessage.data.daily;
+        const monthly = supportedMessage.data.monthly;
+
+        return {
+            res: 'known.holders.limitsChange',
+            options: {
+                onetime: onetime === 0n ? undefined : fromNano(onetime),
+                daily: daily === 0n ? undefined : fromNano(daily),
+                monthly: monthly === 0n ? undefined : fromNano(monthly)
+            }
+        };
+    }
     return null;
 }

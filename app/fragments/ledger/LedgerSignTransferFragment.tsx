@@ -21,25 +21,22 @@ import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { confirmAlert } from '../../utils/confirmAlert';
 import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
-import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { TonTransport } from '@ton-community/ton-ledger';
-import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJettons, useNetwork, useTheme } from '../../engine/hooks';
+import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { fromBnWithDecimals } from '../../utils/withDecimals';
 import { Address, Cell, SendMode, WalletContractV4, beginCell, external, internal, storeMessage, storeMessageRelaxed } from '@ton/ton';
-import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
 import { estimateFees } from '../../utils/estimateFees';
 import { TransferSingleView } from '../secure/components/TransferSingleView';
 import { RoundButton } from '../../components/RoundButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { Jetton } from '../../engine/types';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -58,7 +55,6 @@ type ConfirmLoadedProps = {
     },
     text: string | null,
     order: LedgerOrder,
-    jetton: Jetton | null,
     fees: bigint,
     metadata: ContractMetadata,
     transport: TonTransport,
@@ -85,7 +81,6 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         target,
         text,
         order,
-        jetton,
         fees,
         metadata,
         transport,
@@ -93,10 +88,11 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         setTransferState
     } = props;
 
+    const jetton = useJetton({ owner: ledgerAddress!, master: metadata?.jettonWallet?.master, wallet: metadata.jettonWallet?.address }, true);
+
     // Resolve operation
     let payload = order.payload ? resolveLedgerPayload(order.payload) : null;
     let body = payload ? parseBody(payload) : null;
-    // let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target) }, network.isTestnet);
 
     // Resolve Jettion amount
@@ -113,7 +109,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 }
             }
         } catch { }
-    }, [order]);
+    }, [order, jetton, payload]);
 
     // Resolve operation
     let path = pathFromAccountNumber(addr.acc, network.isTestnet);
@@ -289,6 +285,18 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
     );
 });
 
+const Skeleton = memo(() => {
+    return (
+        <View style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        }}>
+            <View style={{ flexGrow: 1, alignItems: 'center' }}>
+                <TransferSkeleton />
+            </View>
+        </View>
+    );
+});
+
 export const LedgerSignTransferFragment = fragment(() => {
     const params: {
         order: LedgerOrder,
@@ -301,7 +309,6 @@ export const LedgerSignTransferFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const jettons = useJettons(ledgerContext.addr!.address);
 
     // Memmoize all parameters just in case
     const from = useMemo(() => ledgerContext?.addr, []);
@@ -440,12 +447,6 @@ export const LedgerSignTransferFragment = fragment(() => {
                 }
             }
 
-            // Read jetton master
-            let jetton: Jetton | null = null;
-            if (metadata.jettonWallet) {
-                jetton = jettons.find((j) => j.master.equals(metadata.jettonWallet!.master)) ?? null;
-            }
-
             // Estimate fee
             let inMsgExt = external({
                 to: contract.address,
@@ -470,7 +471,6 @@ export const LedgerSignTransferFragment = fragment(() => {
                     bounceable: target.isBounceable
                 },
                 order,
-                jetton,
                 fees,
                 metadata,
                 addr: ledgerContext.addr,
@@ -482,7 +482,7 @@ export const LedgerSignTransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, [netConfig, jettons]);
+    }, [netConfig]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -526,18 +526,14 @@ export const LedgerSignTransferFragment = fragment(() => {
             />
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 {!loadedProps ? (
-                    <View style={{
-                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    }}>
-                        <View style={{ flexGrow: 1, alignItems: 'center' }}>
-                            <TransferSkeleton />
-                        </View>
-                    </View>
+                    <Skeleton />
                 ) : (
-                    <LedgerTransferLoaded
-                        {...loadedProps}
-                        setTransferState={setTransferState}
-                    />
+                    <Suspense fallback={<Skeleton />}>
+                        <LedgerTransferLoaded
+                            {...loadedProps}
+                            setTransferState={setTransferState}
+                        />
+                    </Suspense>
                 )}
             </View>
         </View>

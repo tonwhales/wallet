@@ -4,11 +4,11 @@ const ctx = new chalk.Instance({ level: 3 });
 
 export function createLogger(tag: string) {
     let ntag = tag;
-    while (ntag.length < 8) {
+    while (ntag.length < 10) {
         ntag = ntag + ' ';
     }
-    if (ntag.length > 8) {
-        ntag = ntag.slice(0, 8);
+    if (ntag.length > 10) {
+        ntag = ntag.slice(0, 10);
     }
     return {
         log: (src: any) => {

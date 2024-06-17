@@ -15,6 +15,7 @@ import { toNano } from "@ton/core";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
 
 export const HoldersPrepaidCard = memo((props: {
     card: PrePaidHoldersCard,
@@ -25,8 +26,10 @@ export const HoldersPrepaidCard = memo((props: {
     single?: boolean,
     hidden?: boolean,
     style?: StyleProp<ViewStyle>,
+    itemStyle?: StyleProp<ViewStyle>,
     isTestnet: boolean,
-    holdersAccStatus?: HoldersAccountStatus
+    holdersAccStatus?: HoldersAccountStatus,
+    onBeforeOpen?: () => void
 }) => {
     const card = props.card;
     const swipableRef = useRef<Swipeable>(null);
@@ -53,52 +56,55 @@ export const HoldersPrepaidCard = memo((props: {
     }, [holdersAccStatus, isHoldersReady]);
 
     const onPress = useCallback(() => {
+        // Close full list modal (holders navigations is below it in the other nav stack)
+        props.onBeforeOpen?.();
 
         if (needsEnrollment) {
-            const onEnrollType = { type: 'prepaid', id: card.id }
-            navigation.navigate(
-                'HoldersLanding',
-                { endpoint: url, onEnrollType: onEnrollType }
-            );
+            const onEnrollType: HoldersAppParams = { type: 'prepaid', id: card.id };
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
             return;
         }
 
         navigation.navigateHolders({ type: 'prepaid', id: card.id });
-    }, [card, needsEnrollment]);
+    }, [card, needsEnrollment, props.onBeforeOpen]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     const title = t('products.holders.accounts.prepaidCard', { lastFourDigits: card.lastFourDigits });
     const subtitle = t('products.holders.accounts.prepaidCardDescription');
 
+    const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
+        ? () => {
+            return (
+                <Pressable
+                    style={[
+                        {
+                            padding: 20,
+                            justifyContent: 'center', alignItems: 'center',
+                            borderRadius: 20,
+                            backgroundColor: theme.accent,
+                            marginLeft: 10
+                        }
+                    ]}
+                    onPress={() => {
+                        swipableRef.current?.close();
+                        if (props.rightAction) {
+                            props.rightAction();
+                        }
+                    }}
+                >
+                    {props.rightActionIcon}
+                </Pressable>
+            )
+        }
+        : undefined;
+
     return (
         <Swipeable
             ref={swipableRef}
             containerStyle={[{ flex: 1 }, props.style]}
             useNativeAnimations={true}
-            renderRightActions={() => {
-                return (
-                    <Pressable
-                        style={[
-                            {
-                                padding: 20,
-                                justifyContent: 'center', alignItems: 'center',
-                                borderRadius: 20,
-                                backgroundColor: theme.accent,
-                                marginLeft: 10
-                            }
-                        ]}
-                        onPress={() => {
-                            swipableRef.current?.close();
-                            if (props.rightAction) {
-                                props.rightAction();
-                            }
-                        }}
-                    >
-                        {props.rightActionIcon}
-                    </Pressable>
-                )
-            }}
+            renderRightActions={renderRightAction}
         >
             <Animated.View style={animatedStyle}>
                 <TouchableOpacity
@@ -108,7 +114,7 @@ export const HoldersPrepaidCard = memo((props: {
                     onPress={onPress}
                     activeOpacity={0.8}
                 >
-                    <View style={{ flexGrow: 1, paddingVertical: 20, backgroundColor: theme.surfaceOnBg }}>
+                    <View style={[{ flexGrow: 1, paddingVertical: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                             <HoldersAccountCard
                                 key={'card-item-prepaid'}

@@ -11,7 +11,7 @@ const contentCodec = z.object({
     name: z.string().nullable(),
     description: z.string().nullable().optional(),
     symbol: z.string().nullable(),
-    decimals: z.number().nullable(),
+    decimals: z.union([z.number(), z.string()]).nullable().optional(),
     originalImage: z.string().nullable().optional(),
     image: imagePreview.nullable(),
 });
@@ -32,9 +32,9 @@ const masterContentCodec = z.intersection(
 );
 
 export type LPAssetMetadata = z.infer<typeof lpAssetCodec>;
-export type JettonMasterState = z.infer<typeof masterContentCodec>;
+export type JettonMasterState = z.infer<typeof masterContentCodec> & { decimals: number | null };
 
-export async function fetchJettonMasterContent(address: Address, isTestnet: boolean) {
+export async function fetchJettonMasterContent(address: Address, isTestnet: boolean): Promise<JettonMasterState | null> {
     const res = await axios.get(
         `https://connect.tonhubapi.com/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
         { timeout: 5000 }
@@ -49,6 +49,10 @@ export async function fetchJettonMasterContent(address: Address, isTestnet: bool
                 data: JSON.stringify(res.data),
             });
             return null;
+        }
+
+        if (typeof parsed.data.decimals === 'string') {
+            parsed.data.decimals = parseInt(parsed.data.decimals);
         }
 
         return parsed.data as JettonMasterState;

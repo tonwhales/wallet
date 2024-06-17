@@ -40,7 +40,7 @@ function jettonSwapQueryFn(client4: TonClient4, master: string, isTestnet: boole
     }
 }
 
-export function useJettonSwap(master: string) {
+export function useJettonSwap(master?: string) {
     const { isTestnet } = useNetwork();
     const client4 = useClient4(isTestnet);
 
@@ -49,9 +49,10 @@ export function useJettonSwap(master: string) {
     }
 
     return useQuery({
-        queryKey: Queries.Jettons().Swap(master),
-        queryFn: jettonSwapQueryFn(client4, master, isTestnet),
+        queryKey: Queries.Jettons().Swap(master ?? ''),
+        queryFn: jettonSwapQueryFn(client4, master!, isTestnet),
         refetchInterval: 1000 * 60 * 5,
         staleTime: 1000 * 60,
+        enabled: !!master
     }).data
 }

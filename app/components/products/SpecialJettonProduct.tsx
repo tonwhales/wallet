@@ -122,7 +122,7 @@ export const SpecialJettonProduct = memo(({
                         ellipsizeMode="tail"
                         numberOfLines={1}
                     >
-                        {content?.name ?? 'TetherUSD₮'}
+                        {'USDT'}
                     </Text>
                     <Text
                         numberOfLines={1}
@@ -142,7 +142,7 @@ export const SpecialJettonProduct = memo(({
                         />
                         <Text
                             style={{ color: theme.textSecondary, fontSize: 15 }}>
-                            {` ${content?.symbol ?? 'USD₮'}`}
+                            {` ${content?.symbol ?? 'USDT'}`}
                         </Text>
                     </Text>
                     <PriceComponent

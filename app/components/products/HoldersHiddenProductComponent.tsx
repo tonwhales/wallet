@@ -47,7 +47,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
     }
 
     return (
-        <View style={{ marginBottom: 16 }}>
+        <View>
             {hiddenAccountsList.length > 0 && (
                 <>
                     <View style={{
@@ -146,6 +146,10 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     holdersAccStatus={holdersAccStatus}
                                 />
                             )
+                        }}
+                        limitConfig={{
+                            maxItems: 4,
+                            fullList: { type: 'holders-cards' }
                         }}
                     />
                 </>

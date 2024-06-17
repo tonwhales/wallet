@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useJettons, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -26,7 +26,7 @@ import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHolders
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
-export const ProductsComponent = memo(({ selected, tonBalance }: { selected: SelectedAccount, tonBalance: bigint }) => {
+export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -34,7 +34,6 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
     const totalStaked = useStaking().total;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const jettons = useJettons(selected!.addressString);
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
@@ -68,13 +67,7 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigate(
-                'HoldersLanding',
-                {
-                    endpoint: url,
-                    onEnrollType: { type: 'create' }
-                }
-            );
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: 'create' } });
             return;
         }
         navigation.navigateHolders({ type: 'create' });
@@ -98,6 +91,8 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
 
     }, [selected, isTestnet]);
 
+    const showAddNewProduct = !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
+
     return (
         <View>
             <View style={{
@@ -106,34 +101,9 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                 <AddressFormatUpdate />
                 <DappsRequests />
                 <PendingTransactions />
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    marginTop: 10,
-                    paddingVertical: 16,
-                    paddingHorizontal: 16
-                }}>
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('common.products')}
-                    </Text>
-                    {!(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n) && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1
-                                }
-                            }}
-                            onPress={() => navigation.navigate('Products')}
-                        >
-                            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                                {t('products.addNew')}
-                            </Text>
-                        </Pressable>
-                    )}
-                </View>
 
                 {(!isHoldersWhitelisted && !!banners?.product) && (
-                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                    <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
                         <ProductBanner
                             title={banners.product.title}
                             subtitle={banners.product.description}
@@ -145,7 +115,10 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
                 )}
 
                 {showHoldersBuiltInBanner && (
-                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                    <View style={{
+                        paddingHorizontal: 16, marginBottom: 16,
+                        marginTop: (!isHoldersWhitelisted && !!banners?.product) ? 0 : 16
+                    }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}
                             subtitle={t('products.holders.card.defaultSubtitle')}
@@ -158,37 +131,68 @@ export const ProductsComponent = memo(({ selected, tonBalance }: { selected: Sel
 
                 <View style={{
                     marginHorizontal: 16, marginBottom: 16,
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20
+                    marginTop: (showHoldersBuiltInBanner || (!isHoldersWhitelisted && !!banners?.product)) ? 0 : 16
                 }}>
-                    <TonProductComponent
-                        key={'ton-native'}
-                        balance={tonBalance}
-                        theme={theme}
-                        navigation={navigation}
-                        address={selected.address}
-                        testOnly={isTestnet}
-                    />
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('common.balances')}
+                    </Text>
+                    <View style={{
+                        backgroundColor: theme.surfaceOnBg,
+                        borderRadius: 20, marginTop: 8
+                    }}>
+                        <TonProductComponent
+                            key={'ton-native'}
+                            theme={theme}
+                            navigation={navigation}
+                            address={selected.address}
+                            testOnly={isTestnet}
+                        />
 
-                    <SpecialJettonProduct
-                        key={'special-jettton'}
-                        theme={theme}
-                        navigation={navigation}
-                        address={selected.address}
-                        testOnly={isTestnet}
-                        divider={'top'}
-                    />
+                        <SpecialJettonProduct
+                            key={'special-jettton'}
+                            theme={theme}
+                            navigation={navigation}
+                            address={selected.address}
+                            testOnly={isTestnet}
+                            divider={'top'}
+                        />
+                    </View>
                 </View>
+
+                <Pressable
+                    style={({ pressed }) => (
+                        {
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', alignItems: 'center',
+                            padding: 16,
+                            opacity: showAddNewProduct && pressed ? 0.5 : 1
+                        }
+                    )}
+                    disabled={!showAddNewProduct}
+                    onPress={() => navigation.navigate('Products')}
+                >
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('common.products')}
+                    </Text>
+                    {showAddNewProduct && (
+                        <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                            {t('products.addNew')}
+                        </Text>
+                    )}
+                </Pressable>
+
+                <StakingProductComponent
+                    key={'pool'}
+                    address={selected.address}
+                />
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
-                <StakingProductComponent key={'pool'} />
-
-                <JettonsProductComponent jettons={jettons} key={'jettons'} />
+                <JettonsProductComponent owner={selected.address} key={'jettons'} />
 
                 <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
 
-                <JettonsHiddenComponent jettons={jettons} key={'jettons-hidden'} />
+                <JettonsHiddenComponent owner={selected.address} key={'jettons-hidden'} />
             </View>
         </View>
     );

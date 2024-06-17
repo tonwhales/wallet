@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ActivityIndicator, Animated, Keyboard, Platform, Pressable, View } from 'react-native';
 import { useTheme } from '../engine/hooks';
 import { createContext, memo, useCallback, useContext, useMemo, useState } from 'react';

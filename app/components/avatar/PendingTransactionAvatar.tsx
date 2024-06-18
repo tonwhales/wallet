@@ -7,6 +7,7 @@ import { KnownWallet } from "../../secure/KnownWallets";
 import { useWalletSettings } from "../../engine/hooks";
 import { ThemeType } from "../../engine/state/theme";
 import { Image } from "expo-image";
+import { ForcedAvatar, ForcedAvatarType } from "./ForcedAvatar";
 
 const Color = require('color');
 
@@ -17,7 +18,7 @@ export const PendingTransactionAvatar = memo(({
     kind,
     knownWallets,
     theme,
-    holders
+    forceAvatar
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
@@ -25,7 +26,7 @@ export const PendingTransactionAvatar = memo(({
     kind: 'in' | 'out',
     knownWallets: { [key: string]: KnownWallet },
     theme: ThemeType,
-    holders?: boolean
+    forceAvatar?: ForcedAvatarType
 }) => {
     const [walletSettings,] = useWalletSettings(address);
     const avatarColorHash = walletSettings?.color ?? avatarHash(avatarId, avatarColors.length);
@@ -60,11 +61,8 @@ export const PendingTransactionAvatar = memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                {holders ? (
-                    <Image
-                        source={require('@assets/ic-holders-accounts.png')}
-                        style={{ width: 46, height: 46, borderRadius: 23 }}
-                    />
+                {!!forceAvatar ? (
+                    <ForcedAvatar type={forceAvatar} size={46} />
                 ) : (
                     <Avatar
                         address={address}

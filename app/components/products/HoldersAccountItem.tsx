@@ -57,9 +57,9 @@ export const HoldersAccountItem = memo((props: {
             return BigInt(props.account.balance);
         }
 
-        const amount = toBnWithDecimals(props.account.balance, cryptoCurrency.decimals) / toNano(price.price.usd);
+        const amount = toBnWithDecimals(props.account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd ?? 1n);
         return toBnWithDecimals(amount, cryptoCurrency.decimals);
-    }, [props.account.balance, props.account.cryptoCurrency, price.price.usd]);
+    }, [props.account.balance, props.account.cryptoCurrency, price?.price?.usd]);
 
     const needsEnrollment = useMemo(() => {
         if (!isHoldersReady) {

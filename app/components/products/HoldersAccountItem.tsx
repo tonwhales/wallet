@@ -57,7 +57,7 @@ export const HoldersAccountItem = memo((props: {
             return BigInt(props.account.balance);
         }
 
-        const amount = toBnWithDecimals(props.account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd ?? 1n);
+        const amount = toBnWithDecimals(props.account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd || 1n);
         return toBnWithDecimals(amount, cryptoCurrency.decimals);
     }, [props.account.balance, props.account.cryptoCurrency, price?.price?.usd]);
 

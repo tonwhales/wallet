@@ -186,7 +186,7 @@ export const WordInput = memo(forwardRef((props: {
                             width: '100%',
                             maxHeight: 56
                         }}
-                        multiline={true}
+                        multiline={false}
                         numberOfLines={1}
                         value={props.value}
                         onChangeText={onTextChange}

@@ -1,18 +1,15 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
 import { View } from 'react-native';
-import { HoldersAppComponent, HoldersLoader } from './components/HoldersAppComponent';
+import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { holdersUrl } from '../../engine/api/holders/fetchAccountState';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
 import { useFocusEffect } from '@react-navigation/native';
-import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' } | { type: 'prepaid'; id: string };
 
@@ -20,14 +17,10 @@ export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const params = useParams<HoldersAppParams>();
-    const safeArea = useSafeAreaInsets();
     const acc = useSelectedAccount();
-    const navigation = useTypedNavigation();
-    const authContext = useKeysAuth();
     const status = useHoldersAccountStatus(acc!.address.toString({ testOnly: isTestnet })).data;
     const accounts = useHoldersAccounts(acc!.address.toString({ testOnly: isTestnet })).data;
     const url = holdersUrl(isTestnet);
-    const [authorized, setAuthorized] = useState(false);
 
     useEffect(() => {
         return () => {
@@ -45,18 +38,6 @@ export const HoldersAppFragment = fragment(() => {
         return { accounts, status };
     }, []);
 
-    // Authenticate user on mount
-    useEffect(() => {
-        (async () => {
-            try {
-                await authContext.authenticate({ cancelable: true, paddingTop: safeArea.top });
-                setAuthorized(true);
-            } catch {
-                navigation.goBack();
-            }
-        })();
-    }, []);
-
     return (
         <View style={{
             flexGrow: 1,
@@ -70,12 +51,6 @@ export const HoldersAppFragment = fragment(() => {
                 accounts={holders.accounts}
                 status={holders.status}
             />
-            {!authorized && (
-                <HoldersLoader
-                    loaded={authorized}
-                    type={params.type}
-                />
-            )}
         </View>
     );
 });

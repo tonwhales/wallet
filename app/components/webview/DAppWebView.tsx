@@ -354,6 +354,8 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     ]);
 
     const onContentProcessDidTerminate = useCallback(() => {
+        // show custom loader (it will be dismissed with onLoadEnd)
+        setLoaded(false);
         dispatchMainButton({ type: 'hide' });
         props.onContentProcessDidTerminate?.();
     }, [props.onContentProcessDidTerminate]);

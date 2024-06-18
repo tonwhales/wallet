@@ -1,7 +1,16 @@
 import axios from "axios";
 import { z } from "zod";
 
-const contractKindCodec = z.enum(['wallet', 'jetton-wallet', 'jetton-master', 'nft-item', 'card', 'jetton-card']);
+const contractKindCodec = z.enum([
+    'wallet', 
+    'jetton-wallet', 
+    'jetton-master', 
+    'nft-item', 
+    'card', 
+    'jetton-card',
+    'dedust-vault'
+]);
+
 const contractInfoCodec = z.object({
     name: z.string(),
     kind: contractKindCodec.optional(),

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, ScrollView, Text, Image } from "react-native";
+import { Platform, ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
@@ -34,11 +34,12 @@ import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { RoundButton } from "../../components/RoundButton";
 import { pendingTxToTransferParams } from "../../utils/toTransferParams";
 import { HoldersOpType, HoldersOpView } from "../../components/transfer/HoldersOpView";
+import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
 
 export type PendingTxPreviewParams = {
     transaction: PendingTransaction;
     timedOut?: boolean;
-    isHolders?: boolean;
+    forceAvatar?: ForcedAvatarType;
 }
 
 const PendingTxPreview = () => {
@@ -114,7 +115,7 @@ const PendingTxPreview = () => {
     let op = t('tx.sending');
     if (tx.status === 'sent') {
         op = t('tx.sent');
-    } 
+    }
     if (params.timedOut) {
         op = t('tx.timeout');
     }
@@ -169,7 +170,7 @@ const PendingTxPreview = () => {
     });
 
     const holdersOp = useMemo<null | HoldersOpType>(() => {
-        if (!params.isHolders) {
+        if (params.forceAvatar !== 'holders') {
             return null;
         }
 
@@ -193,7 +194,7 @@ const PendingTxPreview = () => {
         }
 
         return null;
-    }, [operation?.op, params.isHolders]);
+    }, [operation?.op, params.forceAvatar]);
 
     return (
         <PerfView
@@ -225,11 +226,8 @@ const PendingTxPreview = () => {
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
-                    {holdersOp ? (
-                        <Image
-                            source={require('@assets/ic-holders-accounts.png')}
-                            style={{ width: 68, height: 68, borderRadius: 34 }}
-                        />
+                    {params.forceAvatar ? (
+                        <ForcedAvatar type={params.forceAvatar} size={68} />
                     ) : (
                         <Avatar
                             size={68}

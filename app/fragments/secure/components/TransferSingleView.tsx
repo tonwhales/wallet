@@ -32,10 +32,59 @@ import { PerfView } from "../../../components/basic/PerfView";
 import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 import { copyText } from "../../../utils/copyText";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
+import { ThemeType } from "../../../engine/state/theme";
+import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
+
+const TxAvatar = memo(({
+    address,
+    hash,
+    spam,
+    showSpambadge,
+    borderColor,
+    backgroundColor,
+    markContact,
+    theme,
+    knownWallets,
+    forceAvatar
+}: {
+    address: string,
+    hash?: number | null,
+    spam: boolean,
+    showSpambadge: boolean,
+    borderColor: string
+    backgroundColor: string,
+    markContact: boolean
+    theme: ThemeType,
+    knownWallets: { [key: string]: KnownWallet },
+    forceAvatar?: ForcedAvatarType
+}) => {
+
+    if (forceAvatar) {
+        return (<ForcedAvatar type={forceAvatar} size={68} />);
+    }
+
+    return (
+        <Avatar
+            size={68}
+            id={address}
+            address={address}
+            hash={hash}
+            spam={spam}
+            showSpambadge={showSpambadge}
+            borderWith={2}
+            borderColor={borderColor}
+            backgroundColor={backgroundColor}
+            markContact={markContact}
+            icProps={{ position: 'bottom' }}
+            theme={theme}
+            knownWallets={knownWallets}
+        />
+    );
+});
 
 export const TransferSingleView = memo(({
     operation,
@@ -93,14 +142,18 @@ export const TransferSingleView = memo(({
     const holdersUrl = resolveHoldersUrl(isTestnet);
     const targetContract = useContractInfo(target.address.toString({ testOnly: isTestnet }));
 
-    const isHoldersOp = useMemo(() => {
+    const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
+        if (targetContract?.kind === 'dedust-vault') {
+            return 'dedust';
+        }
+        
         if (targetContract?.kind === 'jetton-card' && operation.op?.res === 'tx.tokenTransfer') {
             operation.op.res = 'known.holders.accountJettonTopUp';
-            return true;
+            return 'holders';
         }
 
         if (operation.op?.res.startsWith('known.holders.')) {
-            return true;
+            return 'holders';
         }
 
     }, [operation.op?.res, targetContract?.kind]);
@@ -242,35 +295,18 @@ export const TransferSingleView = memo(({
                         }} />
                         <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                             <View style={{ width: 68, flexDirection: 'row', height: 68 }}>
-                                {isHoldersOp ? (
-                                    <Image
-                                        source={require('@assets/ic-holders-accounts.png')}
-                                        style={{ width: 68, height: 68, borderRadius: 34 }}
-                                    />
-                                ) : (
-                                    isTargetLedger ? (
-                                        <Image
-                                            source={require('@assets/ledger_device.png')}
-                                            style={{ height: 68, width: 68 }}
-                                        />
-                                    ) : (
-                                        <Avatar
-                                            size={68}
-                                            id={targetString}
-                                            address={targetString}
-                                            hash={targetWalletSettings?.avatar}
-                                            spam={isSpam}
-                                            showSpambadge
-                                            borderWith={2}
-                                            borderColor={theme.surfaceOnElevation}
-                                            backgroundColor={avatarColor}
-                                            markContact={!!contact}
-                                            icProps={{ position: 'bottom' }}
-                                            theme={theme}
-                                            knownWallets={knownWallets}
-                                        />
-                                    )
-                                )}
+                                <TxAvatar
+                                    address={targetString}
+                                    hash={targetWalletSettings?.avatar}
+                                    spam={isSpam}
+                                    showSpambadge
+                                    borderColor={theme.surfaceOnElevation}
+                                    backgroundColor={avatarColor}
+                                    markContact={!!contact}
+                                    theme={theme}
+                                    knownWallets={knownWallets}
+                                    forceAvatar={forceAvatar}
+                                />
                             </View>
                         </View>
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>

@@ -38,6 +38,8 @@ import { PreviewMessages } from "./views/preview/PreviewMessages";
 import { BatchAvatars } from "../../components/avatar/BatchAvatars";
 import { HoldersOpType, HoldersOpView } from "../../components/transfer/HoldersOpView";
 import { previewToTransferParams } from "../../utils/toTransferParams";
+import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
+import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -118,7 +120,8 @@ const TransactionPreview = () => {
         );
     }, [price, currency, fees]);
 
-    let jetton = useJettonMaster(tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet }) ?? null);
+    const jetton = useJettonMaster(tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet }) ?? null);
+    const targetContract = useContractInfo(opAddress);
 
     let op: string;
     if (tx.op) {
@@ -143,6 +146,14 @@ const TransactionPreview = () => {
             throw Error('Unknown kind');
         }
     }
+
+    const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
+        if (targetContract?.kind === 'dedust-vault') {
+            return 'dedust';
+        } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') { 
+            return 'holders';
+        }
+    }, [targetContract]);
 
     const holdersOp = useMemo<null | HoldersOpType>(
         () => {
@@ -281,11 +292,8 @@ const TransactionPreview = () => {
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
-                    {!!holdersOp ? (
-                        <Image
-                            source={require('@assets/ic-holders-accounts.png')}
-                            style={{ width: 68, height: 68, borderRadius: 34 }}
-                        />
+                    {!!forceAvatar ? (
+                        <ForcedAvatar type={forceAvatar} size={68} />
                     ) : (
                         tx.base.outMessagesCount > 1 ? (
                             <BatchAvatars

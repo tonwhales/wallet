@@ -142,22 +142,6 @@ export const TransferSingleView = memo(({
     const holdersUrl = resolveHoldersUrl(isTestnet);
     const targetContract = useContractInfo(target.address.toString({ testOnly: isTestnet }));
 
-    const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
-        if (targetContract?.kind === 'dedust-vault') {
-            return 'dedust';
-        }
-        
-        if (targetContract?.kind === 'jetton-card' && operation.op?.res === 'tx.tokenTransfer') {
-            operation.op.res = 'known.holders.accountJettonTopUp';
-            return 'holders';
-        }
-
-        if (operation.op?.res.startsWith('known.holders.')) {
-            return 'holders';
-        }
-
-    }, [operation.op?.res, targetContract?.kind]);
-
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
 
@@ -189,6 +173,26 @@ export const TransferSingleView = memo(({
             return false;
         }
     }, [ledgerTransport.addr?.address, target.address]);
+
+    const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
+        if (isTargetLedger) {
+            return 'ledger';
+        }
+        
+        if (targetContract?.kind === 'dedust-vault') {
+            return 'dedust';
+        }
+
+        if (targetContract?.kind === 'jetton-card' && operation.op?.res === 'tx.tokenTransfer') {
+            operation.op.res = 'known.holders.accountJettonTopUp';
+            return 'holders';
+        }
+
+        if (operation.op?.res.startsWith('known.holders.')) {
+            return 'holders';
+        }
+
+    }, [operation.op?.res, targetContract?.kind, isTargetLedger]);
 
     const fromAddress = isLedger ? Address.parse(ledgerTransport.addr!.address) : selected!.address;
     const name = isLedger

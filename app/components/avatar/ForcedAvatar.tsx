@@ -24,7 +24,7 @@ export const ForcedAvatar = memo(({ type, size }: { type: ForcedAvatarType, size
             return (
                 <Image
                     source={require('@assets/ledger_device.png')}
-                    style={{ height: size, width: size }}
+                    style={{ height: size, width: size, borderRadius: size / 2 }}
                 />
             );
         default: return null;

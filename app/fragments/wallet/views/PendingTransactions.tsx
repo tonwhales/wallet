@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { memo } from "react";
 import { View, Text, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { PendingTransaction } from "../../../engine/state/pending";
@@ -24,6 +24,7 @@ import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
 import { useLastWatchedBlock } from "../../../engine/hooks/useLastWatchedBlock";
+import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
 
 function checkIfTxFailed(tx: PendingTransaction, txTimeout: number = 60, lastWatchedBlock: { seqno: number, lastUtime: number } | null) {
     const currentBlock = lastWatchedBlock?.seqno ?? 0;
@@ -72,9 +73,12 @@ const PendingTransactionView = memo(({
     const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
     const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
 
-    const isHoldersOp = useMemo(() => {
+    const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
+        if (targetContract?.kind === 'dedust-vault') {
+            return 'dedust';
+        }
         if (targetContract?.kind === 'jetton-card' && tx.body?.type === 'token') {
-            return true;
+            return 'holders';
         }
 
         if (tx.body?.type === 'payload') {
@@ -83,7 +87,7 @@ const PendingTransactionView = memo(({
                 body.type === 'holders::account::top_up'
                 || body.type === 'holders::account::limits_change'
             )) {
-                return true;
+                return 'holders';
             }
         }
 
@@ -127,6 +131,14 @@ const PendingTransactionView = memo(({
         }
     }, [lastBlock, timeOut, tx.status]);
 
+    const onOpen = useCallback(() => {
+        navigation.navigatePendingTx({
+            transaction: tx,
+            timedOut: tx.status === 'timed-out',
+            forceAvatar
+        });
+    }, [forceAvatar]);
+
     return (
         <Animated.View
             entering={FadeInDown}
@@ -144,7 +156,7 @@ const PendingTransactionView = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}
-                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx, timedOut: tx.status === 'timed-out' })}
+                onPress={onOpen}
             >
                 <View style={{
                     width: 46, height: 46,
@@ -160,14 +172,11 @@ const PendingTransactionView = memo(({
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={knownWallets}
                             theme={theme}
-                            holders={isHoldersOp}
+                            forceAvatar={forceAvatar}
                         />
                     ) : (
-                        isHoldersOp ? (
-                            <Image
-                                source={require('@assets/ic-holders-accounts.png')}
-                                style={{ width: 46, height: 46, borderRadius: 23 }}
-                            />
+                        forceAvatar ? (
+                            <ForcedAvatar type={forceAvatar} size={46} />
                         ) : (
                             <Avatar
                                 address={targetFriendly}

@@ -26,14 +26,24 @@ import { Cell } from '@ton/core';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../components/styles';
+import { TransactionDescription } from '../engine/types';
+import { useParams } from '../utils/useParams';
 
 const Tab = createBottomTabNavigator();
+
+export type HomeFragmentProps = {
+    navigateTo?: {
+        type: 'tx',
+        transaction: TransactionDescription
+    }
+};
 
 export const HomeFragment = fragment(() => {
     const network = useNetwork();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation()
+    const { navigateTo } = useParams<HomeFragmentProps>();
+    const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const [tonXRequest,] = useCurrentJob();
     const [tonconnectRequests,] = useConnectPendingRequests();
@@ -141,6 +151,12 @@ export const HomeFragment = fragment(() => {
             setCurve(dCurve);
         } else {
             setCurve(undefined);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (navigateTo?.type === 'tx') {
+            navigation.navigate('Transaction', { transaction: navigateTo.transaction });
         }
     }, []);
 

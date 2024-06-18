@@ -33,6 +33,14 @@ import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { RoundButton } from "../../components/RoundButton";
 import { pendingTxToTransferParams } from "../../utils/toTransferParams";
+import { HoldersOpType, HoldersOpView } from "../../components/transfer/HoldersOpView";
+import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
+
+export type PendingTxPreviewParams = {
+    transaction: PendingTransaction;
+    timedOut?: boolean;
+    forceAvatar?: ForcedAvatarType;
+}
 
 const PendingTxPreview = () => {
     const theme = useTheme();
@@ -48,8 +56,8 @@ const PendingTxPreview = () => {
     const [dontShowComments,] = useDontShowComments();
     const [walletSettings,] = useWalletSettings(selected.address);
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const params = useParams<PendingTxPreviewParams>();
 
-    const params = useParams<{ transaction: PendingTransaction, timedOut?: boolean }>();
     const tx = params.transaction;
     const repeatTransfer = useMemo(() => pendingTxToTransferParams(tx, isTestnet), [tx, isTestnet]);
     const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
@@ -107,7 +115,7 @@ const PendingTxPreview = () => {
     let op = t('tx.sending');
     if (tx.status === 'sent') {
         op = t('tx.sent');
-    } 
+    }
     if (params.timedOut) {
         op = t('tx.timeout');
     }
@@ -161,6 +169,33 @@ const PendingTxPreview = () => {
         decimals: tx.body?.type === 'token' && jetton ? jetton.decimals : undefined,
     });
 
+    const holdersOp = useMemo<null | HoldersOpType>(() => {
+        if (params.forceAvatar !== 'holders') {
+            return null;
+        }
+
+        if (!operation?.op) {
+            return null;
+        }
+
+        if (operation.op.res === 'known.holders.accountTopUp') {
+            return {
+                type: 'topUp',
+                amount: operation.op.options.amount
+            };
+        } else if (operation.op.res === 'known.holders.accountJettonTopUp') {
+            return { type: 'jettonTopUp' };
+        } else if (operation.op.res === 'known.holders.accountLimitsChange') {
+            const onetime = operation.op.options.onetime === '0' ? null : operation.op.options.onetime;
+            const daily = operation.op.options.daily === '0' ? null : operation.op.options.daily;
+            const monthly = operation.op.options.monthly === '0' ? null : operation.op.options.monthly;
+
+            return { type: 'limitsChange', onetime, daily, monthly };
+        }
+
+        return null;
+    }, [operation?.op, params.forceAvatar]);
+
     return (
         <PerfView
             style={{
@@ -191,26 +226,30 @@ const PendingTxPreview = () => {
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
-                    <Avatar
-                        size={68}
-                        id={opAddress ?? ''}
-                        address={opAddress}
-                        showSpambadge
-                        verified={verified}
-                        borderWith={2.5}
-                        borderColor={theme.surfaceOnElevation}
-                        backgroundColor={theme.elevation}
-                        markContact={!!contact}
-                        icProps={{
-                            isOwn: isOwn,
-                            borderWidth: 2,
-                            position: 'bottom',
-                            size: 28
-                        }}
-                        theme={theme}
-                        knownWallets={knownWallets}
-                        hashColor
-                    />
+                    {params.forceAvatar ? (
+                        <ForcedAvatar type={params.forceAvatar} size={68} />
+                    ) : (
+                        <Avatar
+                            size={68}
+                            id={opAddress ?? ''}
+                            address={opAddress}
+                            showSpambadge
+                            verified={verified}
+                            borderWith={2.5}
+                            borderColor={theme.surfaceOnElevation}
+                            backgroundColor={theme.elevation}
+                            markContact={!!contact}
+                            icProps={{
+                                isOwn: isOwn,
+                                borderWidth: 2,
+                                position: 'bottom',
+                                size: 28
+                            }}
+                            theme={theme}
+                            knownWallets={knownWallets}
+                            hashColor
+                        />
+                    )}
                     <PerfText
                         style={[
                             {
@@ -224,7 +263,15 @@ const PendingTxPreview = () => {
                     >
                         {op}
                     </PerfText>
-                    {!!participants.to ? (
+                    {!!operation?.op ? (
+                        <PerfText
+                            style={[{ color: theme.textSecondary, marginTop: 2 }, Typography.regular15_20]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
+                            {t(operation.op.res, operation.op.options)}
+                        </PerfText>
+                    ) : (!!participants.to && (
                         <PerfView style={{ flexDirection: 'row', gap: 6, marginTop: 2, paddingHorizontal: 16 }}>
                             <PerfText
                                 style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.regular17_24]}
@@ -247,17 +294,7 @@ const PendingTxPreview = () => {
                                 />
                             </PerfText>
                         </PerfView>
-                    ) : (
-                        !!operation?.op && (
-                            <PerfText
-                                style={[{ color: theme.textSecondary, marginTop: 2 }, Typography.regular15_20]}
-                                numberOfLines={1}
-                                ellipsizeMode="tail"
-                            >
-                                {t(operation.op.res, operation.op.options)}
-                            </PerfText>
-                        )
-                    )}
+                    ))}
                     <>
                         <Text
                             minimumFontScale={0.4}
@@ -290,6 +327,12 @@ const PendingTxPreview = () => {
                         )}
                     </>
                 </PerfView>
+                {!!holdersOp && (
+                    <HoldersOpView
+                        theme={theme}
+                        op={holdersOp}
+                    />
+                )}
                 {!(dontShowComments && isSpam) && !!comment && (
                     <ItemGroup style={{ marginTop: 16 }}>
                         <PerfView style={{ paddingHorizontal: 10, justifyContent: 'center' }}>

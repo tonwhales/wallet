@@ -23,6 +23,8 @@ import { getLiquidStakingAddress } from '../../../utils/KnownPools';
 import { usePeparedMessages, useVerifyJetton } from '../../../engine/hooks';
 import { TxAvatar } from './TxAvatar';
 import { PreparedMessageView } from './PreparedMessageView';
+import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo';
+import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 
 export function TransactionView(props: {
     own: Address,
@@ -65,6 +67,7 @@ export function TransactionView(props: {
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet);
+    const targetContract = useContractInfo(opAddress);
 
     const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
@@ -102,6 +105,19 @@ export function TransactionView(props: {
     }, [operation.op, parsed]);
 
     const holdersOp = operation.op?.res?.startsWith('known.holders.');
+
+    const forcedAvatar: ForcedAvatarType | undefined = useMemo(() => {
+        if (holdersOp) {
+            return 'holders';
+        }
+        if (targetContract?.kind === 'dedust-vault') {
+            return 'dedust';
+        }
+
+        if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
+            return 'holders';
+        }
+    }, [targetContract, holdersOp]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -202,7 +218,7 @@ export function TransactionView(props: {
                         markContact={!!contact}
                         avatarColor={avatarColor}
                         knownWallets={knownWallets}
-                        isHolders={holdersOp}
+                        forceAvatar={forcedAvatar}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>

@@ -4,7 +4,7 @@ import { PendingTransactionAvatar } from "../../../components/avatar/PendingTran
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { Avatar } from "../../../components/avatar/Avatar";
 import { KnownWallet } from "../../../secure/KnownWallets";
-import { Image } from "react-native";
+import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
 
 export const TxAvatar = memo((
     {
@@ -18,7 +18,7 @@ export const TxAvatar = memo((
         markContact,
         avatarColor,
         knownWallets,
-        isHolders
+        forceAvatar,
     }: {
         status: "failed" | "pending" | "success",
         parsedAddressFriendly: string,
@@ -30,16 +30,9 @@ export const TxAvatar = memo((
         markContact?: boolean,
         avatarColor: string,
         knownWallets: { [key: string]: KnownWallet },
-        isHolders?: boolean
+        forceAvatar?: ForcedAvatarType,
     }
 ) => {
-
-    if (isHolders) {
-        return <Image
-            source={require('@assets/ic-holders-accounts.png')}
-            style={{ width: 46, height: 46, borderRadius: 23 }}
-        />;
-    }
 
     if (status === "pending") {
         return (
@@ -49,8 +42,13 @@ export const TxAvatar = memo((
                 avatarId={parsedAddressFriendly}
                 theme={theme}
                 knownWallets={knownWallets}
+                forceAvatar={forceAvatar}
             />
         );
+    }
+
+    if (forceAvatar) {
+        return (<ForcedAvatar type={forceAvatar} size={48} />);
     }
 
     return (

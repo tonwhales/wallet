@@ -230,21 +230,20 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'a
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-
     const [showClose, setShowClose] = useState(false);
 
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
-        return {
-            opacity: withTiming(
-                opacity.value,
-                { duration: 350, easing: Easing.inOut(Easing.ease) },
-            )
-        };
+        return { opacity: opacity.value };
     });
 
     useEffect(() => {
-        if (loaded) opacity.value = 0;
+        if (loaded) {
+            opacity.value = withTiming(0, { duration: 350, easing: Easing.inOut(Easing.ease) });
+        } else {
+            setShowClose(false);
+            opacity.value = 1;
+        };
     }, [loaded]);
 
     useEffect(() => {
@@ -288,7 +287,7 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'a
                     style={[
                         { position: 'absolute', top: 32, left: 16, right: 0 },
                         Platform.select({
-                            ios: { top: 32 },
+                            ios: { top: safeArea.top - 16 },
                             android: { top: safeArea.top - 6 }
                         })
                     ]}

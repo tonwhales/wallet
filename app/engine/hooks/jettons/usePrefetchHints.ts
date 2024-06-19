@@ -110,12 +110,12 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                 await Promise.all(wallets.map(async (wallet) => {
                     try {
                         let address = Address.parse(wallet);
-    
+
                         let data = await tryFetchJettonWallet(client, await getLastBlock(), address);
                         if (!data) {
                             return;
                         }
-    
+
                         result.push({
                             balance: data.balance.toString(10),
                             master: data.master.toString({ testOnly: isTestnet }),
@@ -135,15 +135,15 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
     })
 });
 
-const walletAddressBatcher = memoize((client: TonClient4, isTestnet: boolean, owner: string) => {
+const walletAddressBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
     return create({
-        fetcher: async (masters: string[]) => {
+        fetcher: async (args: { master: string, owner: string }[]) => {
             return await jettonFetchersLock.inLock(async () => {
-                let result: { wallet: string, master: string }[] = [];
+                let result: { wallet: string, master: string, owner: string }[] = [];
                 let lastBlock = await getLastBlock();
-                log(`[wallet-address] 🟡 batch ${masters.length}`);
+                log(`[wallet-address] 🟡 batch ${args.length}`);
                 let measurement = performance.now();
-                await Promise.all(masters.map(async (master) => {
+                await Promise.all(args.map(async ({ master, owner }) => {
                     try {
                         let wallet = await tryGetJettonWallet(
                             client,
@@ -156,7 +156,8 @@ const walletAddressBatcher = memoize((client: TonClient4, isTestnet: boolean, ow
 
                         result.push({
                             wallet: wallet.toString({ testOnly: isTestnet }),
-                            master: master
+                            master: master,
+                            owner: owner
                         });
                     } catch (error) {
                         console.warn(`[jetton-wallet-address] 🔴 ${owner}`, error);
@@ -166,8 +167,8 @@ const walletAddressBatcher = memoize((client: TonClient4, isTestnet: boolean, ow
                 return result;
             });
         },
-        resolver: (items: { wallet: string, master: string }[], query) => {
-            return items.find(i => i.master === query)?.wallet ?? null;
+        resolver: (items: { wallet: string, master: string, owner: string }[], query) => {
+            return items.find(i => (i.master === query.master && i.owner === query.owner))?.wallet ?? null;
         },
         scheduler: windowedFiniteBatchScheduler({ windowMs: 1000, maxBatchSize: 10 })
     });
@@ -194,7 +195,7 @@ export function jettonWalletQueryFn(wallet: string, isTestnet: boolean) {
 
 export function jettonWalletAddressQueryFn(master: string, owner: string, isTestnet: boolean) {
     return async (): Promise<string | null> => {
-        return walletAddressBatcher(clients.ton[isTestnet ? 'testnet' : 'mainnet'], isTestnet, owner).fetch(master);
+        return walletAddressBatcher(clients.ton[isTestnet ? 'testnet' : 'mainnet'], isTestnet).fetch({ master, owner });
     }
 }
 

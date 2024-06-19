@@ -144,6 +144,44 @@ export const statusBarAPI = (safeArea: EdgeInsets) => {
     `
 }
 
+export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean }) => {
+    return `
+    window['tonhub-auth'] = (() => {
+        let __AUTH_AVAILIBLE = true;
+        let inProgress = false;
+        let currentCallback;
+        const params = ${JSON.stringify(params)};
+
+        const authenicate = (callback) => {
+            if (inProgress) {
+                callback({ authenicated: false, erorr: 'auth.inProgress' });
+                return;
+            }
+
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.authenticate' } }));
+            inProgress = true;
+            currentCallback = callback;
+        };
+
+        const __response = (ev) => {
+            inProgress = false;
+            if (ev && ev.data) {
+                if (currentCallback) {
+                    if (!!ev.data.lastAuthTime) {
+                        params.lastAuthTime = ev.data.lastAuthTime;
+                    }
+                    currentCallback({ authenicated: ev.data.authenicated });
+                }
+            }
+        }
+
+        const obj = { __AUTH_AVAILIBLE, params, authenicate, __response };
+        Object.freeze(obj);
+        return obj;
+    })();
+    `
+}
+
 type InjectionConfig = {
     version: number;
     platform: "ios" | "android" | "windows" | "macos" | "web";
@@ -246,6 +284,11 @@ export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {
     true;
     `;
 
+}
+
+export function dispatchAuthResponse(webRef: React.RefObject<WebView>, data: { authenicated: boolean, lastAuthTime?: number }) {
+    let injectedMessage = `window['tonhub-auth'].__response(${JSON.stringify({ data })}); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
 }
 
 export function dispatchMainButtonResponse(webRef: React.RefObject<WebView>) {

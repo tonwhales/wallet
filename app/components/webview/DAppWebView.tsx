@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { authAPI, dispatchAuthResponse, dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { authAPI, dispatchAuthResponse, dispatchLastAuthTimeResponse, dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -159,21 +159,29 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             }
 
             // Auth API
-            if (props.useAuthApi && parsed.data.name === 'auth.authenticate') {
-                (async () => {
-                    let authenicated = false;
-                    let lastAuthTime: number | undefined;
-                    // wait for auth to complete
-                    try {
-                        await authContext.authenticate();
-                        authenicated = true;
-                        lastAuthTime = getLastAuthTimestamp();
-                    } catch {
-                        warn('Failed to authenticate');
-                    }
-                    // Dispatch response
-                    dispatchAuthResponse(ref as RefObject<WebView>, { authenicated, lastAuthTime });
-                })();
+            if (props.useAuthApi && parsed.data.name.startsWith('auth')) {
+                const method = parsed.data.name.split('.')[1];
+
+                if (method === 'getLastAuthTime') {
+                    dispatchLastAuthTimeResponse(ref as RefObject<WebView>, getLastAuthTimestamp() || 0);
+                    return;
+                } else if (method === 'authenticate') {
+                    (async () => {
+                        let authenicated = false;
+                        let lastAuthTime: number | undefined;
+                        // wait for auth to complete
+                        try {
+                            await authContext.authenticate();
+                            authenicated = true;
+                            lastAuthTime = getLastAuthTimestamp();
+                        } catch {
+                            warn('Failed to authenticate');
+                        }
+                        // Dispatch response
+                        dispatchAuthResponse(ref as RefObject<WebView>, { authenicated, lastAuthTime });
+                    })();
+                }
+
                 return;
             }
 

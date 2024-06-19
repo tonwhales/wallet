@@ -149,8 +149,17 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
     window['tonhub-auth'] = (() => {
         let __AUTH_AVAILIBLE = true;
         let inProgress = false;
-        let currentCallback;
+        let currentCallback = null;
         const params = ${JSON.stringify(params)};
+
+        const getLastAuthTime = (callback) => {
+            if (inProgress) {
+                callback({ erorr: 'auth.inProgress' });
+                return;
+            }
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.getLastAuthTime' } }));
+            currentCallback = callback;
+        }
 
         const authenicate = (callback) => {
             if (inProgress) {
@@ -165,17 +174,28 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
 
         const __response = (ev) => {
             inProgress = false;
-            if (ev && ev.data) {
+            if (!ev || !ev.data) {
                 if (currentCallback) {
-                    if (!!ev.data.lastAuthTime) {
+                    currentCallback({ erorr: 'auth.noResponse' });
+                }
+                currentCallback = null;
+                return;
+            }
+            if (currentCallback) {
+                if (typeof ev.data === 'number') {
+                    params.lastAuthTime = ev.data;
+                    currentCallback(ev.data);
+                } else {
+                    if (!!ev.data.lastAuthTime && ev.data.authenicated === true) {
                         params.lastAuthTime = ev.data.lastAuthTime;
                     }
                     currentCallback({ authenicated: ev.data.authenicated });
                 }
+                currentCallback = null;
             }
         }
 
-        const obj = { __AUTH_AVAILIBLE, params, authenicate, __response };
+        const obj = { __AUTH_AVAILIBLE, params, authenicate, getLastAuthTime, __response };
         Object.freeze(obj);
         return obj;
     })();
@@ -284,6 +304,11 @@ export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {
     true;
     `;
 
+}
+
+export function dispatchLastAuthTimeResponse(webRef: React.RefObject<WebView>, lastAuthTime: number) {
+    let injectedMessage = `window['tonhub-auth'].__response({ data: ${lastAuthTime} }); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
 }
 
 export function dispatchAuthResponse(webRef: React.RefObject<WebView>, data: { authenicated: boolean, lastAuthTime?: number }) {

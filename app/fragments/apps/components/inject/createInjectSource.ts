@@ -144,6 +144,64 @@ export const statusBarAPI = (safeArea: EdgeInsets) => {
     `
 }
 
+export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean }) => {
+    return `
+    window['tonhub-auth'] = (() => {
+        let __AUTH_AVAILIBLE = true;
+        let inProgress = false;
+        let currentCallback = null;
+        const params = ${JSON.stringify(params)};
+
+        const getLastAuthTime = (callback) => {
+            if (inProgress) {
+                callback({ erorr: 'auth.inProgress' });
+                return;
+            }
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.getLastAuthTime' } }));
+            currentCallback = callback;
+        }
+
+        const authenicate = (callback) => {
+            if (inProgress) {
+                callback({ authenicated: false, erorr: 'auth.inProgress' });
+                return;
+            }
+
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.authenticate' } }));
+            inProgress = true;
+            currentCallback = callback;
+        };
+
+        const __response = (ev) => {
+            inProgress = false;
+            if (!ev || !ev.data) {
+                if (currentCallback) {
+                    currentCallback({ erorr: 'auth.noResponse' });
+                }
+                currentCallback = null;
+                return;
+            }
+            if (currentCallback) {
+                if (typeof ev.data === 'number') {
+                    params.lastAuthTime = ev.data;
+                    currentCallback(ev.data);
+                } else {
+                    if (!!ev.data.lastAuthTime && ev.data.authenicated === true) {
+                        params.lastAuthTime = ev.data.lastAuthTime;
+                    }
+                    currentCallback({ authenicated: ev.data.authenicated });
+                }
+                currentCallback = null;
+            }
+        }
+
+        const obj = { __AUTH_AVAILIBLE, params, authenicate, getLastAuthTime, __response };
+        Object.freeze(obj);
+        return obj;
+    })();
+    `
+}
+
 type InjectionConfig = {
     version: number;
     platform: "ios" | "android" | "windows" | "macos" | "web";
@@ -246,6 +304,16 @@ export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {
     true;
     `;
 
+}
+
+export function dispatchLastAuthTimeResponse(webRef: React.RefObject<WebView>, lastAuthTime: number) {
+    let injectedMessage = `window['tonhub-auth'].__response({ data: ${lastAuthTime} }); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
+}
+
+export function dispatchAuthResponse(webRef: React.RefObject<WebView>, data: { authenicated: boolean, lastAuthTime?: number }) {
+    let injectedMessage = `window['tonhub-auth'].__response(${JSON.stringify({ data })}); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
 }
 
 export function dispatchMainButtonResponse(webRef: React.RefObject<WebView>) {

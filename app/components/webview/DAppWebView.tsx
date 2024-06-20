@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { authAPI, dispatchAuthResponse, dispatchLastAuthTimeResponse, dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -20,11 +20,14 @@ import { useMarkBannerHidden } from "../../engine/hooks/banners/useHiddenBanners
 import { isSafeDomain } from "./utils/isSafeDomain";
 import DeviceInfo from 'react-native-device-info';
 import { processEmitterMessage } from "./utils/processEmitterMessage";
+import { getLastAuthTimestamp, useKeysAuth } from "../secure/AuthWalletKeys";
+import { getLockAppWithAuthState } from "../../engine/state/lockAppWithAuthState";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
     useStatusBar?: boolean;
     useToaster?: boolean;
+    useAuthApi?: boolean;
     useEmitter?: boolean;
     useQueryAPI?: boolean;
     injectionEngine?: InjectEngine;
@@ -58,6 +61,7 @@ function WebViewLoader(props: WebViewLoaderProps<{}>) {
 
 export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: ForwardedRef<WebView>) => {
     const safeArea = useSafeAreaInsets();
+    const authContext = useKeysAuth();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const toaster = useToaster();
@@ -151,6 +155,33 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             let processed = false;
 
             if (!parsed?.data?.name) {
+                return;
+            }
+
+            // Auth API
+            if (props.useAuthApi && parsed.data.name.startsWith('auth')) {
+                const method = parsed.data.name.split('.')[1];
+
+                if (method === 'getLastAuthTime') {
+                    dispatchLastAuthTimeResponse(ref as RefObject<WebView>, getLastAuthTimestamp() || 0);
+                    return;
+                } else if (method === 'authenticate') {
+                    (async () => {
+                        let authenicated = false;
+                        let lastAuthTime: number | undefined;
+                        // wait for auth to complete
+                        try {
+                            await authContext.authenticate();
+                            authenicated = true;
+                            lastAuthTime = getLastAuthTimestamp();
+                        } catch {
+                            warn('Failed to authenticate');
+                        }
+                        // Dispatch response
+                        dispatchAuthResponse(ref as RefObject<WebView>, { authenicated, lastAuthTime });
+                    })();
+                }
+
                 return;
             }
 
@@ -279,11 +310,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     }, [
         props.useMainButton, props.useStatusBar,
         props.useToaster, props.useEmitter,
-        props.injectionEngine,
+        props.injectionEngine, props.useAuthApi,
         props.onMessage,
         ref,
         navigation, toaster,
-        props.onClose, props.onEnroll,
+        props.onClose, props.onEnroll
     ]);
 
     const onHardwareBackPress = useCallback(() => {
@@ -335,6 +366,10 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         ${props.useStatusBar ? statusBarAPI({ ...adjustedSafeArea, ...props.defaultSafeArea }) : ''}
         ${props.useToaster ? toasterAPI : ''}
         ${props.useEmitter ? emitterAPI : ''}
+        ${props.useAuthApi ? authAPI({
+            lastAuthTime: getLastAuthTimestamp(),
+            isLockedByAuth: getLockAppWithAuthState() ?? false
+        }) : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {
             if (!window.tonhub) {
@@ -349,7 +384,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         `
     }, [
         props.injectedJavaScriptBeforeContentLoaded,
-        props.useMainButton, props.useStatusBar, props.useToaster, props.useEmitter,
+        props.useMainButton, props.useStatusBar, props.useToaster, props.useEmitter, props.useAuthApi,
         safeArea
     ]);
 

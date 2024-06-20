@@ -20,7 +20,7 @@ import { extractDomain } from '../../../engine/utils/extractDomain';
 import { getAppManifest } from '../../../engine/getters/getAppManifest';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useSaveAppConnection } from '../../../engine/hooks';
-import { checkProtocolVersionCapability, verifyConnectRequest } from '../../../engine/tonconnect/utils';
+import { checkProtocolVersionCapability, resolveAuthError, verifyConnectRequest } from '../../../engine/tonconnect/utils';
 import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../../engine/tonconnect/types';
 import { ConnectReplyBuilder } from '../../../engine/tonconnect/ConnectReplyBuilder';
 import { tonConnectDeviceInfo } from '../../../engine/tonconnect/config';
@@ -28,6 +28,8 @@ import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Minimizer from '../../../modules/Minimizer';
 import { SelectedAccount } from '../../../engine/types';
+import { useToaster } from '../../../components/toast/ToastProvider';
+import { t } from '../../../i18n/t';
 
 type SignState = { type: 'loading' }
     | { type: 'expired', returnStrategy?: ReturnStrategy }
@@ -53,12 +55,13 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
+    const toaster = useToaster();
     const [state, setState] = useState<SignState>({ type: 'loading' });
     const saveAppConnection = useSaveAppConnection();
 
     useEffect(() => {
         (async () => {
-            if (connectProps.type === 'qr') {
+            if (connectProps.type === 'qr' || connectProps.type === 'link') {
                 try {
                     const handled = await handleConnectDeeplink(connectProps.query);
 
@@ -184,7 +187,10 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 return;
             }
 
-            if (connectProps.type === 'qr' && state.clientSessionId) {
+            if (
+                (connectProps.type === TonConnectAuthType.Qr || connectProps.type === TonConnectAuthType.Link)
+                && state.clientSessionId
+            ) {
                 const response = {
                     event: 'connect',
                     payload: {
@@ -249,40 +255,64 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 // Send connect response
                 await sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
-                navigation.goBack();
+                toaster.show({
+                    type: 'success',
+                    message: t('products.tonConnect.successAuth'),
+                    onDestroy: () => {
+                        if (connectProps.type === TonConnectAuthType.Link) {
+                            setTimeout(() => {
+                                if (!!state.returnStrategy) {
+                                    if (state.returnStrategy === 'back') {
+                                        Minimizer.goBack();
+                                    } else if (state.returnStrategy !== 'none') {
+                                        try {
+                                            const url = new URL(decodeURIComponent(state.returnStrategy));
+                                            Linking.openURL(url.toString());
+                                        } catch (e) {
+                                            warn('Failed to open url');
+                                        }
+                                    }
+                                }
 
+                                navigation.goBack();
+                            }, 50);
+                            return;
+                        }
+
+                        navigation.goBack();
+                    }
+                });
                 return;
             } else if (connectProps.type === 'callback') {
-                connectProps.callback({ ok: true, replyItems });
+                toaster.show({
+                    type: 'success',
+                    message: t('products.tonConnect.successAuth'),
+                    onDestroy: () => {
+                        connectProps.callback({ ok: true, replyItems });
 
-                setTimeout(() => {
-                    if (!!state.returnStrategy) {
-                        if (state.returnStrategy === 'back') {
-                            Minimizer.goBack();
-                        } else if (state.returnStrategy !== 'none') {
-                            try {
-                                const url = new URL(decodeURIComponent(state.returnStrategy));
-                                Linking.openURL(url.toString());
-                            } catch (e) {
-                                warn('Failed to open url');
-                            }
-                        }
+                        setTimeout(() => {
+                            navigation.goBack();
+                        }, 50);
                     }
-
-                    navigation.goBack();
-                }, 50);
-
+                });
                 return;
             }
 
             // Should not happen
             setState({ type: 'failed', returnStrategy: state.returnStrategy });
-        } catch {
+        } catch (e) {
+            const message = resolveAuthError(e as Error);
+
+            // Show user error toast
+            toaster.show({
+                type: 'error',
+                message: message
+            });
+
             warn('Failed to approve');
-            setState({ type: 'failed', returnStrategy: state.returnStrategy });
         }
 
-    }, [state, saveAppConnection]);
+    }, [state, saveAppConnection, toaster]);
 
     const onCancel = useCallback(() => {
         if (state.type === 'loading') {
@@ -315,14 +345,23 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
 export type TonConnectAuthResult = { replyItems: ConnectItemReply[], ok: true } | { ok: false }
 
+export enum TonConnectAuthType {
+    Qr = 'qr',
+    Callback = 'callback',
+    Link = 'link'
+}
+
 export type TonConnectAuthProps = {
     query: ConnectQrQuery,
-    type: 'qr'
+    type: TonConnectAuthType.Qr,
 } | {
-    type: 'callback',
+    type: TonConnectAuthType.Callback,
     protocolVersion: number,
     request: ConnectRequest,
     callback: (result: TonConnectAuthResult) => void
+} | {
+    type: TonConnectAuthType.Link,
+    query: ConnectQrQuery
 }
 
 export const TonConnectAuthenticateFragment = fragment(() => {

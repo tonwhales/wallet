@@ -293,8 +293,14 @@ export type LocalizationSchema = {
         addNew: string,
         tonConnect: {
             errors: {
-                connection: string
-            }
+                connection: string,
+                invalidKey: string,
+                invalidSession: string,
+                invalidTestnetFlag: string,
+                alreadyCompleted: string,
+                unknown: string
+            },
+            successAuth: string
         },
         accounts: string,
         services: string,

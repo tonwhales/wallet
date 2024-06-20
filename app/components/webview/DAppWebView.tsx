@@ -164,7 +164,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
                 if (method === 'getLastAuthTime') {
                     dispatchLastAuthTimeResponse(ref as RefObject<WebView>, getLastAuthTimestamp() || 0);
-                    return;
                 } else if (method === 'authenticate') {
                     (async () => {
                         let authenicated = false;

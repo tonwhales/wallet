@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { createLogger, warn } from '../utils/log';
 import { SessionCrypto } from '@tonconnect/protocol';
@@ -11,6 +11,7 @@ import { useAppsConnections } from './hooks/dapps/useAppConnections';
 const logger = createLogger('tonconnect');
 
 export function useTonconnectWatcher() {
+    const [session, setSession] = useState(0);
     const connectionsMap = useAppsConnections();
     const connections = useMemo(() => {
         return Object.values(connectionsMap).reduce((acc, item) => {
@@ -55,6 +56,8 @@ export function useTonconnectWatcher() {
 
         watcher.addEventListener('error', (event) => {
             warn('sse connect: error' + JSON.stringify(event));
+            // set new session to force close connection & reconnect on error
+            setSession(session + 1);
         });
 
         return () => {
@@ -66,5 +69,5 @@ export function useTonconnectWatcher() {
                 logger.log('sse close');
             }
         };
-    }, [handleMessage, connections]);
+    }, [handleMessage, connections, session]);
 }

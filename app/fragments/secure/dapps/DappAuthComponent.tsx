@@ -26,10 +26,10 @@ import { Address } from "@ton/core";
 import Collapsible from "react-native-collapsible";
 import Animated, { FadeOutDown } from "react-native-reanimated";
 import { KnownWallets } from "../../../secure/KnownWallets";
+import { normalizeUrl } from "../../../utils/resolveUrl";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
-import { normalizeUrl } from "../../../utils/resolveUrl";
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -96,6 +96,7 @@ export const DappAuthComponent = memo(({
         }), [appState]);
 
     const [showMore, setShowMore] = useState(appState.addresses.length > 2 ? false : true);
+    const [isApproving, setIsApproving] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState(getCurrentAddress());
 
     const onAddressSelected = useCallback((address: Address) => {
@@ -106,7 +107,12 @@ export const DappAuthComponent = memo(({
     }, [appState]);
 
     const doApprove = useCallback(async () => {
-        await onApprove(selectedAccount);
+        setIsApproving(true);
+        try {
+            await onApprove(selectedAccount);
+        } finally {
+            setIsApproving(false);
+        }
     }, [selectedAccount, onApprove]);
 
     const iconUrl = useMemo(() => {
@@ -379,9 +385,9 @@ export const DappAuthComponent = memo(({
                         <RoundButton
                             style={{ marginBottom: 16, flex: 1 }}
                             title={t('common.connect')}
-                            disabled={state.type !== 'initing'}
+                            disabled={state.type !== 'initing' || isApproving}
                             action={doApprove}
-                            loading={state.type === 'loading'}
+                            loading={state.type === 'loading' || isApproving}
                         />
                     </View>
                 </View>

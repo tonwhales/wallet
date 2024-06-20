@@ -292,7 +292,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tonConnect: {
             errors: {
                 connection: 'Connection error',
-            }
+                invalidKey: 'Invalid dApp key',
+                invalidSession: 'Invalid session',
+                invalidTestnetFlag: 'Invalid network',
+                alreadyCompleted: 'Request already completed',
+                unknown: 'Unknown error, please try again, or contact support'
+            },
+            successAuth: 'Authorization request approved',
         },
         accounts: 'Tokens',
         services: 'Extensions',

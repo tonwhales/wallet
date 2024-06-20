@@ -57,7 +57,9 @@ export function useTonconnectWatcher() {
         watcher.addEventListener('error', (event) => {
             warn('sse connect: error' + JSON.stringify(event));
             // set new session to force close connection & reconnect on error
-            setSession(session + 1);
+            if (session < 1000) { // limit to 1000 reconnects (to avoid infinite loop)
+                setSession(session + 1);
+            }
         });
 
         return () => {

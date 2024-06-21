@@ -38,6 +38,7 @@ import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/Force
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
+import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
 
 const TxAvatar = memo(({
     address,
@@ -178,7 +179,7 @@ export const TransferSingleView = memo(({
         if (isTargetLedger) {
             return 'ledger';
         }
-        
+
         if (targetContract?.kind === 'dedust-vault') {
             return 'dedust';
         }
@@ -247,6 +248,29 @@ export const TransferSingleView = memo(({
         master: jetton?.master?.toString({ testOnly: isTestnet })
     });
 
+    const holdersOp = useMemo<null | HoldersOp>(() => {
+        if (!operation?.op) {
+            return null;
+        }
+
+        if (operation.op.res === 'known.holders.accountTopUp') {
+            return {
+                type: 'topUp',
+                amount: operation.op.options.amount
+            };
+        } else if (operation.op.res === 'known.holders.accountJettonTopUp') {
+            return { type: 'jettonTopUp' };
+        } else if (operation.op.res === 'known.holders.accountLimitsChange') {
+            const onetime = operation.op.options.onetime === '0' ? null : operation.op.options.onetime;
+            const daily = operation.op.options.daily === '0' ? null : operation.op.options.daily;
+            const monthly = operation.op.options.monthly === '0' ? null : operation.op.options.monthly;
+
+            return { type: 'limitsChange', onetime, daily, monthly };
+        }
+
+        return null;
+    }, [operation?.op]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <ScrollView
@@ -291,7 +315,7 @@ export const TransferSingleView = memo(({
                             </View>
                         </View>
                     )}
-                    <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
+                    <ItemGroup style={{ marginBottom: holdersOp ? 0 : 16, marginTop: 16, paddingTop: 27 }}>
                         <View style={{
                             backgroundColor: theme.divider,
                             height: 54,
@@ -372,7 +396,15 @@ export const TransferSingleView = memo(({
                         )}
                     </ItemGroup>
 
-                    <ItemGroup style={{ marginBottom: 16 }}>
+                    {!!holdersOp && (
+                        <HoldersOpView
+                            theme={theme}
+                            op={holdersOp}
+                            targetKind={targetContract?.kind}
+                        />
+                    )}
+
+                    <ItemGroup style={{ marginBottom: 16, marginTop: holdersOp ? 16 : 0 }}>
                         <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                             <Text style={{
                                 fontSize: 13, lineHeight: 18, fontWeight: '400',
@@ -557,50 +589,6 @@ export const TransferSingleView = memo(({
                                             {t(operation.op.res, operation.op.options)}
                                         </Text>
                                     </View>
-                                    {operation.op.res === 'known.holders.limitsChange' && (
-                                        <>
-                                            {!!operation.op.options.onetime && (
-                                                <>
-                                                    <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
-                                                            {t('known.holders.limitsOneTime')}
-                                                        </PerfText>
-                                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                            {`${operation.op.options.onetime} TON`}
-                                                        </PerfText>
-                                                    </PerfView>
-                                                    {(!!operation.op.options.daily || !!operation.op.options.monthly) && (
-                                                        <ItemDivider marginHorizontal={0} />
-                                                    )}
-                                                </>
-                                            )}
-                                            {!!operation.op.options.daily && (
-                                                <>
-                                                    <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
-                                                            {t('known.holders.limitsDaily')}
-                                                        </PerfText>
-                                                        <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                            {`${operation.op.options.daily} TON`}
-                                                        </PerfText>
-                                                    </PerfView>
-                                                    {!!operation.op.options.monthly && (
-                                                        <ItemDivider marginHorizontal={0} />
-                                                    )}
-                                                </>
-                                            )}
-                                            {!!operation.op.options.monthly && (
-                                                <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
-                                                    <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
-                                                        {t('known.holders.limitsMonthly')}
-                                                    </PerfText>
-                                                    <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                        {`${operation.op.options.monthly} TON`}
-                                                    </PerfText>
-                                                </PerfView>
-                                            )}
-                                        </>
-                                    )}
                                 </View>
                             </>
                         )}

@@ -3,5 +3,5 @@ import { useSortedHintsWatcher } from "../engine/hooks/jettons/useSortedHintsWat
 
 export const SortedHintsWatcher = memo(({ owner }: { owner?: string}) => {
     useSortedHintsWatcher(owner);
-    return <></>;
+    return null;
 });

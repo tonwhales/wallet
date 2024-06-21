@@ -73,7 +73,7 @@ export const PriceComponent = memo((
     }
 
     if (!price) {
-        return <></>;
+        return null;
     }
 
     return (

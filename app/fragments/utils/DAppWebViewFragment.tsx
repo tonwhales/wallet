@@ -108,7 +108,16 @@ export const DAppWebViewFragment = fragment(() => {
 
         // Secondary protection
         let prt = protectNavigation(event.url, url);
-        if (prt || safeMode) {
+
+        let isTg = false;
+
+        try {
+            isTg = new URL(event.url).protocol === 'tg:';
+        } catch { 
+            // ignore
+        }
+
+        if (prt || (safeMode && !isTg)) {
             return true;
         }
 

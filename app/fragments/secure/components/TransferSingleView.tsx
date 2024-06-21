@@ -26,19 +26,16 @@ import { toBnWithDecimals } from "../../../utils/withDecimals";
 import { avatarHash } from "../../../utils/avatarHash";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { Typography } from "../../../components/styles";
-import { ItemDivider } from "../../../components/ItemDivider";
-import { PerfText } from "../../../components/basic/PerfText";
-import { PerfView } from "../../../components/basic/PerfView";
 import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 import { copyText } from "../../../utils/copyText";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { ThemeType } from "../../../engine/state/theme";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
+import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
-import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
 
 const TxAvatar = memo(({
     address,

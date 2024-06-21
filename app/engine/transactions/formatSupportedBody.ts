@@ -41,7 +41,7 @@ export function formatSupportedBody(supportedMessage: SupportedMessage): { res: 
         const monthly = supportedMessage.data.monthly;
 
         return {
-            res: 'known.holders.limitsChange',
+            res: 'known.holders.accountLimitsChange',
             options: {
                 onetime: onetime === 0n ? undefined : fromNano(onetime),
                 daily: daily === 0n ? undefined : fromNano(daily),

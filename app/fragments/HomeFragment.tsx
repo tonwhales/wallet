@@ -28,6 +28,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../components/styles';
 import { TransactionDescription } from '../engine/types';
 import { useParams } from '../utils/useParams';
+import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
 
 const Tab = createBottomTabNavigator();
 
@@ -47,7 +48,11 @@ export const HomeFragment = fragment(() => {
     const loader = useGlobalLoader()
     const [tonXRequest,] = useCurrentJob();
     const [tonconnectRequests,] = useConnectPendingRequests();
-    const linkNavigator = useLinkNavigator(network.isTestnet, { marginBottom: Platform.select({ ios: 32 + 64, android: 16 })});
+    const linkNavigator = useLinkNavigator(
+        network.isTestnet,
+        { marginBottom: Platform.select({ ios: 32 + 64, android: 16 }) },
+        TonConnectAuthType.Link
+    );
 
     const [curve, setCurve] = useState<number | undefined>(undefined);
 

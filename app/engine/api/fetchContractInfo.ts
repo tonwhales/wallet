@@ -11,6 +11,8 @@ const contractKindCodec = z.enum([
     'dedust-vault'
 ]);
 
+export type ContractKind = z.infer<typeof contractKindCodec>;
+
 const contractInfoCodec = z.object({
     name: z.string(),
     kind: contractKindCodec.optional(),

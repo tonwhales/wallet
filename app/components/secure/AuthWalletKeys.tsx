@@ -13,10 +13,22 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { PERMISSIONS, check, openSettings, request } from 'react-native-permissions';
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useBiometricsState, useSelectedAccount, useSetBiometricsState, useTheme } from '../../engine/hooks';
+import { useBiometricsState, useSetBiometricsState, useTheme } from '../../engine/hooks';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { CloseButton } from '../navigation/CloseButton';
 import { SelectedAccount } from '../../engine/types';
+
+export const lastAuthKey = 'lastAuthenticationAt';
+
+// Save last successful auth time
+function updateLastAuthTimestamp() {
+    storage.set(lastAuthKey, Date.now());
+}
+
+// Get last successful auth time
+export function getLastAuthTimestamp() {
+    return storage.getNumber(lastAuthKey);
+}
 
 type EnteringAnimation = BaseAnimationBuilder
     | typeof BaseAnimationBuilder
@@ -149,6 +161,9 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                 if (biometricsState === null) {
                     setBiometricsState(BiometricsState.InUse);
                 }
+
+                updateLastAuthTimestamp();
+
                 return keys;
             } catch (e) {
                 if (e instanceof SecureAuthenticationCancelledError) {
@@ -233,7 +248,13 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         // Fallback to passcode if biometrics is not set or unavailable (checked before)
         if (passcodeState === PasscodeState.Set) {
             return new Promise<WalletKeys>((resolve, reject) => {
-                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics, passcodeLength } });
+
+                const resolveWithTimestamp = async (keys: WalletKeys) => {
+                    updateLastAuthTimestamp();
+                    resolve(keys);
+                };
+
+                setAuth({ returns: 'keysOnly', promise: { resolve: resolveWithTimestamp, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics, passcodeLength } });
             });
         }
 
@@ -258,7 +279,16 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
-            setAuth({ returns: 'keysWithPasscode', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics: false, passcodeLength } });
+
+            const resolveWithTimestamp = async (res: {
+                keys: WalletKeys;
+                passcode: string;
+            }) => {
+                updateLastAuthTimestamp();
+                resolve(res);
+            }
+
+            setAuth({ returns: 'keysWithPasscode', promise: { resolve: resolveWithTimestamp, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics: false, passcodeLength } });
         });
     }, [auth]);
 

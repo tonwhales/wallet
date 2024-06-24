@@ -36,7 +36,7 @@ import { AddressComponent } from "../../components/address/AddressComponent";
 import { avatarHash } from "../../utils/avatarHash";
 import { PreviewMessages } from "./views/preview/PreviewMessages";
 import { BatchAvatars } from "../../components/avatar/BatchAvatars";
-import { HoldersOpType, HoldersOpView } from "../../components/transfer/HoldersOpView";
+import { HoldersOp, HoldersOpView } from "../../components/transfer/HoldersOpView";
 import { previewToTransferParams } from "../../utils/toTransferParams";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
@@ -150,12 +150,12 @@ const TransactionPreview = () => {
     const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
         if (targetContract?.kind === 'dedust-vault') {
             return 'dedust';
-        } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') { 
+        } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
     }, [targetContract]);
 
-    const holdersOp = useMemo<null | HoldersOpType>(
+    const holdersOp = useMemo<null | HoldersOp>(
         () => {
             if (!operation.op) {
                 return null;
@@ -465,6 +465,7 @@ const TransactionPreview = () => {
                     <HoldersOpView
                         theme={theme}
                         op={holdersOp}
+                        targetKind={targetContract?.kind}
                     />
                 )}
                 {

@@ -18,12 +18,15 @@ import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
 import { createBackoff } from './utils/time';
 import { getQueryData } from './engine/utils/getQueryData';
 import { StoredTransaction } from './engine/types';
+import { TonConnectAuthType } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
+import { warn } from './utils/log';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
 export function useLinkNavigator(
     isTestnet: boolean,
-    toastProps?: { duration?: ToastDuration, marginBottom?: number }
+    toastProps?: { duration?: ToastDuration, marginBottom?: number },
+    tonconnectType: TonConnectAuthType = TonConnectAuthType.Qr
 ) {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
@@ -136,7 +139,11 @@ export function useLinkNavigator(
             });
         }
         if (resolved.type === 'tonconnect') {
-            navigation.navigate('TonConnectAuthenticate', { query: resolved.query, type: 'qr' });
+            if (tonconnectType === TonConnectAuthType.Qr || tonconnectType === TonConnectAuthType.Link) {
+                navigation.navigateConnectAuth({ query: resolved.query, type: tonconnectType });
+            } else { // Callback only support in injectedBridge
+                warn(`Unsupported TonConnectAuthType ${tonconnectType}`);
+            }
         }
         if (resolved.type === 'install') {
             navigation.navigate('Install', {
@@ -226,7 +233,7 @@ export function useLinkNavigator(
                             if (index === -1) {
                                 // Select new address
                                 updateAppState({ ...appState, selected: index }, isTestnet);
-    
+
                                 // navigate to home with tx to be opened after
                                 navigation.navigateAndReplaceHome({ navigateTo: { type: 'tx', transaction } });
                             }

@@ -16,7 +16,7 @@ import { AddressBookLoader } from './engine/AddressBookContext';
 import { ThemeProvider } from './engine/ThemeContext';
 import { PriceLoader } from './engine/PriceContext';
 
-const PERSISTANCE_VERSION = '22';
+const PERSISTANCE_VERSION = '23';
 
 LogBox.ignoreAllLogs()
 

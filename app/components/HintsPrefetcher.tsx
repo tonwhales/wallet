@@ -8,5 +8,5 @@ export function HintsPrefetcher() {
     
     usePrefetchHints(client, selected?.addressString);
     
-    return <></>;
+    return null;
 }

@@ -291,8 +291,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "addNew": "Добавить новый продукт",
         "tonConnect": {
             "errors": {
-                "connection": "Ошибка соединения"
-            }
+                "connection": "Ошибка соединения",
+                "invalidKey": "Неверный dApp ключ",
+                "invalidSession": "Неверная сессия",
+                "invalidTestnetFlag": "Неверная сеть",
+                "alreadyCompleted": "Запрос уже выполнен",
+                "unknown": "Неизвестная ошибка, попробуйте еще раз или обратитесь в службу поддержки"
+            },
+            "successAuth": "Подключение выполнено успешно",
         },
         "accounts": "Жетоны",
         "services": "Расширения",

@@ -3,6 +3,22 @@ import { MIN_PROTOCOL_VERSION } from './config';
 import { WebViewBridgeMessageType } from './types';
 import { storage } from '../../storage/storage';
 import { getCurrentAddress } from '../../storage/appState';
+import { t } from '../../i18n/t';
+
+export function resolveAuthError(error: Error) {
+  switch ((error as Error)?.message) {
+    case 'Invalid key':
+        return t('products.tonConnect.errors.invalidKey');
+    case 'Invalid session':
+        return t('products.tonConnect.errors.invalidSession');
+    case 'Invalid testnet flag':
+        return t('products.tonConnect.errors.invalidTestnetFlag');
+    case 'Already completed':
+        return t('products.tonConnect.errors.alreadyCompleted');
+    default:
+        return t('products.tonConnect.errors.unknown');
+}
+}
 
 export function setLastEventId(lastEventId: string) {
   const selected = getCurrentAddress().addressString;

@@ -33,8 +33,9 @@ import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { RoundButton } from "../../components/RoundButton";
 import { pendingTxToTransferParams } from "../../utils/toTransferParams";
-import { HoldersOpType, HoldersOpView } from "../../components/transfer/HoldersOpView";
+import { HoldersOp, HoldersOpView } from "../../components/transfer/HoldersOpView";
 import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
+import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 
 export type PendingTxPreviewParams = {
     transaction: PendingTransaction;
@@ -89,6 +90,7 @@ const PendingTxPreview = () => {
     const isOwn = appState.addresses.findIndex((a) => a.address.toString({ testOnly: isTestnet }) === opAddress) >= 0;
 
     const { verified } = useVerifyJetton({ master: opAddress });
+    const targetContract = useContractInfo(opAddress || '');
     const knownWallet = knownWallets[opAddress ?? ''];
     const contact = addressBook.asContact(opAddress);
     const isSpam = addressBook.isDenyAddress(opAddress);
@@ -169,7 +171,7 @@ const PendingTxPreview = () => {
         decimals: tx.body?.type === 'token' && jetton ? jetton.decimals : undefined,
     });
 
-    const holdersOp = useMemo<null | HoldersOpType>(() => {
+    const holdersOp = useMemo<null | HoldersOp>(() => {
         if (params.forceAvatar !== 'holders') {
             return null;
         }
@@ -331,6 +333,7 @@ const PendingTxPreview = () => {
                     <HoldersOpView
                         theme={theme}
                         op={holdersOp}
+                        targetKind={targetContract?.kind}
                     />
                 )}
                 {!(dontShowComments && isSpam) && !!comment && (

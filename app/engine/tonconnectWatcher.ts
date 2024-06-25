@@ -63,8 +63,6 @@ export function useTonconnectWatcher() {
             }
         });
 
-        watcher.open();
-
         return () => {
             if (watcher) {
                 watcher.removeAllEventListeners();

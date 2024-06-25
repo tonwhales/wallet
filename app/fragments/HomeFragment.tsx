@@ -166,6 +166,8 @@ export const HomeFragment = fragment(() => {
     useEffect(() => {
         if (navigateTo?.type === 'tx') {
             navigation.navigate('Transaction', { transaction: navigateTo.transaction });
+        } else if (navigateTo?.type === 'tonconnect-request') {
+            navigation.navigateTransfer(navigateTo.request);
         }
     }, []);
 

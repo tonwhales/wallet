@@ -94,6 +94,7 @@ import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
 import { SortedHintsWatcher } from './components/SortedHintsWatcher';
 import { PendingTxsWatcher } from './components/PendingTxsWatcher';
+import { TonconnectWatcher } from './components/TonconnectWatcher';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -409,9 +410,6 @@ export const Navigation = memo(() => {
     // Watch blocks
     useBlocksWatcher();
 
-    // Watch for TonConnect requests
-    useTonconnectWatcher();
-
     // Watch for holders updates
     useHoldersWatcher();
 
@@ -441,6 +439,7 @@ export const Navigation = memo(() => {
             <HintsPrefetcher />
             <SortedHintsWatcher owner={selected} />
             <PendingTxsWatcher />
+            <TonconnectWatcher />
             <Splash hide={hideSplash} />
         </View>
     );

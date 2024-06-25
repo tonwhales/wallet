@@ -313,6 +313,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             wrongNetwork: 'Wrong network',
             wrongFrom: 'Wrong sender',
             invalidFrom: 'Invalid sender address',
+            noConnection: 'App is not connected',
+            expired: 'Request expired',
+            failedToReport: 'Transaction is sent but failed to report back to the app',
+            failedToReportCanceled: 'Transaction is canceled but failed to report back to the app'
         },
         signatureRequest: {
             title: 'Signature requested',

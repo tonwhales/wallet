@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { createLogger, warn } from '../utils/log';
 import { SessionCrypto } from '@tonconnect/protocol';
@@ -20,10 +20,13 @@ export function useTonconnectWatcher() {
         }, [] as ConnectedAppConnection[]).filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
     }, [connectionsMap]);
 
-    const handleMessage = useHandleMessage(
-        connections.filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[],
-        logger
-    );
+    const handleMessage = useHandleMessage(connections, logger);
+
+    const handleMessageRef = useRef(handleMessage);
+
+    useEffect(() => {
+        handleMessageRef.current = handleMessage;
+    }, [handleMessage]);
 
     useEffect(() => {
         if (connections.length === 0) {
@@ -39,12 +42,10 @@ export function useTonconnectWatcher() {
         }
 
         let watcher: EventSource | null = new EventSource(url);
-        watcher.addEventListener(
-            'message',
-            (event) => {
-                handleMessage(event as MessageEvent);
-            }
-        );
+        watcher.addEventListener('message', (event) => {
+            logger.log('new event: ' + event.type);
+            handleMessageRef.current(event as MessageEvent);
+        });
 
         watcher.addEventListener('open', () => {
             logger.log('sse connect: opened');
@@ -62,6 +63,8 @@ export function useTonconnectWatcher() {
             }
         });
 
+        watcher.open();
+
         return () => {
             if (watcher) {
                 watcher.removeAllEventListeners();
@@ -71,5 +74,5 @@ export function useTonconnectWatcher() {
                 logger.log('sse close');
             }
         };
-    }, [handleMessage, connections, session]);
+    }, [connections, session]);
 }

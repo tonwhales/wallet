@@ -312,7 +312,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "groupTitle": "Запросы на подтверждение",
             "wrongNetwork": "Неверная сеть",
             "wrongFrom": "Неверный адрес отправителя",
-            "invalidFrom": "Невалидный адрес отправителя"
+            "invalidFrom": "Невалидный адрес отправителя",
+            "noConnection": "Приложение не подключено",
+            "expired": "Запрос истек",
+            "failedToReport": "Транзакция отправлена, но не удалось ответить приложению",
+            "failedToReportCanceled": "Транзакция отменена, но не удалось ответить приложению"
         },
         "signatureRequest": {
             "title": "Запрос на подпись",

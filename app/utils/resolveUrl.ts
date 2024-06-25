@@ -45,7 +45,7 @@ export type ResolvedUrl = {
     type: 'tonconnect',
     query: ConnectQrQuery
 } | {
-    type: 'tonconnect-tx',
+    type: 'tonconnect-request',
     query: ConnectPushQuery
 } | {
     type: 'tx',
@@ -346,7 +346,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         // Tonconnect
         if (url.protocol.toLowerCase() === 'tc:') {
             if (
-                url.host === 'sendTransaction'
+                url.host === 'sendtransaction'
                 && !!url.query.message
                 && !!url.query.from
                 && !!url.query.validUntil
@@ -357,7 +357,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                 const to = decodeURIComponent(url.query.to);
                 const message = decodeURIComponent(url.query.message);
                 return {
-                    type: 'tonconnect-tx',
+                    type: 'tonconnect-request',
                     query: { validUntil, from, to, message }
                 };
             } else if (!!url.query.r && !!url.query.v && !!url.query.id) {

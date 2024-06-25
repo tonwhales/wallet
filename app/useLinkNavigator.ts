@@ -230,7 +230,9 @@ export function useLinkNavigator(
                             const address = Address.parse(resolved.address);
                             const index = appState.addresses.findIndex((a) => a.address.equals(address));
 
-                            if (index === -1) {
+
+                            // If address is found, select it
+                            if (index !== -1) {
                                 // Select new address
                                 updateAppState({ ...appState, selected: index }, isTestnet);
 

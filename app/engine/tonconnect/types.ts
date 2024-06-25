@@ -20,6 +20,13 @@ export interface ConnectQrQuery {
   ret: ReturnStrategy;
 }
 
+export interface ConnectPushQuery {
+  validUntil: number;
+  from: string;
+  to: string;
+  message: string;
+}
+
 export type ReturnStrategy = 'back' | 'none' | string;
 
 export interface SignRawMessage {

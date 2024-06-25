@@ -89,7 +89,7 @@ function storeConnectionsState(address: string, state: { [key: string]: Connecte
 export type ConnectionsMap = { [appKey: string]: ConnectedAppConnection[] }
 export type FullConnectionsMap = { [address: string]: ConnectionsMap }
 
-function getFullConnectionsMap() {
+export function getFullConnectionsMap() {
   let res: FullConnectionsMap = {};
   const appState = getAppState();
 
@@ -210,7 +210,7 @@ export const pendingRequestsSelector = selector<SendTransactionRequest[]>({
 
 const connectExtensionsKey = 'tonconnect.extensions';
 
-function getStoredConnectExtensions(address?: string) {
+export function getStoredConnectExtensions(address?: string): ConnectedAppsMap {
   if (!address) {
     return {};
   }

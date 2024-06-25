@@ -29,6 +29,7 @@ import { Typography } from '../components/styles';
 import { TransactionDescription } from '../engine/types';
 import { useParams } from '../utils/useParams';
 import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
+import { TransferFragmentProps } from './secure/TransferFragment';
 
 const Tab = createBottomTabNavigator();
 
@@ -36,6 +37,9 @@ export type HomeFragmentProps = {
     navigateTo?: {
         type: 'tx',
         transaction: TransactionDescription
+    } | {
+        type: 'tonconnect-request',
+        request: TransferFragmentProps
     }
 };
 
@@ -162,6 +166,8 @@ export const HomeFragment = fragment(() => {
     useEffect(() => {
         if (navigateTo?.type === 'tx') {
             navigation.navigate('Transaction', { transaction: navigateTo.transaction });
+        } else if (navigateTo?.type === 'tonconnect-request') {
+            navigation.navigateTransfer(navigateTo.request);
         }
     }, []);
 

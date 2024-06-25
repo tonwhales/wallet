@@ -3,7 +3,7 @@ import Url from 'url-parse';
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
-import { ConnectQrQuery } from "../engine/tonconnect/types";
+import { ConnectPushQuery, ConnectQrQuery } from "../engine/tonconnect/types";
 
 export enum ResolveUrlError {
     InvalidAddress = 'InvalidAddress',
@@ -44,6 +44,9 @@ export type ResolvedUrl = {
 } | {
     type: 'tonconnect',
     query: ConnectQrQuery
+} | {
+    type: 'tonconnect-request',
+    query: ConnectPushQuery
 } | {
     type: 'tx',
     address: string,
@@ -342,12 +345,28 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         }
         // Tonconnect
         if (url.protocol.toLowerCase() === 'tc:') {
-            if (!!url.query.r && !!url.query.v && !!url.query.id) {
+            if (
+                url.host === 'sendtransaction'
+                && !!url.query.message
+                && !!url.query.from
+                && !!url.query.validUntil
+                && !!url.query.to
+            ) {
+                const validUntil = parseInt(decodeURIComponent(url.query.validUntil));
+                const from = decodeURIComponent(url.query.from);
+                const to = decodeURIComponent(url.query.to);
+                const message = decodeURIComponent(url.query.message);
+                return {
+                    type: 'tonconnect-request',
+                    query: { validUntil, from, to, message }
+                };
+            } else if (!!url.query.r && !!url.query.v && !!url.query.id) {
                 return {
                     type: 'tonconnect',
                     query: url.query as unknown as ConnectQrQuery
                 };
             }
+
         }
 
     } catch (e) {

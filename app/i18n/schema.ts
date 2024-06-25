@@ -315,6 +315,10 @@ export type LocalizationSchema = {
             wrongNetwork: string,
             wrongFrom: string,
             invalidFrom: string,
+            noConnection: string,
+            expired: string,
+            failedToReport: string,
+            failedToReportCanceled: string,
         },
         signatureRequest: {
             title: string,

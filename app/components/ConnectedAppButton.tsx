@@ -62,7 +62,7 @@ export const ConnectedAppButton = memo(({
             padding: 10
         }}>
             <WImage
-                heigh={42}
+                height={42}
                 width={42}
                 src={app?.type === 'app-data' ? app?.image?.preview256 : app?.iconUrl}
                 blurhash={app?.type === 'app-data' ? app?.image?.blurhash : undefined}

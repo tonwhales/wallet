@@ -17,7 +17,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
     const isPressed = useRef(false);
     const [activeSlide, setActiveSlide] = useState(0);
 
-    const [scrollViewWidth, setScrollViewWidth] = useState(0);
+    const scrollViewWidth = dimensions.screen.width
     const boxWidth = scrollViewWidth * 0.85;
     const boxDistance = scrollViewWidth - boxWidth;
     const halfBoxDistance = boxDistance / 2;
@@ -72,9 +72,6 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
             onScrollBeginDrag={() => isPressed.current = true}
             onScrollEndDrag={() => isPressed.current = false}
             contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
-            onLayout={(e) => {
-                setScrollViewWidth(e.nativeEvent.layout.width);
-            }}
             snapToAlignment={'center'}
             keyExtractor={(item, index) => `banner-${index}-${item.id}`}
             onScroll={(e) => {

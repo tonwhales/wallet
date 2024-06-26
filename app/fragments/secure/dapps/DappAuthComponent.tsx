@@ -218,7 +218,7 @@ export const DappAuthComponent = memo(({
                         flexDirection: 'row',
                     }}>
                         <WImage
-                            heigh={72}
+                            height={72}
                             width={72}
                             src={iconUrl}
                             borderRadius={16}

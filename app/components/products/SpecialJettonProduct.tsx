@@ -101,7 +101,7 @@ export const SpecialJettonProduct = memo(({
                     <WImage
                         requireSource={require('@assets/known/ic-usdt.png')}
                         width={46}
-                        heigh={46}
+                        height={46}
                         borderRadius={23}
                     />
                     <View style={{

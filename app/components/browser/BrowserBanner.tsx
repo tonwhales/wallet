@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
-import { View, Text, Image, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from "react-native-reanimated";
 import { ThemeType } from "../../engine/state/theme";
 import { Typography } from "../styles";
@@ -8,6 +8,7 @@ import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { extractDomain } from "../../engine/utils/extractDomain";
+import { Image } from 'expo-image'
 
 export const BrowserBanner = memo(({
     banner,
@@ -111,10 +112,19 @@ export const BrowserBanner = memo(({
                 onPress={onPress}
             >
                 <Image
-                    height={boxWidth / 2}
-                    width={boxWidth}
                     source={{ uri: banner.image_url || undefined }}
-                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 20 }}
+                    placeholder={require('@assets/banners/banner-placeholder.webp')}
+                    transition={{
+                        duration: 150,
+                        timing: 'ease-in-out',
+                        effect: 'cross-dissolve'
+                    }}
+                    style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        borderRadius: 20,
+                        height: boxWidth / 2,
+                        width: boxWidth,
+                    }}
                 />
                 {(banner.title || banner.description || banner.icon_url) && (
                     <View style={{
@@ -145,10 +155,14 @@ export const BrowserBanner = memo(({
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             {banner.icon_url && (
                                 <Image
-                                    height={54}
-                                    width={54}
                                     source={{ uri: banner.icon_url || undefined }}
-                                    style={{ borderRadius: 10, marginRight: 8 }}
+                                    style={{ borderRadius: 10, marginRight: 8, height: 54, width: 54 }}
+                                    placeholder={require('@assets/banners/banner-icon-placeholder.webp')}
+                                    transition={{
+                                        duration: 150,
+                                        timing: 'ease-in-out',
+                                        effect: 'cross-dissolve'
+                                    }}
                                 />
                             )}
                             <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>

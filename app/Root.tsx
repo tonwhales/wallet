@@ -15,8 +15,11 @@ import { LogBox } from 'react-native';
 import { AddressBookLoader } from './engine/AddressBookContext';
 import { ThemeProvider } from './engine/ThemeContext';
 import { PriceLoader } from './engine/PriceContext';
+import { migrateDontShowComments } from './engine/state/spam';
 
 const PERSISTANCE_VERSION = '23';
+// set default value for spam comments
+migrateDontShowComments();
 
 LogBox.ignoreAllLogs()
 

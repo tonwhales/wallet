@@ -34,6 +34,10 @@ export const HoldersAccounts = memo(({
         return reduceHoldersBalances(accs, price?.price?.usd ?? 0);
     }, [accs, price?.price?.usd]);
 
+    if (accs.length === 0) {
+        return null;
+    }
+
     if (accs.length < 3) {
         return (
             <View style={{ paddingHorizontal: 16 }}>

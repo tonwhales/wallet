@@ -220,7 +220,7 @@ export const QRCode = memo((props: {
                     src={props.icon?.preview256}
                     blurhash={props.icon?.blurhash}
                     width={46}
-                    heigh={46}
+                    height={46}
                     borderRadius={23}
                     lockLoading
                 />}

@@ -428,7 +428,7 @@ export const TransferBatch = memo((props: Props) => {
             }} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <WImage
-                    heigh={68}
+                    height={68}
                     width={68}
                     borderRadius={34}
                 />
@@ -470,7 +470,7 @@ export const TransferBatch = memo((props: Props) => {
                 }} />
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <WImage
-                        heigh={68}
+                        height={68}
                         width={68}
                         borderRadius={34}
                         src={app.type === 'app-data' ? app.image?.preview256 : app.iconUrl}
@@ -573,7 +573,7 @@ export const TransferBatch = memo((props: Props) => {
                                             src={value[1].jettonMaster.image?.preview256}
                                             blurhash={value[1].jettonMaster.image?.blurhash}
                                             width={48}
-                                            heigh={48}
+                                            height={48}
                                             borderRadius={24}
                                         />
                                     </View>

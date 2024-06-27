@@ -107,7 +107,7 @@ export const ConnectionButton = memo((
                     animatedStyle
                 ]}>
                     <WImage
-                        heigh={56}
+                        height={56}
                         width={56}
                         src={app?.type === 'app-data' ? app?.image?.preview256 : app?.iconUrl}
                         blurhash={app?.type === 'app-data' ? app?.image?.blurhash : undefined}

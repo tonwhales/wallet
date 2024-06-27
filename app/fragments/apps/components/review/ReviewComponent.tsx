@@ -92,7 +92,7 @@ export const ReviewComponent = memo(({ url }: { url: string }) => {
             >
                 <View style={{ alignItems: 'center' }}>
                     <WImage
-                        heigh={72}
+                        height={72}
                         width={72}
                         src={appData?.image?.preview256}
                         blurhash={appData?.image?.preview256}

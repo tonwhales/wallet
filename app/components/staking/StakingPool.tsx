@@ -166,7 +166,7 @@ export const StakingPool = memo((props: {
                             <WImage
                                 requireSource={requireSource}
                                 width={44}
-                                heigh={44}
+                                height={44}
                                 borderRadius={22}
                                 style={{ backgroundColor: props.iconBackgroundColor }}
                             />

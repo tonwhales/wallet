@@ -146,7 +146,7 @@ export const HoldersAccountItem = memo((props: {
                                     <WImage
                                         src={jettonMasterContent?.image?.preview256}
                                         width={46}
-                                        heigh={46}
+                                        height={46}
                                         borderRadius={46}
                                     />
                                 </View>

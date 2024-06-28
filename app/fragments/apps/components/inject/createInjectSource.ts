@@ -157,8 +157,8 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
                 callback({ erorr: 'auth.inProgress' });
                 return;
             }
-            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.getLastAuthTime' } }));
             currentCallback = callback;
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.getLastAuthTime' } }));
         }
 
         const authenicate = (callback) => {
@@ -167,10 +167,21 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
                 return;
             }
 
-            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.authenticate' } }));
             inProgress = true;
             currentCallback = callback;
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.authenticate' } }));
         };
+
+        cosnt lockAppWithAuth = (callback) => {
+            if (inProgress) {
+                callback({ authenicated: false, erorr: 'auth.inProgress' });
+                return;
+            }
+
+            inProgress = true;
+            currentCallback = callback;
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.lockAppWithAuth' } }));
+        }
 
         const __response = (ev) => {
             inProgress = false;
@@ -188,6 +199,9 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
                 } else {
                     if (!!ev.data.lastAuthTime && ev.data.authenicated === true) {
                         params.lastAuthTime = ev.data.lastAuthTime;
+                    }
+                    if (!!ev.data.isLockedByAuth && ev.data.isLockedByAuth === true) {
+                        params.isLockedByAuth = true;
                     }
                     currentCallback({ authenicated: ev.data.authenicated });
                 }
@@ -313,6 +327,11 @@ export function dispatchLastAuthTimeResponse(webRef: React.RefObject<WebView>, l
 
 export function dispatchAuthResponse(webRef: React.RefObject<WebView>, data: { authenicated: boolean, lastAuthTime?: number }) {
     let injectedMessage = `window['tonhub-auth'].__response(${JSON.stringify({ data })}); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
+}
+
+export function dispatchLockAppWithAuthResponse(webRef: React.RefObject<WebView>, data: { authenicated: boolean, lastAuthTime?: number }) {
+    let injectedMessage = `window['tonhub-auth'].__response(${JSON.stringify({ data: { ...data, isLockedByAuth: data.authenicated } })}); true;`;
     webRef.current?.injectJavaScript(injectedMessage);
 }
 

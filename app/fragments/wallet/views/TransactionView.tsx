@@ -25,6 +25,7 @@ import { TxAvatar } from './TxAvatar';
 import { PreparedMessageView } from './PreparedMessageView';
 import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo';
 import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
+import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 
 export function TransactionView(props: {
     own: Address,
@@ -73,9 +74,8 @@ export function TransactionView(props: {
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-
     const contact = contacts[parsedAddressFriendly];
-    const isSpam = !!denyList[parsedAddressFriendly]?.reason;
+    const verified = !!tx.verified;
 
     // Operation
     const op = useMemo(() => {
@@ -134,15 +134,16 @@ export function TransactionView(props: {
         known = { name: walletSettings.name }
     }
 
-    let spam =
-        !!spamWallets.find((i) => opAddress === i)
-        || isSpam
-        || (
-            absAmount < spamMinAmount
-            && !!tx.base.operation.comment
-            && !knownWallets[parsedAddressFriendly]
-            && !isTestnet
-        ) && kind !== 'out';
+    let spam = isTxSPAM(
+        tx,
+        {
+            knownWallets,
+            isDenyAddress: (addressString?: string | null) => !!denyList[addressString ?? '']?.reason,
+            spamWallets,
+            spamMinAmount,
+            isTestnet
+        }
+    );
 
 
     if (preparedMessages.length > 1) {
@@ -219,6 +220,7 @@ export function TransactionView(props: {
                         avatarColor={avatarColor}
                         knownWallets={knownWallets}
                         forceAvatar={forcedAvatar}
+                        verified={verified}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>

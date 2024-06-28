@@ -65,7 +65,7 @@ export type AvatarIcProps = {
     size?: number,
 };
 
-function resolveIc(
+export function resolveAvatarIc(
     params: {
         markContact?: boolean,
         isSpam?: boolean,
@@ -231,7 +231,7 @@ export const Avatar = memo((props: {
     }
 
     let isSpam = showSpambadge && spam;
-    let ic = resolveIc({ markContact, verified, dontShowVerified, icProps, isSpam, icPosition, icSize, known: !!known, icOutline }, theme);
+    let ic = resolveAvatarIc({ markContact, verified, dontShowVerified, icProps, isSpam, icPosition, icSize, known: !!known, icOutline }, theme);
 
     if (image) {
         img = (

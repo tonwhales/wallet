@@ -1,4 +1,4 @@
-import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, memo, MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown } from 'react-native-reanimated';
 import { Alert, Platform, StyleProp, ViewStyle } from 'react-native';
 import { SecureAuthenticationCancelledError, WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
@@ -17,11 +17,12 @@ import { useBiometricsState, useSetBiometricsState, useTheme } from '../../engin
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { CloseButton } from '../navigation/CloseButton';
 import { SelectedAccount } from '../../engine/types';
+import { useAppBlur } from '../AppBlurContext';
 
 export const lastAuthKey = 'lastAuthenticationAt';
 
 // Save last successful auth time
-function updateLastAuthTimestamp() {
+export function updateLastAuthTimestamp() {
     storage.set(lastAuthKey, Date.now());
 }
 
@@ -61,7 +62,7 @@ export type AuthProps =
 
 export type AuthWalletKeysType = {
     authenticate: (style?: AuthParams) => Promise<WalletKeys>,
-    authenticateWithPasscode: (style?: AuthParams) => Promise<{ keys: WalletKeys, passcode: string }>,
+    authenticateWithPasscode: (style?: AuthParams) => Promise<{ keys: WalletKeys, passcode: string }>
 }
 
 export async function checkBiometricsPermissions(passcodeState: PasscodeState | null): Promise<'use-passcode' | 'biometrics-setup-again' | 'biometrics-permission-check' | 'biometrics-cooldown' | 'biometrics-cancelled' | 'corrupted' | 'none'> {
@@ -128,6 +129,7 @@ export const AuthWalletKeysContext = createContext<AuthWalletKeysType | null>(nu
 export const AuthWalletKeysContextProvider = memo((props: { children?: any }) => {
     const navigation = useTypedNavigation();
     const { showActionSheetWithOptions } = useActionSheet();
+    const { setAuthInProgress } = useAppBlur();
     const safeAreaInsets = useSafeAreaInsets();
     const theme = useTheme();
     const logOutAndReset = useLogoutAndReset();
@@ -156,6 +158,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         // If biometrics are not available, shows proper alert to user or throws an error
         if (useBiometrics) {
             try {
+                setAuthInProgress(true);
                 const acc = style?.selectedAccount ?? getCurrentAddress();
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
                 if (biometricsState === null) {
@@ -242,6 +245,8 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                     // Overwise, premissionsRes: 'biometrics-cancelled' |'none' | 'use-passcode'
                     // -> Perform fallback to passcode
                 }
+            } finally {
+                setAuthInProgress(false);
             }
         }
 
@@ -251,9 +256,11 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
 
                 const resolveWithTimestamp = async (keys: WalletKeys) => {
                     updateLastAuthTimestamp();
+                    setAuthInProgress(false);
                     resolve(keys);
                 };
 
+                setAuthInProgress(true);
                 setAuth({ returns: 'keysOnly', promise: { resolve: resolveWithTimestamp, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics, passcodeLength } });
             });
         }

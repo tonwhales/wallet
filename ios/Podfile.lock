@@ -24,7 +24,7 @@ PODS:
     - ExpoModulesCore
   - Expo (49.0.21):
     - ExpoModulesCore
-  - ExpoBlur (12.4.1):
+  - ExpoBlur (12.8.0):
     - ExpoModulesCore
   - ExpoCrypto (12.4.1):
     - ExpoModulesCore
@@ -1047,7 +1047,7 @@ SPEC CHECKSUMS:
   EXImageLoader: 34b214f9387e98f3c73989f15d8d5b399c9ab3f7
   EXNotifications: 09394cbd7165f9a4a00a53328aa09bf874bae717
   Expo: 61a8e1aa94311557c137c0a4dfd4fe78281cfbb4
-  ExpoBlur: a2c90bdfa4ff9f459cdb0f83191bddf020e3e2db
+  ExpoBlur: 2e733ec3aa76653040b29a833984f128a293295a
   ExpoCrypto: a382ab9a2fa91f0b511ce1fe4d6baecee40a1615
   ExpoDevice: 1c1b0c9cad96c292c1de73948649cfd654b2b3c0
   ExpoHaptics: 360af6898407ee4e8265d30a1a8fb16491a660eb

@@ -183,6 +183,16 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     })();
                 } else if (method === 'lockAppWithAuth') {
                     (async () => {
+
+                        const isAlreadyLocked = getLockAppWithAuthState();
+                        if (isAlreadyLocked) {
+                            dispatchLockAppWithAuthResponse(
+                                ref as RefObject<WebView>,
+                                { authenicated: true, lastAuthTime: getLastAuthTimestamp() }
+                            );
+                            return;
+                        }
+
                         let authenicated = false;
                         let lastAuthTime: number | undefined;
                         // wait for auth to complete then set lockApp tag

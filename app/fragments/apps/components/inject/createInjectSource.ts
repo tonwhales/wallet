@@ -172,7 +172,7 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
             window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.authenticate' } }));
         };
 
-        cosnt lockAppWithAuth = (callback) => {
+        const lockAppWithAuth = (callback) => {
             if (inProgress) {
                 callback({ authenicated: false, erorr: 'auth.inProgress' });
                 return;
@@ -209,7 +209,7 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
             }
         }
 
-        const obj = { __AUTH_AVAILIBLE, params, authenicate, getLastAuthTime, __response };
+        const obj = { __AUTH_AVAILIBLE, params, authenicate, getLastAuthTime, lockAppWithAuth, __response };
         Object.freeze(obj);
         return obj;
     })();

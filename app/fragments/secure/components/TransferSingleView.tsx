@@ -62,7 +62,13 @@ const TxAvatar = memo(({
 }) => {
 
     if (forceAvatar) {
-        return (<ForcedAvatar type={forceAvatar} size={68} />);
+        return (
+            <ForcedAvatar
+                type={forceAvatar}
+                size={68}
+                icProps={{ position: 'bottom' }}
+            />
+        );
     }
 
     return (

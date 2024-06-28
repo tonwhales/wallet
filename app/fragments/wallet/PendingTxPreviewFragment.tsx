@@ -229,7 +229,15 @@ const PendingTxPreview = () => {
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
                     {params.forceAvatar ? (
-                        <ForcedAvatar type={params.forceAvatar} size={68} />
+                        <ForcedAvatar
+                            type={params.forceAvatar}
+                            size={68}
+                            icProps={{
+                                borderWidth: 2,
+                                position: 'bottom',
+                                size: 28
+                            }}
+                        />
                     ) : (
                         <Avatar
                             size={68}

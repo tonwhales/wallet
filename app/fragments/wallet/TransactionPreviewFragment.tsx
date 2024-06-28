@@ -40,6 +40,7 @@ import { HoldersOp, HoldersOpView } from "../../components/transfer/HoldersOpVie
 import { previewToTransferParams } from "../../utils/toTransferParams";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
+import { isTxSPAM } from "../../utils/spam/isTxSPAM";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -100,7 +101,6 @@ const TransactionPreview = () => {
     const avatarColor = avatarColors[avatarColorHash];
 
     const contact = addressBook.asContact(opAddressBounceable);
-    const isSpam = addressBook.isDenyAddress(opAddressBounceable);
 
     let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
@@ -191,15 +191,18 @@ const TransactionPreview = () => {
         known = { name: opAddressWalletSettings.name }
     }
 
+    const verified = !!tx.verified;
     const config = useServerConfig().data;
-    const spam = config?.wallets?.spam?.includes(opAddressBounceable)
-        || isSpam
-        || (
-            BigMath.abs(BigInt(tx.base.parsed.amount)) < spamMinAmount
-            && tx.base.parsed.body?.type === 'comment'
-            && !knownWallets[opAddressBounceable]
-            && !isTestnet
-        ) && tx.base.parsed.kind !== 'out';
+    const spam = isTxSPAM(
+        tx,
+        {
+            knownWallets,
+            isDenyAddress: addressBook.isDenyAddress,
+            spamWallets: config?.wallets?.spam ?? [],
+            spamMinAmount,
+            isTestnet
+        }
+    );
 
     const participants = useMemo(() => {
         const appState = getAppState();
@@ -260,8 +263,6 @@ const TransactionPreview = () => {
         master: jettonMaster
     });
 
-    const verified = !!tx.verified || verifiedJetton;
-
     return (
         <PerfView
             style={{
@@ -293,7 +294,15 @@ const TransactionPreview = () => {
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
                     {!!forceAvatar ? (
-                        <ForcedAvatar type={forceAvatar} size={68} />
+                        <ForcedAvatar
+                            type={forceAvatar}
+                            size={68}
+                            icProps={{
+                                borderWidth: 2,
+                                position: 'bottom',
+                                size: 28
+                            }}
+                        />
                     ) : (
                         tx.base.outMessagesCount > 1 ? (
                             <BatchAvatars
@@ -330,7 +339,7 @@ const TransactionPreview = () => {
                                 backgroundColor={avatarColor}
                                 markContact={!!contact}
                                 icProps={{
-                                    isOwn: isOwn,
+                                    isOwn,
                                     borderWidth: 2,
                                     position: 'bottom',
                                     size: 28
@@ -522,7 +531,7 @@ const TransactionPreview = () => {
                         </>
                     ) : (
                         <>
-                            {!(dontShowComments && isSpam) && (!!operation.comment) && (
+                            {!(dontShowComments && spam) && (!!operation.comment) && (
                                 <ItemGroup style={{ marginTop: 16 }}>
                                     <PerfView style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                                         <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>

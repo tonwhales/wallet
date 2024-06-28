@@ -19,6 +19,7 @@ export const TxAvatar = memo((
         avatarColor,
         knownWallets,
         forceAvatar,
+        verified
     }: {
         status: "failed" | "pending" | "success",
         parsedAddressFriendly: string,
@@ -31,6 +32,7 @@ export const TxAvatar = memo((
         avatarColor: string,
         knownWallets: { [key: string]: KnownWallet },
         forceAvatar?: ForcedAvatarType,
+        verified?: boolean
     }
 ) => {
 
@@ -48,7 +50,18 @@ export const TxAvatar = memo((
     }
 
     if (forceAvatar) {
-        return (<ForcedAvatar type={forceAvatar} size={48} />);
+        return (
+            <ForcedAvatar
+                type={forceAvatar}
+                size={48}
+                icProps={{
+                    isOwn,
+                    backgroundColor: theme.backgroundPrimary,
+                    size: 18,
+                    borderWidth: 2
+                }}
+            />
+        );
     }
 
     return (
@@ -69,6 +82,7 @@ export const TxAvatar = memo((
             knownWallets={knownWallets}
             backgroundColor={avatarColor}
             hash={walletSettings?.avatar}
+            verified={verified}
         />
     );
 });

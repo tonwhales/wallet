@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { authAPI, dispatchAuthResponse, dispatchLastAuthTimeResponse, dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { authAPI, dispatchAuthResponse, dispatchLastAuthTimeResponse, dispatchLockAppWithAuthResponse, dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -22,6 +22,7 @@ import DeviceInfo from 'react-native-device-info';
 import { processEmitterMessage } from "./utils/processEmitterMessage";
 import { getLastAuthTimestamp, useKeysAuth } from "../secure/AuthWalletKeys";
 import { getLockAppWithAuthState } from "../../engine/state/lockAppWithAuthState";
+import { useLockAppWithAuthState } from "../../engine/hooks/settings";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -66,6 +67,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const navigation = useTypedNavigation();
     const toaster = useToaster();
     const markRefIdShown = useMarkBannerHidden();
+    const [, setLockAppWithAuth] = useLockAppWithAuthState();
 
     const [loaded, setLoaded] = useState(false);
 
@@ -178,6 +180,35 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         }
                         // Dispatch response
                         dispatchAuthResponse(ref as RefObject<WebView>, { authenicated, lastAuthTime });
+                    })();
+                } else if (method === 'lockAppWithAuth') {
+                    (async () => {
+
+                        const isAlreadyLocked = getLockAppWithAuthState();
+                        if (isAlreadyLocked) {
+                            dispatchLockAppWithAuthResponse(
+                                ref as RefObject<WebView>,
+                                { authenicated: true, lastAuthTime: getLastAuthTimestamp() }
+                            );
+                            return;
+                        }
+
+                        let authenicated = false;
+                        let lastAuthTime: number | undefined;
+                        // wait for auth to complete then set lockApp tag
+                        try {
+                            await authContext.authenticate();
+                            authenicated = true;
+                            lastAuthTime = getLastAuthTimestamp();
+                        } catch {
+                            warn('Failed to authenticate');
+                        }
+
+                        if (authenicated) {
+                            setLockAppWithAuth(true);
+                        }
+
+                        dispatchLockAppWithAuthResponse(ref as RefObject<WebView>, { authenicated, lastAuthTime });
                     })();
                 }
 

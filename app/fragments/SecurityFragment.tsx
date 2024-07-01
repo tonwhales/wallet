@@ -6,7 +6,7 @@ import { fragment } from "../fragment"
 import { t } from "../i18n/t"
 import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { useTheme } from '../engine/hooks';
+import { useHasHoldersProducts, useSelectedAccount, useTheme } from '../engine/hooks';
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +24,7 @@ import TouchAndroid from '@assets/ic_touch_and.svg';
 import FaceIos from '@assets/ic_face_id.svg';
 
 export const SecurityFragment = fragment(() => {
+    const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
@@ -31,8 +32,11 @@ export const SecurityFragment = fragment(() => {
     const passcodeState = usePasscodeState();
     const biometricsState = useBiometricsState();
     const setBiometricsState = useSetBiometricsState();
+    const hasHoldersProducts = useHasHoldersProducts(selectedAccount?.address ?? '');
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [lockAppWithAuthState, setLockAppWithAuthState] = useLockAppWithAuthState();
+
+    const canToggleAppAuth = !(hasHoldersProducts && lockAppWithAuthState);
 
     const biometricsProps = useMemo(() => {
         if (passcodeState !== PasscodeState.Set) {
@@ -218,6 +222,7 @@ export const SecurityFragment = fragment(() => {
                                 }
                             })();
                         }}
+                        disabled={!canToggleAppAuth}
                     />
                 </View>
             </ScrollView>

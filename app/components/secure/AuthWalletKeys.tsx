@@ -328,6 +328,32 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         setAttempts(0);
     }, [auth]);
 
+    const canRetryBiometrics = !!auth && (
+        auth.params?.useBiometrics
+        && auth.returns === 'keysOnly'
+        && biometricsState === BiometricsState.InUse
+    );
+
+    const retryBiometrics = useCallback(async () => {
+        if (!canRetryBiometrics) {
+            return;
+        }
+        try {
+            const acc = getCurrentAddress();
+            let keys = await loadWalletKeys(acc.secretKeyEnc);
+            auth.promise.resolve(keys);
+            // Remove auth view
+            setAuth(null);
+        } catch (e) {
+            if (e instanceof SecureAuthenticationCancelledError) {
+                return;
+            } else {
+                Alert.alert(t('secure.onBiometricsError'));
+                warn('Failed to load wallet keys');
+            }
+        }
+    }, [canRetryBiometrics]);
+
     return (
         <AuthWalletKeysContext.Provider value={{ authenticate, authenticateWithPasscode }}>
             {props.children}
@@ -386,26 +412,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 : undefined
                         }
                         passcodeLength={auth.params?.passcodeLength}
-                        onRetryBiometrics={
-                            (auth.params?.useBiometrics && auth.returns === 'keysOnly' && biometricsState === BiometricsState.InUse)
-                                ? async () => {
-                                    try {
-                                        const acc = getCurrentAddress();
-                                        let keys = await loadWalletKeys(acc.secretKeyEnc);
-                                        auth.promise.resolve(keys);
-                                        // Remove auth view
-                                        setAuth(null);
-                                    } catch (e) {
-                                        if (e instanceof SecureAuthenticationCancelledError) {
-                                            return;
-                                        } else {
-                                            Alert.alert(t('secure.onBiometricsError'));
-                                            warn('Failed to load wallet keys');
-                                        }
-                                    }
-                                }
-                                : undefined
-                        }
+                        onRetryBiometrics={canRetryBiometrics ? retryBiometrics : undefined}
                     />
                     {auth.params?.cancelable && (
                         <CloseButton

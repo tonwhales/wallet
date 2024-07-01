@@ -12,7 +12,6 @@ import { getCurrentAddress } from "../storage/appState";
 import { SecureAuthenticationCancelledError, loadWalletKeys } from "../storage/walletKeys";
 import { BiometricsState, getBiometricsState, passcodeLengthKey } from "../storage/secureStorage";
 import { Alert, AppState, NativeEventSubscription, Platform, View } from "react-native";
-import { warn } from "../utils/log";
 import { useLogoutAndReset } from "../engine/hooks/accounts/useLogoutAndReset";
 import { useRoute } from "@react-navigation/native";
 import { updateLastAuthTimestamp } from "../components/secure/AuthWalletKeys";
@@ -104,6 +103,28 @@ export const AppAuthFragment = fragment(() => {
         };
     }, []);
 
+    const authenticateWithBiometrics = useCallback(async () => {
+        if (!useBiometrics) {
+            return;
+        }
+        try {
+            setAuthInProgress(true);
+            const acc = getCurrentAddress();
+            await loadWalletKeys(acc.secretKeyEnc);
+            onConfirmed();
+        } catch (e) {
+            if (e instanceof SecureAuthenticationCancelledError) {
+                Alert.alert(
+                    t('security.auth.canceled.title'),
+                    t('security.auth.canceled.message'),
+                    [{ text: t('common.ok') }]
+                );
+            }
+        } finally {
+            setAuthInProgress(false);
+        }
+    }, [useBiometrics]);
+
     return (
         <View
             style={{
@@ -141,26 +162,7 @@ export const AppAuthFragment = fragment(() => {
                             throw Error('Failed to load keys');
                         }
                     }}
-                    onMount={useBiometrics
-                        ? async () => {
-                            try {
-                                setAuthInProgress?.(true);
-                                const acc = getCurrentAddress();
-                                await loadWalletKeys(acc.secretKeyEnc);
-                                onConfirmed();
-                            } catch (e) {
-                                if (e instanceof SecureAuthenticationCancelledError) {
-                                    Alert.alert(
-                                        t('security.auth.canceled.title'),
-                                        t('security.auth.canceled.message'),
-                                        [{ text: t('common.ok') }]
-                                    );
-                                }
-                            } finally {
-                                setAuthInProgress?.(false);
-                            }
-                        }
-                        : undefined}
+                    onMount={useBiometrics ? authenticateWithBiometrics : undefined}
                     onLogoutAndReset={
                         (attempts > 0
                             && attempts % 5 === 0
@@ -169,31 +171,7 @@ export const AppAuthFragment = fragment(() => {
                             : undefined
                     }
                     passcodeLength={storage.getNumber(passcodeLengthKey) ?? 6}
-                    onRetryBiometrics={
-                        (useBiometrics)
-                            ? async () => {
-                                try {
-                                    setAuthInProgress?.(true);
-                                    const acc = getCurrentAddress();
-                                    await loadWalletKeys(acc.secretKeyEnc);
-                                    onConfirmed()
-                                } catch (e) {
-                                    if (e instanceof SecureAuthenticationCancelledError) {
-                                        Alert.alert(
-                                            t('security.auth.canceled.title'),
-                                            t('security.auth.canceled.message'),
-                                            [{ text: t('common.ok') }]
-                                        );
-                                    } else {
-                                        Alert.alert(t('secure.onBiometricsError'));
-                                        warn('Failed to load wallet keys');
-                                    }
-                                } finally {
-                                    setAuthInProgress?.(true);
-                                }
-                            }
-                            : undefined
-                    }
+                    onRetryBiometrics={useBiometrics ? authenticateWithBiometrics : undefined}
                 />
             )}
         </View>

@@ -7,8 +7,11 @@ import { SendTransactionRequest } from "../../../engine/tonconnect/types";
 import { DappRequestButton } from "./DappRequestButton";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
 import { Cell } from "@ton/core";
+import { RemoteTonconnect } from "../../../engine/tonconnectWatcher";
+import Minimizer from "../../../modules/Minimizer";
+import { warn } from "../../../utils/log";
 
 type TonConnectRequestButtonProps = {
     request: SendTransactionRequest,
@@ -44,7 +47,24 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
         const prepared = prepareConnectRequest(request);
 
         if (request.method === 'sendTransaction' && prepared) {
-            
+
+            const handleReturnStrategy = () => {
+                const returnStrategy = RemoteTonconnect.getReturnStrategy();
+                if (!!returnStrategy) {
+                    if (returnStrategy === 'back') {
+                        Minimizer.goBack();
+                    } else if (returnStrategy !== 'none') {
+                        try {
+                            const url = new URL(decodeURIComponent(returnStrategy));
+                            Linking.openURL(url.toString());
+                        } catch {
+                            warn('Failed to open return strategy url');
+                        }
+                    }
+                    RemoteTonconnect.setReturnStrategy('none');
+                }
+            }
+
             // Callback to report the result of the transaction
             const resultCallback = async (
                 ok: boolean,
@@ -62,6 +82,8 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
                         duration: ToastDuration.LONG
                     });
                 }
+                // Handle return strategy
+                handleReturnStrategy();
             };
 
             navigation.navigateTransfer({

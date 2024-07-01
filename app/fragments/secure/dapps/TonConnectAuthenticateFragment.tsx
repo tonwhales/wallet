@@ -167,7 +167,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     try {
                         const url = new URL(decodeURIComponent(state.returnStrategy));
                         Linking.openURL(url.toString());
-                    } catch (e) {
+                    } catch {
                         warn('Failed to open url');
                     }
                 }

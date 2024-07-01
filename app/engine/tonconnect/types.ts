@@ -29,6 +29,24 @@ export interface ConnectPushQuery {
 
 export type ReturnStrategy = 'back' | 'none' | string;
 
+export class RemoteTonconnectBridge {
+  private returnStartegy: ReturnStrategy;
+
+  constructor() {
+    this.returnStartegy = 'none';
+  }
+
+  public setReturnStrategy(strategy: ReturnStrategy) {
+    if (strategy) {
+      this.returnStartegy = strategy;
+    }
+  }
+
+  public getReturnStrategy(): ReturnStrategy {
+    return this.returnStartegy;
+  }
+}
+
 export interface SignRawMessage {
   address: string;
   amount: string; // (decimal string): number of nanocoins to send.

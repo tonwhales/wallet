@@ -4,6 +4,7 @@ import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
 import { ConnectPushQuery, ConnectQrQuery } from "../engine/tonconnect/types";
+import { RemoteTonconnect } from "../engine/tonconnectWatcher";
 
 export enum ResolveUrlError {
     InvalidAddress = 'InvalidAddress',
@@ -47,6 +48,9 @@ export type ResolvedUrl = {
 } | {
     type: 'tonconnect-request',
     query: ConnectPushQuery
+} | {
+    type: 'tonconnect-ret',
+    returnStrategy: string
 } | {
     type: 'tx',
     address: string,
@@ -332,7 +336,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             };
         }
 
-        // Tonconnect
+        // Tonconnect request
         if ((url.protocol.toLowerCase() === 'https:')
             && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
             && (url.pathname.toLowerCase().indexOf('/ton-connect') !== -1)) {
@@ -341,10 +345,17 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                     type: 'tonconnect',
                     query: url.query as unknown as ConnectQrQuery
                 };
+            } else if (!!url.query.ret) {
+                const returnStrategy = decodeURIComponent(url.query.ret);
+                RemoteTonconnect.setReturnStrategy(returnStrategy);
+                
+                return null;
             }
         }
+
         // Tonconnect
         if (url.protocol.toLowerCase() === 'tc:') {
+            // push tx request
             if (
                 url.host === 'sendtransaction'
                 && !!url.query.message

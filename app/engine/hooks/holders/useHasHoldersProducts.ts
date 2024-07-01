@@ -1,7 +1,7 @@
 import { Address } from "@ton/core";
 import { useHoldersAccounts } from "..";
 
-export function useHasHoldersProducts(address?: string | Address) {
+export function useHasHoldersProducts(address: string | Address) {
     const accs = useHoldersAccounts(address).data;
 
     if (!accs) {

@@ -315,6 +315,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidFrom": "Невалидный адрес отправителя",
             "noConnection": "Приложение не подключено",
             "expired": "Запрос истек",
+            "invalidRequest": "Неверный запрос",
             "failedToReport": "Транзакция отправлена, но не удалось ответить приложению",
             "failedToReportCanceled": "Транзакция отменена, но не удалось ответить приложению"
         },

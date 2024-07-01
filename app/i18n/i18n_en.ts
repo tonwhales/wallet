@@ -315,6 +315,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidFrom: 'Invalid sender address',
             noConnection: 'App is not connected',
             expired: 'Request expired',
+            invalidRequest: 'Invalid request',
             failedToReport: 'Transaction is sent but failed to report back to the app',
             failedToReportCanceled: 'Transaction is canceled but failed to report back to the app'
         },

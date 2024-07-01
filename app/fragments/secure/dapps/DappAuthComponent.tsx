@@ -374,16 +374,16 @@ export const DappAuthComponent = memo(({
                             {t('auth.apps.connectionSecureDescription')}
                         </Text>
                     </View>
-                    <View style={{ flexDirection: 'row', width: '100%' }}>
+                    <View style={{ flexDirection: 'row', width: '100%', gap: 16, marginBottom: 16 }}>
                         <RoundButton
-                            style={{ marginBottom: 16, flex: 1, marginRight: 16 }}
+                            style={{  flex: 1 }}
                             display={'secondary'}
-                            disabled={!onCancel}
+                            disabled={!onCancel || isApproving}
                             title={t('common.cancel')}
                             onPress={onCancel}
                         />
                         <RoundButton
-                            style={{ marginBottom: 16, flex: 1 }}
+                            style={{ flex: 1 }}
                             title={t('common.connect')}
                             disabled={state.type !== 'initing' || isApproving}
                             action={doApprove}

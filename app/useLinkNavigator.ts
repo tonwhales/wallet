@@ -424,8 +424,7 @@ export function useLinkNavigator(
                                 ? t('products.transactionRequest.failedToReportCanceled')
                                 : t('products.transactionRequest.failedToReport'),
                             ...toastProps, 
-                            type: 'error', 
-                            duration: ToastDuration.LONG
+                            type: 'error'
                         });
                     }
                     // avoid double sending

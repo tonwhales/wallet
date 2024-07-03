@@ -178,9 +178,10 @@ export const HoldersAccountItem = memo((props: {
                                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                         <ValueComponent
                                             value={props.account.balance}
-                                            precision={2}
+                                            precision={props.account.cryptoCurrency?.decimals === 9 ? 3 : 2}
                                             centFontStyle={{ color: theme.textSecondary }}
-                                            decimals={props.account.cryptoCurrency?.decimals ?? 9}
+                                            decimals={props.account.cryptoCurrency?.decimals}
+                                            forcePrecision
                                         />
                                         <PerfText style={{ color: theme.textSecondary }}>
                                             {` ${props.account.cryptoCurrency?.ticker}`}

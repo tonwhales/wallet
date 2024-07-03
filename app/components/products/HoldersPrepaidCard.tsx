@@ -141,7 +141,7 @@ export const HoldersPrepaidCard = memo((props: {
                                     </PerfText>
                                 </PerfText>
                             </View>
-                            <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                            <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
                                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                     <ValueComponent
                                         value={toNano(card.fiatBalance)}

@@ -61,6 +61,7 @@ export function ValueComponent(props: {
     decimals?: number | null,
     suffix?: string,
     prefix?: string,
+    forcePrecision?: boolean,
 }) {
     let t: string;
     const { decimalSeparator } = getNumberFormatSettings();
@@ -107,7 +108,7 @@ export function ValueComponent(props: {
     }
 
     // Determine the precision of the value
-    const precision = !!props.decimals
+    const precision = (!!props.decimals && !props.forcePrecision)
         ? (r.length >= 1) && real !== 0 ? 2 : props.decimals
         : props.precision
             ? props.precision

@@ -125,7 +125,8 @@ export const HoldersPrepaidCard = memo((props: {
 
                                 <PerfText
                                     style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    ellipsizeMode="tail"
+                                    // to avoid clipping card number
+                                    ellipsizeMode={'middle'}
                                     numberOfLines={1}
                                 >
                                     {title}
@@ -140,9 +141,13 @@ export const HoldersPrepaidCard = memo((props: {
                                     </PerfText>
                                 </PerfText>
                             </View>
-                            <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                            <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
                                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                    <ValueComponent value={toNano(card.fiatBalance)} precision={2} centFontStyle={{ color: theme.textSecondary }} />
+                                    <ValueComponent
+                                        value={toNano(card.fiatBalance)}
+                                        precision={2}
+                                        centFontStyle={{ color: theme.textSecondary }}
+                                    />
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${CurrencySymbols[card.fiatCurrency].symbol}`}
                                     </PerfText>

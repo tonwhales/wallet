@@ -94,6 +94,7 @@ export const JettonIcon = memo(({
     }
 
     const isKnown = !!knownJettonMasters[jetton.address];
+    const icSize = size * 0.43;
 
     return (
         <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 0 }}>
@@ -106,26 +107,26 @@ export const JettonIcon = memo(({
             {isKnown ? (
                 <View style={{
                     justifyContent: 'center', alignItems: 'center',
-                    height: 20, width: 20, borderRadius: 10,
+                    height: icSize, width: icSize, borderRadius: icSize / 2,
                     position: 'absolute', right: -2, bottom: -2,
-                    backgroundColor: theme.surfaceOnBg
+                    backgroundColor: backgroundColor || theme.surfaceOnBg
                 }}>
                     <Image
                         source={require('@assets/ic-verified.png')}
-                        style={{ height: 20, width: 20 }}
+                        style={{ height: icSize, width: icSize }}
                     />
                 </View>
             ) : (
                 isSCAM && (
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
-                        height: 20, width: 20, borderRadius: 10,
+                        height: icSize, width: icSize, borderRadius: icSize / 2,
                         position: 'absolute', right: -2, bottom: -2,
-                        backgroundColor: theme.surfaceOnBg
+                        backgroundColor: backgroundColor || theme.surfaceOnBg
                     }}>
                         <Image
                             source={require('@assets/ic-jetton-scam.png')}
-                            style={{ height: 20, width: 20 }}
+                            style={{ height: icSize, width: icSize }}
                         />
                     </View>
                 )

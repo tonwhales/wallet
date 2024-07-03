@@ -96,6 +96,7 @@ import { SortedHintsWatcher } from './components/SortedHintsWatcher';
 import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
+import { JettonWalletFragment } from './fragments/wallet/JettonWalletFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -253,6 +254,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Products', ProductsFragment, safeArea),
     modalScreen('ProductsList', ProductsListFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
+    modalScreen('JettonWallet', JettonWalletFragment, safeArea),
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),

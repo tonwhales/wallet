@@ -11,65 +11,67 @@ import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton, useJettonMaster } from "../../engine/hooks";
 import { Address } from "@ton/core";
-import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
-import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
 
+export type ReceiveFragmentParams = {
+    addr?: string;
+    ledger?: boolean;
+    jetton?: Address;
+}
+
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();
-    const network = useNetwork();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
-    const params = useParams<{ addr?: string, ledger?: boolean, jetton?: { master: Address, data: JettonMasterState } }>();
+    const params = useParams<ReceiveFragmentParams>();
     const selected = useSelectedAccount();
     const [bounceableFormat,] = useBounceableWalletFormat();
 
     const qrSize = 262;
 
-    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(params?.jetton ?? null);
+    const [jettonMaster, setJettonMaster] = useState<Address | null>(params?.jetton ?? null);
+    const masterContent = useJettonMaster(jettonMaster?.toString({ testOnly: isTestnet }) || '');
 
     const friendly = useMemo(() => {
         if (params.addr) {
             try {
                 const parsed = Address.parseFriendly(params.addr);
-                return parsed.address.toString({ testOnly: network.isTestnet, bounceable: parsed.isBounceable });
+                return parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable });
             } catch {
                 Alert.alert(t('common.error'), t('transfer.error.invalidAddress'));
             }
         }
-        return selected!.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat });
+        return selected!.address.toString({ testOnly: isTestnet, bounceable: bounceableFormat });
     }, [params, selected, bounceableFormat]);
 
     const onAssetSelected = useCallback((selected?: { master: Address, wallet?: Address }) => {
         if (selected) {
-            const data = getJettonMaster(selected.master, network.isTestnet);
-            if (data) {
-                setJetton({ master: selected.master, data });
-                return;
-            }
+            setJettonMaster(selected.master);
+        } else {
+            setJettonMaster(null);
         }
-        setJetton(null);
     }, []);
 
     const link = useMemo(() => {
-        if (jetton) {
-            return `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer`
+        if (jettonMaster) {
+            return `https://${isTestnet ? 'test.' : ''}tonhub.com/transfer`
                 + `/${friendly}`
-                + `?jetton=${jetton.master.toString({ testOnly: network.isTestnet })}`
+                + `?jetton=${jettonMaster.toString({ testOnly: isTestnet })}`
         }
-        return `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer`
+        return `https://${isTestnet ? 'test.' : ''}tonhub.com/transfer`
             + `/${friendly}`
-    }, [jetton, network, friendly]);
+    }, [jettonMaster, isTestnet, friendly]);
 
     const { isSCAM, verified: isVerified } = useVerifyJetton({
-        ticker: jetton?.data.symbol,
-        master: jetton?.master?.toString({ testOnly: network.isTestnet })
+        ticker: masterContent?.symbol,
+        master: jettonMaster?.toString({ testOnly: isTestnet })
     });
 
     return (
@@ -123,7 +125,7 @@ export const ReceiveFragment = fragment(() => {
                                 <QRCode
                                     data={link}
                                     size={qrSize}
-                                    icon={jetton?.data.image}
+                                    icon={masterContent?.image}
                                     color={theme.backgroundUnchangeable}
                                 />
                             </View>
@@ -137,10 +139,10 @@ export const ReceiveFragment = fragment(() => {
                                 }}
                                 onPress={() => {
                                     if (params.ledger) {
-                                        navigation.navigate('LedgerAssets', { callback: onAssetSelected, selectedJetton: jetton?.master });
+                                        navigation.navigate('LedgerAssets', { callback: onAssetSelected, selectedJetton: jettonMaster });
                                         return;
                                     }
-                                    navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jetton?.master });
+                                    navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jettonMaster });
                                 }}
                             >
                                 <View style={{
@@ -153,18 +155,21 @@ export const ReceiveFragment = fragment(() => {
                                         alignItems: 'center',
                                         justifyContent: 'center'
                                     }}>
-                                        <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                                            {!!jetton && (
+                                        <View style={{
+                                            height: 46, width: 46,
+                                            justifyContent: 'center', alignItems: 'center',
+                                            marginRight: 12
+                                        }}>
+                                            {!!masterContent ? (
                                                 <WImage
-                                                    src={jetton.data.image?.preview256}
-                                                    blurhash={jetton.data.image?.blurhash}
+                                                    src={masterContent?.image?.preview256}
+                                                    blurhash={masterContent?.image?.blurhash}
                                                     width={46}
                                                     height={46}
                                                     borderRadius={23}
                                                     lockLoading
                                                 />
-                                            )}
-                                            {!jetton && (
+                                            ) : (
                                                 <TonIcon width={46} height={46} style={{ height: 46, width: 46 }} />
                                             )}
                                             {isVerified ? (
@@ -195,7 +200,7 @@ export const ReceiveFragment = fragment(() => {
                                         </View>
                                         <View style={{ justifyContent: 'space-between' }}>
                                             <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                                {`${jetton?.data.symbol ?? `TON ${t('common.wallet')}`}`}
+                                                {`${masterContent?.symbol ?? `TON ${t('common.wallet')}`}`}
                                                 {isSCAM && (
                                                     <>
                                                         {' • '}
@@ -206,12 +211,7 @@ export const ReceiveFragment = fragment(() => {
                                                 )}
                                             </Text>
                                             <Text
-                                                style={{
-                                                    fontSize: 15,
-                                                    fontWeight: '400',
-                                                    lineHeight: 20,
-                                                    color: theme.textSecondary,
-                                                }}
+                                                style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                                 selectable={false}
                                                 ellipsizeMode={'middle'}
                                             >
@@ -247,11 +247,7 @@ export const ReceiveFragment = fragment(() => {
                             height: 56,
                         }}
                         body={friendly}
-                        textStyle={{
-                            color: theme.textThird,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '600',
-                        }}
+                        textStyle={[{ color: theme.textThird }, Typography.semiBold17_24]}
                     />
                     <ShareButton
                         style={{
@@ -260,11 +256,7 @@ export const ReceiveFragment = fragment(() => {
                             height: 56,
                         }}
                         body={link}
-                        textStyle={{
-                            color: theme.textThird,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '600',
-                        }}
+                        textStyle={[{ color: theme.textThird, }, Typography.semiBold17_24]}
                         onScreenCapture={() => {
                             return new Promise((resolve, reject) => {
                                 (async () => {

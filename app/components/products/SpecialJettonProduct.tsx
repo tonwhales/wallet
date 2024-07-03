@@ -51,23 +51,12 @@ export const SpecialJettonProduct = memo(({
             return;
         }
 
-        const tx = {
-            amount: null,
-            target: null,
-            comment: null,
-            jetton: specialJetton.wallet,
-            stateInit: null,
-            job: null,
-            callback: null
-        }
-
-        if (isLedger) {
-            navigation.navigateLedgerTransfer(tx);
-            return;
-        }
-
-        navigation.navigateSimpleTransfer(tx);
-
+        navigation.navigateJettonWallet({
+            address: address.toString({ testOnly }),
+            wallet: specialJetton.wallet.toString({ testOnly }),
+            isLedger,
+        });
+        
     }, [specialJetton, isLedger, ledgerAddressStr, balance]);
 
     return (

@@ -14,6 +14,8 @@ import { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFrag
 import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
 import { PendingTxPreviewParams } from '../fragments/wallet/PendingTxPreviewFragment';
 import { HomeFragmentProps } from '../fragments/HomeFragment';
+import { JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
+import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -203,6 +205,18 @@ export class TypedNavigation {
 
     navigatePendingTx(params: PendingTxPreviewParams) {
         this.navigate('PendingTransaction', params);
+    }
+
+    navigateJettonWallet(params: JettonWalletFragmentParams) {
+        this.navigate('JettonWallet', params);
+    }
+
+    navigateReceive(params: ReceiveFragmentParams) {
+        if (params.ledger) {
+            this.navigate('LedgerReceive', params);
+            return;
+        }
+        this.navigate('Receive', params);
     }
 }
 

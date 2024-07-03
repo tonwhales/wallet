@@ -22,8 +22,10 @@ import { HoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { setStatusBarStyle } from "expo-status-bar";
 import { ThemeType } from "../../engine/state/theme";
 import { PendingTransactions } from "./views/PendingTransactions";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean, theme: ThemeType }) {
+    const bottomBarHeight = useBottomTabBarHeight();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
@@ -118,6 +120,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                                     viewType={'history'}
                                     address={address.toString({ testOnly: isTestnet })}
                                 />}
+                                bottomBarHeight={bottomBarHeight}
                             />
                         )
                     } else {

@@ -59,7 +59,7 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
     const metadatas = useContractMetadatas(mentioned);
     const { metadatasMap, jettonMasters } = useMemo(() => {
         const metadatasMap = new Map<string, { metadata: ContractMetadata, jettonMasterAddress: string | null }>();
-        const jettonMasters: string[] = [];
+        const jettonMasters = new Set<string>();
         for (let m of metadatas) {
             if (m.data) {
                 let jettonAddress = getJettonMasterAddressFromMetadata(m.data);
@@ -68,7 +68,7 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
                     metadata: parseStoredMetadata(m.data)
                 });
                 if (jettonAddress) {
-                    jettonMasters.push(jettonAddress);
+                    jettonMasters.add(jettonAddress);
                 }
             }
         }
@@ -78,8 +78,7 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
         }
     }, [metadatas]);
 
-
-    const jettonMasterMetadatas = useJettonContents(jettonMasters);
+    const jettonMasterMetadatas = useJettonContents([...jettonMasters]);
     let txs = useMemo(() => {
         return baseTxs?.map<TransactionDescription>((base) => {
             const resolvedAddress = Address.parse(base.parsed.resolvedAddress);

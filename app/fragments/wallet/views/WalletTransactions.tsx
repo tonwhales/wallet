@@ -6,14 +6,13 @@ import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, St
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
-import { Jetton, TransactionDescription } from '../../../engine/types';
-import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
+import { TransactionDescription } from '../../../engine/types';
+import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../../i18n/t";
 import { confirmAlert } from "../../../utils/confirmAlert";
@@ -94,7 +93,6 @@ export const WalletTransactions = memo((props: {
     safeArea: EdgeInsets,
     onLoadMore: () => void,
     loading: boolean,
-    header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     sectionedListProps?: {
         contentContainerStyle?: StyleProp<ViewStyle>,
         contentInset?: Insets,
@@ -102,8 +100,11 @@ export const WalletTransactions = memo((props: {
     },
     ledger?: boolean,
     theme: ThemeType,
+    bottomBarHeight?: number,
+    showsVerticalScrollIndicator?: boolean,
+    header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
+    footer?: React.ReactElement<any, string | React.JSXElementConstructor<any>>
 }) => {
-    const bottomBarHeight = useBottomTabBarHeight();
     const theme = props.theme;
     const navigation = props.navigation;
     const { isTestnet } = useNetwork();
@@ -278,36 +279,37 @@ export const WalletTransactions = memo((props: {
         }
     }, [pending.length]);
 
+    const Loader = (props.hasNext || props.loading) ? (
+        <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            <ReAnimatedCircularProgress
+                size={24}
+                color={theme.iconPrimary}
+                reverse
+                infinitRotate
+                progress={0.8}
+            />
+        </View>
+    ) : null;
+
+    const ListFooterComponent = props.footer || Loader;
+
     return (
         <SectionList
             ref={ref}
-            style={{ flexGrow: 1 }}
-            contentContainerStyle={[
-                props.sectionedListProps?.contentContainerStyle
-            ]}
-            contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
+            style={{ flexGrow: 1, flexBasis: 0 }}
+            contentContainerStyle={props.sectionedListProps?.contentContainerStyle}
+            contentInset={{ bottom: props.bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
             initialNumToRender={15}
-            onScrollToIndexFailed={() => {
-                warn('Failed to scroll to index');
-            }}
+            onScrollToIndexFailed={() => warn('Failed to scroll to index')}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
             ListHeaderComponent={props.header}
-            ListFooterComponent={props.hasNext ? (
-                <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                    <ReAnimatedCircularProgress
-                        size={24}
-                        color={theme.iconPrimary}
-                        reverse
-                        infinitRotate
-                        progress={0.8}
-                    />
-                </View>
-            ) : null}
+            ListFooterComponent={ListFooterComponent}
+            showsVerticalScrollIndicator={props.showsVerticalScrollIndicator}
             ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
             renderItem={(item) => (
                 <TransactionListItem

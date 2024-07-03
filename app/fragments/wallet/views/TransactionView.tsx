@@ -248,7 +248,7 @@ export function TransactionView(props: {
                             }}>
                                 <PerfText
                                     style={[
-                                        { color: theme.textPrimaryInverted },
+                                        { color: theme.textUnchangeable },
                                         Typography.medium10_12
                                     ]}
                                 >

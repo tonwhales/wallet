@@ -317,6 +317,7 @@ export type LocalizationSchema = {
             invalidFrom: string,
             noConnection: string,
             expired: string,
+            invalidRequest: string,
             failedToReport: string,
             failedToReportCanceled: string,
         },

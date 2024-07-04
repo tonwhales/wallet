@@ -4,32 +4,21 @@ import { sendTonConnectResponse } from "../../api/sendTonConnectResponse";
 import { useDeleteActiveRemoteRequests } from "./useDeleteActiveRemoteRequests";
 import { SendTransactionError, SendTransactionRequest } from '../../tonconnect/types';
 
+const errorMessage = 'Wallet declined request';
+
 export function useConnectCallback() {
     const deleteActiveRemoteRequests = useDeleteActiveRemoteRequests();
-    return (
+    return async (
         ok: boolean,
         result: Cell | null,
         request: { from: string } & SendTransactionRequest,
         sessionCrypto: SessionCrypto
     ) => {
-        if (!ok) {
-            sendTonConnectResponse({
-                response: new SendTransactionError(
-                    request.id,
-                    SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
-                    'Wallet declined the request',
-                ),
-                sessionCrypto,
-                clientSessionId: request.from
-            });
-        } else {
-            sendTonConnectResponse({
-                response: { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id },
-                sessionCrypto,
-                clientSessionId: request.from
-            });
-        }
+        const response = !ok
+            ? new SendTransactionError(request.id, SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR, errorMessage)
+            : { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id };
 
+        await sendTonConnectResponse({ response, sessionCrypto, clientSessionId: request.from });
         deleteActiveRemoteRequests(request.from);
     }
 }

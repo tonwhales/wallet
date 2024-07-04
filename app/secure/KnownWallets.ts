@@ -641,7 +641,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
     return isTestnet ? knownWalletsTestnet : knownWalletsMainnet;
 }
 
-export const SpecialJettonTestnet: string | null = 'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD';
+export const SpecialJettonTestnet: string | null = 'kQBHBo6uqp7uLsnCl8qUNIBW6-MTfyB-tc6wEe4F1Cn38bM3';
 export const SpecialJettonMainnet: string | null = 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs';
 
 export const KnownJettonMastersTestnet: { [key: string]: any } = {

@@ -15,12 +15,12 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useJettonSwap } from "../../engine/hooks/jettons/useJettonSwap";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { JettonIcon } from "../../components/products/JettonIcon";
-import { PerfText } from "../../components/basic/PerfText";
 import { Typography } from "../../components/styles";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ReAnimatedCircularProgress } from "../../components/CircularProgress/ReAnimatedCircularProgress";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { PendingTransactions } from "./views/PendingTransactions";
 
 export type JettonWalletFragmentParams = {
     address: string;
@@ -36,11 +36,11 @@ export const JettonWalletFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const walletAddress = Address.parse(wallet);
     const owner = Address.parse(address);
-    const txsQuery = useJettonWalletTransactios(address, wallet, isTestnet, { refetchOnMount: true });
     const jettonWallet = useJettonWallet(wallet);
     const jetton = useJetton({ wallet: wallet, owner: address, master: jettonWallet?.master });
     const knownJettons = useKnownJettons(isTestnet);
     const swap = useJettonSwap(jetton?.master.toString({ testOnly: isTestnet }));
+    const txsQuery = useJettonWalletTransactios(address, wallet, isTestnet, { refetchOnMount: true });
 
     const transactions = txsQuery.data;
     const progress = txsQuery.progress - (txsQuery.progress ? - 0.1 : 0.05);
@@ -159,148 +159,154 @@ export const JettonWalletFragment = fragment(() => {
                     }
                 }}
                 showsVerticalScrollIndicator={false}
-                header={<View>
-                    <View
-                        style={{
-                            backgroundColor: theme.backgroundUnchangeable,
-                            height: 166,
-                            position: 'absolute', top: 0, left: 0, right: 0,
-                            borderBottomEndRadius: 20,
-                            borderBottomStartRadius: 20,
-                        }}
-                    />
-                    {isSCAM && (
-                        <Text style={{ color: theme.accentRed }}>
-                            {'SCAM'}
-                        </Text>
-                    )}
-                    <View style={[{
-                        flexGrow: 1,
-                        justifyContent: 'center',
-                        padding: 20, borderRadius: 20,
-                        marginTop: 8, marginHorizontal: 16,
-                        gap: 8
-                    }]}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-                                <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold32_38]}>
-                                    <ValueComponent
-                                        value={balance}
-                                        decimals={jetton?.decimals}
-                                        precision={1}
-                                    />
-                                    <Text style={[{ color: theme.textSecondary }, Typography.semiBold24_30]}>
-                                        {` ${symbol}`}
+                header={
+                    <View>
+                        <View
+                            style={{
+                                backgroundColor: theme.backgroundUnchangeable,
+                                height: 166,
+                                position: 'absolute', top: 0, left: 0, right: 0,
+                                borderBottomEndRadius: 20,
+                                borderBottomStartRadius: 20,
+                            }}
+                        />
+                        {isSCAM && (
+                            <Text style={{ color: theme.accentRed }}>
+                                {'SCAM'}
+                            </Text>
+                        )}
+                        <View style={[{
+                            flexGrow: 1,
+                            justifyContent: 'center',
+                            padding: 20, borderRadius: 20,
+                            marginTop: 8, marginHorizontal: 16,
+                            gap: 8
+                        }]}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                <View style={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold32_38]}>
+                                        <ValueComponent
+                                            value={balance}
+                                            decimals={jetton?.decimals}
+                                            precision={1}
+                                        />
+                                        <Text style={[{ color: theme.textSecondary }, Typography.semiBold24_30]}>
+                                            {` ${symbol}`}
+                                        </Text>
                                     </Text>
-                                </Text>
-                                {isSpecial ? (
-                                    <PriceComponent
-                                        amount={balanceInNano}
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            paddingHorizontal: 0, paddingVertical: 0,
-                                            height: undefined,
-                                            alignSelf: 'center'
-                                        }}
-                                        textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
-                                        theme={theme}
-                                        priceUSD={1}
-                                        hideCentsIfNull
-                                    />
-                                ) : !!swapAmount && (
-                                    <PriceComponent
-                                        amount={toNano(swapAmount)}
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            paddingHorizontal: 0, paddingVertical: 0,
-                                            height: undefined,
-                                            alignSelf: 'center'
-                                        }}
-                                        textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
-                                        theme={theme}
-                                        hideCentsIfNull
-                                    />
-                                )}
+                                    {isSpecial ? (
+                                        <PriceComponent
+                                            amount={balanceInNano}
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                paddingHorizontal: 0, paddingVertical: 0,
+                                                height: undefined,
+                                                alignSelf: 'center'
+                                            }}
+                                            textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
+                                            theme={theme}
+                                            priceUSD={1}
+                                            hideCentsIfNull
+                                        />
+                                    ) : !!swapAmount && (
+                                        <PriceComponent
+                                            amount={toNano(swapAmount)}
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                paddingHorizontal: 0, paddingVertical: 0,
+                                                height: undefined,
+                                                alignSelf: 'center'
+                                            }}
+                                            textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
+                                            theme={theme}
+                                            hideCentsIfNull
+                                        />
+                                    )}
+                                </View>
                             </View>
                         </View>
-                    </View>
-                    <View style={{
-                        height: 80,
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        marginTop: 16, marginHorizontal: 16,
-                        backgroundColor: theme.surfaceOnElevation,
-                        padding: 20, borderRadius: 20,
-                    }}>
-                        <Pressable
-                            onPress={() => {
-                                navigation.navigateReceive(isLedger
-                                    ? { addr: address, ledger: true, jetton: jetton?.master, }
-                                    : { jetton: jetton?.master }
-                                );
-                            }}
-                            style={({ pressed }) => ([
-                                { opacity: pressed ? 0.5 : 1 },
-                                { flex: 1, height: '100%', justifyContent: 'center', alignItems: 'center' }
-                            ])}
-                        >
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={{
-                                    backgroundColor: theme.accent,
-                                    width: 32, height: 32,
-                                    borderRadius: 16,
-                                    alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <Image source={require('@assets/ic_receive.png')} />
+                        <View style={{
+                            height: 80,
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            marginTop: 16, marginHorizontal: 16,
+                            backgroundColor: theme.surfaceOnElevation,
+                            padding: 20, borderRadius: 20,
+                        }}>
+                            <Pressable
+                                onPress={() => {
+                                    navigation.navigateReceive(isLedger
+                                        ? { addr: address, ledger: true, jetton: jetton?.master, }
+                                        : { jetton: jetton?.master }
+                                    );
+                                }}
+                                style={({ pressed }) => ([
+                                    { opacity: pressed ? 0.5 : 1 },
+                                    { flex: 1, height: '100%', justifyContent: 'center', alignItems: 'center' }
+                                ])}
+                            >
+                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                    <View style={{
+                                        backgroundColor: theme.accent,
+                                        width: 32, height: 32,
+                                        borderRadius: 16,
+                                        alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <Image source={require('@assets/ic_receive.png')} />
+                                    </View>
+                                    <Text
+                                        style={[
+                                            { color: theme.textPrimary, marginTop: 6 },
+                                            Typography.medium15_20
+                                        ]}
+                                        minimumFontScale={0.7}
+                                        adjustsFontSizeToFit
+                                        numberOfLines={1}
+                                    >
+                                        {t('wallet.actions.receive')}
+                                    </Text>
                                 </View>
-                                <Text
-                                    style={[
-                                        { color: theme.textPrimary, marginTop: 6 },
-                                        Typography.medium15_20
-                                    ]}
-                                    minimumFontScale={0.7}
-                                    adjustsFontSizeToFit
-                                    numberOfLines={1}
-                                >
-                                    {t('wallet.actions.receive')}
-                                </Text>
-                            </View>
-                        </Pressable>
-                        <Pressable
-                            onPress={() => {
-                                const tx = { jetton: walletAddress, amount: null, target: null, comment: null, stateInit: null, job: null, callback: null };
-                                if (isLedger) {
-                                    navigation.navigateLedgerTransfer(tx);
-                                } else {
-                                    navigation.navigateSimpleTransfer(tx);
-                                }
-                            }}
-                            style={({ pressed }) => ([
-                                { opacity: pressed ? 0.5 : 1 },
-                                { flex: 1, height: '100%', justifyContent: 'center', alignItems: 'center' }
-                            ])}
-                        >
-                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={{
-                                    backgroundColor: theme.accent,
-                                    width: 32, height: 32,
-                                    borderRadius: 16,
-                                    alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <Image source={require('@assets/ic_send.png')} />
+                            </Pressable>
+                            <Pressable
+                                onPress={() => {
+                                    const tx = { jetton: walletAddress, amount: null, target: null, comment: null, stateInit: null, job: null, callback: null };
+                                    if (isLedger) {
+                                        navigation.navigateLedgerTransfer(tx);
+                                    } else {
+                                        navigation.navigateSimpleTransfer(tx);
+                                    }
+                                }}
+                                style={({ pressed }) => ([
+                                    { opacity: pressed ? 0.5 : 1 },
+                                    { flex: 1, height: '100%', justifyContent: 'center', alignItems: 'center' }
+                                ])}
+                            >
+                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                    <View style={{
+                                        backgroundColor: theme.accent,
+                                        width: 32, height: 32,
+                                        borderRadius: 16,
+                                        alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <Image source={require('@assets/ic_send.png')} />
+                                    </View>
+                                    <Text
+                                        style={[
+                                            { color: theme.textPrimary, marginTop: 6 },
+                                            Typography.medium15_20
+                                        ]}
+                                    >
+                                        {t('wallet.actions.send')}
+                                    </Text>
                                 </View>
-                                <Text
-                                    style={[
-                                        { color: theme.textPrimary, marginTop: 6 },
-                                        Typography.medium15_20
-                                    ]}
-                                >
-                                    {t('wallet.actions.send')}
-                                </Text>
-                            </View>
-                        </Pressable>
+                            </Pressable>
+                        </View>
+                        <PendingTransactions
+                            txFilter={(tx) => tx.body?.type === 'token' && tx.body.jetton.wallet.equals(walletAddress)}
+                            viewType={'history'}
+                        />
                     </View>
-                </View>}
+                }
                 bottomBarHeight={safeArea.bottom + 32}
                 footer={
                     <View>

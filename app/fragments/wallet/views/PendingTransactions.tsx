@@ -318,20 +318,23 @@ export const PendingTransactionsList = memo((
 });
 PendingTransactionsList.displayName = 'PendingTransactionsView';
 
-export const PendingTransactions = memo(({ address, viewType = 'main' }: { address?: string, viewType?: 'history' | 'main' }) => {
+export const PendingTransactions = memo(({
+    address,
+    viewType = 'main',
+    txFilter: txFilter
+}: {
+    address?: string,
+    viewType?: 'history' | 'main',
+    txFilter?: (tx: PendingTransaction) => boolean
+}) => {
     const account = useSelectedAccount();
     const network = useNetwork();
     const { state: pending, removePending, markAsTimedOut } = usePendingActions(address ?? account?.addressString ?? '', network.isTestnet);
     const theme = useTheme();
 
-    const txs = useMemo(() => {
-        // Show only pending on history tab
-        if (viewType === 'history') {
-            return pending.filter((tx) => tx.status !== 'sent' && tx.status !== 'timed-out');
-        }
-
-        return pending;
-    }, [pending]);
+    const txs = pending
+        .filter(txFilter ?? (() => true))
+        .filter((tx) => tx.status !== 'sent' && tx.status !== 'timed-out');
 
     useEffect(() => {
         // Remove transactions after 15 seconds of changing status

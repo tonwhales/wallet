@@ -20,7 +20,6 @@ export function useJettonWalletTransactios(
     progress: number,
 } {
     // TODO: fix jetton wallet re-sunc on changes
-    console.log('🌚 rerender');
     const walletTxsQuery = useRawAccountTransactions(wallet, options);
     const ownerTxsQuery = useRawAccountTransactions(owner, options);
 
@@ -43,29 +42,27 @@ export function useJettonWalletTransactios(
         })
     }, [walletTransactions?.length]);
 
-    const ownersJettonTxs = useMemo(() => {
-        return ownerTransactions?.filter(tx => {
-            const info = tx.inMessage?.info;
+    const ownersJettonTxs = ownerTransactions?.filter(tx => {
+        const info = tx.inMessage?.info;
 
-            if (!info || info?.type === 'external-out') {
-                return false;
-            }
-
-            const isToken = tx.operation.items.some((item) => item.kind === 'token');
-
-            if (tx.address === wallet) {
-                return isToken;
-            }
-
-            const inMentioned = tx.parsed.mentioned.includes(wallet);
-
-            if (inMentioned) {
-                return isToken;
-            }
-
+        if (!info || info?.type === 'external-out') {
             return false;
-        });
-    }, [ownerTransactions?.length]);
+        }
+
+        const isToken = tx.operation.items.some((item) => item.kind === 'token');
+
+        if (tx.address === wallet) {
+            return isToken;
+        }
+
+        const inMentioned = tx.parsed.mentioned.includes(wallet);
+
+        if (inMentioned) {
+            return isToken;
+        }
+
+        return false;
+    });
 
     const mentioned = useMemo(() => {
         return Array.from(new Set([...(ownersJettonTxs || []).flatMap(tx => tx.parsed.mentioned)]));
@@ -126,11 +123,19 @@ export function useJettonWalletTransactios(
     let oldesSyncedOwnerTxTime = ownerTransactions?.[ownerTransactions?.length - 1]?.time || 0;
     const oldestSyncedWalletTxTime = toOwner?.[toOwner.length - 1]?.time || 0;
 
+    let freshestSyncedOwnerTxTime = ownerTransactions?.[0]?.time || 0;
+    const freshestSyncedWalletTxTime = toOwner?.[0]?.time || 0;
+
     if (oldesSyncedOwnerTxTime !== 0) {
-        oldesSyncedOwnerTxTime -= 60 // 1 minute
+        oldesSyncedOwnerTxTime -= 30 // 30 seconds
     }
 
-    const outOfSync = oldesSyncedOwnerTxTime > oldestSyncedWalletTxTime;
+    if (freshestSyncedOwnerTxTime !== 0) {
+        freshestSyncedOwnerTxTime += 20
+    }
+
+    const shouldLoadMore = oldesSyncedOwnerTxTime > oldestSyncedWalletTxTime;
+    const shouldRefetchWallet = freshestSyncedOwnerTxTime < freshestSyncedWalletTxTime;
 
     const throttledOwnerNext = useCallback(throttle(() => {
         console.log('Fetching next page for owner');
@@ -142,11 +147,22 @@ export function useJettonWalletTransactios(
         walletTxsQuery.fetchNextPage();
     }, 100), []);
 
+    // useEffect(() => {
+    //     if (shouldRefetchWallet && !(walletTxsQuery.isRefetching || walletLoading)) {
+    //         console.log('Refetching wallet');
+    //         queryClient.invalidateQueries({
+    //             queryKey: Queries.Transactions(account),
+    //             refetchPage: (last, index, allPages) => index == 0,
+    //         });
+    //         walletTxsQuery.refetch();
+    //     }
+    // }, [walletTxsQuery.isRefetching, walletLoading, shouldRefetchWallet]);
+
     useEffect(() => {
         if (isLoading) {
             return;
         }
-        if (outOfSync) {
+        if (shouldLoadMore) {
             if (walletHasNext) {
                 throttledWalletNext();
                 return;
@@ -156,7 +172,7 @@ export function useJettonWalletTransactios(
                 return;
             }
         }
-    }, [outOfSync, ownerHasNext, walletHasNext, isLoading]);
+    }, [shouldLoadMore, ownerHasNext, walletHasNext, isLoading]);
 
     const progress = (!toOwner || !txs) ? 0 : (txs?.length ?? 1) / (toOwner?.length || 1);
 
@@ -169,7 +185,7 @@ export function useJettonWalletTransactios(
             }
         },
         hasNext: walletHasNext,
-        loading: isLoading && outOfSync
+        loading: isLoading && shouldLoadMore
     };
 
 }

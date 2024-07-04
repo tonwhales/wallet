@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { View, Image, Text } from "react-native";
+import { Image } from "react-native";
 import { GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { ThemeType } from "../../engine/state/theme";
 import { PerfView } from "../basic/PerfView";
@@ -21,21 +21,23 @@ const cardImages = {
 }
 
 export const HoldersAccountCard = memo(({ card, theme }: { card: GeneralHoldersCard, theme: ThemeType }) => {
-    let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'classic';
-    switch (card.personalizationCode) {
-        case 'holders':
-            imageType = 'holders';
-            break;
-        case 'whales':
-            imageType = 'whales';
-            break;
-        case 'black-pro':
-            imageType = 'black-pro';
-            break;
-        default:
-            imageType = 'classic';
-            break;
-    }
+    // TODO: remove this when we have the correct personalization code
+    // let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'classic';
+    let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'black-pro';
+    // switch (card.personalizationCode) {
+    //     case 'holders':
+    //         imageType = 'holders';
+    //         break;
+    //     case 'whales':
+    //         imageType = 'whales';
+    //         break;
+    //     case 'black-pro':
+    //         imageType = 'black-pro';
+    //         break;
+    //     default:
+    //         imageType = 'classic';
+    //         break;
+    // }
 
     return (
         <PerfView style={{ width: 46, height: 30, borderRadius: 6 }}>

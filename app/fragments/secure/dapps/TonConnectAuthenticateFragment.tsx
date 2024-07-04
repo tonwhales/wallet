@@ -123,10 +123,14 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
         })()
     }, []);
 
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
     // Approve
     const active = useRef(true);
     useEffect(() => {
         return () => {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            }
             if (!active.current) {
                 return;
             }
@@ -319,7 +323,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     onDestroy: () => {
                         connectProps.callback({ ok: true, replyItems });
 
-                        setTimeout(() => {
+                        timerRef.current = setTimeout(() => {
                             navigate.current();
                         }, 50);
                     },

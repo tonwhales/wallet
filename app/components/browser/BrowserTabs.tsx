@@ -6,13 +6,49 @@ import { useTheme } from "../../engine/hooks";
 import { BrowserExtensions } from "./BrowserExtensions";
 import { BrowserListings } from "./BrowserListings";
 import { BrowserConnections } from "./BrowserConnections";
-import { useBrowserListings } from "../../engine/hooks/banners/useBrowserListings";
+import { BrowserListingsWithCategory, useBrowserListings } from "../../engine/hooks/banners/useBrowserListings";
 import { ScrollView } from "react-native-gesture-handler";
 import { NativeSyntheticEvent } from "react-native";
+import { getCountryCodes } from "../../utils/isNeocryptoAvailable";
+
+function filterByStoreGeoListings(codes: { countryCode: string, storeFrontCode: string | null },) {
+    return (listing: BrowserListingsWithCategory) => {
+        let excludedRegions = []
+        try {
+            excludedRegions = JSON.parse(listing.regions_to_exclude || '[]');
+        } catch {
+            // Do nothing
+        }
+
+        if (!excludedRegions || excludedRegions.length === 0) {
+            return true;
+        }
+
+        const storeFrontCode = codes.storeFrontCode;
+        const countryCode = codes.countryCode;
+
+        if (!storeFrontCode && !countryCode) {
+            return true;
+        }
+
+        if (!!storeFrontCode && excludedRegions.includes(storeFrontCode)) {
+            return false;
+        }
+
+        if (excludedRegions.includes(countryCode)) {
+            return false;
+        }
+
+        return true;
+    }
+}
 
 export const BrowserTabs = memo(({ onScroll }: { onScroll?: ((event: NativeSyntheticEvent<NativeScrollEvent>) => void) }) => {
     const theme = useTheme();
-    const listings = useBrowserListings().data || [];
+    const browserListings = useBrowserListings().data || [];
+    const regionCodes = getCountryCodes();
+    const filterByCodes = useCallback(filterByStoreGeoListings(regionCodes), [regionCodes]);
+    const listings = browserListings.filter(filterByCodes);
     const hasListings = !!listings && listings.length > 0;
     const tabRef = useRef(hasListings ? 0 : 1);
     const [tab, setTab] = useState(tabRef.current);

@@ -93,6 +93,7 @@ export const WalletTransactions = memo((props: {
     safeArea: EdgeInsets,
     onLoadMore: () => void,
     loading: boolean,
+    style?: StyleProp<ViewStyle>,
     sectionedListProps?: {
         contentContainerStyle?: StyleProp<ViewStyle>,
         contentInset?: Insets,
@@ -296,7 +297,7 @@ export const WalletTransactions = memo((props: {
     return (
         <SectionList
             ref={ref}
-            style={{ flexGrow: 1, flexBasis: 0 }}
+            style={[{ flexGrow: 1 }, props.style]}
             contentContainerStyle={props.sectionedListProps?.contentContainerStyle}
             contentInset={{ bottom: props.bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}
@@ -310,7 +311,7 @@ export const WalletTransactions = memo((props: {
             ListHeaderComponent={props.header}
             ListFooterComponent={ListFooterComponent}
             showsVerticalScrollIndicator={props.showsVerticalScrollIndicator}
-            ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
+            ListEmptyComponent={props.loading || props.hasNext ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
             renderItem={(item) => (
                 <TransactionListItem
                     {...item}

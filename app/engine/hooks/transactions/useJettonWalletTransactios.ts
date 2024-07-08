@@ -1,11 +1,59 @@
 import { Address } from "@ton/core";
 import { useRawAccountTransactions } from ".";
-import { TransactionDescription } from "../../types";
-import { useCallback, useEffect, useMemo } from "react";
+import { StoredTransaction, TransactionDescription } from "../../types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { throttle } from "../../../utils/throttle";
 import { useContractMetadatas, useJettonContents } from "..";
 import { ContractMetadata } from "../../metadata/Metadata";
 import { getJettonMasterAddressFromMetadata, parseStoredMetadata } from "./useAccountTransactions";
+import { queryClient } from "../../clients";
+import { getQueryData } from "../../utils/getQueryData";
+import { Queries } from "../../queries";
+import { contractMetadataQueryFn } from "../jettons/usePrefetchHints";
+
+function useAccTxs(account: string, isTestnet: boolean, options?: { refetchOnMount: boolean }) {
+    const processedMentions = useRef(new Set<string>());
+    const query = useRawAccountTransactions(account, options);
+
+    // prefetch contract metadata for mentioned addresses
+    // to allow better performance on txs history tab
+    useEffect(() => {
+        if (query.data?.pages.length === 0) {
+            return;
+        }
+
+        const queryCache = queryClient.getQueryCache();
+        const flat = (query.data?.pages.flat() ?? []).filter(tx => !!tx) as StoredTransaction[];
+        const mentioned = Array.from(new Set([...flat.flatMap(tx => tx.parsed.mentioned)]));
+
+        mentioned.forEach(m => {
+            if (processedMentions.current.has(m)) {
+                return;
+            }
+            if (!getQueryData(queryCache, Queries.ContractMetadata(m))) {
+                queryClient.prefetchQuery(
+                    {
+                        queryKey: Queries.ContractMetadata(m),
+                        queryFn: contractMetadataQueryFn(isTestnet, m)
+                    }
+                );
+                processedMentions.current.add(m);
+            }
+        });
+
+    }, [query.data?.pages.length]);
+
+    const res = useMemo(() => {
+        return {
+            hasNext: !!query.hasNextPage,
+            next: query.fetchNextPage,
+            data: query.data?.pages.flat(),
+            loading: query.isFetching || query.isFetchingNextPage
+        }
+    }, [query.data?.pages.length, query.isFetching, query.isFetchingNextPage, query.hasNextPage]);
+
+    return res;
+}
 
 export function useJettonWalletTransactios(
     owner: string,
@@ -19,20 +67,13 @@ export function useJettonWalletTransactios(
     loading: boolean,
     progress: number,
 } {
-    // TODO: fix jetton wallet re-sunc on changes
-    const walletTxsQuery = useRawAccountTransactions(wallet, options);
-    const ownerTxsQuery = useRawAccountTransactions(owner, options);
+    const walletTxsQuery = useAccTxs(wallet, isTestnet, options), ownerTxsQuery = useAccTxs(owner, isTestnet, options);
+    const walletTransactions = walletTxsQuery?.data, ownerTransactions = ownerTxsQuery?.data;
+    const ownerLoading = ownerTxsQuery.loading, ownerHasNext = ownerTxsQuery.hasNext;
+    const walletLoading = walletTxsQuery.loading, walletHasNext = walletTxsQuery.hasNext
 
-    const walletTransactions = walletTxsQuery?.data?.pages.flat();
-    const ownerTransactions = ownerTxsQuery?.data?.pages.flat();
-
-    const ownerLoading = ownerTxsQuery.isFetching || ownerTxsQuery.isFetchingNextPage;
-    const ownerHasNext = !!ownerTxsQuery.hasNextPage;
-
-    const walletLoading = walletTxsQuery.isFetching || walletTxsQuery.isFetchingNextPage;
-    const walletHasNext = !!walletTxsQuery.hasNextPage;
-
-    const toOwner = useMemo(() => {
+    // jetton wallet transactions that are related to owner
+    const walletTxs = useMemo(() => {
         return walletTransactions?.filter(tx => {
             if (tx.inMessage?.info.type !== 'internal') {
                 return false;
@@ -42,59 +83,56 @@ export function useJettonWalletTransactios(
         })
     }, [walletTransactions?.length]);
 
-    const ownersJettonTxs = ownerTransactions?.filter(tx => {
-        const info = tx.inMessage?.info;
+    // owner transactions that are jetton transfers
+    const ownerJettonTxs = useMemo(() => {
+        return ownerTransactions?.filter(tx => {
+            const info = tx.inMessage?.info;
 
-        if (!info || info?.type === 'external-out') {
+            if (!info || info?.type === 'external-out') {
+                return false;
+            }
+
+            const isToken = tx.operation.items.some((item) => item.kind === 'token');
+
+            if (tx.address === wallet) {
+                return isToken;
+            }
+
+            const inMentioned = tx.parsed.mentioned.includes(wallet);
+
+            if (inMentioned) {
+                return isToken;
+            }
+
             return false;
-        }
-
-        const isToken = tx.operation.items.some((item) => item.kind === 'token');
-
-        if (tx.address === wallet) {
-            return isToken;
-        }
-
-        const inMentioned = tx.parsed.mentioned.includes(wallet);
-
-        if (inMentioned) {
-            return isToken;
-        }
-
-        return false;
-    });
+        });
+    }, [ownerTransactions?.length]);
 
     const mentioned = useMemo(() => {
-        return Array.from(new Set([...(ownersJettonTxs || []).flatMap(tx => tx.parsed.mentioned)]));
-    }, [ownersJettonTxs?.length]);
+        return Array.from(new Set([...(ownerJettonTxs || []).flatMap(tx => tx.parsed.mentioned)]));
+    }, [ownerJettonTxs?.length]);
 
     const metadatas = useContractMetadatas(mentioned);
 
-    const { metadatasMap, jettonMasters } = useMemo(() => {
-        const metadatasMap = new Map<string, { metadata: ContractMetadata, jettonMasterAddress: string | null }>();
-        const jettonMasters = new Set<string>();
-        for (let m of metadatas) {
-            if (m.data) {
-                let jettonAddress = getJettonMasterAddressFromMetadata(m.data);
-                metadatasMap.set(m.data.address, {
-                    jettonMasterAddress: jettonAddress,
-                    metadata: parseStoredMetadata(m.data)
-                });
-                if (jettonAddress) {
-                    jettonMasters.add(jettonAddress);
-                }
+    const metadatasMap = new Map<string, { metadata: ContractMetadata, jettonMasterAddress: string | null }>();
+    const jettonMasters = new Set<string>();
+    for (let m of metadatas) {
+        if (m.data) {
+            let jettonAddress = getJettonMasterAddressFromMetadata(m.data);
+            metadatasMap.set(m.data.address, {
+                jettonMasterAddress: jettonAddress,
+                metadata: parseStoredMetadata(m.data)
+            });
+            if (jettonAddress) {
+                jettonMasters.add(jettonAddress);
             }
         }
-        return {
-            jettonMasters,
-            metadatasMap,
-        }
-    }, [metadatas]);
+    }
 
     const jettonMasterMetadatas = useJettonContents([...jettonMasters]);
 
     let txs = useMemo(() => {
-        return ownersJettonTxs?.map<TransactionDescription>((base) => {
+        return ownerJettonTxs?.map<TransactionDescription>((base) => {
             const resolvedAddress = Address.parse(base.parsed.resolvedAddress);
             const metadata = metadatasMap.get(resolvedAddress.toString({ testOnly: isTestnet }));
             const jettonMasterAddress = metadata?.jettonMasterAddress;
@@ -115,77 +153,50 @@ export function useJettonWalletTransactios(
                 outMessages: base.outMessages,
             });
         }) || null;
-    }, [ownersJettonTxs?.length, metadatasMap, jettonMasterMetadatas]);
+    }, [ownerJettonTxs?.length, Object.keys(metadatasMap).length, jettonMasterMetadatas.length]);
 
-    const isLoading = ownerLoading || walletLoading;
+    // const isLoading = ownerLoading || walletLoading;
+    const [isLoading, setIsLoading] = useState(ownerLoading || walletLoading);
+
+    const setIsLoadingState = useCallback(throttle((value: boolean) => {
+        setIsLoading(value);
+    }, 500), []);
 
     // in seconds
     let oldesSyncedOwnerTxTime = ownerTransactions?.[ownerTransactions?.length - 1]?.time || 0;
-    const oldestSyncedWalletTxTime = toOwner?.[toOwner.length - 1]?.time || 0;
-
-    let freshestSyncedOwnerTxTime = ownerTransactions?.[0]?.time || 0;
-    const freshestSyncedWalletTxTime = toOwner?.[0]?.time || 0;
+    const oldestSyncedWalletTxTime = walletTxs?.[walletTxs.length - 1]?.time || 0;
 
     if (oldesSyncedOwnerTxTime !== 0) {
         oldesSyncedOwnerTxTime -= 30 // 30 seconds
     }
 
-    if (freshestSyncedOwnerTxTime !== 0) {
-        freshestSyncedOwnerTxTime += 20
-    }
-
     const shouldLoadMore = oldesSyncedOwnerTxTime > oldestSyncedWalletTxTime;
-    const shouldRefetchWallet = freshestSyncedOwnerTxTime < freshestSyncedWalletTxTime;
-
-    const throttledOwnerNext = useCallback(throttle(() => {
-        console.log('Fetching next page for owner');
-        ownerTxsQuery.fetchNextPage();
-    }, 100), []);
-
-    const throttledWalletNext = useCallback(throttle(() => {
-        console.log('Fetching next page for wallet');
-        walletTxsQuery.fetchNextPage();
-    }, 100), []);
-
-    // useEffect(() => {
-    //     if (shouldRefetchWallet && !(walletTxsQuery.isRefetching || walletLoading)) {
-    //         console.log('Refetching wallet');
-    //         queryClient.invalidateQueries({
-    //             queryKey: Queries.Transactions(account),
-    //             refetchPage: (last, index, allPages) => index == 0,
-    //         });
-    //         walletTxsQuery.refetch();
-    //     }
-    // }, [walletTxsQuery.isRefetching, walletLoading, shouldRefetchWallet]);
 
     useEffect(() => {
-        if (isLoading) {
+        setIsLoadingState(ownerLoading || walletLoading);
+        if (ownerLoading || walletLoading) {
             return;
         }
         if (shouldLoadMore) {
             if (walletHasNext) {
-                throttledWalletNext();
+                walletTxsQuery.next();
                 return;
             }
             if ((ownerHasNext)) {
-                throttledOwnerNext();
+                ownerTxsQuery.next();
                 return;
             }
         }
-    }, [shouldLoadMore, ownerHasNext, walletHasNext, isLoading]);
+    }, [shouldLoadMore, ownerHasNext, walletHasNext, ownerLoading || walletLoading]);
 
-    const progress = (!toOwner || !txs) ? 0 : (txs?.length ?? 1) / (toOwner?.length || 1);
+    const progress = (!walletTxs || !txs) ? 0 : (txs?.length ?? 1) / (walletTxs?.length || 1);
 
-    return {
-        progress,
+    const result = useMemo(() => ({
         data: txs,
-        next: () => {
-            if (walletHasNext && !isLoading) {
-                walletTxsQuery.fetchNextPage();
-            }
-        },
+        next: walletTxsQuery.next,
         hasNext: walletHasNext,
-        loading: isLoading && shouldLoadMore
-    };
+        progress,
+    }), [txs, walletHasNext, progress]);
 
+    return { ...result, loading: isLoading };
 }

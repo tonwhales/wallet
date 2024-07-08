@@ -16,6 +16,7 @@ import { PendingTxPreviewParams } from '../fragments/wallet/PendingTxPreviewFrag
 import { HomeFragmentProps } from '../fragments/HomeFragment';
 import { JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
 import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
+import { fullScreen } from '../Navigation';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -205,6 +206,10 @@ export class TypedNavigation {
 
     navigatePendingTx(params: PendingTxPreviewParams) {
         this.navigate('PendingTransaction', params);
+    }
+
+    navigateSpecialJettonWallet(params: JettonWalletFragmentParams) {
+        this.navigate('SpecialJettonWallet', { ...params, fullScreen: true });
     }
 
     navigateJettonWallet(params: JettonWalletFragmentParams) {

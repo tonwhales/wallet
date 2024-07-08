@@ -51,7 +51,7 @@ export const SpecialJettonProduct = memo(({
             return;
         }
 
-        navigation.navigateJettonWallet({
+        navigation.navigateSpecialJettonWallet({
             address: address.toString({ testOnly }),
             wallet: specialJetton.wallet.toString({ testOnly }),
             isLedger,

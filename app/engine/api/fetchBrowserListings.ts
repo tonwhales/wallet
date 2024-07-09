@@ -13,6 +13,7 @@ const browserListingCodec = z.object({
     start_date: z.number(),
     expiration_date: z.number(),
     regions_to_exclude: z.string().nullable().optional(),
+    regions_to_include: z.string().nullable().optional(),
     enabled: z.boolean(),
     category: z.string().nullable().optional(),
     is_test: z.boolean().nullable().optional()

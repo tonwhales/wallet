@@ -18,16 +18,12 @@ function filterByStoreGeoListings(codes: { countryCode: string, storeFrontCode: 
         let excludedRegions = [], includedRegions: string[] | null = null;
         try {
             excludedRegions = JSON.parse(listing.regions_to_exclude || '[]');
-        } catch {
-            // Do nothing
-        }
+        } catch { }
 
         if (!!listing.regions_to_include) {
             try {
                 includedRegions = JSON.parse(listing.regions_to_include);
-            } catch {
-                // Do nothing
-            }
+            } catch { }
         }
 
         // check for excluded regions

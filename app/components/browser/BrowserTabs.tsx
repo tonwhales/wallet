@@ -13,29 +13,40 @@ import { getCountryCodes } from "../../utils/isNeocryptoAvailable";
 
 function filterByStoreGeoListings(codes: { countryCode: string, storeFrontCode: string | null },) {
     return (listing: BrowserListingsWithCategory) => {
-        let excludedRegions = []
+        const { countryCode, storeFrontCode } = codes;
+
+        let excludedRegions = [], includedRegions: string[] | null = null;
         try {
             excludedRegions = JSON.parse(listing.regions_to_exclude || '[]');
         } catch {
             // Do nothing
         }
 
-        if (!excludedRegions || excludedRegions.length === 0) {
-            return true;
+        if (!!listing.regions_to_include) {
+            try {
+                includedRegions = JSON.parse(listing.regions_to_include);
+            } catch {
+                // Do nothing
+            }
         }
 
-        const storeFrontCode = codes.storeFrontCode;
-        const countryCode = codes.countryCode;
+        // check for excluded regions
+        const excludedByStore = !!storeFrontCode && excludedRegions.includes(storeFrontCode);
+        const excludedByCountry = !!countryCode && excludedRegions.includes(countryCode);
 
-        if (!storeFrontCode && !countryCode) {
-            return true;
-        }
-
-        if (!!storeFrontCode && excludedRegions.includes(storeFrontCode)) {
+        if (excludedByStore || excludedByCountry) {
             return false;
         }
 
-        if (excludedRegions.includes(countryCode)) {
+        if (includedRegions === null) {
+            return true;
+        }
+
+        // check for included regions
+        const includedByStore = !!storeFrontCode ? includedRegions.includes(storeFrontCode) : false;
+        const includedByCountry = !!countryCode ? includedRegions.includes(countryCode) : false;
+
+        if (!includedByStore && !includedByCountry) {
             return false;
         }
 

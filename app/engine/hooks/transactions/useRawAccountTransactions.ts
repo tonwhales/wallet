@@ -11,6 +11,7 @@ import { useClient4, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
 import { log } from '../../../utils/log';
 import { useEffect } from 'react';
+import { addTxHints } from '../jettons/useHints';
 
 function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {
@@ -239,6 +240,21 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
             log(`[txns-query] fetching ${lt}_${hash} ${sliceFirst ? 'sliceFirst' : ''}`);
 
             let txs = await fetchAccountTransactions(accountAddr, isTestnet, { lt, hash });
+
+            // Add jetton wallets to hints (in case of hits worker lag being to high)
+            const txHints = txs
+                .filter(tx => {
+                    const isIn = tx.parsed.kind === 'in';
+                    const isJetton = tx.operation.items.length > 0
+                        ? tx.operation.items[0].kind === 'token'
+                        : false;
+
+                    return isIn && isJetton;
+                })
+                .map(tx => tx.parsed.mentioned)
+                .flat();
+
+            addTxHints(account, txHints);
 
             if (sliceFirst) {
                 txs = txs.slice(1);

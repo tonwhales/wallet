@@ -5,6 +5,8 @@ import { Queries } from "../engine/queries";
 import { verifyJetton } from "../engine/hooks/jettons/useVerifyJetton";
 import { JettonMasterState } from "../engine/metadata/fetchJettonMasterContent";
 import { getQueryData } from "../engine/utils/getQueryData";
+import { QueryCache } from "@tanstack/react-query";
+import { jettonMasterContentQueryFn, jettonWalletQueryFn } from "../engine/hooks/jettons/usePrefetchHints";
 
 type Hint = {
     address: string,
@@ -40,7 +42,7 @@ export function filterHint(filter: HintsFilter[]): (hint: Hint) => boolean {
         if (!hint.loaded) {
             return false;
         }
-        
+
         if (filter.includes('verified') && !hint.verified) {
             return false;
         }
@@ -57,19 +59,27 @@ export function filterHint(filter: HintsFilter[]): (hint: Hint) => boolean {
     }
 }
 
-export function getHint(hint: string, isTestnet: boolean): Hint {
+export function getHint(queryCache: QueryCache, hint: string, isTestnet: boolean): Hint {
     try {
         const wallet = Address.parse(hint);
-        const queryCache = queryClient.getQueryCache();
         const contractMeta = getQueryData<StoredContractMetadata>(queryCache, Queries.ContractMetadata(hint));
         const jettonWallet = getQueryData<StoredJettonWallet | null>(queryCache, Queries.Account(wallet.toString({ testOnly: isTestnet })).JettonWallet());
-        const masterStr = contractMeta?.jettonWallet?.master ?? jettonWallet?.master ?? null;
-        const masterContent = getQueryData<JettonMasterState | null>(queryCache, Queries.Jettons().MasterContent(masterStr ?? ''));
-        const swap = getQueryData<bigint | null | undefined>(queryCache, Queries.Jettons().Swap(masterStr ?? ''));
+        const masterStr = contractMeta?.jettonWallet?.master ?? jettonWallet?.master ?? '';
+        const masterContent = getQueryData<JettonMasterState | null>(queryCache, Queries.Jettons().MasterContent(masterStr));
+        const swap = getQueryData<bigint | null | undefined>(queryCache, Queries.Jettons().Swap(masterStr));
 
         const { verified, isSCAM } = verifyJetton({ ticker: masterContent?.symbol, master: masterStr }, isTestnet);
 
         if (!jettonWallet || !masterContent) {
+            // prefetch jetton wallet & master content
+            queryClient.prefetchQuery({
+                queryKey: Queries.Account(wallet.toString({ testOnly: isTestnet })).JettonWallet(),
+                queryFn: jettonWalletQueryFn(wallet.toString({ testOnly: isTestnet }), isTestnet)
+            });
+            queryClient.prefetchQuery({
+                queryKey: Queries.Jettons().MasterContent(masterStr),
+                queryFn: jettonMasterContentQueryFn(masterStr, isTestnet)
+            });
             return { address: hint };
         }
 

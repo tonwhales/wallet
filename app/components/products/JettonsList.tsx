@@ -20,6 +20,7 @@ import Animated, { Easing, LinearTransition, useAnimatedStyle, useSharedValue, w
 import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { filterHint, getHint, HintsFilter } from "../../utils/hintSortFilter";
+import { queryClient } from "../../engine/clients";
 
 const EmptyListItem = memo(() => {
     const theme = useTheme();
@@ -111,9 +112,10 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
     const [filteredJettons, setFilteredJettons] = useState(jettons);
 
     useEffect(() => {
+        const cache = queryClient.getQueryCache();
         setFilteredJettons(
             jettons
-                .map((h) => getHint(h, testOnly))
+                .map((h) => getHint(cache, h, testOnly))
                 .filter(filterHint(filter)).map((x) => x.address)
         );
 

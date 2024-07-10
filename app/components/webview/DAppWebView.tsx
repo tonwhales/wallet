@@ -168,18 +168,18 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     dispatchLastAuthTimeResponse(ref as RefObject<WebView>, getLastAuthTimestamp() || 0);
                 } else if (method === 'authenticate') {
                     (async () => {
-                        let authenicated = false;
+                        let isAuthenticated = false;
                         let lastAuthTime: number | undefined;
                         // wait for auth to complete
                         try {
                             await authContext.authenticate();
-                            authenicated = true;
+                            isAuthenticated = true;
                             lastAuthTime = getLastAuthTimestamp();
                         } catch {
                             warn('Failed to authenticate');
                         }
                         // Dispatch response
-                        dispatchAuthResponse(ref as RefObject<WebView>, { authenicated, lastAuthTime });
+                        dispatchAuthResponse(ref as RefObject<WebView>, { isAuthenticated, lastAuthTime });
                     })();
                 } else if (method === 'lockAppWithAuth') {
                     (async () => {
@@ -188,27 +188,27 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         if (isAlreadyLocked) {
                             dispatchLockAppWithAuthResponse(
                                 ref as RefObject<WebView>,
-                                { authenicated: true, lastAuthTime: getLastAuthTimestamp() }
+                                { isAuthenticated: true, lastAuthTime: getLastAuthTimestamp() }
                             );
                             return;
                         }
 
-                        let authenicated = false;
+                        let isAuthenticated = false;
                         let lastAuthTime: number | undefined;
                         // wait for auth to complete then set lockApp tag
                         try {
                             await authContext.authenticate();
-                            authenicated = true;
+                            isAuthenticated = true;
                             lastAuthTime = getLastAuthTimestamp();
                         } catch {
                             warn('Failed to authenticate');
                         }
 
-                        if (authenicated) {
+                        if (isAuthenticated) {
                             setLockAppWithAuth(true);
                         }
 
-                        dispatchLockAppWithAuthResponse(ref as RefObject<WebView>, { authenicated, lastAuthTime });
+                        dispatchLockAppWithAuthResponse(ref as RefObject<WebView>, { isAuthenticated, lastAuthTime });
                     })();
                 }
 

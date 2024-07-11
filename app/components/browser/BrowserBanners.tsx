@@ -6,7 +6,6 @@ import { BrowserBanner } from "./BrowserBanner";
 import { useSharedValue } from "react-native-reanimated";
 import { useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 
 export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] }) => {
     const dimensions = useDimensions();
@@ -26,10 +25,6 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
 
     useEffect(() => {
         if (banners.length === 0) return;
-
-        if (banners[activeSlide]) {
-            trackEvent(MixpanelEvent.BrowserBannerShown, { id: banners[activeSlide].id, productUrl: banners[activeSlide].product_url });
-        }
 
         const timerId = setTimeout(() => {
             if (banners.length === 0) return;

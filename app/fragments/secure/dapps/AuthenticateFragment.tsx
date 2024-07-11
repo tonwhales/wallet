@@ -165,9 +165,6 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                 removePendingGrant(props.session);
             });
 
-            // Track
-            trackEvent(MixpanelEvent.Connect, { url, name }, isTestnet);
-
             // Exit if already exited screen
             if (!active.current) {
                 return;
@@ -236,9 +233,6 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                 customTitle ? customTitle : title,
                 customImage ? customImage : image
             );
-
-            // Track installation
-            trackEvent(MixpanelEvent.AppInstall, { url: endpoint, domain: domain }, isTestnet);
 
             // Navigate
             navigation.replace('App', { url });

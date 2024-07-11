@@ -1072,6 +1072,13 @@ export type LocalizationSchema = {
         termsAndPrivacy: string,
         dontShowTitle: string,
     },
+    mandatoryAuth: {
+        title: string,
+        description: string,
+        alert: string,
+        confirmDescription: string,
+        action: string,
+    }
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

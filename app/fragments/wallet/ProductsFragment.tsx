@@ -42,12 +42,12 @@ export const ProductsFragment = fragment(() => {
         navigation.goBack();
 
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: holdersUrl, onEnrollType: { type: 'create' } });
+            navigation.navigateHoldersLanding({ endpoint: holdersUrl, onEnrollType: { type: 'create' } }, network.isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: 'create' });
-    }, [needsEnrolment, isHoldersReady]);
+        navigation.navigateHolders({ type: 'create' }, network.isTestnet);
+    }, [needsEnrolment, isHoldersReady, network.isTestnet]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>

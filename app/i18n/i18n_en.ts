@@ -1070,6 +1070,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsAndPrivacy: 'I have read and agree to the ',
         dontShowTitle: 'Don\'t show it again for DeDust.io',
     },
+    mandatoryAuth: {
+        title: 'Check your backup',
+        description: 'Enable verification when opening a wallet. This will help keep your bank card details safe.',
+        alert: 'Write down 24 secret words in the Security section of your wallet settings. This will help you regain access if you lose your phone or forget your pin code.',
+        confirmDescription: 'I wrote down my wallet 24 secret words and saved them in a safe place',
+        action: 'Enable',
+    }
 };
 
 export default schema;

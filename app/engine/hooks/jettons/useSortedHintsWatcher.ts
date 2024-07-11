@@ -33,13 +33,19 @@ function useSubToHintChange(
     useEffect(() => {
         const cache = queryClient.getQueryCache();
         const unsub = cache.subscribe((e: QueryCacheNotifyEvent) => {
+            const queryKey = e.query.queryKey;
             if (e.type === 'updated') {
-                const queryKey = e.query.queryKey;
+                const action = e.action;
+
+                // only care about success updates
+                if (action.type !== 'success') {
+                    return;
+                }
 
                 if (queryKey[0] === 'hints' && queryKey[1] === owner) {
                     // check if the hint was added or removed
                     const sorted = getSortedHints(owner);
-                    const hints = getQueryData<string[]>(cache, Queries.Hints(owner));
+                    const hints = action.data as string[] | undefined | null;
 
                     // do not trigger if the hints are the same set
                     if (areArraysEqualByContent(sorted, hints ?? [])) {
@@ -50,9 +56,18 @@ function useSubToHintChange(
                 } else if (
                     (queryKey[0] === 'contractMetadata')
                     || (queryKey[0] === 'account' && queryKey[2] === 'jettonWallet')
-                    || (queryKey[0] === 'jettons' && queryKey[1] === 'swap')
                     || (queryKey[0] === 'jettons' && queryKey[1] === 'master' && queryKey[3] === 'content')
                 ) {
+                    reSortHints();
+                } else if ((queryKey[0] === 'jettons' && queryKey[1] === 'swap')) {
+                    // check if the "price" changed so we can re-sort the hints
+                    const newData = action.data as bigint | undefined | null;
+                    const prev = getQueryData<bigint | undefined | null>(cache, queryKey);
+
+                    if (newData === prev) {
+                        return;
+                    }
+
                     reSortHints();
                 }
             }

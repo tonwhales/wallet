@@ -96,6 +96,7 @@ import { SortedHintsWatcher } from './components/SortedHintsWatcher';
 import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
+import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -319,6 +320,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
     modalScreen('SearchEngine', SearchEngineFragment, safeArea),
+    lockedModalScreen('MandatoryAuthSetup', MandatoryAuthSetupFragment, safeArea),
 
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),

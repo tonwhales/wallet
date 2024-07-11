@@ -90,7 +90,6 @@ export const AppAuthFragment = fragment(() => {
                 const current = AppState.currentState;
 
                 if (current === 'active') {
-                    console.log('App unblured, current');
                     setBlur(false);
                 }
             }

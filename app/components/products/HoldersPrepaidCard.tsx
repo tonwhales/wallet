@@ -61,12 +61,12 @@ export const HoldersPrepaidCard = memo((props: {
 
         if (needsEnrollment) {
             const onEnrollType: HoldersAppParams = { type: 'prepaid', id: card.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: 'prepaid', id: card.id });
-    }, [card, needsEnrollment, props.onBeforeOpen]);
+        navigation.navigateHolders({ type: 'prepaid', id: card.id }, props.isTestnet);
+    }, [card, needsEnrollment, props.onBeforeOpen, props.isTestnet]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 

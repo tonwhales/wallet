@@ -172,7 +172,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         let lastAuthTime: number | undefined;
                         // wait for auth to complete
                         try {
-                            await authContext.authenticate();
+                            await authContext.authenticate({ cancelable: true, paddingTop: 32 });
                             isAuthenticated = true;
                             lastAuthTime = getLastAuthTimestamp();
                         } catch {
@@ -182,34 +182,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         dispatchAuthResponse(ref as RefObject<WebView>, { isAuthenticated, lastAuthTime });
                     })();
                 } else if (method === 'lockAppWithAuth') {
-                    (async () => {
-
-                        const isAlreadyLocked = getLockAppWithAuthState();
-                        if (isAlreadyLocked) {
-                            dispatchLockAppWithAuthResponse(
-                                ref as RefObject<WebView>,
-                                { isAuthenticated: true, lastAuthTime: getLastAuthTimestamp() }
-                            );
-                            return;
-                        }
-
-                        let isAuthenticated = false;
-                        let lastAuthTime: number | undefined;
-                        // wait for auth to complete then set lockApp tag
-                        try {
-                            await authContext.authenticate();
-                            isAuthenticated = true;
-                            lastAuthTime = getLastAuthTimestamp();
-                        } catch {
-                            warn('Failed to authenticate');
-                        }
-
-                        if (isAuthenticated) {
-                            setLockAppWithAuth(true);
-                        }
-
-                        dispatchLockAppWithAuthResponse(ref as RefObject<WebView>, { isAuthenticated, lastAuthTime });
-                    })();
+                    const callback = (isSecured: boolean) => {
+                        const lastAuthTime = getLastAuthTimestamp();
+                        dispatchLockAppWithAuthResponse(ref as RefObject<WebView>, { isSecured, lastAuthTime });
+                    }
+                    navigation.navigateMandatoryAuthSetup({ callback });
                 }
 
                 return;
@@ -398,7 +375,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         ${props.useEmitter ? emitterAPI : ''}
         ${props.useAuthApi ? authAPI({
             lastAuthTime: getLastAuthTimestamp(),
-            isLockedByAuth: getLockAppWithAuthState() ?? false
+            isSecured: getLockAppWithAuthState() ?? false
         }) : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {

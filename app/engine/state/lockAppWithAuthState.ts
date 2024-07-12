@@ -1,7 +1,8 @@
 import { atom } from "recoil";
-import { sharedStoragePersistence } from "../../storage/storage";
+import { sharedStoragePersistence, storage } from "../../storage/storage";
 
 const lockAppWithAuthStateKey = 'lockAppWithAuthState';
+const lockAppWithAuthMandatoryKey = 'lockAppWithAuthMandatory';
 
 export function getLockAppWithAuthState() {
     return sharedStoragePersistence.getBoolean(lockAppWithAuthStateKey) || false;
@@ -17,6 +18,24 @@ export const lockAppWithAuthState = atom<boolean>({
     effects: [({ onSet }) => {
         onSet((newValue) => {
             storeLockAppWithAuthState(newValue);
+        })
+    }]
+});
+
+export function getLockAppWithAuthMandatory() {
+    return storage.getBoolean(lockAppWithAuthMandatoryKey) || false;
+}
+
+function storeLockAppWithAuthMandatory(value: boolean) {
+    storage.set(lockAppWithAuthMandatoryKey, value);
+}
+
+export const lockAppWithAuthMandatoryState = atom<boolean>({
+    key: 'auth/lockAppWithAuthState/mandatory',
+    default: getLockAppWithAuthMandatory(),
+    effects: [({ onSet }) => {
+        onSet((newValue) => {
+            storeLockAppWithAuthMandatory(newValue);
         })
     }]
 });

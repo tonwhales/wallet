@@ -144,7 +144,7 @@ export const statusBarAPI = (safeArea: EdgeInsets) => {
     `
 }
 
-export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean }) => {
+export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) => {
     return `
     window['tonhub-auth'] = (() => {
         let __AUTH_AVAILIBLE = true;
@@ -161,7 +161,7 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
             window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.getLastAuthTime' } }));
         }
 
-        const authenicate = (callback) => {
+        const authenticate = (callback) => {
             if (inProgress) {
                 callback({ isAuthenticated: false, erorr: 'auth.inProgress' });
                 return;
@@ -197,19 +197,21 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
                     params.lastAuthTime = ev.data;
                     currentCallback(ev.data);
                 } else {
-                    if (!!ev.data.lastAuthTime && ev.data.isAuthenticated === true) {
+                    if (!!ev.data.lastAuthTime) {
                         params.lastAuthTime = ev.data.lastAuthTime;
                     }
-                    if (!!ev.data.isLockedByAuth && ev.data.isLockedByAuth === true) {
-                        params.isLockedByAuth = true;
+                    if (typeof ev.data.isSecured === 'boolean') {
+                        params.isSecured = true;
+                        currentCallback({ isSecured: ev.data.isSecured, lastAuthTime: ev.data.lastAuthTime });
+                    } else if (typeof ev.data.isAuthenticated === 'boolean') {
+                        currentCallback({ isAuthenticated: ev.data.isAuthenticated, lastAuthTime: ev.data.lastAuthTime });
                     }
-                    currentCallback({ isAuthenticated: ev.data.isAuthenticated });
                 }
                 currentCallback = null;
             }
         }
 
-        const obj = { __AUTH_AVAILIBLE, params, authenicate, getLastAuthTime, lockAppWithAuth, __response };
+        const obj = { __AUTH_AVAILIBLE, params, authenticate, getLastAuthTime, lockAppWithAuth, __response };
         Object.freeze(obj);
         return obj;
     })();
@@ -330,8 +332,8 @@ export function dispatchAuthResponse(webRef: React.RefObject<WebView>, data: { i
     webRef.current?.injectJavaScript(injectedMessage);
 }
 
-export function dispatchLockAppWithAuthResponse(webRef: React.RefObject<WebView>, data: { isAuthenticated: boolean, lastAuthTime?: number }) {
-    let injectedMessage = `window['tonhub-auth'].__response(${JSON.stringify({ data: { ...data, isLockedByAuth: data.isAuthenticated } })}); true;`;
+export function dispatchLockAppWithAuthResponse(webRef: React.RefObject<WebView>, data: { isSecured: boolean, lastAuthTime?: number }) {
+    let injectedMessage = `window['tonhub-auth'].__response(${JSON.stringify({ data })}); true;`;
     webRef.current?.injectJavaScript(injectedMessage);
 }
 

@@ -815,7 +815,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "restore": "Восстановить"
             },
             "canceled": {
-                "title": "Отменено",
+                "title": "Отменa",
                 "message": "Аутентификация была отменена, пожалуйста, повторите попытку"
             }
         }
@@ -1070,6 +1070,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "termsAndPrivacy": 'Я прочитал и согласен с ',
         "dontShowTitle": 'Больше не показывать для DeDust.io',
     },
+    mandatoryAuth: {
+        title: 'Проверьте Seed фразу',
+        description: 'Вкличите верификацию при открытии кошелька. Храните данные ваших карт в безопасности.',
+        alert: 'Сохраните 24 секретных слова (Seed фразу) от вашего кошелька. Это поможет вам восстановить доступ, если вы потеряете телефон или забудете пин-код.',
+        confirmDescription: '24 секретных слова записаны и хранятся в надежном месте',
+        action: 'Включить',
+    }
 };
 
 export default schema;

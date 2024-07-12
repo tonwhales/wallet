@@ -87,12 +87,12 @@ export const HoldersAccountItem = memo((props: {
 
         if (needsEnrollment) {
             const onEnrollType: HoldersAppParams = { type: 'account', id: props.account.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: 'account', id: props.account.id });
-    }, [props.account, needsEnrollment]);
+        navigation.navigateHolders({ type: 'account', id: props.account.id }, props.isTestnet);
+    }, [props.account, needsEnrollment, props.isTestnet]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 

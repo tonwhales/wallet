@@ -48,15 +48,22 @@ export type AuthParams = {
     selectedAccount?: SelectedAccount
 }
 
+export enum AuthRejectReason {
+    Canceled = 'canceled',
+    InProgress = 'in-progress',
+    PasscodeNotSet = 'passcode-not-set',
+    NoPasscode = 'no-passcode',
+}
+
 export type AuthProps =
     | {
         returns: 'keysWithPasscode',
-        promise: { resolve: (res: { keys: WalletKeys, passcode: string }) => void, reject: () => void }
+        promise: { resolve: (res: { keys: WalletKeys, passcode: string }) => void, reject: (reason?: AuthRejectReason) => void }
         params?: AuthParams
     } |
     {
         returns: 'keysOnly',
-        promise: { resolve: (keys: WalletKeys) => void, reject: () => void }
+        promise: { resolve: (keys: WalletKeys) => void, reject: (reason?: AuthRejectReason) => void }
         params?: AuthParams
     }
 
@@ -143,7 +150,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
 
         // Reject previous auth promise
         if (auth) {
-            auth.promise.reject();
+            auth.promise.reject(AuthRejectReason.InProgress);
         }
 
         // Clear previous auth
@@ -273,7 +280,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
 
         // Reject previous auth promise
         if (auth) {
-            auth.promise.reject();
+            auth.promise.reject(AuthRejectReason.InProgress);
         }
 
         // Clear previous auth
@@ -284,7 +291,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         return new Promise<{ keys: WalletKeys, passcode: string }>((resolve, reject) => {
             const passcodeState = getPasscodeState();
             if (passcodeState !== PasscodeState.Set) {
-                reject();
+                reject(AuthRejectReason.PasscodeNotSet);
             }
 
             const resolveWithTimestamp = async (res: {
@@ -380,7 +387,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                         description={auth.params?.description}
                         onEntered={async (pass) => {
                             if (!pass) {
-                                auth.promise.reject();
+                                auth.promise.reject(AuthRejectReason.NoPasscode);
                                 setAuth(null);
                                 return;
                             }
@@ -417,7 +424,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                     {auth.params?.cancelable && (
                         <CloseButton
                             onPress={() => {
-                                auth.promise.reject();
+                                auth.promise.reject(AuthRejectReason.Canceled);
                                 setAuth(null);
                             }}
                             style={{

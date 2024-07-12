@@ -6,7 +6,7 @@ import { fragment } from "../fragment"
 import { t } from "../i18n/t"
 import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { useHasHoldersProducts, useSelectedAccount, useTheme } from '../engine/hooks';
+import { useSelectedAccount, useTheme } from '../engine/hooks';
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
@@ -17,7 +17,7 @@ import { usePasscodeState } from '../engine/hooks'
 import { useBiometricsState } from '../engine/hooks'
 import { useSetBiometricsState } from "../engine/hooks/appstate/useSetBiometricsState"
 import { ScreenHeader } from "../components/ScreenHeader"
-import { useLockAppWithAuthState } from "../engine/hooks/settings"
+import { useAppAuthMandatory, useLockAppWithAuthState } from "../engine/hooks/settings"
 import { StatusBar } from "expo-status-bar"
 
 import TouchAndroid from '@assets/ic_touch_and.svg';
@@ -32,11 +32,11 @@ export const SecurityFragment = fragment(() => {
     const passcodeState = usePasscodeState();
     const biometricsState = useBiometricsState();
     const setBiometricsState = useSetBiometricsState();
-    const hasHoldersProducts = useHasHoldersProducts(selectedAccount?.address ?? '');
+    const [mandatoryAuth,] = useAppAuthMandatory();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [lockAppWithAuthState, setLockAppWithAuthState] = useLockAppWithAuthState();
 
-    const canToggleAppAuth = !(hasHoldersProducts && lockAppWithAuthState);
+    const canToggleAppAuth = !(mandatoryAuth && lockAppWithAuthState);
 
     const biometricsProps = useMemo(() => {
         if (passcodeState !== PasscodeState.Set) {

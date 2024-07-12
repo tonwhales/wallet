@@ -477,7 +477,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         />
                     )
                 }}
-                webviewDebuggingEnabled={__DEV__}
             />
             <KeyboardAvoidingView
                 style={{ position: 'absolute', bottom: safeArea.bottom, left: 0, right: 0 }}

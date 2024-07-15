@@ -60,6 +60,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             holdersAccStatus={holdersAccStatus}
                             itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                             onBeforeOpen={navigation.goBack}
+                            hideCardsIfEmpty
                         />
                     );
                 },

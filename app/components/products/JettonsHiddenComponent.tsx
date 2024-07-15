@@ -59,7 +59,8 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
                 showDivider={false}
                 collapsed={collapsed}
                 items={hiddenList}
-                itemHeight={102}
+                itemHeight={86}
+                style={{ gap: 16, paddingHorizontal: 16 }}
                 renderItem={(j, index) => {
                     const length = hiddenList.length >= 4 ? 4 : hiddenList.length;
                     const isLast = index === length - 1;
@@ -69,7 +70,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
                             wallet={j}
                             first={index === 0}
                             last={isLast}
-                            itemStyle={{ marginHorizontal: 16, marginBottom: 16 }}
+                            itemStyle={{ borderRadius: 20 }}
                             rightAction={() => markJettonActive(j)}
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                             single={hiddenList.length === 1}

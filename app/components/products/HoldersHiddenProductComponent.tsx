@@ -27,7 +27,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
     const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(selected!.address);
     const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(selected!.address);
 
-    const hiddenAccountsList = useMemo(() => {
+    let hiddenAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {
             return hiddenAccounts.includes(item.id);
         });
@@ -76,7 +76,10 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                     <AnimatedChildrenCollapsible
                         showDivider={false}
                         collapsed={collapsedAccounts}
-                        items={hiddenAccountsList}
+                        // re-map to add height correction for accounts with no cards
+                        items={hiddenAccountsList.map((item) => {
+                            return { ...item, height: item.cards.length > 0 ? 122 : 86 }
+                        })}
                         itemHeight={122}
                         style={{ gap: 16, paddingHorizontal: 16 }}
                         renderItem={(item, index) => {
@@ -90,9 +93,10 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     rightAction={() => markAccount(item.id, false)}
                                     rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                                     single={hiddenAccountsList.length === 1}
-                                    style={{ paddingVertical: 0 }}
+                                    style={{ flex: undefined, backgroundColor: 'red' }}
                                     isTestnet={network.isTestnet}
                                     holdersAccStatus={holdersAccStatus}
+                                    hideCardsIfEmpty
                                 />
                             )
                         }}

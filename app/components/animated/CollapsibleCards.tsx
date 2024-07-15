@@ -18,7 +18,6 @@ const CardItemWrapper = memo(({
     index: number,
     itemHeight?: number,
 }) => {
-
     const animatedStyle = useAnimatedStyle(() => ({
         marginTop: interpolate(
             progress.value,
@@ -49,7 +48,18 @@ export type CollapsibleCardsLimitConfig = {
     fullList: ProductsListFragmentParams,
 }
 
-export const CollapsibleCards = memo(({
+type CollapsibleCardsProps<T> = {
+    title: string,
+    items: (T & { height?: number })[],
+    renderItem: (item: (T & { height?: number }), index: number) => any,
+    renderFace?: () => any,
+    itemHeight?: number,
+    theme: ThemeType,
+    initialCollapsed?: boolean,
+    limitConfig?: CollapsibleCardsLimitConfig
+};
+
+const CollapsibleCardsComponent = <T,>({
     title,
     items,
     renderItem,
@@ -58,16 +68,7 @@ export const CollapsibleCards = memo(({
     theme,
     initialCollapsed = true,
     limitConfig
-}: {
-    title: string,
-    items: any[],
-    renderItem: (item: any, index: number) => any,
-    renderFace?: () => any,
-    itemHeight?: number,
-    theme: ThemeType,
-    initialCollapsed?: boolean,
-    limitConfig?: CollapsibleCardsLimitConfig
-}) => {
+}: CollapsibleCardsProps<T>) => {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const [collapsed, setCollapsed] = useState(initialCollapsed);
@@ -81,6 +82,18 @@ export const CollapsibleCards = memo(({
         });
     }, [collapsed]);
 
+    const firstItem = items[0];
+    const secondItem = items[1];
+    const thirdItem = items[2];
+
+    const firstHeight = firstItem?.height || itemHeight;
+    const secondHeight = secondItem?.height || itemHeight;
+    const thirdHeight = thirdItem?.height || itemHeight;
+
+    const cardFirstItem = renderItem(firstItem, 0);
+    const cardSecondItem = renderItem(secondItem, 1);
+    const cardThirdItem = renderItem(thirdItem, 2);
+
     const cardLevelOpacity = useAnimatedStyle(() => ({
         opacity: interpolate(
             progress.value,
@@ -91,11 +104,27 @@ export const CollapsibleCards = memo(({
         pointerEvents: progress.value === 1 ? 'none' : 'auto'
     }));
 
+    const cardFirstLevelStyle = useAnimatedStyle(() => ({
+        opacity: interpolate(
+            progress.value,
+            [1, 0],
+            [1, 0],
+            Extrapolation.CLAMP,
+        ),
+        height: interpolate(
+            progress.value,
+            [0, 1],
+            [86, firstHeight],
+            Extrapolation.CLAMP
+        ),
+        pointerEvents: progress.value === 0 ? 'none' : 'auto'
+    }));
+
     const cardSecondLevelStyle = useAnimatedStyle(() => ({
         height: interpolate(
             progress.value,
             [0, 1],
-            [76, itemHeight],
+            [76, secondHeight],
             Extrapolation.CLAMP
         ),
         width: interpolate(
@@ -107,7 +136,7 @@ export const CollapsibleCards = memo(({
         marginTop: interpolate(
             progress.value,
             [0, 1],
-            [-66, 16 + itemHeight - 86],
+            [-66, 16 + firstHeight - 86],
             Extrapolation.CLAMP
         ),
     }));
@@ -116,7 +145,7 @@ export const CollapsibleCards = memo(({
         height: interpolate(
             progress.value,
             [0, 1],
-            [66, itemHeight],
+            [66, thirdHeight],
             Extrapolation.CLAMP
         ),
         width: interpolate(
@@ -158,26 +187,6 @@ export const CollapsibleCards = memo(({
 
         pointerEvents: progress.value === 1 ? 'none' : 'auto'
     }));
-
-    const cardFirstLevelStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(
-            progress.value,
-            [1, 0],
-            [1, 0],
-            Extrapolation.CLAMP,
-        ),
-        height: interpolate(
-            progress.value,
-            [0, 1],
-            [86, itemHeight],
-            Extrapolation.CLAMP
-        ),
-        pointerEvents: progress.value === 0 ? 'none' : 'auto'
-    }));
-
-    const cardFirstItem = renderItem(items[0], 0);
-    const cardSecondItem = renderItem(items[1], 1);
-    const cardThirdItem = renderItem(items[2], 2);
 
     return (
         <View>
@@ -281,13 +290,14 @@ export const CollapsibleCards = memo(({
             <Animated.View style={{ paddingHorizontal: 16, overflow: 'hidden' }}>
                 {items.slice(3, limitConfig?.maxItems).map((item, index) => {
                     const itemView = renderItem(item, index);
+                    const height = item.height || itemHeight;
                     return (
                         <CardItemWrapper
                             key={`card-${index}`}
                             progress={progress}
                             item={itemView}
                             index={index}
-                            itemHeight={itemHeight}
+                            itemHeight={height}
                         />
                     )
                 })}
@@ -320,4 +330,6 @@ export const CollapsibleCards = memo(({
             )}
         </View>
     )
-});
+};
+
+export const CollapsibleCards = memo(CollapsibleCardsComponent) as typeof CollapsibleCardsComponent;

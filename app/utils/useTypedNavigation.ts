@@ -18,6 +18,7 @@ import { MandatoryAuthSetupParams } from '../fragments/secure/MandatoryAuthSetup
 import { getLockAppWithAuthMandatory, getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
 import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
 import { getCurrentAddress } from '../storage/appState';
+import { Platform } from 'react-native';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -171,7 +172,12 @@ export class TypedNavigation {
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
                 if (success) { // navigate only if auth is set up
-                    this.navigate('HoldersLanding', { endpoint, onEnrollType })
+                    if (Platform.OS === 'android') {
+                        this.replace('HoldersLanding', { endpoint, onEnrollType });
+                    } else {
+                        this.goBack(); // close modal
+                        this.navigate('HoldersLanding', { endpoint, onEnrollType })
+                    }
                 }
             }
             this.navigateMandatoryAuthSetup({ callback });
@@ -184,7 +190,12 @@ export class TypedNavigation {
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
                 if (success) { // navigate only if auth is set up
-                    this.navigate('Holders', params);
+                    if (Platform.OS === 'android') {
+                        this.replace('Holders', params);
+                    } else {
+                        this.goBack(); // close modal
+                        this.navigate('Holders', params);
+                    }
                 }
             }
             this.navigateMandatoryAuthSetup({ callback });

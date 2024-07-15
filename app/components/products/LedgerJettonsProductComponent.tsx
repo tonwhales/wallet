@@ -65,12 +65,9 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                 title={t('jetton.productButtonTitle')}
                 items={jettons}
                 renderItem={(j) => {
-                    if (!j) {
-                        return null;
-                    }
-                    return (
+                    return !j ? null : (
                         <JettonProductItem
-                            key={'jt' + j.wallet.toString({ testOnly })}
+                            key={'jt' + j.toString({ testOnly })}
                             wallet={j}
                             card
                             ledger

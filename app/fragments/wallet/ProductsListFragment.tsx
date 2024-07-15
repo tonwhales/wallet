@@ -114,7 +114,7 @@ export const ProductsListFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             {type === 'jettons' ? (
-                <Suspense fallback={<View style={{ backgroundColor: 'red', height: 500, width: 500 }} />}>
+                <Suspense fallback={<View style={{ height: 500, width: 500 }} />}>
                     <JettonsList isLedger={isLedger} />
                 </Suspense>
             ) : (

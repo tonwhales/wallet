@@ -93,7 +93,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     rightAction={() => markAccount(item.id, false)}
                                     rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                                     single={hiddenAccountsList.length === 1}
-                                    style={{ flex: undefined, backgroundColor: 'red' }}
+                                    style={{ flex: undefined }}
                                     isTestnet={network.isTestnet}
                                     holdersAccStatus={holdersAccStatus}
                                     hideCardsIfEmpty

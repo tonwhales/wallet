@@ -22,7 +22,7 @@ import Support from '@assets/ic-support.svg';
 function hasHoldersProductsOnDevice(isTestnet: boolean) {
     const appState = getAppState();
 
-    return appState.addresses.every((acc) => {
+    return !!appState.addresses.find((acc) => {
         return getHasHoldersProducts(acc.address.toString({ testOnly: isTestnet }));
     });
 }

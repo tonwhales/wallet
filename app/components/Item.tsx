@@ -3,6 +3,7 @@ import { ImageSourcePropType, Pressable, Text, View, Image, Platform, StyleProp,
 import { Switch } from 'react-native-gesture-handler';
 import { useTheme } from '../engine/hooks';
 import { memo } from 'react';
+import { Typography } from './styles';
 
 export const Item = memo((props: { title?: string, hint?: string, onPress?: () => void, backgroundColor?: string, textColor?: string }) => {
     const theme = useTheme();
@@ -51,13 +52,16 @@ export const ItemSwitch = memo((props: {
             onPress={() => {
                 props.onChange(!props.value);
             }}
-            style={{
-                flexGrow: 1,
-                alignItems: 'center', justifyContent: 'space-between',
-                flexDirection: 'row',
-                padding: 20,
-                minHeight: 72
-            }}
+            style={[
+                {
+                    flexGrow: 1,
+                    alignItems: 'center', justifyContent: 'space-between',
+                    flexDirection: 'row',
+                    padding: 20,
+                    minHeight: 72
+                },
+                Platform.select({ android: { opacity: props.disabled ? 0.8 : 1 } }),
+            ]}
             disabled={props.disabled}
         >
             <View style={{ flexDirection: 'row', flexShrink: 1, alignItems: 'center' }}>
@@ -69,12 +73,8 @@ export const ItemSwitch = memo((props: {
                 )}
                 <Text
                     style={[
-                        {
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '600',
-                            textAlignVertical: 'center',
-                            flexShrink: 1, color: theme.textPrimary, marginRight: 4,
-                        },
+                        { textAlignVertical: 'center', flexShrink: 1, color: theme.textPrimary, marginRight: 4 },
+                        Typography.semiBold17_24,
                         props.titleStyle
                     ]}
                 >

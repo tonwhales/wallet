@@ -131,7 +131,7 @@ export function useHandleMessage(
                 });
             }
 
-        } catch (e) {
+        } catch {
             warn('Failed to handle message');
         }
     }

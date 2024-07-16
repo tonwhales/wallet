@@ -460,10 +460,12 @@ export function useLinkNavigator(
 
         if (resolved.type === 'external-url') {
             Linking.openURL(resolved.url);
+            return;
         }
-        
+
         if (resolved.type === 'in-app-url') {
             openWithInApp(resolved.url);
+            return;
         }
 
     }, [selected, updateAppState]);

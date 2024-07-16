@@ -659,7 +659,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         onLaterMessage: 'You can setup protection later in settings',
         onLaterButton: 'Setup later',
         onBiometricsError: 'Error authenticating with biometrics',
-        lockAppWithAuth: 'Lock app with authentication',
+        lockAppWithAuth: 'Authenticaticate when logging into the app',
         methodPasscode: 'passcode',
         passcodeSetupDescription: 'PIN code helps to protect your wallet from unauthorized access'
     },
@@ -1076,6 +1076,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         alert: 'Write down 24 secret words in the Security section of your wallet settings. This will help you regain access if you lose your phone or forget your pin code.',
         confirmDescription: 'I wrote down my wallet 24 secret words and saved them in a safe place',
         action: 'Enable',
+        settingsDescription: 'Authentication request is mandatory as the app displays banking products'
     }
 };
 

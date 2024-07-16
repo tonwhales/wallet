@@ -199,8 +199,9 @@ export class TypedNavigation {
                 }
             }
             this.navigateMandatoryAuthSetup({ callback });
+        } else {
+            this.navigate('Holders', params);
         }
-        this.navigate('Holders', params);
     }
 
     navigateConnectAuth(params: TonConnectAuthProps) {

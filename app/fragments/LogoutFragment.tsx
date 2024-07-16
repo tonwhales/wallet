@@ -9,17 +9,30 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";
-import { useTheme } from "../engine/hooks";
+import { useNetwork, useTheme } from "../engine/hooks";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 import { StatusBar } from "expo-status-bar";
+import { useAppAuthMandatory } from "../engine/hooks/settings";
+import { getAppState } from "../storage/appState";
+import { getHasHoldersProducts } from "../engine/hooks/holders/useHasHoldersProducts";
 
 import IcLogout from '@assets/ic-alert-red.svg';
 import Support from '@assets/ic-support.svg';
 
+function hasHoldersProductsOnDevice(isTestnet: boolean) {
+    const appState = getAppState();
+
+    return appState.addresses.every((acc) => {
+        return getHasHoldersProducts(acc.address.toString({ testOnly: isTestnet }));
+    });
+}
+
 export const LogoutFragment = fragment(() => {
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const [, setMandatoryAuth] = useAppAuthMandatory();
 
     const { showActionSheetWithOptions } = useActionSheet();
     const onAccountDeleted = useDeleteCurrentAccount();
@@ -50,7 +63,16 @@ export const LogoutFragment = fragment(() => {
 
     const onLogout = useCallback(async () => {
         onAccountDeleted();
-    }, [onAccountDeleted]);
+
+        // Check if there are any holders products left on other accounts
+        const hasHoldersProductsLeft = hasHoldersProductsOnDevice(isTestnet);
+
+        // if not, disable mandatory auth
+        if (!hasHoldersProductsLeft) {
+            setMandatoryAuth(false);
+        }
+
+    }, [isTestnet, onAccountDeleted]);
 
     const showLogoutActSheet = useCallback(() => {
         if (isShown) {

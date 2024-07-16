@@ -1,4 +1,4 @@
-import { Platform, Pressable, View, ScrollView, KeyboardAvoidingView, Text } from "react-native";
+import { Platform, Pressable, View, ScrollView, Text } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -40,7 +40,9 @@ export const AvatarPickerFragment = fragment(() => {
     }, [hashState, selectedColor]);
 
     return (
-        <View style={{ flexGrow: 1 }}>
+        <View style={{
+            flexGrow: 1, alignSelf: 'stretch',
+        }}>
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'
@@ -53,7 +55,7 @@ export const AvatarPickerFragment = fragment(() => {
             <View style={{ flexGrow: 1 }} />
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                 <Avatar
-                    size={dimentions.window.width - 32}
+                    size={Math.floor((dimentions.window.height / 2.5)) - 64}
                     hash={hashState}
                     borderColor={theme.transparent}
                     theme={theme}
@@ -134,17 +136,13 @@ export const AvatarPickerFragment = fragment(() => {
                     })}
                 </ScrollView>
             </View>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
-            >
+            <View style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}>
                 <RoundButton
                     title={t('contacts.save')}
                     disabled={!hasChanges}
                     onPress={onSave}
                 />
-            </KeyboardAvoidingView>
+            </View>
         </View>
     )
 });

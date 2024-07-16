@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Platform, View, Text, ScrollView, Image } from "react-native";
+import { Platform, View, Text, Image, FlatList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
 import { ContactItemView } from "../../components/Contacts/ContactItemView";
@@ -16,6 +16,7 @@ import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { useDimensions } from "@react-native-community/hooks";
 import { ATextInput } from "../../components/ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
+import { Typography } from "../../components/styles";
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-contacts-dark.webp'),
@@ -100,11 +101,13 @@ export const ContactsFragment = fragment(() => {
     }
 
     return (
-        <View style={{
-            flexGrow: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: safeArea.bottom + 16,
-        }}>
+        <View style={[
+            {
+                flexGrow: 1, alignSelf: 'stretch',
+                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+                paddingBottom: safeArea.bottom ? safeArea.bottom + 16 : 0
+            }
+        ]}>
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'
@@ -122,25 +125,39 @@ export const ContactsFragment = fragment(() => {
                         title={t('contacts.title')}
                         onClosePressed={navigation.goBack}
                     />
-                    <ATextInput
-                        placeholder={t('contacts.search')}
-                        onValueChange={setSearch}
-                        value={search}
-                        style={{
-                            paddingHorizontal: 16, paddingVertical: 16,
-                            backgroundColor: theme.surfaceOnBg,
-                            margin: 16
-                        }}
-                    />
+                    {contactsEntries.length > 0 &&
+                        <ATextInput
+                            placeholder={t('contacts.search')}
+                            onValueChange={setSearch}
+                            value={search}
+                            cursorColor={theme.accent}
+                            style={{
+                                paddingHorizontal: 16, paddingVertical: 16,
+                                backgroundColor: theme.surfaceOnBg,
+                                margin: 16,
+                                borderRadius: 20
+                            }}
+                        />
+                    }
                 </>
             )}
-            <ScrollView
-                contentInsetAdjustmentBehavior="automatic"
-                style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
-                showsVerticalScrollIndicator={true}
-            >
-                {contactsEntries.length === 0 ? (
-                    <>
+            <FlatList
+                data={contactsSearchList}
+                contentInsetAdjustmentBehavior={'automatic'}
+                keyExtractor={(item) => item[0]}
+                renderItem={({ item }) => (
+                    <ContactItemView
+                        key={`contact-${item[0]}`}
+                        addressFriendly={item[0]}
+                        action={callback}
+                        testOnly={isTestnet}
+                        knownWallets={knownWallets}
+                    />
+                )}
+                style={{ flex: 1, flexShrink: 1 }}
+                contentContainerStyle={{ paddingHorizontal: 16 }}
+                ListEmptyComponent={
+                    <View style={{ flexGrow: 1 }}>
                         <View style={{ alignItems: 'center' }}>
                             <View style={{
                                 justifyContent: 'center', alignItems: 'center',
@@ -156,26 +173,21 @@ export const ContactsFragment = fragment(() => {
                                 />
                             </View>
                             <View style={{ alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
-                                <Text style={{
-                                    fontSize: 32, lineHeight: 38,
-                                    fontWeight: '600',
+                                <Text style={[{
                                     marginBottom: 16,
                                     textAlign: 'center',
                                     color: theme.textPrimary,
-                                }}
+                                }, Typography.semiBold32_38]}
                                 >
                                     {t('contacts.empty')}
                                 </Text>
-                                <Text style={{
-                                    fontSize: 17, lineHeight: 24,
-                                    fontWeight: '400',
+                                <Text style={[{
                                     color: theme.textSecondary,
                                     textAlign: 'center'
-                                }}>
+                                }, Typography.regular17_24]}>
                                     {t('contacts.description')}
                                 </Text>
                             </View>
-
                         </View>
                         {transactionsAddresses.map((a, index) => {
                             return (
@@ -187,46 +199,26 @@ export const ContactsFragment = fragment(() => {
                                 />
                             );
                         })}
-                    </>
-                ) : (
-                    <>
-                        {contactsSearchList.map((d) => {
-                            return (
-                                <ContactItemView
-                                    key={`contact-${d[0]}`}
-                                    addressFriendly={d[0]}
-                                    action={callback}
-                                    testOnly={isTestnet}
-                                    knownWallets={knownWallets}
-                                />
-                            );
-                        })}
-                        {contactsSearchList.length === 0 && (
-                            <View style={{ alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
-                                <Text style={{
-                                    fontSize: 32, lineHeight: 38,
-                                    fontWeight: '600',
-                                    marginBottom: 16,
-                                    textAlign: 'center',
-                                    color: theme.textPrimary,
-                                }}
-                                >
-                                    {t('contacts.empty')}
-                                </Text>
-                            </View>
-                        )}
-                    </>
-                )}
-            </ScrollView>
+                    </View>
+                }
+            />
             {!callback && (
-                <RoundButton
-                    title={t('contacts.add')}
-                    onPress={onAddContact}
-                    style={[
-                        { marginHorizontal: 16 },
-                        Platform.select({ ios: { marginBottom: (contactsSearchList && contactsSearchList.length > 0) ? 16 + 56 + safeArea.bottom : 0 } })
-                    ]}
-                />
+                <View style={[
+                    { paddingHorizontal: 16 },
+                    Platform.select({
+                        ios: {
+                            paddingBottom: contactsEntries.length > 0
+                                ? (safeArea.bottom || 56) + 56 + 16
+                                : 16,
+                            padding: 16
+                        }
+                    }),
+                ]}>
+                    <RoundButton
+                        title={t('contacts.add')}
+                        onPress={onAddContact}
+                    />
+                </View>
             )}
         </View>
     );

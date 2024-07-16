@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Alert, Keyboard, TextInput, KeyboardAvoidingView } from "react-native";
+import { Platform, View, Text, Alert, Keyboard, TextInput, KeyboardAvoidingView, ScrollView } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ContactField } from "../../components/Contacts/ContactField";
@@ -161,7 +161,7 @@ export const ContactNewFragment = fragment(() => {
                 style={{ paddingLeft: 16 }}
                 onClosePressed={navigation.goBack}
             />
-            <Animated.ScrollView
+            <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{
                     bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom + 44 + 56) : 0.1 /* Some weird bug on iOS */,
@@ -197,7 +197,6 @@ export const ContactNewFragment = fragment(() => {
                                 hashColor
                             />
                         </View>
-
                     </View>
                     <View style={{
                         backgroundColor: theme.surfaceOnElevation,
@@ -214,6 +213,7 @@ export const ContactNewFragment = fragment(() => {
                             blurOnSubmit={true}
                             editable={true}
                             onFocus={() => onFocus(1)}
+                            cursorColor={theme.accent}
                         />
                     </View>
                     <View style={{
@@ -233,6 +233,7 @@ export const ContactNewFragment = fragment(() => {
                             editable={true}
                             multiline
                             onFocus={() => onFocus(0)}
+                            cursorColor={theme.accent}
                         />
                     </View>
                     {address.length >= 48 && !parsed && (
@@ -284,38 +285,19 @@ export const ContactNewFragment = fragment(() => {
                         </View>
                     )}
                 </Animated.View>
-            </Animated.ScrollView>
-            {Platform.OS === 'ios' ? (
-                <View
-                    style={{
-                        position: 'absolute', bottom: safeArea.bottom + 24, left: 0, right: 0,
-                        paddingHorizontal: 16,
-                        gap: 16
-                    }}
-                >
-                    <RoundButton
-                        display={'default'}
-                        action={onAction}
-                        title={t('contacts.save')}
-                        disabled={!ready}
-                    />
-                </View>
-            ) : (
-                <KeyboardAvoidingView
-                    style={{
-                        gap: 16,
-                        paddingHorizontal: 16,
-                        marginVertical: 16,
-                    }}
-                >
-                    <RoundButton
-                        display={'default'}
-                        action={onAction}
-                        title={t('contacts.save')}
-                        disabled={!ready}
-                    />
-                </KeyboardAvoidingView>
-            )}
+            </ScrollView>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                style={{ paddingHorizontal: 16, marginBottom: safeArea.bottom + 16 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 16}
+            >
+                <RoundButton
+                    display={'default'}
+                    action={onAction}
+                    title={t('contacts.save')}
+                    disabled={!ready}
+                />
+            </KeyboardAvoidingView>
         </View>
     );
 });

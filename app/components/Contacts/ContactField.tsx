@@ -84,6 +84,7 @@ export const ContactField = memo(forwardRef((props: {
                     props.input.onSubmit(props.index);
                 }
             }}
+            cursorColor={theme.accent}
         />
     )
 

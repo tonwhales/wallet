@@ -59,8 +59,8 @@ export const WalletCreateFragment = systemFragment(() => {
     return (
         <View
             style={[
-                { flexGrow: 1 },
                 Platform.select({ android: { paddingBottom: safeArea.bottom + 16 } }),
+                { flexGrow: 1, alignSelf: 'stretch', alignItems: 'center' }
             ]}
         >
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
@@ -93,12 +93,12 @@ export const WalletCreateFragment = systemFragment(() => {
                                 navigation.goBack();
                             }
                         }}
-                        style={[{ paddingLeft: 16, paddingTop: safeArea.top }, Platform.select({ ios: { paddingTop: 32 } })]}
+                        style={[{ paddingTop: safeArea.top }, Platform.select({ ios: { paddingTop: 32 } })]}
                     />
                     <ScrollView
                         alwaysBounceVertical={false}
-                        style={{ width: '100%', paddingHorizontal: 16, }}
-                        contentInset={{ bottom: safeArea.bottom + 16 + 56 }}
+                        style={{ width: '100%', paddingHorizontal: 16, flexShrink: 1 }}
+                        showsVerticalScrollIndicator={true}
                     >
                         <Text style={{
                             fontSize: 32, lineHeight: 38,
@@ -149,13 +149,9 @@ export const WalletCreateFragment = systemFragment(() => {
                             />
                         )}
                     </ScrollView>
-                    <View style={[
-                        { paddingHorizontal: 16 },
-                        Platform.select({ android: { paddingBottom: 16 } })
-                    ]}>
+                    <View style={{ paddingHorizontal: 16 }}>
                         <RoundButton
                             title={t('create.okSaved')}
-                            style={{ position: 'absolute', bottom: 0, left: 16, right: 16 }}
                             onPress={() => {
                                 setState({ ...state, saved: true });
                             }}

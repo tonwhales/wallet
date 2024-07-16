@@ -659,7 +659,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         onLaterMessage: 'You can setup protection later in settings',
         onLaterButton: 'Setup later',
         onBiometricsError: 'Error authenticating with biometrics',
-        lockAppWithAuth: 'Authenticaticate when logging into the app',
+        lockAppWithAuth: 'Authenticate when logging into the app',
         methodPasscode: 'passcode',
         passcodeSetupDescription: 'PIN code helps to protect your wallet from unauthorized access'
     },

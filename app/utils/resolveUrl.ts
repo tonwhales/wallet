@@ -14,6 +14,8 @@ export enum ResolveUrlError {
     InvalidJettonFee = 'InvalidJettonFee',
     InvalidJettonForward = 'InvalidJettonForward',
     InvalidJettonAmounts = 'InvalidJettonAmounts',
+    InvalidInappUrl = 'InvalidInappUrl',
+    InvalidExternalUrl = 'InvalidExternalUrl',
 }
 
 export type ResolvedUrl = {
@@ -52,6 +54,12 @@ export type ResolvedUrl = {
     address: string,
     hash: string,
     lt: string
+} | {
+    type: 'in-app-url',
+    url: string,
+} | {
+    type: 'external-url',
+    url: string,
 } | {
     type: 'error',
     error: ResolveUrlError
@@ -198,151 +206,165 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
     try {
         const url = new Url(src, true);
 
+        const isTonUrl = url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:';
+        const isHttpUrl = url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:';
+
         // ton url
-        if ((url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:') && url.host.toLowerCase() === 'transfer' && url.pathname.startsWith('/')) {
-            return resolveTransferUrl(url);
-        }
+        if (isTonUrl) {
 
-        // ton url connect
-        if ((url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:') && url.host.toLowerCase() === 'connect' && url.pathname.startsWith('/')) {
-            let session = url.pathname.slice(1);
-            let endpoint: string | null = null;
-            if (url.query) {
-                for (let key in url.query) {
-                    if (key.toLowerCase() === 'endpoint') {
-                        endpoint = url.query[key]!;
+            if (url.host.toLowerCase() === 'transfer' && url.pathname.startsWith('/')) {
+
+                return resolveTransferUrl(url);
+
+            } else if (url.host.toLowerCase() === 'connect' && url.pathname.startsWith('/')) {
+
+                let session = url.pathname.slice(1);
+                let endpoint: string | null = null;
+                if (url.query) {
+                    for (let key in url.query) {
+                        if (key.toLowerCase() === 'endpoint') {
+                            endpoint = url.query[key]!;
+                        }
                     }
                 }
+
+                return {
+                    type: 'connect',
+                    session,
+                    endpoint
+                }
+
+            } else if (url.host.toLowerCase() === 'tx' && url.pathname.startsWith('/')) {
+
+                const address = decodeURIComponent(url.pathname.slice(1).split('/')[0]);
+                const txId = url.pathname.slice(1).split('/')[1].split('_');
+                const lt = txId[0];
+                const hash = decodeURIComponent(txId[1]);
+
+                return {
+                    type: 'tx',
+                    address,
+                    hash,
+                    lt
+                }
+
+            } else if (url.host.toLowerCase() === 'tx' && url.pathname.startsWith('/')) {
+                const address = decodeURIComponent(url.pathname.slice(1).split('/')[0]);
+                const txId = url.pathname.slice(1).split('/')[1].split('_');
+                const lt = txId[0];
+                const hash = decodeURIComponent(txId[1]);
+
+                return {
+                    type: 'tx',
+                    address,
+                    hash,
+                    lt
+                }
             }
-            return {
-                type: 'connect',
-                session,
-                endpoint
-            }
+
         }
 
-        // ton url tx
-        if (
-            (url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:')
-            && url.host.toLowerCase() === 'tx'
-            && url.pathname.startsWith('/')
-        ) {
-            const address = decodeURIComponent(url.pathname.slice(1).split('/')[0]);
-            const txId = url.pathname.slice(1).split('/')[1].split('_');
-            const lt = txId[0];
-            const hash = decodeURIComponent(txId[1]);
+        if (isHttpUrl) {
+            const isSupportedDomain = SupportedDomains.find((d) => d === url.host.toLowerCase());
+            const isTonhubHost = (testOnly ? 'test.tonhub.com' : 'tonhub.com') === url.host.toLowerCase();
 
-            return {
-                type: 'tx',
-                address,
-                hash,
-                lt
-            }
-        }
+            // Transfer
+            if (isSupportedDomain && url.pathname.toLowerCase().startsWith('/transfer/')) {
+                return resolveTransferUrl(url);
+            } else if (isSupportedDomain && url.pathname.toLowerCase().startsWith('/connect/')) { // Ton-x app connect
+                let session = url.pathname.slice('/connect/'.length);
+                let endpoint: string | null = null;
 
-        // HTTP(s) url
-        if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
-            && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
-            return resolveTransferUrl(url);
-        }
-
-        // HTTP(s) Sign Url
-        if ((url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:')
-            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
-            && (url.pathname.toLowerCase().startsWith('/connect/'))) {
-            let session = url.pathname.slice('/connect/'.length);
-            let endpoint: string | null = null;
-            if (url.query) {
-                for (let key in url.query) {
-                    if (key.toLowerCase() === 'endpoint') {
-                        endpoint = url.query[key]!;
+                if (url.query) {
+                    for (let key in url.query) {
+                        if (key.toLowerCase() === 'endpoint') {
+                            endpoint = url.query[key]!;
+                        }
                     }
                 }
-            }
-            return {
-                type: 'connect',
-                session,
-                endpoint
-            }
-        }
 
-    } catch (e) {
-        // Ignore
-        warn(e);
-    }
-
-    // Parse apps
-    try {
-        const url = new Url(src, true);
-        if ((url.protocol.toLowerCase() === 'https:')
-            && ((testOnly ? 'test.tonhub.com' : 'tonhub.com') === url.host.toLowerCase())
-            && (url.pathname.toLowerCase().startsWith('/app/'))) {
-            let id = url.pathname.slice('/app/'.length);
-            let slice = Cell.fromBoc(Buffer.from(id, 'base64'))[0].beginParse();
-            let endpointSlice = slice.loadRef().beginParse();
-            let endpoint = endpointSlice.loadBuffer(endpointSlice.remainingBits / 8).toString();
-            let extras = slice.loadBit(); // For future compatibility
-            let customTitle: string | null = null;
-            let customImage: { url: string, blurhash: string } | null = null;
-            if (!extras) {
-                if (slice.remainingBits !== 0 || slice.remainingRefs !== 0) {
-                    throw Error('Invalid endpoint');
+                return {
+                    type: 'connect',
+                    session,
+                    endpoint
                 }
-            } else {
-                if (slice.loadBit()) {
-                    let customTitleSlice = slice.loadRef().beginParse();
-                    customTitle = customTitleSlice.loadBuffer(customTitleSlice.remainingBits / 8).toString();
-                    if (customTitle.trim().length === 0) {
-                        customTitle = null;
-                    }
+            } else if (isSupportedDomain && url.pathname.toLowerCase().indexOf('/ton-connect') !== -1) { // Tonconnect connect query
+                if (!!url.query.r && !!url.query.v && !!url.query.id) {
+                    return {
+                        type: 'tonconnect',
+                        query: url.query as unknown as ConnectQrQuery
+                    };
                 }
-                if (slice.loadBit()) {
-                    let imageUrlSlice = slice.loadRef().beginParse();
-                    let imageUrl = imageUrlSlice.loadBuffer(imageUrlSlice.remainingBits / 8).toString();
-                    let imageBlurhashSlice = slice.loadRef().beginParse();
-                    let imageBlurhash = imageBlurhashSlice.loadBuffer(imageBlurhashSlice.remainingBits / 8).toString();
-                    new Url(imageUrl, true); // Check url
-                    customImage = { url: imageUrl, blurhash: imageBlurhash };
-                }
-
-                // Future compatibility
-                extras = slice.loadBit(); // For future compatibility
+            } else if (isTonhubHost && url.pathname.toLowerCase().startsWith('/app/')) { // Ton-x app install
+                let id = url.pathname.slice('/app/'.length);
+                let slice = Cell.fromBoc(Buffer.from(id, 'base64'))[0].beginParse();
+                let endpointSlice = slice.loadRef().beginParse();
+                let endpoint = endpointSlice.loadBuffer(endpointSlice.remainingBits / 8).toString();
+                let extras = slice.loadBit(); // For future compatibility
+                let customTitle: string | null = null;
+                let customImage: { url: string, blurhash: string } | null = null;
                 if (!extras) {
                     if (slice.remainingBits !== 0 || slice.remainingRefs !== 0) {
                         throw Error('Invalid endpoint');
                     }
+                } else {
+                    if (slice.loadBit()) {
+                        let customTitleSlice = slice.loadRef().beginParse();
+                        customTitle = customTitleSlice.loadBuffer(customTitleSlice.remainingBits / 8).toString();
+                        if (customTitle.trim().length === 0) {
+                            customTitle = null;
+                        }
+                    }
+                    if (slice.loadBit()) {
+                        let imageUrlSlice = slice.loadRef().beginParse();
+                        let imageUrl = imageUrlSlice.loadBuffer(imageUrlSlice.remainingBits / 8).toString();
+                        let imageBlurhashSlice = slice.loadRef().beginParse();
+                        let imageBlurhash = imageBlurhashSlice.loadBuffer(imageBlurhashSlice.remainingBits / 8).toString();
+                        new Url(imageUrl, true); // Check url
+                        customImage = { url: imageUrl, blurhash: imageBlurhash };
+                    }
+
+                    // Future compatibility
+                    extras = slice.loadBit(); // For future compatibility
+                    if (!extras) {
+                        if (slice.remainingBits !== 0 || slice.remainingRefs !== 0) {
+                            throw Error('Invalid endpoint');
+                        }
+                    }
+                }
+
+                // Validate endpoint
+                let parsedEndpoint = new Url(endpoint, true);
+                if (parsedEndpoint.protocol !== 'https:') {
+                    throw Error('Invalid endpoint');
+                }
+                if (!isValid(parsedEndpoint.hostname)) {
+                    throw Error('Invalid endpoint');
+                }
+
+                return {
+                    type: 'install',
+                    url: endpoint,
+                    customTitle,
+                    customImage
+                };
+            } else if (isTonhubHost && url.pathname.toLowerCase() === 'inapp') { // open url with in-app browser
+                if (url.query && url.query.url) {
+                    return {
+                        type: 'in-app-url',
+                        url: decodeURIComponent(url.query.url)
+                    };
+                }
+            } else if (isTonhubHost && url.pathname.toLowerCase() === 'external') { // open url with external browser
+                if (url.query && url.query.url) {
+                    return {
+                        type: 'external-url',
+                        url: decodeURIComponent(url.query.url)
+                    };
                 }
             }
-
-            // Validate endpoint
-            let parsedEndpoint = new Url(endpoint, true);
-            if (parsedEndpoint.protocol !== 'https:') {
-                throw Error('Invalid endpoint');
-            }
-            if (!isValid(parsedEndpoint.hostname)) {
-                throw Error('Invalid endpoint');
-            }
-
-            return {
-                type: 'install',
-                url: endpoint,
-                customTitle,
-                customImage
-            };
         }
 
-        // Tonconnect
-        if ((url.protocol.toLowerCase() === 'https:')
-            && (SupportedDomains.find((d) => d === url.host.toLowerCase()))
-            && (url.pathname.toLowerCase().indexOf('/ton-connect') !== -1)) {
-            if (!!url.query.r && !!url.query.v && !!url.query.id) {
-                return {
-                    type: 'tonconnect',
-                    query: url.query as unknown as ConnectQrQuery
-                };
-            }
-        }
         // Tonconnect
         if (url.protocol.toLowerCase() === 'tc:') {
             if (
@@ -373,7 +395,6 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         // Ignore
         warn(e);
     }
-
 
     return null;
 }

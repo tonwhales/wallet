@@ -29,6 +29,8 @@ import { extensionKey } from './engine/hooks/dapps/useAddExtension';
 import { ConnectedApp } from './engine/hooks/dapps/useTonConnectExtenstions';
 import { TransferFragmentProps } from './fragments/secure/TransferFragment';
 import { extractDomain } from './engine/utils/extractDomain';
+import { Linking } from 'react-native';
+import { openWithInApp } from './utils/openWithInApp';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -51,6 +53,7 @@ export function useLinkNavigator(
         pendingReqsUpdaterRef.current = updatePendingReuests;
     }, [updatePendingReuests]);
 
+    // TODO: split this function into smaller functions
     const handler = useCallback(async (resolved: ResolvedUrl) => {
         if (resolved.type === 'transaction') {
             if (resolved.payload) {
@@ -423,7 +426,7 @@ export function useLinkNavigator(
                             message: !ok
                                 ? t('products.transactionRequest.failedToReportCanceled')
                                 : t('products.transactionRequest.failedToReport'),
-                            ...toastProps, 
+                            ...toastProps,
                             type: 'error'
                         });
                     }
@@ -453,6 +456,14 @@ export function useLinkNavigator(
                     navigation.navigateTransfer(prepared);
                 }
             }
+        }
+
+        if (resolved.type === 'external-url') {
+            Linking.openURL(resolved.url);
+        }
+        
+        if (resolved.type === 'in-app-url') {
+            openWithInApp(resolved.url);
         }
 
     }, [selected, updateAppState]);

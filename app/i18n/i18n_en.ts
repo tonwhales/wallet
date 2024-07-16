@@ -630,7 +630,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addNew: 'Add new wallet',
         inProgress: 'Creating...',
         backupTitle: 'Your Backup Key',
-        backupSubtitle: 'Write down this words in exactly the same order and save them in a secret place',
+        backupSubtitle: 'Write down these 24 words in exactly the same order and save them in a secret place',
         okSaved: 'OK, I saved it',
         copy: 'Copy to clipboard',
     },

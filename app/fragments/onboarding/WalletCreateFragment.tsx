@@ -58,7 +58,6 @@ export const WalletCreateFragment = systemFragment(() => {
 
     return (
         <View
-            onLayout={(e) => console.log(e.nativeEvent.layout)}
             style={[
                 Platform.select({ android: { paddingBottom: safeArea.bottom + 16 } }),
                 { flexGrow: 1, alignSelf: 'stretch', alignItems: 'center' }

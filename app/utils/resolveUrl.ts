@@ -348,14 +348,14 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                     customTitle,
                     customImage
                 };
-            } else if (isTonhubHost && url.pathname.toLowerCase() === 'inapp') { // open url with in-app browser
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/inapp') { // open url with in-app browser
                 if (url.query && url.query.url) {
                     return {
                         type: 'in-app-url',
                         url: decodeURIComponent(url.query.url)
                     };
                 }
-            } else if (isTonhubHost && url.pathname.toLowerCase() === 'external') { // open url with external browser
+            } else if (isTonhubHost && url.pathname.toLowerCase() === '/external') { // open url with external browser
                 if (url.query && url.query.url) {
                     return {
                         type: 'external-url',

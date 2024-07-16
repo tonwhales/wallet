@@ -1,5 +1,5 @@
 import React from "react"
-import { Platform, View, ScrollView, Image, AppState } from "react-native"
+import { Platform, View, ScrollView, Image, AppState, Text } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
@@ -22,9 +22,9 @@ import { StatusBar } from "expo-status-bar"
 
 import TouchAndroid from '@assets/ic_touch_and.svg';
 import FaceIos from '@assets/ic_face_id.svg';
+import { Typography } from "../components/styles"
 
 export const SecurityFragment = fragment(() => {
-    const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
@@ -208,6 +208,13 @@ export const SecurityFragment = fragment(() => {
                             )}
                         </>
                     )}
+                </View>
+                <View style={{
+                    marginBottom: 4,
+                    backgroundColor: theme.surfaceOnElevation,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                }}>
                     <ItemSwitch
                         leftIcon={require('@assets/ic-block-app.png')}
                         title={t('secure.lockAppWithAuth')}
@@ -225,6 +232,11 @@ export const SecurityFragment = fragment(() => {
                         disabled={!canToggleAppAuth}
                     />
                 </View>
+                {!canToggleAppAuth && (
+                    <Text style={[Typography.regular15_20, { color: theme.textSecondary, marginLeft: 20 }]}>
+                        {t('mandatoryAuth.settingsDescription')}
+                    </Text>
+                )}
             </ScrollView>
         </View>
     )

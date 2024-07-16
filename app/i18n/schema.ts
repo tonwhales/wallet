@@ -1078,6 +1078,7 @@ export type LocalizationSchema = {
         alert: string,
         confirmDescription: string,
         action: string,
+        settingsDescription: string
     }
 };
 

@@ -9,13 +9,16 @@
 
 @implementation AddCardRequestHandler
 
-- (instancetype)initWithResolver:(RCTPromiseResolveBlock)resolver rejecter:(RCTPromiseRejectBlock)rejecter userToken:(NSString *)userToken cardId:(NSString *)cardId {
+- (instancetype)initWithResolver:(RCTPromiseResolveBlock)resolve
+                        rejecter:(RCTPromiseRejectBlock)reject
+                          cardId:(NSString *)cardId
+                       userToken:(NSString *)userToken {
   self = [super init];
   if (self) {
     _cardId = cardId;
     _userToken = userToken;
-    _resolver = resolver;
-    _rejecter = rejecter;
+    _resolver = resolve;
+    _rejecter = reject;
   }
   return self;
 }

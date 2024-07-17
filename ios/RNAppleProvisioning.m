@@ -162,6 +162,28 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
       NSLog(@"Error: %@", error);
     } else {
       NSLog(@"Success: %@", response);
+      
+      // Check if the response is successful
+      if (![response[@"ok"] boolValue]) {
+        // Handle the error
+        NSLog(@"Error: %@", response[@"error"]);
+        
+        completionHandler(nil);
+        
+        return;
+      }
+      
+      // Check response fields
+      if (!response[@"encryptedPassData"] || !response[@"activationData"] || !response[@"ephemeralPublicKey"]) {
+        // Handle the error
+        NSLog(@"Error: Missing fields in response");
+        
+        
+        completionHandler(nil);
+        
+        return;
+      }
+      
       // Once you have the encrypted pass data, activation data, and ephemeral public key from your server
       PKAddPaymentPassRequest *addRequest = [[PKAddPaymentPassRequest alloc] init];
       
@@ -169,7 +191,6 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
       addRequest.encryptedPassData = [[NSData alloc] initWithBase64EncodedString:response[@"encryptedPassData"] options:0];
       addRequest.activationData = [[NSData alloc] initWithBase64EncodedString:response[@"activationData"] options:0];
       addRequest.ephemeralPublicKey = [[NSData alloc] initWithBase64EncodedString:response[@"ephemeralPublicKey"] options:0];
-      
       
       completionHandler(addRequest);
     }

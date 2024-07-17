@@ -9,5 +9,7 @@
 		<string>applinks:tonhub.com</string>
 		<string>applinks:test.tonhub.com</string>
 	</array>
+	<key>com.apple.developer.payment-pass-provisioning</key>
+	<true/>
 </dict>
 </plist>

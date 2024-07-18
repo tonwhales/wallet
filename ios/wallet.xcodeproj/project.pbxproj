@@ -10,6 +10,8 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		369709122C47C967008C7641 /* RNAppleProvisioning.m in Sources */ = {isa = PBXBuildFile; fileRef = 369709112C47C967008C7641 /* RNAppleProvisioning.m */; };
+		369709172C4819E9008C7641 /* AddCardRequestHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 369709162C4819E9008C7641 /* AddCardRequestHandler.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C762080E00418A2C2D1ECABB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B1193B29FEA7474B5BF2AE /* ExpoModulesProvider.swift */; };
@@ -27,6 +29,10 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = wallet/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = wallet/main.m; sourceTree = "<group>"; };
 		339975B5EBE33A54805BCA85 /* Pods-WhalesApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release.xcconfig"; sourceTree = "<group>"; };
+		369709102C47C942008C7641 /* RNAppleProvisioning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNAppleProvisioning.h; sourceTree = "<group>"; };
+		369709112C47C967008C7641 /* RNAppleProvisioning.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNAppleProvisioning.m; sourceTree = "<group>"; };
+		369709152C4819CD008C7641 /* AddCardRequestHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddCardRequestHandler.h; sourceTree = "<group>"; };
+		369709162C4819E9008C7641 /* AddCardRequestHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AddCardRequestHandler.m; sourceTree = "<group>"; };
 		78B1193B29FEA7474B5BF2AE /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-WhalesApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		A2477505A471A42731F37CA7 /* Pods-WhalesApp.release testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release testnet.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = wallet/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -63,6 +69,10 @@
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
 				DC64924E023A488BB8022B0F /* noop-file.swift */,
 				DEE01086D4764A1A9A279A1C /* wallet-Bridging-Header.h */,
+				369709102C47C942008C7641 /* RNAppleProvisioning.h */,
+				369709112C47C967008C7641 /* RNAppleProvisioning.m */,
+				369709152C4819CD008C7641 /* AddCardRequestHandler.h */,
+				369709162C4819E9008C7641 /* AddCardRequestHandler.m */,
 			);
 			name = wallet;
 			sourceTree = "<group>";
@@ -336,10 +346,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				369709172C4819E9008C7641 /* AddCardRequestHandler.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				FC1C9FE35D1E43DD83DE347B /* noop-file.swift in Sources */,
 				C762080E00418A2C2D1ECABB /* ExpoModulesProvider.swift in Sources */,
+				369709122C47C967008C7641 /* RNAppleProvisioning.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

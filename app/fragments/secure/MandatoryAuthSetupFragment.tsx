@@ -11,10 +11,10 @@ import { Typography } from "../../components/styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDimensions } from "@react-native-community/hooks";
 import { CheckBox } from "../../components/CheckBox";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { RoundButton } from "../../components/RoundButton";
-import { useAppAuthMandatory, useLockAppWithAuthState } from "../../engine/hooks/settings";
+import { useLockAppWithAuthState } from "../../engine/hooks/settings";
 import { useToaster } from "../../components/toast/ToastProvider";
 
 import WarningIcon from '@assets/ic-warning-banner.svg';
@@ -30,7 +30,6 @@ export const MandatoryAuthSetupFragment = fragment(() => {
     const theme = useTheme();
     const { callback } = useParams<MandatoryAuthSetupParams>();
     const [secured, setSecured] = useState(false);
-    const [mandatoryAuth, setMandatoryAuth] = useAppAuthMandatory();
     const [lockAppWithAuth, setLockAppWithAuth] = useLockAppWithAuthState();
 
     const onCallback = (ok: boolean) => {
@@ -46,7 +45,6 @@ export const MandatoryAuthSetupFragment = fragment(() => {
                 setLockAppWithAuth(true);
             }
 
-            setMandatoryAuth(true);
             onCallback(true);
 
         } catch (reason) {
@@ -56,7 +54,7 @@ export const MandatoryAuthSetupFragment = fragment(() => {
                 toaster.show({ message: t('products.tonConnect.errors.unknown'), type: 'default' });
             }
         }
-    }, [mandatoryAuth, lockAppWithAuth]);
+    }, [lockAppWithAuth]);
 
     return (
         <View style={{

@@ -6,7 +6,7 @@ import { fragment } from "../fragment"
 import { t } from "../i18n/t"
 import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { useSelectedAccount, useTheme } from '../engine/hooks';
+import { useAppState, useHasHoldersProducts, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
@@ -17,26 +17,35 @@ import { usePasscodeState } from '../engine/hooks'
 import { useBiometricsState } from '../engine/hooks'
 import { useSetBiometricsState } from "../engine/hooks/appstate/useSetBiometricsState"
 import { ScreenHeader } from "../components/ScreenHeader"
-import { useAppAuthMandatory, useLockAppWithAuthState } from "../engine/hooks/settings"
+import { useLockAppWithAuthState } from "../engine/hooks/settings"
 import { StatusBar } from "expo-status-bar"
+import { Typography } from "../components/styles"
+import { getAppState } from "../storage/appState"
 
 import TouchAndroid from '@assets/ic_touch_and.svg';
 import FaceIos from '@assets/ic_face_id.svg';
-import { Typography } from "../components/styles"
+import { getHasHoldersProducts } from "../engine/hooks/holders/useHasHoldersProducts"
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const passcodeState = usePasscodeState();
     const biometricsState = useBiometricsState();
     const setBiometricsState = useSetBiometricsState();
-    const [mandatoryAuth,] = useAppAuthMandatory();
+    const selectedAddress = useSelectedAccount()!.address.toString({ testOnly: isTestnet });
+    const selectedAccountIndex = useAppState().selected;
+    const accHasHoldersProducts = useHasHoldersProducts(selectedAddress);
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [lockAppWithAuthState, setLockAppWithAuthState] = useLockAppWithAuthState();
 
-    const canToggleAppAuth = !(mandatoryAuth && lockAppWithAuthState);
+    // Check if any of the accounts has holders products
+    const deviceHasHoldersProducts = useMemo(() => {
+        const appState = getAppState();
+        return appState.addresses.some(acc => getHasHoldersProducts(acc.address.toString({ testOnly: isTestnet })));
+    }, [selectedAccountIndex, selectedAddress, accHasHoldersProducts, isTestnet]);
 
     const biometricsProps = useMemo(() => {
         if (passcodeState !== PasscodeState.Set) {
@@ -229,10 +238,9 @@ export const SecurityFragment = fragment(() => {
                                 }
                             })();
                         }}
-                        disabled={!canToggleAppAuth}
                     />
                 </View>
-                {!canToggleAppAuth && (
+                {deviceHasHoldersProducts && (
                     <Text style={[Typography.regular15_20, { color: theme.textSecondary, marginLeft: 20 }]}>
                         {t('mandatoryAuth.settingsDescription')}
                     </Text>

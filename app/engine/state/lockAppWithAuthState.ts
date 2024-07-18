@@ -21,21 +21,3 @@ export const lockAppWithAuthState = atom<boolean>({
         })
     }]
 });
-
-export function getLockAppWithAuthMandatory() {
-    return storage.getBoolean(lockAppWithAuthMandatoryKey) || false;
-}
-
-function storeLockAppWithAuthMandatory(value: boolean) {
-    storage.set(lockAppWithAuthMandatoryKey, value);
-}
-
-export const lockAppWithAuthMandatoryState = atom<boolean>({
-    key: 'auth/lockAppWithAuthState/mandatory',
-    default: getLockAppWithAuthMandatory(),
-    effects: [({ onSet }) => {
-        onSet((newValue) => {
-            storeLockAppWithAuthMandatory(newValue);
-        })
-    }]
-});

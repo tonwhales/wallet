@@ -1076,7 +1076,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         alert: 'Write down 24 secret words in the Security section of your wallet settings. This will help you regain access if you lose your phone or forget your pin code.',
         confirmDescription: 'I wrote down my wallet 24 secret words and saved them in a safe place',
         action: 'Enable',
-        settingsDescription: 'Authentication request is mandatory as the app displays banking products'
+        settingsDescription: 'Authentication request is required as the app displays banking products. Sensitive data will be hidden until you turn the authentication on',
     }
 };
 

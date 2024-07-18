@@ -15,7 +15,7 @@ import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
 import { PendingTxPreviewParams } from '../fragments/wallet/PendingTxPreviewFragment';
 import { HomeFragmentProps } from '../fragments/HomeFragment';
 import { MandatoryAuthSetupParams } from '../fragments/secure/MandatoryAuthSetupFragment';
-import { getLockAppWithAuthMandatory, getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
+import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
 import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
 import { getCurrentAddress } from '../storage/appState';
 import { Platform } from 'react-native';
@@ -46,11 +46,10 @@ export function typedNavigateAndReplaceAll(src: Base, name: string, params?: any
 
 function shouldTurnAuthOn(isTestnet: boolean) {
     const isAppAuthOn = getLockAppWithAuthState();
-    const isMandatoryAuthOn = getLockAppWithAuthMandatory();
     const currentAccount = getCurrentAddress();
     const hasAccounts = getHasHoldersProducts(currentAccount.address.toString({ testOnly: isTestnet }));
 
-    return (!isAppAuthOn || !isMandatoryAuthOn) && hasAccounts;
+    return !isAppAuthOn && hasAccounts;
 }
 
 export class TypedNavigation {

@@ -9,10 +9,9 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";
-import { useNetwork, useTheme } from "../engine/hooks";
+import { useTheme } from "../engine/hooks";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 import { StatusBar } from "expo-status-bar";
-import { useAppAuthMandatory } from "../engine/hooks/settings";
 import { getAppState } from "../storage/appState";
 import { getHasHoldersProducts } from "../engine/hooks/holders/useHasHoldersProducts";
 
@@ -29,10 +28,8 @@ function hasHoldersProductsOnDevice(isTestnet: boolean) {
 
 export const LogoutFragment = fragment(() => {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const [, setMandatoryAuth] = useAppAuthMandatory();
 
     const { showActionSheetWithOptions } = useActionSheet();
     const onAccountDeleted = useDeleteCurrentAccount();
@@ -61,19 +58,6 @@ export const LogoutFragment = fragment(() => {
 
     const [isShown, setIsShown] = useState(false);
 
-    const onLogout = useCallback(async () => {
-        onAccountDeleted();
-
-        // Check if there are any holders products left on other accounts
-        const hasHoldersProductsLeft = hasHoldersProductsOnDevice(isTestnet);
-
-        // if not, disable mandatory auth
-        if (!hasHoldersProductsLeft) {
-            setMandatoryAuth(false);
-        }
-
-    }, [isTestnet, onAccountDeleted]);
-
     const showLogoutActSheet = useCallback(() => {
         if (isShown) {
             return;
@@ -93,7 +77,7 @@ export const LogoutFragment = fragment(() => {
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    onLogout();
+                    onAccountDeleted();
                     break;
                 case cancelButtonIndex:
                 // Canceled
@@ -102,7 +86,7 @@ export const LogoutFragment = fragment(() => {
             }
             setIsShown(false);
         });
-    }, [isShown, onLogout]);
+    }, [isShown, onAccountDeleted]);
 
     return (
         <View style={{

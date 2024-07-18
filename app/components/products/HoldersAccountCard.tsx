@@ -22,7 +22,7 @@ const cardImages = {
 }
 
 export const HoldersAccountCard = memo(({ card, theme }: { card: GeneralHoldersCard, theme: ThemeType }) => {
-    const [lockAppWithAuth,] = useLockAppWithAuthState();
+    const [lockAppWithAuth] = useLockAppWithAuthState();
     // TODO: remove this when we have the correct personalization code
     // let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'classic';
     let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'black-pro';

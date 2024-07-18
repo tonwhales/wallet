@@ -58,10 +58,6 @@ export const LogoutFragment = fragment(() => {
 
     const [isShown, setIsShown] = useState(false);
 
-    const onLogout = useCallback(async () => {
-        onAccountDeleted();
-    }, [onAccountDeleted]);
-
     const showLogoutActSheet = useCallback(() => {
         if (isShown) {
             return;
@@ -81,7 +77,7 @@ export const LogoutFragment = fragment(() => {
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    onLogout();
+                    onAccountDeleted();
                     break;
                 case cancelButtonIndex:
                 // Canceled
@@ -90,7 +86,7 @@ export const LogoutFragment = fragment(() => {
             }
             setIsShown(false);
         });
-    }, [isShown, onLogout]);
+    }, [isShown, onAccountDeleted]);
 
     return (
         <View style={{

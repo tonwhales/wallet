@@ -32,7 +32,7 @@ export const HoldersPrepaidCard = memo((props: {
     holdersAccStatus?: HoldersAccountStatus,
     onBeforeOpen?: () => void
 }) => {
-    const [lockAppWithAuth,] = useLockAppWithAuthState();
+    const [lockAppWithAuth] = useLockAppWithAuthState();
     const card = props.card;
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();

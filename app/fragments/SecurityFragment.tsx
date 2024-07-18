@@ -21,10 +21,10 @@ import { useLockAppWithAuthState } from "../engine/hooks/settings"
 import { StatusBar } from "expo-status-bar"
 import { Typography } from "../components/styles"
 import { getAppState } from "../storage/appState"
+import { getHasHoldersProducts } from "../engine/hooks/holders/useHasHoldersProducts"
 
 import TouchAndroid from '@assets/ic_touch_and.svg';
 import FaceIos from '@assets/ic_face_id.svg';
-import { getHasHoldersProducts } from "../engine/hooks/holders/useHasHoldersProducts"
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -44,6 +44,7 @@ export const SecurityFragment = fragment(() => {
     // Check if any of the accounts has holders products
     const deviceHasHoldersProducts = useMemo(() => {
         const appState = getAppState();
+
         return appState.addresses.some(acc => getHasHoldersProducts(acc.address.toString({ testOnly: isTestnet })));
     }, [selectedAccountIndex, selectedAddress, accHasHoldersProducts, isTestnet]);
 

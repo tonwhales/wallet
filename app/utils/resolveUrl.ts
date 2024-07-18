@@ -16,6 +16,7 @@ export enum ResolveUrlError {
     InvalidJettonAmounts = 'InvalidJettonAmounts',
     InvalidInappUrl = 'InvalidInappUrl',
     InvalidExternalUrl = 'InvalidExternalUrl',
+    InvalidHoldersPath = 'InvalidHoldersPath'
 }
 
 export type ResolvedUrl = {
@@ -63,6 +64,9 @@ export type ResolvedUrl = {
 } | {
     type: 'error',
     error: ResolveUrlError
+} | {
+    type: 'holders-transactions',
+    query: { [key: string]: string | undefined }
 }
 
 export function isUrl(str: string): boolean {
@@ -72,6 +76,19 @@ export function isUrl(str: string): boolean {
     } catch {
         return false;
     }
+}
+
+function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): ResolvedUrl {
+    const isTransactions = url.pathname.toLowerCase().split('holders/')[1] === 'transactions';
+
+    if (isTransactions && url.query) {
+        return {
+            type: 'holders-transactions',
+            query: url.query
+        }
+    }
+
+    return { type: 'error', error: ResolveUrlError.InvalidHoldersPath };
 }
 
 function resolveTransferUrl(url: Url<Record<string, string | undefined>>): ResolvedUrl {
@@ -362,6 +379,8 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         url: decodeURIComponent(url.query.url)
                     };
                 }
+            } else if (isTonhubHost && url.pathname.toLowerCase().startsWith('/holders')) { // holders path with address
+                return resolveHoldersUrl(url);
             }
         }
 

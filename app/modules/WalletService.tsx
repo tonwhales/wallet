@@ -17,7 +17,8 @@ type AddCardRequest = {
     primaryAccountNumberSuffix: string,
     localizedDescription: string,
     primaryAccountIdentifier?: string,
-    paymentNetwork: string
+    paymentNetwork: string,
+    network: 'test' | 'main'
 }
 
 const WalletService = {

@@ -14,10 +14,12 @@
 @property (nonatomic, copy) RCTPromiseRejectBlock rejecter;
 @property (nonatomic, copy) NSString* userToken;
 @property (nonatomic, copy) NSString* cardId;
+@property (nonatomic) BOOL* isTest;
 
 - (instancetype)initWithResolver:(RCTPromiseResolveBlock)resolve
                         rejecter:(RCTPromiseRejectBlock)reject
                           cardId:(NSString *)cardId
-                       userToken:(NSString *)userToken;
+                       userToken:(NSString *)userToken
+                          isTest:(BOOL *)isTest;
 
 @end

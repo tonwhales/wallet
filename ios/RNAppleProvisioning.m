@@ -70,7 +70,8 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
   }
   
   // Store the resolver and rejecter in the new PromiseCompletionHandlers object
-  self.currentRequest = [[AddCardRequestHandler alloc] initWithResolver:resolve rejecter:reject cardId:cardDetails[@"cardId"] userToken:cardDetails[@"userToken"]];
+  BOOL isTest = [cardDetails[@"network"]  isEqual: @"test"];
+  self.currentRequest = [[AddCardRequestHandler alloc] initWithResolver:resolve rejecter:reject cardId:cardDetails[@"cardId"] userToken:cardDetails[@"userToken"] isTest:&isTest];
   
   // Initialize the add card request configuration
   PKAddPaymentPassRequestConfiguration *config =
@@ -100,22 +101,35 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
 
 
 - (void)sendDataToServerForEncryptionWithCertificates:(NSArray *)certificates nonce:(NSData *)nonce nonceSignature:(NSData *)nonceSignature completion:(void (^)(NSDictionary *response, NSError *error))completion {
-  NSURL *url = [NSURL URLWithString:@"https://card-prod.whales-api.com/v2/card/get/apple/provisioning/data"];
+  NSString *baseUrl = self.currentRequest.isTest ? @"https://card-staging.whales-api.com/v2/card/get/apple/provisioning/data" : @"https://card-prod.whales-api.com/v2/card/get/apple/provisioning/data";
+  NSURL *url = [NSURL URLWithString:baseUrl];
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   [request setHTTPMethod:@"POST"];
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   
-  NSString *certificatesString = [certificates componentsJoinedByString:@","];
+  // NSString *certificatesString = [certificates componentsJoinedByString:@","];
+  // array of base64 strings of certificates
+  NSMutableArray *certificatesStrings = [NSMutableArray array];
+
+  // populate the array with base64 strings of certificates
+  for (NSData *certificate in certificates) {
+    NSString *certificateString = [certificate base64EncodedStringWithOptions:0];
+    [certificatesStrings addObject:certificateString];
+  }
+
   NSString *nonceString = [nonce base64EncodedStringWithOptions:0];
   NSString *nonceSignatureString = [nonceSignature base64EncodedStringWithOptions:0];
   
-  NSDictionary *params = @{@"certificates": certificatesString,
+  NSDictionary *params = @{@"certificates": certificatesStrings,
                            @"nonce": nonceString,
                            @"nonceSignature": nonceSignatureString};
   NSDictionary *postData = @{@"params": params,
-                             @"userToken": self.currentRequest.userToken,
-                             @"cardId": self.currentRequest.cardId};
+                             @"token": self.currentRequest.userToken,
+                             @"id": self.currentRequest.cardId};
   
+  // log post body
+  NSLog(@"Post body: %@", postData);
+
   NSError *error;
   NSData *postDataJSON = [NSJSONSerialization dataWithJSONObject:postData options:0 error:&error];
   if (error) {

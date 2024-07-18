@@ -13,14 +13,14 @@
                         rejecter:(RCTPromiseRejectBlock)reject
                           cardId:(NSString *)cardId
                        userToken:(NSString *)userToken
-                          isTest:(BOOL *)isTest {
+                          network:(NSString *)network {
   self = [super init];
   if (self) {
     _cardId = cardId;
     _userToken = userToken;
     _resolver = resolve;
     _rejecter = reject;
-    _isTest = isTest;
+    _network = network;
   }
   return self;
 }

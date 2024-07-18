@@ -70,8 +70,10 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
   }
   
   // Store the resolver and rejecter in the new PromiseCompletionHandlers object
-  BOOL isTest = [cardDetails[@"network"]  isEqual: @"test"];
-  self.currentRequest = [[AddCardRequestHandler alloc] initWithResolver:resolve rejecter:reject cardId:cardDetails[@"cardId"] userToken:cardDetails[@"userToken"] isTest:&isTest];
+  self.currentRequest = [[AddCardRequestHandler alloc] initWithResolver:resolve rejecter:reject cardId:cardDetails[@"cardId"] userToken:cardDetails[@"userToken"] network:cardDetails[@"network"]];
+
+  // log currentRequest
+  NSLog(@"currentRequest: %@", self.currentRequest);
   
   // Initialize the add card request configuration
   PKAddPaymentPassRequestConfiguration *config =
@@ -101,13 +103,17 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
 
 
 - (void)sendDataToServerForEncryptionWithCertificates:(NSArray *)certificates nonce:(NSData *)nonce nonceSignature:(NSData *)nonceSignature completion:(void (^)(NSDictionary *response, NSError *error))completion {
-  NSString *baseUrl = self.currentRequest.isTest ? @"https://card-staging.whales-api.com/v2/card/get/apple/provisioning/data" : @"https://card-prod.whales-api.com/v2/card/get/apple/provisioning/data";
+  
+  NSString *network = self.currentRequest.network;
+  BOOL isTest = [network isEqualToString:@"test"];
+  NSString *base = isTest ? @"https://card-staging.whales-api.com" : @"https://card-prod.whales-api.com";
+  NSString *baseUrl = [NSString stringWithFormat:@"%@/v2/card/get/apple/provisioning/data", base];
   NSURL *url = [NSURL URLWithString:baseUrl];
+
   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
   [request setHTTPMethod:@"POST"];
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   
-  // NSString *certificatesString = [certificates componentsJoinedByString:@","];
   // array of base64 strings of certificates
   NSMutableArray *certificatesStrings = [NSMutableArray array];
 
@@ -126,14 +132,11 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
   NSDictionary *postData = @{@"params": params,
                              @"token": self.currentRequest.userToken,
                              @"id": self.currentRequest.cardId};
-  
-  // log post body
-  NSLog(@"Post body: %@", postData);
 
   NSError *error;
   NSData *postDataJSON = [NSJSONSerialization dataWithJSONObject:postData options:0 error:&error];
+
   if (error) {
-    NSLog(@"Error serializing JSON: %@", error);
     if (completion) completion(nil, error);
     return;
   }
@@ -141,13 +144,11 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
   
   NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
     if (error) {
-      NSLog(@"Error making POST request: %@", error);
       if (completion) completion(nil, error);
       return;
     }
     if (data) {
       NSDictionary *responseJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-      NSLog(@"Response from server: %@", responseJSON);
       if (completion) completion(responseJSON, nil);
     }
   }];
@@ -160,11 +161,6 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
                                nonce:(NSData *)nonce
                       nonceSignature:(NSData *)nonceSignature
                    completionHandler:(void (^)(PKAddPaymentPassRequest *))completionHandler {
-  
-  // log the certificates, nonce, and nonceSignature
-  NSLog(@"certificates: %@", certificates);
-  NSLog(@"nonce: %@", nonce);
-  NSLog(@"nonceSignature: %@", nonceSignature);
   
   // Send the certificates, nonce, and nonceSignature to server to get the encrypted card data
   // The server will use the certificates, nonce, and nonceSignature to encrypt the card data
@@ -191,7 +187,6 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
       if (!response[@"encryptedPassData"] || !response[@"activationData"] || !response[@"ephemeralPublicKey"]) {
         // Handle the error
         NSLog(@"Error: Missing fields in response");
-        
         
         completionHandler(nil);
         

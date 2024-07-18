@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { RefObject, useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Linking, View, Platform, Share, Pressable, BackHandler } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
@@ -25,6 +25,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { CloseButton } from "../../components/navigation/CloseButton";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../i18n/t";
+import WebView from "react-native-webview";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
 
@@ -52,10 +53,12 @@ export type DAppWebViewFragmentParams = {
     };
     safeMode?: boolean;
     lockNativeBack?: boolean;
+    fullScreen?: boolean;
+    webViewProps?: DAppWebViewProps;
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState, controlls, safeMode, lockNativeBack } = useParams<DAppWebViewFragmentParams>();
+    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine, defaultQueryParamsState, controlls, safeMode, lockNativeBack, webViewProps: viewProps } = useParams<DAppWebViewFragmentParams>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
@@ -113,7 +116,7 @@ export const DAppWebViewFragment = fragment(() => {
 
         try {
             isTg = new URL(event.url).protocol === 'tg:';
-        } catch { 
+        } catch {
             // ignore
         }
 
@@ -152,6 +155,7 @@ export const DAppWebViewFragment = fragment(() => {
     const webViewProps: DAppWebViewProps = useMemo(() => {
         if (engine === 'ton-connect') {
             return {
+                ...viewProps,
                 ...tonConnectWebViewProps,
                 useStatusBar,
                 useMainButton,
@@ -162,9 +166,14 @@ export const DAppWebViewFragment = fragment(() => {
         }
 
         if (engine === 'ton-x') {
-            const injectionSource = injectSourceFromDomain(domain, isTestnet, safeArea);
+            let injectionSource = injectSourceFromDomain(domain, isTestnet, safeArea);
+
+            if (viewProps?.injectedJavaScriptBeforeContentLoaded) {
+                injectionSource = `${injectionSource};${viewProps.injectedJavaScriptBeforeContentLoaded}`;
+            }
 
             return {
+                ...viewProps,
                 injectionEngine,
                 injectedJavaScriptBeforeContentLoaded: injectionSource,
                 useStatusBar,
@@ -176,6 +185,7 @@ export const DAppWebViewFragment = fragment(() => {
         }
 
         return {
+            ...viewProps,
             useStatusBar,
             useMainButton,
             useToaster,
@@ -192,7 +202,8 @@ export const DAppWebViewFragment = fragment(() => {
         injectionEngine,
         useStatusBar, useMainButton, useQueryAPI, useToaster,
         loadWithRequest,
-        hasDomainKey
+        hasDomainKey,
+        viewProps
     ]);
 
     // to account for wierd statusbar bug with navigating withing the bottom bar stack

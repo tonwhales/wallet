@@ -105,6 +105,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Support',
             telegram: 'Telegram',
             form: 'Support form',
+            holders: 'Bank card & accounts',
+            tonhub: 'Tonhub',
         },
         telegram: 'Telegram',
         rateApp: 'Rate app',

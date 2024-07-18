@@ -12,7 +12,7 @@ import * as StoreReview from 'expo-store-review';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle, useHasHoldersProducts } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
@@ -20,6 +20,7 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { Typography } from '../components/styles';
+import { HoldersAccountState, holdersUrl as resolveHoldersUrl } from '../engine/api/holders/fetchAccountState';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -33,6 +34,11 @@ import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
+import { queryClient } from '../engine/clients';
+import { getQueryData } from '../engine/utils/getQueryData';
+import { Queries } from '../engine/queries';
+import { getHoldersToken, HoldersAccountStatus } from '../engine/hooks/holders/useHoldersAccountStatus';
+import { HoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -49,6 +55,7 @@ export const SettingsFragment = fragment(() => {
     const syncState = useSyncState();
     const [, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const hasHoldersProducts = useHasHoldersProducts(seleted!.address.toString({ testOnly: network.isTestnet }));
 
     // Ledger
     const route = useRoute();
@@ -82,26 +89,98 @@ export const SettingsFragment = fragment(() => {
     }, []);
 
     const onSupport = useCallback(() => {
-        const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
+        const tonhubOptions = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
         const cancelButtonIndex = 0;
+        const holdersUrl = resolveHoldersUrl(network.isTestnet);
 
-        showActionSheetWithOptions({
-            options,
-            title: t('settings.support.title'),
-            cancelButtonIndex,
-        }, (selectedIndex?: number) => {
-            switch (selectedIndex) {
-                case 1:
-                    openWithInApp('https://t.me/WhalesSupportBot');
-                    break;
-                case 2:
-                    openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
-                    break;
-                default:
-                    break;
-            }
-        });
-    }, []);
+        const tonhubSupportSheet = () => {
+            showActionSheetWithOptions({
+                options: tonhubOptions,
+                title: t('settings.support.title'),
+                cancelButtonIndex,
+            }, (selectedIndex?: number) => {
+                switch (selectedIndex) {
+                    case 1:
+                        openWithInApp('https://t.me/WhalesSupportBot');
+                        break;
+                    case 2:
+                        openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+
+        if (!hasHoldersProducts) {
+            tonhubSupportSheet();
+        }
+
+        const holdersOptions = [t('common.cancel'), t('settings.support.holders'), t('settings.support.tonhub')];
+
+        const queryCache = queryClient.getQueryCache();
+        const address = seleted!.address.toString({ testOnly: network.isTestnet });
+        const status = getQueryData<HoldersAccountStatus>(queryCache, Queries.Holders(address).Status());
+        const token = status?.state === HoldersAccountState.Ok ? status.token : getHoldersToken(address);
+        const accountsStatus = getQueryData<HoldersAccounts>(queryCache, Queries.Holders(address).Cards(!!token ? 'private' : 'public'));
+
+        const initialState = {
+            ...status
+                ? {
+                    user: {
+                        status: {
+                            state: status.state,
+                            kycStatus: status.state === 'need-kyc' ? status.kycStatus : null,
+                            suspended: (status as { suspended: boolean | undefined }).suspended === true,
+                        },
+                        token
+                    }
+                }
+                : { address },
+            ...accountsStatus?.type === 'private'
+                ? { accountsList: accountsStatus.accounts, prepaidCards: accountsStatus.prepaidCards }
+                : {},
+        };
+
+        const holdersSupportSheet = () => {
+            showActionSheetWithOptions({
+                options: holdersOptions,
+                title: t('settings.support.title'),
+                cancelButtonIndex,
+            }, (selectedIndex?: number) => {
+                switch (selectedIndex) {
+                    case 1:
+                        navigation.navigateDAppWebView({
+                            url: `${holdersUrl}/support`,
+                            fullScreen: true,
+                            webViewProps: {
+                                injectedJavaScriptBeforeContentLoaded: `
+                                (() => {
+                                    window.initialState = ${JSON.stringify(initialState)};
+                                })();
+                                `,
+                                useEmitter: true,
+                            },
+                            header: {
+                                title: t('settings.support.holders'),
+                                onBack: () => {
+                                    navigation.goBack();
+                                }
+                            }
+                        });
+                        break;
+                    case 2:
+                        tonhubSupportSheet();
+                        break;
+                    default:
+                        break;
+                }
+            });
+        };
+
+        holdersSupportSheet();
+
+    }, [hasHoldersProducts]);
 
     const onAccountPress = useCallback(() => {
         navigation.navigate('AccountSelector');

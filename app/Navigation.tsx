@@ -337,6 +337,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreenModal('AppAuth', AppAuthFragment, safeArea),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
     genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
+    fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea)
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

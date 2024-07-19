@@ -379,7 +379,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         url: decodeURIComponent(url.query.url)
                     };
                 }
-            } else if (isTonhubHost && url.pathname.toLowerCase().startsWith('/holders')) { // holders path with address
+            } else if (isSupportedDomain && url.pathname.toLowerCase().startsWith('/holders')) { // holders path with address
                 return resolveHoldersUrl(url);
             }
         }

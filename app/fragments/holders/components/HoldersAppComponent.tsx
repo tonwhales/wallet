@@ -340,7 +340,9 @@ export const HoldersAppComponent = memo((
             case 'transactions':
                 route = `/transactions`;
                 for (const [key, value] of Object.entries(props.variant.query)) {
-                    queryParams.append(key, value || '');
+                    if (!!value) {
+                        queryParams.append(key, value);
+                    }
                 }
                 break;
         }

@@ -4,7 +4,7 @@ import { ResolvedUrl } from './utils/resolveUrl';
 import { Queries } from './engine/queries';
 import { useConnectPendingRequests, useSetAppState } from './engine/hooks';
 import { useSelectedAccount } from './engine/hooks';
-import { InfiniteData, useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { Address, Cell, fromNano, toNano } from '@ton/core';
 import { fetchAccountTransactions } from './engine/api/fetchAccountTransactions';
 import { contractMetadataQueryFn, jettonMasterContentQueryFn } from './engine/hooks/jettons/usePrefetchHints';
@@ -31,6 +31,10 @@ import { TransferFragmentProps } from './fragments/secure/TransferFragment';
 import { extractDomain } from './engine/utils/extractDomain';
 import { Linking } from 'react-native';
 import { openWithInApp } from './utils/openWithInApp';
+import { getHoldersToken, HoldersAccountStatus } from './engine/hooks/holders/useHoldersAccountStatus';
+import { HoldersAccountState, holdersUrl } from './engine/api/holders/fetchAccountState';
+import { getIsConnectAppReady } from './engine/hooks/dapps/useIsConnectAppReady';
+import { HoldersAppParams } from './fragments/holders/HoldersAppFragment';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -381,7 +385,7 @@ async function resolveAndNavigateToJettonTransfer(
         },
         isTestnet: boolean,
         selected: SelectedAccount,
-        queryClient: ReturnType<typeof useQueryClient>,
+        queryClient: QueryClient,
         toaster: Toaster,
         loader: { show: () => () => void },
         navigation: TypedNavigation,
@@ -451,8 +455,101 @@ async function resolveAndNavigateToJettonTransfer(
     });
 }
 
-function resolveAndNavigateToHolders() {
+function getNeedsEnrollment(url: string, address: string, isTestnet: boolean, queryClient: QueryClient) {
 
+    if (!getHoldersToken(address)) {
+        return false;
+    }
+
+    const queryCache = queryClient.getQueryCache();
+    const status = getQueryData<HoldersAccountStatus>(queryCache, Queries.Holders(address).Status());
+    const isHoldersReady = getIsConnectAppReady(url, isTestnet, address);
+
+    if (!isHoldersReady) {
+        return true;
+    }
+
+    if (!status) {
+        return true;
+    }
+
+    if (status.state === HoldersAccountState.NeedEnrollment) {
+        return true;
+    }
+
+    return false;
+}
+
+function resolveAndNavigateToHolders(params: {
+    query: { [key: string]: string | undefined },
+    navigation: TypedNavigation,
+    selected: SelectedAccount,
+    updateAppState: (value: AppState, isTestnet: boolean) => void,
+    isTestnet: boolean,
+    queryClient: QueryClient
+}) {
+    const { query, navigation, selected, updateAppState, queryClient, isTestnet } = params
+    const addresses = query['addresses']?.split(',');
+
+    if (!addresses || addresses.length === 0) {
+        return;
+    }
+
+    const isSelectedAddress = addresses.find((a) => Address.parse(a).equals(selected.address));
+    const transactionId = query['transactionId'];
+
+    const holdersNavParams: HoldersAppParams = {
+        type: 'transactions',
+        query: { transactionId }
+    }
+
+    const url = holdersUrl(isTestnet);
+
+    if (isSelectedAddress) {
+        const normalizedAddress = selected.address.toString({ testOnly: isTestnet });
+        const needsEnrollment = getNeedsEnrollment(url, normalizedAddress, isTestnet, queryClient);
+
+        if (needsEnrollment) {
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: holdersNavParams }, isTestnet);
+            return;
+        }
+
+        navigation.navigateHolders(holdersNavParams, isTestnet);
+
+    } else { // If transaction is for another address, navigate to the address first
+        const appState = getAppState();
+        const index = appState.addresses.findIndex((a) => {
+            return addresses.find((addr) => a.address.equals(Address.parse(addr))) !== undefined;
+        });
+
+
+        // If address is found, select it
+        if (index !== -1) {
+            // Select new address
+            updateAppState({ ...appState, selected: index }, isTestnet);
+            const normalizedAddress = appState.addresses[index].address.toString({ testOnly: isTestnet });
+            const needsEnrollment = getNeedsEnrollment(url, normalizedAddress, isTestnet, queryClient);
+
+            if (needsEnrollment) {
+                navigation.navigateAndReplaceHome({
+                    navigateTo: {
+                        type: 'holders-landing',
+                        endpoint: url,
+                        onEnrollType: holdersNavParams
+                    }
+                });
+                return;
+            }
+
+            // navigate to home with tx to be opened after
+            navigation.navigateAndReplaceHome({
+                navigateTo: {
+                    type: 'holders-app',
+                    params: holdersNavParams
+                }
+            });
+        }
+    }
 }
 
 export function useLinkNavigator(
@@ -584,7 +681,18 @@ export function useLinkNavigator(
                 break;
             }
             case 'holders-transactions': {
-                
+                if (!selected) {
+                    return;
+                }
+
+                resolveAndNavigateToHolders({
+                    navigation,
+                    query: resolved.query,
+                    selected,
+                    updateAppState,
+                    isTestnet,
+                    queryClient
+                });
             }
         }
 

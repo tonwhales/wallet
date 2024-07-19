@@ -449,6 +449,7 @@ export const HoldersAppComponent = memo((
             useQueryAPI: true,
             useEmitter: true,
             useAuthApi: true,
+            useWalletAPI: true,
 
             onShouldStartLoadWithRequest: loadWithRequest,
             onContentProcessDidTerminate,

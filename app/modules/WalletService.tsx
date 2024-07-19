@@ -1,4 +1,5 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
+import { z } from 'zod';
 
 const { RNAppleProvisioning } = NativeModules;
 
@@ -10,24 +11,37 @@ const { RNAppleProvisioning } = NativeModules;
 // Example Usage: "You are adding your Green Travel Card".
 // primaryAccountidentifier - NSString, Filters the device and attached devices that already have this card provisioned. No filter is applied if the parameter is omitted.
 // paymentNetwork - NSString, Filters the networks shown in the introduction view to this single network.
-type AddCardRequest = {
-    cardId: string,
-    userToken: string,
-    cardholderName: string,
-    primaryAccountNumberSuffix: string,
-    localizedDescription: string,
-    primaryAccountIdentifier?: string,
-    paymentNetwork: string,
-    network: 'test' | 'main'
+
+export const addCardRequestSchema = z.object({
+    cardId: z.string(),
+    cardholderName: z.string(),
+    primaryAccountNumberSuffix: z.string(),
+    localizedDescription: z.string(),
+    primaryAccountIdentifier: z.string().optional(),
+    paymentNetwork: z.string(),
+    network: z.union([z.literal('test'), z.literal('main')])
+});
+
+const addCardRequestSchemaWithToken = addCardRequestSchema.extend({
+    userToken: z.string()
+});
+
+type AddCardRequest = z.infer<typeof addCardRequestSchemaWithToken>;
+
+interface WalletService {
+    canAddCards(): Promise<boolean>;
+    checkIfCardIsAlreadyAdded(primaryAccountIdentifier: string): Promise<boolean>;
+    canAddCard(cardId: string): Promise<boolean>;
+    addCardToWallet(request: AddCardRequest): Promise<boolean>;
 }
 
-const WalletService = {
+const WalletService: WalletService = Platform.OS === 'ios' ? {
     async canAddCards(): Promise<boolean> {
         return RNAppleProvisioning.canAddCards();
     },
 
-    async checkIfCardIsAlreadyAdded(): Promise<boolean> {
-        return RNAppleProvisioning.checkIfCardIsAlreadyAdded();
+    async checkIfCardIsAlreadyAdded(primaryAccountIdentifier: string): Promise<boolean> {
+        return RNAppleProvisioning.checkIfCardIsAlreadyAdded(primaryAccountIdentifier);
     },
 
     async canAddCard(cardId: string): Promise<boolean> {
@@ -37,6 +51,24 @@ const WalletService = {
     async addCardToWallet(request: AddCardRequest): Promise<boolean> {
         return RNAppleProvisioning.addCardToWallet(request);
     }
+} : {
+    async canAddCards(): Promise<boolean> {
+        return false;
+    },
+
+    async checkIfCardIsAlreadyAdded(primaryAccountIdentifier: string): Promise<boolean> {
+        return false;
+    },
+
+    async canAddCard(cardId: string): Promise<boolean> {
+        return false;
+    },
+
+    async addCardToWallet(request: AddCardRequest): Promise<boolean> {
+        return false;
+    }
 }
+
+// export const process
 
 export default WalletService;

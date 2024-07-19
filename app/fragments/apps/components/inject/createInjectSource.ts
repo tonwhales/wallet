@@ -218,6 +218,80 @@ export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) =
     `
 }
 
+
+export const dappWalletAPI = `
+window['dapp-wallet'] = (() => {
+    let __DAPP_WALLET_AVAILIBLE = true;
+    let inProgress = false;
+    let currentCallback = null;
+
+    const canAddCards = (callback) => {
+        if (inProgress) {
+            callback({ erorr: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.canAddCards' } }));
+    }
+
+    const checkIfCardIsAlreadyAdded = (primaryAccountIdentifier, callback) => {
+        if (inProgress) {
+            callback({ erorr: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.checkIfCardIsAlreadyAdded', args: { primaryAccountIdentifier } } }));
+    }
+
+    const canAddCard = (cardId, callback) => {
+        if (inProgress) {
+            callback({ erorr: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.canAddCard', args: { cardId } } }));
+    }
+
+    const addCardToWallet = (request, callback) => {
+        if (inProgress) {
+            callback({ erorr: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.addCardToWallet', args: request } }));
+    }
+
+    const __response = (ev) => {
+        inProgress = false;
+        if (!ev || !ev.data) {
+            if (currentCallback) {
+                currentCallback({ erorr: 'wallet.noResponse' });
+            }
+            currentCallback = null;
+            return;
+        }
+        if (currentCallback) {
+            currentCallback(ev.data);
+            currentCallback = null;
+        }
+    }
+
+    const obj = { __DAPP_WALLET_AVAILIBLE, canAddCards, checkIfCardIsAlreadyAdded, canAddCard, addCardToWallet, __response };
+})();
+`
+
 type InjectionConfig = {
     version: number;
     platform: "ios" | "android" | "windows" | "macos" | "web";
@@ -320,6 +394,11 @@ export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {
     true;
     `;
 
+}
+
+export function dispatchWalletResponse(webRef: React.RefObject<WebView>, data: { result: boolean }) {
+    let injectedMessage = `window['dapp-wallet'].__response(${JSON.stringify(data)}); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
 }
 
 export function dispatchLastAuthTimeResponse(webRef: React.RefObject<WebView>, lastAuthTime: number) {

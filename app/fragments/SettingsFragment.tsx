@@ -114,6 +114,7 @@ export const SettingsFragment = fragment(() => {
 
         if (!hasHoldersProducts) {
             tonhubSupportSheet();
+            return;
         }
 
         const holdersOptions = [t('common.cancel'), t('settings.support.holders'), t('settings.support.tonhub')];
@@ -160,12 +161,6 @@ export const SettingsFragment = fragment(() => {
                                 })();
                                 `,
                                 useEmitter: true,
-                            },
-                            header: {
-                                title: t('settings.support.holders'),
-                                onBack: () => {
-                                    navigation.goBack();
-                                }
                             }
                         });
                         break;

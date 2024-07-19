@@ -87,12 +87,12 @@ export const HoldersAccountItem = memo((props: {
 
         if (needsEnrollment) {
             const onEnrollType: HoldersAppParams = { type: 'account', id: props.account.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: 'account', id: props.account.id });
-    }, [props.account, needsEnrollment]);
+        navigation.navigateHolders({ type: 'account', id: props.account.id }, props.isTestnet);
+    }, [props.account, needsEnrollment, props.isTestnet]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
@@ -146,7 +146,7 @@ export const HoldersAccountItem = memo((props: {
                                     <WImage
                                         src={jettonMasterContent?.image?.preview256}
                                         width={46}
-                                        heigh={46}
+                                        height={46}
                                         borderRadius={46}
                                     />
                                 </View>
@@ -178,9 +178,10 @@ export const HoldersAccountItem = memo((props: {
                                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                         <ValueComponent
                                             value={props.account.balance}
-                                            precision={2}
+                                            precision={props.account.cryptoCurrency?.decimals === 9 ? 3 : 2}
                                             centFontStyle={{ color: theme.textSecondary }}
-                                            decimals={props.account.cryptoCurrency?.decimals ?? 9}
+                                            decimals={props.account.cryptoCurrency?.decimals}
+                                            forcePrecision
                                         />
                                         <PerfText style={{ color: theme.textSecondary }}>
                                             {` ${props.account.cryptoCurrency?.ticker}`}

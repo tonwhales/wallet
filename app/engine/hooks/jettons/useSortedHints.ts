@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { atomFamily, useRecoilState, useRecoilValue } from "recoil";
 import { storagePersistence } from "../../../storage/storage";
 import { z } from "zod";
@@ -31,10 +30,8 @@ function storeSortedHints(address: string, state: string[]) {
 export const sortedHintsAtomFamily = atomFamily<string[], string>({
     key: 'wallet/hints/sorted/family',
     effects: (address) => [
-        ({ setSelf, onSet }) => {
-            const stored = getSortedHints(address);
-            setSelf(stored);
-
+        ({ onSet, setSelf }) => {
+            setSelf(getSortedHints(address));
             onSet((newValue, _, isReset) => {
                 if (isReset) {
                     storeSortedHints(address, []);

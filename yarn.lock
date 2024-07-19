@@ -5230,10 +5230,10 @@ expo-barcode-scanner@~12.5.3:
   dependencies:
     expo-image-loader "~4.3.0"
 
-expo-blur@~12.4.1:
-  version "12.4.1"
-  resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-12.4.1.tgz#b391de84914ef9ece0702378e51e09461ad565ab"
-  integrity sha512-lGN8FS9LuGUlEriULTC62cCWyg5V7zSVQeJ6Duh1wSq8aAETinZ2/7wrT6o+Uhd/XVVxFNON2T25AGCOtMG6ew==
+expo-blur@12.8.0:
+  version "12.8.0"
+  resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-12.8.0.tgz#f07ae2dbfc98d04a2f050258c9aca5433523b63b"
+  integrity sha512-ngM4x21Sg1kLnu1DtZA60+oQsKRXsXrzzZWU24THGnMNA36P0O1rTKbERxdExRvJavO5ls3Gu54ut+IvKFQhew==
 
 expo-camera@~13.4.4:
   version "13.4.4"

@@ -51,7 +51,7 @@ export function ProductButton(props: ProductButtonProps) {
                 requireSource={props.requireSource}
                 blurhash={props.blurhash}
                 width={46}
-                heigh={46}
+                height={46}
                 borderRadius={props.extension ? 8 : 23}
             />
         )

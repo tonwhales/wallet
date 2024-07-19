@@ -22,7 +22,7 @@ export const DappRequestButton = memo((props: DappRequestButtonProps) => {
             <WImage
                 src={props.image}
                 width={46}
-                heigh={46}
+                height={46}
                 borderRadius={23}
             />
             <View style={{

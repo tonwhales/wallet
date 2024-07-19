@@ -1,5 +1,5 @@
 import React from "react";
-import { ReactNode, memo, useEffect, useState } from "react"
+import { ReactNode, memo, useEffect } from "react"
 import { Pressable, View, ViewStyle, Text } from "react-native";
 import Animated, { Easing, Extrapolation, FadeInUp, FadeOutUp, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { StyleProp } from "react-native";
@@ -9,21 +9,12 @@ import { t } from "../../i18n/t";
 import { Typography } from "../styles";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
-export const AnimatedChildrenCollapsible = memo(({
-    collapsed,
-    items,
-    renderItem,
-    itemHeight = 82,
-    showDivider = true,
-    dividerStyle,
-    divider,
-    additionalFirstItem,
-    style,
-    limitConfig
-}: {
+type Item<T> = T & { height?: number };
+
+type AnimatedChildrenCollapsibleProps<T> = {
     collapsed: boolean,
-    items: any[],
-    renderItem: (item: any, index: number) => any,
+    items: Item<T>[],
+    renderItem: (item: Item<T>, index: number) => any,
     itemHeight?: number,
     showDivider?: boolean,
     dividerStyle?: StyleProp<ViewStyle>,
@@ -31,19 +22,33 @@ export const AnimatedChildrenCollapsible = memo(({
     additionalFirstItem?: ReactNode,
     style?: StyleProp<ViewStyle>,
     limitConfig?: CollapsibleCardsLimitConfig,
-}) => {
+};
+
+const AnimatedChildrenCollapsibleComponent = <T,>({
+    collapsed,
+    items,
+    renderItem,
+    itemHeight = 86,
+    showDivider = true,
+    dividerStyle,
+    divider,
+    additionalFirstItem,
+    style,
+    limitConfig
+}: AnimatedChildrenCollapsibleProps<T>) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const [itemsToRender, setItemsToRender] = useState<any[]>([]);
-    const sharedHeight = useSharedValue(collapsed ? 0 : items.length * (itemHeight + (style as any)?.gap ?? 0));
+    const itemsHeight = items.map((item) => item.height || itemHeight).reduce((a, b) => a + b, 0);
+    const gap = (style as any)?.gap || 0;
+    const height = itemsHeight + ((items.length - 1) * gap);
+    const sharedHeight = useSharedValue(collapsed ? 0 : height);
     const animStyle = useAnimatedStyle(() => {
         return { height: withTiming(sharedHeight.value, { duration: 250 }) };
     });
 
     useEffect(() => {
-        setItemsToRender(collapsed ? [] : items);
-        sharedHeight.value = collapsed ? 0 : items.length * (itemHeight + (style as any)?.gap ?? 0);
-    }, [collapsed, items]);
+        sharedHeight.value = collapsed ? 0 : height;
+    }, [collapsed, height]);
 
     const progress = useSharedValue(collapsed ? 0 : 1);
 
@@ -95,13 +100,13 @@ export const AnimatedChildrenCollapsible = memo(({
                     {additionalFirstItem}
                 </Animated.View>
             )}
-            {itemsToRender.slice(0, limitConfig?.maxItems).map((item, index) => {
+            {items.slice(0, limitConfig?.maxItems).map((item, index) => {
                 return (
                     <Animated.View
                         key={`collapsible-item-${index}`}
                         entering={FadeInUp.delay(20 * index).easing(Easing.cubic).duration(100)}
-                        exiting={FadeOutUp.delay(20 * (itemsToRender.length - index)).easing(Easing.cubic).duration(100)}
-                        style={{ height: itemHeight }}
+                        exiting={FadeOutUp.delay(20 * (items.length - index)).easing(Easing.cubic).duration(100)}
+                        style={{ height: item.height || itemHeight }}
                     >
                         {index === 0 && showDivider && !additionalFirstItem && (
                             divider
@@ -121,7 +126,7 @@ export const AnimatedChildrenCollapsible = memo(({
                     </Animated.View>
                 );
             })}
-            {!!limitConfig && (itemsToRender.length > limitConfig.maxItems) && (
+            {!!limitConfig && (items.length > limitConfig.maxItems) && (
                 <Animated.View
                     style={[
                         {
@@ -149,4 +154,6 @@ export const AnimatedChildrenCollapsible = memo(({
             )}
         </Animated.View>
     );
-});
+};
+
+export const AnimatedChildrenCollapsible = memo(AnimatedChildrenCollapsibleComponent) as typeof AnimatedChildrenCollapsibleComponent;

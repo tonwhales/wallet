@@ -27,40 +27,54 @@ function areArraysEqualByContent<T>(a: T[], b: T[]): boolean {
 }
 
 function useSubToHintChange(
-    onChangeMany: (source?: string) => void,
+    reSortHints: () => void,
     owner: string,
 ) {
     useEffect(() => {
         const cache = queryClient.getQueryCache();
         const unsub = cache.subscribe((e: QueryCacheNotifyEvent) => {
+            const queryKey = e.query.queryKey;
             if (e.type === 'updated') {
-                const queryKey = e.query.queryKey;
+                const action = e.action;
+
+                // only care about success updates
+                if (action.type !== 'success') {
+                    return;
+                }
 
                 if (queryKey[0] === 'hints' && queryKey[1] === owner) {
                     // check if the hint was added or removed
                     const sorted = getSortedHints(owner);
-                    const hints = getQueryData<string[]>(cache, Queries.Hints(owner));
+                    const hints = action.data as string[] | undefined | null;
 
                     // do not trigger if the hints are the same set
                     if (areArraysEqualByContent(sorted, hints ?? [])) {
                         return;
                     }
 
-                    onChangeMany(`${e.type} ${queryKey.join(',')}`);
+                    reSortHints();
                 } else if (
-                    (queryKey[0] === 'hints' && queryKey[1] === owner)
-                    || (queryKey[0] === 'contractMetadata')
+                    (queryKey[0] === 'contractMetadata')
                     || (queryKey[0] === 'account' && queryKey[2] === 'jettonWallet')
-                    || (queryKey[0] === 'jettons' && queryKey[1] === 'swap')
                     || (queryKey[0] === 'jettons' && queryKey[1] === 'master' && queryKey[3] === 'content')
                 ) {
-                    onChangeMany(`${e.type} ${queryKey.join(',')}`);
+                    reSortHints();
+                } else if ((queryKey[0] === 'jettons' && queryKey[1] === 'swap')) {
+                    // check if the "price" changed so we can re-sort the hints
+                    const newData = action.data as bigint | undefined | null;
+                    const prev = getQueryData<bigint | undefined | null>(cache, queryKey);
+
+                    if (newData === prev) {
+                        return;
+                    }
+
+                    reSortHints();
                 }
             }
         });
 
         return unsub;
-    }, [owner, onChangeMany]);
+    }, [owner, reSortHints]);
 }
 
 export function useSortedHintsWatcher(address?: string) {
@@ -68,13 +82,14 @@ export function useSortedHintsWatcher(address?: string) {
     const [, setSortedHints] = useSortedHintsState(address);
 
     const resyncAllHintsWeights = useCallback(throttle(() => {
-        const hints = getQueryData<string[]>(queryClient.getQueryCache(), Queries.Hints(address ?? ''));
+        const cache = queryClient.getQueryCache();
+        const hints = getQueryData<string[]>(cache, Queries.Hints(address ?? ''));
         if (!hints) {
             return;
         }
 
         const sorted = hints
-            .map((h) => getHint(h, isTestnet))
+            .map((h) => getHint(cache, h, isTestnet))
             .sort(compareHints).filter(filterHint([])).map((x) => x.address);
 
         setSortedHints(sorted);

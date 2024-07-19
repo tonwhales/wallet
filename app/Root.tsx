@@ -15,8 +15,12 @@ import { LogBox } from 'react-native';
 import { AddressBookLoader } from './engine/AddressBookContext';
 import { ThemeProvider } from './engine/ThemeContext';
 import { PriceLoader } from './engine/PriceContext';
+import { migrateDontShowComments } from './engine/state/spam';
+import { AppBlurContextProvider } from './components/AppBlurContext';
 
 const PERSISTANCE_VERSION = '23';
+// set default value for spam comments
+migrateDontShowComments();
 
 LogBox.ignoreAllLogs()
 
@@ -55,7 +59,9 @@ export const Root = memo(() => {
                                 <PriceLoader>
                                     <AddressBookLoader>
                                         <LedgerTransportProvider>
-                                            <Navigation />
+                                            <AppBlurContextProvider>
+                                                <Navigation />
+                                            </AppBlurContextProvider>
                                         </LedgerTransportProvider>
                                     </AddressBookLoader>
                                 </PriceLoader>

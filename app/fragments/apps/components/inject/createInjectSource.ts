@@ -144,7 +144,7 @@ export const statusBarAPI = (safeArea: EdgeInsets) => {
     `
 }
 
-export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean }) => {
+export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) => {
     return `
     window['tonhub-auth'] = (() => {
         let __AUTH_AVAILIBLE = true;
@@ -157,20 +157,31 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
                 callback({ erorr: 'auth.inProgress' });
                 return;
             }
-            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.getLastAuthTime' } }));
             currentCallback = callback;
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.getLastAuthTime' } }));
         }
 
-        const authenicate = (callback) => {
+        const authenticate = (callback) => {
             if (inProgress) {
-                callback({ authenicated: false, erorr: 'auth.inProgress' });
+                callback({ isAuthenticated: false, erorr: 'auth.inProgress' });
                 return;
             }
 
-            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.authenticate' } }));
             inProgress = true;
             currentCallback = callback;
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.authenticate' } }));
         };
+
+        const lockAppWithAuth = (callback) => {
+            if (inProgress) {
+                callback({ isAuthenticated: false, erorr: 'auth.inProgress' });
+                return;
+            }
+
+            inProgress = true;
+            currentCallback = callback;
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'auth.lockAppWithAuth' } }));
+        }
 
         const __response = (ev) => {
             inProgress = false;
@@ -186,16 +197,21 @@ export const authAPI = (params: { lastAuthTime?: number, isLockedByAuth: boolean
                     params.lastAuthTime = ev.data;
                     currentCallback(ev.data);
                 } else {
-                    if (!!ev.data.lastAuthTime && ev.data.authenicated === true) {
+                    if (!!ev.data.lastAuthTime) {
                         params.lastAuthTime = ev.data.lastAuthTime;
                     }
-                    currentCallback({ authenicated: ev.data.authenicated });
+                    if (typeof ev.data.isSecured === 'boolean') {
+                        params.isSecured = true;
+                        currentCallback({ isSecured: ev.data.isSecured, lastAuthTime: ev.data.lastAuthTime });
+                    } else if (typeof ev.data.isAuthenticated === 'boolean') {
+                        currentCallback({ isAuthenticated: ev.data.isAuthenticated, lastAuthTime: ev.data.lastAuthTime });
+                    }
                 }
                 currentCallback = null;
             }
         }
 
-        const obj = { __AUTH_AVAILIBLE, params, authenicate, getLastAuthTime, __response };
+        const obj = { __AUTH_AVAILIBLE, params, authenticate, getLastAuthTime, lockAppWithAuth, __response };
         Object.freeze(obj);
         return obj;
     })();
@@ -311,7 +327,12 @@ export function dispatchLastAuthTimeResponse(webRef: React.RefObject<WebView>, l
     webRef.current?.injectJavaScript(injectedMessage);
 }
 
-export function dispatchAuthResponse(webRef: React.RefObject<WebView>, data: { authenicated: boolean, lastAuthTime?: number }) {
+export function dispatchAuthResponse(webRef: React.RefObject<WebView>, data: { isAuthenticated: boolean, lastAuthTime?: number }) {
+    let injectedMessage = `window['tonhub-auth'].__response(${JSON.stringify({ data })}); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
+}
+
+export function dispatchLockAppWithAuthResponse(webRef: React.RefObject<WebView>, data: { isSecured: boolean, lastAuthTime?: number }) {
     let injectedMessage = `window['tonhub-auth'].__response(${JSON.stringify({ data })}); true;`;
     webRef.current?.injectJavaScript(injectedMessage);
 }

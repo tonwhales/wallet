@@ -67,11 +67,11 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: 'create' } });
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: 'create' } }, isTestnet);
             return;
         }
-        navigation.navigateHolders({ type: 'create' });
-    }, [needsEnrolment, isHoldersReady]);
+        navigation.navigateHolders({ type: 'create' }, isTestnet);
+    }, [needsEnrolment, isHoldersReady, isTestnet]);
 
     const onProductBannerPress = useCallback((product: ProductAd) => {
         trackEvent(

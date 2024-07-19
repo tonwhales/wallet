@@ -65,18 +65,10 @@ const SignStateLoader = memo((props: SignStateLoaderParams) => {
 
         // Track installation
         success.current = true;
-        trackEvent(MixpanelEvent.AppInstall, { url: props.url, domain: domain }, isTestnet);
 
         // Navigate
         navigation.replace('App', { url: props.url });
     }, [useCreateDomainKeyIfNeeded]);
-
-    useEffect(() => {
-        if (!success.current) {
-            let domain = extractDomain(props.url);
-            trackEvent(MixpanelEvent.AppInstallCancel, { url: props.url, domain: domain }, isTestnet);
-        }
-    }, []);
 
     return (
         <DappAuthComponent

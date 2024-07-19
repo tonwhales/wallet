@@ -9,7 +9,7 @@ export const WImage = memo((props: {
     src?: string | null | undefined,
     requireSource?: ImageRequireSource,
     blurhash?: string | null | undefined,
-    heigh: number,
+    height: number,
     width: number,
     borderRadius: number,
     style?: StyleProp<ViewStyle>,
@@ -22,16 +22,21 @@ export const WImage = memo((props: {
     if (url && blurhash) {
         return (
             <View style={[{
-                width: props.width, height: props.heigh,
+                width: props.width, height: props.height,
                 overflow: 'hidden',
                 backgroundColor: theme.surfaceOnBg,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
                     source={{ uri: url }}
-                    style={{ width: props.width, height: props.heigh }}
+                    style={{ width: props.width, height: props.height }}
                     resizeMode={'cover'}
                     placeholder={{ blurhash }}
+                    transition={{
+                        duration: 150,
+                        timing: 'ease-in-out',
+                        effect: 'cross-dissolve'
+                    }}
                 />
             </View>
         );
@@ -40,16 +45,21 @@ export const WImage = memo((props: {
     if (url) {
         return (
             <View style={[{
-                width: props.width, height: props.heigh,
+                width: props.width, height: props.height,
                 overflow: 'hidden',
                 backgroundColor: theme.surfaceOnBg,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
                     source={{ uri: url }}
-                    style={{ width: props.width, height: props.heigh }}
+                    style={{ width: props.width, height: props.height }}
                     resizeMode={'cover'}
-                    placeholder={require('../../assets/ic_app_placeholder.png')}
+                    placeholder={require('@assets/ic_app_placeholder.png')}
+                    transition={{
+                        duration: 150,
+                        timing: 'ease-in-out',
+                        effect: 'cross-dissolve'
+                    }}
                 />
             </View>
         );
@@ -58,15 +68,20 @@ export const WImage = memo((props: {
     if (props.requireSource) {
         return (
             <View style={[{
-                width: props.heigh, height: props.heigh,
+                width: props.height, height: props.height,
                 overflow: 'hidden',
                 backgroundColor: theme.surfaceOnBg,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
                     source={props.requireSource}
-                    style={{ width: props.width, height: props.heigh }}
+                    style={{ width: props.width, height: props.height }}
                     resizeMode={'cover'}
+                    transition={{
+                        duration: 150,
+                        timing: 'ease-in-out',
+                        effect: 'cross-dissolve'
+                    }}
                 />
             </View>
         );
@@ -74,14 +89,14 @@ export const WImage = memo((props: {
 
     return (
         <View style={[{
-            width: props.heigh, height: props.heigh,
+            width: props.height, height: props.height,
             overflow: 'hidden',
             backgroundColor: theme.surfaceOnBg,
             borderRadius: props.borderRadius
         }, props.style]}>
             <Image
-                source={require('../../assets/ic_app_placeholder.png')}
-                style={{ width: props.width, height: props.heigh }}
+                source={require('@assets/ic_app_placeholder.png')}
+                style={{ width: props.width, height: props.height }}
                 resizeMode={'cover'}
             />
         </View>

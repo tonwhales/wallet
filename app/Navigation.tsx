@@ -78,7 +78,7 @@ import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSe
 import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
-import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
+import { AppAuthFragment } from './fragments/AppAuthFragment';
 import { BackupIntroFragment } from './fragments/onboarding/BackupIntroFragment';
 import { ProductsFragment } from './fragments/wallet/ProductsFragment';
 import { PendingTxPreviewFragment } from './fragments/wallet/PendingTxPreviewFragment';
@@ -94,6 +94,9 @@ import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
 import { SortedHintsWatcher } from './components/SortedHintsWatcher';
 import { PendingTxsWatcher } from './components/PendingTxsWatcher';
+import { TonconnectWatcher } from './components/TonconnectWatcher';
+import { SessionWatcher } from './components/SessionWatcher';
+import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -163,6 +166,30 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
             component={component}
             options={{
                 presentation: 'modal',
+                headerShown: false,
+                gestureEnabled: false,
+                contentStyle: Platform.select({
+                    ios: {
+                        borderTopEndRadius: 20, borderTopStartRadius: 20,
+                        paddingBottom: safeArea.bottom + 16,
+                        backgroundColor: theme.elevation
+                    },
+                    android: { backgroundColor: theme.backgroundPrimary }
+                })
+            }}
+        />
+    );
+}
+
+function fullScreenModal(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+    const theme = useTheme();
+    return (
+        <Stack.Screen
+            key={`fullScreenModal-${name}`}
+            name={name}
+            component={component}
+            options={{
+                presentation: 'fullScreenModal',
                 headerShown: false,
                 gestureEnabled: false,
                 contentStyle: Platform.select({
@@ -293,6 +320,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
     modalScreen('SearchEngine', SearchEngineFragment, safeArea),
+    lockedModalScreen('MandatoryAuthSetup', MandatoryAuthSetupFragment, safeArea),
 
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),
@@ -305,7 +333,8 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Alert', AlertFragment, safeArea),
     transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
-    fullScreen('AppStartAuth', AppStartAuthFragment),
+    fullScreen('AppStartAuth', AppAuthFragment),
+    fullScreenModal('AppAuth', AppAuthFragment, safeArea),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
     genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
 ];
@@ -409,9 +438,6 @@ export const Navigation = memo(() => {
     // Watch blocks
     useBlocksWatcher();
 
-    // Watch for TonConnect requests
-    useTonconnectWatcher();
-
     // Watch for holders updates
     useHoldersWatcher();
 
@@ -441,6 +467,8 @@ export const Navigation = memo(() => {
             <HintsPrefetcher />
             <SortedHintsWatcher owner={selected} />
             <PendingTxsWatcher />
+            <TonconnectWatcher />
+            <SessionWatcher navRef={navigationRef} />
             <Splash hide={hideSplash} />
         </View>
     );

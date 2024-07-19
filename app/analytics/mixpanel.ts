@@ -7,8 +7,6 @@ import { IS_SANDBOX } from '../engine/state/network';
 export enum MixpanelEvent {
     Reset = 'reset',
     Screen = 'screen',
-    LinkReceived = 'link_received',
-    NotificationReceived = 'notification_received',
     AppOpen = 'app_open',
     AppClose = 'app_close',
     Holders = 'holders',
@@ -17,14 +15,10 @@ export enum MixpanelEvent {
     HoldersInfoClose = 'holders_info_close',
     HoldersEnrollmentClose = 'holders_entrollment_close',
     HoldersClose = 'holders_close',
-    AppInstall = 'app_install',
-    AppInstallCancel = 'app_install_cancel',
-    AppUninstall = 'app_uninstall',
     Connect = 'connect',
     Transfer = 'transfer',
     TransferCancel = 'transfer_cancel',
     ProductBannerClick = 'product_banner_click',
-    BrowserBannerShown = 'browser_banner_shown',
     BrowserSearch = 'browser_search',
 }
 

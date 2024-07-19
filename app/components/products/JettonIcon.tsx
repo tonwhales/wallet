@@ -36,7 +36,7 @@ export const JettonIcon = memo(({
                         <WImage
                             src={jetton.assets[0].metadata.image?.preview256}
                             width={size * 0.5}
-                            heigh={size * 0.5}
+                            height={size * 0.5}
                             borderRadius={size * 0.5}
                         />
                     ) : (
@@ -65,7 +65,7 @@ export const JettonIcon = memo(({
                         <WImage
                             src={jetton.assets[1].metadata.image?.preview256}
                             width={size * 0.5}
-                            heigh={size * 0.5}
+                            height={size * 0.5}
                             borderRadius={size * 0.5}
                         />
                     ) : (
@@ -100,7 +100,7 @@ export const JettonIcon = memo(({
             <WImage
                 src={jetton.image?.preview256 ?? undefined}
                 width={size}
-                heigh={size}
+                height={size}
                 borderRadius={size}
             />
             {isKnown ? (

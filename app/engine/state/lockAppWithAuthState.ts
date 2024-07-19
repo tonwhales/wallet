@@ -1,7 +1,8 @@
 import { atom } from "recoil";
-import { sharedStoragePersistence } from "../../storage/storage";
+import { sharedStoragePersistence, storage } from "../../storage/storage";
 
 const lockAppWithAuthStateKey = 'lockAppWithAuthState';
+const lockAppWithAuthMandatoryKey = 'lockAppWithAuthMandatory';
 
 export function getLockAppWithAuthState() {
     return sharedStoragePersistence.getBoolean(lockAppWithAuthStateKey) || false;

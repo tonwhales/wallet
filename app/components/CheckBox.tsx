@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import CheckMark from '../../assets/ic_check_mark.svg';
 import { useTheme } from '../engine/hooks';
+import { Typography } from "./styles";
 
 export const CheckBox = React.memo((
     {
@@ -53,12 +54,10 @@ export const CheckBox = React.memo((
                 }}>
                     {isChecked && <CheckMark />}
                 </View>
-                <Text style={{
-                    fontWeight: '400',
-                    fontSize: 16,
+                <Text style={[{
                     marginLeft: 16,
                     color: theme.textPrimary
-                }}>
+                }, Typography.regular15_20]}>
                     {text}
                 </Text>
             </View>

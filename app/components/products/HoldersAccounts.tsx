@@ -34,6 +34,10 @@ export const HoldersAccounts = memo(({
         return reduceHoldersBalances(accs, price?.price?.usd ?? 0);
     }, [accs, price?.price?.usd]);
 
+    if (accs.length === 0) {
+        return null;
+    }
+
     if (accs.length < 3) {
         return (
             <View style={{ paddingHorizontal: 16 }}>
@@ -70,7 +74,10 @@ export const HoldersAccounts = memo(({
     return (
         <CollapsibleCards
             title={t('products.holders.accounts.title')}
-            items={accs}
+            // re-map to add height correction for accounts with no cards
+            items={accs.map((item) => {
+                return { ...item, height: item.cards.length > 0 ? 122 : 86 }
+            })}
             renderItem={(item, index) => {
                 return (
                     <HoldersAccountItem
@@ -80,6 +87,7 @@ export const HoldersAccounts = memo(({
                         rightAction={() => markAccount(item.id, true)}
                         isTestnet={isTestnet}
                         holdersAccStatus={holdersAccStatus}
+                        hideCardsIfEmpty
                     />
                 )
             }}

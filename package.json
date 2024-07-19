@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "2.3.7",
+  "version": "2.3.8",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -53,7 +53,7 @@
     "expo-app-loading": "~2.0.0",
     "expo-asset": "~8.10.1",
     "expo-barcode-scanner": "~12.5.3",
-    "expo-blur": "~12.4.1",
+    "expo-blur": "12.8.0",
     "expo-camera": "~13.4.4",
     "expo-constants": "~14.4.2",
     "expo-crypto": "~12.4.1",

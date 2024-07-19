@@ -233,6 +233,7 @@ export const ContactEdit = memo(({
                                 blurOnSubmit={true}
                                 editable={true}
                                 onFocus={() => onFocus(0)}
+                                cursorColor={theme.accent}
                             />
                         </View>
                         <View style={{

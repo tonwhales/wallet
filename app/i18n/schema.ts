@@ -315,6 +315,11 @@ export type LocalizationSchema = {
             wrongNetwork: string,
             wrongFrom: string,
             invalidFrom: string,
+            noConnection: string,
+            expired: string,
+            invalidRequest: string,
+            failedToReport: string,
+            failedToReportCanceled: string,
         },
         signatureRequest: {
             title: string,
@@ -1067,6 +1072,14 @@ export type LocalizationSchema = {
         termsAndPrivacy: string,
         dontShowTitle: string,
     },
+    mandatoryAuth: {
+        title: string,
+        description: string,
+        alert: string,
+        confirmDescription: string,
+        action: string,
+        settingsDescription: string
+    }
 };
 
 export type LocalizedResources = Paths<LocalizationSchema, string>;

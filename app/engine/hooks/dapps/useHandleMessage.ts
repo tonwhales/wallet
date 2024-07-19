@@ -18,7 +18,6 @@ export function useHandleMessage(
     const disconnectApp = useDisconnectApp();
 
     return async (event: MessageEvent) => {
-        logger.log(`sse connect message: type ${event}`);
         try {
             if (event.lastEventId) {
                 setLastEventId(event.lastEventId);
@@ -61,6 +60,7 @@ export function useHandleMessage(
                     },
                     id: request.id.toString(),
                 });
+                return;
             }
 
             if (request.method === 'sendTransaction') {
@@ -131,7 +131,7 @@ export function useHandleMessage(
                 });
             }
 
-        } catch (e) {
+        } catch {
             warn('Failed to handle message');
         }
     }

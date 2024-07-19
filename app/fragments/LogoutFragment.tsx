@@ -12,9 +12,19 @@ import { openWithInApp } from "../utils/openWithInApp";
 import { useTheme } from "../engine/hooks";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 import { StatusBar } from "expo-status-bar";
+import { getAppState } from "../storage/appState";
+import { getHasHoldersProducts } from "../engine/hooks/holders/useHasHoldersProducts";
 
 import IcLogout from '@assets/ic-alert-red.svg';
 import Support from '@assets/ic-support.svg';
+
+function hasHoldersProductsOnDevice(isTestnet: boolean) {
+    const appState = getAppState();
+
+    return !!appState.addresses.find((acc) => {
+        return getHasHoldersProducts(acc.address.toString({ testOnly: isTestnet }));
+    });
+}
 
 export const LogoutFragment = fragment(() => {
     const theme = useTheme();
@@ -48,10 +58,6 @@ export const LogoutFragment = fragment(() => {
 
     const [isShown, setIsShown] = useState(false);
 
-    const onLogout = useCallback(async () => {
-        onAccountDeleted();
-    }, [onAccountDeleted]);
-
     const showLogoutActSheet = useCallback(() => {
         if (isShown) {
             return;
@@ -71,7 +77,7 @@ export const LogoutFragment = fragment(() => {
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    onLogout();
+                    onAccountDeleted();
                     break;
                 case cancelButtonIndex:
                 // Canceled
@@ -80,7 +86,7 @@ export const LogoutFragment = fragment(() => {
             }
             setIsShown(false);
         });
-    }, [isShown, onLogout]);
+    }, [isShown, onAccountDeleted]);
 
     return (
         <View style={{

@@ -28,12 +28,15 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
         });
     }, [hiddenPrepaidCards, prePaid]);
 
-    if (visibleAccountsList?.length === 0 && visiblePrepaidList?.length === 0) {
+    const hasAccounts = visibleAccountsList?.length > 0;
+    const hasPrepaid = visiblePrepaidList?.length > 0;
+
+    if (!hasAccounts && !hasPrepaid) {
         return null;
     }
 
     return (
-        <View style={{ marginBottom: (visiblePrepaidList.length + visibleAccountsList.length) > 0 ? 16 : 0 }}>
+        <View style={{ marginBottom: (hasAccounts || hasPrepaid) ? 16 : 0 }}>
             <HoldersAccounts
                 theme={theme}
                 isTestnet={network.isTestnet}
@@ -41,7 +44,7 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
                 accs={visibleAccountsList}
                 holdersAccStatus={holdersAccStatus}
             />
-            <View style={{ marginTop: visiblePrepaidList.length > 0 ? 16 : 0 }}>
+            <View style={{ marginTop: (hasAccounts && hasPrepaid) ? 16 : 0 }}>
                 <HoldersCards
                     theme={theme}
                     isTestnet={network.isTestnet}

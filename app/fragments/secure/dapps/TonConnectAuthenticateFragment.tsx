@@ -28,11 +28,10 @@ import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Minimizer from '../../../modules/Minimizer';
 import { SelectedAccount } from '../../../engine/types';
-import { useToaster } from '../../../components/toast/ToastProvider';
+import { ToastDuration, useToaster } from '../../../components/toast/ToastProvider';
 import { t } from '../../../i18n/t';
 
 type SignState = { type: 'loading' }
-    | { type: 'expired', returnStrategy?: ReturnStrategy }
     | {
         type: 'initing',
         name: string,
@@ -45,8 +44,6 @@ type SignState = { type: 'loading' }
         domain: string,
         manifestUrl: string
     }
-    | { type: 'completed', returnStrategy?: ReturnStrategy }
-    | { type: 'authorized', returnStrategy?: ReturnStrategy }
     | { type: 'failed', returnStrategy?: ReturnStrategy }
 
 const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
@@ -58,9 +55,11 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const toaster = useToaster();
     const [state, setState] = useState<SignState>({ type: 'loading' });
     const saveAppConnection = useSaveAppConnection();
+    const toastMargin = safeArea.bottom + 56 + 48;
 
     useEffect(() => {
         (async () => {
+            // remote bridge
             if (connectProps.type === 'qr' || connectProps.type === 'link') {
                 try {
                     const handled = await handleConnectDeeplink(connectProps.query);
@@ -96,6 +95,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 return;
             }
 
+            // continue with local injected bridge
             checkProtocolVersionCapability(connectProps.protocolVersion);
             verifyConnectRequest(connectProps.request);
 
@@ -123,11 +123,62 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
         })()
     }, []);
 
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
     // Approve
-    let active = useRef(true);
+    const active = useRef(true);
     useEffect(() => {
-        return () => { active.current = false; };
+        return () => {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            }
+            if (!active.current) {
+                return;
+            }
+
+            active.current = false;
+
+            // reject on cancel
+            if (connectProps.type === 'callback' && !!connectProps.callback) {
+                connectProps.callback({ ok: false });
+            }
+        }
     }, []);
+
+    const navigate = useRef(() => {
+        active.current = false;
+        navigation.goBack();
+    });
+    useEffect(() => {
+        // default to go back
+        if (state.type !== 'initing' || connectProps.type === TonConnectAuthType.Callback) {
+            return;
+        }
+
+        navigate.current = () => {
+            if (!active.current) {
+                return;
+            }
+            active.current = false;
+
+            // close modal
+            navigation.goBack();
+
+            // resolve return strategy
+            if (!!state.returnStrategy) {
+                if (state.returnStrategy === 'back') {
+                    Minimizer.goBack();
+                } else if (state.returnStrategy !== 'none') {
+                    try {
+                        const url = new URL(decodeURIComponent(state.returnStrategy));
+                        Linking.openURL(url.toString());
+                    } catch (e) {
+                        warn('Failed to open url');
+                    }
+                }
+            }
+        };
+
+    }, [connectProps.type, state.type]);
 
     const approve = useCallback(async (selectedAccount?: SelectedAccount) => {
 
@@ -259,41 +310,25 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     type: 'success',
                     message: t('products.tonConnect.successAuth'),
                     onDestroy: () => {
-                        if (connectProps.type === TonConnectAuthType.Link) {
-                            setTimeout(() => {
-                                if (!!state.returnStrategy) {
-                                    if (state.returnStrategy === 'back') {
-                                        Minimizer.goBack();
-                                    } else if (state.returnStrategy !== 'none') {
-                                        try {
-                                            const url = new URL(decodeURIComponent(state.returnStrategy));
-                                            Linking.openURL(url.toString());
-                                        } catch (e) {
-                                            warn('Failed to open url');
-                                        }
-                                    }
-                                }
-
-                                navigation.goBack();
-                            }, 50);
-                            return;
-                        }
-
-                        navigation.goBack();
-                    }
+                        navigate.current();
+                    },
+                    duration: ToastDuration.SHORT,
+                    marginBottom: toastMargin
                 });
                 return;
-            } else if (connectProps.type === 'callback') {
+            } else if (connectProps.type === TonConnectAuthType.Callback) {
                 toaster.show({
                     type: 'success',
                     message: t('products.tonConnect.successAuth'),
                     onDestroy: () => {
                         connectProps.callback({ ok: true, replyItems });
 
-                        setTimeout(() => {
-                            navigation.goBack();
+                        timerRef.current = setTimeout(() => {
+                            navigate.current();
                         }, 50);
-                    }
+                    },
+                    duration: ToastDuration.SHORT,
+                    marginBottom: toastMargin
                 });
                 return;
             }
@@ -306,7 +341,8 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             // Show user error toast
             toaster.show({
                 type: 'error',
-                message: message
+                message: message,
+                marginBottom: toastMargin
             });
 
             warn('Failed to approve');
@@ -314,30 +350,13 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
     }, [state, saveAppConnection, toaster]);
 
-    const onCancel = useCallback(() => {
-        if (state.type === 'loading') {
-            navigation.goBack();
-            return;
-        }
-        if (state.returnStrategy && state.returnStrategy !== 'none' && state.returnStrategy !== 'back') {
-            try {
-                const url = new URL(state.returnStrategy);
-                Linking.openURL(url.toString());
-                return;
-            } catch (e) {
-                warn('Failed to open url');
-            }
-            navigation.goBack();
-            return;
-        }
-        navigation.goBack();
-    }, [state]);
-
     return (
         <DappAuthComponent
             state={{ ...state, connector: 'ton-connect' }}
             onApprove={approve}
-            onCancel={onCancel}
+            onCancel={() => {
+                navigate.current();
+            }}
             single={connectProps.type === 'callback'}
         />
     )
@@ -366,14 +385,6 @@ export type TonConnectAuthProps = {
 
 export const TonConnectAuthenticateFragment = fragment(() => {
     const props = useParams<TonConnectAuthProps>();
-
-    useEffect(() => {
-        return () => {
-            if (props && props.type === 'callback' && props.callback) {
-                props.callback({ ok: false });
-            }
-        }
-    }, []);
 
     return (<SignStateLoader connectProps={props} />);
 });

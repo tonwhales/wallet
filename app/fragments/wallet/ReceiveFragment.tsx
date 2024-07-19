@@ -159,7 +159,7 @@ export const ReceiveFragment = fragment(() => {
                                                     src={jetton.data.image?.preview256}
                                                     blurhash={jetton.data.image?.blurhash}
                                                     width={46}
-                                                    heigh={46}
+                                                    height={46}
                                                     borderRadius={23}
                                                     lockLoading
                                                 />

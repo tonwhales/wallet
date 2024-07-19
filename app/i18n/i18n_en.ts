@@ -313,6 +313,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             wrongNetwork: 'Wrong network',
             wrongFrom: 'Wrong sender',
             invalidFrom: 'Invalid sender address',
+            noConnection: 'App is not connected',
+            expired: 'Request expired',
+            invalidRequest: 'Invalid request',
+            failedToReport: 'Transaction is sent but failed to report back to the app',
+            failedToReportCanceled: 'Transaction is canceled but failed to report back to the app'
         },
         signatureRequest: {
             title: 'Signature requested',
@@ -625,7 +630,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addNew: 'Add new wallet',
         inProgress: 'Creating...',
         backupTitle: 'Your Backup Key',
-        backupSubtitle: 'Write down this words in exactly the same order and save them in a secret place',
+        backupSubtitle: 'Write down these 24 words in exactly the same order and save them in a secret place',
         okSaved: 'OK, I saved it',
         copy: 'Copy to clipboard',
     },
@@ -654,7 +659,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         onLaterMessage: 'You can setup protection later in settings',
         onLaterButton: 'Setup later',
         onBiometricsError: 'Error authenticating with biometrics',
-        lockAppWithAuth: 'Lock app with authentication',
+        lockAppWithAuth: 'Authenticate when logging into the app',
         methodPasscode: 'passcode',
         passcodeSetupDescription: 'PIN code helps to protect your wallet from unauthorized access'
     },
@@ -1065,6 +1070,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsAndPrivacy: 'I have read and agree to the ',
         dontShowTitle: 'Don\'t show it again for DeDust.io',
     },
+    mandatoryAuth: {
+        title: 'Check your backup',
+        description: 'Enable verification when opening a wallet. This will help keep your bank card details safe.',
+        alert: 'Write down 24 secret words in the Security section of your wallet settings. This will help you regain access if you lose your phone or forget your pin code.',
+        confirmDescription: 'I wrote down my wallet 24 secret words and saved them in a safe place',
+        action: 'Enable',
+        settingsDescription: 'Authentication request is required as the app displays banking products. Sensitive data will be hidden until you turn the authentication on',
+    }
 };
 
 export default schema;

@@ -5,13 +5,10 @@ import { t } from "../../../i18n/t";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { SendTransactionRequest } from "../../../engine/tonconnect/types";
 import { DappRequestButton } from "./DappRequestButton";
-import { PreparedConnectRequest } from "../../../engine/hooks/dapps/usePrepareConnectRequest";
-import { Toaster, useToaster } from "../../../components/toast/ToastProvider";
+import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
-import { Address } from "@ton/core";
-import { getCurrentAddress } from "../../../storage/appState";
-import { CHAIN } from "@tonconnect/protocol";
+import { Cell } from "@ton/core";
 
 type TonConnectRequestButtonProps = {
     request: SendTransactionRequest,
@@ -19,59 +16,17 @@ type TonConnectRequestButtonProps = {
     isTestnet: boolean
 }
 
-function checkNetworkAndFrom(
-    params: { request: PreparedConnectRequest, isTestnet: boolean, },
-    toaster: Toaster,
-    toastProps: { marginBottom: number }
-) {
-    const { request, isTestnet } = params;
-    const toasterErrorProps: { type: 'error', marginBottom: number } = { type: 'error', marginBottom: toastProps.marginBottom };
-
-    if (!!request.network) {
-        const walletNetwork = isTestnet ? CHAIN.TESTNET : CHAIN.MAINNET;
-        if (request.network !== walletNetwork) {
-            toaster.show({
-                ...toasterErrorProps,
-                message: t('products.transactionRequest.wrongNetwork'),
-            });
-
-            return false;
-        }
-    }
-
-    if (request.from) {
-        const current = getCurrentAddress();
-        try {
-            const fromAddress = Address.parse(request.from);
-
-            if (!fromAddress.equals(current.address)) {
-                toaster.show({
-                    ...toasterErrorProps,
-                    message: t('products.transactionRequest.wrongFrom'),
-                });
-
-                return false;
-            }
-
-        } catch (error) {
-            toaster.show({
-                ...toasterErrorProps,
-                message: t('products.transactionRequest.invalidFrom'),
-            });
-
-            return false;
-        }
-    }
-
-    return true;
-}
-
 export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps) => {
     const navigation = useTypedNavigation();
     const toaster = useToaster();
     const bottomBarHeight = useBottomTabBarHeight();
     const appBySessionId = useConnectAppByClientSessionId();
-    const prepareConnectRequest = usePrepareConnectRequest();
+    const toastProps = Platform.select({
+        ios: { marginBottom: bottomBarHeight + 24 },
+        android: { marginBottom: 16 },
+        default: { marginBottom: 16 }
+    });
+    const prepareConnectRequest = usePrepareConnectRequest({ isTestnet: props.isTestnet, toaster, toastProps });
     const connectCallback = useConnectCallback();
     const url = appBySessionId(props.request.from).connectedApp?.manifestUrl;
     const appManifest = useAppManifest(url ?? '');
@@ -84,25 +39,30 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
 
     const image = appManifest?.iconUrl;
 
-    const onPress = useCallback(() => {
+    const onPress = useCallback(async () => {
         const request = props.request;
         const prepared = prepareConnectRequest(request);
+
         if (request.method === 'sendTransaction' && prepared) {
-
-            const isValid = checkNetworkAndFrom(
-                { request: prepared, isTestnet: props.isTestnet },
-                toaster,
-                Platform.select({
-                    ios: { marginBottom: 24 + bottomBarHeight, },
-                    android: { marginBottom: 16 },
-                    default: { marginBottom: 16 },
-                })
-            );
-
-            if (!isValid) {
-                connectCallback(false, null, prepared.request, prepared.sessionCrypto);
-                return;
-            }
+            
+            // Callback to report the result of the transaction
+            const resultCallback = async (
+                ok: boolean,
+                result: Cell | null
+            ) => {
+                try {
+                    await connectCallback(ok, result, prepared.request, prepared.sessionCrypto);
+                } catch (error) {
+                    toaster.show({
+                        message: !ok
+                            ? t('products.transactionRequest.failedToReportCanceled')
+                            : t('products.transactionRequest.failedToReport'),
+                        ...toastProps,
+                        type: 'error',
+                        duration: ToastDuration.LONG
+                    });
+                }
+            };
 
             navigation.navigateTransfer({
                 text: null,
@@ -116,7 +76,7 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
                     } : undefined
                 },
                 job: null,
-                callback: (ok, result) => connectCallback(ok, result, prepared.request, prepared.sessionCrypto)
+                callback: resultCallback
             });
         }
     }, [prepareConnectRequest, props, connectCallback]);

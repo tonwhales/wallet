@@ -14,6 +14,11 @@ import { ProductsListFragmentParams } from '../fragments/wallet/ProductsListFrag
 import { StakingFragmentParams } from '../fragments/staking/StakingFragment';
 import { PendingTxPreviewParams } from '../fragments/wallet/PendingTxPreviewFragment';
 import { HomeFragmentProps } from '../fragments/HomeFragment';
+import { MandatoryAuthSetupParams } from '../fragments/secure/MandatoryAuthSetupFragment';
+import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
+import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
+import { getCurrentAddress } from '../storage/appState';
+import { Platform } from 'react-native';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -37,6 +42,14 @@ export function typedReplace(src: Base, name: string, params?: any) {
 
 export function typedNavigateAndReplaceAll(src: Base, name: string, params?: any) {
     src.reset({ index: 0, routes: [{ name, params }] });
+}
+
+function shouldTurnAuthOn(isTestnet: boolean) {
+    const isAppAuthOn = getLockAppWithAuthState();
+    const currentAccount = getCurrentAddress();
+    const hasAccounts = getHasHoldersProducts(currentAccount.address.toString({ testOnly: isTestnet }));
+
+    return !isAppAuthOn && hasAccounts;
 }
 
 export class TypedNavigation {
@@ -154,12 +167,30 @@ export class TypedNavigation {
         this.navigateAndReplaceAll('LedgerApp');
     }
 
-    navigateHoldersLanding({ endpoint, onEnrollType }: { endpoint: string, onEnrollType: HoldersAppParams }) {
-        this.navigate('HoldersLanding', { endpoint, onEnrollType });
+    navigateHoldersLanding({ endpoint, onEnrollType }: { endpoint: string, onEnrollType: HoldersAppParams }, isTestnet: boolean) {
+        if (shouldTurnAuthOn(isTestnet)) {
+            const callback = (success: boolean) => {
+                if (success) { // navigate only if auth is set up
+                    this.navigate('HoldersLanding', { endpoint, onEnrollType })
+                }
+            }
+            this.navigateMandatoryAuthSetup({ callback });
+        } else {
+            this.navigate('HoldersLanding', { endpoint, onEnrollType });
+        }
     }
 
-    navigateHolders(params: HoldersAppParams) {
-        this.navigate('Holders', params);
+    navigateHolders(params: HoldersAppParams, isTestnet: boolean) {
+        if (shouldTurnAuthOn(isTestnet)) {
+            const callback = (success: boolean) => {
+                if (success) { // navigate only if auth is set up
+                    this.navigate('Holders', params);
+                }
+            }
+            this.navigateMandatoryAuthSetup({ callback });
+        } else {
+            this.navigate('Holders', params);
+        }
     }
 
     navigateConnectAuth(params: TonConnectAuthProps) {
@@ -203,6 +234,10 @@ export class TypedNavigation {
 
     navigatePendingTx(params: PendingTxPreviewParams) {
         this.navigate('PendingTransaction', params);
+    }
+
+    navigateMandatoryAuthSetup(params?: MandatoryAuthSetupParams) {
+        this.navigate('MandatoryAuthSetup', params);
     }
 }
 

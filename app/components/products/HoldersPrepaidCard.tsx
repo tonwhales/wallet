@@ -16,6 +16,7 @@ import { CurrencySymbols } from "../../utils/formatCurrency";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
+import { useLockAppWithAuthState } from "../../engine/hooks/settings";
 
 export const HoldersPrepaidCard = memo((props: {
     card: PrePaidHoldersCard,
@@ -31,6 +32,7 @@ export const HoldersPrepaidCard = memo((props: {
     holdersAccStatus?: HoldersAccountStatus,
     onBeforeOpen?: () => void
 }) => {
+    const [lockAppWithAuth] = useLockAppWithAuthState();
     const card = props.card;
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
@@ -61,16 +63,16 @@ export const HoldersPrepaidCard = memo((props: {
 
         if (needsEnrollment) {
             const onEnrollType: HoldersAppParams = { type: 'prepaid', id: card.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType });
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: 'prepaid', id: card.id });
-    }, [card, needsEnrollment, props.onBeforeOpen]);
+        navigation.navigateHolders({ type: 'prepaid', id: card.id }, props.isTestnet);
+    }, [card, needsEnrollment, props.onBeforeOpen, props.isTestnet]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
-    const title = t('products.holders.accounts.prepaidCard', { lastFourDigits: card.lastFourDigits });
+    const title = t('products.holders.accounts.prepaidCard', { lastFourDigits: lockAppWithAuth ? card.lastFourDigits : '****' });
     const subtitle = t('products.holders.accounts.prepaidCardDescription');
 
     const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
@@ -125,7 +127,8 @@ export const HoldersPrepaidCard = memo((props: {
 
                                 <PerfText
                                     style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    ellipsizeMode="tail"
+                                    // to avoid clipping card number
+                                    ellipsizeMode={'middle'}
                                     numberOfLines={1}
                                 >
                                     {title}
@@ -140,9 +143,19 @@ export const HoldersPrepaidCard = memo((props: {
                                     </PerfText>
                                 </PerfText>
                             </View>
-                            <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                            <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
                                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                    <ValueComponent value={toNano(card.fiatBalance)} precision={2} centFontStyle={{ color: theme.textSecondary }} />
+                                    {lockAppWithAuth ? (
+                                        <ValueComponent
+                                            value={toNano(card.fiatBalance)}
+                                            precision={2}
+                                            centFontStyle={{ color: theme.textSecondary }}
+                                        />
+                                    ) : (
+                                        <PerfText>
+                                            {'****'}
+                                        </PerfText>
+                                    )}
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${CurrencySymbols[card.fiatCurrency].symbol}`}
                                     </PerfText>

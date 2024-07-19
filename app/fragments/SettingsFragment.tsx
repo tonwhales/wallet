@@ -160,8 +160,8 @@ export const SettingsFragment = fragment(() => {
                                     window.initialState = ${JSON.stringify(initialState)};
                                 })();
                                 `,
-                                useEmitter: true,
-                            }
+                            },
+                            useQueryAPI: true
                         });
                         break;
                     case 2:

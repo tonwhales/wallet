@@ -182,24 +182,35 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
         
         return;
       }
+
+      NSString *encryptedData = response[@"data"][@"encryptedData"];
+      NSString *activationData = response[@"data"][@"activationData"];
+      NSString *ephemeralPublicKey = response[@"data"][@"ephemeralPublicKey"];
       
       // Check response fields
-      if (!response[@"encryptedPassData"] || !response[@"activationData"] || !response[@"ephemeralPublicKey"]) {
-        // Handle the error
-        NSLog(@"Error: Missing fields in response");
-        
+      if (!encryptedData) {
+        NSLog(@"Error: Encrypted data is missing");
         completionHandler(nil);
-        
+        return;
+      }
+      if (!activationData) {
+        NSLog(@"Error: Activation data is missing");
+        completionHandler(nil);
+        return;
+      }
+      if (!ephemeralPublicKey) {
+        NSLog(@"Error: Ephemeral public key is missing");
+        completionHandler(nil);
         return;
       }
       
       // Once you have the encrypted pass data, activation data, and ephemeral public key from your server
       PKAddPaymentPassRequest *addRequest = [[PKAddPaymentPassRequest alloc] init];
-      
-      // Make sure the data is base64 encoded
-      addRequest.encryptedPassData = [[NSData alloc] initWithBase64EncodedString:response[@"encryptedPassData"] options:0];
-      addRequest.activationData = [[NSData alloc] initWithBase64EncodedString:response[@"activationData"] options:0];
-      addRequest.ephemeralPublicKey = [[NSData alloc] initWithBase64EncodedString:response[@"ephemeralPublicKey"] options:0];
+
+      // Set the encrypted pass data, activation data, and ephemeral public key
+      addRequest.encryptedPassData = [[NSData alloc] initWithBase64EncodedString:encryptedData options:0];
+      addRequest.activationData = [[NSData alloc] initWithBase64EncodedString:activationData options:0];
+      addRequest.ephemeralPublicKey = [[NSData alloc] initWithBase64EncodedString:ephemeralPublicKey options:0];
       
       completionHandler(addRequest);
     }

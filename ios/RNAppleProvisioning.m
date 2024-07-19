@@ -32,7 +32,7 @@ RCT_EXPORT_METHOD(canAddCards:(RCTPromiseResolveBlock)resolve
   resolve(@YES);
 }
 
-RCT_EXPORT_METHOD(checkIfCardIsAlreadyAdded:(NSString *)cardIdentifier
+RCT_EXPORT_METHOD(checkIfCardIsAlreadyAdded:(NSString *)primaryAccountIdentifier
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
   PKPassLibrary *library = [[PKPassLibrary alloc] init];
@@ -43,7 +43,7 @@ RCT_EXPORT_METHOD(checkIfCardIsAlreadyAdded:(NSString *)cardIdentifier
   for (PKPaymentPass *pass in passes) {
     if ([pass isKindOfClass:[PKPaymentPass class]]) { // Check if the pass is a PKPaymentPass
       PKPaymentPass *paymentPass = (PKPaymentPass *)pass; // Cast the PKPass to PKPaymentPass
-      if ([paymentPass.primaryAccountIdentifier isEqualToString:cardIdentifier]) {
+      if ([paymentPass.primaryAccountIdentifier isEqualToString:primaryAccountIdentifier]) {
         cardExists = YES;
         break;
       }

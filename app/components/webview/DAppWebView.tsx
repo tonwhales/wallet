@@ -375,7 +375,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         ${props.useEmitter ? emitterAPI : ''}
         ${props.useAuthApi ? authAPI({
             lastAuthTime: getLastAuthTimestamp(),
-            isSecured: getLockAppWithAuthState() ?? false
+            isSecured: getLockAppWithAuthState()
         }) : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {

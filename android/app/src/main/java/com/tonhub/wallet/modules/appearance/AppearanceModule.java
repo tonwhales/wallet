@@ -1,10 +1,12 @@
 package com.tonhub.wallet.modules.appearance;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -45,28 +47,52 @@ public class AppearanceModule extends ReactContextBaseJavaModule {
         return "AppearanceModule";
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public void initialize() {
         super.initialize();
         ReactApplicationContext rnAppContext = getReactApplicationContext();
-        rnAppContext
-                .getApplicationContext()
-                .registerReceiver(
-                        new BroadcastReceiver() {
-                            @Override
-                            public void onReceive(Context context, Intent intent) {
-                                Bundle extras = intent.getExtras();
-                                if (extras != null) {
-                                    String style = extras.getString("style");
-                                    if (style != null) {
-                                        rnAppContext
-                                                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                                .emit(APPEARANCE_CHANGED_EVENT_NAME, style);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            rnAppContext
+                    .getApplicationContext()
+                    .registerReceiver(
+                            new BroadcastReceiver() {
+                                @Override
+                                public void onReceive(Context context, Intent intent) {
+                                    Bundle extras = intent.getExtras();
+                                    if (extras != null) {
+                                        String style = extras.getString("style");
+                                        if (style != null) {
+                                            rnAppContext
+                                                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                                    .emit(APPEARANCE_CHANGED_EVENT_NAME, style);
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        new IntentFilter(THEME_STYLE_UPDATED_ACTION)
-                );
+                            },
+                            new IntentFilter(THEME_STYLE_UPDATED_ACTION),
+                            Context.RECEIVER_NOT_EXPORTED
+                    );
+        } else {
+            rnAppContext
+                    .getApplicationContext()
+                    .registerReceiver(
+                            new BroadcastReceiver() {
+                                @Override
+                                public void onReceive(Context context, Intent intent) {
+                                    Bundle extras = intent.getExtras();
+                                    if (extras != null) {
+                                        String style = extras.getString("style");
+                                        if (style != null) {
+                                            rnAppContext
+                                                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                                    .emit(APPEARANCE_CHANGED_EVENT_NAME, style);
+                                        }
+                                    }
+                                }
+                            },
+                            new IntentFilter(THEME_STYLE_UPDATED_ACTION)
+                    );
+        }
     }
 }

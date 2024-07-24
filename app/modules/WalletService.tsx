@@ -16,10 +16,10 @@ export const addCardRequestSchema = z.object({
     cardId: z.string(),
     cardholderName: z.string(),
     primaryAccountNumberSuffix: z.string(),
-    localizedDescription: z.string(),
+    localizedDescription: z.string().optional(),
     primaryAccountIdentifier: z.string().optional(),
-    paymentNetwork: z.string(),
-    network: z.union([z.literal('test'), z.literal('main')])
+    paymentNetwork: z.string().optional(),
+    network: z.union([z.literal('test'), z.literal('main')]).optional()
 });
 
 const addCardRequestSchemaWithToken = addCardRequestSchema.extend({
@@ -29,14 +29,14 @@ const addCardRequestSchemaWithToken = addCardRequestSchema.extend({
 type AddCardRequest = z.infer<typeof addCardRequestSchemaWithToken>;
 
 interface WalletService {
-    canAddCards(): Promise<boolean>;
+    isEnabled(): Promise<boolean>;
     checkIfCardIsAlreadyAdded(primaryAccountIdentifier: string): Promise<boolean>;
     canAddCard(cardId: string): Promise<boolean>;
     addCardToWallet(request: AddCardRequest): Promise<boolean>;
 }
 
 const WalletService: WalletService = Platform.OS === 'ios' ? {
-    async canAddCards(): Promise<boolean> {
+    async isEnabled(): Promise<boolean> {
         return RNAppleProvisioning.canAddCards();
     },
 
@@ -52,7 +52,7 @@ const WalletService: WalletService = Platform.OS === 'ios' ? {
         return RNAppleProvisioning.addCardToWallet(request);
     }
 } : {
-    async canAddCards(): Promise<boolean> {
+    async isEnabled(): Promise<boolean> {
         return false;
     },
 

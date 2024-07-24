@@ -33,6 +33,10 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { queryClient } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
+import { useLockAppWithAuthState } from '../../engine/hooks/settings';
+import WalletService from '../../modules/WalletService';
+import { delay } from 'teslabot';
+import { getHoldersToken } from '../../engine/hooks/holders/useHoldersAccountStatus';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -48,6 +52,18 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const cards = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
+    const holdersAccounts = useHoldersAccounts(acc.address);
+
+    const wallester = holdersAccounts.data?.accounts.find((a) => {
+        if (isTestnet) {
+            return a.cards.find((c) => c.lastFourDigits === '9481');
+        } else {
+            return a.name?.includes('Wallester');
+        }
+    })?.cards.map((c) => ({
+        id: c.id,
+        last4: c.lastFourDigits,
+    }));
 
     const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);
 
@@ -59,6 +75,9 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
+
+    const [lockAppWithAuth, setLockAppWithAuth] = useLockAppWithAuthState();
+    const [addCardStatus, setAddCardStatus] = useState<string | null>(null);
 
     const resetCache = useCallback(async () => {
         queryClient.clear();
@@ -295,6 +314,60 @@ export const DeveloperToolsFragment = fragment(() => {
                                 title={'Dev WebView'}
                                 onPress={() => {
                                     navigation.navigate('DevDAppWebView');
+                                }}
+                            />
+                            <ItemButton
+                                title={'Setup '}
+                                onPress={() => {
+                                    setLockAppWithAuth(false);
+                                    navigation.navigateMandatoryAuthSetup({
+                                        callback: (res) => console.log(res)
+                                    });
+                                }}
+                            />
+                            <ItemButton
+                                title={addCardStatus ?? 'Test provisioning'}
+                                onPress={async () => {
+                                    const card = wallester?.[0];
+                                    if (!card) {
+                                        setAddCardStatus('No card');
+                                        return;
+                                    }
+                                    setAddCardStatus('canAddCards, Loading... ');
+                                    await delay(500);
+                                    const canAdd = await WalletService.canAddCards();
+                                    setAddCardStatus(`canAddCard: ${canAdd}`);
+                                    await delay(500);
+                                    setAddCardStatus(`checking if can add card with id \'test\'...`);
+                                    const canAddCard = await WalletService.canAddCard(card.id);
+                                    await delay(500);
+                                    setAddCardStatus(`canAddCard with id \'test\': ${canAddCard}`);
+                                    await delay(500);
+                                    setAddCardStatus('Tring to add a card');
+                                    await delay(500);
+                                    const address = getCurrentAddress().address.toString({ testOnly: isTestnet });
+                                    const userToken = getHoldersToken(address);
+                                    if (!userToken) {
+                                        setAddCardStatus('No token');
+                                        return;
+                                    }
+
+                                    if (!canAdd || !canAddCard) {
+                                        setAddCardStatus('Cannot add card');
+                                        return;
+                                    }
+
+                                    const res = await WalletService.addCardToWallet({
+                                        cardId: card.id,
+                                        userToken,
+                                        cardholderName: isTestnet ? 'ALEKSEI DOROSHEV' : 'PAVEL SOLOVEV',
+                                        primaryAccountNumberSuffix: card.last4 ?? '0000',
+                                        localizedDescription: 'Wallester USDT card',
+                                        paymentNetwork: 'Visa',
+                                        network: isTestnet ? 'test' : 'main',
+                                    });
+
+                                    setAddCardStatus(res ? 'Card added' : 'Failed to add card');
                                 }}
                             />
                         </View>

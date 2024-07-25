@@ -36,6 +36,7 @@ struct ProvisioningCredential: Codable {
   let expiration: String?
   let assetName: String?
   let cryptoAddress: String?
+  let assetUrl: String?
   let paymentNetwork: PaymentNetwork?
   let token: String
 }
@@ -156,14 +157,14 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     let cachedCredentialsData = getProvisioningCredentials()
     
     // Create a payment pass entry for each credential.
-    for credential in cachedCredentialsData {
-      if !passLibraryIdentifiers.contains(credential.identifier) {
-        passEntries.append(getPaymentPassEntry(provisioningCredential: credential))
-      }
-    }
+    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.identifier) }
     
-    // Invoke the completion handler.
-    completion(passEntries)
+    getPaymentPassEntries(for: eligibleCredentials) { entries in
+      // Use the array of entries
+      print("Received entries: \(entries)")
+      // Invoke the completion handler
+      completion(passEntries)
+    }
   }
   
   // MARK: - Get Pass Data
@@ -173,7 +174,7 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     cardId: String,
     isTest: Bool,
     params: EncryptedPassDataRequest,
-    completion: @escaping (Dictionary<String, Any>?, Error?) -> Void) {
+    completion: @escaping (EncryptedPassDataResponse?, Error?) -> Void) {
       
       let base = isTest ? "https://card-staging.whales-api.com" : "https://card-prod.whales-api.com"
       let baseUrl = "\(base)/v2/card/get/apple/provisioning/data"
@@ -215,8 +216,28 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
         
         if let data = data {
           do {
-            if let responseJSON = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-              completion(responseJSON, nil)
+            if let responseJSON = try JSONSerialization.jsonObject(with: data, options: []) as? [String: String] {
+              guard let activationDataString = responseJSON["activationData"],
+                    let encryptedPassDataString = responseJSON["encryptedPassData"],
+                    let ephemeralPublicKeyString = responseJSON["ephemeralPublicKey"] else {
+                completion(nil, NSError(domain: "ResponseError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"]))
+                return
+              }
+              
+              guard let activationData = Data(base64Encoded: activationDataString),
+                    let encryptedPassData = Data(base64Encoded: encryptedPassDataString),
+                    let ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKeyString) else {
+                completion(nil, NSError(domain: "ResponseError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"]))
+                return
+              }
+              
+              let encryptedPassDataResponse = EncryptedPassDataResponse(
+                activationData: activationData,
+                encryptedPassData: encryptedPassData,
+                ephemeralPublicKey: ephemeralPublicKey
+              )
+              
+              completion(encryptedPassDataResponse, nil)
             } else {
               completion(nil, NSError(domain: "ResponseError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"]))
             }
@@ -238,12 +259,6 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     // This request object will be passed to the completion handler.
     let request = PKAddPaymentPassRequest()
     
-    // Generate the encrypted pass data.
-    //
-    // EncryptedPassDataResponse and PassResource are not members of
-    // PassKit. You should modify this logic based on how the issuer app
-    // retrieves the required encrypted pass data from the issuer server.
-    //
     // You can use the array.first(where:) method to retrieve a
     // specific PKLabeledValue card detail from a configuration.
     // configuration.cardDetails.first(where: { $0.label == "expiration" })!
@@ -252,34 +267,163 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     let entries = getProvisioningCredentials()
     let entry = entries.first(where: { $0.identifier == identifier })
     let token = entry?.token
-
+    
     if token == nil {
       log.error("Token not found for identifier: \(identifier)")
       completion(nil)
       return
     }
-
-    // construct completion handler
-        // Insert the encrypted pass data into the PKAddPaymentPassRequest.
-        // request.activationData = passData.activationData
-        // request.encryptedPassData = passData.encryptedPassData
-        // request.ephemeralPublicKey = passData.ephemeralPublicKey
-        
-        // Invoke the completion handler.
-        // completion(request)
+    
+    let encryptedDataCompletionHandler: (EncryptedPassDataResponse?, Error?) -> Void = { passData, error in
+      if let passData = passData {
+        request.activationData = passData.activationData
+        request.encryptedPassData = passData.encryptedPassData
+        request.ephemeralPublicKey = passData.ephemeralPublicKey
+        completion(request)
+      } else {
+        self.log.error("Error occurred while generating encrypted pass data: \(error?.localizedDescription ?? "Unknown error")")
+        completion(nil)
+      }
+    }
+    
     
     sendDataToServerForEncryption(
-        userToken: token!,
-        cardId: identifier,
-        isTest: false,
-        params: EncryptedPassDataRequest(certificates: certificates.map { $0.base64EncodedString() },
-                                         nonce: nonce.base64EncodedString(),
-                                         nonceSignature: nonceSignature.base64EncodedString())
-                                         // completion handler goes here
-    )
+      userToken: token!,
+      cardId: identifier,
+      isTest: false,
+      params: EncryptedPassDataRequest(
+        certificates: certificates.map { $0.base64EncodedString() },
+        nonce: nonce.base64EncodedString(),
+        nonceSignature: nonceSignature.base64EncodedString()),
+      completion: encryptedDataCompletionHandler)
+  }
+  
+  // Pass  entries for Apple Watch
+  override func remotePassEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
+    
+    // Get the identifiers of payment passes that are already added
+    // to Apple Pay.
+    
+    // This list will be passed to the completion handler.
+    var passEntries: [PKIssuerProvisioningExtensionPassEntry] = []
+    var paymentPassLibrary: [PKPass] = []
+    var passLibraryIdentifiers: Set<String> = []
+    
+    paymentPassLibrary = self.passLibrary.passes(of: .secureElement)
+    
+    for pass in paymentPassLibrary {
+      if pass.isRemotePass, pass.deviceName.localizedCaseInsensitiveContains("Apple Watch"),
+         let identifier = pass.secureElementPass?.primaryAccountIdentifier  {
+        passLibraryIdentifiers.insert(identifier)
+      }
+    }
+    
+    // Get cached credentials data of all of the user's issued cards,
+    // within the issuer app, from the user's defaults database.
+    let cachedCredentialsData = getProvisioningCredentials()
+    
+    // Create a payment pass entry for each credential.
+    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.identifier) }
+    
+    getPaymentPassEntries(for: eligibleCredentials) { entries in
+      // Use the array of entries
+      print("Received entries: \(entries)")
+      // Invoke the completion handler
+      completion(passEntries)
+    }
   }
   
   // MARK: - Private Methods
+  private func getPaymentPassEntries(for credentials: [ProvisioningCredential], completion: @escaping ([PKIssuerProvisioningExtensionPaymentPassEntry]) -> Void) {
+    let dispatchGroup = DispatchGroup()
+    var entries: [PKIssuerProvisioningExtensionPaymentPassEntry] = []
+    var errors: [Error] = []
+    
+    for credential in credentials {
+      dispatchGroup.enter()
+      createPaymentPassEntry(provisioningCredential: credential) { entry in
+        if let entry = entry {
+          entries.append(entry)
+        } else {
+          // Handle the error case if needed
+          errors.append(NSError(domain: "EntryCreationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create entry for credential: \(credential.identifier)"]))
+        }
+        dispatchGroup.leave()
+      }
+    }
+    
+    dispatchGroup.notify(queue: .main) {
+      if errors.isEmpty {
+        completion(entries)
+      } else {
+        // Handle errors if needed
+        print("Errors occurred: \(errors)")
+        completion(entries)
+      }
+    }
+  }
+  
+  private func downloadImage(from url: URL, completion: @escaping (UIImage?) -> Void) {
+    URLSession.shared.dataTask(with: url) { data, response, error in
+      guard let data = data, error == nil else {
+        print("Error downloading image: \(error?.localizedDescription ?? "Unknown error")")
+        completion(nil)
+        return
+      }
+      
+      if let image = UIImage(data: data) {
+        DispatchQueue.main.async {
+          completion(image)
+        }
+      } else {
+        print("Error creating image from data")
+        completion(nil)
+      }
+    }.resume()
+  }
+  
+  private func createPaymentPassEntry(provisioningCredential: ProvisioningCredential, completion: @escaping (PKIssuerProvisioningExtensionPaymentPassEntry?) -> Void) {
+    let identifier = provisioningCredential.identifier
+    let label = provisioningCredential.label
+    
+    let requestConfig = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2)!
+    requestConfig.primaryAccountIdentifier = identifier
+    requestConfig.paymentNetwork = provisioningCredential.paymentNetwork! == .visa ? .visa : .masterCard
+    requestConfig.cardholderName = provisioningCredential.cardholderName
+    requestConfig.localizedDescription = provisioningCredential.localizedDescription
+    requestConfig.primaryAccountSuffix = provisioningCredential.primaryAccountSuffix
+    requestConfig.style = .payment
+    
+    if let assetUrl = provisioningCredential.assetUrl, let url = URL(string: assetUrl) {
+      downloadImage(from: url) { image in
+        let entry: PKIssuerProvisioningExtensionPaymentPassEntry
+        if let uiImage = image {
+          entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
+                                                                title: label,
+                                                                art: self.getEntryArt(image: uiImage),
+                                                                addRequestConfiguration: requestConfig)!
+        } else {
+          entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
+                                                                title: label,
+                                                                art: self.getEntryArt(image: #imageLiteral(resourceName: "generic")),
+                                                                addRequestConfiguration: requestConfig)!
+        }
+        completion(entry)
+      }
+    } else if let assetName = provisioningCredential.assetName, let uiImage = UIImage(named: assetName) {
+      let entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
+                                                                title: label,
+                                                                art: getEntryArt(image: uiImage),
+                                                                addRequestConfiguration: requestConfig)!
+      completion(entry)
+    } else {
+      let entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
+                                                                title: label,
+                                                                art: getEntryArt(image: #imageLiteral(resourceName: "generic")),
+                                                                addRequestConfiguration: requestConfig)!
+      completion(entry)
+    }
+  }
   
   // Returns an array of ProvisioningCredential from the user's defaults database.
   private func getProvisioningCredentials() -> [ProvisioningCredential] {
@@ -307,67 +451,10 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     return provisioningCredentials
   }
   
-  // Returns a payment pass entry.
-  private func getPaymentPassEntry(provisioningCredential: ProvisioningCredential) -> PKIssuerProvisioningExtensionPaymentPassEntry {
-    
-    // If using PNO Payment Data Configuration 1 (FPAN) or 3 (eFPAN), set
-    // the identifier as the primaryAccountNumber. If using PNO Payment Data
-    // Configuration 2 (FPANID), set the identifier as the
-    // primaryAccountIdentifier.
-    let identifier = provisioningCredential.identifier
-    let label = provisioningCredential.label
-    
-    // Create a request configuration for adding a payment pass, which will
-    // be included in the payment pass entry.
-    let requestConfig = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2)!
-    requestConfig.primaryAccountIdentifier = identifier
-    if (provisioningCredential.paymentNetwork != nil) {
-      requestConfig.paymentNetwork = provisioningCredential.paymentNetwork! == .visa ? .visa : .masterCard
-    }
-    requestConfig.cardholderName = provisioningCredential.cardholderName
-    requestConfig.localizedDescription = provisioningCredential.localizedDescription
-    requestConfig.primaryAccountSuffix = provisioningCredential.primaryAccountSuffix
-    requestConfig.style = .payment
-    
-    // Append additional card details. The value of the expiration label
-    // should be a string in the following format: "11/18".
-    // requestConfig.cardDetails.append(PKLabeledValue(label: "expiration", value: provisioningCredential.expiration))
-    
-    // Instantiate and return a payment pass entry.
-    if let uiImage = UIImage(named: provisioningCredential.assetName ?? "") {
-      return PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
-                                                           title: label,
-                                                           art: getEntryArt(image: uiImage),
-                                                           addRequestConfiguration: requestConfig)!
-    } else {
-      return PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
-                                                           title: label,
-                                                           art: getEntryArt(image: #imageLiteral(resourceName: "generic")),
-                                                           addRequestConfiguration: requestConfig)!
-    }
-  }
-  
   // Converts a UIImage to a CGImage.
   private func getEntryArt(image: UIImage) -> CGImage {
     let ciImage = CIImage(image: image)
     let ciContext = CIContext(options: nil)
     return ciContext.createCGImage(ciImage!, from: ciImage!.extent)!
-  }
-  
-  
-  override func remotePassEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
-    
-    // Get the identifiers of payment passes that are already added
-    // to Apple Pay.
-    
-    for pass in paymentPassLibrary {
-      if pass.isRemotePass, pass.deviceName.localizedCaseInsensitiveContains("Apple Watch"),
-         let identifier = pass.secureElementPass?.primaryAccountIdentifier  {
-        passLibraryIdentifiers.insert(identifier)
-      }
-    }
-    
-    // Invoke the completion handler
-    completion(passEntries)
   }
 }

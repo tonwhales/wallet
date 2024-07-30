@@ -20,25 +20,16 @@ class Logger {
   }
 }
 
-enum PaymentNetwork: String, Codable {
-  case visa = "Visa"
-  case masterCard = "MasterCard"
-}
-
-
 // MARK: Structs
 struct ProvisioningCredential: Codable {
   let identifier: String
   let label: String
   let cardholderName: String
-  let localizedDescription: String?
-  let primaryAccountSuffix: String
-  let expiration: String?
-  let assetName: String?
-  let cryptoAddress: String?
-  let assetUrl: String?
-  let paymentNetwork: PaymentNetwork?
   let token: String
+  let primaryAccountSuffix: String
+  let isTestnet: Bool?
+  let assetName: String?
+  let assetUrl: String?
 }
 
 // EncryptedPassDataResponse
@@ -65,12 +56,12 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
    Sets the status of the extension to indicate whether a payment pass is available to add and whether
    adding it requires authentication.
    */
-  // MARK: - Status
+  // MARK: Status
   override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
+    let paymentPassLibrary: [PKPass] = self.passLibrary.passes(of: .secureElement)
     
     // This status will be passed to the completion handler.
     let status = PKIssuerProvisioningExtensionStatus()
-    var paymentPassLibrary: [PKPass] = []
     var passIdentifiers: Set<String> = []
     var remotePassIdentifiers: Set<String> = []
     var availablePassesForIphone: Int = 0
@@ -78,7 +69,6 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     
     // Get the identifiers of payment passes that are already added
     // to Apple Pay.
-    paymentPassLibrary = self.passLibrary.passes(of: .secureElement)
     
     for pass in paymentPassLibrary {
       if let identifier = pass.secureElementPass?.primaryAccountIdentifier {
@@ -92,32 +82,16 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
-    if let cachedCredentialsData = appGroupSharedDefaults.data(forKey: "PaymentPassCredentials") {
-      
-      // JSON decode the cached credential data of all of the user's
-      // issued cards.
-      //
-      //       Note: ProvisioningCredential is not a member of PassKit.
-      //       You should modify this logic based on how the issuer app
-      //       structures persisted data of an issued card.
-      if let decoded = try? JSONDecoder().decode([String: ProvisioningCredential].self, from: cachedCredentialsData) {
-        for identifier in decoded.keys {
-          
-          // Count number of passes available to add to iPhone
-          if !passIdentifiers.contains(identifier) {
-            availablePassesForIphone += 1
-          }
-          
-          // Count number of passes available to add to Apple Watch
-          if !remotePassIdentifiers.contains(identifier) {
-            availableRemotePassesForAppleWatch += 1
-          }
-        }
-      } else {
-        log.error("Error occurred while JSON decoding cachedCredentialsData")
+    let cachedCredentials = getProvisioningCredentials()
+    
+    for credential in cachedCredentials {
+      if !passIdentifiers.contains(credential.identifier) {
+        availablePassesForIphone += 1
       }
-    } else {
-      log.warning("Unable to find credentials of passes available to add to Apple Pay.")
+      
+      if !remotePassIdentifiers.contains(credential.identifier) {
+        availableRemotePassesForAppleWatch += 1
+      }
     }
     
     // Set the status of the extension.
@@ -126,26 +100,23 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     
     // You can also set requiresAuthentication to "true" or "false"
     // directly, if not wanting to rely on a cached value.
-    status.requiresAuthentication = appGroupSharedDefaults.bool(forKey: "ShouldRequireAuthenticationForAppleWallet")
+    status.requiresAuthentication = getShouldRequireAuthenticationForAppleWallet()
+    
+    // log the status
+    log.error("Status: \(status)")
     
     // Invoke the completion handler.
     // The system needs to invoke the handler within 100 ms, or the extension does not display to the user in Apple Wallet.
     completion(status)
   }
   
-  // MARK: - PassEntries
-  // gather and return a list of payment pass entries that can be added to Apple Pay
+  // MARK: PassEntries iPhone
+  // gather and return a list of payment pass entries that can be added to Apple Pay for iPhone
   override func passEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
-    
-    // This list will be passed to the completion handler.
-    var passEntries: [PKIssuerProvisioningExtensionPassEntry] = []
-    var paymentPassLibrary: [PKPass] = []
+    let paymentPassLibrary: [PKPass] = self.passLibrary.passes(of: .secureElement)
     var passLibraryIdentifiers: Set<String> = []
     
-    // Get the identifiers of payment passes that are already added
-    // to Apple Pay.
-    paymentPassLibrary = self.passLibrary.passes(of: .secureElement)
-    
+    // Get the identifiers of payment passes that are already added to Apple Pay.
     for pass in paymentPassLibrary {
       if !pass.isRemotePass, let identifier = pass.secureElementPass?.primaryAccountIdentifier {
         passLibraryIdentifiers.insert(identifier)
@@ -163,14 +134,43 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
       // Use the array of entries
       print("Received entries: \(entries)")
       // Invoke the completion handler
-      completion(passEntries)
+      completion(entries)
     }
   }
   
-  // MARK: - Get Pass Data
+  // MARK: PassEntries Watch
+  override func remotePassEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
+    let paymentPassLibrary: [PKPass] = self.passLibrary.passes(of: .secureElement)
+    
+    var passLibraryIdentifiers: Set<String> = []
+    
+    // Get the identifiers of payment passes that are already added to Apple Pay.
+    for pass in paymentPassLibrary {
+      if pass.isRemotePass, pass.deviceName.localizedCaseInsensitiveContains("Apple Watch"),
+         let identifier = pass.secureElementPass?.primaryAccountIdentifier  {
+        passLibraryIdentifiers.insert(identifier)
+      }
+    }
+    
+    // Get cached credentials data of all of the user's issued cards,
+    // within the issuer app, from the user's defaults database.
+    let cachedCredentialsData = getProvisioningCredentials()
+    
+    // Create a payment pass entry for each credential.
+    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.identifier) }
+    
+    getPaymentPassEntries(for: eligibleCredentials) { entries in
+      // Use the array of entries
+      print("Received entries: \(entries)")
+      // Invoke the completion handler
+      completion(entries)
+    }
+  }
   
+  // MARK: Get Pass Data
+  // This method sends the data to the server for encryption and returns the encrypted pass data.
   func sendDataToServerForEncryption(
-    userToken: String,
+    token: String,
     cardId: String,
     isTest: Bool,
     params: EncryptedPassDataRequest,
@@ -197,7 +197,7 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
                                    "nonceSignature": nonceSignatureString]
       
       let postData: [String: Any] = ["params": params,
-                                     "token": userToken,
+                                     "token": token,
                                      "id": cardId]
       
       do {
@@ -249,8 +249,7 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
       dataTask.resume()
     }
   
-  // MARK: - Payment Pass Request
-  
+  // MARK: Payment Pass Request
   override func generateAddPaymentPassRequestForPassEntryWithIdentifier(_ identifier: String, configuration: PKAddPaymentPassRequestConfiguration,
                                                                         certificateChain certificates: [Data], nonce: Data, nonceSignature: Data,
                                                                         completionHandler completion: @escaping (PKAddPaymentPassRequest?) ->
@@ -267,6 +266,7 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     let entries = getProvisioningCredentials()
     let entry = entries.first(where: { $0.identifier == identifier })
     let token = entry?.token
+    let isTest = entry?.isTestnet ?? false
     
     if token == nil {
       log.error("Token not found for identifier: \(identifier)")
@@ -281,16 +281,15 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
         request.ephemeralPublicKey = passData.ephemeralPublicKey
         completion(request)
       } else {
-        self.log.error("Error occurred while generating encrypted pass data: \(error?.localizedDescription ?? "Unknown error")")
+        self.log.error("Occurred while generating encrypted pass data: \(error?.localizedDescription ?? "Unknown error")")
         completion(nil)
       }
     }
     
-    
     sendDataToServerForEncryption(
-      userToken: token!,
+      token: token!,
       cardId: identifier,
-      isTest: false,
+      isTest: isTest,
       params: EncryptedPassDataRequest(
         certificates: certificates.map { $0.base64EncodedString() },
         nonce: nonce.base64EncodedString(),
@@ -298,42 +297,7 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
       completion: encryptedDataCompletionHandler)
   }
   
-  // Pass  entries for Apple Watch
-  override func remotePassEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
-    
-    // Get the identifiers of payment passes that are already added
-    // to Apple Pay.
-    
-    // This list will be passed to the completion handler.
-    var passEntries: [PKIssuerProvisioningExtensionPassEntry] = []
-    var paymentPassLibrary: [PKPass] = []
-    var passLibraryIdentifiers: Set<String> = []
-    
-    paymentPassLibrary = self.passLibrary.passes(of: .secureElement)
-    
-    for pass in paymentPassLibrary {
-      if pass.isRemotePass, pass.deviceName.localizedCaseInsensitiveContains("Apple Watch"),
-         let identifier = pass.secureElementPass?.primaryAccountIdentifier  {
-        passLibraryIdentifiers.insert(identifier)
-      }
-    }
-    
-    // Get cached credentials data of all of the user's issued cards,
-    // within the issuer app, from the user's defaults database.
-    let cachedCredentialsData = getProvisioningCredentials()
-    
-    // Create a payment pass entry for each credential.
-    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.identifier) }
-    
-    getPaymentPassEntries(for: eligibleCredentials) { entries in
-      // Use the array of entries
-      print("Received entries: \(entries)")
-      // Invoke the completion handler
-      completion(passEntries)
-    }
-  }
-  
-  // MARK: - Private Methods
+  // MARK: Private Methods
   private func getPaymentPassEntries(for credentials: [ProvisioningCredential], completion: @escaping ([PKIssuerProvisioningExtensionPaymentPassEntry]) -> Void) {
     let dispatchGroup = DispatchGroup()
     var entries: [PKIssuerProvisioningExtensionPaymentPassEntry] = []
@@ -388,9 +352,8 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     
     let requestConfig = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2)!
     requestConfig.primaryAccountIdentifier = identifier
-    requestConfig.paymentNetwork = provisioningCredential.paymentNetwork! == .visa ? .visa : .masterCard
     requestConfig.cardholderName = provisioningCredential.cardholderName
-    requestConfig.localizedDescription = provisioningCredential.localizedDescription
+    requestConfig.localizedDescription = provisioningCredential.label
     requestConfig.primaryAccountSuffix = provisioningCredential.primaryAccountSuffix
     requestConfig.style = .payment
     
@@ -426,26 +389,38 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
   }
   
   // Returns an array of ProvisioningCredential from the user's defaults database.
-  private func getProvisioningCredentials() -> [ProvisioningCredential] {
+  func getProvisioningCredentials() -> [ProvisioningCredential] {
+    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
+    
+    guard let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID) else {
+      print("App group shared defaults not found")
+      return []
+    }
+    
+    print("App group shared defaults: \(appGroupSharedDefaults)")
+    
+    let groupUserDefaults = appGroupSharedDefaults.dictionaryRepresentation()
+    print("Group user defaults: \(groupUserDefaults)")
+    
+    guard let cachedCredentialsData = appGroupSharedDefaults.dictionary(forKey: "PaymentPassCredentials") else {
+      print("Unable to find credentials of passes available to add to Apple Pay.")
+      return []
+    }
+    
+    print("Cached credentials data: \(cachedCredentialsData)")
+    
     var provisioningCredentials: [ProvisioningCredential] = []
     
-    // Get cached credentials data of all of the user's issued cards,
-    // within the issuer app, from the user's defaults database.
-    if let cachedCredentialsData = appGroupSharedDefaults.data(forKey: "PaymentPassCredentials") {
+    for credentialDict in cachedCredentialsData.values {
+      guard let credentialDict = credentialDict as? [String: Any] else { continue }
       
-      // JSON decode the cached credential data of all of the user's
-      // issued cards.
-      //
-      // Note: ProvisioningCredential is not a member of PassKit.
-      // You should modify this logic based on how the issuer app
-      // structures persisted data of an issued card.
-      if let decoded = try? JSONDecoder().decode([String: ProvisioningCredential].self, from: cachedCredentialsData) {
-        provisioningCredentials = Array(decoded.values)
-      } else {
-        log.error("Error occurred while JSON decoding cachedCredentialsData")
+      do {
+        let credential = try JSONDecoder().decode(ProvisioningCredential.self, from: JSONSerialization.data(withJSONObject: credentialDict))
+        
+        provisioningCredentials.append(credential)
+      } catch {
+        print("Exception: \(error)")
       }
-    } else {
-      log.warning("Unable to find credentials of passes available to add to Apple Pay.")
     }
     
     return provisioningCredentials
@@ -456,5 +431,15 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     let ciImage = CIImage(image: image)
     let ciContext = CIContext(options: nil)
     return ciContext.createCGImage(ciImage!, from: ciImage!.extent)!
+  }
+  
+  private func getShouldRequireAuthenticationForAppleWallet() -> Bool {
+    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
+    guard let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID) else {
+      print("App group shared defaults not found")
+      return false
+    }
+    
+    return appGroupSharedDefaults.bool(forKey: "ShouldRequireAuthenticationForAppleWallet")
   }
 }

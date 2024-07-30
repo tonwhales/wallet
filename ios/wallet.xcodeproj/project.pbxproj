@@ -21,7 +21,6 @@
 		36D5B6652C52596E000A4A55 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36D5B6642C52596E000A4A55 /* Media.xcassets */; };
 		36D5B6672C52596E000A4A55 /* ActionRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B6662C52596E000A4A55 /* ActionRequestHandler.swift */; };
 		36D5B66D2C52596E000A4A55 /* WNonUIExt.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 36D5B6612C52596E000A4A55 /* WNonUIExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		36D5B6772C525F97000A4A55 /* AppGroupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B6762C525F97000A4A55 /* AppGroupManager.swift */; };
 		36D5B6792C52603B000A4A55 /* WatchConnectivitySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */; };
 		36D5B67B2C527078000A4A55 /* WUIExtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B67A2C527078000A4A55 /* WUIExtView.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
@@ -90,7 +89,6 @@
 		36D5B6732C525A41000A4A55 /* WhalesAppRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WhalesAppRelease.entitlements; sourceTree = "<group>"; };
 		36D5B6742C525ACE000A4A55 /* WUIExtRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WUIExtRelease.entitlements; sourceTree = "<group>"; };
 		36D5B6752C525AE4000A4A55 /* WNonUIExtRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WNonUIExtRelease.entitlements; sourceTree = "<group>"; };
-		36D5B6762C525F97000A4A55 /* AppGroupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupManager.swift; sourceTree = "<group>"; };
 		36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivitySession.swift; sourceTree = "<group>"; };
 		36D5B67A2C527078000A4A55 /* WUIExtView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WUIExtView.swift; sourceTree = "<group>"; };
 		78B1193B29FEA7474B5BF2AE /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-WhalesApp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
@@ -183,7 +181,6 @@
 				36D5B6642C52596E000A4A55 /* Media.xcassets */,
 				36D5B6662C52596E000A4A55 /* ActionRequestHandler.swift */,
 				36D5B66A2C52596E000A4A55 /* Info.plist */,
-				36D5B6762C525F97000A4A55 /* AppGroupManager.swift */,
 				36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */,
 			);
 			path = WNonUIExt;
@@ -540,7 +537,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				36D5B6672C52596E000A4A55 /* ActionRequestHandler.swift in Sources */,
-				36D5B6772C525F97000A4A55 /* AppGroupManager.swift in Sources */,
 				36D5B6792C52603B000A4A55 /* WatchConnectivitySession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -690,7 +686,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.WUIExt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.WUIExt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -737,7 +733,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.WUIExt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.testnet.WUIExt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -869,7 +865,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.WNonUIExt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.WNonUIExt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -916,7 +912,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.WNonUIExt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.debug.testnet.WNonUIExt;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";

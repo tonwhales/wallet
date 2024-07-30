@@ -199,6 +199,10 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
             // Wallet API
             if (props.useWalletAPI && parsed.data.name.startsWith('wallet')) {
+                if (Platform.OS !== 'ios') {
+                    warn('Wallet API is only available on iOS');
+                    return;
+                }
                 const method = parsed.data.name.split('.')[1] as 'isEnabled' | 'checkIfCardIsAlreadyAdded' | 'canAddCard' | 'addCardToWallet';
 
                 switch (method) {
@@ -242,16 +246,16 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                             return;
                         }
 
-                        const userToken = getHoldersToken(getCurrentAddress().address.toString({ testOnly: isTestnet }));
+                        const token = getHoldersToken(getCurrentAddress().address.toString({ testOnly: isTestnet }));
 
-                        if (!userToken) {
+                        if (!token) {
                             warn('User token not found');
                             dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
                             return;
                         }
 
                         (async () => {
-                            const result = await WalletService.addCardToWallet({ ...request.data, userToken, network: isTestnet ? 'test' : 'main' });
+                            const result = await WalletService.addCardToWallet({ ...request.data, token, network: isTestnet ? 'test' : 'main' });
                             dispatchWalletResponse(ref as RefObject<WebView>, { result });
                         })();
                         break;

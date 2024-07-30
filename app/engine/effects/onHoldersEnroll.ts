@@ -4,6 +4,7 @@ import { Queries } from "../queries";
 import { getHoldersToken } from "../hooks/holders/useHoldersAccountStatus";
 import { HoldersAccountState, fetchAccountState } from "../api/holders/fetchAccountState";
 import { fetchAccountsPublic, fetchAccountsList } from "../api/holders/fetchAccounts";
+import { updateProvisioningCredentials } from "../holders/updateProvisioningCredentials";
 
 export async function onHoldersEnroll(account: string, isTestnet: boolean) {
     let address = Address.parse(account).toString({ testOnly: isTestnet });
@@ -31,6 +32,8 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
             accounts = res?.accounts;
             prepaidCards = res?.prepaidCards;
             type = 'private';
+            // fetch apple pay credentials and update provisioning credentials cache
+            await updateProvisioningCredentials(token, isTestnet);
         } else {
             accounts = await fetchAccountsPublic(address, isTestnet);
             type = 'public';

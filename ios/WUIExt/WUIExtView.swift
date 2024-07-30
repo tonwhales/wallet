@@ -44,67 +44,64 @@ struct WUIExtView: View {
   }
   
   var body: some View {
-    // Add SwiftUI code for the login view. You can copy the
-    // code logic from the containing issuer app's login view,
-    // then place the code logic within this UI extension view.
-    
+    // SwiftUi screen containing a title, description, entered passcode dots, pin pad buttons and a Face ID button
     VStack {
-      let smallConfig = UIImage.SymbolConfiguration(pointSize: 50, weight: .bold, scale: .small)
-      if let banknoteLogo = UIImage(systemName: "banknote.fill", withConfiguration: smallConfig) {
-        Image(uiImage: banknoteLogo.withRenderingMode(.alwaysTemplate))
-          .foregroundColor(.white)
-          .padding([.bottom], 10)
-      }
-      Text("Issuer App")
+      Text("Log In")
         .font(.title)
-        .bold()
-        .padding([.bottom], 20)
-        .foregroundColor(.white)
+        .padding()
       
-      List {
-        . . .
-        
-        HStack(spacing: 18) {
-          Spacer()
-          Button(
-            action: handleBiometricLogin,
-            label: {
-              HStack {
-                Image(systemName: "faceid")
-                Text("Face ID")
-                  .bold()
-                  .font(.system(size: 16.0))
-              }
-              .padding(6)
-            }
-          )
-          .buttonStyle(.bordered)
-          .background(Color.blue)
-          .cornerRadius(26)
-          .foregroundColor(.white)
-          Button(
-            action: handleLogin,
-            label: {
-              Text("Log In")
-                .bold()
-                .font(.system(size: 16.0))
-                .padding(6)
-                .frame(width: 70)
-            })
-          .buttonStyle(.bordered)
-          .background(Color.orange)
-          .cornerRadius(26)
-          .foregroundColor(.white)
+      Text("Enter your passcode")
+        .font(.subheadline)
+        .padding()
+      
+      HStack {
+        ForEach(0..<6) { index in
+          Circle()
+            .frame(width: 10, height: 10)
+            .foregroundColor(.black)
+            .padding()
         }
-        .listRowBackground(Color.clear)
       }
       
-      //. . .
+      VStack {
+        ForEach(0..<3) { row in
+          HStack {
+            ForEach(0..<3) { column in
+              Button(action: {
+                print("Button \(row * 3 + column + 1) tapped")
+              }) {
+                Text("\(row * 3 + column + 1)")
+                  .font(.title)
+                  .padding()
+              }
+            }
+          }
+        }
+        
+        HStack {
+          Button(action: {
+            print("Button 0 tapped")
+          }) {
+            Text("0")
+              .font(.title)
+              .padding()
+          }
+          
+          Button(action: {
+            print("Delete button tapped")
+          }) {
+            Image(systemName: "delete.left")
+              .font(.title)
+              .padding()
+          }
+        }
+      }
+      
+      Button(action: handleBiometricLogin) {
+        Text("Face ID")
+          .font(.title)
+          .padding()
+      }
     }
-    .background(Color.blue)
   }
-}
-
-#Preview {
-  WUIExtView()
 }

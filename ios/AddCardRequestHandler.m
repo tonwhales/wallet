@@ -12,12 +12,12 @@
 - (instancetype)initWithResolver:(RCTPromiseResolveBlock)resolve
                         rejecter:(RCTPromiseRejectBlock)reject
                           cardId:(NSString *)cardId
-                       userToken:(NSString *)userToken
-                          network:(NSString *)network {
+                           token:(NSString *)token
+                         network:(NSString *)network {
   self = [super init];
   if (self) {
     _cardId = cardId;
-    _userToken = userToken;
+    _token = token;
     _resolver = resolve;
     _rejecter = reject;
     _network = network;

@@ -19,8 +19,6 @@
 			<key>NSExtensionServiceTouchBarIconName</key>
 			<string>NSActionTemplate</string>
 		</dict>
-		<key>NSExtensionMainStoryboard</key>
-		<string>MainInterface</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.PassKit.issuer-provisioning.authorization</string>
     <key>NSExtensionPrincipalClass</key>

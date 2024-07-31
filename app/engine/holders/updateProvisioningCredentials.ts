@@ -50,6 +50,23 @@ export async function fetchProvisioningCredentials(token: string, isTestnet: boo
     }
 }
 
+export async function removeProvisioningCredentials(token: string) {
+    try {
+        const creds = await WalletService.getCredentials();
+        const currentState: { [key: string]: ProvisioningCredential } = {};
+        creds.forEach((cred) => {
+            if (cred.token !== token) {
+                currentState[cred.identifier] = cred;
+            }
+        });
+
+        await WalletService.setCredentialsInGroupUserDefaults(currentState);
+
+    } catch {
+        console.warn('Failed to remove provisioning credentials');
+    }
+}
+
 export async function updateProvisioningCredentials(token: string, isTestnet: boolean) {
     try {
         const creds = await WalletService.getCredentials();

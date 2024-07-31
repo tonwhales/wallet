@@ -62,20 +62,19 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     
     // This status will be passed to the completion handler.
     let status = PKIssuerProvisioningExtensionStatus()
-    var passIdentifiers: Set<String> = []
-    var remotePassIdentifiers: Set<String> = []
+    var passSuffixes: Set<String> = []
+    var remotePassSuffixes: Set<String> = []
     var availablePassesForIphone: Int = 0
     var availableRemotePassesForAppleWatch: Int = 0
     
     // Get the identifiers of payment passes that are already added
     // to Apple Pay.
-    
     for pass in paymentPassLibrary {
-      if let identifier = pass.secureElementPass?.primaryAccountIdentifier {
+      if let identifier = pass.secureElementPass?.primaryAccountNumberSuffix {
         if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
-          remotePassIdentifiers.insert(identifier)
+          remotePassSuffixes.insert(identifier)
         } else if !pass.isRemotePass {
-          passIdentifiers.insert(identifier)
+          passSuffixes.insert(identifier)
         }
       }
     }
@@ -85,11 +84,11 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     let cachedCredentials = getProvisioningCredentials()
     
     for credential in cachedCredentials {
-      if !passIdentifiers.contains(credential.identifier) {
+      if !passSuffixes.contains(credential.primaryAccountSuffix) {
         availablePassesForIphone += 1
       }
       
-      if !remotePassIdentifiers.contains(credential.identifier) {
+      if !remotePassSuffixes.contains(credential.primaryAccountSuffix) {
         availableRemotePassesForAppleWatch += 1
       }
     }
@@ -118,7 +117,7 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     
     // Get the identifiers of payment passes that are already added to Apple Pay.
     for pass in paymentPassLibrary {
-      if !pass.isRemotePass, let identifier = pass.secureElementPass?.primaryAccountIdentifier {
+      if !pass.isRemotePass, let identifier = pass.secureElementPass?.primaryAccountNumberSuffix {
         passLibraryIdentifiers.insert(identifier)
       }
     }
@@ -128,11 +127,9 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     let cachedCredentialsData = getProvisioningCredentials()
     
     // Create a payment pass entry for each credential.
-    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.identifier) }
+    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.primaryAccountSuffix) }
     
     getPaymentPassEntries(for: eligibleCredentials) { entries in
-      // Use the array of entries
-      print("Received entries: \(entries)")
       // Invoke the completion handler
       completion(entries)
     }
@@ -147,7 +144,7 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     // Get the identifiers of payment passes that are already added to Apple Pay.
     for pass in paymentPassLibrary {
       if pass.isRemotePass, pass.deviceName.localizedCaseInsensitiveContains("Apple Watch"),
-         let identifier = pass.secureElementPass?.primaryAccountIdentifier  {
+         let identifier = pass.secureElementPass?.primaryAccountNumberSuffix  {
         passLibraryIdentifiers.insert(identifier)
       }
     }
@@ -157,11 +154,9 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     let cachedCredentialsData = getProvisioningCredentials()
     
     // Create a payment pass entry for each credential.
-    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.identifier) }
+    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.primaryAccountSuffix) }
     
     getPaymentPassEntries(for: eligibleCredentials) { entries in
-      // Use the array of entries
-      print("Received entries: \(entries)")
       // Invoke the completion handler
       completion(entries)
     }

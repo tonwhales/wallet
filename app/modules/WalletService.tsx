@@ -31,7 +31,7 @@ type AddCardRequest = z.infer<typeof addCardRequestSchemaWithToken>;
 
 interface IosWalletService {
     isEnabled(): Promise<boolean>;
-    checkIfCardIsAlreadyAdded(primaryAccountIdentifier: string): Promise<boolean>;
+    checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string): Promise<boolean>;
     canAddCard(cardId: string): Promise<boolean>;
     addCardToWallet(request: AddCardRequest): Promise<boolean>;
     getCredentials(): Promise<ProvisioningCredential[]>;
@@ -59,11 +59,11 @@ const WalletService: IosWalletService = {
         return RNAppleProvisioning.canAddCards();
     },
 
-    async checkIfCardIsAlreadyAdded(primaryAccountIdentifier: string): Promise<boolean> {
+    async checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string): Promise<boolean> {
         if (Platform.OS === 'android') {
             return false;
         }
-        return RNAppleProvisioning.checkIfCardIsAlreadyAdded(primaryAccountIdentifier);
+        return RNAppleProvisioning.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
     },
 
     async canAddCard(cardId: string): Promise<boolean> {

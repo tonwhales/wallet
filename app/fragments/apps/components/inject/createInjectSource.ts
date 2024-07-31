@@ -237,7 +237,7 @@ window['dapp-wallet'] = (() => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.isEnabled' } }));
     }
 
-    const checkIfCardIsAlreadyAdded = (primaryAccountIdentifier, callback) => {
+    const checkIfCardIsAlreadyAdded = (primaryAccountNumberSuffix, callback) => {
         if (inProgress) {
             callback({ error: 'wallet.inProgress' });
             return;
@@ -246,7 +246,7 @@ window['dapp-wallet'] = (() => {
         inProgress = true;
         currentCallback = callback;
 
-        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.checkIfCardIsAlreadyAdded', args: { primaryAccountIdentifier } } }));
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.checkIfCardIsAlreadyAdded', args: { primaryAccountNumberSuffix } } }));
     }
 
     const canAddCard = (cardId, callback) => {

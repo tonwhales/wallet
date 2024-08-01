@@ -272,7 +272,6 @@ RCT_EXPORT_METHOD(addCardToWallet:(NSDictionary *)cardDetails
 - (NSArray<ProvisioningCredential *> *)getProvisioningCredentials {
   NSString *appGroupID = @"group.4CFQ3FG324.com.tonhub.app";
   NSUserDefaults *appGroupSharedDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroupID];
-  NSDictionary *groupUserDefaults = [appGroupSharedDefaults dictionaryRepresentation];
   NSDictionary *cachedCredentialsData = [appGroupSharedDefaults dictionaryForKey:@"PaymentPassCredentials"];
   NSMutableArray<ProvisioningCredential *> *provisioningCredentials = [NSMutableArray array];
   
@@ -358,12 +357,12 @@ RCT_EXPORT_METHOD(status:(RCTPromiseResolveBlock)resolve
   paymentPassLibrary = [library passesOfType:PKPassTypePayment];
   
   for (PKPass *pass in paymentPassLibrary) {
-    NSString *identifier = pass.secureElementPass.primaryAccountIdentifier;
-    if (identifier) {
+    NSString *suff = pass.secureElementPass.primaryAccountNumberSuffix;
+    if (suff) {
       if (pass.isRemotePass && [pass.deviceName localizedCaseInsensitiveContainsString:@"Apple Watch"]) {
-        [remotePassIdentifiers addObject:identifier];
+        [remotePassIdentifiers addObject:suff];
       } else if (!pass.isRemotePass) {
-        [passIdentifiers addObject:identifier];
+        [passIdentifiers addObject:suff];
       }
     }
   }
@@ -372,11 +371,11 @@ RCT_EXPORT_METHOD(status:(RCTPromiseResolveBlock)resolve
   NSArray<ProvisioningCredential *> *cachedCredentials = [self getProvisioningCredentials];
   
   for (ProvisioningCredential *credential in cachedCredentials) {
-    if (![passIdentifiers containsObject:credential.identifier]) {
+    if (![passIdentifiers containsObject:credential.primaryAccountSuffix]) {
       availablePassesForIphone += 1;
     }
     
-    if (![remotePassIdentifiers containsObject:credential.identifier]) {
+    if (![remotePassIdentifiers containsObject:credential.primaryAccountSuffix]) {
       availableRemotePassesForAppleWatch += 1;
     }
   }

@@ -213,14 +213,14 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         })();
                         break;
                     case 'checkIfCardIsAlreadyAdded':
-                        const primaryAccountIdentifier = parsed.data.args.primaryAccountIdentifier;
-                        if (!primaryAccountIdentifier) {
-                            warn('Invalid primaryAccountIdentifier');
+                        const primaryAccountNumberSuffix = parsed.data.args.primaryAccountNumberSuffix;
+                        if (!primaryAccountNumberSuffix) {
+                            warn('Invalid primaryAccountNumberSuffix');
                             dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
                             return;
                         }
                         (async () => {
-                            const result = await WalletService.checkIfCardIsAlreadyAdded(parsed.data.args.primaryAccountIdentifier);
+                            const result = await WalletService.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
                             dispatchWalletResponse(ref as RefObject<WebView>, { result });
                         })();
                         break;

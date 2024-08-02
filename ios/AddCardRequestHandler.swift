@@ -14,14 +14,14 @@ class AddCardRequestHandler: NSObject {
     var token: String
     var resolver: RCTPromiseResolveBlock
     var rejecter: RCTPromiseRejectBlock
-    var network: String
+    var isTestnet: Bool
 
     @objc
-    init(resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock, cardId: String, token: String, network: String) {
+    init(resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock, cardId: String, token: String, isTestnet: Bool) {
         self.cardId = cardId
         self.token = token
         self.resolver = resolver
         self.rejecter = rejecter
-        self.network = network
+        self.isTestnet = isTestnet
     }
 }

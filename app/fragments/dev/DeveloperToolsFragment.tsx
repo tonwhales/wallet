@@ -63,7 +63,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
 
-    const [provisioningStatus, setProvisioningStatus] = useState<string | null>('devTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitledevTools.switchNetworkAlertTitle');
+    const [provisioningStatus, setProvisioningStatus] = useState<string | null>('');
     let formattedStatusString = '';
 
     // format provisioning status string as JSON adding new lines
@@ -326,8 +326,14 @@ export const DeveloperToolsFragment = fragment(() => {
                         flexShrink: 1,
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <Text style={[
+                                Typography.semiBold24_30,
+                                { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
+                            ]}>
+                                {'Provisioning debug'}
+                            </Text>
                             <ItemButton
-                                title={'status'}
+                                title={'Status'}
                                 onPress={async () => {
                                     const res = await WalletService.status();
                                     setProvisioningStatus(JSON.stringify(res));
@@ -346,6 +352,50 @@ export const DeveloperToolsFragment = fragment(() => {
                                     setProvisioningStatus(JSON.stringify(res));
                                 }}
                             />
+                            <ItemButton
+                                title={'Get RequireAuth'}
+                                onPress={async () => {
+                                    let res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
+                                    setProvisioningStatus(JSON.stringify({ requiresAuthentication: res }));
+                                }}
+                            />
+                            <ItemButton
+                                title={'Toggle RequireAuth'}
+                                onPress={async () => {
+                                    let res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
+                                    await WalletService.setShouldRequireAuthenticationForAppleWallet(!res);
+                                    res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
+
+                                    setProvisioningStatus(JSON.stringify({ requiresAuthentication: res }));
+                                }}
+                            />
+                            <ItemButton
+                                title={'Check extension steps'}
+                                onPress={async () => {
+                                    const keys = [
+                                        'status',
+                                        'passEntries-suffixes',
+                                        'passEntries-elg',
+                                        'passEntries-entries',
+                                        'remotePassEntries-suffixes',
+                                        'remotePassEntries-elg',
+                                        'remotePassEntries-entries',
+                                        'add-req-step-0',
+                                        'add-req-step-1',
+                                        'add-req-step-2',
+                                        'createPaymentPassEntry'
+                                    ]
+
+                                    let res: { [key: string]: string | undefined } = {};
+
+                                    for (let key of keys) {
+                                        res[key] = (await WalletService.getExtensionData(key)) ?? 'undefined';
+                                    }
+                                    console.log(res);
+
+                                    setProvisioningStatus(JSON.stringify(res));
+                                }}
+                            />
                             {!!provisioningStatus && (
                                 <>
                                     <ItemDivider marginVertical={0} />
@@ -353,7 +403,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                         Typography.semiBold24_30,
                                         { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
                                     ]}>
-                                        {'Status:'}
+                                        {'Last check result:'}
                                     </Text>
                                     <Text style={[
                                         Typography.regular15_20,

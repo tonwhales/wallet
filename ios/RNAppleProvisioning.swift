@@ -9,18 +9,6 @@ import Foundation
 import PassKit
 import React
 
-@objc(ProvisioningCredential)
-class ProvisioningCredential: NSObject {
-  @objc var identifier: String = ""
-  @objc var label: String = ""
-  @objc var cardholderName: String = ""
-  @objc var token: String = ""
-  @objc var primaryAccountSuffix: String = ""
-  @objc var isTestnet: NSNumber?
-  @objc var assetName: String?
-  @objc var assetUrl: String?
-}
-
 @objc(RNAppleProvisioning)
 class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewControllerDelegate {
   var currentRequest: AddCardRequestHandler?
@@ -76,13 +64,13 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
       return
     }
     
-    currentRequest = AddCardRequestHandler(resolver: resolve, rejecter: reject, cardId: cardDetails["cardId"] as! String, token: cardDetails["token"] as! String, network: cardDetails["network"] as! String)
-
+    currentRequest = AddCardRequestHandler(resolver: resolve, rejecter: reject, cardId: cardDetails["cardId"] as! String, token: cardDetails["token"] as! String, isTestnet: cardDetails["isTestnet"] as! Bool)
+    
     guard let config = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2) else {
       reject("error", "Unable to create PKAddPaymentPassRequestConfiguration", nil)
       return
     }
-
+    
     config.primaryAccountSuffix = cardDetails["primaryAccountSuffix"] as? String
     config.cardholderName = cardDetails["cardholderName"] as? String
     config.style = .payment
@@ -99,48 +87,13 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
     }
   }
   
-  func sendDataToServerForEncryption(certificates: [Data], nonce: Data, nonceSignature: Data, completion: @escaping ([String: Any]?, Error?) -> Void) {
-    guard let currentRequest = currentRequest else { return }
-    
-    let network = currentRequest.network
-    let isTest = network == "test"
-    let base = isTest ? "https://card-staging.whales-api.com" : "https://card-prod.whales-api.com"
-    let baseUrl = "\(base)/v2/card/get/apple/provisioning/data"
-    guard let url = URL(string: baseUrl) else { return }
-    
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    
-    let certificatesStrings = certificates.map { $0.base64EncodedString() }
-    let nonceString = nonce.base64EncodedString()
-    let nonceSignatureString = nonceSignature.base64EncodedString()
-    
-    let params: [String: Any] = ["certificates": certificatesStrings, "nonce": nonceString, "nonceSignature": nonceSignatureString]
-    let postData: [String: Any] = ["params": params, "token": currentRequest.token, "id": currentRequest.cardId]
-    
-    do {
-      let postDataJSON = try JSONSerialization.data(withJSONObject: postData, options: [])
-      request.httpBody = postDataJSON
-    } catch {
-      completion(nil, error)
+  func addPaymentPassViewController(_ controller: PKAddPaymentPassViewController, generateRequestWithCertificateChain certificates: [Data], nonce: Data, nonceSignature: Data, completionHandler: @escaping (PKAddPaymentPassRequest) -> Void) {
+    guard let req = currentRequest else {
+      completionHandler(PKAddPaymentPassRequest())
       return
     }
-    
-    let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
-      if let error = error {
-        completion(nil, error)
-        return
-      }
-      if let data = data, let responseJSON = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-        completion(responseJSON, nil)
-      }
-    }
-    dataTask.resume()
-  }
-  
-  func addPaymentPassViewController(_ controller: PKAddPaymentPassViewController, generateRequestWithCertificateChain certificates: [Data], nonce: Data, nonceSignature: Data, completionHandler: @escaping (PKAddPaymentPassRequest) -> Void) {
-    sendDataToServerForEncryption(certificates: certificates, nonce: nonce, nonceSignature: nonceSignature) { response, error in
+    let cardRequest = AddCardRequest(cardId: req.cardId, token: req.token, isTestnet: req.isTestnet)
+    sendDataToServerForEncryption(cardRequest: cardRequest, certificates: certificates, nonce: nonce, nonceSignature: nonceSignature) { response, error in
       guard let response = response, error == nil else {
         completionHandler(PKAddPaymentPassRequest())
         return
@@ -174,75 +127,54 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   
   @objc
   func getCredentials(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let provisioningCredentials = getProvisioningCredentials()
-    let credentials = provisioningCredentials.map { credential in
+    // map each credential to a dictionary so it can be serialized for JS
+    let credentials = getProvisioningCredentials().map { credential in
       return [
         "identifier": credential.identifier,
         "label": credential.label,
+        "cardholderName": credential.cardholderName,
         "token": credential.token,
         "primaryAccountSuffix": credential.primaryAccountSuffix,
-        "cardholderName": credential.cardholderName,
-        "isTestnet": credential.isTestnet?.boolValue ?? false,
-        "assetName": credential.assetName ?? "",
-        "assetUrl": credential.assetUrl ?? ""
+        "isTestnet": credential.isTestnet ?? false,
+        "assetName": credential.assetName as Any,
+        "assetUrl": credential.assetUrl as Any
       ]
     }
+    
     resolve(credentials)
-  }
-  
-  func getProvisioningCredentials() -> [ProvisioningCredential] {
-    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
-    let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID)
-    let cachedCredentialsData = appGroupSharedDefaults?.dictionary(forKey: "PaymentPassCredentials")
-    var provisioningCredentials = [ProvisioningCredential]()
-    
-    cachedCredentialsData?.values.forEach { credentialDict in
-      if let credentialDict = credentialDict as? [String: Any] {
-        let credential = ProvisioningCredential()
-        credential.identifier = credentialDict["identifier"] as? String ?? ""
-        credential.label = credentialDict["label"] as? String ?? ""
-        credential.token = credentialDict["token"] as? String ?? ""
-        credential.primaryAccountSuffix = credentialDict["primaryAccountSuffix"] as? String ?? ""
-        credential.cardholderName = credentialDict["cardholderName"] as? String ?? ""
-        credential.isTestnet = credentialDict["isTestnet"] as? NSNumber
-        credential.assetName = credentialDict["assetName"] as? String
-        credential.assetUrl = credentialDict["assetUrl"] as? String
-        provisioningCredentials.append(credential)
-      }
-    }
-    
-    return provisioningCredentials
   }
   
   @objc
   func setCredentialsInGroupUserDefaults(_ data: [String: Any], resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
-    let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID)
-    appGroupSharedDefaults?.set(data, forKey: "PaymentPassCredentials")
-    appGroupSharedDefaults?.synchronize()
+    var credsDict = [String: ProvisioningCredential]()
+    
+    for (key, value) in data {
+      let credDict = value as! [String: Any]
+      let credential = ProvisioningCredential(
+        identifier: credDict["identifier"] as! String,
+        label: credDict["label"] as! String,
+        cardholderName: credDict["cardholderName"] as! String,
+        token: credDict["token"] as! String,
+        primaryAccountSuffix: credDict["primaryAccountSuffix"] as! String,
+        isTestnet: credDict["isTestnet"] as? Bool,
+        assetName: credDict["assetName"] as? String,
+        assetUrl: credDict["assetUrl"] as? String
+      )
+      credsDict[key] = credential
+    }
+    
+    setProvisioningCredentials(credentials: credsDict)
     resolve(true)
   }
   
   @available(iOS 14.0, *)
   @objc
   func status(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let status = PKIssuerProvisioningExtensionStatus()
-    let library = PKPassLibrary()
-    let paymentPassLibrary = library.passes(of: .payment)
-    var passIdentifiers = Set<String>()
-    var remotePassIdentifiers = Set<String>()
     var availablePassesForIphone = 0
     var availableRemotePassesForAppleWatch = 0
     
-    for pass in paymentPassLibrary {
-      if let suff = pass.secureElementPass?.primaryAccountNumberSuffix {
-        if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
-          remotePassIdentifiers.insert(suff)
-        } else if !pass.isRemotePass {
-          passIdentifiers.insert(suff)
-        }
-      }
-    }
+    var passIdentifiers = getAccSuffixes()
+    let remotePassIdentifiers = getRemoteAccSuffixes()
     
     let cachedCredentials = getProvisioningCredentials()
     for credential in cachedCredentials {
@@ -254,41 +186,36 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
       }
     }
     
-    status.passEntriesAvailable = availablePassesForIphone > 0
-    status.remotePassEntriesAvailable = availableRemotePassesForAppleWatch > 0
-    
-    let appGroupSharedDefaults = UserDefaults(suiteName: "group.4CFQ3FG324.com.tonhub.app")
-    status.requiresAuthentication = appGroupSharedDefaults?.bool(forKey: "ShouldRequireAuthenticationForAppleWallet") ?? false
+    let requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
     
     resolve([
-      "passEntriesAvailable": status.passEntriesAvailable,
-      "remotePassEntriesAvailable": status.remotePassEntriesAvailable,
-      "requiresAuthentication": status.requiresAuthentication
+      "passEntriesAvailable": availablePassesForIphone,
+      "remotePassEntriesAvailable": availableRemotePassesForAppleWatch,
+      "requiresAuthentication": requiresAuthentication
     ])
   }
   
   @objc
   func getGroupUserDefaults(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
-    let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID)
-    let groupUserDefaults = appGroupSharedDefaults?.dictionaryRepresentation() ?? [:]
-    resolve(groupUserDefaults)
+    let appGroupSharedDefaults = getUserDefaultsDict()
+    resolve(appGroupSharedDefaults)
   }
   
   @objc
   func getShouldRequireAuthenticationForAppleWallet(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
-    let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID)
-    let shouldRequireAuthentication = appGroupSharedDefaults?.bool(forKey: "ShouldRequireAuthenticationForAppleWallet") ?? false
+    let shouldRequireAuthentication = shouldRequireAuthenticationForAppleWallet()
     resolve(shouldRequireAuthentication)
   }
   
   @objc
   func setShouldRequireAuthenticationForAppleWallet(_ shouldRequireAuthentication: Bool, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
-    let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID)
-    appGroupSharedDefaults?.set(shouldRequireAuthentication, forKey: "ShouldRequireAuthenticationForAppleWallet")
-    appGroupSharedDefaults?.synchronize()
+    setShouldRequireAuthentication(shouldRequireAuthentication: shouldRequireAuthentication)
     resolve(true)
+  }
+  
+  @objc
+  func getExtensionData(_ key: String, resolver resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let dataString = getExtensionDevData(key: key)
+    resolve(dataString)
   }
 }

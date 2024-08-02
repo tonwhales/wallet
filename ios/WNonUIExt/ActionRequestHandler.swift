@@ -8,47 +8,7 @@
 import Foundation
 import PassKit
 
-class Logger {
-  static let shared = Logger()
-  
-  func error(_ message: String) {
-    print("Error: \(message)")
-  }
-  
-  func warning(_ message: String) {
-    print("Warning: \(message)")
-  }
-}
-
-// MARK: Structs
-struct ProvisioningCredential: Codable {
-  let identifier: String
-  let label: String
-  let cardholderName: String
-  let token: String
-  let primaryAccountSuffix: String
-  let isTestnet: Bool?
-  let assetName: String?
-  let assetUrl: String?
-}
-
-// EncryptedPassDataResponse
-struct EncryptedPassDataResponse {
-  let activationData: Data
-  let encryptedPassData: Data
-  let ephemeralPublicKey: Data
-}
-
-struct EncryptedPassDataRequest: Codable {
-  let certificates: [String]
-  let nonce: String
-  let nonceSignature: String
-}
-
-// MARK: Handler
-
 class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
-  let log = Logger.shared
   let passLibrary = PKPassLibrary()
   let watchSession = WatchConnectivitySession()
   
@@ -99,10 +59,14 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     
     // You can also set requiresAuthentication to "true" or "false"
     // directly, if not wanting to rely on a cached value.
-    status.requiresAuthentication = getShouldRequireAuthenticationForAppleWallet()
+    status.requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
     
-    // log the status
-    log.error("Status: \(status)")
+    // TODO: remove dev tracking
+    storeExtensionDevData(key: "status", dict: [
+      "passEntriesAvailable": status.passEntriesAvailable,
+      "remotePassEntriesAvailable": status.remotePassEntriesAvailable,
+      "requiresAuthentication": status.requiresAuthentication
+    ])
     
     // Invoke the completion handler.
     // The system needs to invoke the handler within 100 ms, or the extension does not display to the user in Apple Wallet.
@@ -112,150 +76,75 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
   // MARK: PassEntries iPhone
   // gather and return a list of payment pass entries that can be added to Apple Pay for iPhone
   override func passEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
-    let paymentPassLibrary: [PKPass] = self.passLibrary.passes(of: .secureElement)
-    var passLibraryIdentifiers: Set<String> = []
+    let suffixes = getAccSuffixes()
     
-    // Get the identifiers of payment passes that are already added to Apple Pay.
-    for pass in paymentPassLibrary {
-      if !pass.isRemotePass, let identifier = pass.secureElementPass?.primaryAccountNumberSuffix {
-        passLibraryIdentifiers.insert(identifier)
-      }
-    }
+    // TODO: remove dev tracking
+    storeExtensionDevData(key: "passEntries-suffixes", dict: [
+      "suffixes": suffixes.count
+    ])
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials()
     
-    // Create a payment pass entry for each credential.
-    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.primaryAccountSuffix) }
+    let eligibleCredentials = cachedCredentialsData.filter { !suffixes.contains($0.primaryAccountSuffix) }
     
+    // TODO: remove dev tracking
+    storeExtensionDevData(key: "passEntries-elg", dict: [
+      "eligibleCredentials": eligibleCredentials.count
+    ])
+    
+    // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
-      // Invoke the completion handler
+      // TODO: remove dev tracking
+      storeExtensionDevData(key: "passEntries-entries", dict: [
+        "entries": entries.count
+      ])
+      
       completion(entries)
     }
   }
   
   // MARK: PassEntries Watch
   override func remotePassEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
-    let paymentPassLibrary: [PKPass] = self.passLibrary.passes(of: .secureElement)
+    let remoteSuffixes = getRemoteAccSuffixes()
     
-    var passLibraryIdentifiers: Set<String> = []
-    
-    // Get the identifiers of payment passes that are already added to Apple Pay.
-    for pass in paymentPassLibrary {
-      if pass.isRemotePass, pass.deviceName.localizedCaseInsensitiveContains("Apple Watch"),
-         let identifier = pass.secureElementPass?.primaryAccountNumberSuffix  {
-        passLibraryIdentifiers.insert(identifier)
-      }
-    }
+    // TODO: remove dev tracking
+    storeExtensionDevData(key: "remotePassEntries-suffixes", dict: [
+      "suffixes": remoteSuffixes.count
+    ])
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials()
     
-    // Create a payment pass entry for each credential.
-    let eligibleCredentials = cachedCredentialsData.filter { !passLibraryIdentifiers.contains($0.primaryAccountSuffix) }
+    let eligibleCredentials = cachedCredentialsData.filter { !remoteSuffixes.contains($0.primaryAccountSuffix) }
     
+    // TODO: remove dev tracking
+    storeExtensionDevData(key: "remotePassEntries-elg", dict: [
+      "eligibleCredentials": eligibleCredentials.count
+    ])
+    
+    // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
-      // Invoke the completion handler
+      // TODO: remove dev tracking
+      storeExtensionDevData(key: "remotePassEntries-entries", dict: [
+        "entries": entries.count
+      ])
       completion(entries)
     }
   }
-  
-  // MARK: Get Pass Data
-  // This method sends the data to the server for encryption and returns the encrypted pass data.
-  func sendDataToServerForEncryption(
-    token: String,
-    cardId: String,
-    isTest: Bool,
-    params: EncryptedPassDataRequest,
-    completion: @escaping (EncryptedPassDataResponse?, Error?) -> Void) {
-      
-      let base = isTest ? "https://card-staging.whales-api.com" : "https://card-prod.whales-api.com"
-      let baseUrl = "\(base)/v2/card/get/apple/provisioning/data"
-      guard let url = URL(string: baseUrl) else {
-        completion(nil, NSError(domain: "URLCreationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
-        return
-      }
-      
-      var request = URLRequest(url: url)
-      request.httpMethod = "POST"
-      request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-      
-      // array of base64 strings of certificates
-      let certificatesStrings = params.certificates
-      let nonceString = params.nonce
-      let nonceSignatureString = params.nonceSignature
-      
-      let params: [String: Any] = ["certificates": certificatesStrings,
-                                   "nonce": nonceString,
-                                   "nonceSignature": nonceSignatureString]
-      
-      let postData: [String: Any] = ["params": params,
-                                     "token": token,
-                                     "id": cardId]
-      
-      do {
-        let postDataJSON = try JSONSerialization.data(withJSONObject: postData, options: [])
-        request.httpBody = postDataJSON
-      } catch {
-        completion(nil, error)
-        return
-      }
-      
-      let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
-        if let error = error {
-          completion(nil, error)
-          return
-        }
-        
-        if let data = data {
-          do {
-            if let responseJSON = try JSONSerialization.jsonObject(with: data, options: []) as? [String: String] {
-              guard let activationDataString = responseJSON["activationData"],
-                    let encryptedPassDataString = responseJSON["encryptedPassData"],
-                    let ephemeralPublicKeyString = responseJSON["ephemeralPublicKey"] else {
-                completion(nil, NSError(domain: "ResponseError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"]))
-                return
-              }
-              
-              guard let activationData = Data(base64Encoded: activationDataString),
-                    let encryptedPassData = Data(base64Encoded: encryptedPassDataString),
-                    let ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKeyString) else {
-                completion(nil, NSError(domain: "ResponseError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"]))
-                return
-              }
-              
-              let encryptedPassDataResponse = EncryptedPassDataResponse(
-                activationData: activationData,
-                encryptedPassData: encryptedPassData,
-                ephemeralPublicKey: ephemeralPublicKey
-              )
-              
-              completion(encryptedPassDataResponse, nil)
-            } else {
-              completion(nil, NSError(domain: "ResponseError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"]))
-            }
-          } catch {
-            completion(nil, error)
-          }
-        }
-      }
-      dataTask.resume()
-    }
   
   // MARK: Payment Pass Request
   override func generateAddPaymentPassRequestForPassEntryWithIdentifier(_ identifier: String, configuration: PKAddPaymentPassRequestConfiguration,
                                                                         certificateChain certificates: [Data], nonce: Data, nonceSignature: Data,
                                                                         completionHandler completion: @escaping (PKAddPaymentPassRequest?) ->
                                                                         Void) {
-    
-    // This request object will be passed to the completion handler.
-    let request = PKAddPaymentPassRequest()
-    
     // You can use the array.first(where:) method to retrieve a
     // specific PKLabeledValue card detail from a configuration.
     // configuration.cardDetails.first(where: { $0.label == "expiration" })!
+    
+    //TODO: last 4 digits of the card number (primaryAccountSuffix) ???
     
     // get token from shared defaults with indentifier
     let entries = getProvisioningCredentials()
@@ -264,62 +153,65 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     let isTest = entry?.isTestnet ?? false
     
     if token == nil {
-      log.error("Token not found for identifier: \(identifier)")
+      print("Token not found for identifier: \(identifier)")
       completion(nil)
       return
     }
     
-    let encryptedDataCompletionHandler: (EncryptedPassDataResponse?, Error?) -> Void = { passData, error in
-      if let passData = passData {
-        request.activationData = passData.activationData
-        request.encryptedPassData = passData.encryptedPassData
-        request.ephemeralPublicKey = passData.ephemeralPublicKey
-        completion(request)
-      } else {
-        self.log.error("Occurred while generating encrypted pass data: \(error?.localizedDescription ?? "Unknown error")")
-        completion(nil)
-      }
-    }
+    let cardReq = AddCardRequest(cardId: identifier, token: token!, isTestnet: isTest)
+    
+    // TODO: remove dev tracking
+    storeExtensionDevData(key: "add-req-step-0", dict: [
+      "identifier": identifier,
+      "token": token!,
+      "isTest": isTest
+    ])
     
     sendDataToServerForEncryption(
-      token: token!,
-      cardId: identifier,
-      isTest: isTest,
-      params: EncryptedPassDataRequest(
-        certificates: certificates.map { $0.base64EncodedString() },
-        nonce: nonce.base64EncodedString(),
-        nonceSignature: nonceSignature.base64EncodedString()),
-      completion: encryptedDataCompletionHandler)
+      cardRequest: cardReq,
+      certificates: certificates,
+      nonce: nonce,
+      nonceSignature: nonceSignature) { response, error in
+        guard let response = response, error == nil else {
+          // TODO: remove dev tracking
+          storeExtensionDevData(key: "add-req-step-1", dict: [
+            "error": error?.localizedDescription ?? "Unknown error"
+          ])
+          completion(nil)
+          return
+        }
+        
+        guard let encryptedData = response["data"] as? String,
+              let activationData = response["activationData"] as? String,
+              let ephemeralPublicKey = response["ephemeralPublicKey"] as? String else {
+          // TODO: remove dev tracking
+          storeExtensionDevData(key: "add-req-step-1", dict: [
+            "error": "Failed to get encrypted data"
+          ])
+          completion(nil)
+          return
+        }
+        
+        let addRequest = PKAddPaymentPassRequest()
+        addRequest.encryptedPassData = Data(base64Encoded: encryptedData)
+        addRequest.activationData = Data(base64Encoded: activationData)
+        addRequest.ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKey)
+        
+        // TODO: remove dev tracking
+        storeExtensionDevData(key: "add-req-step-2", dict: [
+          "status": "sent to completion"
+        ])
+        
+        completion(addRequest)
+      }
   }
   
   // MARK: Private Methods
-  private func getPaymentPassEntries(for credentials: [ProvisioningCredential], completion: @escaping ([PKIssuerProvisioningExtensionPaymentPassEntry]) -> Void) {
-    let dispatchGroup = DispatchGroup()
-    var entries: [PKIssuerProvisioningExtensionPaymentPassEntry] = []
-    var errors: [Error] = []
-    
-    for credential in credentials {
-      dispatchGroup.enter()
-      createPaymentPassEntry(provisioningCredential: credential) { entry in
-        if let entry = entry {
-          entries.append(entry)
-        } else {
-          // Handle the error case if needed
-          errors.append(NSError(domain: "EntryCreationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create entry for credential: \(credential.identifier)"]))
-        }
-        dispatchGroup.leave()
-      }
-    }
-    
-    dispatchGroup.notify(queue: .main) {
-      if errors.isEmpty {
-        completion(entries)
-      } else {
-        // Handle errors if needed
-        print("Errors occurred: \(errors)")
-        completion(entries)
-      }
-    }
+  // Converts a UIImage to a CGImage.
+  private func getEntryArt(image: UIImage) -> CGImage {
+    let ciImage = CIImage(image: image)
+    let ciContext = CIContext(options: nil)
+    return ciContext.createCGImage(ciImage!, from: ciImage!.extent)!
   }
   
   private func downloadImage(from url: URL, completion: @escaping (UIImage?) -> Void) {
@@ -344,6 +236,12 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
   private func createPaymentPassEntry(provisioningCredential: ProvisioningCredential, completion: @escaping (PKIssuerProvisioningExtensionPaymentPassEntry?) -> Void) {
     let identifier = provisioningCredential.identifier
     let label = provisioningCredential.label
+    
+    // TODO: remove dev tracking
+    storeExtensionDevData(key: "createPaymentPassEntry", dict: [
+      "identifier": identifier,
+      "label": label
+    ])
     
     let requestConfig = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2)!
     requestConfig.primaryAccountIdentifier = identifier
@@ -383,58 +281,32 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
     }
   }
   
-  // Returns an array of ProvisioningCredential from the user's defaults database.
-  func getProvisioningCredentials() -> [ProvisioningCredential] {
-    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
+  private func getPaymentPassEntries(for credentials: [ProvisioningCredential], completion: @escaping ([PKIssuerProvisioningExtensionPaymentPassEntry]) -> Void) {
+    let dispatchGroup = DispatchGroup()
+    var entries: [PKIssuerProvisioningExtensionPaymentPassEntry] = []
+    var errors: [Error] = []
     
-    guard let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID) else {
-      print("App group shared defaults not found")
-      return []
-    }
-    
-    print("App group shared defaults: \(appGroupSharedDefaults)")
-    
-    let groupUserDefaults = appGroupSharedDefaults.dictionaryRepresentation()
-    print("Group user defaults: \(groupUserDefaults)")
-    
-    guard let cachedCredentialsData = appGroupSharedDefaults.dictionary(forKey: "PaymentPassCredentials") else {
-      print("Unable to find credentials of passes available to add to Apple Pay.")
-      return []
-    }
-    
-    print("Cached credentials data: \(cachedCredentialsData)")
-    
-    var provisioningCredentials: [ProvisioningCredential] = []
-    
-    for credentialDict in cachedCredentialsData.values {
-      guard let credentialDict = credentialDict as? [String: Any] else { continue }
-      
-      do {
-        let credential = try JSONDecoder().decode(ProvisioningCredential.self, from: JSONSerialization.data(withJSONObject: credentialDict))
-        
-        provisioningCredentials.append(credential)
-      } catch {
-        print("Exception: \(error)")
+    for credential in credentials {
+      dispatchGroup.enter()
+      createPaymentPassEntry(provisioningCredential: credential) { entry in
+        if let entry = entry {
+          entries.append(entry)
+        } else {
+          // Handle the error case if needed
+          errors.append(NSError(domain: "EntryCreationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create entry for credential: \(credential.identifier)"]))
+        }
+        dispatchGroup.leave()
       }
     }
     
-    return provisioningCredentials
-  }
-  
-  // Converts a UIImage to a CGImage.
-  private func getEntryArt(image: UIImage) -> CGImage {
-    let ciImage = CIImage(image: image)
-    let ciContext = CIContext(options: nil)
-    return ciContext.createCGImage(ciImage!, from: ciImage!.extent)!
-  }
-  
-  private func getShouldRequireAuthenticationForAppleWallet() -> Bool {
-    let appGroupID = "group.4CFQ3FG324.com.tonhub.app"
-    guard let appGroupSharedDefaults = UserDefaults(suiteName: appGroupID) else {
-      print("App group shared defaults not found")
-      return false
+    dispatchGroup.notify(queue: .main) {
+      if errors.isEmpty {
+        completion(entries)
+      } else {
+        // Handle errors if needed
+        print("Errors occurred: \(errors)")
+        completion(entries)
+      }
     }
-    
-    return appGroupSharedDefaults.bool(forKey: "ShouldRequireAuthenticationForAppleWallet")
   }
 }

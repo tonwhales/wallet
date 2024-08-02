@@ -1,6 +1,7 @@
 import { NativeModules, Platform } from 'react-native';
 import { z } from 'zod';
 import { ProvisioningCredential } from '../engine/holders/updateProvisioningCredentials';
+import { boolean } from 'io-ts';
 
 const { RNAppleProvisioning } = NativeModules;
 
@@ -20,7 +21,7 @@ export const addCardRequestSchema = z.object({
     localizedDescription: z.string().optional(),
     primaryAccountIdentifier: z.string().optional(),
     paymentNetwork: z.string().optional(),
-    network: z.union([z.literal('test'), z.literal('main')]).optional()
+    isTestnet: z.boolean().optional()
 });
 
 const addCardRequestSchemaWithToken = addCardRequestSchema.extend({
@@ -46,6 +47,7 @@ interface IosWalletService {
         requiresAuthentication: boolean;
     }>;
     getGroupUserDefaults(): Promise<{ [key: string]: object }>;
+    getExtensionData(key: string): Promise<string | undefined>;
 }
 
 // not implemented yet
@@ -114,6 +116,9 @@ const WalletService: IosWalletService = {
     },
     async getGroupUserDefaults() {
         return RNAppleProvisioning.getGroupUserDefaults();
+    },
+    async getExtensionData(key: string) {
+        return RNAppleProvisioning.getExtensionData(key);
     }
 }
 

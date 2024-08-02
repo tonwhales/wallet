@@ -44,4 +44,8 @@ RCT_EXTERN_METHOD(setShouldRequireAuthenticationForAppleWallet:(BOOL)shouldRequi
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getExtensionData:(NSString *)key
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
 @end

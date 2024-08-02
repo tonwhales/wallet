@@ -255,7 +255,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         }
 
                         (async () => {
-                            const result = await WalletService.addCardToWallet({ ...request.data, token, network: isTestnet ? 'test' : 'main' });
+                            const result = await WalletService.addCardToWallet({ ...request.data, token, isTestnet });
                             dispatchWalletResponse(ref as RefObject<WebView>, { result });
                         })();
                         break;

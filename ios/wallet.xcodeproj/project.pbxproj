@@ -13,6 +13,8 @@
 		369709122C47C967008C7641 /* RNAppleProvisioning.m in Sources */ = {isa = PBXBuildFile; fileRef = 369709112C47C967008C7641 /* RNAppleProvisioning.m */; };
 		36BFDFF22C5BB3B40016DC6B /* RNAppleProvisioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFDFF12C5BB3B40016DC6B /* RNAppleProvisioning.swift */; };
 		36BFDFF42C5BB4330016DC6B /* AddCardRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFDFF32C5BB4330016DC6B /* AddCardRequestHandler.swift */; };
+		36BFE0062C5BD6E50016DC6B /* ProvisioningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFE0052C5BD6E50016DC6B /* ProvisioningUtils.swift */; };
+		36BFE0072C5BD6E50016DC6B /* ProvisioningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFE0052C5BD6E50016DC6B /* ProvisioningUtils.swift */; };
 		36D5B64A2C525944000A4A55 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36D5B6492C525944000A4A55 /* UniformTypeIdentifiers.framework */; };
 		36D5B64D2C525944000A4A55 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36D5B64C2C525944000A4A55 /* Media.xcassets */; };
 		36D5B64F2C525944000A4A55 /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B64E2C525944000A4A55 /* ActionViewController.swift */; };
@@ -76,6 +78,7 @@
 		369709112C47C967008C7641 /* RNAppleProvisioning.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNAppleProvisioning.m; sourceTree = "<group>"; };
 		36BFDFF12C5BB3B40016DC6B /* RNAppleProvisioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNAppleProvisioning.swift; sourceTree = "<group>"; };
 		36BFDFF32C5BB4330016DC6B /* AddCardRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardRequestHandler.swift; sourceTree = "<group>"; };
+		36BFE0052C5BD6E50016DC6B /* ProvisioningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisioningUtils.swift; sourceTree = "<group>"; };
 		36D5B6482C525944000A4A55 /* WUIExt.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WUIExt.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		36D5B6492C525944000A4A55 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		36D5B64C2C525944000A4A55 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
@@ -195,6 +198,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				36BFE0052C5BD6E50016DC6B /* ProvisioningUtils.swift */,
 				36D5B6732C525A41000A4A55 /* WhalesAppRelease.entitlements */,
 				13B07FAE1A68108700A75B9A /* wallet */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -519,6 +523,7 @@
 			files = (
 				36BFDFF42C5BB4330016DC6B /* AddCardRequestHandler.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				36BFE0062C5BD6E50016DC6B /* ProvisioningUtils.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				FC1C9FE35D1E43DD83DE347B /* noop-file.swift in Sources */,
 				36BFDFF22C5BB3B40016DC6B /* RNAppleProvisioning.swift in Sources */,
@@ -542,6 +547,7 @@
 			files = (
 				36D5B6672C52596E000A4A55 /* ActionRequestHandler.swift in Sources */,
 				36D5B6792C52603B000A4A55 /* WatchConnectivitySession.swift in Sources */,
+				36BFE0072C5BD6E50016DC6B /* ProvisioningUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

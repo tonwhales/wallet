@@ -93,15 +93,21 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
       return
     }
     let cardRequest = AddCardRequest(cardId: req.cardId, token: req.token, isTestnet: req.isTestnet)
+
     sendDataToServerForEncryption(cardRequest: cardRequest, certificates: certificates, nonce: nonce, nonceSignature: nonceSignature) { response, error in
       guard let response = response, error == nil else {
         completionHandler(PKAddPaymentPassRequest())
         return
       }
+
+      guard let resData = response["data"] as? [String: Any] else {
+        completionHandler(PKAddPaymentPassRequest())
+        return
+      }
       
-      guard let encryptedData = response["data"] as? String,
-            let activationData = response["activationData"] as? String,
-            let ephemeralPublicKey = response["ephemeralPublicKey"] as? String else {
+      guard let encryptedData = resData["encryptedData"] as? String,
+            let activationData = resData["activationData"] as? String,
+            let ephemeralPublicKey = resData["ephemeralPublicKey"] as? String else {
         completionHandler(PKAddPaymentPassRequest())
         return
       }

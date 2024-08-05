@@ -41,7 +41,7 @@ interface IosWalletService {
     setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication: boolean): Promise<void>;
 
     // TODO // MARK: REMOVE
-    status(): Promise<{
+    getStatus(): Promise<{
         passEntriesAvailable: boolean;
         remotePassEntriesAvailable: boolean;
         requiresAuthentication: boolean;
@@ -112,8 +112,8 @@ const WalletService: IosWalletService = {
     },
 
     // TODO // MARK: REMOVE
-    async status() {
-        return RNAppleProvisioning.status();
+    async getStatus() {
+        return RNAppleProvisioning.getStatus();
     },
     async getGroupUserDefaults() {
         return RNAppleProvisioning.getGroupUserDefaults();

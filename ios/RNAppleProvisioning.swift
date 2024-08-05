@@ -175,30 +175,16 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   
   @available(iOS 14.0, *)
   @objc
-  func status(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    var availablePassesForIphone = 0
-    var availableRemotePassesForAppleWatch = 0
-    
-    var passIdentifiers = getAccSuffixes()
-    let remotePassIdentifiers = getRemoteAccSuffixes()
-    
-    let cachedCredentials = getProvisioningCredentials()
-    for credential in cachedCredentials {
-      if !passIdentifiers.contains(credential.primaryAccountSuffix) {
-        availablePassesForIphone += 1
-      }
-      if !remotePassIdentifiers.contains(credential.primaryAccountSuffix) {
-        availableRemotePassesForAppleWatch += 1
-      }
+  func getStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    paymentPassStatus { status in
+      resolve(
+        [
+          "passEntriesAvailable": status.passEntriesAvailable,
+          "remotePassEntriesAvailable": status.remotePassEntriesAvailable,
+          "requiresAuthentication": status.requiresAuthentication,
+        ]
+      )
     }
-    
-    let requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
-    
-    resolve([
-      "passEntriesAvailable": availablePassesForIphone,
-      "remotePassEntriesAvailable": availableRemotePassesForAppleWatch,
-      "requiresAuthentication": requiresAuthentication
-    ])
   }
   
   @objc
@@ -214,7 +200,7 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   }
   
   @objc
-    func setShouldRequireAuthenticationForAppleWallet(_ shouldRequireAuthentication: Bool, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func setShouldRequireAuthenticationForAppleWallet(_ shouldRequireAuthentication: Bool, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     setShouldRequireAuthentication(shouldRequireAuthentication: shouldRequireAuthentication)
     resolve(true)
   }

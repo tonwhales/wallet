@@ -1,5 +1,5 @@
 //
-//  ActionRequestHandler.swift
+//  WNonUIExtHandler.swift
 //  WNonUIExt
 //
 //  Created by VZ on 25/7/24.
@@ -7,8 +7,9 @@
 
 import Foundation
 import PassKit
+import os.log
 
-class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
+class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   let passLibrary = PKPassLibrary()
   let watchSession = WatchConnectivitySession()
   
@@ -18,63 +19,11 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
    */
   // MARK: Status
   override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-    // TODO: remove dev tracking
-    storeExtensionDevData(key: "status-init", dict: [
-      "started": true
-    ])
-    let paymentPassLibrary: [PKPass] = self.passLibrary.passes(of: .secureElement)
+    os_log("status(completion:) called", log: OSLog.default, type: .info)
     
-    // This status will be passed to the completion handler.
-    let status = PKIssuerProvisioningExtensionStatus()
-    var passSuffixes: Set<String> = []
-    var remotePassSuffixes: Set<String> = []
-    var availablePassesForIphone: Int = 0
-    var availableRemotePassesForAppleWatch: Int = 0
-    
-    // Get the identifiers of payment passes that are already added
-    // to Apple Pay.
-    for pass in paymentPassLibrary {
-      if let identifier = pass.secureElementPass?.primaryAccountNumberSuffix {
-        if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
-          remotePassSuffixes.insert(identifier)
-        } else if !pass.isRemotePass {
-          passSuffixes.insert(identifier)
-        }
-      }
+    paymentPassStatus { status in
+      completion(status)
     }
-    
-    // Get cached credentials data of all of the user's issued cards,
-    // within the issuer app, from the user's defaults database.
-    let cachedCredentials = getProvisioningCredentials()
-    
-    for credential in cachedCredentials {
-      if !passSuffixes.contains(credential.primaryAccountSuffix) {
-        availablePassesForIphone += 1
-      }
-      
-      if !remotePassSuffixes.contains(credential.primaryAccountSuffix) {
-        availableRemotePassesForAppleWatch += 1
-      }
-    }
-    
-    // Set the status of the extension.
-    status.passEntriesAvailable = availablePassesForIphone > 0
-    status.remotePassEntriesAvailable = watchSession.isPaired && availableRemotePassesForAppleWatch > 0
-    
-    // You can also set requiresAuthentication to "true" or "false"
-    // directly, if not wanting to rely on a cached value.
-    status.requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
-    
-    // TODO: remove dev tracking
-    storeExtensionDevData(key: "status", dict: [
-      "passEntriesAvailable": status.passEntriesAvailable,
-      "remotePassEntriesAvailable": status.remotePassEntriesAvailable,
-      "requiresAuthentication": status.requiresAuthentication
-    ])
-    
-    // Invoke the completion handler.
-    // The system needs to invoke the handler within 100 ms, or the extension does not display to the user in Apple Wallet.
-    completion(status)
   }
   
   // MARK: PassEntries iPhone

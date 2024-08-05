@@ -10,6 +10,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		36592C632C60F74C00C09D22 /* WatchConnectivitySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */; };
 		369709122C47C967008C7641 /* RNAppleProvisioning.m in Sources */ = {isa = PBXBuildFile; fileRef = 369709112C47C967008C7641 /* RNAppleProvisioning.m */; };
 		36BFDFF22C5BB3B40016DC6B /* RNAppleProvisioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFDFF12C5BB3B40016DC6B /* RNAppleProvisioning.swift */; };
 		36BFDFF42C5BB4330016DC6B /* AddCardRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFDFF32C5BB4330016DC6B /* AddCardRequestHandler.swift */; };
@@ -22,7 +23,7 @@
 		36D5B6562C525944000A4A55 /* WUIExt.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 36D5B6482C525944000A4A55 /* WUIExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		36D5B6622C52596E000A4A55 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36D5B6492C525944000A4A55 /* UniformTypeIdentifiers.framework */; };
 		36D5B6652C52596E000A4A55 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36D5B6642C52596E000A4A55 /* Media.xcassets */; };
-		36D5B6672C52596E000A4A55 /* ActionRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B6662C52596E000A4A55 /* ActionRequestHandler.swift */; };
+		36D5B6672C52596E000A4A55 /* WNonUIExtHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B6662C52596E000A4A55 /* WNonUIExtHandler.swift */; };
 		36D5B66D2C52596E000A4A55 /* WNonUIExt.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 36D5B6612C52596E000A4A55 /* WNonUIExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		36D5B6792C52603B000A4A55 /* WatchConnectivitySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */; };
 		36D5B67B2C527078000A4A55 /* WUIExtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B67A2C527078000A4A55 /* WUIExtView.swift */; };
@@ -87,7 +88,7 @@
 		36D5B6532C525944000A4A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		36D5B6612C52596E000A4A55 /* WNonUIExt.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WNonUIExt.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		36D5B6642C52596E000A4A55 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
-		36D5B6662C52596E000A4A55 /* ActionRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionRequestHandler.swift; sourceTree = "<group>"; };
+		36D5B6662C52596E000A4A55 /* WNonUIExtHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WNonUIExtHandler.swift; sourceTree = "<group>"; };
 		36D5B66A2C52596E000A4A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		36D5B6732C525A41000A4A55 /* WhalesAppRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WhalesAppRelease.entitlements; sourceTree = "<group>"; };
 		36D5B6742C525ACE000A4A55 /* WUIExtRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WUIExtRelease.entitlements; sourceTree = "<group>"; };
@@ -181,9 +182,8 @@
 			children = (
 				36D5B6752C525AE4000A4A55 /* WNonUIExtRelease.entitlements */,
 				36D5B6642C52596E000A4A55 /* Media.xcassets */,
-				36D5B6662C52596E000A4A55 /* ActionRequestHandler.swift */,
+				36D5B6662C52596E000A4A55 /* WNonUIExtHandler.swift */,
 				36D5B66A2C52596E000A4A55 /* Info.plist */,
-				36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */,
 			);
 			path = WNonUIExt;
 			sourceTree = "<group>";
@@ -198,6 +198,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */,
 				36BFE0052C5BD6E50016DC6B /* ProvisioningUtils.swift */,
 				36D5B6732C525A41000A4A55 /* WhalesAppRelease.entitlements */,
 				13B07FAE1A68108700A75B9A /* wallet */,
@@ -523,6 +524,7 @@
 			files = (
 				36BFDFF42C5BB4330016DC6B /* AddCardRequestHandler.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				36592C632C60F74C00C09D22 /* WatchConnectivitySession.swift in Sources */,
 				36BFE0062C5BD6E50016DC6B /* ProvisioningUtils.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				FC1C9FE35D1E43DD83DE347B /* noop-file.swift in Sources */,
@@ -545,7 +547,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36D5B6672C52596E000A4A55 /* ActionRequestHandler.swift in Sources */,
+				36D5B6672C52596E000A4A55 /* WNonUIExtHandler.swift in Sources */,
 				36D5B6792C52603B000A4A55 /* WatchConnectivitySession.swift in Sources */,
 				36BFE0072C5BD6E50016DC6B /* ProvisioningUtils.swift in Sources */,
 			);

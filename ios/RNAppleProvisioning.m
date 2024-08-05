@@ -31,7 +31,7 @@ RCT_EXTERN_METHOD(setCredentialsInGroupUserDefaults:(NSDictionary *)data
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(status:(RCTPromiseResolveBlock)resolve
+RCT_EXTERN_METHOD(getStatus:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(getGroupUserDefaults:(RCTPromiseResolveBlock)resolve

@@ -335,7 +335,7 @@ export const DeveloperToolsFragment = fragment(() => {
                             <ItemButton
                                 title={'Status'}
                                 onPress={async () => {
-                                    const res = await WalletService.status();
+                                    const res = await WalletService.getStatus();
                                     setProvisioningStatus(JSON.stringify(res));
                                 }}
                             />

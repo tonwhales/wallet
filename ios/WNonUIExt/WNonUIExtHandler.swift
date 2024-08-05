@@ -19,8 +19,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
    */
   // MARK: Status
   override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-    os_log("status(completion:) called", log: OSLog.default, type: .info)
-    
     paymentPassStatus { status in
       completion(status)
     }
@@ -31,29 +29,14 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   override func passEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
     let suffixes = getAccSuffixes()
     
-    // TODO: remove dev tracking
-    storeExtensionDevData(key: "passEntries-suffixes", dict: [
-      "suffixes": suffixes.count
-    ])
-    
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials()
     
     let eligibleCredentials = cachedCredentialsData.filter { !suffixes.contains($0.primaryAccountSuffix) }
     
-    // TODO: remove dev tracking
-    storeExtensionDevData(key: "passEntries-elg", dict: [
-      "eligibleCredentials": eligibleCredentials.count
-    ])
-    
     // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
-      // TODO: remove dev tracking
-      storeExtensionDevData(key: "passEntries-entries", dict: [
-        "entries": entries.count
-      ])
-      
       completion(entries)
     }
   }
@@ -62,28 +45,14 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   override func remotePassEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
     let remoteSuffixes = getRemoteAccSuffixes()
     
-    // TODO: remove dev tracking
-    storeExtensionDevData(key: "remotePassEntries-suffixes", dict: [
-      "suffixes": remoteSuffixes.count
-    ])
-    
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials()
     
     let eligibleCredentials = cachedCredentialsData.filter { !remoteSuffixes.contains($0.primaryAccountSuffix) }
     
-    // TODO: remove dev tracking
-    storeExtensionDevData(key: "remotePassEntries-elg", dict: [
-      "eligibleCredentials": eligibleCredentials.count
-    ])
-    
     // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
-      // TODO: remove dev tracking
-      storeExtensionDevData(key: "remotePassEntries-entries", dict: [
-        "entries": entries.count
-      ])
       completion(entries)
     }
   }
@@ -113,23 +82,12 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     let cardReq = AddCardRequest(cardId: identifier, token: token!, isTestnet: isTest)
     
-    // TODO: remove dev tracking
-    storeExtensionDevData(key: "add-req-step-0", dict: [
-      "identifier": identifier,
-      "token": token!,
-      "isTest": isTest
-    ])
-    
     sendDataToServerForEncryption(
       cardRequest: cardReq,
       certificates: certificates,
       nonce: nonce,
       nonceSignature: nonceSignature) { response, error in
         guard let response = response, error == nil else {
-          // TODO: remove dev tracking
-          storeExtensionDevData(key: "add-req-step-1", dict: [
-            "error": error?.localizedDescription ?? "Unknown error"
-          ])
           completion(nil)
           return
         }
@@ -137,10 +95,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         guard let encryptedData = response["data"] as? String,
               let activationData = response["activationData"] as? String,
               let ephemeralPublicKey = response["ephemeralPublicKey"] as? String else {
-          // TODO: remove dev tracking
-          storeExtensionDevData(key: "add-req-step-1", dict: [
-            "error": "Failed to get encrypted data"
-          ])
           completion(nil)
           return
         }
@@ -149,11 +103,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         addRequest.encryptedPassData = Data(base64Encoded: encryptedData)
         addRequest.activationData = Data(base64Encoded: activationData)
         addRequest.ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKey)
-        
-        // TODO: remove dev tracking
-        storeExtensionDevData(key: "add-req-step-2", dict: [
-          "status": "sent to completion"
-        ])
         
         completion(addRequest)
       }
@@ -190,12 +139,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     let identifier = provisioningCredential.identifier
     let label = provisioningCredential.label
     
-    // TODO: remove dev tracking
-    storeExtensionDevData(key: "createPaymentPassEntry", dict: [
-      "identifier": identifier,
-      "label": label
-    ])
-    
     let requestConfig = PKAddPaymentPassRequestConfiguration(encryptionScheme: .ECC_V2)!
     requestConfig.primaryAccountIdentifier = identifier
     requestConfig.cardholderName = provisioningCredential.cardholderName
@@ -207,14 +150,22 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
       downloadImage(from: url) { image in
         let entry: PKIssuerProvisioningExtensionPaymentPassEntry
         if let uiImage = image {
+          let art = self.getEntryArt(image: uiImage)
           entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
                                                                 title: label,
-                                                                art: self.getEntryArt(image: uiImage),
+                                                                art: art,
                                                                 addRequestConfiguration: requestConfig)!
         } else {
+          guard let uiImage = UIImage(named: "card-default") else {
+            completion(nil)
+            return
+          }
+
+          let art = self.getEntryArt(image: uiImage)
+
           entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
                                                                 title: label,
-                                                                art: self.getEntryArt(image: #imageLiteral(resourceName: "generic")),
+                                                                art: art,
                                                                 addRequestConfiguration: requestConfig)!
         }
         completion(entry)
@@ -222,13 +173,19 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     } else if let assetName = provisioningCredential.assetName, let uiImage = UIImage(named: assetName) {
       let entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
                                                                 title: label,
-                                                                art: getEntryArt(image: uiImage),
+                                                                art: self.getEntryArt(image: uiImage),
                                                                 addRequestConfiguration: requestConfig)!
       completion(entry)
     } else {
+      guard let uiImage = UIImage(named: "card-default") else {
+        completion(nil)
+        return
+      }
+
+      let art = self.getEntryArt(image: uiImage)
       let entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
                                                                 title: label,
-                                                                art: getEntryArt(image: #imageLiteral(resourceName: "generic")),
+                                                                art: art,
                                                                 addRequestConfiguration: requestConfig)!
       completion(entry)
     }

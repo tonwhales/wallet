@@ -225,10 +225,6 @@ func getExtensionDevData(key: String) -> String? {
 
 @available(iOS 14, *)
 func paymentPassStatus(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-    // TODO: remove dev tracking
-     storeExtensionDevData(key: "status-init", dict: [
-       "started": true
-     ])
     let watchSession = WatchConnectivitySession()
     let passLibrary = PKPassLibrary()
     let paymentPassLibrary: [PKPass] = passLibrary.passes(of: .secureElement)
@@ -273,13 +269,6 @@ func paymentPassStatus(completion: @escaping (PKIssuerProvisioningExtensionStatu
     // You can also set requiresAuthentication to "true" or "false"
     // directly, if not wanting to rely on a cached value.
     status.requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
-    
-    // TODO: remove dev tracking
-     storeExtensionDevData(key: "status", dict: [
-       "passEntriesAvailable": status.passEntriesAvailable,
-       "remotePassEntriesAvailable": status.remotePassEntriesAvailable,
-       "requiresAuthentication": status.requiresAuthentication
-     ])
     
     // Invoke the completion handler.
     // The system needs to invoke the handler within 100 ms, or the extension does not display to the user in Apple Wallet.

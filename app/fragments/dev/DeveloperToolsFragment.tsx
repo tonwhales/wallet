@@ -333,13 +333,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                 {'Provisioning debug'}
                             </Text>
                             <ItemButton
-                                title={'Status'}
-                                onPress={async () => {
-                                    const res = await WalletService.getStatus();
-                                    setProvisioningStatus(JSON.stringify(res));
-                                }}
-                            />
-                            <ItemButton
                                 title={'getProvisioningCredentials'}
                                 onPress={async () => {
                                     let res = await WalletService.getCredentials();
@@ -382,19 +375,10 @@ export const DeveloperToolsFragment = fragment(() => {
                                 title={'Check extension steps'}
                                 onPress={async () => {
                                     const keys = [
-                                        'test',
-                                        'status-init',
-                                        'status',
-                                        'passEntries-suffixes',
-                                        'passEntries-elg',
-                                        'passEntries-entries',
-                                        'remotePassEntries-suffixes',
-                                        'remotePassEntries-elg',
-                                        'remotePassEntries-entries',
-                                        'add-req-step-0',
-                                        'add-req-step-1',
-                                        'add-req-step-2',
-                                        'createPaymentPassEntry'
+                                        "downloadImage-error",
+                                        "downloadImage-completion",
+                                        'createPaymentPassEntry-pre',
+                                        'createPaymentPassEntry-completion'
                                     ]
 
                                     let res: { [key: string]: string | undefined } = {};

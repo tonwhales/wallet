@@ -41,12 +41,6 @@ interface IosWalletService {
     setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication: boolean): Promise<void>;
 
     // TODO // MARK: REMOVE
-    getStatus(): Promise<{
-        passEntriesAvailable: boolean;
-        remotePassEntriesAvailable: boolean;
-        requiresAuthentication: boolean;
-    }>;
-    getGroupUserDefaults(): Promise<{ [key: string]: object }>;
     getExtensionData(key: string): Promise<string | undefined>;
     setExtensionData(key: string, value: object): Promise<void>;
 }
@@ -112,12 +106,6 @@ const WalletService: IosWalletService = {
     },
 
     // TODO // MARK: REMOVE
-    async getStatus() {
-        return RNAppleProvisioning.getStatus();
-    },
-    async getGroupUserDefaults() {
-        return RNAppleProvisioning.getGroupUserDefaults();
-    },
     async getExtensionData(key: string) {
         return RNAppleProvisioning.getExtensionData(key);
     },

@@ -18,6 +18,10 @@ class ActionRequestHandler: PKIssuerProvisioningExtensionHandler {
    */
   // MARK: Status
   override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
+    // TODO: remove dev tracking
+    storeExtensionDevData(key: "status-init", dict: [
+      "started": true
+    ])
     let paymentPassLibrary: [PKPass] = self.passLibrary.passes(of: .secureElement)
     
     // This status will be passed to the completion handler.

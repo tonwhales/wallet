@@ -48,4 +48,9 @@ RCT_EXTERN_METHOD(getExtensionData:(NSString *)key
                   resolver:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(setExtensionData:(NSString *)key
+                  dict:(NSDictionary *)dict
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+
 @end

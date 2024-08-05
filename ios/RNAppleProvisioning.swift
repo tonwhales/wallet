@@ -93,13 +93,13 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
       return
     }
     let cardRequest = AddCardRequest(cardId: req.cardId, token: req.token, isTestnet: req.isTestnet)
-
+    
     sendDataToServerForEncryption(cardRequest: cardRequest, certificates: certificates, nonce: nonce, nonceSignature: nonceSignature) { response, error in
       guard let response = response, error == nil else {
         completionHandler(PKAddPaymentPassRequest())
         return
       }
-
+      
       guard let resData = response["data"] as? [String: Any] else {
         completionHandler(PKAddPaymentPassRequest())
         return
@@ -214,7 +214,7 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   }
   
   @objc
-  func setShouldRequireAuthenticationForAppleWallet(_ shouldRequireAuthentication: Bool, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func setShouldRequireAuthenticationForAppleWallet(_ shouldRequireAuthentication: Bool, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     setShouldRequireAuthentication(shouldRequireAuthentication: shouldRequireAuthentication)
     resolve(true)
   }
@@ -223,5 +223,11 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   func getExtensionData(_ key: String, resolver resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let dataString = getExtensionDevData(key: key)
     resolve(dataString)
+  }
+  
+  @objc
+  func setExtensionData(_ key: String, dict: [String: Any], resolver resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    storeExtensionDevData(key: key, dict: dict)
+    resolve(true)
   }
 }

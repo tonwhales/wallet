@@ -370,9 +370,20 @@ export const DeveloperToolsFragment = fragment(() => {
                                 }}
                             />
                             <ItemButton
+                                title={'Store/Get dev extension data'}
+                                onPress={async () => {
+                                    await WalletService.setExtensionData('test', { valid: true });
+                                    const res = await WalletService.getExtensionData('test');
+                                    setProvisioningStatus(JSON.stringify({ storedTestData: res }));
+                                }}
+                            />
+
+                            <ItemButton
                                 title={'Check extension steps'}
                                 onPress={async () => {
                                     const keys = [
+                                        'test',
+                                        'status-init',
                                         'status',
                                         'passEntries-suffixes',
                                         'passEntries-elg',
@@ -391,7 +402,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                     for (let key of keys) {
                                         res[key] = (await WalletService.getExtensionData(key)) ?? 'undefined';
                                     }
-                                    console.log(res);
 
                                     setProvisioningStatus(JSON.stringify(res));
                                 }}

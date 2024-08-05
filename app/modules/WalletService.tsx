@@ -48,6 +48,7 @@ interface IosWalletService {
     }>;
     getGroupUserDefaults(): Promise<{ [key: string]: object }>;
     getExtensionData(key: string): Promise<string | undefined>;
+    setExtensionData(key: string, value: object): Promise<void>;
 }
 
 // not implemented yet
@@ -119,6 +120,9 @@ const WalletService: IosWalletService = {
     },
     async getExtensionData(key: string) {
         return RNAppleProvisioning.getExtensionData(key);
+    },
+    async setExtensionData(key: string, value: object) {
+        return RNAppleProvisioning.setExtensionData(key, value);
     }
 }
 

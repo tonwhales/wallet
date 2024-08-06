@@ -178,7 +178,8 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   @available(iOS 14.0, *)
   @objc
   func getStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    paymentPassStatus { status in
+    let library = PKPassLibrary()
+    paymentPassStatus(passLibrary: library) { status in
       resolve(
         [
           "passEntriesAvailable": status.passEntriesAvailable,

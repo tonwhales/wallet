@@ -162,38 +162,41 @@ func setProvisioningCredentials(credentials: [String: ProvisioningCredential]) {
   }
 }
 
-@available(iOS 13.4, *)
-func getRemoteAccSuffixes() -> Set<String> {
-  let library = PKPassLibrary()
-  let paymentPassLibrary = library.passes(of: .payment)
-  var remotePassIdentifiers = Set<String>()
-  
-  for pass in paymentPassLibrary {
-    if let suff = pass.secureElementPass?.primaryAccountNumberSuffix {
-      if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
-        remotePassIdentifiers.insert(suff)
-      }
-    }
-  }
-  
-  return remotePassIdentifiers
+struct PKPassAcc {
+  let identifier: String
+  let suffix: String
 }
 
 @available(iOS 13.4, *)
-func getAccSuffixes() -> Set<String> {
-  let library = PKPassLibrary()
+func getRemoteAccs(library: PKPassLibrary) -> [PKPassAcc] {
   let paymentPassLibrary = library.passes(of: .payment)
-  var passIdentifiers = Set<String>()
+  var remoteAccs = [PKPassAcc]()
   
   for pass in paymentPassLibrary {
-    if let suff = pass.secureElementPass?.primaryAccountNumberSuffix {
-      if !pass.isRemotePass {
-        passIdentifiers.insert(suff)
+    if let secureElementPass = pass.secureElementPass {
+      if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
+        remoteAccs.append(PKPassAcc(identifier: secureElementPass.primaryAccountIdentifier, suffix: secureElementPass.primaryAccountNumberSuffix))
       }
     }
   }
   
-  return passIdentifiers
+  return remoteAccs
+}
+
+@available(iOS 13.4, *)
+func getAccs(library: PKPassLibrary) -> [PKPassAcc] {
+  let paymentPassLibrary = library.passes(of: .payment)
+  var accs = [PKPassAcc]()
+  
+  for pass in paymentPassLibrary {
+    if let secureElementPass = pass.secureElementPass {
+      if !pass.isRemotePass {
+        accs.append(PKPassAcc(identifier: secureElementPass.primaryAccountIdentifier, suffix: secureElementPass.primaryAccountNumberSuffix))
+      }
+    }
+  }
+  
+  return accs
 }
 
 /**
@@ -221,59 +224,85 @@ func storeExtensionDevData(key: String, dict: [String: Any]) {
   appGroupSharedDefaults?.synchronize()
 }
 
+func getExtensionDevDataDict(key: String) -> [String: Any]? {
+  let appGroupSharedDefaults = getUserDefaults()
+  if let jsonString = appGroupSharedDefaults?.object(forKey: key) as? String {
+    return jsonStringToDict(jsonString: jsonString)
+  }
+  return nil
+}
+
 func getExtensionDevData(key: String) -> String? {
   let appGroupSharedDefaults = getUserDefaults()
   return appGroupSharedDefaults?.object(forKey: key) as? String
 }
 
 @available(iOS 14, *)
-func paymentPassStatus(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-    let watchSession = WatchConnectivitySession()
-    let passLibrary = PKPassLibrary()
-    let paymentPassLibrary: [PKPass] = passLibrary.passes(of: .secureElement)
-    
-    // This status will be passed to the completion handler.
-    let status = PKIssuerProvisioningExtensionStatus()
-    var passSuffixes: Set<String> = []
-    var remotePassSuffixes: Set<String> = []
-    var availablePassesForIphone: Int = 0
-    var availableRemotePassesForAppleWatch: Int = 0
-    
-    // Get the identifiers of payment passes that are already added
-    // to Apple Pay.
-    for pass in paymentPassLibrary {
-      if let identifier = pass.secureElementPass?.primaryAccountNumberSuffix {
-        if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
-          remotePassSuffixes.insert(identifier)
-        } else if !pass.isRemotePass {
-          passSuffixes.insert(identifier)
-        }
+func paymentPassStatus(passLibrary: PKPassLibrary, completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
+  let watchSession = WatchConnectivitySession()
+  let paymentPassLibrary: [PKPass] = passLibrary.passes(of: .secureElement)
+  
+  // This status will be passed to the completion handler.
+  let status = PKIssuerProvisioningExtensionStatus()
+  var passSuffixes: Set<String> = []
+  var remotePassSuffixes: Set<String> = []
+  var availablePassesForIphone: Int = 0
+  var availableRemotePassesForAppleWatch: Int = 0
+  
+  // Get the identifiers of payment passes that are already added
+  // to Apple Pay.
+  for pass in paymentPassLibrary {
+    if let identifier = pass.secureElementPass?.primaryAccountNumberSuffix {
+      if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
+        remotePassSuffixes.insert(identifier)
+      } else if !pass.isRemotePass {
+        passSuffixes.insert(identifier)
       }
     }
-    
-    // Get cached credentials data of all of the user's issued cards,
-    // within the issuer app, from the user's defaults database.
-    let cachedCredentials = getProvisioningCredentials()
-    
-    for credential in cachedCredentials {
-      if !passSuffixes.contains(credential.primaryAccountSuffix) {
-        availablePassesForIphone += 1
-      }
-      
-      if !remotePassSuffixes.contains(credential.primaryAccountSuffix) {
-        availableRemotePassesForAppleWatch += 1
-      }
-    }
-    
-    // Set the status of the extension.
-    status.passEntriesAvailable = availablePassesForIphone > 0
-    status.remotePassEntriesAvailable = watchSession.isPaired && availableRemotePassesForAppleWatch > 0
-    
-    // You can also set requiresAuthentication to "true" or "false"
-    // directly, if not wanting to rely on a cached value.
-    status.requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
-    
-    // Invoke the completion handler.
-    // The system needs to invoke the handler within 100 ms, or the extension does not display to the user in Apple Wallet.
-    completion(status)
   }
+  
+  // Get cached credentials data of all of the user's issued cards,
+  // within the issuer app, from the user's defaults database.
+  let cachedCredentials = getProvisioningCredentials()
+  
+  for credential in cachedCredentials {
+    if !passSuffixes.contains(credential.primaryAccountSuffix) {
+      availablePassesForIphone += 1
+    }
+    
+    if !remotePassSuffixes.contains(credential.primaryAccountSuffix) {
+      availableRemotePassesForAppleWatch += 1
+    }
+  }
+  
+  // Set the status of the extension.
+  status.passEntriesAvailable = availablePassesForIphone > 0
+  status.remotePassEntriesAvailable = watchSession.isPaired && availableRemotePassesForAppleWatch > 0
+  
+  // You can also set requiresAuthentication to "true" or "false"
+  // directly, if not wanting to rely on a cached value.
+  status.requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
+  
+  // Invoke the completion handler.
+  // The system needs to invoke the handler within 100 ms, or the extension does not display to the user in Apple Wallet.
+  completion(status)
+}
+
+func getEntryArt(image: UIImage) -> CGImage {
+  let ciImage = CIImage(image: image)
+  let ciContext = CIContext(options: nil)
+  return ciContext.createCGImage(ciImage!, from: ciImage!.extent)!
+}
+
+func getDefaultEntryArt() -> CGImage {
+  guard let uiImage = UIImage(named: "card-default") else {
+    return UIImage().cgImage!
+  }
+  // store the default image size in kb
+  storeExtensionDevData(key: "WNonUIExtHandler-image-size", dict: [
+    "width": uiImage.size.width,
+    "height": uiImage.size.height,
+    "size": uiImage.pngData()?.count ?? 0
+  ])
+  return getEntryArt(image: uiImage)
+}

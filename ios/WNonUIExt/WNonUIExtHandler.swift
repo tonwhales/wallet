@@ -11,6 +11,7 @@ import PassKit
 class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   let passLibrary = PKPassLibrary()
   let watchSession = WatchConnectivitySession()
+  let defaultArt = getDefaultEntryArt()
   
   /**
    Sets the status of the extension to indicate whether a payment pass is available to add and whether
@@ -18,9 +19,8 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
    */
   // MARK: Status
   override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-    storeExtensionDevData(key: "WNonUIExtHandler-status", dict: ["status": "init"])
-    paymentPassStatus { status in
-      storeExtensionDevData(key: "WNonUIExtHandler-status", dict: ["status": "success", "res": "\(status.passEntriesAvailable) \(status.requiresAuthentication) \(status.remotePassEntriesAvailable)"])
+    clearDevData()
+    paymentPassStatus(passLibrary: passLibrary) { status in
       completion(status)
     }
   }
@@ -28,47 +28,84 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   // MARK: PassEntries iPhone
   // gather and return a list of payment pass entries that can be added to Apple Pay for iPhone
   override func passEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
-    let suffixes = getAccSuffixes()
+    let accs = getAccs(library: passLibrary)
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials()
     
-    let eligibleCredentials = cachedCredentialsData.filter { !suffixes.contains($0.primaryAccountSuffix) }
+    // let eligibleCredentials = cachedCredentialsData.filter { !accs.contains($0.primaryAccountSuffix) }
     
-    storeExtensionDevData(key: "WNonUIExtHandler-entries", dict: [
+    let eligibleCredentials = cachedCredentialsData.filter { credential in
+      return accs.contains(where: { acc in
+        if (acc.suffix == credential.primaryAccountSuffix) {
+          return false
+        }
+        
+        return acc.identifier != credential.identifier
+      })
+    }
+    
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-entries", dict: [
       "status": "init",
       "res": "\(eligibleCredentials.count)"
     ])
     
     // Create a payment pass entry for each credential.
-    getPaymentPassEntries(for: eligibleCredentials) { entries in
-      storeExtensionDevData(key: "WNonUIExtHandler-entries", dict: [
-        "status": "success",
-        "res": "\(entries.count)"
-      ])
-      completion(entries)
+    var entries: [PKIssuerProvisioningExtensionPaymentPassEntry] = []
+    
+    for credential in eligibleCredentials {
+      createPaymentPassEntry(provisioningCredential: credential) { entry in
+        if let entry = entry {
+          entries.append(entry)
+        }
+      }
     }
+    
+    // getPaymentPassEntries(for: eligibleCredentials) { entries in
+    //   storeExtensionDevData(key: "WNonUIExtHandler-dev-entries", dict: [
+    //     "status": "success",
+    //     "res": "\(entries.count)"
+    //   ])
+    //   completion(entries)
+    // }
+    
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-entries", dict: [
+      "status": "success",
+      "res": "\(entries.count) / \(eligibleCredentials.count)"
+    ])
+    completion(entries)
   }
   
   // MARK: PassEntries Watch
   override func remotePassEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
-    let remoteSuffixes = getRemoteAccSuffixes()
+    let remoteAccs = getRemoteAccs(library: passLibrary)
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials()
     
-    let eligibleCredentials = cachedCredentialsData.filter { !remoteSuffixes.contains($0.primaryAccountSuffix) }
+    // let eligibleCredentials = cachedCredentialsData.filter { !remoteAccs.contains($0.primaryAccountSuffix) }
     
-    storeExtensionDevData(key: "WNonUIExtHandler-remote", dict: [
+    // filter by suffix and identifier
+    let eligibleCredentials = cachedCredentialsData.filter { credential in
+      return remoteAccs.contains(where: { acc in
+        if (acc.suffix == credential.primaryAccountSuffix) {
+          return false
+        }
+        
+        return acc.identifier != credential.identifier
+      })
+    }
+    
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-remote", dict: [
       "status": "init",
       "res": "\(eligibleCredentials.count)"
     ])
     
     // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
-      storeExtensionDevData(key: "WNonUIExtHandler-remote", dict: [
+      storeExtensionDevData(key: "WNonUIExtHandler-dev-remote", dict: [
         "status": "success",
         "res": "\(entries.count)"
       ])
@@ -81,7 +118,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
                                                                         certificateChain certificates: [Data], nonce: Data, nonceSignature: Data,
                                                                         completionHandler completion: @escaping (PKAddPaymentPassRequest?) ->
                                                                         Void) {
-    storeExtensionDevData(key: "WNonUIExtHandler-req", dict: [
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-req", dict: [
       "status": "init-0",
       "res": "\(identifier)"
     ])
@@ -104,7 +141,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     let cardReq = AddCardRequest(cardId: identifier, token: token!, isTestnet: isTest)
     
-    storeExtensionDevData(key: "WNonUIExtHandler-req", dict: [
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-req", dict: [
       "status": "init-1",
       "res": "\(identifier)"
     ])
@@ -115,7 +152,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
       nonce: nonce,
       nonceSignature: nonceSignature) { response, error in
         guard let response = response, error == nil else {
-          storeExtensionDevData(key: "WNonUIExtHandler-req", dict: [
+          storeExtensionDevData(key: "WNonUIExtHandler-dev-req", dict: [
             "status": "error",
             "res": "\(error?.localizedDescription ?? "Unknown error")"
           ])
@@ -124,7 +161,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         }
         
         guard let resData = response["data"] as? [String: Any] else {
-          storeExtensionDevData(key: "WNonUIExtHandler-req", dict: [
+          storeExtensionDevData(key: "WNonUIExtHandler-dev-req", dict: [
             "status": "error",
             "res": "Error getting data"
           ])
@@ -135,7 +172,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         guard let encryptedData = resData["encryptedData"] as? String,
               let activationData = resData["activationData"] as? String,
               let ephemeralPublicKey = resData["ephemeralPublicKey"] as? String else {
-          storeExtensionDevData(key: "WNonUIExtHandler-req", dict: [
+          storeExtensionDevData(key: "WNonUIExtHandler-dev-req", dict: [
             "status": "error",
             "res": "Error getting encrypted data"
           ])
@@ -148,7 +185,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         addRequest.activationData = Data(base64Encoded: activationData)
         addRequest.ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKey)
         
-        storeExtensionDevData(key: "WNonUIExtHandler-req", dict: [
+        storeExtensionDevData(key: "WNonUIExtHandler-dev-req", dict: [
           "status": "success",
           "res": "Success"
         ])
@@ -158,11 +195,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   
   // MARK: Private Methods
   // Converts a UIImage to a CGImage.
-  private func getEntryArt(image: UIImage) -> CGImage {
-    let ciImage = CIImage(image: image)
-    let ciContext = CIContext(options: nil)
-    return ciContext.createCGImage(ciImage!, from: ciImage!.extent)!
-  }
   
   private func downloadImage(from url: URL, completion: @escaping (UIImage?) -> Void) {
     URLSession.shared.dataTask(with: url) { data, response, error in
@@ -184,9 +216,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   }
   
   private func createPaymentPassEntry(provisioningCredential: ProvisioningCredential, completion: @escaping (PKIssuerProvisioningExtensionPaymentPassEntry?) -> Void) {
-    storeExtensionDevData(key: "WNonUIExtHandler-entry", dict: [
-      "status": "init",
-    ])
     let identifier = provisioningCredential.identifier
     let label = provisioningCredential.label
     
@@ -197,57 +226,54 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     requestConfig.primaryAccountSuffix = provisioningCredential.primaryAccountSuffix
     requestConfig.style = .payment
     
-    storeExtensionDevData(key: "WNonUIExtHandler-entry", dict: [
-      "status": "config",
-      "id": "\(requestConfig.primaryAccountIdentifier)"
-    ])
+    var currentEntriesStatuesDict = getExtensionDevDataDict(key: "WNonUIExtHandler-dev-entry") as? [String: String] ?? [:]
     
+    let entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
+                                                              title: label,
+                                                              art: defaultArt,
+                                                              addRequestConfiguration: requestConfig)!
+    
+    currentEntriesStatuesDict[identifier] = "success"
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-entry", dict: currentEntriesStatuesDict)
+    
+    completion(entry)
+    
+    // Supports art from a URL or an asset name.
+    // let art = resolvePassEntryArt(provisioningCredential: provisioningCredential) { art in
+    //   if (image != nil) {
+    //     completion(PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
+    //                                                              title: label,
+    //                                                              art: art,
+    //                                                              addRequestConfiguration: requestConfig)!)
+    //   } else {
+    //     completion(nil)
+    //   }
+    // }
+  }
+  
+  private func resolvePassEntryArt(provisioningCredential: ProvisioningCredential, completion: @escaping (CGImage?) -> Void) {
     if let assetUrl = provisioningCredential.assetUrl, let url = URL(string: assetUrl) {
       downloadImage(from: url) { image in
-        let entry: PKIssuerProvisioningExtensionPaymentPassEntry
         if let uiImage = image {
-          let art = self.getEntryArt(image: uiImage)
-          entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
-                                                                title: label,
-                                                                art: art,
-                                                                addRequestConfiguration: requestConfig)!
+          completion(getEntryArt(image: uiImage))
         } else {
           guard let uiImage = UIImage(named: "card-default") else {
             completion(nil)
             return
           }
           
-          let art = self.getEntryArt(image: uiImage)
-          
-          entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
-                                                                title: label,
-                                                                art: art,
-                                                                addRequestConfiguration: requestConfig)!
+          completion(getEntryArt(image: uiImage))
         }
-        completion(entry)
       }
     } else if let assetName = provisioningCredential.assetName, let uiImage = UIImage(named: assetName) {
-      let entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
-                                                                title: label,
-                                                                art: self.getEntryArt(image: uiImage),
-                                                                addRequestConfiguration: requestConfig)!
-      completion(entry)
+      completion(getEntryArt(image: uiImage))
     } else {
       guard let uiImage = UIImage(named: "card-default") else {
         completion(nil)
         return
       }
       
-      let art = self.getEntryArt(image: uiImage)
-      storeExtensionDevData(key: "WNonUIExtHandler-entry", dict: [
-        "status": "pre-completion",
-        "id": "\(identifier)"
-      ])
-      let entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
-                                                                title: label,
-                                                                art: art,
-                                                                addRequestConfiguration: requestConfig)!
-      completion(entry)
+      completion(getEntryArt(image: uiImage))
     }
   }
   
@@ -256,15 +282,28 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     var entries: [PKIssuerProvisioningExtensionPaymentPassEntry] = []
     var errors: [Error] = []
     
-    storeExtensionDevData(key: "WNonUIExtHandler-getEntries", dict: [
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-getEntries", dict: [
       "status": "init",
+      "res": "\(credentials.count)"
     ])
     
     for credential in credentials {
       dispatchGroup.enter()
+      var currentEntriesStatuesDict = getExtensionDevDataDict(key: "WNonUIExtHandler-dev-entry") as? [String: String] ?? [:]
+      currentEntriesStatuesDict[credential.identifier] = "init"
+      
+      storeExtensionDevData(key: "WNonUIExtHandler-dev-entry", dict: currentEntriesStatuesDict)
       createPaymentPassEntry(provisioningCredential: credential) { entry in
+        storeExtensionDevData(key: "WNonUIExtHandler-dev-getEntries", dict: [
+          "status": "createPaymentPassEntry",
+          "res": "\(entry != nil)"
+        ])
         if let entry = entry {
           entries.append(entry)
+          storeExtensionDevData(key: "WNonUIExtHandler-dev-getEntries", dict: [
+            "status": "append",
+            "res": "primaryAccountSuffix: \(credential.primaryAccountSuffix) \(entries.count) / \(errors.count), \(credentials.count)"
+          ])
         } else {
           // Handle the error case if needed
           errors.append(NSError(domain: "EntryCreationError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create entry for credential: \(credential.identifier)"]))
@@ -274,17 +313,20 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     }
     
     dispatchGroup.notify(queue: .main) {
+      storeExtensionDevData(key: "WNonUIExtHandler-dev-getEntries", dict: [
+        "status": "notify",
+        "res": "\(entries.count) / \(errors.count)"
+      ])
       if errors.isEmpty {
-        storeExtensionDevData(key: "WNonUIExtHandler-getEntries", dict: [
+        storeExtensionDevData(key: "WNonUIExtHandler-dev-getEntries", dict: [
           "status": "success",
           "res": "\(entries.count)"
         ])
         completion(entries)
       } else {
         // Handle errors if needed
-        print("Errors occurred: \(errors)")
         let errorsString = errors.map { $0.localizedDescription }.joined(separator: ", ")
-        storeExtensionDevData(key: "WNonUIExtHandler-getEntries", dict: [
+        storeExtensionDevData(key: "WNonUIExtHandler-dev-getEntries", dict: [
           "status": "error",
           "res": "\(errorsString)"
         ])
@@ -292,4 +334,14 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
       }
     }
   }
+  
+  private func clearDevData() {
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-getEntries", dict: [:])
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-entry", dict: [:])
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-req", dict: [:])
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-remote", dict: [:])
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-entries", dict: [:])
+    storeExtensionDevData(key: "WNonUIExtHandler-dev-status", dict: [:])
+  }
+  
 }

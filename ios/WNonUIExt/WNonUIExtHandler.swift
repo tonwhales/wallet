@@ -19,10 +19,12 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
    */
   // MARK: Status
   override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
+    storeExtensionDevData(key: "WNonUIExtHandler", dict: ["step": "0", "status": "init"])
     paymentPassStatus { status in
       os_log("WNonUIExtHandler Payment pass status passEntriesAvailable: %{public}@", status.passEntriesAvailable)
       os_log("WNonUIExtHandler Payment pass status requiresAuthentication: %{public}@", status.requiresAuthentication)
       os_log("WNonUIExtHandler Payment pass status remotePassEntriesAvailable: %{public}@", status.remotePassEntriesAvailable)
+      storeExtensionDevData(key: "WNonUIExtHandler", dict: ["step": "0", "status": "success", "res": "\(status.passEntriesAvailable) \(status.requiresAuthentication) \(status.remotePassEntriesAvailable)"])
       completion(status)
     }
   }
@@ -38,9 +40,20 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     let eligibleCredentials = cachedCredentialsData.filter { !suffixes.contains($0.primaryAccountSuffix) }
     
+    storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+      "step": "1",
+      "status": "init",
+      "res": "\(eligibleCredentials.count)"
+    ])
+    
     // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
       os_log("WNonUIExtHandler Payment pass entries: %{public}@", entries.count)
+      storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+        "step": "1",
+        "status": "success",
+        "res": "\(entries.count)"
+      ])
       completion(entries)
     }
   }
@@ -55,9 +68,20 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     let eligibleCredentials = cachedCredentialsData.filter { !remoteSuffixes.contains($0.primaryAccountSuffix) }
     
+    storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+      "step": "2",
+      "status": "init",
+      "res": "\(eligibleCredentials.count)"
+    ])
+    
     // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
       os_log("WNonUIExtHandler Remote payment pass entries: %{public}@", entries.count)
+      storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+        "step": "2",
+        "status": "success",
+        "res": "\(entries.count)"
+      ])
       completion(entries)
     }
   }
@@ -67,7 +91,11 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
                                                                         certificateChain certificates: [Data], nonce: Data, nonceSignature: Data,
                                                                         completionHandler completion: @escaping (PKAddPaymentPassRequest?) ->
                                                                         Void) {
-    os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: %{public}@", identifier)
+    storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+      "step": "3",
+      "status": "init-0",
+      "res": "\(identifier)"
+    ])
     // You can use the array.first(where:) method to retrieve a
     // specific PKLabeledValue card detail from a configuration.
     // configuration.cardDetails.first(where: { $0.label == "expiration" })!
@@ -88,6 +116,12 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     let cardReq = AddCardRequest(cardId: identifier, token: token!, isTestnet: isTest)
     
+    storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+      "step": "3",
+      "status": "init-1",
+      "res": "\(identifier)"
+    ])
+    
     sendDataToServerForEncryption(
       cardRequest: cardReq,
       certificates: certificates,
@@ -95,12 +129,22 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
       nonceSignature: nonceSignature) { response, error in
         guard let response = response, error == nil else {
           os_log("WNonUIExtHandler sendDataToServerForEncryption: Error: %{public}@", error?.localizedDescription ?? "Unknown error")
+          storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+            "step": "3",
+            "status": "error",
+            "res": "\(error?.localizedDescription ?? "Unknown error")"
+          ])
           completion(nil)
           return
         }
         
         guard let resData = response["data"] as? [String: Any] else {
           os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: Error getting data")
+          storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+            "step": "3",
+            "status": "error",
+            "res": "Error getting data"
+          ])
           completion(nil)
           return
         }
@@ -109,6 +153,11 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
               let activationData = resData["activationData"] as? String,
               let ephemeralPublicKey = resData["ephemeralPublicKey"] as? String else {
           os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: Error getting encrypted data")
+          storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+            "step": "3",
+            "status": "error",
+            "res": "Error getting encrypted data"
+          ])
           completion(nil)
           return
         }
@@ -117,8 +166,13 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         addRequest.encryptedPassData = Data(base64Encoded: encryptedData)
         addRequest.activationData = Data(base64Encoded: activationData)
         addRequest.ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKey)
-
+        
         os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: Success")
+        storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+          "step": "3",
+          "status": "success",
+          "res": "Success"
+        ])
         completion(addRequest)
       }
   }
@@ -226,10 +280,20 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     dispatchGroup.notify(queue: .main) {
       if errors.isEmpty {
+        storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+          "step": "4",
+          "status": "success",
+          "res": "\(entries.count)"
+        ])
         completion(entries)
       } else {
         // Handle errors if needed
         print("Errors occurred: \(errors)")
+        storeExtensionDevData(key: "WNonUIExtHandler", dict: [
+          "step": "4",
+          "status": "success with errors",
+          "res": "\(entries.count)"
+        ])
         completion(entries)
       }
     }

@@ -375,10 +375,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                 title={'Check extension steps'}
                                 onPress={async () => {
                                     const keys = [
-                                        "downloadImage-error",
-                                        "downloadImage-completion",
-                                        'createPaymentPassEntry-pre',
-                                        'createPaymentPassEntry-completion'
+                                        "WNonUIExtHandler"
                                     ]
 
                                     let res: { [key: string]: string | undefined } = {};

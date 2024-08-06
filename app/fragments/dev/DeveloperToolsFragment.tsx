@@ -375,7 +375,12 @@ export const DeveloperToolsFragment = fragment(() => {
                                 title={'Check extension steps'}
                                 onPress={async () => {
                                     const keys = [
-                                        "WNonUIExtHandler"
+                                        "WNonUIExtHandler-status",
+                                        "WNonUIExtHandler-getEntries",
+                                        "WNonUIExtHandler-entry",
+                                        "WNonUIExtHandler-req",
+                                        "WNonUIExtHandler-remote",
+                                        "WNonUIExtHandler-entries"
                                     ]
 
                                     let res: { [key: string]: string | undefined } = {};

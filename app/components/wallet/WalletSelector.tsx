@@ -9,15 +9,18 @@ import { Address } from "@ton/core";
 import { t } from "../../i18n/t";
 import { useNavigationState } from "@react-navigation/native";
 import { KnownWallets } from "../../secure/KnownWallets";
+import { useWalletsVersion } from "../../engine/hooks/useWalletVersion";
 
 import IcCheck from "@assets/ic-check.svg";
+import { WalletVersions } from "../../engine/state/walletVersions";
 
 export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address) => void }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const prevScreen = useNavigationState((state) => state.routes[state.index - 1]?.name);
     const { isTestnet } = useNetwork();
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat,] = useBounceableWalletFormat(true);
+    const [walletsVersion] = useWalletsVersion();
     const knownWallets = KnownWallets(isTestnet);
 
     const isPrevScreenLedger = prevScreen?.startsWith('Ledger') ?? false;
@@ -25,17 +28,31 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
     const appState = useAppState();
 
     const ledgerContext = useLedgerTransport();
+
+    const checkIsW5 = useCallback((address: Address) => {
+        const addrKey = address.toString({ testOnly: isTestnet });
+        return walletsVersion[addrKey] === WalletVersions.v5R1;
+    }, [walletsVersion]);
+
+    const checkIsBouncable = useCallback((address: Address) => {
+        return checkIsW5(address) ? false : bounceableFormat;
+    }, [bounceableFormat, checkIsW5]);
+
     const connectedLedgerAddress = useMemo(() => {
         if (!ledgerContext?.tonTransport || !ledgerContext.addr?.address) {
             return null;
         }
         try {
             const parsed = Address.parse(ledgerContext.addr.address);
-            return parsed.toString({ bounceable: bounceableFormat, testOnly: isTestnet });
+
+            return parsed.toString({ 
+                bounceable: checkIsBouncable(parsed),
+                testOnly: isTestnet 
+            });
         } catch {
             return null;
         }
-    }, [ledgerContext, bounceableFormat]);
+    }, [ledgerContext, bounceableFormat, walletsVersion]);
 
     const onLedgerSelect = useCallback(async () => {
         if (!!onSelect) {
@@ -66,7 +83,8 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                         address={wallet.address}
                         selected={index === appState.selected && !isPrevScreenLedger}
                         onSelect={onSelect}
-                        bounceableFormat={bounceableFormat}
+                        bounceableFormat={checkIsBouncable(wallet.address)}
+                        isW5={checkIsW5(wallet.address)}
                         isTestnet={isTestnet}
                         knownWallets={knownWallets}
                     />

@@ -38,7 +38,7 @@
     "@ton-community/ton-ledger": "^7.0.1",
     "@ton/core": "^0.56.2",
     "@ton/crypto": "^3.2.0",
-    "@ton/ton": "^13.9.0",
+    "@ton/ton": "^14.0.0",
     "@tonconnect/protocol": "2.2.6",
     "@yornaath/batshit": "^0.10.0",
     "automerge": "1.0.1-preview.7",

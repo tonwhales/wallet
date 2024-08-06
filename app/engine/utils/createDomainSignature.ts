@@ -12,7 +12,7 @@ export function createDomainSignature(domain: string, domainKey: DomainSubkey) {
     const subkey = keyPairFromSeed(domainKey.secret);
 
     const currentAccount = getCurrentAddress();
-    const contract = contractFromPublicKey(currentAccount.publicKey);
+    const contract = contractFromPublicKey(currentAccount.publicKey); // TODO: 
     const time = Math.floor((Date.now() / 1000));
     const toSign = beginCell()
         .storeCoins(1)

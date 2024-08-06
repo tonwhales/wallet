@@ -21,6 +21,8 @@ import { useNetwork, useBounceableWalletFormat, useSetAppState, useSetPasscodeSt
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { openSettings } from 'react-native-permissions';
 import { ScreenHeader } from '../ScreenHeader';
+import { WalletVersions } from '../../engine/state/walletVersions';
+import { useSetW5Version } from '../../engine/hooks/useWalletVersion';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -36,6 +38,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const logOutAndReset = useLogoutAndReset();
     const setPascodeState = useSetPasscodeState();
     const [, setBounceable] = useBounceableWalletFormat();
+    const setW5Version = useSetW5Version();
 
     const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = useState(false);
@@ -47,6 +50,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             throw Error('Invalid state');
         }
         markAddressSecured(address.address);
+        setW5Version(address.address);
         navigation.navigateAndReplaceAll('Home');
     }, []);
 
@@ -69,7 +73,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
 
                 // Resolve contract
-                const contract = await contractFromPublicKey(key.publicKey);
+                const contract = await contractFromPublicKey(key.publicKey, WalletVersions.v5R1);
 
                 // Authenticate
                 const passcodeState = getPasscodeState();
@@ -235,7 +239,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
 
             // Resolve contract
-            const contract = await contractFromPublicKey(key.publicKey);
+            const contract = await contractFromPublicKey(key.publicKey, WalletVersions.v5R1);
 
             const passcodeState = storage.getString(passcodeStateKey);
             const isPasscodeSet = (passcodeState === PasscodeState.Set);
@@ -293,6 +297,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
             const account = getCurrentAddress();
             markAddressSecured(account.address);
+            setW5Version(account.address);
 
             // Skip biometrics setup if encryption is disabled
             if (disableEncryption) {

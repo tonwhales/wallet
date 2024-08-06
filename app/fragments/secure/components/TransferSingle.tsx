@@ -22,6 +22,7 @@ import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { ConfirmLoadedPropsSingle } from "../TransferFragment";
 import { PendingTransactionBody } from "../../../engine/state/pending";
+import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -109,11 +110,13 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const isSpam = useDenyAddress(friendlyTarget);
     const spam = useIsSpamWallet(friendlyTarget) || isSpam
 
+    const walletVersion = useWalletVersion();
+
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
-        const contract = await contractFromPublicKey(acc.publicKey);
+        const contract = await contractFromPublicKey(acc.publicKey, walletVersion);
 
         // Check if transfering to yourself
         if (target.address.equals(contract.address)) {

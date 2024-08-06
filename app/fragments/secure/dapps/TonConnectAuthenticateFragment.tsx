@@ -30,6 +30,7 @@ import Minimizer from '../../../modules/Minimizer';
 import { SelectedAccount } from '../../../engine/types';
 import { ToastDuration, useToaster } from '../../../components/toast/ToastProvider';
 import { t } from '../../../i18n/t';
+import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
 
 type SignState = { type: 'loading' }
     | {
@@ -55,6 +56,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const toaster = useToaster();
     const [state, setState] = useState<SignState>({ type: 'loading' });
     const saveAppConnection = useSaveAppConnection();
+    const walletVersion = useWalletVersion();
     const toastMargin = safeArea.bottom + 56 + 48;
 
     useEffect(() => {
@@ -195,7 +197,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
         try {
             const acc = selectedAccount ?? getCurrentAddress();
-            const contract = contractFromPublicKey(acc.publicKey);
+            const contract = contractFromPublicKey(acc.publicKey, walletVersion);
             const config = walletConfigFromContract(contract);
 
             const walletConfig = config.walletConfig;

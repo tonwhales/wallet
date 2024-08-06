@@ -97,6 +97,7 @@ import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
 import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
+import { W5UpdateFragment } from './fragments/W5UpdateFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -318,6 +319,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
+    modalScreen('W5Update', W5UpdateFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
     modalScreen('SearchEngine', SearchEngineFragment, safeArea),
     lockedModalScreen('MandatoryAuthSetup', MandatoryAuthSetupFragment, safeArea),

@@ -27,6 +27,7 @@ import { StatusBar } from "expo-status-bar";
 import IcDelete from '@assets/ic-delete-red.svg';
 import IcCheckAddress from '@assets/ic-check-recipient.svg';
 import IcSupport from '@assets/ic-support.svg';
+import { useWalletVersion } from "../engine/hooks/useWalletVersion";
 
 export const DeleteAccountFragment = fragment(() => {
     const theme = useTheme();
@@ -43,6 +44,7 @@ export const DeleteAccountFragment = fragment(() => {
     const authContext = useKeysAuth();
     const selected = useSelectedAccount();
     const account = useAccountLite(selected?.address);
+    const walletVersion = useWalletVersion();
 
     const onAccountDeleted = useDeleteCurrentAccount();
 
@@ -155,7 +157,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has at least 0.1 TON 
             if (account && account.balance || BigInt(0) > toNano('0.1')) {
-                const contract = await contractFromPublicKey(selected!.publicKey);
+                const contract = await contractFromPublicKey(selected!.publicKey, walletVersion);
 
                 // Check if same address
                 if (target.address.equals(contract.address)) {

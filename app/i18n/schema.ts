@@ -1037,6 +1037,22 @@ export type LocalizationSchema = {
         bannerTitle: string,
         bannerDescription: string,
     },
+    w5: {
+        banner: {
+            title: string,
+            description: string,
+        },
+        update: {
+            title: string,
+            subtitle_1: string,
+            description_1: string,
+            subtitle_2: string,
+            description_2: string,
+            subtitle_3: string,
+            description_3: string,
+            switch_button: string,
+        },
+    }
     browser: {
         listings: {
             categories: {

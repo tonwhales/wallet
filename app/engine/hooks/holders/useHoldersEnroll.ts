@@ -13,6 +13,8 @@ import { useAppConnections, useConnectApp, useNetwork, useSaveAppConnection } fr
 import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
 import { TonConnectBridgeType } from "../../tonconnect/types";
 import { extensionKey } from "../dapps/useAddExtension";
+import { useWalletVersion } from "../useWalletVersion";
+
 
 export type HoldersEnrollParams = {
     acc: {
@@ -43,6 +45,7 @@ export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType
 
 export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
+    const version = useWalletVersion();
     const saveAppConnection = useSaveAppConnection();
     const connectApp = useConnectApp();
     const connectAppConnections = useAppConnections();
@@ -86,7 +89,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
                     return { type: 'error', error: HoldersEnrollErrorType.ManifestFailed };
                 }
 
-                const contract = contractFromPublicKey(acc.publicKey);
+                const contract = contractFromPublicKey(acc.publicKey, version);
 
                 //
                 // Sign

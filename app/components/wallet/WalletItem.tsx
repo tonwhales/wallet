@@ -7,9 +7,11 @@ import { Address } from "@ton/core";
 import { useAppState, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 import { KnownWallet } from "../../secure/KnownWallets";
+import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 
 import IcCheck from "@assets/ic-check.svg";
 import { Avatar, avatarColors } from "../avatar/Avatar";
+import { Typography } from "../styles";
 
 export const WalletItem = memo((
     {
@@ -20,6 +22,7 @@ export const WalletItem = memo((
         style,
         hideSelect,
         bounceableFormat,
+        isW5,
         isTestnet,
         knownWallets
     }: {
@@ -30,6 +33,7 @@ export const WalletItem = memo((
         style?: StyleProp<ViewStyle>,
         hideSelect?: boolean,
         bounceableFormat: boolean,
+        isW5: boolean;
         isTestnet: boolean,
         knownWallets: { [key: string]: KnownWallet }
     }
@@ -96,18 +100,63 @@ export const WalletItem = memo((
                 />
             </View>
             <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>
-                <Text
-                    style={{
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '600',
-                        color: theme.textPrimary,
-                        marginBottom: 2,
-                        maxWidth: '90%',
-                    }}
-                    numberOfLines={1}
-                >
-                    {walletSettings?.name || `${t('common.wallet')} ${index + 1}`}
-                </Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text
+                        style={{
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '600',
+                            color: theme.textPrimary,
+                            marginBottom: 2,
+                            maxWidth: '90%',
+                        }}
+                        numberOfLines={1}
+                    >
+                        {walletSettings?.name || `${t('common.wallet')} ${index + 1}`}
+                    </Text>
+                    {isW5 && (
+                        <View style={{ 
+                                marginLeft: 8, 
+                                // paddingBottom: 1, 
+                                borderRadius: 100 ,
+                                alignSelf: 'center',
+                                backgroundColor: '#F54927',
+                                // height: 20,
+                            }}
+                        >
+                            {/* <Canvas style={{ flexGrow: 1 }}>
+                                <Rect
+                                    x={0} y={0}
+                                    width={37}
+                                    height={20}
+                                >
+                                    <LinearGradient
+                                        start={vec(0, 0)}
+                                        end={vec(37, 0)}
+                                        colors={['#F54927', '#FAA046']}
+                                    />
+                                </Rect>
+                            </Canvas> */}
+                            
+                            <View
+                                style={{
+                                    paddingHorizontal: 8, 
+                                    paddingTop: 2, 
+                                }}
+                            >
+                                <Text 
+                                    style={{  
+                                        fontSize: 13, lineHeight: 18,
+                                        fontWeight: '600',
+                                        color: "#fff",
+                                        marginBottom: 2,
+                                    }}
+                                >
+                                W5
+                                </Text>
+                             </View>
+                        </View>
+                    )}
+                </View>
                 <Text style={{ fontSize: 15, lineHeight: 20, fontWeight: '400', color: '#838D99' }}>
                     {ellipsiseAddress(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }))}
                 </Text>

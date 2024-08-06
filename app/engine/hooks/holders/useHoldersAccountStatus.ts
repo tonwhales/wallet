@@ -29,14 +29,14 @@ function migrateHoldersToken(addressString: string) {
 }
 
 export function deleteHoldersToken(address: string) {
+    // clean up provisioning credentials cache for this address
+    removeProvisioningCredentials(address);
+    
     const token = getHoldersToken(address);
 
     if (!token) {
         return;
     }
-
-    // clean up provisioning credentials cache for this token
-    removeProvisioningCredentials(token);
     
     storage.delete(`holders-jwt-${address}`);
 }

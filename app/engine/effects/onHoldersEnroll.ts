@@ -33,7 +33,7 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
             prepaidCards = res?.prepaidCards;
             type = 'private';
             // fetch apple pay credentials and update provisioning credentials cache
-            await updateProvisioningCredentials(token, isTestnet);
+            await updateProvisioningCredentials(address, isTestnet);
         } else {
             accounts = await fetchAccountsPublic(address, isTestnet);
             type = 'public';

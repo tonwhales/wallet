@@ -13,6 +13,7 @@ struct ProvisioningCredential {
   let label: String
   let cardholderName: String
   let token: String
+  let address: String
   let primaryAccountSuffix: String
   let isTestnet: Bool?
   let assetName: String?
@@ -115,6 +116,7 @@ func getProvisioningCredentials() -> [ProvisioningCredential] {
           label: credentialDict["label"] as? String ?? "",
           cardholderName: credentialDict["cardholderName"] as? String ?? "",
           token: credentialDict["token"] as? String ?? "",
+          address: credentialDict["address"] as? String ?? "",
           primaryAccountSuffix: credentialDict["primaryAccountSuffix"] as? String ?? "",
           isTestnet: credentialDict["isTestnet"] as? Bool,
           assetName: credentialDict["assetName"] as? String,
@@ -142,6 +144,7 @@ func setProvisioningCredentials(credentials: [String: ProvisioningCredential]) {
       "label": credential.label,
       "cardholderName": credential.cardholderName,
       "token": credential.token,
+      "address": credential.address,
       "primaryAccountSuffix": credential.primaryAccountSuffix,
       "isTestnet": credential.isTestnet as Any,
       "assetName": credential.assetName as Any,

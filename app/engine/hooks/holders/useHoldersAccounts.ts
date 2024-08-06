@@ -49,7 +49,7 @@ export function useHoldersAccounts(address: string | Address) {
                 prepaidCards = res?.prepaidCards;
 
                 // fetch apple pay credentials and update provisioning credentials cache
-                await updateProvisioningCredentials(token, isTestnet);
+                await updateProvisioningCredentials(addressString, isTestnet);
             } else {
                 accounts = await fetchAccountsPublic(addressString, isTestnet);
                 type = 'public';

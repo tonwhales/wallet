@@ -1,6 +1,8 @@
 import { fetchApplePayCredentials } from "../api/holders/fetchApplePayCredentials";
 import { z } from "zod";
 import WalletService from "../../modules/WalletService";
+import { getHoldersToken } from "../hooks/holders/useHoldersAccountStatus";
+import { Platform } from "react-native";
 
 export const credentialsKey = 'PaymentPassCredentials';
 
@@ -10,6 +12,7 @@ export const credentialCodec = z.object({
     label: z.string(),
     primaryAccountSuffix: z.string(),
     cardholderName: z.string(),
+    address: z.string(),
     assetName: z.string().optional(),
     assetUrl: z.string().optional(),
     isTestnet: z.union([z.literal(0), z.literal(1)]).optional(),
@@ -17,8 +20,13 @@ export const credentialCodec = z.object({
 
 export type ProvisioningCredential = z.infer<typeof credentialCodec>;
 
-export async function fetchProvisioningCredentials(token: string, isTestnet: boolean): Promise<{ [key: string]: ProvisioningCredential } | undefined> {
+async function fetchProvisioningCredentials(address: string, isTestnet: boolean): Promise<{ [key: string]: ProvisioningCredential } | undefined> {
     const credentials: Map<string, ProvisioningCredential> = new Map();
+    const token = getHoldersToken(address);
+
+    if (!token) {
+        return {};
+    }
 
     try {
         const accCreds = await fetchApplePayCredentials(token, isTestnet);
@@ -36,6 +44,7 @@ export async function fetchProvisioningCredentials(token: string, isTestnet: boo
                     cardholderName: cred.cardholderName,
                     primaryAccountSuffix: cred.lastFourDigits,
                     token,
+                    address,
                     assetName: cred.assetName,
                     assetUrl: cred.assetUrl,
                     isTestnet: isTestnet ? 1 : 0,
@@ -50,12 +59,12 @@ export async function fetchProvisioningCredentials(token: string, isTestnet: boo
     }
 }
 
-export async function removeProvisioningCredentials(token: string) {
+export async function removeProvisioningCredentials(address: string) {
     try {
         const creds = await WalletService.getCredentials();
         const currentState: { [key: string]: ProvisioningCredential } = {};
         creds.forEach((cred) => {
-            if (cred.token !== token) {
+            if (cred.address !== address) {
                 currentState[cred.identifier] = cred;
             }
         });
@@ -67,23 +76,36 @@ export async function removeProvisioningCredentials(token: string) {
     }
 }
 
-export async function updateProvisioningCredentials(token: string, isTestnet: boolean) {
+// store cards that could be added to Wallet for Apple Pay
+export async function updateProvisioningCredentials(address: string, isTestnet: boolean) {
+    if (Platform.OS !== 'ios') {
+        return;
+    }
+
     try {
-        const creds = await WalletService.getCredentials();
+        const token = getHoldersToken(address);
+        const storedCreds = await WalletService.getCredentials();
         const currentState: { [key: string]: ProvisioningCredential } = {};
-        creds.forEach((cred) => {
-            if (cred.token !== token) { // remove old credentials for the token
+
+        storedCreds.forEach((cred) => {
+            // add all credentials except the one that matches the current address
+            if (cred.address !== address) {
                 currentState[cred.identifier] = cred;
             }
         });
 
-        const freshCreds = await fetchProvisioningCredentials(token, isTestnet);
+        if (!token) { // if there is no token, remove all credentials for the current address
+            await WalletService.setCredentialsInGroupUserDefaults(currentState);
+            return;
+        }
 
+        const freshCreds = await fetchProvisioningCredentials(address, isTestnet);
+
+        // update the credentials for the address with the new ones
         await WalletService.setCredentialsInGroupUserDefaults({
             ...currentState,
             ...freshCreds
         });
-
     } catch {
         console.warn('Failed to update provisioning credentials');
     }

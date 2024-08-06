@@ -20,6 +20,9 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   // MARK: Status
   override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
     paymentPassStatus { status in
+      os_log("WNonUIExtHandler Payment pass status passEntriesAvailable: %{public}@", status.passEntriesAvailable)
+      os_log("WNonUIExtHandler Payment pass status requiresAuthentication: %{public}@", status.requiresAuthentication)
+      os_log("WNonUIExtHandler Payment pass status remotePassEntriesAvailable: %{public}@", status.remotePassEntriesAvailable)
       completion(status)
     }
   }
@@ -37,6 +40,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
+      os_log("WNonUIExtHandler Payment pass entries: %{public}@", entries.count)
       completion(entries)
     }
   }
@@ -53,6 +57,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     // Create a payment pass entry for each credential.
     getPaymentPassEntries(for: eligibleCredentials) { entries in
+      os_log("WNonUIExtHandler Remote payment pass entries: %{public}@", entries.count)
       completion(entries)
     }
   }
@@ -62,6 +67,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
                                                                         certificateChain certificates: [Data], nonce: Data, nonceSignature: Data,
                                                                         completionHandler completion: @escaping (PKAddPaymentPassRequest?) ->
                                                                         Void) {
+    os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: %{public}@", identifier)
     // You can use the array.first(where:) method to retrieve a
     // specific PKLabeledValue card detail from a configuration.
     // configuration.cardDetails.first(where: { $0.label == "expiration" })!
@@ -75,7 +81,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     let isTest = entry?.isTestnet ?? false
     
     if token == nil {
-      print("Token not found for identifier: \(identifier)")
+      os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: Error getting token")
       completion(nil)
       return
     }
@@ -88,13 +94,21 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
       nonce: nonce,
       nonceSignature: nonceSignature) { response, error in
         guard let response = response, error == nil else {
+          os_log("WNonUIExtHandler sendDataToServerForEncryption: Error: %{public}@", error?.localizedDescription ?? "Unknown error")
           completion(nil)
           return
         }
         
-        guard let encryptedData = response["data"] as? String,
-              let activationData = response["activationData"] as? String,
-              let ephemeralPublicKey = response["ephemeralPublicKey"] as? String else {
+        guard let resData = response["data"] as? [String: Any] else {
+          os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: Error getting data")
+          completion(nil)
+          return
+        }
+        
+        guard let encryptedData = resData["encryptedData"] as? String,
+              let activationData = resData["activationData"] as? String,
+              let ephemeralPublicKey = resData["ephemeralPublicKey"] as? String else {
+          os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: Error getting encrypted data")
           completion(nil)
           return
         }
@@ -103,7 +117,8 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         addRequest.encryptedPassData = Data(base64Encoded: encryptedData)
         addRequest.activationData = Data(base64Encoded: activationData)
         addRequest.ephemeralPublicKey = Data(base64Encoded: ephemeralPublicKey)
-        
+
+        os_log("WNonUIExtHandler generateAddPaymentPassRequestForPassEntryWithIdentifier: Success")
         completion(addRequest)
       }
   }
@@ -160,9 +175,9 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
             completion(nil)
             return
           }
-
+          
           let art = self.getEntryArt(image: uiImage)
-
+          
           entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
                                                                 title: label,
                                                                 art: art,
@@ -181,7 +196,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         completion(nil)
         return
       }
-
+      
       let art = self.getEntryArt(image: uiImage)
       let entry = PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
                                                                 title: label,

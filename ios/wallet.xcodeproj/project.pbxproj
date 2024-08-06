@@ -18,7 +18,7 @@
 		36BFE0072C5BD6E50016DC6B /* ProvisioningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFE0052C5BD6E50016DC6B /* ProvisioningUtils.swift */; };
 		36D5B64A2C525944000A4A55 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36D5B6492C525944000A4A55 /* UniformTypeIdentifiers.framework */; };
 		36D5B64D2C525944000A4A55 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36D5B64C2C525944000A4A55 /* Media.xcassets */; };
-		36D5B64F2C525944000A4A55 /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B64E2C525944000A4A55 /* ActionViewController.swift */; };
+		36D5B64F2C525944000A4A55 /* WUIExtHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B64E2C525944000A4A55 /* WUIExtHandler.swift */; };
 		36D5B6522C525944000A4A55 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 36D5B6512C525944000A4A55 /* Base */; };
 		36D5B6562C525944000A4A55 /* WUIExt.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 36D5B6482C525944000A4A55 /* WUIExt.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		36D5B6622C52596E000A4A55 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36D5B6492C525944000A4A55 /* UniformTypeIdentifiers.framework */; };
@@ -83,7 +83,7 @@
 		36D5B6482C525944000A4A55 /* WUIExt.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WUIExt.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		36D5B6492C525944000A4A55 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		36D5B64C2C525944000A4A55 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
-		36D5B64E2C525944000A4A55 /* ActionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
+		36D5B64E2C525944000A4A55 /* WUIExtHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WUIExtHandler.swift; sourceTree = "<group>"; };
 		36D5B6512C525944000A4A55 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		36D5B6532C525944000A4A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		36D5B6612C52596E000A4A55 /* WNonUIExt.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WNonUIExt.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -169,7 +169,7 @@
 			children = (
 				36D5B6742C525ACE000A4A55 /* WUIExtRelease.entitlements */,
 				36D5B64C2C525944000A4A55 /* Media.xcassets */,
-				36D5B64E2C525944000A4A55 /* ActionViewController.swift */,
+				36D5B64E2C525944000A4A55 /* WUIExtHandler.swift */,
 				36D5B6502C525944000A4A55 /* MainInterface.storyboard */,
 				36D5B6532C525944000A4A55 /* Info.plist */,
 				36D5B67A2C527078000A4A55 /* WUIExtView.swift */,
@@ -539,7 +539,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				36D5B67B2C527078000A4A55 /* WUIExtView.swift in Sources */,
-				36D5B64F2C525944000A4A55 /* ActionViewController.swift in Sources */,
+				36D5B64F2C525944000A4A55 /* WUIExtHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

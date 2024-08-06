@@ -9,7 +9,7 @@ import UIKit
 import SwiftUI
 import PassKit
 
-class ActionViewController: UIViewController, PKIssuerProvisioningExtensionAuthorizationProviding {
+class WUIExtHandler: UIViewController, PKIssuerProvisioningExtensionAuthorizationProviding {
   
   var completionHandler: ((PKIssuerProvisioningExtensionAuthorizationResult) -> Void)?
   

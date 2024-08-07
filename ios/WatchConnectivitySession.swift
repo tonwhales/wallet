@@ -9,7 +9,7 @@ import WatchConnectivity
 
 class WatchConnectivitySession: NSObject, WCSessionDelegate {
   static let shared = WatchConnectivitySession()
-  var session: WCSession!
+  var session = WCSession.default
   
   override init() {
     // Initialize the superclass.

@@ -12,7 +12,7 @@
 RCT_EXTERN_METHOD(canAddCards:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(checkIfCardIsAlreadyAdded:(NSString *)primaryAccountNumberSuffix
+RCT_EXTERN_METHOD(checkIfCardIsAlreadyAdded:(NSString *)suff
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

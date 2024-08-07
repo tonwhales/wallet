@@ -27,28 +27,76 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   }
   
   @objc
-  func checkIfCardIsAlreadyAdded(_ primaryAccountNumberSuffix: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+  func checkIfCardIsAlreadyAdded(_ suff: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     let library = PKPassLibrary()
-    let passes = library.passes(of: .payment)
-    var cardExists = false
+
+    var cardAdded = false
     
     if #available(iOS 13.4, *) {
-      for pass in passes {
-        if let paymentPass = pass as? PKSecureElementPass, paymentPass.primaryAccountNumberSuffix == primaryAccountNumberSuffix {
-          cardExists = true
-          break
+      let passes = library.passes()
+      let remotePasses = library.remoteSecureElementPasses
+
+      if (remotePasses.count > 0) {
+        var cardAddedToWatch = false
+        for pass in remotePasses {
+          print("remote pass suffix: \(pass.primaryAccountNumberSuffix), suff: \(suff)")
+          
+          if (pass.primaryAccountNumberSuffix == suff) {
+            cardAddedToWatch = true
+            break
+          }
+        }
+
+        for pass in passes {
+          print("pass suffix: \(String(describing: pass.secureElementPass?.primaryAccountNumberSuffix)), suff: \(suff)")
+          if (pass.secureElementPass?.primaryAccountNumberSuffix == suff) {
+            cardAdded = true
+            break
+          }
+        }
+
+        resolve(cardAdded && cardAddedToWatch)
+        return
+      } else {
+        for pass in passes {
+          print("pass suffix: \(pass.secureElementPass?.primaryAccountNumberSuffix), suff: \(suff)")
+          if (pass.secureElementPass?.primaryAccountNumberSuffix == suff ){
+            resolve(true)
+            break
+          }
         }
       }
     } else {
-      for pass in passes {
-        if let paymentPass = pass as? PKPaymentPass, paymentPass.primaryAccountNumberSuffix == primaryAccountNumberSuffix {
-          cardExists = true
-          break
+      let passes = library.passes(of: .payment)
+      let remotePasses = library.remotePaymentPasses()
+
+      if (remotePasses.count > 0) {
+        var cardAddedToWatch = false
+        for pass in remotePasses {
+          if (pass.primaryAccountNumberSuffix == suff) {
+            cardAddedToWatch = true
+            break
+          }
+        }
+
+        for pass in passes {
+          if (pass.paymentPass?.primaryAccountNumberSuffix == suff) {
+            cardAdded = true
+            break
+          }
+        }
+
+        resolve(cardAdded && cardAddedToWatch)
+        return
+      } else {
+        for pass in passes {
+          if let paymentPass = pass as? PKPaymentPass, paymentPass.primaryAccountNumberSuffix == suff {
+            resolve(true)
+            break
+          }
         }
       }
     }
-    
-    resolve(cardExists)
   }
   
   @objc

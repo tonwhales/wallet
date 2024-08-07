@@ -238,8 +238,7 @@ func getExtensionDevData(key: String) -> String? {
 }
 
 @available(iOS 14, *)
-func paymentPassStatus(passLibrary: PKPassLibrary, completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-  let watchSession = WatchConnectivitySession()
+func paymentPassStatus(passLibrary: PKPassLibrary, watchSession: WatchConnectivitySession, completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
   let paymentPassLibrary: [PKPass] = passLibrary.passes(of: .secureElement)
   
   // This status will be passed to the completion handler.
@@ -298,11 +297,5 @@ func getDefaultEntryArt() -> CGImage {
   guard let uiImage = UIImage(named: "card-default") else {
     return UIImage().cgImage!
   }
-  // store the default image size in kb
-  storeExtensionDevData(key: "WNonUIExtHandler-image-size", dict: [
-    "width": uiImage.size.width,
-    "height": uiImage.size.height,
-    "size": uiImage.pngData()?.count ?? 0
-  ])
   return getEntryArt(image: uiImage)
 }

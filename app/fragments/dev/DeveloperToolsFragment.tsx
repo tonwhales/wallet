@@ -346,6 +346,13 @@ export const DeveloperToolsFragment = fragment(() => {
                                 }}
                             />
                             <ItemButton
+                                title={'getStatus'}
+                                onPress={async () => {
+                                    let res = await WalletService.getStatus();
+                                    setProvisioningStatus(JSON.stringify(res));
+                                }}
+                            />
+                            <ItemButton
                                 title={'Get RequireAuth'}
                                 onPress={async () => {
                                     let res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
@@ -376,6 +383,9 @@ export const DeveloperToolsFragment = fragment(() => {
                                 onPress={async () => {
                                     const keys = [
                                         "WNonUIExtHandler-dev-status",
+                                        "WNonUIExtHandler-dev-watch",
+                                        "WNonUIExtHandler-dev-watch-connectivity-session",
+                                        "WNonUIExtHandler-dev-watch-session",
                                         "WNonUIExtHandler-dev-getEntries",
                                         "WNonUIExtHandler-dev-entry",
                                         "WNonUIExtHandler-dev-req",

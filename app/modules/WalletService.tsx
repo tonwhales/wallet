@@ -43,6 +43,7 @@ interface IosWalletService {
     // TODO // MARK: REMOVE
     getExtensionData(key: string): Promise<string | undefined>;
     setExtensionData(key: string, value: object): Promise<void>;
+    getStatus(): Promise<object>;
 }
 
 // not implemented yet
@@ -111,6 +112,9 @@ const WalletService: IosWalletService = {
     },
     async setExtensionData(key: string, value: object) {
         return RNAppleProvisioning.setExtensionData(key, value);
+    },
+    async getStatus() {
+        return RNAppleProvisioning.getStatus();
     }
 }
 

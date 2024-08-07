@@ -179,12 +179,14 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   @objc
   func getStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let library = PKPassLibrary()
-    paymentPassStatus(passLibrary: library) { status in
+    let watchSession = WatchConnectivitySession.shared
+    paymentPassStatus(passLibrary: library, watchSession: watchSession) { status in
       resolve(
         [
           "passEntriesAvailable": status.passEntriesAvailable,
           "remotePassEntriesAvailable": status.remotePassEntriesAvailable,
           "requiresAuthentication": status.requiresAuthentication,
+          "isPaired": watchSession.isPaired,
         ]
       )
     }

@@ -199,6 +199,54 @@ func getAccs(library: PKPassLibrary) -> [PKPassAcc] {
   return accs
 }
 
+func getPrimaryAccountIdentifier(library: PKPassLibrary, suff: String?) -> String? {
+  if (suff == nil) {
+    return nil
+  }
+  
+  if #available(iOS 13.4, *) {
+    let passes = library.passes()
+    let remotePasses = library.remoteSecureElementPasses
+    
+    for pass in passes {
+      if let secureElementPass = pass.secureElementPass {
+        if secureElementPass.primaryAccountNumberSuffix == suff {
+          return secureElementPass.primaryAccountIdentifier
+        }
+      }
+    }
+    
+    for pass in remotePasses {
+      if let secureElementPass = pass.secureElementPass {
+        if secureElementPass.primaryAccountNumberSuffix == suff {
+          return secureElementPass.primaryAccountIdentifier
+        }
+      }
+    }
+  } else {
+    let passes = library.passes(of: .payment)
+    let remotePasses = library.remotePaymentPasses()
+    
+    for pass in passes {
+      if let secureElementPass = pass.paymentPass {
+        if secureElementPass.primaryAccountNumberSuffix == suff {
+          return secureElementPass.primaryAccountIdentifier
+        }
+      }
+    }
+    
+    for pass in remotePasses {
+      if let secureElementPass = pass.paymentPass {
+        if secureElementPass.primaryAccountNumberSuffix == suff {
+          return secureElementPass.primaryAccountIdentifier
+        }
+      }
+    }
+  }
+  
+  return nil
+}
+
 /**
  *  Dev checks
  */

@@ -29,37 +29,33 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   @objc
   func checkIfCardIsAlreadyAdded(_ suff: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     let library = PKPassLibrary()
-
+    
     var cardAdded = false
     
     if #available(iOS 13.4, *) {
       let passes = library.passes()
       let remotePasses = library.remoteSecureElementPasses
-
+      
       if (remotePasses.count > 0) {
         var cardAddedToWatch = false
         for pass in remotePasses {
-          print("remote pass suffix: \(pass.primaryAccountNumberSuffix), suff: \(suff)")
-          
           if (pass.primaryAccountNumberSuffix == suff) {
             cardAddedToWatch = true
             break
           }
         }
-
+        
         for pass in passes {
-          print("pass suffix: \(String(describing: pass.secureElementPass?.primaryAccountNumberSuffix)), suff: \(suff)")
           if (pass.secureElementPass?.primaryAccountNumberSuffix == suff) {
             cardAdded = true
             break
           }
         }
-
+        
         resolve(cardAdded && cardAddedToWatch)
         return
       } else {
         for pass in passes {
-          print("pass suffix: \(pass.secureElementPass?.primaryAccountNumberSuffix), suff: \(suff)")
           if (pass.secureElementPass?.primaryAccountNumberSuffix == suff ){
             resolve(true)
             break
@@ -69,7 +65,7 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
     } else {
       let passes = library.passes(of: .payment)
       let remotePasses = library.remotePaymentPasses()
-
+      
       if (remotePasses.count > 0) {
         var cardAddedToWatch = false
         for pass in remotePasses {
@@ -78,14 +74,14 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
             break
           }
         }
-
+        
         for pass in passes {
           if (pass.paymentPass?.primaryAccountNumberSuffix == suff) {
             cardAdded = true
             break
           }
         }
-
+        
         resolve(cardAdded && cardAddedToWatch)
         return
       } else {
@@ -119,9 +115,16 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
       return
     }
     
-    config.primaryAccountSuffix = cardDetails["primaryAccountSuffix"] as? String
+    config.primaryAccountSuffix = cardDetails["primaryAccountNumberSuffix"] as? String
     config.cardholderName = cardDetails["cardholderName"] as? String
     config.style = .payment
+    
+    // to distinguish between cards on different devices
+    let library = PKPassLibrary()
+    let primaryAccountIdentifier = getPrimaryAccountIdentifier(library: library,suff: cardDetails["primaryAccountNumberSuffix"] as? String)
+    if (primaryAccountIdentifier != nil) {
+      config.primaryAccountIdentifier = primaryAccountIdentifier
+    }
     
     guard let paymentPassVC = PKAddPaymentPassViewController(requestConfiguration: config, delegate: self) else {
       reject("error", "Unable to create PKAddPaymentPassViewController", nil)
@@ -171,6 +174,7 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   
   func addPaymentPassViewController(_ controller: PKAddPaymentPassViewController, didFinishAdding pass: PKPaymentPass?, error: Error?) {
     if let pass = pass {
+      print("Card added successfully")
       currentRequest?.resolver(true)
     } else {
       currentRequest?.resolver(false)

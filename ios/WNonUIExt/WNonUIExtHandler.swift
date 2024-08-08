@@ -7,21 +7,64 @@
 
 import Foundation
 import PassKit
+import WatchConnectivity
 
 class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   let passLibrary = PKPassLibrary()
-  let watchSession = WatchConnectivitySession.shared
+  // let watchSession = WatchConnectivitySession.shared
   let defaultArt = getDefaultEntryArt()
+  
+  public func hasPairedWatchDevices() -> Bool {
+    guard WCSession.isSupported() else { return false }
+    let session = WCSession.default
+    return session.isPaired
+  }
   
   /**
    Sets the status of the extension to indicate whether a payment pass is available to add and whether
    adding it requires authentication.
    */
   // MARK: Status
-  override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-     paymentPassStatus(passLibrary: passLibrary, watchSession: watchSession) { status in
-       completion(status)
-     }
+  // override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
+  //   clearExtensionDevData(key: "WNonUIExtHandler")
+  //   let startTime = Date()
+  //   paymentPassStatus(passLibrary: passLibrary) { status in
+  
+  //     var pairedStatus = status
+  //     if (pairedStatus.remotePassEntriesAvailable) {
+  //       pairedStatus.remotePassEntriesAvailable = self.watchSession.isPaired
+  //     }
+  
+  //     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "passEntriesAvailable", value: "\(pairedStatus.passEntriesAvailable)")
+  //     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "remotePassEntriesAvailable", value: "\(pairedStatus.remotePassEntriesAvailable)")
+  //     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "requiresAuthentication", value: "\(pairedStatus.requiresAuthentication)")
+  
+  //     let endTime = Date()
+  //     let executionTime = endTime.timeIntervalSince(startTime)
+  
+  //     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "status-executionTime", value: "\(executionTime)")
+  
+  //     completion(pairedStatus)
+  //   }
+  // }
+  
+  override func status() async -> PKIssuerProvisioningExtensionStatus {
+    clearExtensionDevData(key: "WNonUIExtHandler")
+    let startTime = Date()
+    let status = await paymentPassStatus(passLibrary: passLibrary)
+    var isPaired = false
+    
+    if (status.remotePassEntriesAvailable) {
+      isPaired = hasPairedWatchDevices()
+      status.remotePassEntriesAvailable = isPaired
+    }
+    
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "passEntriesAvailable", value: "\(status.passEntriesAvailable)")
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "remotePassEntriesAvailable", value: "\(status.remotePassEntriesAvailable)")
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "requiresAuthentication", value: "\(status.requiresAuthentication)")
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "isPaired", value: "\(isPaired)")
+    
+    return status
   }
   
   // MARK: PassEntries iPhone
@@ -267,9 +310,9 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         completion(entries)
       } else {
         // Handle errors if needed
-        let errorsString = errors.map { $0.localizedDescription }.joined(separator: ", ")
+        _ = errors.map { $0.localizedDescription }.joined(separator: ", ")
         completion(entries)
       }
     }
-  }  
+  }
 }

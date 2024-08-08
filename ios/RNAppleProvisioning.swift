@@ -13,10 +13,12 @@ import React
 class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewControllerDelegate {
   var currentRequest: AddCardRequestHandler?
   var passLibrary: PKPassLibrary?
+  var watchSession: WatchConnectivitySession?
 
   override init() {
     super.init()
     self.passLibrary = PKPassLibrary()
+    self.watchSession = WatchConnectivitySession.shared
   }
 
   static func moduleName() -> String! {
@@ -42,7 +44,7 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
       passLibrary = PKPassLibrary()
     }
     
-    let isAddedToAllDevices = сardIsAlreadyAdded(suff: suff, library: passLibrary!)
+    let isAddedToAllDevices = cardIsAlreadyAdded(suff: suff, library: passLibrary!)
     
     resolve(isAddedToAllDevices)
   }
@@ -190,14 +192,14 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
     if (passLibrary == nil) {
       passLibrary = PKPassLibrary()
     }
-    let watchSession = WatchConnectivitySession.shared
-    paymentPassStatus(passLibrary: passLibrary!, watchSession: watchSession) { status in
+
+    paymentPassStatus(passLibrary: passLibrary!) { status in
       resolve(
         [
           "passEntriesAvailable": status.passEntriesAvailable,
           "remotePassEntriesAvailable": status.remotePassEntriesAvailable,
           "requiresAuthentication": status.requiresAuthentication,
-          "isPaired": watchSession.isPaired,
+          "isPaired": self.watchSession?.isPaired,
         ]
       )
     }

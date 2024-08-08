@@ -9,7 +9,8 @@ import WatchConnectivity
 
 class WatchConnectivitySession: NSObject, WCSessionDelegate {
   static let shared = WatchConnectivitySession()
-  var session = WCSession.default
+  let session = WCSession.default
+  private var sessionReadyCompletion: ((Bool) -> Void)?
   
   override init() {
     // Initialize the superclass.
@@ -31,8 +32,9 @@ class WatchConnectivitySession: NSObject, WCSessionDelegate {
   }
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+    sessionReadyCompletion?(session.isPaired)
     
-    if let error = error {
+    if error != nil {
       print("NSXPCConnectionInterrupted: The connection was interrupted.")
     }
   }
@@ -42,6 +44,6 @@ class WatchConnectivitySession: NSObject, WCSessionDelegate {
   }
   
   func sessionDidDeactivate(_ session: WCSession) {
-    session.activate()
+    // session.activate()
   }
 }

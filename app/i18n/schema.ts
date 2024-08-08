@@ -983,6 +983,7 @@ export type LocalizationSchema = {
         holdersOfflineApp: string,
     },
     wallets: {
+        choose_versions: string;
         switchToAlertTitle: string,
         switchToAlertMessage: string,
         switchToAlertAction: string,

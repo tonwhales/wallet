@@ -8,8 +8,10 @@ import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import W5LabelIcon from '@assets/ic-w5-label.svg';
+import { useWalletsVersion, useWalletVersion } from "../../engine/hooks/useWalletVersion";
+import { WalletVersions } from "../../engine/state/walletVersions";
 
-const bannerId = 'w5';
+const bannerId = 'w5r1';
 
 export const W5Banner = memo(() => {
     const theme = useTheme();
@@ -17,8 +19,9 @@ export const W5Banner = memo(() => {
     const dimentions = useWindowDimensions();
     const hiddenBanners = useHiddenBanners();
     const markBannerHidden = useMarkBannerHidden();
+    const [walletsVersions] = useWalletsVersion();
 
-    if (hiddenBanners.includes(bannerId)) {
+    if (hiddenBanners.includes(bannerId) || Object.keys(walletsVersions).length > 0) {
         return null;
     }
 

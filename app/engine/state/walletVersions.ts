@@ -19,7 +19,16 @@ function getWalletVersions(): { [key: string]: WalletVersions } {
     }
 
     const data = JSON.parse(stored);
+
+    console.log('Versions', data);
+
     return data;
+}
+
+export function removeWalletVersion(address: string) {
+    const wallets = getWalletVersions();
+    const { [address]: remove, ...otherWallets } = wallets;
+    setWalletVersions(otherWallets);
 }
 
 export const walletVersionsAtom = atom({

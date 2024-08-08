@@ -30,7 +30,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
     const ledgerContext = useLedgerTransport();
 
     const checkIsW5 = useCallback((address: Address) => {
-        const addrKey = address.toString({ testOnly: isTestnet });
+        const addrKey = address.toRawString();
         return walletsVersion[addrKey] === WalletVersions.v5R1;
     }, [walletsVersion]);
 

@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
+import { Pressable, View, Text, StyleProp, ViewStyle, StyleSheet } from "react-native";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -7,11 +7,11 @@ import { Address } from "@ton/core";
 import { useAppState, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 
 import IcCheck from "@assets/ic-check.svg";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { Typography } from "../styles";
+import { LinearGradient } from "expo-linear-gradient";
 
 export const WalletItem = memo((
     {
@@ -114,46 +114,16 @@ export const WalletItem = memo((
                         {walletSettings?.name || `${t('common.wallet')} ${index + 1}`}
                     </Text>
                     {isW5 && (
-                        <View style={{ 
-                                marginLeft: 8, 
-                                // paddingBottom: 1, 
-                                borderRadius: 100 ,
-                                alignSelf: 'center',
-                                backgroundColor: '#F54927',
-                                // height: 20,
-                            }}
-                        >
-                            {/* <Canvas style={{ flexGrow: 1 }}>
-                                <Rect
-                                    x={0} y={0}
-                                    width={37}
-                                    height={20}
-                                >
-                                    <LinearGradient
-                                        start={vec(0, 0)}
-                                        end={vec(37, 0)}
-                                        colors={['#F54927', '#FAA046']}
-                                    />
-                                </Rect>
-                            </Canvas> */}
-                            
-                            <View
-                                style={{
-                                    paddingHorizontal: 8, 
-                                    paddingTop: 2, 
-                                }}
-                            >
-                                <Text 
-                                    style={{  
-                                        fontSize: 13, lineHeight: 18,
-                                        fontWeight: '600',
-                                        color: "#fff",
-                                        marginBottom: 2,
-                                    }}
-                                >
+                         <View style={[styles.label, { backgroundColor: theme.divider }]}>
+                            <LinearGradient
+                                style={styles.gradientW5}
+                                colors={['#F54927', '#FAA046']}
+                                start={[0, 1]}
+                                end={[1, 0]}
+                            />
+                            <Text style={[{ color: '#FFF' }, Typography.medium13_18]}>
                                 W5
-                                </Text>
-                             </View>
+                            </Text>
                         </View>
                     )}
                 </View>
@@ -175,4 +145,24 @@ export const WalletItem = memo((
             )}
         </Pressable>
     )
-})
+});
+
+
+const styles = StyleSheet.create({
+    label: {
+        marginTop: 1,
+        paddingHorizontal: 8,
+        paddingVertical: 1,
+        marginLeft: 8,
+        borderRadius: 20,
+        height: 20,
+    },
+    gradientW5: {
+        position: 'absolute',
+        borderRadius: 20,
+        left: 0,
+        top: 0,
+        height: 20,
+        width: 37,
+    },
+});

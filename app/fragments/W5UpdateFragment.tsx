@@ -9,10 +9,11 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { Typography } from "../components/styles";
 import { RoundButton } from "../components/RoundButton";
-import { useCallback, useMemo } from "react";
-import { useAddressBookContext } from "../engine/AddressBookContext";
-import { queryClient } from "../engine/clients";
-import { Queries } from "../engine/queries";
+import { useCallback } from "react";
+import { contractFromPublicKey } from "../engine/contractFromPublicKey";
+import { WalletVersions } from "../engine/state/walletVersions";
+import { useSetW5Version } from "../engine/hooks/useWalletVersion";
+import { getAppState, markAddressSecured, setAppState } from "../storage/appState";
 
 import W5Icon from '@assets/ic-w5-update.svg';
 import USDTIcon from '@assets/ic-w5-usdt.svg';
@@ -23,10 +24,38 @@ export const W5UpdateFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const [, setBounceable] = useBounceableWalletFormat();
+    const selectedAccount = useSelectedAccount();
+    const { isTestnet } = useNetwork();
+    const setW5Version = useSetW5Version();
 
     const addW5Wallet = useCallback(async () => {
-    
-    }, []);
+        if (selectedAccount) {
+            const contract = await contractFromPublicKey(selectedAccount.publicKey, WalletVersions.v5R1);
+            const appState = getAppState();
+
+            setAppState({
+                addresses: [
+                    ...appState.addresses,
+                    {
+                        address: contract.address,
+                        publicKey: selectedAccount.publicKey,
+                        secretKeyEnc: selectedAccount.secretKeyEnc, 
+                        utilityKey: selectedAccount.utilityKey,
+                        addressString: contract.address.toString({ testOnly: isTestnet })
+                    }
+                ],
+                selected: appState.addresses.length
+            }, isTestnet);
+
+
+            markAddressSecured(contract.address);
+            setW5Version(contract.address);
+            //     setBounceable(false);
+
+            navigation.navigateAndReplaceAll('Home');
+        }
+    }, [selectedAccount]);
 
 
     return (

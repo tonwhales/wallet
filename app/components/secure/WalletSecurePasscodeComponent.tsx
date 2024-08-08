@@ -29,6 +29,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     import: boolean,
     onBack?: () => void,
     additionalWallet?: boolean,
+    versions?: WalletVersions[];
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -39,6 +40,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const setPascodeState = useSetPasscodeState();
     const [, setBounceable] = useBounceableWalletFormat();
     const setW5Version = useSetW5Version();
+    const [versions] = useState(props.versions ?? [WalletVersions.v5R1]);
 
     const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = useState(false);
@@ -50,7 +52,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             throw Error('Invalid state');
         }
         markAddressSecured(address.address);
-        setW5Version(address.address);
         navigation.navigateAndReplaceAll('Home');
     }, []);
 
@@ -65,15 +66,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             try {
                 // Encrypted token
                 let secretKeyEnc: Buffer | undefined = undefined;
-
-                // Resolve key
-                const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
-
-                // Resolve utility key
-                const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
-
-                // Resolve contract
-                const contract = await contractFromPublicKey(key.publicKey, WalletVersions.v5R1);
 
                 // Authenticate
                 const passcodeState = getPasscodeState();
@@ -201,21 +193,38 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     throw new Error('Invalid app key');
                 }
 
-                // Persist state
-                const state = getAppState();
-                setAppState({
-                    addresses: [
-                        ...state.addresses,
-                        {
-                            address: contract.address,
-                            publicKey: key.publicKey,
-                            secretKeyEnc, // With passcode
-                            utilityKey,
-                            addressString: contract.address.toString({ testOnly: isTestnet })
-                        }
-                    ],
-                    selected: state.addresses.length
-                }, isTestnet);
+                // Resolve key
+                const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
+
+                // Resolve utility key
+                const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
+
+                versions.forEach(async (version) => {
+                    // Resolve contract
+                    const contract = await contractFromPublicKey(key.publicKey, version);
+
+                    // Persist state
+                    const state = getAppState();
+                    setAppState({
+                        addresses: [
+                            ...state.addresses,
+                            {
+                                address: contract.address,
+                                publicKey: key.publicKey,
+                                secretKeyEnc, // With passcode
+                                utilityKey,
+                                addressString: contract.address.toString({ testOnly: isTestnet })
+                            }
+                        ],
+                        selected: state.addresses.length
+                    }, isTestnet);
+
+                    console.log('SET VERSION', version);
+                    if (version === WalletVersions.v5R1) {
+                        setW5Version(contract.address);
+                    }
+                });
+
                 onComplete();
             } catch {
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
@@ -237,9 +246,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
             // Resolve utility key
             const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
-
-            // Resolve contract
-            const contract = await contractFromPublicKey(key.publicKey, WalletVersions.v5R1);
 
             const passcodeState = storage.getString(passcodeStateKey);
             const isPasscodeSet = (passcodeState === PasscodeState.Set);
@@ -269,23 +275,36 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 }
             }
 
-            // Set new format for new wallets
-            setBounceable(false);
+            versions.forEach(async (version) => {
+                // Resolve contract
+                const contract = await contractFromPublicKey(key.publicKey, version);
 
-            // Persist state
-            setAppState({
-                addresses: [
-                    ...appState.addresses,
-                    {
-                        address: contract.address,
-                        publicKey: key.publicKey,
-                        secretKeyEnc, // With passcode
-                        utilityKey,
-                        addressString: contract.address.toString({ testOnly: isTestnet })
-                    }
-                ],
-                selected: appState.addresses.length
-            }, isTestnet);
+                // Set new format for new wallets
+                setBounceable(false);
+
+                const appState = getAppState();
+                // Persist state
+                setAppState({
+                    addresses: [
+                        ...appState.addresses,
+                        {
+                            address: contract.address,
+                            publicKey: key.publicKey,
+                            secretKeyEnc, // With passcode
+                            utilityKey,
+                            addressString: contract.address.toString({ testOnly: isTestnet })
+                        }
+                    ],
+                    selected: appState.addresses.length
+                }, isTestnet);
+
+                const account = getCurrentAddress();
+                markAddressSecured(account.address);
+
+                if (version === WalletVersions.v5R1) {
+                    setW5Version(account.address);
+                }
+            });
 
             const deviceEncryption = await getDeviceEncryption();
 
@@ -294,10 +313,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 || (deviceEncryption === 'device-biometrics')
                 || (deviceEncryption === 'device-passcode')
                 || (Platform.OS === 'android' && Platform.Version < 30);
-
-            const account = getCurrentAddress();
-            markAddressSecured(account.address);
-            setW5Version(account.address);
+            
 
             // Skip biometrics setup if encryption is disabled
             if (disableEncryption) {
@@ -317,7 +333,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         } finally {
             setLoading(false);
         }
-    }, [setAppState, setBounceable]);
+    }, [setAppState, setBounceable, versions]);
 
     const resetConfirmedAddressState = useCallback(() => {
         if (!state) {

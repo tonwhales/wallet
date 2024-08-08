@@ -27,6 +27,7 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { StatusBar } from 'expo-status-bar';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -42,6 +43,7 @@ const MigrationProcessFragment = fragment(() => {
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const [status, setStatus] = useState<string>(t('migrate.inProgress'));
+    const walletVersion = useWalletVersion();
 
     useEffect(() => {
         let ended = false;
@@ -56,7 +58,7 @@ const MigrationProcessFragment = fragment(() => {
                 navigation.goBack();
                 return;
             }
-            let targetContract = await contractFromPublicKey(key.keyPair.publicKey);
+            let targetContract = await contractFromPublicKey(key.keyPair.publicKey, walletVersion);
 
             // Check possible addresses
             const legacyContracts = [

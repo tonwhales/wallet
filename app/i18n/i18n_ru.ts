@@ -981,6 +981,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "holdersOfflineApp": "Holders Offline App"
     },
     "wallets": {
+        "choose_versions": "Choose wallets to add",
         "switchToAlertTitle": "Переключить на {{wallet}}",
         "switchToAlertMessage": "Вы уверены в том, что хотите переключить кошелек?",
         "switchToAlertAction": "Переключить",
@@ -1034,6 +1035,22 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "newAddress": "Новый адрес",
         "bannerTitle": 'Обновите ваш адрес',
         "bannerDescription": 'С EQ на UQ',
+    },
+    "w5": {
+        "banner": {
+            "title": 'Добавить кошелек W5',
+            "description": 'Переводите USDT без газа',
+        },
+        "update": {
+            "title": "Обновите кошелек до W5",
+            "subtitle_1": "Переводы USDT без газа",
+            "description_1": "Вам больше не нужен TON для отправки USDT. Транзакционные сборы могут быть покрыты с вашего баланса токенов.",
+            "subtitle_2": "Экономьте на комиссиях",
+            "description_2": "W5 позволяет увеличить количество операций в одной транзакции в 60 раз и значительно экономить на комиссиях.",
+            "subtitle_3": "Ваша seed-фраза не изменится",
+            "description_3": "Кошельки V4 и W5 имеют одинаковую seed-фразу. Вы всегда можете переключаться между версиями, выбирая нужный адрес в верхней части главного экрана.",
+            "switch_button": "Перейти на W5",
+        },
     },
     "browser": {
         "listings": {

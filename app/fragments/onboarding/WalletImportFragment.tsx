@@ -19,6 +19,8 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { useParams } from '../../utils/useParams';
 import { StatusBar } from 'expo-status-bar';
 import { Typography } from '../../components/styles';
+import { WalletVersions } from '../../engine/state/walletVersions';
+import { WalletSelectVersionsComponent } from '../../components/secure/WalletSelectVersionsComponent';
 
 export const wordsTrie = WordsListTrie();
 
@@ -242,6 +244,7 @@ export const WalletImportFragment = systemFragment(() => {
         mnemonics: string,
         deviceEncryption: DeviceEncryption
     } | null>(null);
+    const [versions, setVersions] = useState<WalletVersions[]>([]);
     const safeArea = useSafeAreaInsets();
 
     return (
@@ -250,8 +253,8 @@ export const WalletImportFragment = systemFragment(() => {
                 flexGrow: 1,
                 ...Platform.select({
                     ios: {
-                        paddingBottom: state ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0,
-                        paddingTop: state ? 0 : 32,
+                        paddingBottom: versions.length > 0 ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0,
+                        paddingTop: versions.length > 0 ? 0 : 32,
                     }
                 }),
             }}
@@ -270,7 +273,19 @@ export const WalletImportFragment = systemFragment(() => {
                     <WalletWordsComponent onComplete={setState} />
                 </Animated.View>
             )}
-            {state && (
+            {state && versions.length === 0 ? (
+                <Animated.View
+                    style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
+                    key={'content'}
+                    entering={FadeIn}
+                >
+                    <ScreenHeader style={{ paddingHorizontal: 16 }} onBackPressed={() => setState(null)} />
+                    <WalletSelectVersionsComponent
+                        mnemonics={state.mnemonics}
+                        onContinue={(versions) => setVersions(versions)} 
+                    />
+                </Animated.View>
+            ) : state && (
                 <Animated.View
                     style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
                     key={'content'}
@@ -278,8 +293,9 @@ export const WalletImportFragment = systemFragment(() => {
                 >
                     <WalletSecurePasscodeComponent
                         mnemonics={state.mnemonics}
+                        versions={versions}
                         import={true}
-                        onBack={() => setState(null)}
+                        onBack={() => setVersions([])}
                         additionalWallet={additionalWallet}
                     />
                 </Animated.View>

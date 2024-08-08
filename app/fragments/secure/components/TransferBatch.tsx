@@ -41,6 +41,7 @@ import { copyText } from "../../../utils/copyText";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 
 type Props = {
     text: string | null,
@@ -236,12 +237,14 @@ export const TransferBatch = memo((props: Props) => {
         }
     }, []);
 
+    const walletVersion = useWalletVersion();
+
 
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
-        const contract = await contractFromPublicKey(acc.publicKey);
+        const contract = await contractFromPublicKey(acc.publicKey, walletVersion);
 
         if (!selected) {
             return;

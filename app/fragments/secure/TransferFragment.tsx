@@ -28,6 +28,7 @@ import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessa
 import { StatusBar } from 'expo-status-bar';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 import { useToaster } from '../../components/toast/ToastProvider';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 
 export type TransferFragmentProps = {
     text: string | null,
@@ -161,6 +162,8 @@ export const TransferFragment = fragment(() => {
     const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
     const netConfig = useConfig();
 
+    const walletVersion = useWalletVersion();
+
     const onError = useCallback(({ message, title }: { message?: string, title: string }) => {
         toaster.show({
             type: 'error',
@@ -196,7 +199,7 @@ export const TransferFragment = fragment(() => {
 
         backoff('txLoad', async () => {
             // Get contract
-            const contract = contractFromPublicKey(from.publicKey);
+            const contract = contractFromPublicKey(from.publicKey, walletVersion);
             const tonDnsRootAddress = Address.parse(netConfig.rootDnsAddress);
 
             const emptySecret = Buffer.alloc(64);

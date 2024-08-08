@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
+import { Pressable, View, Text, StyleProp, ViewStyle, StyleSheet } from "react-native";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -10,6 +10,8 @@ import { KnownWallet } from "../../secure/KnownWallets";
 
 import IcCheck from "@assets/ic-check.svg";
 import { Avatar, avatarColors } from "../avatar/Avatar";
+import { Typography } from "../styles";
+import { LinearGradient } from "expo-linear-gradient";
 
 export const WalletItem = memo((
     {
@@ -20,6 +22,7 @@ export const WalletItem = memo((
         style,
         hideSelect,
         bounceableFormat,
+        isW5,
         isTestnet,
         knownWallets
     }: {
@@ -30,6 +33,7 @@ export const WalletItem = memo((
         style?: StyleProp<ViewStyle>,
         hideSelect?: boolean,
         bounceableFormat: boolean,
+        isW5: boolean;
         isTestnet: boolean,
         knownWallets: { [key: string]: KnownWallet }
     }
@@ -96,18 +100,33 @@ export const WalletItem = memo((
                 />
             </View>
             <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>
-                <Text
-                    style={{
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '600',
-                        color: theme.textPrimary,
-                        marginBottom: 2,
-                        maxWidth: '90%',
-                    }}
-                    numberOfLines={1}
-                >
-                    {walletSettings?.name || `${t('common.wallet')} ${index + 1}`}
-                </Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text
+                        style={{
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '600',
+                            color: theme.textPrimary,
+                            marginBottom: 2,
+                            maxWidth: '90%',
+                        }}
+                        numberOfLines={1}
+                    >
+                        {walletSettings?.name || `${t('common.wallet')} ${index + 1}`}
+                    </Text>
+                    {isW5 && (
+                         <View style={[styles.label, { backgroundColor: theme.divider }]}>
+                            <LinearGradient
+                                style={styles.gradientW5}
+                                colors={['#F54927', '#FAA046']}
+                                start={[0, 1]}
+                                end={[1, 0]}
+                            />
+                            <Text style={[{ color: '#FFF' }, Typography.medium13_18]}>
+                                W5
+                            </Text>
+                        </View>
+                    )}
+                </View>
                 <Text style={{ fontSize: 15, lineHeight: 20, fontWeight: '400', color: '#838D99' }}>
                     {ellipsiseAddress(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }))}
                 </Text>
@@ -126,4 +145,24 @@ export const WalletItem = memo((
             )}
         </Pressable>
     )
-})
+});
+
+
+const styles = StyleSheet.create({
+    label: {
+        marginTop: 1,
+        paddingHorizontal: 8,
+        paddingVertical: 1,
+        marginLeft: 8,
+        borderRadius: 20,
+        height: 20,
+    },
+    gradientW5: {
+        position: 'absolute',
+        borderRadius: 20,
+        left: 0,
+        top: 0,
+        height: 20,
+        width: 37,
+    },
+});

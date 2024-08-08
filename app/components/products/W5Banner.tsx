@@ -7,21 +7,21 @@ import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banner
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
+import W5LabelIcon from '@assets/ic-w5-label.svg';
+import { useWalletsVersion, useWalletVersion } from "../../engine/hooks/useWalletVersion";
 import { WalletVersions } from "../../engine/state/walletVersions";
-import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 
-const bannerId = 'bounceable-format-update';
+const bannerId = 'w5r1';
 
-export const AddressFormatUpdate = memo(() => {
+export const W5Banner = memo(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const hiddenBanners = useHiddenBanners();
-    const [bounceableFormat,] = useBounceableWalletFormat();
     const markBannerHidden = useMarkBannerHidden();
-    const walletVersion = useWalletVersion();
-    
-    if (hiddenBanners.includes(bannerId) || !bounceableFormat || walletVersion === WalletVersions.v5R1) {
+    const [walletsVersions] = useWalletsVersion();
+
+    if (hiddenBanners.includes(bannerId) || Object.keys(walletsVersions).length > 0) {
         return null;
     }
 
@@ -31,7 +31,7 @@ export const AddressFormatUpdate = memo(() => {
             exiting={FadeOutDown}
         >
             <Pressable
-                onPress={() => navigation.navigate('NewAddressFormat')}
+                onPress={() => navigation.navigate('W5Update')}
                 style={({ pressed }) => ({
                     opacity: pressed ? 0.5 : 1,
                     height: 80,
@@ -51,7 +51,7 @@ export const AddressFormatUpdate = memo(() => {
                             <LinearGradient
                                 start={vec(0, 0)}
                                 end={vec(dimentions.width - 32, 0)}
-                                colors={['#77818B', '#444647']}
+                                colors={['#F54927', '#FAA046']}
                             />
                         </Rect>
                     </Canvas>
@@ -59,23 +59,17 @@ export const AddressFormatUpdate = memo(() => {
                 <View style={{
                     flexDirection: 'row', flexGrow: 1,
                     alignItems: 'center', justifyContent: 'space-between',
-                    paddingHorizontal: 20
+                    paddingLeft: 20
                 }}>
                     <View>
                         <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold15_20]}>
-                            {t('newAddressFormat.bannerTitle')}
+                            {t('w5.banner.title')}
                         </Text>
                         <Text style={[{ color: theme.textUnchangeable, opacity: 0.8 }, Typography.regular15_20]}>
-                            {t('newAddressFormat.bannerDescription')}
+                            {t('w5.banner.description')}
                         </Text>
                     </View>
-                    <Image
-                        style={{
-                            height: 68, width: 93,
-                            justifyContent: 'center', alignItems: 'center',
-                        }}
-                        source={require('@assets/ic-address-update.png')}
-                    />
+                    <W5LabelIcon color={'white'} height={80} width={128} style={{ height: 80, width: 128 }} />
                 </View>
                 <Pressable
                     style={({ pressed }) => ({

@@ -42,6 +42,7 @@ import { Typography } from '../../components/styles';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -336,6 +337,8 @@ export const SimpleTransferFragment = fragment(() => {
 
     }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known]);
 
+    const walletVersion = useWalletVersion();
+
     // Estimate fee
     const config = useConfig();
     const lock = useMemo(() => new AsyncLock(), []);
@@ -430,7 +433,7 @@ export const SimpleTransferFragment = fragment(() => {
 
                 // Load contract
                 const pubKey = ledgerContext.addr?.publicKey ?? currentAcc.publicKey;
-                const contract = await contractFromPublicKey(pubKey);
+                const contract = await contractFromPublicKey(pubKey, walletVersion);
 
                 // Create transfer
                 let transfer = contract.createTransfer({
@@ -589,7 +592,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Load contract
-        const contract = await contractFromPublicKey(acc!.publicKey);
+        const contract = await contractFromPublicKey(acc!.publicKey, walletVersion);
 
         // Check if transfering to yourself
         if (isLedger && !ledgerAddress) {

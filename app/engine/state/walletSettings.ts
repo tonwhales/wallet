@@ -5,7 +5,7 @@ import { sharedStoragePersistence } from "../../storage/storage";
 export type WalletSettings = {
     name: string | null,
     avatar: number | null,
-    color: number | null
+    color: number | null,
 }
 
 const walletSettingsKey = 'walletsSettings';
@@ -14,7 +14,7 @@ const walletSettingsSchema = z.record(
     z.object({
         name: z.string().nullable(),
         avatar: z.number().nullable(),
-        color: z.number().nullable()
+        color: z.number().nullable(),
     })
 );
 

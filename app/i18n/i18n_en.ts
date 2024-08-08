@@ -981,6 +981,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holdersOfflineApp: 'Holders Offline App',
     },
     wallets: {
+        choose_versions: "Choose wallets to add",
         switchToAlertTitle: 'Switching to {{wallet}}',
         switchToAlertMessage: 'Are you sure you want to switch wallets?',
         switchToAlertAction: 'Switch',
@@ -1034,6 +1035,22 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         newAddress: 'New address',
         bannerTitle: 'Update your address',
         bannerDescription: 'From EQ to UQ',
+    },
+    w5: {
+        banner: {
+            title: 'Add wallet W5',
+            description: 'Transfer USDT without gas',
+        },
+        update: {
+            title: "Update wallet to W5",
+            subtitle_1: "Gasless USDT transfers",
+            description_1: "You no longer need TON to send USDT. Transaction fees can be covered with your token balance.",
+            subtitle_2: "Save on fees",
+            description_2: "W5 allows to increase the number of operations in a single transaction by 60 times and significantly save on fees.",
+            subtitle_3: "Your seed phrase is unchanged",
+            description_3: "V4 and W5 wallets have the same seed phrase. You can always switch versions by selecting the desired address at the top of the main screen.",
+            switch_button: "Switch to W5",
+        },
     },
     browser: {
         listings: {

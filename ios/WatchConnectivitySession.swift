@@ -27,11 +27,7 @@ class WatchConnectivitySession: NSObject, WCSessionDelegate {
   
   // A Boolean indicating whether the current iPhone has a paired Apple Watch.
   var isPaired: Bool {
-    if session.activationState == .activated {
-      return session.isPaired
-    } else {
-      return false
-    }
+    return session.isPaired
   }
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {

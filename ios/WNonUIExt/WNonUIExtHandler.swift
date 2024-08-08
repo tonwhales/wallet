@@ -19,12 +19,9 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
    */
   // MARK: Status
   override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-    paymentPassStatus(passLibrary: passLibrary, watchSession: watchSession) { status in
-      // TODO: remove this hack for Apple Watch
-      var newStatus = status
-      newStatus.remotePassEntriesAvailable = true
-      completion(newStatus)
-    }
+     paymentPassStatus(passLibrary: passLibrary, watchSession: watchSession) { status in
+       completion(status)
+     }
   }
   
   // MARK: PassEntries iPhone
@@ -34,7 +31,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
-    let cachedCredentialsData = getProvisioningCredentials()
+    let cachedCredentialsData = getProvisioningCredentials(passLibrary: passLibrary)
     
     // let eligibleCredentials = cachedCredentialsData.filter { !accs.contains($0.primaryAccountSuffix) }
     
@@ -76,7 +73,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
-    let cachedCredentialsData = getProvisioningCredentials()
+    let cachedCredentialsData = getProvisioningCredentials(passLibrary: passLibrary)
     
     // let eligibleCredentials = cachedCredentialsData.filter { !remoteAccs.contains($0.primaryAccountSuffix) }
     
@@ -125,7 +122,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     //TODO: last 4 digits of the card number (primaryAccountSuffix) ???
     
     // get token from shared defaults with indentifier
-    let entries = getProvisioningCredentials()
+    let entries = getProvisioningCredentials(passLibrary: passLibrary)
     let entry = entries.first(where: { $0.identifier == identifier })
     let token = entry?.token
     let isTest = entry?.isTestnet ?? false

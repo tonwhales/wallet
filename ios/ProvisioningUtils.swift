@@ -100,7 +100,7 @@ func setShouldRequireAuthentication(shouldRequireAuthentication: Bool) {
   appGroupSharedDefaults?.synchronize()
 }
 
-func getProvisioningCredentials() -> [ProvisioningCredential] {
+func getProvisioningCredentials(passLibrary: PKPassLibrary) -> [ProvisioningCredential] {
   let appGroupSharedDefaults = getUserDefaultsDict()
   let cachedCredentialsData = appGroupSharedDefaults["PaymentPassCredentials"] as? String
   
@@ -111,19 +111,24 @@ func getProvisioningCredentials() -> [ProvisioningCredential] {
     do {
       let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: [String: Any]]
       json?.forEach { (key, credentialDict) in
+        let suff = credentialDict["primaryAccountSuffix"] as? String
+        let cardholderName = credentialDict["cardholderName"] as? String
+        
+        guard suff != nil && cardholderName != nil else {
+          return
+        }
+        
         let credential = ProvisioningCredential(
           identifier: credentialDict["identifier"] as? String ?? "",
           label: credentialDict["label"] as? String ?? "",
-          cardholderName: credentialDict["cardholderName"] as? String ?? "",
+          cardholderName: cardholderName!,
           token: credentialDict["token"] as? String ?? "",
           address: credentialDict["address"] as? String ?? "",
-          primaryAccountSuffix: credentialDict["primaryAccountSuffix"] as? String ?? "",
+          primaryAccountSuffix: suff!,
           isTestnet: credentialDict["isTestnet"] as? Bool,
           assetName: credentialDict["assetName"] as? String,
           assetUrl: credentialDict["assetUrl"] as? String
         )
-        
-        provisioningCredentials.append(credential)
       }
     } catch {
       print("Failed to decode credentials from JSON")
@@ -247,6 +252,69 @@ func getPrimaryAccountIdentifier(library: PKPassLibrary, suff: String?) -> Strin
   return nil
 }
 
+func сardIsAlreadyAdded(suff: String, library: PKPassLibrary) -> Bool {
+  var cardAdded = false
+  var cardAddedToWatch = false
+  
+  if #available(iOS 13.4, *) {
+    let passes = library.passes()
+    let remotePasses = library.remoteSecureElementPasses
+    
+    if (remotePasses.count > 0) {
+      for pass in remotePasses {
+        if (pass.primaryAccountNumberSuffix == suff) {
+          cardAddedToWatch = true
+          break
+        }
+      }
+      
+      for pass in passes {
+        if (pass.secureElementPass?.primaryAccountNumberSuffix == suff) {
+          cardAdded = true
+          break
+        }
+      }
+      
+      return cardAdded && cardAddedToWatch
+    } else {
+      for pass in passes {
+        if (pass.secureElementPass?.primaryAccountNumberSuffix == suff ){
+          return true
+        }
+      }
+    }
+  } else {
+    let passes = library.passes(of: .payment)
+    let remotePasses = library.remotePaymentPasses()
+    
+    if (remotePasses.count > 0) {
+      for pass in remotePasses {
+        if (pass.primaryAccountNumberSuffix == suff) {
+          cardAddedToWatch = true
+          break
+        }
+      }
+      
+      for pass in passes {
+        if (pass.paymentPass?.primaryAccountNumberSuffix == suff) {
+          cardAdded = true
+          break
+        }
+      }
+      
+      return cardAdded && cardAddedToWatch
+    } else {
+      for pass in passes {
+        if let paymentPass = pass as? PKPaymentPass, paymentPass.primaryAccountNumberSuffix == suff {
+          return true
+        }
+      }
+    }
+  }
+  
+  return false
+}
+
 /**
  *  Dev checks
  */
@@ -288,8 +356,6 @@ func getExtensionDevData(key: String) -> String? {
 @available(iOS 14, *)
 func paymentPassStatus(passLibrary: PKPassLibrary, watchSession: WatchConnectivitySession, completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
   let paymentPassLibrary: [PKPass] = passLibrary.passes(of: .secureElement)
-  
-  // This status will be passed to the completion handler.
   let status = PKIssuerProvisioningExtensionStatus()
   var passSuffixes: Set<String> = []
   var remotePassSuffixes: Set<String> = []
@@ -310,7 +376,7 @@ func paymentPassStatus(passLibrary: PKPassLibrary, watchSession: WatchConnectivi
   
   // Get cached credentials data of all of the user's issued cards,
   // within the issuer app, from the user's defaults database.
-  let cachedCredentials = getProvisioningCredentials()
+  let cachedCredentials = getProvisioningCredentials(passLibrary: passLibrary)
   
   for credential in cachedCredentials {
     if !passSuffixes.contains(credential.primaryAccountSuffix) {
@@ -322,15 +388,14 @@ func paymentPassStatus(passLibrary: PKPassLibrary, watchSession: WatchConnectivi
     }
   }
   
-  // Set the status of the extension.
-  status.passEntriesAvailable = availablePassesForIphone > 0
-  status.remotePassEntriesAvailable = watchSession.isPaired && availableRemotePassesForAppleWatch > 0
+  let passEntriesAvailable = availablePassesForIphone > 0
+  let remotePassEntriesAvailable = availableRemotePassesForAppleWatch > 0
+  let requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
+
+  status.passEntriesAvailable = passEntriesAvailable
+  status.remotePassEntriesAvailable = watchSession.isPaired && remotePassEntriesAvailable
+  status.requiresAuthentication = requiresAuthentication
   
-  // You can also set requiresAuthentication to "true" or "false"
-  // directly, if not wanting to rely on a cached value.
-  status.requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
-  
-  // Invoke the completion handler.
   // The system needs to invoke the handler within 100 ms, or the extension does not display to the user in Apple Wallet.
   completion(status)
 }

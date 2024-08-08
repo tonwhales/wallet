@@ -12,9 +12,19 @@ import React
 @objc(RNAppleProvisioning)
 class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewControllerDelegate {
   var currentRequest: AddCardRequestHandler?
-  
+  var passLibrary: PKPassLibrary?
+
+  override init() {
+    super.init()
+    self.passLibrary = PKPassLibrary()
+  }
+
   static func moduleName() -> String! {
     return "RNAppleProvisioning"
+  }
+
+  static func requiresMainQueueSetup() -> Bool {
+    return true
   }
   
   @objc
@@ -28,77 +38,21 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   
   @objc
   func checkIfCardIsAlreadyAdded(_ suff: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let library = PKPassLibrary()
-    
-    var cardAdded = false
-    
-    if #available(iOS 13.4, *) {
-      let passes = library.passes()
-      let remotePasses = library.remoteSecureElementPasses
-      
-      if (remotePasses.count > 0) {
-        var cardAddedToWatch = false
-        for pass in remotePasses {
-          if (pass.primaryAccountNumberSuffix == suff) {
-            cardAddedToWatch = true
-            break
-          }
-        }
-        
-        for pass in passes {
-          if (pass.secureElementPass?.primaryAccountNumberSuffix == suff) {
-            cardAdded = true
-            break
-          }
-        }
-        
-        resolve(cardAdded && cardAddedToWatch)
-        return
-      } else {
-        for pass in passes {
-          if (pass.secureElementPass?.primaryAccountNumberSuffix == suff ){
-            resolve(true)
-            break
-          }
-        }
-      }
-    } else {
-      let passes = library.passes(of: .payment)
-      let remotePasses = library.remotePaymentPasses()
-      
-      if (remotePasses.count > 0) {
-        var cardAddedToWatch = false
-        for pass in remotePasses {
-          if (pass.primaryAccountNumberSuffix == suff) {
-            cardAddedToWatch = true
-            break
-          }
-        }
-        
-        for pass in passes {
-          if (pass.paymentPass?.primaryAccountNumberSuffix == suff) {
-            cardAdded = true
-            break
-          }
-        }
-        
-        resolve(cardAdded && cardAddedToWatch)
-        return
-      } else {
-        for pass in passes {
-          if let paymentPass = pass as? PKPaymentPass, paymentPass.primaryAccountNumberSuffix == suff {
-            resolve(true)
-            break
-          }
-        }
-      }
+    if (passLibrary == nil) {
+      passLibrary = PKPassLibrary()
     }
+    
+    let isAddedToAllDevices = сardIsAlreadyAdded(suff: suff, library: passLibrary!)
+    
+    resolve(isAddedToAllDevices)
   }
   
   @objc
   func canAddCard(_ cardIdentifier: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let library = PKPassLibrary()
-    resolve(library.canAddPaymentPass(withPrimaryAccountIdentifier: cardIdentifier))
+    if (passLibrary == nil) {
+      passLibrary = PKPassLibrary()
+    }
+    resolve(passLibrary!.canAddPaymentPass(withPrimaryAccountIdentifier: cardIdentifier))
   }
   
   @objc
@@ -173,7 +127,7 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   }
   
   func addPaymentPassViewController(_ controller: PKAddPaymentPassViewController, didFinishAdding pass: PKPaymentPass?, error: Error?) {
-    if let pass = pass {
+    if pass != nil {
       print("Card added successfully")
       currentRequest?.resolver(true)
     } else {
@@ -185,8 +139,11 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   
   @objc
   func getCredentials(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    if (passLibrary == nil) {
+      passLibrary = PKPassLibrary()
+    }
     // map each credential to a dictionary so it can be serialized for JS
-    let credentials = getProvisioningCredentials().map { credential in
+    let credentials = getProvisioningCredentials(passLibrary: passLibrary!).map { credential in
       return [
         "identifier": credential.identifier,
         "label": credential.label,
@@ -230,9 +187,11 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   @available(iOS 14.0, *)
   @objc
   func getStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let library = PKPassLibrary()
+    if (passLibrary == nil) {
+      passLibrary = PKPassLibrary()
+    }
     let watchSession = WatchConnectivitySession.shared
-    paymentPassStatus(passLibrary: library, watchSession: watchSession) { status in
+    paymentPassStatus(passLibrary: passLibrary!, watchSession: watchSession) { status in
       resolve(
         [
           "passEntriesAvailable": status.passEntriesAvailable,

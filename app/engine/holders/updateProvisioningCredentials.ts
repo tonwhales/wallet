@@ -76,6 +76,20 @@ export async function removeProvisioningCredentials(address: string) {
     }
 }
 
+async function filterOutAlreadyAddedCredentials(creds: { [key: string]: ProvisioningCredential }): Promise<{ [key: string]: ProvisioningCredential }> {
+    const filteredCreds: { [key: string]: ProvisioningCredential } = {};
+
+    for (const [key, cred] of Object.entries(creds)) {
+        const isAlreadyAdded = await WalletService.checkIfCardIsAlreadyAdded(cred.primaryAccountSuffix);
+
+        if (!isAlreadyAdded) {
+            filteredCreds[key] = cred;
+        }
+    }
+
+    return filteredCreds;
+}
+
 // store cards that could be added to Wallet for Apple Pay
 export async function updateProvisioningCredentials(address: string, isTestnet: boolean) {
     if (Platform.OS !== 'ios') {
@@ -90,22 +104,22 @@ export async function updateProvisioningCredentials(address: string, isTestnet: 
         storedCreds.forEach((cred) => {
             // add all credentials except the one that matches the current address
             if (cred.address !== address) {
+
                 currentState[cred.identifier] = cred;
             }
         });
 
         if (!token) { // if there is no token, remove all credentials for the current address
-            await WalletService.setCredentialsInGroupUserDefaults(currentState);
+            const filteredCreds = await filterOutAlreadyAddedCredentials(currentState);
+            await WalletService.setCredentialsInGroupUserDefaults(filteredCreds);
             return;
         }
 
         const freshCreds = await fetchProvisioningCredentials(address, isTestnet);
 
         // update the credentials for the address with the new ones
-        await WalletService.setCredentialsInGroupUserDefaults({
-            ...currentState,
-            ...freshCreds
-        });
+        const filteredCreds = await filterOutAlreadyAddedCredentials({ ...currentState, ...freshCreds });
+        await WalletService.setCredentialsInGroupUserDefaults(filteredCreds);
     } catch {
         console.warn('Failed to update provisioning credentials');
     }

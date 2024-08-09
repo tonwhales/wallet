@@ -244,7 +244,7 @@ function storeConnectExtensions(newState: { [key: string]: ConnectedApp }, addre
 export type ConnectedAppsMap = { [appKey: string]: ConnectedApp }
 export type FullExtensionsMap = { [address: string]: ConnectedAppsMap }
 
-function getFullExtensionsMap() {
+export function getFullExtensionsMap() {
   let res: FullExtensionsMap = {};
   const appState = getAppState();
 

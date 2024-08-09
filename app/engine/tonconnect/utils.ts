@@ -4,20 +4,56 @@ import { WebViewBridgeMessageType } from './types';
 import { storage } from '../../storage/storage';
 import { getCurrentAddress } from '../../storage/appState';
 import { t } from '../../i18n/t';
+import { z } from 'zod';
 
 export function resolveAuthError(error: Error) {
   switch ((error as Error)?.message) {
     case 'Invalid key':
-        return t('products.tonConnect.errors.invalidKey');
+      return t('products.tonConnect.errors.invalidKey');
     case 'Invalid session':
-        return t('products.tonConnect.errors.invalidSession');
+      return t('products.tonConnect.errors.invalidSession');
     case 'Invalid testnet flag':
-        return t('products.tonConnect.errors.invalidTestnetFlag');
+      return t('products.tonConnect.errors.invalidTestnetFlag');
     case 'Already completed':
-        return t('products.tonConnect.errors.alreadyCompleted');
+      return t('products.tonConnect.errors.alreadyCompleted');
     default:
-        return t('products.tonConnect.errors.unknown');
+      return t('products.tonConnect.errors.unknown');
+  }
 }
+
+const lastReturnStrategyKey = 'connectLastReturnStrategy';
+const lastRetirnStrategyCodec = z.object({
+  at: z.number(),
+  strategy: z.string(),
+});
+
+export function setLastReturnStrategy(returnStrategy: string) {
+  storage.set(lastReturnStrategyKey, JSON.stringify({ at: Date.now(), strategy: returnStrategy }));
+}
+
+export function clearLastReturnStrategy() {
+  storage.delete(lastReturnStrategyKey);
+}
+
+export function getLastReturnStrategy() {
+  const stored = storage.getString(lastReturnStrategyKey);
+
+  if (!stored) {
+    return null;
+  }
+
+  const parsed = lastRetirnStrategyCodec.safeParse(JSON.parse(stored));
+
+  if (parsed.success) {
+
+    if (Date.now() - parsed.data.at > 1000 * 60 * 1) {
+      return null;
+    }
+
+    return parsed.data.strategy;
+  }
+
+  return null;
 }
 
 export function setLastEventId(lastEventId: string) {

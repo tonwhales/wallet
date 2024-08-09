@@ -11,7 +11,11 @@ import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
 import { useFocusEffect } from '@react-navigation/native';
 
-export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' } | { type: 'prepaid'; id: string };
+export type HoldersAppParams =
+    | { type: 'account', id: string }
+    | { type: 'prepaid', id: string }
+    | { type: 'create' }
+    | { type: 'transactions', query: { [key: string]: string | undefined } };
 
 export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();

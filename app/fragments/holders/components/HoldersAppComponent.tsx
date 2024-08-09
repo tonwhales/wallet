@@ -319,21 +319,33 @@ export const HoldersAppComponent = memo((
     const url = holdersUrl(isTestnet);
 
     const source = useMemo(() => {
-        let route = '';
-        if (props.variant.type === 'create') {
-            route = '/create';
-        } else if (props.variant.type === 'account') {
-            route = `/account/${props.variant.id}`;
-        } else if (props.variant.type === 'prepaid') {
-            route = `/card-prepaid/${props.variant.id}`;
-        }
-
         const queryParams = new URLSearchParams({
             lang: lang,
             currency: currency,
             theme: 'holders',
             'theme-style': theme.style === 'dark' ? 'dark' : 'light',
         });
+
+        let route = '';
+        switch (props.variant.type) {
+            case 'create':
+                route = '/create';
+                break;
+            case 'account':
+                route = `/account/${props.variant.id}`;
+                break;
+            case 'prepaid':
+                route = `/card-prepaid/${props.variant.id}`;
+                break;
+            case 'transactions':
+                route = `/transactions`;
+                for (const [key, value] of Object.entries(props.variant.query)) {
+                    if (!!value) {
+                        queryParams.append(key, value);
+                    }
+                }
+                break;
+        }
 
         const url = `${props.endpoint}${route}?${queryParams.toString()}`;
         const initialRoute = `${route}?${queryParams.toString()}`;
@@ -449,6 +461,7 @@ export const HoldersAppComponent = memo((
             useQueryAPI: true,
             useEmitter: true,
             useAuthApi: true,
+            useWalletAPI: true,
 
             onShouldStartLoadWithRequest: loadWithRequest,
             onContentProcessDidTerminate,
@@ -476,7 +489,12 @@ export const HoldersAppComponent = memo((
                     lockScroll: true
                 }}
                 webviewDebuggingEnabled={isTestnet}
-                loader={(p) => <HoldersLoader type={props.variant.type} {...p} />}
+                loader={(p) => (
+                    <HoldersLoader
+                        type={props.variant.type === 'transactions' ? 'prepaid' : props.variant.type}
+                        {...p}
+                    />
+                )}
             />
         </View>
     );

@@ -4,6 +4,7 @@ import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
 import { ConnectPushQuery, ConnectQrQuery } from "../engine/tonconnect/types";
+import { setLastReturnStrategy } from "../engine/tonconnect/utils";
 
 export enum ResolveUrlError {
     InvalidAddress = 'InvalidAddress',
@@ -16,6 +17,7 @@ export enum ResolveUrlError {
     InvalidJettonAmounts = 'InvalidJettonAmounts',
     InvalidInappUrl = 'InvalidInappUrl',
     InvalidExternalUrl = 'InvalidExternalUrl',
+    InvalidHoldersPath = 'InvalidHoldersPath'
 }
 
 export type ResolvedUrl = {
@@ -63,6 +65,9 @@ export type ResolvedUrl = {
 } | {
     type: 'error',
     error: ResolveUrlError
+} | {
+    type: 'holders-transactions',
+    query: { [key: string]: string | undefined }
 }
 
 export function isUrl(str: string): boolean {
@@ -72,6 +77,19 @@ export function isUrl(str: string): boolean {
     } catch {
         return false;
     }
+}
+
+function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): ResolvedUrl {
+    const isTransactions = url.pathname.toLowerCase().split('holders/')[1] === 'transactions';
+
+    if (isTransactions && url.query) {
+        return {
+            type: 'holders-transactions',
+            query: url.query
+        }
+    }
+
+    return { type: 'error', error: ResolveUrlError.InvalidHoldersPath };
 }
 
 function resolveTransferUrl(url: Url<Record<string, string | undefined>>): ResolvedUrl {
@@ -294,6 +312,8 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         type: 'tonconnect',
                         query: url.query as unknown as ConnectQrQuery
                     };
+                } else if (!!url.query.ret) { // store tonconnect return strategy to be used in transfer requests
+                    setLastReturnStrategy(url.query.ret);
                 }
             } else if (isTonhubHost && url.pathname.toLowerCase().startsWith('/app/')) { // Ton-x app install
                 let id = url.pathname.slice('/app/'.length);
@@ -362,6 +382,8 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         url: decodeURIComponent(url.query.url)
                     };
                 }
+            } else if (isSupportedDomain && url.pathname.toLowerCase().startsWith('/holders')) { // holders path with address
+                return resolveHoldersUrl(url);
             }
         }
 

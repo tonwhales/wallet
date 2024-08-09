@@ -105,6 +105,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Support',
             telegram: 'Telegram',
             form: 'Support form',
+            holders: 'Bank card & accounts',
+            tonhub: 'Tonhub',
         },
         telegram: 'Telegram',
         rateApp: 'Rate app',
@@ -298,7 +300,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 alreadyCompleted: 'Request already completed',
                 unknown: 'Unknown error, please try again, or contact support'
             },
-            successAuth: 'Authorization request approved',
+            successAuth: 'Connected',
         },
         accounts: 'Tokens',
         services: 'Extensions',

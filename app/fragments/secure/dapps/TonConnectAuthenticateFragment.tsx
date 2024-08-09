@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking } from "react-native";
+import { BackHandler, Linking } from "react-native";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { getAppInstanceKeyPair, getCurrentAddress } from '../../../storage/appState';
 import { contractFromPublicKey, walletConfigFromContract } from '../../../engine/contractFromPublicKey';
@@ -126,28 +126,25 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     // Approve
     const active = useRef(true);
-    useEffect(() => {
-        return () => {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-            }
-            if (!active.current) {
-                return;
-            }
-
-            active.current = false;
-
-            // reject on cancel
-            if (connectProps.type === 'callback' && !!connectProps.callback) {
-                connectProps.callback({ ok: false });
-            }
-        }
-    }, []);
 
     const navigate = useRef(() => {
         active.current = false;
         navigation.goBack();
     });
+
+    const handleReturnStrategy = useCallback((returnStrategy: string) => {
+        if (returnStrategy === 'back') {
+            Minimizer.goBack();
+        } else if (returnStrategy !== 'none') {
+            try {
+                const url = new URL(decodeURIComponent(returnStrategy));
+                Linking.openURL(url.toString());
+            } catch (e) {
+                warn('Failed to open url');
+            }
+        }
+    }, []);
+
     useEffect(() => {
         // default to go back
         if (state.type !== 'initing' || connectProps.type === TonConnectAuthType.Callback) {
@@ -165,20 +162,48 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
             // resolve return strategy
             if (!!state.returnStrategy) {
-                if (state.returnStrategy === 'back') {
-                    Minimizer.goBack();
-                } else if (state.returnStrategy !== 'none') {
-                    try {
-                        const url = new URL(decodeURIComponent(state.returnStrategy));
-                        Linking.openURL(url.toString());
-                    } catch (e) {
-                        warn('Failed to open url');
-                    }
-                }
+                handleReturnStrategy(state.returnStrategy);
             }
         };
 
     }, [connectProps.type, state.type]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (connectProps.type === 'callback') {
+                return false;
+            }
+
+            const returnStrategy = connectProps.query.ret;
+
+            // close modal
+            navigation.goBack();
+
+            // resolve return strategy
+            if (!!returnStrategy) {
+                handleReturnStrategy(returnStrategy);
+            }
+
+            return true;
+        });
+
+        return () => {
+            backHandler.remove();
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            }
+            if (!active.current) {
+                return;
+            }
+
+            active.current = false;
+
+            // reject on cancel
+            if (connectProps.type === 'callback' && !!connectProps.callback) {
+                connectProps.callback({ ok: false });
+            }
+        }
+    }, []);
 
     const approve = useCallback(async (selectedAccount?: SelectedAccount) => {
 

@@ -198,7 +198,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             }
 
             // Wallet API
-            if (props.useWalletAPI && parsed.data.name.startsWith('wallet')) {
+            if (props.useWalletAPI && parsed.data.name.startsWith('wallet.')) {
                 if (Platform.OS !== 'ios') {
                     warn('Wallet API is only available on iOS');
                     return;

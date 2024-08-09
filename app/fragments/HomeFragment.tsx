@@ -30,6 +30,7 @@ import { TransactionDescription } from '../engine/types';
 import { useParams } from '../utils/useParams';
 import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from './secure/TransferFragment';
+import { HoldersAppParams } from './holders/HoldersAppFragment';
 
 const Tab = createBottomTabNavigator();
 
@@ -40,6 +41,13 @@ export type HomeFragmentProps = {
     } | {
         type: 'tonconnect-request',
         request: TransferFragmentProps
+    } | {
+        type: 'holders-landing',
+        endpoint: string;
+        onEnrollType: HoldersAppParams;
+    } | {
+        type: 'holders-app',
+        params: HoldersAppParams;
     }
 };
 

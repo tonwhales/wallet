@@ -61,7 +61,6 @@ struct WUIExtView: View {
     // Create biometric login logic.
     // You can copy and reuse the biometric
     // login logic from the containing issuer app.
-    print("Face ID button tapped")
     let randomNum = Int.random(in: 1..<10)
     let authorized = randomNum > 5 ? true : false
     
@@ -101,7 +100,6 @@ struct WUIExtView: View {
     Button(action: {
       if (passcode.count < 6) {
         passcode += "\(row * 3 + column + 1)"
-        print("Button \(row * 3 + column + 1) tapped")
       }
     }) {
       Text("\(row * 3 + column + 1)")
@@ -124,7 +122,6 @@ struct WUIExtView: View {
       if passcode.count > 0 {
         passcode.removeLast()
       }
-      print("Delete button tapped")
     }) {
       Image(systemName: "delete.left")
         .foregroundStyle(.gray)

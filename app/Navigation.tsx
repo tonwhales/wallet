@@ -56,7 +56,6 @@ import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
 import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
-import { useTonconnectWatcher } from './engine/tonconnectWatcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';

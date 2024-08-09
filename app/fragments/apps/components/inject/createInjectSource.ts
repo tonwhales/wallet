@@ -154,7 +154,7 @@ export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) =
 
         const getLastAuthTime = (callback) => {
             if (inProgress) {
-                callback({ erorr: 'auth.inProgress' });
+                callback({ error: 'auth.inProgress' });
                 return;
             }
             currentCallback = callback;
@@ -163,7 +163,7 @@ export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) =
 
         const authenticate = (callback) => {
             if (inProgress) {
-                callback({ isAuthenticated: false, erorr: 'auth.inProgress' });
+                callback({ isAuthenticated: false, error: 'auth.inProgress' });
                 return;
             }
 
@@ -174,7 +174,7 @@ export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) =
 
         const lockAppWithAuth = (callback) => {
             if (inProgress) {
-                callback({ isAuthenticated: false, erorr: 'auth.inProgress' });
+                callback({ isAuthenticated: false, error: 'auth.inProgress' });
                 return;
             }
 
@@ -187,7 +187,7 @@ export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) =
             inProgress = false;
             if (!ev || !ev.data) {
                 if (currentCallback) {
-                    currentCallback({ erorr: 'auth.noResponse' });
+                    currentCallback({ error: 'auth.noResponse' });
                 }
                 currentCallback = null;
                 return;
@@ -217,6 +217,85 @@ export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) =
     })();
     `
 }
+
+
+export const dappWalletAPI = `
+window['dapp-wallet'] = (() => {
+    let __DAPP_WALLET_AVAILIBLE = true;
+    let inProgress = false;
+    let currentCallback = null;
+
+    const isEnabled = (callback) => {
+        if (inProgress) {
+            callback({ error: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.isEnabled' } }));
+    }
+
+    const checkIfCardIsAlreadyAdded = (primaryAccountNumberSuffix, callback) => {
+        if (inProgress) {
+            callback({ error: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.checkIfCardIsAlreadyAdded', args: { primaryAccountNumberSuffix } } }));
+    }
+
+    const canAddCard = (cardId, callback) => {
+        if (inProgress) {
+            callback({ error: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.canAddCard', args: { cardId } } }));
+    }
+
+    const addCardToWallet = (request, callback) => {
+        if (inProgress) {
+            callback({ error: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.addCardToWallet', args: request } }));
+    }
+
+    const __response = (ev) => {
+        inProgress = false;
+
+        if (!ev || ev.data === undefined || ev.data === null) {
+            if (currentCallback) {
+                currentCallback({ error: 'wallet.noResponse' });
+            }
+            currentCallback = null;
+            return;
+        }
+
+        if (currentCallback) {
+            currentCallback(ev.data);
+            currentCallback = null;
+        }
+    }
+
+    const obj = { __DAPP_WALLET_AVAILIBLE, isEnabled, checkIfCardIsAlreadyAdded, canAddCard, addCardToWallet, __response };
+    Object.freeze(obj);
+    return obj;
+})();
+true;
+`
 
 type InjectionConfig = {
     version: number;
@@ -320,6 +399,11 @@ export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {
     true;
     `;
 
+}
+
+export function dispatchWalletResponse(webRef: React.RefObject<WebView>, data: { result: boolean }) {
+    let injectedMessage = `window['dapp-wallet'].__response({ data: ${data.result} }); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
 }
 
 export function dispatchLastAuthTimeResponse(webRef: React.RefObject<WebView>, lastAuthTime: number) {

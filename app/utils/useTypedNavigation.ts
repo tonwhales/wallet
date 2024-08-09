@@ -217,6 +217,10 @@ export class TypedNavigation {
     }
 
     navigateDAppWebView(params: DAppWebViewFragmentParams) {
+        if (params.fullScreen) {
+            this.navigate('DAppWebViewFull', params);
+            return;
+        }
         if (params.lockNativeBack) {
             this.navigate('DAppWebViewLocked', params);
             return;

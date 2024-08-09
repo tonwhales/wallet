@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, View, Alert } from "react-native";
+import { Platform, View, Alert, Linking, BackHandler } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
@@ -28,8 +28,15 @@ import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessa
 import { StatusBar } from 'expo-status-bar';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 import { useToaster } from '../../components/toast/ToastProvider';
+import { ReturnStrategy } from '../../engine/tonconnect/types';
+import Minimizer from '../../modules/Minimizer';
+import { warn } from '../../utils/log';
+import { clearLastReturnStrategy } from '../../engine/tonconnect/utils';
+
+export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
 export type TransferFragmentProps = {
+    source?: TransferRequestSource
     text: string | null,
     order: Order,
     job: string | null,
@@ -54,6 +61,7 @@ export type OrderMessage = {
 
 export type ConfirmLoadedPropsSingle = {
     type: 'single',
+    source?: TransferRequestSource
     target: {
         isTestOnly: boolean;
         address: Address;
@@ -82,6 +90,7 @@ export type ConfirmLoadedPropsSingle = {
 
 export type ConfirmLoadedPropsBatch = {
     type: 'batch',
+    source?: TransferRequestSource
     text: string | null,
     job: string | null,
     order: {
@@ -145,9 +154,43 @@ export const TransferFragment = fragment(() => {
     const job = useMemo(() => params.job, []);
     const callback = useMemo(() => params.callback, []);
 
+    const handleReturnStrategy = useCallback((returnStrategy: string) => {
+        if (returnStrategy === 'back') {
+            Minimizer.goBack();
+        } else if (returnStrategy !== 'none') {
+            try {
+                const url = new URL(decodeURIComponent(returnStrategy));
+                Linking.openURL(url.toString());
+            } catch {
+                warn('Failed to open url');
+            }
+        }
+        clearLastReturnStrategy();
+    }, []);
+
     // Auto-cancel job on unmount
     useEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (!params.source || !params.source.returnStrategy) {
+                return false;
+            }
+
+            const returnStrategy = params.source.returnStrategy;
+
+            // close modal
+            navigation.goBack();
+
+            // resolve return strategy
+            if (!!returnStrategy) {
+                handleReturnStrategy(returnStrategy);
+            }
+
+            return true;
+        });
+
         return () => {
+            backHandler.remove();
+
             if (params && params.job) {
                 commitCommand(false, params.job, new Cell());
             }

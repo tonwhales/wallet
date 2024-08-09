@@ -298,7 +298,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "alreadyCompleted": "Запрос уже выполнен",
                 "unknown": "Неизвестная ошибка, попробуйте еще раз или обратитесь в службу поддержки"
             },
-            "successAuth": "Подключение выполнено успешно",
+            "successAuth": "Подключено"
         },
         "accounts": "Жетоны",
         "services": "Расширения",

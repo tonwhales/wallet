@@ -4,6 +4,7 @@ import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
 import { ConnectPushQuery, ConnectQrQuery } from "../engine/tonconnect/types";
+import { setLastReturnStrategy } from "../engine/tonconnect/utils";
 
 export enum ResolveUrlError {
     InvalidAddress = 'InvalidAddress',
@@ -311,6 +312,8 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         type: 'tonconnect',
                         query: url.query as unknown as ConnectQrQuery
                     };
+                } else if (!!url.query.ret) { // store tonconnect return strategy to be used in transfer requests
+                    setLastReturnStrategy(url.query.ret);
                 }
             } else if (isTonhubHost && url.pathname.toLowerCase().startsWith('/app/')) { // Ton-x app install
                 let id = url.pathname.slice('/app/'.length);

@@ -174,20 +174,23 @@ struct PKPassAcc {
   let suffix: String
 }
 
-@available(iOS 13.4, *)
 func getRemoteAccs(library: PKPassLibrary) -> [PKPassAcc] {
-  let paymentPassLibrary = library.passes(of: .payment)
-  var remoteAccs = [PKPassAcc]()
-  
-  for pass in paymentPassLibrary {
-    if let secureElementPass = pass.secureElementPass {
-      if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
-        remoteAccs.append(PKPassAcc(identifier: secureElementPass.primaryAccountIdentifier, suffix: secureElementPass.primaryAccountNumberSuffix))
-      }
-    }
+  if #available(iOS 13.4, *) {
+    return library.remoteSecureElementPasses.map { PKPassAcc(identifier: $0.primaryAccountIdentifier, suffix: $0.primaryAccountNumberSuffix) }
+  } else {
+    return library.remotePaymentPasses().map { PKPassAcc(identifier: $0.primaryAccountIdentifier, suffix: $0.primaryAccountNumberSuffix) }
   }
-  
-  return remoteAccs
+  //  var remoteAccs = [PKPassAcc]()
+  //
+  //  for pass in paymentPassLibrary {
+  //    if let secureElementPass = pass.secureElementPass {
+  //      if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
+  //        remoteAccs.append(PKPassAcc(identifier: secureElementPass.primaryAccountIdentifier, suffix: secureElementPass.primaryAccountNumberSuffix))
+  //      }
+  //    }
+  //  }
+  //
+  //  return remoteAccs
 }
 
 @available(iOS 13.4, *)

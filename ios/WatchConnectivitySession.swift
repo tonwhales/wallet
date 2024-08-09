@@ -9,8 +9,8 @@ import WatchConnectivity
 
 class WatchConnectivitySession: NSObject, WCSessionDelegate {
   static let shared = WatchConnectivitySession()
+  private var isPairedContinuation: CheckedContinuation<Bool, Never>?
   let session = WCSession.default
-  private var sessionReadyCompletion: ((Bool) -> Void)?
   
   override init() {
     // Initialize the superclass.
@@ -31,8 +31,24 @@ class WatchConnectivitySession: NSObject, WCSessionDelegate {
     return session.isPaired
   }
   
+  public func hasPairedWatchDevices() async -> Bool {
+    await withCheckedContinuation { [weak self] continuation in
+      guard let self else { return continuation.resume(returning: false) }
+      
+      guard WCSession.isSupported() else { return continuation.resume(returning: false) }
+      let session = WCSession.default
+      session.delegate = self
+      session.activate()
+      isPairedContinuation = continuation
+    }
+  }
+  
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-    sessionReadyCompletion?(session.isPaired)
+    storeExtensionDevDataByKey(mainKey: "WatchConnectivitySession", key: "session", value: "called: \(activationState.rawValue)")
+    if activationState == .activated {
+      isPairedContinuation?.resume(returning: session.isPaired)
+      isPairedContinuation = nil
+    }
     
     if error != nil {
       print("NSXPCConnectionInterrupted: The connection was interrupted.")

@@ -11,7 +11,7 @@ import WatchConnectivity
 
 class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   let passLibrary = PKPassLibrary()
-  // let watchSession = WatchConnectivitySession.shared
+  let watchSession = WatchConnectivitySession.shared
   let defaultArt = getDefaultEntryArt()
   
   public func hasPairedWatchDevices() -> Bool {
@@ -52,17 +52,26 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     clearExtensionDevData(key: "WNonUIExtHandler")
     let startTime = Date()
     let status = await paymentPassStatus(passLibrary: passLibrary)
-    var isPaired = false
-    
-    if (status.remotePassEntriesAvailable) {
-      isPaired = hasPairedWatchDevices()
-      status.remotePassEntriesAvailable = isPaired
-    }
     
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "passEntriesAvailable", value: "\(status.passEntriesAvailable)")
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "remotePassEntriesAvailable", value: "\(status.remotePassEntriesAvailable)")
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "requiresAuthentication", value: "\(status.requiresAuthentication)")
-    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "isPaired", value: "\(isPaired)")
+    
+    // let isPaired = await watchSession.hasPairedWatchDevices()
+    //    let isPaired = watchSession.hasPairedWatchDevices()
+    
+    //    if (status.remotePassEntriesAvailable) {
+    //      isPaired = hasPairedWatchDevices()
+    //      status.remotePassEntriesAvailable = isPaired
+    //    }
+    
+    // status.remotePassEntriesAvailable = isPaired
+    status.remotePassEntriesAvailable = true
+    let endTime = Date()
+    let executionTime = endTime.timeIntervalSince(startTime)
+    
+    // storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "isPaired", value: "\(isPaired)")
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "executionTime", value: "\(executionTime)")
     
     return status
   }
@@ -114,9 +123,13 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   override func remotePassEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
     let remoteAccs = getRemoteAccs(library: passLibrary)
     
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "remoteAccs", value: "\(remoteAccs.count)")
+    
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials(passLibrary: passLibrary)
+    
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "cachedCredentialsData", value: "\(cachedCredentialsData.count)")
     
     // let eligibleCredentials = cachedCredentialsData.filter { !remoteAccs.contains($0.primaryAccountSuffix) }
     
@@ -149,6 +162,8 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         }
       }
     }
+
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "remotePassEntries", value: "\(entries.count)")
     
     completion(entries)
   }

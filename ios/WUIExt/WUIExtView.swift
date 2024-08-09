@@ -29,7 +29,7 @@ struct PasscodeDotView: View {
   }
 }
 
-// TODO: 
+// TODO:
 // - add support dark/light modes
 // - translations
 

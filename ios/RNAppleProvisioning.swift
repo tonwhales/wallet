@@ -12,17 +12,17 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   var currentRequest: AddCardRequestHandler?
   var passLibrary: PKPassLibrary?
   var watchSession: WatchConnectivitySession?
-
+  
   override init() {
     super.init()
     self.passLibrary = PKPassLibrary()
     self.watchSession = WatchConnectivitySession.shared
   }
-
+  
   static func moduleName() -> String! {
     return "RNAppleProvisioning"
   }
-
+  
   static func requiresMainQueueSetup() -> Bool {
     return true
   }

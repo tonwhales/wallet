@@ -25,7 +25,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   // MARK: Status
   override func status() async -> PKIssuerProvisioningExtensionStatus {
     clearExtensionDevData(key: "WNonUIExtHandler")
-
+    
     let status = await paymentPassStatus(passLibrary: passLibrary)
     
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "passEntriesAvailable", value: "\(status.passEntriesAvailable)")
@@ -39,13 +39,13 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   // gather and return a list of payment pass entries that can be added to Apple Pay for iPhone
   override func passEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
     let accs = getAccs(library: passLibrary)
-
+    
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "accs", value: "\(accs.count)")
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials(passLibrary: passLibrary)
-
+    
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "cachedCredentialsData", value: "\(cachedCredentialsData.count)")
     
     let eligibleCredentials = cachedCredentialsData.filter { credential in
@@ -105,7 +105,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         }
       }
     }
-
+    
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "remotePassEntries", value: "\(entries.count)")
     
     completion(entries)

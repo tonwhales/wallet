@@ -1,13 +1,13 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator, BackHandler } from "react-native";
 import WebView, { WebViewMessageEvent, WebViewNavigation, WebViewProps } from "react-native-webview";
-import { useTheme } from "../../engine/hooks";
+import { useNetwork, useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { authAPI, dispatchAuthResponse, dispatchLastAuthTimeResponse, dispatchLockAppWithAuthResponse, dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { authAPI, dappWalletAPI, dispatchAuthResponse, dispatchLastAuthTimeResponse, dispatchLockAppWithAuthResponse, dispatchMainButtonResponse, dispatchResponse, dispatchTonhubBridgeResponse, dispatchWalletResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -23,6 +23,9 @@ import { processEmitterMessage } from "./utils/processEmitterMessage";
 import { getLastAuthTimestamp, useKeysAuth } from "../secure/AuthWalletKeys";
 import { getLockAppWithAuthState } from "../../engine/state/lockAppWithAuthState";
 import { useLockAppWithAuthState } from "../../engine/hooks/settings";
+import WalletService, { addCardRequestSchema } from "../../modules/WalletService";
+import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { getCurrentAddress } from "../../storage/appState";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -31,6 +34,7 @@ export type DAppWebViewProps = WebViewProps & {
     useAuthApi?: boolean;
     useEmitter?: boolean;
     useQueryAPI?: boolean;
+    useWalletAPI?: boolean;
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
     onClose?: () => void;
@@ -61,6 +65,7 @@ function WebViewLoader(props: WebViewLoaderProps<{}>) {
 };
 
 export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: ForwardedRef<WebView>) => {
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const authContext = useKeysAuth();
     const theme = useTheme();
@@ -192,6 +197,94 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 return;
             }
 
+            // Wallet API
+            if (props.useWalletAPI && parsed.data.name.startsWith('wallet.')) {
+                if (Platform.OS !== 'ios') {
+                    warn('Wallet API is only available on iOS');
+                    return;
+                }
+                const method = parsed.data.name.split('.')[1] as 'isEnabled' | 'checkIfCardIsAlreadyAdded' | 'canAddCard' | 'addCardToWallet';
+
+                switch (method) {
+                    case 'isEnabled':
+                        (async () => {
+                            try {
+                                const result = await WalletService.isEnabled();
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            } catch {
+                                warn('Failed to check if wallet is enabled');
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            }
+                        })();
+                        break;
+                    case 'checkIfCardIsAlreadyAdded':
+                        const primaryAccountNumberSuffix = parsed.data.args.primaryAccountNumberSuffix;
+                        if (!primaryAccountNumberSuffix) {
+                            warn('Invalid primaryAccountNumberSuffix');
+                            dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            return;
+                        }
+                        (async () => {
+                            try {
+                                const result = await WalletService.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            } catch {
+                                warn('Failed to check if card is already added');
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            }
+                        })();
+                        break;
+                    case 'canAddCard':
+                        const cardId = parsed.data.args.cardId;
+                        if (!cardId) {
+                            warn('Invalid cardId');
+                            dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            return;
+                        }
+
+                        (async () => {
+                            try {
+                                const result = await WalletService.canAddCard(cardId);
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            } catch (error) {
+                                warn('Failed to check if card can be added');
+                                // return true so that the user can try to add the card and get the error message on the native side
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result: true });
+                            }
+                        })();
+                        break;
+                    case 'addCardToWallet':
+                        const request = addCardRequestSchema.safeParse(parsed.data.args);
+
+                        if (!request.success) {
+                            warn('Invalid addCardToWallet request');
+                            dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            return;
+                        }
+
+                        const token = getHoldersToken(getCurrentAddress().address.toString({ testOnly: isTestnet }));
+
+                        if (!token) {
+                            warn('User token not found');
+                            dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            return;
+                        }
+
+                        (async () => {
+                            try {
+                                const result = await WalletService.addCardToWallet({ ...request.data, token, isTestnet });
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            } catch {
+                                warn('Failed to add card to wallet');
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            }
+                        })();
+                        break;
+                }
+
+                return;
+            }
+
             // Main button API
             if (props.useMainButton && ref) {
                 processed = processMainButtonMessage(
@@ -318,6 +411,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         props.useMainButton, props.useStatusBar,
         props.useToaster, props.useEmitter,
         props.injectionEngine, props.useAuthApi,
+        props.useWalletAPI,
         props.onMessage,
         ref,
         navigation, toaster,
@@ -377,6 +471,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             lastAuthTime: getLastAuthTimestamp(),
             isSecured: getLockAppWithAuthState()
         }) : ''}
+        ${props.useWalletAPI ? dappWalletAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {
             if (!window.tonhub) {

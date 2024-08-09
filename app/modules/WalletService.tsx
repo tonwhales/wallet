@@ -1,18 +1,8 @@
 import { NativeModules, Platform } from 'react-native';
 import { z } from 'zod';
 import { ProvisioningCredential } from '../engine/holders/updateProvisioningCredentials';
-import { boolean } from 'io-ts';
 
 const { RNAppleProvisioning } = NativeModules;
-
-// cardholderName - NSString, The name of the person the card is issued to.
-// primaryAccountNumberSuffix - NSString, The last four or five digits of the PAN. Presented to the user with dots prepended to indicate that it is a suffix.
-// This must not be the entire PAN.
-// localizedDescription - NSString, A short description of the card.
-// Example: "Green Travel"
-// Example Usage: "You are adding your Green Travel Card".
-// primaryAccountidentifier - NSString, Filters the device and attached devices that already have this card provisioned. No filter is applied if the parameter is omitted.
-// paymentNetwork - NSString, Filters the networks shown in the introduction view to this single network.
 
 export const addCardRequestSchema = z.object({
     cardId: z.string(),
@@ -40,10 +30,8 @@ interface IosWalletService {
     getShouldRequireAuthenticationForAppleWallet(): Promise<boolean>;
     setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication: boolean): Promise<void>;
 
-    // TODO // MARK: REMOVE
+    // Dev debug
     getExtensionData(key: string): Promise<string | undefined>;
-    setExtensionData(key: string, value: object): Promise<void>;
-    getStatus(): Promise<object>;
 }
 
 // not implemented yet
@@ -106,15 +94,12 @@ const WalletService: IosWalletService = {
         return RNAppleProvisioning.setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication);
     },
 
-    // TODO // MARK: REMOVE
+    // Dev debug
     async getExtensionData(key: string) {
+        if (Platform.OS === 'android') {
+            return '';
+        }
         return RNAppleProvisioning.getExtensionData(key);
-    },
-    async setExtensionData(key: string, value: object) {
-        return RNAppleProvisioning.setExtensionData(key, value);
-    },
-    async getStatus() {
-        return RNAppleProvisioning.getStatus();
     }
 }
 

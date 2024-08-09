@@ -2,8 +2,6 @@
 //  WNonUIExtHandler.swift
 //  WNonUIExt
 //
-//  Created by VZ on 25/7/24.
-//
 
 import Foundation
 import PassKit
@@ -25,53 +23,14 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
    adding it requires authentication.
    */
   // MARK: Status
-  // override func status(completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-  //   clearExtensionDevData(key: "WNonUIExtHandler")
-  //   let startTime = Date()
-  //   paymentPassStatus(passLibrary: passLibrary) { status in
-  
-  //     var pairedStatus = status
-  //     if (pairedStatus.remotePassEntriesAvailable) {
-  //       pairedStatus.remotePassEntriesAvailable = self.watchSession.isPaired
-  //     }
-  
-  //     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "passEntriesAvailable", value: "\(pairedStatus.passEntriesAvailable)")
-  //     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "remotePassEntriesAvailable", value: "\(pairedStatus.remotePassEntriesAvailable)")
-  //     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "requiresAuthentication", value: "\(pairedStatus.requiresAuthentication)")
-  
-  //     let endTime = Date()
-  //     let executionTime = endTime.timeIntervalSince(startTime)
-  
-  //     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "status-executionTime", value: "\(executionTime)")
-  
-  //     completion(pairedStatus)
-  //   }
-  // }
-  
   override func status() async -> PKIssuerProvisioningExtensionStatus {
     clearExtensionDevData(key: "WNonUIExtHandler")
-    let startTime = Date()
+
     let status = await paymentPassStatus(passLibrary: passLibrary)
     
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "passEntriesAvailable", value: "\(status.passEntriesAvailable)")
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "remotePassEntriesAvailable", value: "\(status.remotePassEntriesAvailable)")
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "requiresAuthentication", value: "\(status.requiresAuthentication)")
-    
-    // let isPaired = await watchSession.hasPairedWatchDevices()
-    //    let isPaired = watchSession.hasPairedWatchDevices()
-    
-    //    if (status.remotePassEntriesAvailable) {
-    //      isPaired = hasPairedWatchDevices()
-    //      status.remotePassEntriesAvailable = isPaired
-    //    }
-    
-    // status.remotePassEntriesAvailable = isPaired
-    status.remotePassEntriesAvailable = true
-    let endTime = Date()
-    let executionTime = endTime.timeIntervalSince(startTime)
-    
-    // storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "isPaired", value: "\(isPaired)")
-    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "executionTime", value: "\(executionTime)")
     
     return status
   }
@@ -80,12 +39,14 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
   // gather and return a list of payment pass entries that can be added to Apple Pay for iPhone
   override func passEntries(completion: @escaping ([PKIssuerProvisioningExtensionPassEntry]) -> Void) {
     let accs = getAccs(library: passLibrary)
+
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "accs", value: "\(accs.count)")
     
     // Get cached credentials data of all of the user's issued cards,
     // within the issuer app, from the user's defaults database.
     let cachedCredentialsData = getProvisioningCredentials(passLibrary: passLibrary)
-    
-    // let eligibleCredentials = cachedCredentialsData.filter { !accs.contains($0.primaryAccountSuffix) }
+
+    storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "cachedCredentialsData", value: "\(cachedCredentialsData.count)")
     
     let eligibleCredentials = cachedCredentialsData.filter { credential in
       return accs.contains(where: { acc in
@@ -108,14 +69,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
       }
     }
     
-    // getPaymentPassEntries(for: eligibleCredentials) { entries in
-    //   storeExtensionDevData(key: "WNonUIExtHandler-dev-entries", dict: [
-    //     "status": "success",
-    //     "res": "\(entries.count)"
-    //   ])
-    //   completion(entries)
-    // }
-    
     completion(entries)
   }
   
@@ -131,8 +84,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     storeExtensionDevDataByKey(mainKey: "WNonUIExtHandler", key: "cachedCredentialsData", value: "\(cachedCredentialsData.count)")
     
-    // let eligibleCredentials = cachedCredentialsData.filter { !remoteAccs.contains($0.primaryAccountSuffix) }
-    
     // filter by suffix and identifier
     let eligibleCredentials = cachedCredentialsData.filter { credential in
       return remoteAccs.contains(where: { acc in
@@ -143,14 +94,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
         return acc.identifier != credential.identifier
       })
     }
-    
-    // getPaymentPassEntries(for: eligibleCredentials) { entries in
-    //   storeExtensionDevData(key: "WNonUIExtHandler-dev-remote", dict: [
-    //     "status": "success",
-    //     "res": "\(entries.count)"
-    //   ])
-    //   completion(entries)
-    // }
     
     // Create a payment pass entry for each credential.
     var entries: [PKIssuerProvisioningExtensionPaymentPassEntry] = []
@@ -173,12 +116,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
                                                                         certificateChain certificates: [Data], nonce: Data, nonceSignature: Data,
                                                                         completionHandler completion: @escaping (PKAddPaymentPassRequest?) ->
                                                                         Void) {
-    // You can use the array.first(where:) method to retrieve a
-    // specific PKLabeledValue card detail from a configuration.
-    // configuration.cardDetails.first(where: { $0.label == "expiration" })!
-    
-    //TODO: last 4 digits of the card number (primaryAccountSuffix) ???
-    
     // get token from shared defaults with indentifier
     let entries = getProvisioningCredentials(passLibrary: passLibrary)
     let entry = entries.first(where: { $0.identifier == identifier })
@@ -260,7 +197,7 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     completion(entry)
     
-    // Supports art from a URL or an asset name.
+    // TODO: implement? Supports art from a URL or an asset name.
     // let art = resolvePassEntryArt(provisioningCredential: provisioningCredential) { art in
     //   if (image != nil) {
     //     completion(PKIssuerProvisioningExtensionPaymentPassEntry(identifier: identifier,
@@ -306,8 +243,6 @@ class WNonUIExtHandler: PKIssuerProvisioningExtensionHandler {
     
     for credential in credentials {
       dispatchGroup.enter()
-      var currentEntriesStatuesDict = getExtensionDevDataDict(key: "WNonUIExtHandler-dev-entry") as? [String: String] ?? [:]
-      currentEntriesStatuesDict[credential.identifier] = "init"
       
       createPaymentPassEntry(provisioningCredential: credential) { entry in
         if let entry = entry {

@@ -345,14 +345,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                     setProvisioningStatus(JSON.stringify(res));
                                 }}
                             />
-                            <ItemButton
-                                title={'getStatus'}
-                                onPress={async () => {
-                                    let res = await WalletService.getStatus();
-                                    setProvisioningStatus(JSON.stringify(res));
-                                }}
-                            />
-                            <ItemButton
+                            {/* <ItemButton
                                 title={'Get RequireAuth'}
                                 onPress={async () => {
                                     let res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
@@ -368,29 +361,12 @@ export const DeveloperToolsFragment = fragment(() => {
 
                                     setProvisioningStatus(JSON.stringify({ requiresAuthentication: res }));
                                 }}
-                            />
-                            <ItemButton
-                                title={'Store/Get dev extension data'}
-                                onPress={async () => {
-                                    await WalletService.setExtensionData('test', { valid: true });
-                                    const res = await WalletService.getExtensionData('test');
-                                    setProvisioningStatus(JSON.stringify({ storedTestData: res }));
-                                }}
-                            />
+                            /> */}
 
                             <ItemButton
                                 title={'Check extension steps'}
                                 onPress={async () => {
-                                    const keys = [
-                                        "WNonUIExtHandler",
-                                    ]
-
-                                    let res: { [key: string]: string | undefined } = {};
-
-                                    for (let key of keys) {
-                                        res[key] = (await WalletService.getExtensionData(key)) ?? 'undefined';
-                                    }
-
+                                    let res = await WalletService.getExtensionData("WNonUIExtHandler");
                                     setProvisioningStatus(JSON.stringify(res));
                                 }}
                             />

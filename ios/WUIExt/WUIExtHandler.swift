@@ -2,8 +2,6 @@
 //  ActionViewController.swift
 //  WUIExt
 //
-//  Created by VZ on 25/7/24.
-//
 
 import UIKit
 import SwiftUI

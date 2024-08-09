@@ -2,13 +2,10 @@
 //  WUIExtView.swift
 //  WUIExt
 //
-//  Created by VZ on 25/7/24.
-//
 
 import SwiftUI
 import PassKit
 
-// struct WUIExtView: View {
 struct PasscodeDotView: View {
   @Binding var isSelected: Bool
   
@@ -32,6 +29,10 @@ struct PasscodeDotView: View {
   }
 }
 
+// TODO: 
+// - add support dark/light modes
+// - translations
+
 struct WUIExtView: View {
   var completionHandler: ((PKIssuerProvisioningExtensionAuthorizationResult) -> Void)?
   @State private var passcode: String = ""
@@ -39,6 +40,7 @@ struct WUIExtView: View {
   static let accent = Color(red: 86 / 255, green: 76 / 255, blue: 226 / 255)
   static let accentDark = Color(red: 94 / 255, green: 84 / 255, blue: 242 / 255)
   
+  // TODO implement
   func handleLogin() -> Void {
     // Create username/password login logic.
     // You can copy and reuse the username/password
@@ -54,6 +56,7 @@ struct WUIExtView: View {
     }
   }
   
+  // TODO implement
   func handleBiometricLogin() -> Void {
     // Create biometric login logic.
     // You can copy and reuse the biometric

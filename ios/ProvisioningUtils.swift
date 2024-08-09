@@ -2,8 +2,6 @@
 //  ProvisioningUtils.swift
 //  wallet
 //
-//  Created by VZ on 1/8/24.
-//
 
 import Foundation
 import PassKit
@@ -180,17 +178,6 @@ func getRemoteAccs(library: PKPassLibrary) -> [PKPassAcc] {
   } else {
     return library.remotePaymentPasses().map { PKPassAcc(identifier: $0.primaryAccountIdentifier, suffix: $0.primaryAccountNumberSuffix) }
   }
-  //  var remoteAccs = [PKPassAcc]()
-  //
-  //  for pass in paymentPassLibrary {
-  //    if let secureElementPass = pass.secureElementPass {
-  //      if pass.isRemotePass && pass.deviceName.localizedCaseInsensitiveContains("Apple Watch") {
-  //        remoteAccs.append(PKPassAcc(identifier: secureElementPass.primaryAccountIdentifier, suffix: secureElementPass.primaryAccountNumberSuffix))
-  //      }
-  //    }
-  //  }
-  //
-  //  return remoteAccs
 }
 
 @available(iOS 13.4, *)
@@ -403,42 +390,6 @@ func paymentPassStatus(passLibrary: PKPassLibrary) async -> PKIssuerProvisioning
   status.requiresAuthentication = requiresAuthentication
   
   return status
-}
-
-@available(iOS 14, *)
-func paymentPassStatus(passLibrary: PKPassLibrary, completion: @escaping (PKIssuerProvisioningExtensionStatus) -> Void) {
-  let passes = passLibrary.passes().map { $0.secureElementPass?.primaryAccountNumberSuffix }
-  let remotePasses = passLibrary.remoteSecureElementPasses.map { $0.primaryAccountNumberSuffix }
-  let status = PKIssuerProvisioningExtensionStatus()
-  let passSuffixes = Set(passes)
-  let remotePassSuffixes = Set(remotePasses)
-  var availablePassesForIphone: Int = 0
-  var availableRemotePassesForAppleWatch: Int = 0
-  
-  // Get cached credentials data of all of the user's issued cards,
-  // within the issuer app, from the user's defaults database.
-  let cachedCredentials = getProvisioningCredentials(passLibrary: passLibrary)
-  
-  for credential in cachedCredentials {
-    if !passSuffixes.contains(credential.primaryAccountSuffix) {
-      availablePassesForIphone += 1
-    }
-    
-    if !remotePassSuffixes.contains(credential.primaryAccountSuffix) {
-      availableRemotePassesForAppleWatch += 1
-    }
-  }
-  
-  let passEntriesAvailable = availablePassesForIphone > 0
-  let remotePassEntriesAvailable = availableRemotePassesForAppleWatch > 0
-  let requiresAuthentication = shouldRequireAuthenticationForAppleWallet()
-  
-  status.passEntriesAvailable = passEntriesAvailable
-  status.remotePassEntriesAvailable = remotePassEntriesAvailable
-  status.requiresAuthentication = requiresAuthentication
-  
-  // The system needs to invoke the handler within 100 ms, or the extension does not display to the user in Apple Wallet.
-  completion(status)
 }
 
 func getEntryArt(image: UIImage) -> CGImage {

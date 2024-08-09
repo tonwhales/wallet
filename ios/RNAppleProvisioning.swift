@@ -186,25 +186,6 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
     resolve(true)
   }
   
-  @available(iOS 14.0, *)
-  @objc
-  func getStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    if (passLibrary == nil) {
-      passLibrary = PKPassLibrary()
-    }
-
-    paymentPassStatus(passLibrary: passLibrary!) { status in
-      resolve(
-        [
-          "passEntriesAvailable": status.passEntriesAvailable,
-          "remotePassEntriesAvailable": status.remotePassEntriesAvailable,
-          "requiresAuthentication": status.requiresAuthentication,
-          "isPaired": self.watchSession?.isPaired,
-        ]
-      )
-    }
-  }
-  
   @objc
   func getGroupUserDefaults(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let appGroupSharedDefaults = getUserDefaultsDict()

@@ -2,8 +2,6 @@
 //  RNAppleProvisioning.swift
 //  WhalesApp
 //
-//  Created by VZ on 1/8/24.
-//
 
 import Foundation
 import PassKit

@@ -298,7 +298,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 alreadyCompleted: 'Request already completed',
                 unknown: 'Unknown error, please try again, or contact support'
             },
-            successAuth: 'Authorization request approved',
+            successAuth: 'Connected',
         },
         accounts: 'Tokens',
         services: 'Extensions',

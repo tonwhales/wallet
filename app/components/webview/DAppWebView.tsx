@@ -208,8 +208,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 switch (method) {
                     case 'isEnabled':
                         (async () => {
-                            const result = await WalletService.isEnabled();
-                            dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            try {
+                                const result = await WalletService.isEnabled();
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            } catch {
+                                warn('Failed to check if wallet is enabled');
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            }
                         })();
                         break;
                     case 'checkIfCardIsAlreadyAdded':
@@ -220,8 +225,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                             return;
                         }
                         (async () => {
-                            const result = await WalletService.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
-                            dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            try {
+                                const result = await WalletService.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            } catch {
+                                warn('Failed to check if card is already added');
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            }
                         })();
                         break;
                     case 'canAddCard':
@@ -233,8 +243,14 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         }
 
                         (async () => {
-                            const result = await WalletService.canAddCard(cardId);
-                            dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            try {
+                                const result = await WalletService.canAddCard(cardId);
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            } catch (error) {
+                                warn('Failed to check if card can be added');
+                                // return true so that the user can try to add the card and get the error message on the native side
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result: true });
+                            }
                         })();
                         break;
                     case 'addCardToWallet':
@@ -255,8 +271,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         }
 
                         (async () => {
-                            const result = await WalletService.addCardToWallet({ ...request.data, token, isTestnet });
-                            dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            try {
+                                const result = await WalletService.addCardToWallet({ ...request.data, token, isTestnet });
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result });
+                            } catch {
+                                warn('Failed to add card to wallet');
+                                dispatchWalletResponse(ref as RefObject<WebView>, { result: false });
+                            }
                         })();
                         break;
                 }

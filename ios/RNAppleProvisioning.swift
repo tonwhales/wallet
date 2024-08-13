@@ -42,6 +42,10 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
       passLibrary = PKPassLibrary()
     }
     
+    if (watchSession == nil) {
+      watchSession = WatchConnectivitySession.shared
+    }
+    
     let isAddedToAllDevices = cardIsAlreadyAdded(suff: suff, library: passLibrary!, watchSession: watchSession!)
     
     resolve(isAddedToAllDevices)

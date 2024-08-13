@@ -31,14 +31,14 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
   func canAddCards(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     // check if we are on iPad
     let isIPAD = UIDevice.current.model.hasPrefix("iPad")
+    let canAddPaymentPass = PKAddPaymentPassViewController.canAddPaymentPass()
     
     if isIPAD {
-      let canAdd = PKAddPaymentPassViewController.canAddPaymentPass()
-      resolve(canAdd)
+      resolve(canAddPaymentPass)
       return
     }
     
-    if !PKAddPassesViewController.canAddPasses() || !PKAddPaymentPassViewController.canAddPaymentPass() {
+    if !PKAddPassesViewController.canAddPasses() || !canAddPaymentPass {
       resolve(false)
     } else {
       resolve(true)

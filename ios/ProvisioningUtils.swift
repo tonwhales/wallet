@@ -244,15 +244,16 @@ func getPrimaryAccountIdentifier(library: PKPassLibrary, suff: String?) -> Strin
   return nil
 }
 
-func cardIsAlreadyAdded(suff: String, library: PKPassLibrary) -> Bool {
+func cardIsAlreadyAdded(suff: String, library: PKPassLibrary, watchSession: WatchConnectivitySession) -> Bool {
   var cardAdded = false
   var cardAddedToWatch = false
   
+  // TODO: splite this function into two separate functions for iOS 13.4+ and below
   if #available(iOS 13.4, *) {
     let passes = library.passes()
     let remotePasses = library.remoteSecureElementPasses
     
-    if (remotePasses.count > 0) {
+    if (remotePasses.count > 0) { // watch is connected and has remote passes
       for pass in remotePasses {
         if (pass.primaryAccountNumberSuffix == suff) {
           cardAddedToWatch = true
@@ -269,6 +270,12 @@ func cardIsAlreadyAdded(suff: String, library: PKPassLibrary) -> Bool {
       
       return cardAdded && cardAddedToWatch
     } else {
+      let isWatchConnected = watchSession.isPaired
+
+      if (isWatchConnected) { // can add remote passes to watch
+        return false
+      }
+
       for pass in passes {
         if (pass.secureElementPass?.primaryAccountNumberSuffix == suff ){
           return true
@@ -296,6 +303,12 @@ func cardIsAlreadyAdded(suff: String, library: PKPassLibrary) -> Bool {
       
       return cardAdded && cardAddedToWatch
     } else {
+      let isWatchConnected = watchSession.isPaired
+
+      if (isWatchConnected) { // can add remote passes to watch
+        return false
+      }
+
       for pass in passes {
         if let paymentPass = pass as? PKPaymentPass, paymentPass.primaryAccountNumberSuffix == suff {
           return true

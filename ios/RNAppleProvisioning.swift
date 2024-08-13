@@ -42,7 +42,7 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
       passLibrary = PKPassLibrary()
     }
     
-    let isAddedToAllDevices = cardIsAlreadyAdded(suff: suff, library: passLibrary!)
+    let isAddedToAllDevices = cardIsAlreadyAdded(suff: suff, library: passLibrary!, watchSession: watchSession!)
     
     resolve(isAddedToAllDevices)
   }

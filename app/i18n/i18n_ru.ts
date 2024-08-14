@@ -144,7 +144,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "title": "Получить",
         "subtitle": "Отправляйте на этот адрес только токены блокчейна TON. Другие активы будут потеряны навсегда",
         "share": {
-            "title": "My Tonhub Address"
+            "title": "Мой Tonhub адрес",
+            "error": "Не удалось поделиыться адресом, попробуйте еще раз или обратитесь в службу поддержки"
         }
     },
     "transfer": {

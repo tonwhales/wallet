@@ -162,7 +162,8 @@ export type LocalizationSchema = {
         title: string,
         subtitle: string,
         share: {
-            title: string
+            title: string,
+            error: string
         }
     },
     transfer: {

@@ -22,7 +22,6 @@ import DeviceInfo from 'react-native-device-info';
 import { processEmitterMessage } from "./utils/processEmitterMessage";
 import { getLastAuthTimestamp, useKeysAuth } from "../secure/AuthWalletKeys";
 import { getLockAppWithAuthState } from "../../engine/state/lockAppWithAuthState";
-import { useLockAppWithAuthState } from "../../engine/hooks/settings";
 import WalletService, { addCardRequestSchema } from "../../modules/WalletService";
 import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../storage/appState";
@@ -72,7 +71,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const navigation = useTypedNavigation();
     const toaster = useToaster();
     const markRefIdShown = useMarkBannerHidden();
-    const [, setLockAppWithAuth] = useLockAppWithAuthState();
 
     const [loaded, setLoaded] = useState(false);
 

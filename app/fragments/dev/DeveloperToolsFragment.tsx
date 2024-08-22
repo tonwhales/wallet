@@ -33,9 +33,10 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { queryClient } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
-import WalletService from '../../modules/WalletService';
+import { AndroidWalletService, IosWalletService } from '../../modules/WalletService';
 import { Typography } from '../../components/styles';
 import { ItemDivider } from '../../components/ItemDivider';
+import { getHoldersToken } from '../../engine/hooks/holders/useHoldersAccountStatus';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -83,7 +84,7 @@ export const DeveloperToolsFragment = fragment(() => {
         storagePersistence.clearAll();
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
-        WalletService.setCredentialsInGroupUserDefaults({});
+        IosWalletService.setCredentialsInGroupUserDefaults({});
         reboot();
     }, [isTestnet, clearHolders]);
 
@@ -316,84 +317,189 @@ export const DeveloperToolsFragment = fragment(() => {
                             />
                         </View>
                     </View>
-                    <View style={{
-                        marginTop: 16,
-                        backgroundColor: theme.border,
-                        borderRadius: 14,
-                        overflow: 'hidden',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexShrink: 1,
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <Text style={[
-                                Typography.semiBold24_30,
-                                { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
-                            ]}>
-                                {'Provisioning debug'}
-                            </Text>
-                            <ItemButton
-                                title={'getProvisioningCredentials'}
-                                onPress={async () => {
-                                    let res = await WalletService.getCredentials();
+                    {Platform.OS === 'android' ? (
+                        <View style={{
+                            marginTop: 16,
+                            backgroundColor: theme.border,
+                            borderRadius: 14,
+                            overflow: 'hidden',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexShrink: 1,
+                            marginBottom: 32,
+                        }}>
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <Text style={[
+                                    Typography.semiBold24_30,
+                                    { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
+                                ]}>
+                                    {'Provisioning debug'}
+                                </Text>
+                                <ItemButton
+                                    title={'provision card'}
+                                    onPress={async () => {
+                                        const token = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
 
-                                    for (let i = 0; i < res.length; i++) {
-                                        res[i].token = res[i].token.slice(0, 4) + '...' + res[i].token.slice(-4);
-                                        res[i].identifier = res[i].identifier.slice(0, 4) + '...' + res[i].identifier.slice(-4);
-                                    }
-
-                                    setProvisioningStatus(JSON.stringify(res));
-                                }}
-                            />
-                            {/* <ItemButton
-                                title={'Get RequireAuth'}
-                                onPress={async () => {
-                                    let res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
-                                    setProvisioningStatus(JSON.stringify({ requiresAuthentication: res }));
-                                }}
-                            />
-                            <ItemButton
-                                title={'Toggle RequireAuth'}
-                                onPress={async () => {
-                                    let res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
-                                    await WalletService.setShouldRequireAuthenticationForAppleWallet(!res);
-                                    res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
-
-                                    setProvisioningStatus(JSON.stringify({ requiresAuthentication: res }));
-                                }}
-                            /> */}
-
-                            <ItemButton
-                                title={'Check extension steps'}
-                                onPress={async () => {
-                                    let res = await WalletService.getExtensionData("WNonUIExtHandler");
-                                    setProvisioningStatus(JSON.stringify(res));
-                                }}
-                            />
-                            {!!provisioningStatus && (
-                                <>
-                                    <ItemDivider marginVertical={0} />
-                                    <Text style={[
-                                        Typography.semiBold24_30,
-                                        { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
-                                    ]}>
-                                        {'Last check result:'}
-                                    </Text>
-                                    <Text style={[
-                                        Typography.regular15_20,
-                                        {
-                                            color: theme.textPrimary,
-                                            padding: 16,
-                                            flexWrap: 'wrap',
-                                            flexShrink: 1,
+                                        if (!token) {
+                                            setProvisioningStatus('No token found');
+                                            return;
                                         }
-                                    ]}>
-                                        {formattedStatusString}
-                                    </Text>
-                                </>
-                            )}
+
+                                        // { id: 'cm047zkyy01br941g5a7ieh18', lastFourDigits: '2387' },
+
+                                        try {
+                                            let res = await AndroidWalletService.addCardToWallet({
+                                                cardId: 'cm047zkyy01br941g5a7ieh18',
+                                                cardholderName: 'ALEKSEI DOROSHEV',
+                                                token,
+                                                isTestnet,
+                                                primaryAccountNumberSuffix: '2387'
+                                            });
+
+                                            console.log(res);
+
+                                            setProvisioningStatus(JSON.stringify(res));
+                                        } catch (error) {
+                                            setProvisioningStatus((error as Error).message);
+                                        }
+                                    }}
+                                />
+                                <ItemButton
+                                    title={'getProvisioningCredentials'}
+                                    onPress={async () => {
+                                        try {
+                                            let res = await AndroidWalletService.getEnvironment();
+                                            console.log(res);
+                                            setProvisioningStatus(JSON.stringify(res));
+                                        } catch (error) {
+                                            setProvisioningStatus((error as Error).message);
+                                        }
+                                    }}
+                                />
+                                <ItemButton
+                                    title={'getIsDefaultWallet'}
+                                    onPress={async () => {
+                                        try {
+                                            let res = await AndroidWalletService.getIsDefaultWallet();
+                                            console.log(res);
+                                            setProvisioningStatus(JSON.stringify(res));
+                                        } catch (error) {
+                                            setProvisioningStatus((error as Error).message);
+                                        }
+                                    }}
+                                />
+                                <ItemButton
+                                    title={'setDefaultWallet'}
+                                    onPress={async () => {
+                                        try {
+                                            let res = await AndroidWalletService.setDefaultWallet();
+                                            console.log(res);
+                                            setProvisioningStatus(JSON.stringify(res));
+                                        } catch (error) {
+                                            setProvisioningStatus((error as Error).message);
+                                        }
+                                    }}
+                                />
+                                <ItemButton
+                                    title={'listTokens'}
+                                    onPress={async () => {
+
+                                        try {
+                                            let res = await AndroidWalletService.listTokens();
+                                            console.log(res);
+                                            setProvisioningStatus(JSON.stringify(res));
+                                        } catch (error) {
+                                            setProvisioningStatus((error as Error).message);
+                                        }
+                                    }}
+                                />
+                                {!!provisioningStatus && (
+                                    <>
+                                        <ItemDivider marginVertical={0} />
+                                        <Text style={[
+                                            Typography.semiBold24_30,
+                                            { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
+                                        ]}>
+                                            {'Last check result:'}
+                                        </Text>
+                                        <Text style={[
+                                            Typography.regular15_20,
+                                            {
+                                                color: theme.textPrimary,
+                                                padding: 16,
+                                                flexWrap: 'wrap',
+                                                flexShrink: 1,
+                                            }
+                                        ]}>
+                                            {formattedStatusString}
+                                        </Text>
+                                    </>
+                                )}
+                            </View>
                         </View>
-                    </View>
+                    ) : (
+                        <View style={{
+                            marginTop: 16,
+                            backgroundColor: theme.border,
+                            borderRadius: 14,
+                            overflow: 'hidden',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexShrink: 1,
+                        }}>
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <Text style={[
+                                    Typography.semiBold24_30,
+                                    { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
+                                ]}>
+                                    {'Provisioning debug'}
+                                </Text>
+                                <ItemButton
+                                    title={'getProvisioningCredentials'}
+                                    onPress={async () => {
+                                        let res = await IosWalletService.getCredentials();
+
+                                        for (let i = 0; i < res.length; i++) {
+                                            res[i].token = res[i].token.slice(0, 4) + '...' + res[i].token.slice(-4);
+                                            res[i].identifier = res[i].identifier.slice(0, 4) + '...' + res[i].identifier.slice(-4);
+                                        }
+
+                                        setProvisioningStatus(JSON.stringify(res));
+                                    }}
+                                />
+
+                                <ItemButton
+                                    title={'Check extension steps'}
+                                    onPress={async () => {
+                                        let res = await IosWalletService.getExtensionData("WNonUIExtHandler");
+                                        setProvisioningStatus(JSON.stringify(res));
+                                    }}
+                                />
+                                {!!provisioningStatus && (
+                                    <>
+                                        <ItemDivider marginVertical={0} />
+                                        <Text style={[
+                                            Typography.semiBold24_30,
+                                            { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
+                                        ]}>
+                                            {'Last check result:'}
+                                        </Text>
+                                        <Text style={[
+                                            Typography.regular15_20,
+                                            {
+                                                color: theme.textPrimary,
+                                                padding: 16,
+                                                flexWrap: 'wrap',
+                                                flexShrink: 1,
+                                            }
+                                        ]}>
+                                            {formattedStatusString}
+                                        </Text>
+                                    </>
+                                )}
+                            </View>
+                        </View>
+                    )}
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

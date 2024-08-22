@@ -1,6 +1,6 @@
 import { fetchApplePayCredentials } from "../api/holders/fetchApplePayCredentials";
 import { z } from "zod";
-import WalletService from "../../modules/WalletService";
+import { IosWalletService } from "../../modules/WalletService";
 import { getHoldersToken } from "../hooks/holders/useHoldersAccountStatus";
 import { Platform } from "react-native";
 
@@ -61,7 +61,7 @@ async function fetchProvisioningCredentials(address: string, isTestnet: boolean)
 
 export async function removeProvisioningCredentials(address: string) {
     try {
-        const creds = await WalletService.getCredentials();
+        const creds = await IosWalletService.getCredentials();
         const currentState: { [key: string]: ProvisioningCredential } = {};
         creds.forEach((cred) => {
             if (cred.address !== address) {
@@ -69,7 +69,7 @@ export async function removeProvisioningCredentials(address: string) {
             }
         });
 
-        await WalletService.setCredentialsInGroupUserDefaults(currentState);
+        await IosWalletService.setCredentialsInGroupUserDefaults(currentState);
 
     } catch {
         console.warn('Failed to remove provisioning credentials');
@@ -80,7 +80,7 @@ async function filterOutAlreadyAddedCredentials(creds: { [key: string]: Provisio
     const filteredCreds: { [key: string]: ProvisioningCredential } = {};
 
     for (const [key, cred] of Object.entries(creds)) {
-        const isAlreadyAdded = await WalletService.checkIfCardIsAlreadyAdded(cred.primaryAccountSuffix);
+        const isAlreadyAdded = await IosWalletService.checkIfCardIsAlreadyAdded(cred.primaryAccountSuffix);
 
         if (!isAlreadyAdded) {
             filteredCreds[key] = cred;
@@ -98,7 +98,7 @@ export async function updateProvisioningCredentials(address: string, isTestnet: 
 
     try {
         const token = getHoldersToken(address);
-        const storedCreds = await WalletService.getCredentials();
+        const storedCreds = await IosWalletService.getCredentials();
         const currentState: { [key: string]: ProvisioningCredential } = {};
 
         storedCreds.forEach((cred) => {
@@ -111,7 +111,7 @@ export async function updateProvisioningCredentials(address: string, isTestnet: 
 
         if (!token) { // if there is no token, remove all credentials for the current address
             const filteredCreds = await filterOutAlreadyAddedCredentials(currentState);
-            await WalletService.setCredentialsInGroupUserDefaults(filteredCreds);
+            await IosWalletService.setCredentialsInGroupUserDefaults(filteredCreds);
             return;
         }
 
@@ -119,7 +119,7 @@ export async function updateProvisioningCredentials(address: string, isTestnet: 
 
         // update the credentials for the address with the new ones
         const filteredCreds = await filterOutAlreadyAddedCredentials({ ...currentState, ...freshCreds });
-        await WalletService.setCredentialsInGroupUserDefaults(filteredCreds);
+        await IosWalletService.setCredentialsInGroupUserDefaults(filteredCreds);
     } catch {
         console.warn('Failed to update provisioning credentials');
     }

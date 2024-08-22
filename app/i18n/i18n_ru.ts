@@ -501,6 +501,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "holders": {
             "title": "Банковский счет",
+            "loadingLonger": "Загрузка занимает больше времени, чем обычно, попробуйте перезагрузить или обратитесь в службу поддержки, если проблема сохраняется",
             "accounts": {
                 "title": "Счета",
                 "prepaidTitle": 'Prepaid карты',

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, Platform, Pressable, View } from 'react-native';
+import { Linking, Platform, View } from 'react-native';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
@@ -25,17 +25,17 @@ import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppW
 import { ThemeType } from '../../../engine/state/theme';
 import { useDimensions } from '@react-native-community/hooks';
 import { HoldersAccounts } from '../../../engine/hooks/holders/useHoldersAccounts';
-import { Image } from 'expo-image';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { t } from '../../../i18n/t';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { AccountPlaceholder } from './AccountPlaceholder';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
 
 import IcHolders from '@assets/ic_holders.svg';
-import { AccountPlaceholder } from './AccountPlaceholder';
+import { ToastDuration, useToaster } from '../../../components/toast/ToastProvider';
 
 const CardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
     const dimensions = useDimensions();
@@ -162,6 +162,7 @@ export const HoldersLoader = memo(({
     onSupport?: () => void
 }) => {
     const theme = useTheme();
+    const toaster = useToaster();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [showClose, setShowClose] = useState(false);
@@ -183,7 +184,15 @@ export const HoldersLoader = memo(({
     useEffect(() => {
         setTimeout(() => {
             setShowClose(true);
-        }, 3000);
+        }, 5000);
+
+        setTimeout(() => {
+            toaster.show({
+                type: 'error',
+                message: t('products.holders.loadingLonger'),
+                duration: ToastDuration.LONG
+            });
+        }, 12000);
     }, []);
 
     const placeholder = useMemo(() => {
@@ -191,6 +200,7 @@ export const HoldersLoader = memo(({
             return (
                 <AccountPlaceholder
                     theme={theme}
+                    showClose={showClose}
                     onReload={showClose ? onReaload : undefined}
                     onSupport={showClose ? onSupport : undefined}
                 />
@@ -231,63 +241,6 @@ export const HoldersLoader = memo(({
                             android: { top: safeArea.top - 6 }
                         })
                     ]}
-                // rightButton={showClose ? (
-                //     <View style={{
-                //         height: 44,
-                //         marginTop: 14,
-                //         paddingRight: 34,
-                //         width: 100,
-                //         flexDirection: 'row', justifyContent: 'center',
-                //         gap: 8
-                //     }}>
-                //         {!!onReaload && (
-                //             <Pressable
-                //                 style={({ pressed }) => [
-                //                     {
-                //                         opacity: pressed ? 0.5 : 1,
-                //                         backgroundColor: theme.surfaceOnElevation,
-                //                         borderRadius: 32,
-                //                         height: 32, width: 32,
-                //                         justifyContent: 'center', alignItems: 'center',
-                //                     }
-                //                 ]}
-                //                 onPress={onReaload}
-                //             >
-                //                 <Image
-                //                     style={{
-                //                         tintColor: theme.iconNav,
-                //                         height: 24, width: 24,
-                //                         justifyContent: 'center', alignItems: 'center',
-                //                     }}
-                //                     source={require('@assets/ic-reload.png')}
-                //                 />
-                //             </Pressable>
-                //         )}
-                //         {!!onSupport && (
-                //             <Pressable
-                //                 style={({ pressed }) => [
-                //                     {
-                //                         opacity: pressed ? 0.5 : 1,
-                //                         backgroundColor: theme.surfaceOnElevation,
-                //                         borderRadius: 32,
-                //                         height: 32, width: 32,
-                //                         justifyContent: 'center', alignItems: 'center',
-                //                     }
-                //                 ]}
-                //                 onPress={onSupport}
-                //             >
-                //                 <Image
-                //                     style={{
-                //                         tintColor: theme.iconNav,
-                //                         height: 24, width: 24,
-                //                         justifyContent: 'center', alignItems: 'center',
-                //                     }}
-                //                     source={require('@assets/ic-comment.png')}
-                //                 />
-                //             </Pressable>
-                //         )}
-                //     </View>
-                // ) : undefined}
                 />
             )}
         </Animated.View>
@@ -534,7 +487,6 @@ export const HoldersAppComponent = memo((
                     <HoldersLoader
                         type={props.variant.type === 'transactions' ? 'prepaid' : props.variant.type}
                         {...p}
-                        loaded={false}
                         onReload={onReaload}
                         onSupport={onSupport}
                     />

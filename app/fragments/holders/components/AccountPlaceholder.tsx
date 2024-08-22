@@ -1,7 +1,7 @@
 import { memo, useEffect } from "react";
 import { ThemeType } from "../../../engine/state/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { Easing, FadeInDown, FadeInUp, interpolate, useAnimatedStyle, useDerivedValue, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import Animated, { Easing, Extrapolate, Extrapolation, FadeInDown, FadeInUp, interpolate, useAnimatedStyle, useDerivedValue, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { Platform, View, StyleSheet, TextInput, Dimensions } from "react-native";
 import { } from "react-native";
 import {
@@ -102,34 +102,46 @@ const GlowingBorderView = memo(({ width, height, glowSize, blurRadius, theme, bo
 export const AccountPlaceholder = memo(({
     theme,
     onReload,
-    onSupport
+    onSupport,
+    showClose
 }: {
     theme: ThemeType,
     onReload?: () => void,
-    onSupport?: () => void
+    onSupport?: () => void,
+    showClose?: boolean
 }) => {
     const safeArea = useSafeAreaInsets();
-
-    const rotation = useSharedValue(0);
+    const animation = useSharedValue(0);
 
     useEffect(() => {
-        rotation.value = withRepeat(
+        animation.value = withRepeat(
             withTiming(1, {
-                duration: 2000,
-                easing: Easing.linear,
+                duration: 500,
+                easing: Easing.bezier(0.25, 0.1, 0.25, 1)
             }),
-            -1, // Infinite repeat
-            false // Do not reverse
+            -1,
+            true,
         );
+    }, []);
 
-        return () => {
-            rotation.value = 0; // Reset the animation value when the component unmounts
+    const animatedStyles = useAnimatedStyle(() => {
+        const opacity = interpolate(
+            animation.value,
+            [0, 1],
+            [1, theme.style === 'dark' ? 0.75 : 1],
+            Extrapolation.CLAMP
+        );
+        const scale = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 1.01],
+            Extrapolation.CLAMP
+        )
+        return {
+            opacity: opacity,
+            transform: [{ scale: scale }],
         };
-    }, [rotation]);
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {};
-    });
+    }, [theme.style]);
 
     return (
         <View style={[
@@ -151,12 +163,12 @@ export const AccountPlaceholder = memo(({
                     }),
                 ]}
             />
-            <View style={{
+            <Animated.View style={[{
                 backgroundColor: theme.backgroundUnchangeable,
                 borderBottomLeftRadius: 20,
                 borderBottomRightRadius: 20,
                 paddingTop: 8
-            }}>
+            }, animatedStyles]}>
                 <View style={[
                     {
                         height: 44,
@@ -169,26 +181,15 @@ export const AccountPlaceholder = memo(({
                     <View style={{
                         width: 32, height: 32,
                         backgroundColor: '#1c1c1e',
-                        borderRadius: 16
+                        borderRadius: 16,
+                        opacity: showClose ? 0 : 1
                     }} />
                     <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <Animated.View style={[{
-                            height: 44, width: 136,
-                            borderRadius: 20, justifyContent: 'center',
-                            overflow: 'hidden', paddingTop: 4
-                        },
-                            animatedStyle
-                        ]}>
-                            <GlowingBorderView
-                                width={132}
-                                height={36}
-                                glowSize={0.2}
-                                blurRadius={20}
-                                borderRadius={20}
-                                theme={theme}
-                            />
-                        </Animated.View>
-
+                        <View style={{
+                            backgroundColor: '#1c1c1e',
+                            height: 28, width: 132,
+                            borderRadius: 20
+                        }} />
                     </View>
                     <View style={{
                         width: 32, height: 32,
@@ -216,7 +217,7 @@ export const AccountPlaceholder = memo(({
                         marginBottom: - 48
                     }}
                 />
-            </View>
+            </Animated.View>
             <View style={{ position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16, gap: 8 }}>
                 {onReload && (
                     <Animated.View entering={FadeInDown}>

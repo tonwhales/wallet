@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, Platform, View } from 'react-native';
+import { Linking, Platform, Pressable, View } from 'react-native';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
@@ -25,93 +25,17 @@ import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppW
 import { ThemeType } from '../../../engine/state/theme';
 import { useDimensions } from '@react-native-community/hooks';
 import { HoldersAccounts } from '../../../engine/hooks/holders/useHoldersAccounts';
+import { Image } from 'expo-image';
+import { openWithInApp } from '../../../utils/openWithInApp';
+import { t } from '../../../i18n/t';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
 
 import IcHolders from '@assets/ic_holders.svg';
-
-const AccountPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
-    const safeArea = useSafeAreaInsets();
-
-    return (
-        <View style={[
-            { flexGrow: 1, width: '100%' },
-            Platform.select({
-                ios: { paddingTop: safeArea.top - 8 },
-                android: { paddingTop: safeArea.top }
-            })
-        ]}>
-            <View
-                style={[
-                    {
-                        backgroundColor: theme.backgroundUnchangeable,
-                        position: 'absolute', top: 0, left: 0, right: 0
-                    },
-                    Platform.select({
-                        ios: { height: safeArea.top - 8 },
-                        android: { height: safeArea.top }
-                    }),
-                ]}
-            />
-            <View style={{
-                backgroundColor: theme.backgroundUnchangeable,
-                borderBottomLeftRadius: 20,
-                borderBottomRightRadius: 20,
-                paddingTop: 8
-            }}>
-                <View style={[
-                    {
-                        height: 44,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingHorizontal: 16,
-                        width: '100%'
-                    },
-                ]}>
-                    <View style={{
-                        width: 32, height: 32,
-                        backgroundColor: '#1c1c1e',
-                        borderRadius: 16
-                    }} />
-                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{
-                            backgroundColor: '#1c1c1e',
-                            height: 28, width: 132,
-                            borderRadius: 20
-                        }} />
-                    </View>
-                    <View style={{
-                        width: 32, height: 32,
-                        backgroundColor: '#1c1c1e',
-                        borderRadius: 16
-                    }} />
-                </View>
-                <View
-                    style={{
-                        height: 28,
-                        width: 78,
-                        backgroundColor: '#1c1c1e',
-                        borderRadius: 20,
-                        marginTop: 20 + 38 + 20,
-                        alignSelf: 'center'
-                    }}
-                />
-                <View
-                    style={{
-                        backgroundColor: theme.surfaceOnBg,
-                        height: 96,
-                        borderRadius: 20,
-                        marginTop: 24,
-                        marginHorizontal: 16,
-                        marginBottom: - 48
-                    }}
-                />
-            </View>
-        </View>
-    );
-});
+import { AccountPlaceholder } from './AccountPlaceholder';
 
 const CardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
     const dimensions = useDimensions();
@@ -226,7 +150,17 @@ export const HoldersPlaceholder = memo(() => {
     );
 });
 
-export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'account' | 'create' | 'prepaid' }) => {
+export const HoldersLoader = memo(({
+    loaded,
+    type,
+    onReload: onReaload,
+    onSupport
+}: {
+    loaded: boolean,
+    type: 'account' | 'create' | 'prepaid',
+    onReload?: () => void,
+    onSupport?: () => void
+}) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -254,7 +188,13 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'a
 
     const placeholder = useMemo(() => {
         if (type === 'account') {
-            return <AccountPlaceholder theme={theme} />;
+            return (
+                <AccountPlaceholder
+                    theme={theme}
+                    onReload={showClose ? onReaload : undefined}
+                    onSupport={showClose ? onSupport : undefined}
+                />
+            );
         }
 
         if (type === 'prepaid') {
@@ -262,7 +202,7 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'a
         }
 
         return <HoldersPlaceholder />;
-    }, [type, theme]);
+    }, [type, theme, showClose]);
 
     return (
         <Animated.View
@@ -291,6 +231,63 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: 'a
                             android: { top: safeArea.top - 6 }
                         })
                     ]}
+                // rightButton={showClose ? (
+                //     <View style={{
+                //         height: 44,
+                //         marginTop: 14,
+                //         paddingRight: 34,
+                //         width: 100,
+                //         flexDirection: 'row', justifyContent: 'center',
+                //         gap: 8
+                //     }}>
+                //         {!!onReaload && (
+                //             <Pressable
+                //                 style={({ pressed }) => [
+                //                     {
+                //                         opacity: pressed ? 0.5 : 1,
+                //                         backgroundColor: theme.surfaceOnElevation,
+                //                         borderRadius: 32,
+                //                         height: 32, width: 32,
+                //                         justifyContent: 'center', alignItems: 'center',
+                //                     }
+                //                 ]}
+                //                 onPress={onReaload}
+                //             >
+                //                 <Image
+                //                     style={{
+                //                         tintColor: theme.iconNav,
+                //                         height: 24, width: 24,
+                //                         justifyContent: 'center', alignItems: 'center',
+                //                     }}
+                //                     source={require('@assets/ic-reload.png')}
+                //                 />
+                //             </Pressable>
+                //         )}
+                //         {!!onSupport && (
+                //             <Pressable
+                //                 style={({ pressed }) => [
+                //                     {
+                //                         opacity: pressed ? 0.5 : 1,
+                //                         backgroundColor: theme.surfaceOnElevation,
+                //                         borderRadius: 32,
+                //                         height: 32, width: 32,
+                //                         justifyContent: 'center', alignItems: 'center',
+                //                     }
+                //                 ]}
+                //                 onPress={onSupport}
+                //             >
+                //                 <Image
+                //                     style={{
+                //                         tintColor: theme.iconNav,
+                //                         height: 24, width: 24,
+                //                         justifyContent: 'center', alignItems: 'center',
+                //                     }}
+                //                     source={require('@assets/ic-comment.png')}
+                //                 />
+                //             </Pressable>
+                //         )}
+                //     </View>
+                // ) : undefined}
                 />
             )}
         </Animated.View>
@@ -317,6 +314,7 @@ export const HoldersAppComponent = memo((
     const [currency,] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
     const url = holdersUrl(isTestnet);
+    const { showActionSheetWithOptions } = useActionSheet();
 
     const source = useMemo(() => {
         const queryParams = new URLSearchParams({
@@ -477,8 +475,51 @@ export const HoldersAppComponent = memo((
         injectSource
     ]);
 
+    const [renderKey, setRenderKey] = useState(0);
+
+    const onReaload = useCallback(() => {
+        setRenderKey(renderKey + 1);
+    }, []);
+
+    const onSupport = useCallback(() => {
+        const tonhubOptions = [
+            t('common.cancel'),
+            t('settings.support.telegram'),
+            t('settings.support.form'),
+            t('settings.support.holders')
+        ];
+        const cancelButtonIndex = 0;
+
+        const tonhubSupportSheet = () => {
+            showActionSheetWithOptions({
+                options: tonhubOptions,
+                title: t('settings.support.title'),
+                cancelButtonIndex,
+            }, (selectedIndex?: number) => {
+                switch (selectedIndex) {
+                    case 1:
+                        openWithInApp('https://t.me/WhalesSupportBot');
+                        break;
+                    case 2:
+                        openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                        break;
+                    case 3:
+                        openWithInApp('https://help.holders.io/en');
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+
+        tonhubSupportSheet();
+    }, []);
+
     return (
-        <View style={{ backgroundColor: theme.backgroundPrimary, flex: 1 }}>
+        <View
+            key={`content-${renderKey}`}
+            style={{ backgroundColor: theme.backgroundPrimary, flex: 1 }}
+        >
             <DAppWebView
                 ref={webViewRef}
                 source={{ uri: source.url }}
@@ -493,6 +534,9 @@ export const HoldersAppComponent = memo((
                     <HoldersLoader
                         type={props.variant.type === 'transactions' ? 'prepaid' : props.variant.type}
                         {...p}
+                        loaded={false}
+                        onReload={onReaload}
+                        onSupport={onSupport}
                     />
                 )}
             />

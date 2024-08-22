@@ -50,7 +50,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
-    const cards = useHoldersAccounts(acc.address);
+    const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
 
     const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);
@@ -285,7 +285,7 @@ export const DeveloperToolsFragment = fragment(() => {
                             <ItemButton
                                 title={'Refetch cards'}
                                 onPress={() => {
-                                    cards.refetch();
+                                    accounts.refetch();
                                 }}
                             />
                         </View>
@@ -345,15 +345,28 @@ export const DeveloperToolsFragment = fragment(() => {
                                             return;
                                         }
 
+                                        const account = accounts.data?.type === 'private' 
+                                        ? accounts.data.accounts.find((a) => a?.name === 'TON Wallester')?.cards.map((c) => ({ id: c.id, lastFourDigits: c.lastFourDigits }))
+                                        : [];
+
+                                        console.log(account);
+
+                                        const card = account?.[0];
+
+                                        if (!card) {
+                                            setProvisioningStatus('No card found');
+                                            return;
+                                        }
+
                                         // { id: 'cm047zkyy01br941g5a7ieh18', lastFourDigits: '2387' },
 
                                         try {
                                             let res = await AndroidWalletService.addCardToWallet({
-                                                cardId: 'cm047zkyy01br941g5a7ieh18',
-                                                cardholderName: 'ALEKSEI DOROSHEV',
+                                                cardId: card.id,
+                                                cardholderName: 'PAVEL SOLOVEV',
                                                 token,
                                                 isTestnet,
-                                                primaryAccountNumberSuffix: '2387'
+                                                primaryAccountNumberSuffix: card.lastFourDigits ??''
                                             });
 
                                             console.log(res);

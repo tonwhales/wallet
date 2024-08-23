@@ -15,7 +15,8 @@ export type HoldersAppParams =
     | { type: 'account', id: string }
     | { type: 'prepaid', id: string }
     | { type: 'create' }
-    | { type: 'transactions', query: { [key: string]: string | undefined } };
+    | { type: 'transactions', query: { [key: string]: string | undefined } }
+    | { type: 'path', path: string };
 
 export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();

@@ -481,6 +481,16 @@ function getNeedsEnrollment(url: string, address: string, isTestnet: boolean, qu
 }
 
 function resolveAndNavigateToHolders(params: {
+    type: 'holders-transactions',
+    query: { [key: string]: string | undefined },
+    navigation: TypedNavigation,
+    selected: SelectedAccount,
+    updateAppState: (value: AppState, isTestnet: boolean) => void,
+    isTestnet: boolean,
+    queryClient: QueryClient
+} | {
+    type: 'holders-path',
+    path: string,
     query: { [key: string]: string | undefined },
     navigation: TypedNavigation,
     selected: SelectedAccount,
@@ -488,7 +498,7 @@ function resolveAndNavigateToHolders(params: {
     isTestnet: boolean,
     queryClient: QueryClient
 }) {
-    const { query, navigation, selected, updateAppState, queryClient, isTestnet } = params
+    const { type, query, navigation, selected, updateAppState, queryClient, isTestnet } = params
     const addresses = query['addresses']?.split(',');
 
     if (!addresses || addresses.length === 0) {
@@ -498,10 +508,15 @@ function resolveAndNavigateToHolders(params: {
     const isSelectedAddress = addresses.find((a) => Address.parse(a).equals(selected.address));
     const transactionId = query['transactionId'];
 
-    const holdersNavParams: HoldersAppParams = {
-        type: 'transactions',
-        query: { transactionId }
-    }
+    const holdersNavParams: HoldersAppParams = type === 'holders-transactions'
+        ? {
+            type: 'transactions',
+            query: { transactionId }
+        }
+        : {
+            type: 'path',
+            path: params.path
+        }
 
     const url = holdersUrl(isTestnet);
 
@@ -686,6 +701,7 @@ export function useLinkNavigator(
                 }
 
                 resolveAndNavigateToHolders({
+                    type: 'holders-transactions',
                     navigation,
                     query: resolved.query,
                     selected,
@@ -693,6 +709,24 @@ export function useLinkNavigator(
                     isTestnet,
                     queryClient
                 });
+                break;
+            }
+            case 'holders-path': {
+                if (!selected) {
+                    return;
+                }
+
+                resolveAndNavigateToHolders({
+                    type: 'holders-path',
+                    path: resolved.path,
+                    navigation,
+                    query: resolved.query,
+                    selected,
+                    updateAppState,
+                    isTestnet,
+                    queryClient
+                });
+                break;
             }
         }
 

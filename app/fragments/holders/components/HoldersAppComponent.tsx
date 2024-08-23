@@ -345,6 +345,9 @@ export const HoldersAppComponent = memo((
                     }
                 }
                 break;
+            case 'path':
+                route = `/${props.variant.path ?? ''}`;
+                break;
         }
 
         const url = `${props.endpoint}${route}?${queryParams.toString()}`;
@@ -491,7 +494,11 @@ export const HoldersAppComponent = memo((
                 webviewDebuggingEnabled={isTestnet}
                 loader={(p) => (
                     <HoldersLoader
-                        type={props.variant.type === 'transactions' ? 'prepaid' : props.variant.type}
+                        type={
+                            (props.variant.type === 'transactions' || props.variant.type === 'path')
+                                ? 'account'
+                                : props.variant.type
+                        }
                         {...p}
                     />
                 )}

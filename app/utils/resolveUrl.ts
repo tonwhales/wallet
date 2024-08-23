@@ -68,6 +68,10 @@ export type ResolvedUrl = {
 } | {
     type: 'holders-transactions',
     query: { [key: string]: string | undefined }
+} | {
+    type: 'holders-path',
+    path: string,
+    query: { [key: string]: string | undefined }
 }
 
 export function isUrl(str: string): boolean {
@@ -85,6 +89,12 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
     if (isTransactions && url.query) {
         return {
             type: 'holders-transactions',
+            query: url.query
+        }
+    } else if (!!url.query && url.query.path) {
+        return {
+            type: 'holders-path',
+            path: decodeURIComponent(url.query.path),
             query: url.query
         }
     }

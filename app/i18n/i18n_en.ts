@@ -501,7 +501,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holders: {
             title: 'Bank account',
-            loadingLonger: 'Loading takes longer than usual, try reloading or contact support, if the problem persists',
+            loadingLonger: 'Loading takes longer than usual, try reloading or contact support',
             accounts: {
                 title: 'Payment accounts',
                 prepaidTitle: 'Prepaid cards',

@@ -9,7 +9,7 @@ import { protectNavigation } from '../../apps/components/protect/protectNavigati
 import { getLocales } from 'react-native-localize';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
 import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useDAppBridge, usePrimaryCurrency } from '../../../engine/hooks';
@@ -172,9 +172,20 @@ export const HoldersLoader = memo(({
         return { opacity: opacity.value };
     });
 
+    const longLoadingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const start = useMemo(() => {
+        return Date.now();
+    }, []);
+    const trackLoadingtime = useCallback(() => {
+        trackEvent(MixpanelEvent.HoldersLoadingTime, { type, duration: Date.now() - start });
+    }, []);
+
     useEffect(() => {
         if (loaded) {
+            longLoadingTimerRef.current && clearTimeout(longLoadingTimerRef.current);
             opacity.value = withTiming(0, { duration: 350, easing: Easing.inOut(Easing.ease) });
+            trackLoadingtime();
         } else {
             setShowClose(false);
             opacity.value = 1;
@@ -182,17 +193,27 @@ export const HoldersLoader = memo(({
     }, [loaded]);
 
     useEffect(() => {
-        setTimeout(() => {
+        const showCloseTimer = setTimeout(() => {
             setShowClose(true);
         }, 5000);
 
-        setTimeout(() => {
+        if (longLoadingTimerRef.current) {
+            clearTimeout(longLoadingTimerRef.current);
+        }
+
+        longLoadingTimerRef.current = setTimeout(() => {
+            trackEvent(MixpanelEvent.holdersLongLoadingTime, { type, duration: 12000 });
             toaster.show({
                 type: 'error',
                 message: t('products.holders.loadingLonger'),
                 duration: ToastDuration.LONG
             });
         }, 12000);
+
+        return () => {
+            longLoadingTimerRef.current && clearTimeout(longLoadingTimerRef.current);
+            clearTimeout(showCloseTimer);
+        }
     }, []);
 
     const placeholder = useMemo(() => {

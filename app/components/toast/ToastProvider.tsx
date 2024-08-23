@@ -115,7 +115,7 @@ export const Toast = memo(({
                 {Icon && (
                     <Icon height={24} width={24} style={{ height: 24, width: 24, marginRight: 12 }} color={theme.white} />
                 )}
-                <Text style={[{ fontSize: 15, lineHeight: 20, textAlign: !!Icon ? 'left' : 'center' }, ToastStyle[type].text]}>
+                <Text style={[{ fontSize: 15, lineHeight: 20, textAlign: !!Icon ? 'left' : 'center', flexShrink: 1 }, ToastStyle[type].text]}>
                     {message}
                 </Text>
             </View>

@@ -29,13 +29,13 @@ import { openWithInApp } from '../../../utils/openWithInApp';
 import { t } from '../../../i18n/t';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { AccountPlaceholder } from './AccountPlaceholder';
+import { ToastDuration, useToaster } from '../../../components/toast/ToastProvider';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
 
 import IcHolders from '@assets/ic_holders.svg';
-import { ToastDuration, useToaster } from '../../../components/toast/ToastProvider';
 
 const CardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
     const dimensions = useDimensions();
@@ -206,7 +206,7 @@ export const HoldersLoader = memo(({
             toaster.show({
                 type: 'error',
                 message: t('products.holders.loadingLonger'),
-                duration: ToastDuration.LONG
+                duration: ToastDuration.DEFAULT
             });
         }, 12000);
 

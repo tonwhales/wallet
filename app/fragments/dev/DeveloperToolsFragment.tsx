@@ -337,7 +337,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                 </Text>
                                 <ItemButton
                                     title={'provision card'}
-                                    onPress={async () => {
+                                    action={async () => {
                                         const token = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
 
                                         if (!token) {

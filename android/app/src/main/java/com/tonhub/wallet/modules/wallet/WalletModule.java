@@ -69,6 +69,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     public WalletModule(ReactApplicationContext reactContext) {
         super(reactContext);
         tapAndPayClient = TapAndPay.getClient(reactContext);
+        reactContext.addActivityEventListener(this);
     }
 
     @NonNull
@@ -391,9 +392,11 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
 
             Activity currentActivity = getReactApplicationContext().getCurrentActivity();
 
-            Log.d("WalletModule", String.valueOf(currentActivity != null));
-
-            tapAndPayClient.pushTokenize(currentActivity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE);
+            if (currentActivity != null) {
+                tapAndPayClient.pushTokenize(currentActivity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE);
+            } else {
+                this.currentProvisioning.completableFuture.completeExceptionally(new Exception("No current activity"));
+            }
         });
     }
 
@@ -408,7 +411,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         future.thenAccept(res -> {
             Log.e("WalletModule", "Tokenization success");
-            promise.resolve(true);
+            promise.resolve(res);
         }).exceptionally(e -> {
             Log.e("WalletModule", "Failed to tokenize card");
             promise.reject(e);
@@ -468,13 +471,15 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     }
 
     private void handleSetDefaultWalletResult(int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            isDefaultWalletFuture.complete(true);
-        } else {
-            isDefaultWalletFuture.complete(false);
-        }
+        if (isDefaultWalletFuture != null) {
+            if (resultCode == Activity.RESULT_OK) {
+                isDefaultWalletFuture.complete(true);
+            } else {
+                isDefaultWalletFuture.complete(false);
+            }
 
-        isDefaultWalletFuture = null;
+            isDefaultWalletFuture = null;
+        }
     }
 
     @Override

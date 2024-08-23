@@ -346,7 +346,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                         }
 
                                         const account = accounts.data?.type === 'private' 
-                                        ? accounts.data.accounts.find((a) => a?.name === 'TON Wallester')?.cards.map((c) => ({ id: c.id, lastFourDigits: c.lastFourDigits }))
+                                        ? accounts.data.accounts.find((a) => a?.name === (isTestnet? 'TON *d55' : 'TON Wallester'))?.cards.map((c) => ({ id: c.id, lastFourDigits: c.lastFourDigits }))
                                         : [];
 
                                         console.log(account);
@@ -363,7 +363,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                         try {
                                             let res = await AndroidWalletService.addCardToWallet({
                                                 cardId: card.id,
-                                                cardholderName: 'PAVEL SOLOVEV',
+                                                cardholderName: isTestnet ?'ALEKSEI DOROSHEV':  'PAVEL SOLOVEV',
                                                 token,
                                                 isTestnet,
                                                 primaryAccountNumberSuffix: card.lastFourDigits ??''

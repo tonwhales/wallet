@@ -54,8 +54,8 @@ import okhttp3.ResponseBody;
 public class WalletModule extends ReactContextBaseJavaModule implements ActivityEventListener {
     private static final int REQUEST_CODE_TOKENIZE = 1;
     static final int REQUEST_CODE_PUSH_TOKENIZE = 3;
-    private static final int REQUEST_CREATE_WALLET = 4;
     private static final int SET_DEFAULT_PAYMENTS_REQUEST_CODE = 5;
+    private static final int REQUEST_CREATE_WALLET = 4;
     public static final String GOOGLE_PAY_TP_HCE_SERVICE = "com.google.android.gms.tapandpay.hce.service.TpHceService";
 
     private final TapAndPayClient tapAndPayClient;
@@ -274,11 +274,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         JSONObject body = new JSONObject();
         JSONObject params = new JSONObject();
 
-        ArrayList<String> walletAccountId = new ArrayList<>();
-
         try {
-            walletAccountId.add(req.walletId);
-            params.put("walletAccountId", new JSONArray(walletAccountId));
+            params.put("walletAccountId", req.walletId);
             params.put("deviceId", req.stableHardwareId);
 
             body.put("params", params);
@@ -344,7 +341,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                     }
 
                 } else {
-                    Log.e("WalletModule", "Failed to fetch OPC");
+                    Log.e("WalletModule", "Failed to fetch OPC" + response.code());
                     req.future.completeExceptionally(new Exception("Failed to fetch OPC"));
                 }
             }
@@ -392,7 +389,9 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                     // .setUserAddress(userAddress)
                     .build();
 
-            Activity currentActivity = getCurrentActivity();
+            Activity currentActivity = getReactApplicationContext().getCurrentActivity();
+
+            Log.d("WalletModule", String.valueOf(currentActivity != null));
 
             tapAndPayClient.pushTokenize(currentActivity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE);
         });

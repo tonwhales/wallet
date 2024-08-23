@@ -358,8 +358,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                             return;
                                         }
 
-                                        // { id: 'cm047zkyy01br941g5a7ieh18', lastFourDigits: '2387' },
-
                                         try {
                                             let res = await AndroidWalletService.addCardToWallet({
                                                 cardId: card.id,
@@ -378,7 +376,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                     }}
                                 />
                                 <ItemButton
-                                    title={'getProvisioningCredentials'}
+                                    title={'get ENV'}
                                     onPress={async () => {
                                         try {
                                             let res = await AndroidWalletService.getEnvironment();

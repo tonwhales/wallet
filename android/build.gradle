@@ -33,6 +33,7 @@ buildscript {
                 // expo-camera bundles a custom com.google.android:cameraview
                 url "$rootDir/../node_modules/expo-camera/android/maven"
             }
+            // Remember to include the following sdk to build project
             maven {
                 url "file:${project.rootDir}/tapandpay_sdk/"
             }

@@ -28,6 +28,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tapandpay.TapAndPay;
 import com.google.android.gms.tapandpay.TapAndPayClient;
+import com.google.android.gms.tapandpay.issuer.IsTokenizedRequest;
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest;
 import com.google.android.gms.tapandpay.issuer.TokenInfo;
 import com.google.android.gms.tapandpay.issuer.TokenStatus;
@@ -82,15 +83,11 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         CompletableFuture<WritableArray> future = new CompletableFuture<>();
         tapAndPayClient.listTokens().addOnCompleteListener(task -> {
 
-            Log.d("WalletModule", "Listing tokens");
-
             if (task.isSuccessful()) {
                 List<TokenInfo> tokenInfoList = task.getResult();
-                Log.d("WalletModule", "Token list: " + tokenInfoList);
                 WritableArray tokenArray = Arguments.createArray();
 
                 for (TokenInfo tokenInfo : tokenInfoList) {
-                    Log.d("WalletModule", "Token info: " + tokenInfo);
                     WritableMap tokenMap = Arguments.createMap();
 
                     tokenMap.putString("issuerTokenId", tokenInfo.getIssuerTokenId());
@@ -121,50 +118,24 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             promise.reject(e);
             return null;
         });
-        // tapAndPayClient.listTokens().addOnCompleteListener(task -> {
-        //     if (task.isSuccessful()) {
-        //         List<TokenInfo> tokenInfoList = task.getResult();
-        //         WritableArray tokenArray = Arguments.createArray();
-
-        //         for (TokenInfo tokenInfo : tokenInfoList) {
-        //             WritableMap tokenMap = Arguments.createMap();
-
-        //             tokenMap.putString("issuerTokenId", tokenInfo.getIssuerTokenId());
-        //             tokenMap.putString("dpanLastFour", tokenInfo.getDpanLastFour());
-        //             tokenMap.putString("tokenState", tokenInfo.getFpanLastFour());
-        //             tokenMap.putInt("tokenState", tokenInfo.getTokenState());
-        //             tokenMap.putString("issuerName", tokenInfo.getIssuerName());
-        //             tokenMap.putString("portfolioName", tokenInfo.getPortfolioName());
-        //             tokenMap.putBoolean("isDefaultToken", tokenInfo.getIsDefaultToken());
-
-        //             tokenArray.pushMap(tokenMap);
-        //         }
-
-        //         promise.resolve(tokenArray);
-        //     } else {
-        //         ApiException apiException = (ApiException) task.getException();
-        //         promise.reject(apiException);
-        //     }
-        // });
     }
 
     @ReactMethod
     @SuppressWarnings("unused")
     private void checkIfCardIsAlreadyAdded(String primaryAccountNumberSuffix, Promise promise) {
-        getTokenInfoList().thenAccept(tokenArray -> {
-            for (int i = 0; i < tokenArray.size(); i++) {
-                ReadableMap tokenMap = tokenArray.getMap(i);
-                String dpanLastFour = tokenMap.getString("dpanLastFour");
-                if (dpanLastFour != null && dpanLastFour.equals(primaryAccountNumberSuffix)) {
-                    promise.resolve(true);
-                    return;
-                }
+        IsTokenizedRequest request = new IsTokenizedRequest
+                .Builder()
+                .setNetwork(TapAndPay.CARD_NETWORK_VISA)
+                .setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA)
+                .setIssuerName("Holders")
+                .setIdentifier(primaryAccountNumberSuffix).build();
+        tapAndPayClient.isTokenized(request).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                promise.resolve(task.getResult());
+            } else {
+                ApiException apiException = (ApiException) task.getException();
+                promise.reject(apiException);
             }
-
-            promise.resolve(false);
-        }).exceptionally(e -> {
-            promise.reject(e);
-            return null;
         });
     }
 
@@ -210,10 +181,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         CompletableFuture<String> future = new CompletableFuture<>();
         tapAndPayClient.getActiveWalletId().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Log.d("WalletModule", "Active wallet id: " + task.getResult());
                 future.complete(task.getResult());
             } else {
-                Log.e("WalletModule", "Failed to get active wallet id", task.getException());
                 future.completeExceptionally(task.getException());
             }
         });
@@ -225,10 +194,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         CompletableFuture<String> future = new CompletableFuture<>();
         tapAndPayClient.getStableHardwareId().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Log.d("WalletModule", "Stable hardware id: " + task.getResult());
                 future.complete(task.getResult());
             } else {
-                Log.e("WalletModule", "Failed to get stable hardware id", task.getException());
                 future.completeExceptionally(task.getException());
             }
         });
@@ -242,11 +209,9 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         CompletableFuture<String> stableHardwareIdFuture = this.getStableHardwareId();
 
         walletIdFuture.thenCombine(stableHardwareIdFuture, (walletId, stableHardwareId) -> {
-            Log.d("WalletModule", "Wallet id: " + walletId + "Stable hardware id: " + stableHardwareId);
             promise.resolve(true);
             return null;
         }).exceptionally(e -> {
-            Log.e("WalletModule", "Failed to combine wallet ID and stable hardware ID", e);
             promise.resolve(false);
             return null;
         });
@@ -286,27 +251,20 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             req.future.completeExceptionally(e);
         }
 
-        Log.d("WalletModule", "Req body:" + body);
-
         RequestBody requestBody = RequestBody.create(body.toString(), MediaType.parse("application/json"));
 
         // POST request to fetch OPC
         Request request = new Request.Builder().url(url + "/v2/card/get/google/provisioning/data").post(requestBody).build();
 
-        Log.d("WalletModule", "Req body:" + request.body());
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("WalletModule", "Failed to fetch OPC", e);
                 req.future.completeExceptionally(e);
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                Log.d("WalletModule", "Response received");
                 if (response.isSuccessful()) {
-                    Log.d("WalletModule", "Response is successful");
                     ResponseBody responseBody = response.body();
 
                     if (responseBody != null) {
@@ -319,8 +277,6 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                             req.future.completeExceptionally(e);
                         }
                         try {
-                            Log.d("WalletModule", "JSON: " + json.toString());
-
                             if (json.has("error")) {
                                 req.future.completeExceptionally(new Exception(json.getString("error")));
                             } else if (json.has("data")) {
@@ -342,7 +298,6 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                     }
 
                 } else {
-                    Log.e("WalletModule", "Failed to fetch OPC" + response.code());
                     req.future.completeExceptionally(new Exception("Failed to fetch OPC"));
                 }
             }
@@ -351,7 +306,6 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
 
     private void pushProvision(ProvisionRequest req) {
         if (currentProvisioning != null) {
-            Log.e("WalletModule", "Another provisioning is in progress");
             req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
             return;
         }
@@ -364,18 +318,13 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
 
         // await for both walletId and stableHardwareId
         walletIdFuture.thenCombine(stableHardwareIdFuture, (walletId, stableHardwareId) -> {
-            Log.d("WalletModule", "Wallet id: " + walletId + "Stable hardware id: " + stableHardwareId);
             return new OPCRequest(req.cardId, req.token, walletId, stableHardwareId, req.isTestnet, futureOpc);
         }).thenAccept(this::fetchOPC).exceptionally(e -> {
-            Log.e("WalletModule", "Failed to combine wallet ID and stable hardware ID", e);
-
             req.completableFuture.completeExceptionally(e);
-
             return null;
         });
 
         futureOpc.thenAccept(opc -> {
-            Log.d("WalletModule", "OPC: " + opc);
             // UserAddress userAddress = UserAddress.newBuilder()
             //     .setName(req.name)
             //     .setAddress1(req.address1)
@@ -406,18 +355,14 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         // create a new CompletableFuture to handle the result of the tokenization
         // result will be resolved with true if tokenization was successful, false if it was cancelled, or rejected with an exception if it failed
         // completes in handleTokenizationResult with final result
-        Log.d("WalletModule", "Adding card to wallet");
 
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         future.thenAccept(res -> {
-            Log.e("WalletModule", "Tokenization success");
             promise.resolve(res);
         }).exceptionally(e -> {
-            Log.e("WalletModule", "Failed to tokenize card");
             promise.reject(e);
             return null;
         }).thenRun(() -> {
-            Log.d("WalletModule", "Tokenization completed");
             this.currentProvisioning = null;
         });
 
@@ -426,7 +371,6 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     }
 
     public void handleTokenizationResult(int resultCode, Intent data) {
-        Log.d("WalletModule", "Handling tokenization result");
         if (this.currentProvisioning == null) {
             return;
         }
@@ -455,16 +399,11 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     @ReactMethod
     @SuppressWarnings("unused")
     private void getEnvironment(Promise promise) {
-        // log that we are getting the environment
-        Log.d("WalletModule", "Getting environment");
         tapAndPayClient.getEnvironment().addOnCompleteListener(task -> {
-            Log.d("WalletModule", "Got environment");
             if (task.isSuccessful()) {
-                Log.d("WalletModule", "Environment: " + task.getResult());
                 promise.resolve(task.getResult());
             } else {
                 ApiException apiException = (ApiException) task.getException();
-                Log.d("WalletModule", "Failed to get environment");
                 promise.reject(apiException);
             }
         });
@@ -484,13 +423,10 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
 
     @Override
     public void onActivityResult(Activity activity, int i, int i1, @Nullable Intent intent) {
-        Log.d("WalletModule", "onActivityResult");
         if (i == REQUEST_CODE_PUSH_TOKENIZE) {
-            Log.d("WalletModule", "Handling push tokenize result");
             handleTokenizationResult(i1, intent);
         }
         if (i == SET_DEFAULT_PAYMENTS_REQUEST_CODE) {
-            Log.d("WalletModule", "Handling set default wallet result");
             handleSetDefaultWalletResult(i1, intent);
         }
     }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -33,10 +33,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { queryClient } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
-import { AndroidWalletService, IosWalletService } from '../../modules/WalletService';
-import { Typography } from '../../components/styles';
-import { ItemDivider } from '../../components/ItemDivider';
-import { getHoldersToken } from '../../engine/hooks/holders/useHoldersAccountStatus';
+import { IosWalletService } from '../../modules/WalletService';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -63,19 +60,6 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
-
-    const [provisioningStatus, setProvisioningStatus] = useState<string | null>('');
-    let formattedStatusString = '';
-
-    // format provisioning status string as JSON adding new lines
-    if (provisioningStatus) {
-        formattedStatusString = provisioningStatus.replace(/,/g, ',\n');
-        formattedStatusString = formattedStatusString.replace(/]/g, ',\n]')
-        formattedStatusString = formattedStatusString.replace(/\[/g, '\n[');
-        formattedStatusString = formattedStatusString.replace(/{/g, '\n{\n');
-        formattedStatusString = formattedStatusString.replace(/}/g, '\n}');
-        formattedStatusString = formattedStatusString.replace(/:/g, ': ');
-    }
 
     const resetCache = useCallback(async () => {
         queryClient.clear();
@@ -317,200 +301,6 @@ export const DeveloperToolsFragment = fragment(() => {
                             />
                         </View>
                     </View>
-                    {Platform.OS === 'android' ? (
-                        <View style={{
-                            marginTop: 16,
-                            backgroundColor: theme.border,
-                            borderRadius: 14,
-                            overflow: 'hidden',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexShrink: 1,
-                            marginBottom: 32,
-                        }}>
-                            <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <Text style={[
-                                    Typography.semiBold24_30,
-                                    { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
-                                ]}>
-                                    {'Provisioning debug'}
-                                </Text>
-                                <ItemButton
-                                    title={'provision card'}
-                                    action={async () => {
-                                        const token = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
-
-                                        if (!token) {
-                                            setProvisioningStatus('No token found');
-                                            return;
-                                        }
-
-                                        const account = accounts.data?.type === 'private' 
-                                        ? accounts.data.accounts.find((a) => a?.name === (isTestnet? 'TON *d55' : 'TON Wallester'))?.cards.map((c) => ({ id: c.id, lastFourDigits: c.lastFourDigits }))
-                                        : [];
-
-                                        console.log(account);
-
-                                        const card = account?.[0];
-
-                                        if (!card) {
-                                            setProvisioningStatus('No card found');
-                                            return;
-                                        }
-
-                                        try {
-                                            let res = await AndroidWalletService.addCardToWallet({
-                                                cardId: card.id,
-                                                cardholderName: isTestnet ?'ALEKSEI DOROSHEV':  'PAVEL SOLOVEV',
-                                                token,
-                                                isTestnet,
-                                                primaryAccountNumberSuffix: card.lastFourDigits ??''
-                                            });
-
-                                            console.log(res);
-
-                                            setProvisioningStatus(JSON.stringify(res));
-                                        } catch (error) {
-                                            setProvisioningStatus((error as Error).message);
-                                        }
-                                    }}
-                                />
-                                <ItemButton
-                                    title={'get ENV'}
-                                    onPress={async () => {
-                                        try {
-                                            let res = await AndroidWalletService.getEnvironment();
-                                            console.log(res);
-                                            setProvisioningStatus(JSON.stringify(res));
-                                        } catch (error) {
-                                            setProvisioningStatus((error as Error).message);
-                                        }
-                                    }}
-                                />
-                                <ItemButton
-                                    title={'getIsDefaultWallet'}
-                                    onPress={async () => {
-                                        try {
-                                            let res = await AndroidWalletService.getIsDefaultWallet();
-                                            console.log(res);
-                                            setProvisioningStatus(JSON.stringify(res));
-                                        } catch (error) {
-                                            setProvisioningStatus((error as Error).message);
-                                        }
-                                    }}
-                                />
-                                <ItemButton
-                                    title={'setDefaultWallet'}
-                                    onPress={async () => {
-                                        try {
-                                            let res = await AndroidWalletService.setDefaultWallet();
-                                            console.log(res);
-                                            setProvisioningStatus(JSON.stringify(res));
-                                        } catch (error) {
-                                            setProvisioningStatus((error as Error).message);
-                                        }
-                                    }}
-                                />
-                                <ItemButton
-                                    title={'listTokens'}
-                                    onPress={async () => {
-
-                                        try {
-                                            let res = await AndroidWalletService.listTokens();
-                                            console.log(res);
-                                            setProvisioningStatus(JSON.stringify(res));
-                                        } catch (error) {
-                                            setProvisioningStatus((error as Error).message);
-                                        }
-                                    }}
-                                />
-                                {!!provisioningStatus && (
-                                    <>
-                                        <ItemDivider marginVertical={0} />
-                                        <Text style={[
-                                            Typography.semiBold24_30,
-                                            { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
-                                        ]}>
-                                            {'Last check result:'}
-                                        </Text>
-                                        <Text style={[
-                                            Typography.regular15_20,
-                                            {
-                                                color: theme.textPrimary,
-                                                padding: 16,
-                                                flexWrap: 'wrap',
-                                                flexShrink: 1,
-                                            }
-                                        ]}>
-                                            {formattedStatusString}
-                                        </Text>
-                                    </>
-                                )}
-                            </View>
-                        </View>
-                    ) : (
-                        <View style={{
-                            marginTop: 16,
-                            backgroundColor: theme.border,
-                            borderRadius: 14,
-                            overflow: 'hidden',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexShrink: 1,
-                        }}>
-                            <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <Text style={[
-                                    Typography.semiBold24_30,
-                                    { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
-                                ]}>
-                                    {'Provisioning debug'}
-                                </Text>
-                                <ItemButton
-                                    title={'getProvisioningCredentials'}
-                                    onPress={async () => {
-                                        let res = await IosWalletService.getCredentials();
-
-                                        for (let i = 0; i < res.length; i++) {
-                                            res[i].token = res[i].token.slice(0, 4) + '...' + res[i].token.slice(-4);
-                                            res[i].identifier = res[i].identifier.slice(0, 4) + '...' + res[i].identifier.slice(-4);
-                                        }
-
-                                        setProvisioningStatus(JSON.stringify(res));
-                                    }}
-                                />
-
-                                <ItemButton
-                                    title={'Check extension steps'}
-                                    onPress={async () => {
-                                        let res = await IosWalletService.getExtensionData("WNonUIExtHandler");
-                                        setProvisioningStatus(JSON.stringify(res));
-                                    }}
-                                />
-                                {!!provisioningStatus && (
-                                    <>
-                                        <ItemDivider marginVertical={0} />
-                                        <Text style={[
-                                            Typography.semiBold24_30,
-                                            { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
-                                        ]}>
-                                            {'Last check result:'}
-                                        </Text>
-                                        <Text style={[
-                                            Typography.regular15_20,
-                                            {
-                                                color: theme.textPrimary,
-                                                padding: 16,
-                                                flexWrap: 'wrap',
-                                                flexShrink: 1,
-                                            }
-                                        ]}>
-                                            {formattedStatusString}
-                                        </Text>
-                                    </>
-                                )}
-                            </View>
-                        </View>
-                    )}
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

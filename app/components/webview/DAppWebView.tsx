@@ -23,7 +23,7 @@ import { processEmitterMessage } from "./utils/processEmitterMessage";
 import { getLastAuthTimestamp, useKeysAuth } from "../secure/AuthWalletKeys";
 import { getLockAppWithAuthState } from "../../engine/state/lockAppWithAuthState";
 import { useLockAppWithAuthState } from "../../engine/hooks/settings";
-import { IosWalletService, addCardRequestSchema } from "../../modules/WalletService";
+import { WalletService, addCardRequestSchema } from "../../modules/WalletService";
 import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../storage/appState";
 
@@ -199,17 +199,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
             // Wallet API
             if (props.useWalletAPI && parsed.data.name.startsWith('wallet.')) {
-                if (Platform.OS !== 'ios') {
-                    warn('Wallet API is only available on iOS');
-                    return;
-                }
                 const method = parsed.data.name.split('.')[1] as 'isEnabled' | 'checkIfCardIsAlreadyAdded' | 'canAddCard' | 'addCardToWallet';
 
                 switch (method) {
                     case 'isEnabled':
                         (async () => {
                             try {
-                                const result = await IosWalletService.isEnabled();
+                                const result = await WalletService.isEnabled();
                                 dispatchWalletResponse(ref as RefObject<WebView>, { result });
                             } catch {
                                 warn('Failed to check if wallet is enabled');
@@ -226,7 +222,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         }
                         (async () => {
                             try {
-                                const result = await IosWalletService.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
+                                const result = await WalletService.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
                                 dispatchWalletResponse(ref as RefObject<WebView>, { result });
                             } catch {
                                 warn('Failed to check if card is already added');
@@ -244,7 +240,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
                         (async () => {
                             try {
-                                const result = await IosWalletService.canAddCard(cardId);
+                                const result = await WalletService.canAddCard(cardId);
                                 dispatchWalletResponse(ref as RefObject<WebView>, { result });
                             } catch (error) {
                                 warn('Failed to check if card can be added');
@@ -272,7 +268,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
                         (async () => {
                             try {
-                                const result = await IosWalletService.addCardToWallet({ ...request.data, token, isTestnet });
+                                const result = await WalletService.addCardToWallet({ ...request.data, token, isTestnet });
                                 dispatchWalletResponse(ref as RefObject<WebView>, { result });
                             } catch {
                                 warn('Failed to add card to wallet');

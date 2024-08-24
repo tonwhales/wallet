@@ -31,23 +31,17 @@ interface IosWalletService {
     setCredentialsInGroupUserDefaults(data: { [key: string]: ProvisioningCredential }): Promise<void>;
     getShouldRequireAuthenticationForAppleWallet(): Promise<boolean>;
     setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication: boolean): Promise<void>;
-
-    // Dev debug
-    getExtensionData(key: string): Promise<string | undefined>;
 }
 
 // not implemented yet
 interface AndroidWalletService {
     isEnabled(): Promise<boolean>;
     checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string): Promise<boolean>;
+    canAddCard(cardId: string): Promise<boolean>;
     addCardToWallet(request: AddCardRequest): Promise<boolean>;
 
     getIsDefaultWallet(): Promise<boolean>;
     setDefaultWallet(): Promise<void>;
-    
-    // Dev debug
-    listTokens(): Promise<any[]>;
-    getEnvironment(): Promise<string>;
 }
 
 export const IosWalletService: IosWalletService = {
@@ -105,14 +99,6 @@ export const IosWalletService: IosWalletService = {
             return;
         }
         return RNAppleProvisioning.setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication);
-    },
-
-    // Dev debug
-    async getExtensionData(key: string) {
-        if (Platform.OS === 'android') {
-            return '';
-        }
-        return RNAppleProvisioning.getExtensionData(key);
     }
 }
 
@@ -155,14 +141,6 @@ export const AndroidWalletService: AndroidWalletService = {
         );
     },
 
-    async listTokens() {
-        if (Platform.OS === 'ios') {
-            return [];
-        }
-
-        return WalletModule.listTokens();
-    },
-
     async checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string) {
         if (Platform.OS === 'ios') {
             return false;
@@ -171,12 +149,13 @@ export const AndroidWalletService: AndroidWalletService = {
         return WalletModule.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
     },
 
-    // Dev debug
-    async getEnvironment() {
+    async canAddCard(cardId: string) {
         if (Platform.OS === 'ios') {
-            return '';
+            return false;
         }
-        return WalletModule.getEnvironment();
-    },
 
+        return true;
+    }
 }
+
+export const WalletService = Platform.OS === 'ios' ? IosWalletService : AndroidWalletService;

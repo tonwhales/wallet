@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import { Alert } from "react-native";
+import { Alert, Linking } from "react-native";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../../engine/transactions/resolveOperation";
@@ -22,6 +22,8 @@ import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { ConfirmLoadedPropsSingle } from "../TransferFragment";
 import { PendingTransactionBody } from "../../../engine/state/pending";
+import Minimizer from "../../../modules/Minimizer";
+import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
@@ -72,6 +74,20 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
         return undefined;
     }, [order, jetton]);
+
+    const handleReturnStrategy = useCallback((returnStrategy: string) => {
+        if (returnStrategy === 'back') {
+            Minimizer.goBack();
+        } else if (returnStrategy !== 'none') {
+            try {
+                const url = new URL(decodeURIComponent(returnStrategy));
+                Linking.openURL(url.toString());
+            } catch {
+                warn('Failed to open url');
+            }
+        }
+        clearLastReturnStrategy();
+    }, []);
 
     // Tracking
     const success = useRef(false);
@@ -301,6 +317,20 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             time: Math.floor(Date.now() / 1000),
             hash: msg.hash(),
         });
+
+        if (props.source?.type === 'tonconnect' && !!props.source?.returnStrategy) {
+            const returnStrategy = props.source?.returnStrategy;
+
+            // close modal
+            navigation.goBack();
+
+            // resolve return strategy
+            if (!!returnStrategy) {
+                handleReturnStrategy(returnStrategy);
+            }
+
+            return;
+        }
 
         // Reset stack to root
         if (props.back && props.back > 0) {

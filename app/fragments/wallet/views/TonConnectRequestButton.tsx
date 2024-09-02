@@ -9,6 +9,7 @@ import { ToastDuration, useToaster } from "../../../components/toast/ToastProvid
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { Cell } from "@ton/core";
+import { getLastReturnStrategy } from "../../../engine/tonconnect/utils";
 
 type TonConnectRequestButtonProps = {
     request: SendTransactionRequest,
@@ -64,8 +65,11 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
                 }
             };
 
+            const returnStrategy = getLastReturnStrategy()
+
             navigation.navigateTransfer({
                 text: null,
+                source: { type: 'tonconnect', returnStrategy},
                 order: {
                     type: 'order',
                     messages: prepared.messages,

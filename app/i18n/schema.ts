@@ -106,7 +106,9 @@ export type LocalizationSchema = {
         support: {
             title: string,
             telegram: string,
-            form: string
+            form: string,
+            holders: string,
+            tonhub: string,
         },
         telegram: string,
         rateApp: string,

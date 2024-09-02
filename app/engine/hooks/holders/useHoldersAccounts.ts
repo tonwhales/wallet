@@ -6,6 +6,7 @@ import { Queries } from "../../queries";
 import { GeneralHoldersAccount, PrePaidHoldersCard, fetchAccountsList, fetchAccountsPublic } from "../../api/holders/fetchAccounts";
 import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersAccountState } from "../../api/holders/fetchAccountState";
+import { updateProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
 
 export type HoldersAccounts = {
     accounts: GeneralHoldersAccount[], 
@@ -40,11 +41,15 @@ export function useHoldersAccounts(address: string | Address) {
             let accounts;
             let prepaidCards: PrePaidHoldersCard[] | undefined;
             let type = 'public';
+            
             if (token) {
                 const res = await fetchAccountsList(token, isTestnet);
                 type = 'private';
                 accounts = res?.accounts;
                 prepaidCards = res?.prepaidCards;
+
+                // fetch apple pay credentials and update provisioning credentials cache
+                await updateProvisioningCredentials(addressString, isTestnet);
             } else {
                 accounts = await fetchAccountsPublic(addressString, isTestnet);
                 type = 'public';

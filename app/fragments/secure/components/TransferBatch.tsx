@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import { Alert, View, Text, ScrollView, Pressable, Image } from "react-native";
+import { Alert, View, Text, ScrollView, Pressable, Image, Linking } from "react-native";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { SupportedMessage, parseMessageBody } from "../../../engine/transactions/parseMessageBody";
@@ -23,14 +23,13 @@ import { confirmAlert } from "../../../utils/confirmAlert";
 import { useAppData, useAppManifest, useClient4, useCommitCommand, useNetwork, useBounceableWalletFormat, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../../engine/getters/getJettonMaster";
-import { Address, Cell, MessageRelaxed, SendMode, beginCell, external, fromNano, storeMessage, internal, toNano, loadStateInit, comment } from "@ton/core";
-import { ContractMetadata } from "../../../engine/metadata/Metadata";
+import { Cell, MessageRelaxed, SendMode, beginCell, external, fromNano, storeMessage, internal, toNano, loadStateInit } from "@ton/core";
 import { getAccountLite } from "../../../engine/getters/getAccountLite";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { StoredOperation } from "../../../engine/types";
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
-import { OrderMessage } from "../TransferFragment";
+import { ConfirmLoadedPropsBatch, OrderMessage } from "../TransferFragment";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { AppInfo } from "../../../components/ConnectedAppButton";
@@ -38,41 +37,14 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { Typography } from "../../../components/styles";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { copyText } from "../../../utils/copyText";
+import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
+import Minimizer from "../../../modules/Minimizer";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 
-type Props = {
-    text: string | null,
-    job: string | null,
-    order: {
-        messages: {
-            addr: {
-                address: Address;
-                balance: bigint,
-                active: boolean
-            },
-            metadata: ContractMetadata,
-            restricted: boolean,
-            amount: bigint,
-            amountAll: boolean,
-            payload: Cell | null,
-            stateInit: Cell | null,
-        }[],
-        app?: {
-            url: string,
-            domain: string,
-            title: string
-        }
-    },
-    fees: bigint,
-    callback: ((ok: boolean, result: Cell | null) => void) | null,
-    back?: number,
-    totalAmount: bigint
-}
-
-export const TransferBatch = memo((props: Props) => {
+export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
     const authContext = useKeysAuth();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -102,6 +74,20 @@ export const TransferBatch = memo((props: Props) => {
             return null;
         }
     }, [appData, appManifest]);
+
+    const handleReturnStrategy = useCallback((returnStrategy: string) => {
+        if (returnStrategy === 'back') {
+            Minimizer.goBack();
+        } else if (returnStrategy !== 'none') {
+            try {
+                const url = new URL(decodeURIComponent(returnStrategy));
+                Linking.openURL(url.toString());
+            } catch {
+                warn('Failed to open url');
+            }
+        }
+        clearLastReturnStrategy();
+    }, []);
 
     const {
         text,
@@ -411,6 +397,20 @@ export const TransferBatch = memo((props: Props) => {
             time: Math.floor(Date.now() / 1000),
             hash: msg.hash(),
         });
+
+        if (props.source?.type === 'tonconnect' && !!props.source?.returnStrategy) {
+            const returnStrategy = props.source?.returnStrategy;
+
+            // close modal
+            navigation.goBack();
+
+            // resolve return strategy
+            if (!!returnStrategy) {
+                handleReturnStrategy(returnStrategy);
+            }
+
+            return;
+        }
 
         // Reset stack to root
         if (back && back > 0) {

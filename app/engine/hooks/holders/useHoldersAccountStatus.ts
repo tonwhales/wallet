@@ -6,6 +6,7 @@ import { useNetwork } from "../network/useNetwork";
 import { storage } from "../../../storage/storage";
 import { HoldersAccountState, accountStateCodec, fetchAccountState } from "../../api/holders/fetchAccountState";
 import { z } from 'zod';
+import { removeProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
 
 const holdersAccountStatus = z.union([
     z.object({ state: z.literal(HoldersAccountState.NeedEnrollment) }),
@@ -28,6 +29,8 @@ function migrateHoldersToken(addressString: string) {
 }
 
 export function deleteHoldersToken(address: string) {
+    // clean up provisioning credentials cache for this address
+    removeProvisioningCredentials(address);    
     storage.delete(`holders-jwt-${address}`);
 }
 

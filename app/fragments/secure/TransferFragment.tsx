@@ -32,7 +32,6 @@ import { ReturnStrategy } from '../../engine/tonconnect/types';
 import Minimizer from '../../modules/Minimizer';
 import { warn } from '../../utils/log';
 import { clearLastReturnStrategy } from '../../engine/tonconnect/utils';
-import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 

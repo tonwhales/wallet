@@ -24,7 +24,6 @@ import { ConfirmLoadedPropsSingle } from "../TransferFragment";
 import { PendingTransactionBody } from "../../../engine/state/pending";
 import Minimizer from "../../../modules/Minimizer";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
-import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();

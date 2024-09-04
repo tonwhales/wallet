@@ -28,6 +28,7 @@ import IcDelete from '@assets/ic-delete-red.svg';
 import IcCheckAddress from '@assets/ic-check-recipient.svg';
 import IcSupport from '@assets/ic-support.svg';
 import { useWalletVersion } from "../engine/hooks/useWalletVersion";
+import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 
 export const DeleteAccountFragment = fragment(() => {
     const theme = useTheme();
@@ -158,6 +159,7 @@ export const DeleteAccountFragment = fragment(() => {
             // Check if has at least 0.1 TON 
             if (account && account.balance || BigInt(0) > toNano('0.1')) {
                 const contract = await contractFromPublicKey(selected!.publicKey, walletVersion);
+                const isV5 = walletVersion === 'v5R1';
 
                 // Check if same address
                 if (target.address.equals(contract.address)) {
@@ -168,8 +170,7 @@ export const DeleteAccountFragment = fragment(() => {
 
                 let seqno = await fetchSeqno(client, await getLastBlock(), selected!.address);
 
-                // Create transfer all & dstr transfer
-                let transfer = contract.createTransfer({
+                const transferParams = {
                     seqno: seqno,
                     secretKey: key.keyPair.secretKey,
                     sendMode: SendMode.CARRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
@@ -178,7 +179,23 @@ export const DeleteAccountFragment = fragment(() => {
                         value: 0n,
                         bounce: false,
                     })]
-                });
+                }
+
+                // Create transfer all & dstr transfer
+                // let transfer = contract.createTransfer({
+                //     seqno: seqno,
+                //     secretKey: key.keyPair.secretKey,
+                //     sendMode: SendMode.CARRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
+                //     messages: [internal({
+                //         to: target.address,
+                //         value: 0n,
+                //         bounce: false,
+                //     })]
+                // });
+
+                const transfer = isV5
+                    ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                    : (contract as WalletContractV4).createTransfer(transferParams);
 
                 // Create external message
                 let extMessage = external({

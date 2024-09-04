@@ -7,8 +7,8 @@ import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banner
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { WalletVersions } from "../../engine/state/walletVersions";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
+import { WalletVersions } from "../../engine/types";
 
 const bannerId = 'bounceable-format-update';
 

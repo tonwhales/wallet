@@ -7,11 +7,11 @@ import { Address } from "@ton/core";
 import { useAppState, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 import { KnownWallet } from "../../secure/KnownWallets";
-
-import IcCheck from "@assets/ic-check.svg";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { Typography } from "../styles";
 import { LinearGradient } from "expo-linear-gradient";
+
+import IcCheck from "@assets/ic-check.svg";
 
 export const WalletItem = memo((
     {

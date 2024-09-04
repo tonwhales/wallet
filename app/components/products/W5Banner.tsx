@@ -1,15 +1,16 @@
 import { memo } from "react";
 import { Pressable, View, useWindowDimensions, Image, Text } from "react-native";
-import { useBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useTheme, useV5IsAdded } from "../../engine/hooks";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Typography } from "../styles";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
+import { WalletVersions } from "../../engine/types";
+import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
+
 import W5LabelIcon from '@assets/ic-w5-label.svg';
-import { useWalletsVersion, useWalletVersion } from "../../engine/hooks/useWalletVersion";
-import { WalletVersions } from "../../engine/state/walletVersions";
 
 const bannerId = 'w5r1';
 
@@ -19,9 +20,10 @@ export const W5Banner = memo(() => {
     const dimentions = useWindowDimensions();
     const hiddenBanners = useHiddenBanners();
     const markBannerHidden = useMarkBannerHidden();
-    const [walletsVersions] = useWalletsVersion();
+    const version = useWalletVersion();
+    const alreadyAdded = useV5IsAdded();
 
-    if (hiddenBanners.includes(bannerId) || Object.keys(walletsVersions).length > 0) {
+    if (hiddenBanners.includes(bannerId) || version === WalletVersions.v5R1 || alreadyAdded) {
         return null;
     }
 

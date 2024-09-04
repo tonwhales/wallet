@@ -269,7 +269,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                     amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
                     jettonAmountString={jettonAmountString}
                     target={target}
-                    fees={fees}
+                    fees={{ type: 'ton', value: fees }}
                     jetton={jetton}
                     walletSettings={walletSettings}
                     text={text}
@@ -325,7 +325,8 @@ export const LedgerSignTransferFragment = fragment(() => {
     // Sign/Transfer state
     const [transferState, setTransferState] = useState<'confirm' | 'sending' | 'sent' | null>(null);
 
-    const walletVersion = useWalletVersion();
+    // TODO: Implement wallet version
+    // const walletVersion = useWalletVersion();
 
     const transferStateTitle = useMemo(() => {
         switch (transferState) {
@@ -403,7 +404,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             }
 
             // Get contract
-            const contract = contractFromPublicKey(from.publicKey, walletVersion);
+            const contract = contractFromPublicKey(from.publicKey) as WalletContractV4;
 
             // Resolve payload 
             let payload: Cell | null = order.payload ? resolveLedgerPayload(order.payload) : null;

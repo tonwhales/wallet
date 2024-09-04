@@ -1,13 +1,10 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { WalletVersions } from "../../engine/state/walletVersions";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { t } from "../../i18n/t";
 import { useNetwork, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { RoundButton } from "../RoundButton";
 import { LinearGradient } from 'expo-linear-gradient';
-
-import IcCheck from "@assets/ic-check.svg";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { mnemonicToWalletKey } from "@ton/crypto";
 import { ellipsiseAddress } from "../address/WalletAddress";
@@ -15,12 +12,16 @@ import { clients } from "../../engine/clients";
 import { Address, fromNano } from "@ton/core";
 import { getLastBlock } from "../../engine/accountWatcher";
 import { warn } from "../../utils/log";
+import { WalletVersions } from "../../engine/types";
+
+import IcCheck from "@assets/ic-check.svg";
+import { markAddressSecured } from "../../storage/appState";
 
 
 type WalletAddress = string;
 
 type WalletBalances = { [key in WalletAddress]: string };
- 
+
 type WalletAddressVersion = {
     version: WalletVersions;
     address: string;
@@ -31,7 +32,7 @@ async function fetchBalance(address: WalletAddress, isTestnet: boolean) {
         const client = clients.ton[isTestnet ? 'testnet' : 'mainnet'];
         const last = await getLastBlock();
         const data = await client.getAccountLite(last, Address.parse(address));
-        return data?.account ? BigInt(data.account.balance.coins) : BigInt(0); 
+        return data?.account ? BigInt(data.account.balance.coins) : BigInt(0);
     } catch (err) {
         warn(err);
         return BigInt(0);
@@ -39,16 +40,16 @@ async function fetchBalance(address: WalletAddress, isTestnet: boolean) {
 }
 
 export const WalletSelectVersionsComponent = React.memo((props: {
-  onContinue: (versions: WalletVersions[]) => void,
-  mnemonics: string,
+    onContinue: (versions: WalletVersions[]) => void,
+    mnemonics: string,
 }) => {
     const { onContinue, mnemonics } = props;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const [addresses, setAddresses] = useState<WalletAddressVersion[]>([]); 
-    const [balances, setBalances] = useState<WalletBalances>({}); 
+    const [addresses, setAddresses] = useState<WalletAddressVersion[]>([]);
+    const [balances, setBalances] = useState<WalletBalances>({});
     const [selected, setSelected] = useState<WalletVersions[]>([
-        WalletVersions.v5R1, 
+        WalletVersions.v5R1,
         WalletVersions.v4R2
     ]);
 
@@ -74,9 +75,9 @@ export const WalletSelectVersionsComponent = React.memo((props: {
         mnemonicToWalletKey(mnemonics.split(' ')).then(({ publicKey }) => {
             const addresses = [WalletVersions.v5R1, WalletVersions.v4R2].map((version) => {
                 const contract = contractFromPublicKey(publicKey, version);
-                const address = contract.address.toString({ 
-                    testOnly: isTestnet, 
-                    bounceable: false 
+                const address = contract.address.toString({
+                    testOnly: isTestnet,
+                    bounceable: false
                 });
 
                 return { address, version };
@@ -85,10 +86,9 @@ export const WalletSelectVersionsComponent = React.memo((props: {
             setAddresses(addresses);
 
             addresses.forEach(async (item) => {
-                const balance  = await fetchBalance(item.address, isTestnet);
+                const balance = await fetchBalance(item.address, isTestnet);
                 setBalances((balances) => ({ ...balances, [item.address]: fromNano(balance) }));
-            })
-            
+            });
         });
     }, []);
 
@@ -98,7 +98,7 @@ export const WalletSelectVersionsComponent = React.memo((props: {
                 {t('wallets.choose_versions')}
             </Text>
             {addresses.map((item) => (
-                 <TouchableOpacity 
+                <TouchableOpacity
                     key={item.version}
                     style={[styles.item, { backgroundColor: theme.surfaceOnBg }]}
                     onPress={toggleVersion(item.version)}
@@ -111,7 +111,7 @@ export const WalletSelectVersionsComponent = React.memo((props: {
                             </Text>
                             {item.version === WalletVersions.v5R1 ? (
                                 <View style={[styles.label, { backgroundColor: theme.divider }]}>
-                                    <LinearGradient 
+                                    <LinearGradient
                                         style={styles.gradientW5}
                                         colors={['#F54927', '#FAA046']}
                                         start={[0, 1]}

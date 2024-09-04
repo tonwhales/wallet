@@ -21,8 +21,7 @@ import { useNetwork, useBounceableWalletFormat, useSetAppState, useSetPasscodeSt
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { openSettings } from 'react-native-permissions';
 import { ScreenHeader } from '../ScreenHeader';
-import { WalletVersions } from '../../engine/state/walletVersions';
-import { useSetW5Version } from '../../engine/hooks/useWalletVersion';
+import { WalletVersions } from '../../engine/types';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -39,7 +38,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const logOutAndReset = useLogoutAndReset();
     const setPascodeState = useSetPasscodeState();
     const [, setBounceable] = useBounceableWalletFormat();
-    const setW5Version = useSetW5Version();
     const [versions] = useState(props.versions ?? [WalletVersions.v5R1]);
 
     const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
@@ -211,18 +209,17 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                             {
                                 address: contract.address,
                                 publicKey: key.publicKey,
-                                secretKeyEnc, // With passcode
+                                secretKeyEnc: secretKeyEnc as Buffer, // With passcode
                                 utilityKey,
-                                addressString: contract.address.toString({ testOnly: isTestnet })
+                                addressString: contract.address.toString({ testOnly: isTestnet }),
+                                version
                             }
                         ],
                         selected: state.addresses.length
                     }, isTestnet);
 
-                    console.log('SET VERSION', version);
-                    if (version === WalletVersions.v5R1) {
-                        setW5Version(contract.address);
-                    }
+                    console.log('Marking address as secured', contract.address.toString({ testOnly: isTestnet }));
+                    markAddressSecured(contract.address);
                 });
 
                 onComplete();
@@ -292,7 +289,8 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                             publicKey: key.publicKey,
                             secretKeyEnc, // With passcode
                             utilityKey,
-                            addressString: contract.address.toString({ testOnly: isTestnet })
+                            addressString: contract.address.toString({ testOnly: isTestnet }),
+                            version
                         }
                     ],
                     selected: appState.addresses.length
@@ -300,10 +298,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
                 const account = getCurrentAddress();
                 markAddressSecured(account.address);
-
-                if (version === WalletVersions.v5R1) {
-                    setW5Version(account.address);
-                }
             });
 
             const deviceEncryption = await getDeviceEncryption();

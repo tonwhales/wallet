@@ -16,7 +16,8 @@ export type Order = {
         domain: string,
         title: string,
         url: string
-    }
+    },
+    gasless?: boolean
 };
 
 export type LedgerOrder = {
@@ -201,6 +202,8 @@ export function createJettonOrder(args: {
         let c = comment(args.text);
         payload = c;
     }
+
+    console.log('createJettonOrder', payload);
 
     // Create body
     // transfer#f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress

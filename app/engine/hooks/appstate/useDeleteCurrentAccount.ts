@@ -5,7 +5,6 @@ import { storage, storagePersistence } from "../../../storage/storage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { queryClient } from "../../clients";
 import { clearDomainKeysState } from "../../state/domainKeys";
-import { removeWalletVersion } from "../../state/walletVersions";
 import { deleteHoldersToken } from "../holders/useHoldersAccountStatus";
 import { useNetwork } from "../network";
 import { useSetAppState } from "./useSetAppState";
@@ -36,8 +35,6 @@ export function useDeleteCurrentAccount() {
         
         mixpanelReset(isTestnet);
         mixpanelFlush(isTestnet);
-        
-        removeWalletVersion(selected.address.toRawString());
         
         if (appState.addresses.length > 1) {
             deleteHoldersToken(selected.address.toString({ testOnly: isTestnet }));

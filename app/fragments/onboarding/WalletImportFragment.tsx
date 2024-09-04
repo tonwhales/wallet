@@ -19,8 +19,8 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { useParams } from '../../utils/useParams';
 import { StatusBar } from 'expo-status-bar';
 import { Typography } from '../../components/styles';
-import { WalletVersions } from '../../engine/state/walletVersions';
 import { WalletSelectVersionsComponent } from '../../components/secure/WalletSelectVersionsComponent';
+import { WalletVersions } from '../../engine/types';
 
 export const wordsTrie = WordsListTrie();
 
@@ -119,7 +119,7 @@ export const WordInput = memo(forwardRef((props: {
                 props.onSubmit(props.index, normalized);
                 return;
             }
-        } catch (e) {
+        } catch {
             warn('Failed to validate mnemonics');
             doShake();
             setIsWrong(true);

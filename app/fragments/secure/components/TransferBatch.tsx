@@ -43,6 +43,7 @@ import Minimizer from "../../../modules/Minimizer";
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
+import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 
 export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
     const authContext = useKeysAuth();
@@ -231,6 +232,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         // Load contract
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey, walletVersion);
+        const isV5 = walletVersion === 'v5R1';
 
         if (!selected) {
             return;
@@ -343,13 +345,22 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         // Create transfer
         let transfer: Cell;
         try {
-            transfer = contract.createTransfer({
+            const transferParams = {
                 seqno: seqno,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages,
-            });
-        } catch (e) {
+            }
+            transfer = isV5
+                ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                : (contract as WalletContractV4).createTransfer(transferParams);
+            // transfer = contract.createTransfer({
+            //     seqno: seqno,
+            //     secretKey: walletKeys.keyPair.secretKey,
+            //     sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+            //     messages,
+            // });
+        } catch {
             warn('Failed to create transfer');
             return;
         }

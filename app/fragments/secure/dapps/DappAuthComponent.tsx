@@ -18,7 +18,7 @@ import { useTheme, useAppState, useBounceableWalletFormat, useNetwork } from "..
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { SelectedAccount } from "../../../engine/types";
+import { SelectedAccount, WalletVersions } from "../../../engine/types";
 import { Typography } from "../../../components/styles";
 import { ScrollView } from "react-native-gesture-handler";
 import { WalletItem } from "../../../components/wallet/WalletItem";
@@ -301,6 +301,7 @@ export const DappAuthComponent = memo(({
                             bounceableFormat={bounceableFormat}
                             isTestnet={isTestnet}
                             knownWallets={knownWallets}
+                            isW5={selectedAccount.version === WalletVersions.v5R1}
                         />
                         <View style={{ flexGrow: 1 }} />
                     </>
@@ -328,6 +329,7 @@ export const DappAuthComponent = memo(({
                                     bounceableFormat={bounceableFormat}
                                     isTestnet={isTestnet}
                                     knownWallets={knownWallets}
+                                    isW5={selectedAccount.version === WalletVersions.v5R1}
                                 />
                             )
                         })}
@@ -355,6 +357,7 @@ export const DappAuthComponent = memo(({
                                         bounceableFormat={bounceableFormat}
                                         isTestnet={isTestnet}
                                         knownWallets={knownWallets}
+                                        isW5={selectedAccount.version === WalletVersions.v5R1}
                                     />
                                 );
                             })}

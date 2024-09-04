@@ -39,10 +39,12 @@ import { TransferHeader } from '../../components/transfer/TransferHeader';
 import { JettonIcon } from '../../components/products/JettonIcon';
 import { AnimTextInputRef } from '../../components/address/AddressDomainInput';
 import { Typography } from '../../components/styles';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
+import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
+import { WalletVersions } from '../../engine/types';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -191,7 +193,7 @@ export const SimpleTransferFragment = fragment(() => {
         );
     }, [price, currency, estimation]);
 
-    const { isSCAM, verified: isVerified } = useVerifyJetton({
+    const { isSCAM } = useVerifyJetton({
         ticker: jettonState?.master?.symbol,
         master: jettonState?.wallet?.master
     });
@@ -434,15 +436,19 @@ export const SimpleTransferFragment = fragment(() => {
                 // Load contract
                 const pubKey = ledgerContext.addr?.publicKey ?? currentAcc.publicKey;
                 const contract = await contractFromPublicKey(pubKey, walletVersion);
+                const isV5 = walletVersion === WalletVersions.v5R1;
 
-                // Create transfer
-                let transfer = contract.createTransfer({
+                const transferParams = {
                     seqno: seqno,
                     secretKey: Buffer.alloc(64),
                     sendMode,
                     messages: [intMessage],
-                });
+                };
 
+                // Create transfer
+                const transfer = isV5
+                    ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                    : (contract as WalletContractV4).createTransfer(transferParams);
 
                 if (ended) {
                     return;
@@ -471,7 +477,7 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, accountLite, client, config, commentString, ledgerAddress]);
+    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion]);
 
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
@@ -626,6 +632,7 @@ export const SimpleTransferFragment = fragment(() => {
             );
             return;
         }
+
         if (validAmount === 0n) {
             if (!!jettonState) {
                 Alert.alert(t('transfer.error.zeroCoins'));
@@ -670,7 +677,7 @@ export const SimpleTransferFragment = fragment(() => {
             job: params && params.job ? params.job : null,
             callback,
             back: params && params.back ? params.back + 1 : undefined
-        })
+        });
     }, [
         amount, target, domain, commentString,
         accountLite,

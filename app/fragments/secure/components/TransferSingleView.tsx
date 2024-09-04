@@ -22,7 +22,7 @@ import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
 import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
-import { toBnWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { avatarHash } from "../../../utils/avatarHash";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { Typography } from "../../../components/styles";
@@ -36,6 +36,7 @@ import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOp
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
+import { TransferEstimate } from "../TransferFragment";
 
 const TxAvatar = memo(({
     address,
@@ -120,7 +121,7 @@ export const TransferSingleView = memo(({
         domain?: string | undefined;
         bounceable?: boolean | undefined;
     },
-    fees: bigint,
+    fees: TransferEstimate,
     metadata: ContractMetadata | null,
     jetton: Jetton | null,
     doSend?: () => Promise<void>,
@@ -153,12 +154,12 @@ export const TransferSingleView = memo(({
     const avatarColor = avatarColors[avatarColorHash];
 
     const feesPrise = useMemo(() => {
-        if (!price) {
+        if (!price || fees.type === 'gasless') {
             return undefined;
         }
 
-        const isNeg = fees < 0n;
-        const abs = isNeg ? -fees : fees;
+        const isNeg = fees.value < 0n;
+        const abs = isNeg ? -fees.value : fees.value;
 
         return formatCurrency(
             (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(3),
@@ -595,20 +596,16 @@ export const TransferSingleView = memo(({
                                 </View>
                             </>
                         )}
-                        {!!jettonAmountString && (
+                        {!!jettonAmountString && fees.type !== 'gasless' && (
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-
-                                        <Text style={{
-                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: theme.textSecondary,
-                                        }}>
+                                        <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                             {t('transfer.gasFee')}
                                         </Text>
                                         <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
-                                            <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                            <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                                 {fromNano(amount) + ' TON'}
                                             </Text>
                                         </View>
@@ -632,13 +629,7 @@ export const TransferSingleView = memo(({
                                                 };
                                             }}
                                         >
-                                            <Text style={{
-                                                flexShrink: 1,
-                                                flexGrow: 1,
-                                                fontSize: 15, lineHeight: 20,
-                                                fontWeight: '400',
-                                                color: theme.accentRed
-                                            }}>
+                                            <Text style={[{ flexShrink: 1, flexGrow: 1, color: theme.accentRed }, Typography.regular15_20]}>
                                                 {t('transfer.unusualJettonsGas')}
                                             </Text>
                                             <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
@@ -651,14 +642,11 @@ export const TransferSingleView = memo(({
                     {text && text.length > 0 && (
                         <ItemGroup style={{ marginBottom: 16 }}>
                             <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
+                                <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                     {t('common.message')}
                                 </Text>
                                 <View style={{ alignItems: 'flex-start' }}>
-                                    <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                         {text}
                                     </Text>
                                 </View>
@@ -673,18 +661,15 @@ export const TransferSingleView = memo(({
                     }}>
                         <View>
                             <Text
-                                style={{
-                                    color: theme.textSecondary,
-                                    fontSize: 13, lineHeight: 18, fontWeight: '400',
-                                    marginBottom: 2
-                                }}>
+                                style={[{ color: theme.textSecondary, marginBottom: 2 }, Typography.regular13_18]}>
                                 {t('txPreview.blockchainFee')}
                             </Text>
-                            <Text style={{
-                                color: theme.textPrimary,
-                                fontSize: 17, lineHeight: 24, fontWeight: '400'
-                            }}>
-                                {`${formatAmount(fromNano(fees))}`}
+                            <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                {
+                                    (fees.type === 'gasless' && !!jetton?.decimals)
+                                        ? `${fromBnWithDecimals(fees.value, jetton.decimals)} ${jetton.symbol}`
+                                        : `${formatAmount(fromNano(fees.value))}`
+                                }
                                 {feesPrise && (
                                     <Text style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}

@@ -3,14 +3,15 @@ import { useCallback, useMemo } from "react";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
-import { HoldersAccountState, holdersUrl as resolveHoldersUrl } from "../../engine/api/holders/fetchAccountState";
+import { HoldersUserState, holdersUrl as resolveHoldersUrl } from "../../engine/api/holders/fetchUserState";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
 import { ProductBanner } from "../../components/products/ProductBanner";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHoldersWhitelisted";
+import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited";
 import { Typography } from "../../components/styles";
+import { HoldersAppParamsType } from "../holders/HoldersAppFragment";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -22,7 +23,7 @@ export const ProductsFragment = fragment(() => {
     const status = useHoldersAccountStatus(selected!.address).data;
     const holdersUrl = resolveHoldersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(holdersUrl);
-    const isHoldersWhitelisted = useIsHoldersWhitelisted(selected!.address, network.isTestnet);
+    const isHoldersInvited = useIsHoldersInvited(selected!.address, network.isTestnet);
 
     const apyWithFee = useMemo(() => {
         if (!!apy) {
@@ -31,7 +32,7 @@ export const ProductsFragment = fragment(() => {
     }, [apy]);
 
     const needsEnrolment = useMemo(() => {
-        if (status?.state === HoldersAccountState.NeedEnrollment) {
+        if (status?.state === HoldersUserState.NeedEnrollment) {
             return true;
         }
         return false;
@@ -42,11 +43,11 @@ export const ProductsFragment = fragment(() => {
         navigation.goBack();
 
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: holdersUrl, onEnrollType: { type: 'create' } }, network.isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: holdersUrl, onEnrollType: { type: HoldersAppParamsType.Create } }, network.isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: 'create' }, network.isTestnet);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, network.isTestnet);
     }, [needsEnrolment, isHoldersReady, network.isTestnet]);
 
     return (
@@ -81,7 +82,7 @@ export const ProductsFragment = fragment(() => {
                 <Text style={[{ marginBottom: 24, color: theme.textPrimary }, Typography.semiBold32_38]}>
                     {t('products.addNew')}
                 </Text>
-                {isHoldersWhitelisted && (
+                {isHoldersInvited && (
                     <ProductBanner
                         title={t('products.holders.card.defaultTitle')}
                         subtitle={t('products.holders.card.defaultSubtitle')}
@@ -92,7 +93,7 @@ export const ProductsFragment = fragment(() => {
                         illustrationStyle={{ backgroundColor: theme.elevation }}
                     />
                 )}
-                <View style={{ marginTop: isHoldersWhitelisted ? 16 : 0 }}>
+                <View style={{ marginTop: isHoldersInvited ? 16 : 0 }}>
                     <ProductBanner
                         onPress={() => {
                             navigation.goBack();

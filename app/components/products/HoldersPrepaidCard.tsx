@@ -6,7 +6,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { useIsConnectAppReady, useTheme } from "../../engine/hooks";
-import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
+import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { GeneralHoldersCard, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
@@ -15,7 +15,7 @@ import { toNano } from "@ton/core";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
-import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
+import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { useLockAppWithAuthState } from "../../engine/hooks/settings";
 
 export const HoldersPrepaidCard = memo((props: {
@@ -50,7 +50,7 @@ export const HoldersPrepaidCard = memo((props: {
             return true;
         }
 
-        if (holdersAccStatus.state === HoldersAccountState.NeedEnrollment) {
+        if (holdersAccStatus.state === HoldersUserState.NeedEnrollment) {
             return true;
         }
 
@@ -62,12 +62,12 @@ export const HoldersPrepaidCard = memo((props: {
         props.onBeforeOpen?.();
 
         if (needsEnrollment) {
-            const onEnrollType: HoldersAppParams = { type: 'prepaid', id: card.id };
+            const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Prepaid, id: card.id };
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: 'prepaid', id: card.id }, props.isTestnet);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Prepaid, id: card.id }, props.isTestnet);
     }, [card, needsEnrollment, props.onBeforeOpen, props.isTestnet]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();

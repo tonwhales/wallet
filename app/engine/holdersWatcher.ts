@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
 import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
-import { HoldersAccountState } from "./api/holders/fetchAccountState";
+import { HoldersUserState } from "./api/holders/fetchUserState";
 import { useNetwork } from "./hooks/network/useNetwork";
 import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
 import { queryClient } from "./clients";
@@ -14,8 +14,8 @@ export function useHoldersWatcher() {
     const status = useHoldersAccountStatus(account?.address.toString({ testOnly: isTestnet }) ?? '');
     const cards = useHoldersAccounts(account?.address.toString({ testOnly: isTestnet }) ?? '');
 
-    useEffect(() => {
-        if (status?.data?.state !== HoldersAccountState.Ok) {
+    useEffect(() => {        
+        if (status?.data?.state !== HoldersUserState.Ok) {
             return;
         }
 

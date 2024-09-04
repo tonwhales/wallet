@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { GeneralHoldersAccount, PrePaidHoldersCard, fetchAccountsList, fetchAccountsPublic } from "../../api/holders/fetchAccounts";
 import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
-import { HoldersAccountState } from "../../api/holders/fetchAccountState";
+import { HoldersUserState } from "../../api/holders/fetchUserState";
 import { updateProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
 
 export type HoldersAccounts = {
@@ -27,8 +27,8 @@ export function useHoldersAccounts(address: string | Address) {
 
     const token = (
         !!status &&
-        status.state !== HoldersAccountState.NoRef &&
-        status.state !== HoldersAccountState.NeedEnrollment
+        status.state !== HoldersUserState.NoRef &&
+        status.state !== HoldersUserState.NeedEnrollment
     ) ? status.token : null;
 
     let query = useQuery({

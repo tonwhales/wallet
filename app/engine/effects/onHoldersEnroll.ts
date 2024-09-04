@@ -2,7 +2,7 @@ import { Address } from "@ton/ton";
 import { queryClient } from "../clients";
 import { Queries } from "../queries";
 import { getHoldersToken } from "../hooks/holders/useHoldersAccountStatus";
-import { HoldersAccountState, fetchAccountState } from "../api/holders/fetchAccountState";
+import { HoldersUserState, fetchUserState } from "../api/holders/fetchUserState";
 import { fetchAccountsPublic, fetchAccountsList } from "../api/holders/fetchAccounts";
 import { updateProvisioningCredentials } from "../holders/updateProvisioningCredentials";
 
@@ -12,17 +12,17 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
     const token = getHoldersToken(address);
 
     if (!token) {
-        return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment }; // This looks amazingly stupid
+        return { state: HoldersUserState.NeedEnrollment } as { state: HoldersUserState.NeedEnrollment }; // This looks amazingly stupid
     }
 
-    const fetched = await fetchAccountState(token, isTestnet);
+    const fetched = await fetchUserState(token, isTestnet);
     if (!fetched) {
-        return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment };
+        return { state: HoldersUserState.NeedEnrollment } as { state: HoldersUserState.NeedEnrollment };
     }
     const status = { ...fetched, token };
     queryClient.setQueryData(Queries.Holders(address).Status(), () => status);
 
-    if (status.state === HoldersAccountState.Ok) {
+    if (status.state === HoldersUserState.Ok) {
         let accounts;
         let prepaidCards;
         let type = 'public';

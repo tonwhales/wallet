@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Address } from "@ton/core";
 import { z } from "zod";
-import { holdersEndpoint } from "./fetchAccountState";
+import { holdersEndpoint } from "./fetchUserState";
 
 const networksSchema = z.union([
   z.literal('ton-mainnet'),

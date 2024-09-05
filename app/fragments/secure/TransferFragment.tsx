@@ -289,7 +289,7 @@ export const TransferFragment = fragment(() => {
                 ]);
 
                 let jettonTransfer: {
-                    queryId: number;
+                    queryId: number | bigint;
                     amount: bigint;
                     destination: {
                         isBounceable: boolean;
@@ -316,7 +316,7 @@ export const TransferFragment = fragment(() => {
                                 let op = sc.loadUint(32);
                                 // Jetton transfer op
                                 if (op === OperationType.JettonTransfer) {
-                                    let queryId = sc.loadUint(64);
+                                    let queryId = sc.loadUintBig(64);
                                     let jettonAmount = sc.loadCoins();
                                     let jettonTargetAddress = sc.loadAddress();
                                     let responseDestination = sc.loadMaybeAddress();
@@ -479,15 +479,11 @@ export const TransferFragment = fragment(() => {
                 const isGaslessSupported = master ? gaslessMasters.some(a => a.equals(master)) : false;
                 let relayerAddress;
 
-                console.log('isGaslessSupported', isGaslessSupported);
-
                 if (gaslessConfig.data?.relay_address) {
                     try {
                         relayerAddress = Address.parse(gaslessConfig.data.relay_address)
                     } catch { }
                 }
-
-                console.log({ isGaslessSupported, relayerAddress, jettonTransfer });
 
                 if (!!jettonTransfer && isGaslessSupported) {
                     const tetherTransferPayload = beginCell()
@@ -534,8 +530,6 @@ export const TransferFragment = fragment(() => {
                         params: gaslessEstimate
                     }
                 }
-
-                console.log('TransferFragment', { fees });
 
                 // Set state
                 setLoadedProps({

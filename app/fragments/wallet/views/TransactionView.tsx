@@ -149,24 +149,30 @@ export function TransactionView(props: {
     if (preparedMessages.length > 1) {
         return (
             <>
-                {preparedMessages.map((m, i) => (
-                    <PreparedMessageView
-                        own={props.own}
-                        message={m}
-                        separator={false}
-                        theme={theme}
-                        navigation={props.navigation}
-                        onPress={() => props.onPress(props.tx)}
-                        onLongPress={() => props.onLongPress?.(props.tx)}
-                        contacts={props.contacts}
-                        isTestnet={props.isTestnet}
-                        bounceableFormat={props.bounceableFormat}
-                        walletsSettings={props.walletsSettings}
-                        time={tx.base.time}
-                        status={parsed.status}
-                        knownWallets={knownWallets}
-                    />
-                ))}
+                {preparedMessages.map((m, i) => {
+                    if (m.type === 'relayed') {
+                        return null;
+                    }
+
+                    return (
+                        <PreparedMessageView
+                            own={props.own}
+                            message={m}
+                            separator={false}
+                            theme={theme}
+                            navigation={props.navigation}
+                            onPress={() => props.onPress(props.tx)}
+                            onLongPress={() => props.onLongPress?.(props.tx)}
+                            contacts={props.contacts}
+                            isTestnet={props.isTestnet}
+                            bounceableFormat={props.bounceableFormat}
+                            walletsSettings={props.walletsSettings}
+                            time={tx.base.time}
+                            status={parsed.status}
+                            knownWallets={knownWallets}
+                        />
+                    );
+                })}
             </>
         );
     }

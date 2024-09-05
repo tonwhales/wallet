@@ -30,7 +30,11 @@ export function resolveOperation(args: {
 
     // Simple payload overwrite
     if (args.body && args.body.type === 'payload') {
-        let parsedBody = parseMessageBody(args.body.cell);
+        let parsedBody = parseMessageBody(args.body.cell);;
+        // let parsedBody;
+        // try {
+        //     parsedBody = parseMessageBody(args.body.cell);
+        // } catch { }
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {

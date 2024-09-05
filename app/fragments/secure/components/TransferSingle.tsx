@@ -127,12 +127,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
     const isSpam = useDenyAddress(friendlyTarget);
     const spam = useIsSpamWallet(friendlyTarget) || isSpam
-
     const walletVersion = useWalletVersion();
-
-    console.log({
-        fees
-    })
 
     // Confirmation
     const doSend = useCallback(async () => {
@@ -265,11 +260,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     )
                 )
                 .endCell();
-
-            console.log({
-                boc: msg.toBoc({ idx: false }).toString('hex'),
-
-            })
 
             await backoff('gasless', () => fetchGaslessSend({
                 wallet_public_key: walletKeys.keyPair.publicKey.toString('hex'),

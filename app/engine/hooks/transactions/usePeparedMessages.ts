@@ -7,8 +7,13 @@ import { JettonMasterState } from "../../metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../getters/getJettonMaster";
 import { resolveOperation } from "../../transactions/resolveOperation";
 import { StoredContractMetadata } from "../../metadata/StoredMetadata";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { useGaslessConfig } from "../jettons/useGaslessConfig";
+
+type PreparedMessageType = 'relayed' | 'message';
 
 export type PreparedMessage = {
+    type: PreparedMessageType,
     address: Address,
     addressString: string,
     metadata: StoredContractMetadata,
@@ -19,11 +24,12 @@ export type PreparedMessage = {
     operation: StoredOperation,
     target: Address,
     friendlyTarget: string,
-}
+};
 
-export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean) {
+export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean): PreparedMessage[] {
     const addresses = messages.map(m => m.info.type === 'internal' ? m.info.dest : null).filter(m => !!m) as string[];
     const metadatas = useContractMetadatas(addresses).map(m => m.data).filter(m => !!m) as StoredContractMetadata[];
+    const gaslessConfig = useGaslessConfig().data;
 
     return useMemo(() => {
         return messages.map((message) => {
@@ -32,7 +38,7 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean)
             }
 
             try {
-
+                let type: PreparedMessageType = 'message';
                 const addressString = message.info.dest;
                 const address = Address.parse(addressString);
                 const metadata = metadatas.find(md => md?.address === address.toString({ testOnly }));
@@ -54,7 +60,7 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean)
                         if (temp) {
                             const parsing = temp.beginParse();
                             parsing.loadUint(32);
-                            parsing.loadUint(64);
+                            parsing.loadUintBig(64);
                             jettonAmount = parsing.loadCoins();
                         }
                     }
@@ -78,6 +84,15 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean)
                 const friendlyTarget = operation.address;
                 const target = Address.parse(friendlyTarget);
 
+                // dont show relay messages
+                try {
+                    if (gaslessConfig?.relay_address && target.equals(Address.parse(gaslessConfig.relay_address))) {
+                        type = 'relayed';
+                    }
+                } catch {
+                    console.warn('Failed to resolve relay address');
+                }
+
                 if (!amount && operation.items[0].kind === 'ton') {
                     amount = BigInt(operation.items[0].amount);
                 }
@@ -87,11 +102,12 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean)
                 }
 
                 return {
+                    type,
                     address,
                     addressString,
                     metadata,
                     amountString: jettonAmount
-                        ? fromNano(jettonAmount) + (` ${jettonMaster?.symbol}` ?? '')
+                        ? `${fromBnWithDecimals(jettonAmount, jettonMaster?.decimals)} ${jettonMaster?.symbol}`
                         : fromNano(amount) + ' TON',
                     jettonMaster,
                     amount: jettonAmount ? null : amount,

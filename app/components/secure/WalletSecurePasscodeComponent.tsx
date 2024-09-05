@@ -218,7 +218,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         selected: state.addresses.length
                     }, isTestnet);
 
-                    console.log('Marking address as secured', contract.address.toString({ testOnly: isTestnet }));
                     markAddressSecured(contract.address);
                 });
 

@@ -70,8 +70,6 @@ export async function fetchGaslessEstimate(master: Address | string, isTestnet: 
         throw new Error('Failed to fetch gasless estimate');
     }
 
-    console.log(res.data);
-
     const parsed = gaslessEstimateScheme.safeParse(res.data);
 
     if (!parsed.success) {

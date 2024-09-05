@@ -9,11 +9,7 @@ export async function fetchGaslessSend(body: GasslessSendParams, isTestnet: bool
     const endpoint = isTestnet ? "https://testnet.tonapi.io" : "https://tonapi.io";
     const url = `${endpoint}/v2/gasless/send`;
 
-    console.log('fetchGaslessSend', url, body);
-
     const res = await axios.post(url, body, { method: 'POST' });
-
-    console.log('fetchGaslessSend', res.status, res.data);
 
     if (res.status !== 200) {
         throw new Error('Failed to fetch gasless send');

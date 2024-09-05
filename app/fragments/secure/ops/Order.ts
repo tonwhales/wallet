@@ -203,8 +203,6 @@ export function createJettonOrder(args: {
         payload = c;
     }
 
-    console.log('createJettonOrder', payload);
-
     // Create body
     // transfer#f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
     //              response_destination:MsgAddress custom_payload:(Maybe ^Cell)

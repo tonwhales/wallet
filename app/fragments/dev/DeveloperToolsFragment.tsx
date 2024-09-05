@@ -36,7 +36,6 @@ import { Item } from '../../components/Item';
 import WalletService from '../../modules/WalletService';
 import { Typography } from '../../components/styles';
 import { ItemDivider } from '../../components/ItemDivider';
-import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -47,9 +46,6 @@ export const DeveloperToolsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const offlineApp = useOfflineApp();
     const countryCodes = getCountryCodes();
-    const config = useGaslessConfig();
-
-    console.log('config', config.data);
 
     const acc = useMemo(() => getCurrentAddress(), []);
 

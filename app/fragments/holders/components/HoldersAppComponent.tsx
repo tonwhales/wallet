@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, Platform, View } from 'react-native';
+import { Linking, Platform, Pressable, View } from 'react-native';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
@@ -29,7 +29,7 @@ import { openWithInApp } from '../../../utils/openWithInApp';
 import { t } from '../../../i18n/t';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { AccountPlaceholder } from './AccountPlaceholder';
-import { ToastDuration, useToaster } from '../../../components/toast/ToastProvider';
+import { Image } from "expo-image";
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
@@ -162,7 +162,6 @@ export const HoldersLoader = memo(({
     onSupport?: () => void
 }) => {
     const theme = useTheme();
-    const toaster = useToaster();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [showClose, setShowClose] = useState(false);
@@ -173,11 +172,8 @@ export const HoldersLoader = memo(({
     });
 
     const longLoadingTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-    const start = useMemo(() => {
-        return Date.now();
-    }, []);
-    const trackLoadingtime = useCallback(() => {
+    const start = useMemo(() => Date.now(), []);
+    const trackLoadingTime = useCallback(() => {
         trackEvent(MixpanelEvent.HoldersLoadingTime, { type, duration: Date.now() - start });
     }, []);
 
@@ -185,7 +181,7 @@ export const HoldersLoader = memo(({
         if (loaded) {
             longLoadingTimerRef.current && clearTimeout(longLoadingTimerRef.current);
             opacity.value = withTiming(0, { duration: 350, easing: Easing.inOut(Easing.ease) });
-            trackLoadingtime();
+            trackLoadingTime();
         } else {
             setShowClose(false);
             opacity.value = 1;
@@ -195,7 +191,7 @@ export const HoldersLoader = memo(({
     useEffect(() => {
         const showCloseTimer = setTimeout(() => {
             setShowClose(true);
-        }, 5000);
+        }, 7000);
 
         if (longLoadingTimerRef.current) {
             clearTimeout(longLoadingTimerRef.current);
@@ -203,12 +199,7 @@ export const HoldersLoader = memo(({
 
         longLoadingTimerRef.current = setTimeout(() => {
             trackEvent(MixpanelEvent.holdersLongLoadingTime, { type, duration: 12000 });
-            toaster.show({
-                type: 'error',
-                message: t('products.holders.loadingLonger'),
-                duration: ToastDuration.DEFAULT
-            });
-        }, 12000);
+        }, 10000);
 
         return () => {
             longLoadingTimerRef.current && clearTimeout(longLoadingTimerRef.current);
@@ -254,7 +245,29 @@ export const HoldersLoader = memo(({
             {placeholder}
             {!loaded && (
                 <ScreenHeader
-                    onBackPressed={showClose ? navigation.goBack : undefined}
+                    onBackPressed={undefined}
+                    leftButton={showClose ? <Pressable
+                        style={({ pressed }) => [
+                            {
+                                opacity: pressed ? 0.5 : 1,
+                                backgroundColor: '#1c1c1e',
+                                borderRadius: 32,
+                                height: 32, width: 32,
+                                justifyContent: 'center', alignItems: 'center',
+                            },
+                        ]}
+                        onPress={navigation.goBack}
+                    >
+                        <Image
+                            style={{
+                                tintColor: theme.iconNav,
+                                height: 10, width: 6,
+                                justifyContent: 'center', alignItems: 'center',
+                                left: -1
+                            }}
+                            source={require('@assets/ic-nav-back.png')}
+                        />
+                    </Pressable> : undefined}
                     style={[
                         { position: 'absolute', top: 32, left: 16, right: 0 },
                         Platform.select({
@@ -510,6 +523,7 @@ export const HoldersAppComponent = memo((
                         {...p}
                         onReload={onReaload}
                         onSupport={onSupport}
+                        loaded={false}
                     />
                 )}
             />

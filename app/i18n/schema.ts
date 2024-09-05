@@ -503,6 +503,7 @@ export type LocalizationSchema = {
         },
         holders: {
             title: string,
+            loadingLongerTitle: string,
             loadingLonger: string,
             accounts: {
                 title: string,

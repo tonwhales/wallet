@@ -45,6 +45,7 @@ import { WalletVersions } from '../../engine/types';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -77,6 +78,8 @@ export const SimpleTransferFragment = fragment(() => {
     const acc = useSelectedAccount();
     const client = useClient4(network.isTestnet);
     const [price, currency] = usePrice();
+    const gaslessConfig = useGaslessConfig();
+
 
     // Ledger
     const ledgerContext = useLedgerTransport();
@@ -118,6 +121,9 @@ export const SimpleTransferFragment = fragment(() => {
 
     const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
     const jetton = useJettonContent(jettonWallet?.master ?? null);
+    const isGasless = gaslessConfig?.data?.gas_jettons.map((j) => {
+        return Address.parse(j.master_id);
+    }).some((j) => jettonWallet?.master && j.equals(Address.parse(jettonWallet.master)));
     const symbol = jetton ? jetton.symbol : 'TON'
 
     const targetAddressValid = useMemo(() => {
@@ -1102,59 +1108,61 @@ export const SimpleTransferFragment = fragment(() => {
                         ))}
                     </Animated.View>
                 </View>
-                <View style={{ marginTop: 16 }}>
-                    <Animated.View
-                        layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
-                        style={[
-                            seletectInputStyles.fees,
-                            { flex: 1 }
-                        ]}
-                    >
-                        <View style={{
-                            backgroundColor: theme.surfaceOnElevation,
-                            padding: 20, borderRadius: 20,
-                            flexDirection: 'row',
-                            justifyContent: 'space-between', alignItems: 'center',
-                        }}>
-                            <View>
-                                <Text
-                                    style={{
-                                        color: theme.textSecondary,
-                                        fontSize: 13, lineHeight: 18, fontWeight: '400',
-                                        marginBottom: 2
-                                    }}>
-                                    {t('txPreview.blockchainFee')}
-                                </Text>
-                                <Text style={{
-                                    color: theme.textPrimary,
-                                    fontSize: 17, lineHeight: 24, fontWeight: '400'
-                                }}>
-                                    {estimation
-                                        ? <>
-                                            {`${formatAmount(fromNano(estimation))} TON`}
-                                        </>
-                                        : '...'
-                                    }
-                                    {!!estimationPrise && (
-                                        <Text style={{
+                {!isGasless && (
+                    <View style={{ marginTop: 16 }}>
+                        <Animated.View
+                            layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                            style={[
+                                seletectInputStyles.fees,
+                                { flex: 1 }
+                            ]}
+                        >
+                            <View style={{
+                                backgroundColor: theme.surfaceOnElevation,
+                                padding: 20, borderRadius: 20,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between', alignItems: 'center',
+                            }}>
+                                <View>
+                                    <Text
+                                        style={{
                                             color: theme.textSecondary,
-                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                            fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                            marginBottom: 2
                                         }}>
-                                            {` (${estimationPrise})`}
-                                        </Text>
+                                        {t('txPreview.blockchainFee')}
+                                    </Text>
+                                    <Text style={{
+                                        color: theme.textPrimary,
+                                        fontSize: 17, lineHeight: 24, fontWeight: '400'
+                                    }}>
+                                        {estimation
+                                            ? <>
+                                                {`${formatAmount(fromNano(estimation))} TON`}
+                                            </>
+                                            : '...'
+                                        }
+                                        {!!estimationPrise && (
+                                            <Text style={{
+                                                color: theme.textSecondary,
+                                                fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                            }}>
+                                                {` (${estimationPrise})`}
+                                            </Text>
 
-                                    )}
-                                </Text>
+                                        )}
+                                    </Text>
+                                </View>
+                                <AboutIconButton
+                                    title={t('txPreview.blockchainFee')}
+                                    description={t('txPreview.blockchainFeeDescription')}
+                                    style={{ height: 24, width: 24, position: undefined }}
+                                    size={24}
+                                />
                             </View>
-                            <AboutIconButton
-                                title={t('txPreview.blockchainFee')}
-                                description={t('txPreview.blockchainFeeDescription')}
-                                style={{ height: 24, width: 24, position: undefined }}
-                                size={24}
-                            />
-                        </View>
-                    </Animated.View>
-                </View>
+                        </Animated.View>
+                    </View>
+                )}
                 <View style={{ height: 56 }} />
             </ScrollView>
             <KeyboardAvoidingView

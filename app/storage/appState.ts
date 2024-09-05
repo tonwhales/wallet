@@ -30,31 +30,20 @@ const stateStorage_v2 = t.type({
         publicKey: t.string,
         secretKeyEnc: t.string,
         utilityKey: t.string,
-    })),
-    selected: t.number
-});
-
-const stateStorage_v3 = t.type({
-    version: t.literal(3),
-    addresses: t.array(t.type({
-        address: t.string,
-        publicKey: t.string,
-        secretKeyEnc: t.string,
-        utilityKey: t.string,
         version: t.union([t.literal(WalletVersions.v4R2), t.literal(WalletVersions.v5R1), t.undefined])
     })),
     selected: t.number
 });
 
-const latestVersion = stateStorage_v3;
+const latestVersion = stateStorage_v2;
 
 function parseAppState(src: any): t.TypeOf<typeof latestVersion> | null {
-    const parsed = stateStorage_v3.decode(src);
+    const parsed = stateStorage_v2.decode(src);
     if (isLeft(parsed)) {
         return null;
     }
     const stored = parsed.right;
-    if (stored.version === 3) {
+    if (stored.version === 2) {
         return stored;
     }
     return null;
@@ -62,7 +51,7 @@ function parseAppState(src: any): t.TypeOf<typeof latestVersion> | null {
 
 function serializeAppState(state: AppState, isTestnet: boolean): t.TypeOf<typeof latestVersion> {
     return {
-        version: 3,
+        version: 2,
         selected: state.selected,
         addresses: state.addresses.map((v) => ({
             address: v.address.toString({ testOnly: isTestnet }),
@@ -235,7 +224,7 @@ export function getBackup(): { address: Address, secretKeyEnc: Buffer } {
 
 
     // Storages
-    if (stateStorage_v1.is(jstate) || stateStorage_v2.is(jstate) || stateStorage_v3.is(jstate)) {
+    if (stateStorage_v1.is(jstate) || stateStorage_v2.is(jstate)) {
         let addr = jstate.addresses[jstate.addresses.length - 1];
         return { address: Address.parse(addr.address), secretKeyEnc: Buffer.from(addr.secretKeyEnc, 'base64') };
     }

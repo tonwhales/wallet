@@ -23,9 +23,9 @@ import { AddressFormatUpdate } from "./AddressFormatUpdate"
 import { TonProductComponent } from "./TonProductComponent"
 import { SpecialJettonProduct } from "./SpecialJettonProduct"
 import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited"
+import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
-import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();

@@ -20,8 +20,6 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -31,17 +29,14 @@ import com.google.android.gms.tapandpay.TapAndPayClient;
 import com.google.android.gms.tapandpay.issuer.IsTokenizedRequest;
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest;
 import com.google.android.gms.tapandpay.issuer.TokenInfo;
-import com.google.android.gms.tapandpay.issuer.TokenStatus;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -66,6 +61,8 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
 
     @Nullable
     private CompletableFuture<Boolean> isDefaultWalletFuture;
+    @Nullable
+    private CompletableFuture<Boolean> walletAddFuture;
 
     public WalletModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -77,6 +74,21 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     @Override
     public String getName() {
         return "WalletModule";
+    }
+
+    private CompletableFuture<Boolean> createWallet() {
+        if (walletAddFuture != null) {
+            return walletAddFuture;
+        }
+
+        Activity currentActivity = getReactApplicationContext().getCurrentActivity();
+
+        if (currentActivity != null) {
+            walletAddFuture = new CompletableFuture<>();
+            tapAndPayClient.createWallet(currentActivity, REQUEST_CREATE_WALLET);
+        }
+
+        return walletAddFuture;
     }
 
     private CompletableFuture<WritableArray> getTokenInfoList() {
@@ -123,12 +135,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     @ReactMethod
     @SuppressWarnings("unused")
     private void checkIfCardIsAlreadyAdded(String primaryAccountNumberSuffix, Promise promise) {
-        IsTokenizedRequest request = new IsTokenizedRequest
-                .Builder()
-                .setNetwork(TapAndPay.CARD_NETWORK_VISA)
-                .setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA)
-                .setIssuerName("Holders")
-                .setIdentifier(primaryAccountNumberSuffix).build();
+        IsTokenizedRequest request = new IsTokenizedRequest.Builder().setNetwork(TapAndPay.CARD_NETWORK_VISA).setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA).setIssuerName("Holders").setIdentifier(primaryAccountNumberSuffix).build();
         tapAndPayClient.isTokenized(request).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 promise.resolve(task.getResult());
@@ -142,6 +149,11 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     private Boolean isDefaultWallet() {
         NfcManager nfcManager = (NfcManager) getReactApplicationContext().getSystemService(Context.NFC_SERVICE);
         NfcAdapter adapter = nfcManager.getDefaultAdapter();
+
+        if (adapter == null) {
+            return false;
+        }
+
         CardEmulation emulation = CardEmulation.getInstance(adapter);
 
         return emulation.isDefaultServiceForCategory(new ComponentName(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, GOOGLE_PAY_TP_HCE_SERVICE), CardEmulation.CATEGORY_PAYMENT);
@@ -175,6 +187,11 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         getReactApplicationContext().startActivityForResult(intent, SET_DEFAULT_PAYMENTS_REQUEST_CODE, null);
 
         isDefaultWalletFuture = new CompletableFuture<>();
+
+        isDefaultWalletFuture.thenAccept(promise::resolve).exceptionally(e -> {
+            promise.reject(e);
+            return null;
+        });
     }
 
     private CompletableFuture<String> getActiveWalletId() {
@@ -205,12 +222,10 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
     @ReactMethod
     @SuppressWarnings("unused")
     private void isEnabled(Promise promise) {
-        CompletableFuture<String> walletIdFuture = this.getActiveWalletId();
         CompletableFuture<String> stableHardwareIdFuture = this.getStableHardwareId();
 
-        walletIdFuture.thenCombine(stableHardwareIdFuture, (walletId, stableHardwareId) -> {
+        stableHardwareIdFuture.thenAccept(s -> {
             promise.resolve(true);
-            return null;
         }).exceptionally(e -> {
             promise.resolve(false);
             return null;
@@ -317,8 +332,39 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         CompletableFuture<String> stableHardwareIdFuture = this.getStableHardwareId();
 
         // await for both walletId and stableHardwareId
-        walletIdFuture.thenCombine(stableHardwareIdFuture, (walletId, stableHardwareId) -> {
-            return new OPCRequest(req.cardId, req.token, walletId, stableHardwareId, req.isTestnet, futureOpc);
+        walletIdFuture.thenCombine(stableHardwareIdFuture, (walletId, stableHardwareId) -> new OPCRequest(req.cardId, req.token, walletId, stableHardwareId, req.isTestnet, futureOpc)).exceptionally(e -> {
+            // if exception is TAP_AND_PAY_NO_ACTIVE_WALLET There is no active wallet -> create wallet
+            Throwable cause = e instanceof CompletionException ? e.getCause() : e;
+            String causeMessage = cause != null ? cause.getMessage() : null;
+
+            if (cause instanceof ApiException || (causeMessage !=null && causeMessage.contains("15002"))) {
+                ApiException apiException = (ApiException) cause;
+                if (apiException.getStatusCode() == 15002) {
+                    createWallet().thenAccept(res -> {
+                        if (res) {
+                            CompletableFuture<String> walletIdFuture2 = this.getActiveWalletId();
+                            CompletableFuture<String> stableHardwareIdFuture2 = this.getStableHardwareId();
+
+                            walletIdFuture2.thenCombine(stableHardwareIdFuture2, (walletId, stableHardwareId) -> {
+                                return new OPCRequest(req.cardId, req.token, walletId, stableHardwareId, req.isTestnet, futureOpc);
+                            }).exceptionally(e2 -> {
+                                req.completableFuture.completeExceptionally(e2);
+                                return null;
+                            }).thenAccept(this::fetchOPC).exceptionally(e2 -> {
+                                req.completableFuture.completeExceptionally(e2);
+                                return null;
+                            });
+                        } else {
+                            req.completableFuture.completeExceptionally(new Exception("Failed to create wallet"));
+                        }
+                    });
+                } else {
+                    req.completableFuture.completeExceptionally(e);
+                }
+            } else {
+                req.completableFuture.completeExceptionally(e);
+            }
+            return null;
         }).thenAccept(this::fetchOPC).exceptionally(e -> {
             req.completableFuture.completeExceptionally(e);
             return null;
@@ -344,7 +390,9 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             if (currentActivity != null) {
                 tapAndPayClient.pushTokenize(currentActivity, pushTokenizeRequest, REQUEST_CODE_PUSH_TOKENIZE);
             } else {
-                this.currentProvisioning.completableFuture.completeExceptionally(new Exception("No current activity"));
+                if (this.currentProvisioning != null) {
+                    this.currentProvisioning.completableFuture.completeExceptionally(new Exception("No current activity"));
+                }
             }
         });
     }
@@ -428,6 +476,17 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         }
         if (i == SET_DEFAULT_PAYMENTS_REQUEST_CODE) {
             handleSetDefaultWalletResult(i1, intent);
+        }
+        if (i == REQUEST_CREATE_WALLET) {
+            if (walletAddFuture != null) {
+                if (i1 == Activity.RESULT_OK) {
+                    walletAddFuture.complete(true);
+                } else {
+                    walletAddFuture.complete(false);
+                }
+
+                walletAddFuture = null;
+            }
         }
     }
 

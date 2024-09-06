@@ -523,7 +523,6 @@ export const HoldersAppComponent = memo((
                         {...p}
                         onReload={onReaload}
                         onSupport={onSupport}
-                        loaded={false}
                     />
                 )}
             />

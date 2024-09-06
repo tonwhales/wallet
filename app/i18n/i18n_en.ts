@@ -10,6 +10,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         continueAnyway: 'Continue anyway',
         back: 'Back',
         logout: 'Log Out',
+        logoutFrom: 'Log Out from {{name}}',
         cancel: 'Cancel',
         balance: 'Balance',
         totalBalance: 'Total balance',

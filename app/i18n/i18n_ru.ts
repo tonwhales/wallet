@@ -10,6 +10,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "continueAnyway": "Все равно продолжить",
         "back": "Назад",
         "logout": "Выйти",
+        "logoutFrom": "Выйти из {{name}}",
         "cancel": "Отменить",
         "balance": "Баланс",
         "totalBalance": "Общий баланс",

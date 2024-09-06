@@ -42,7 +42,7 @@ export const WalletItem = memo((
     const navigation = useTypedNavigation();
     const appState = useAppState();
     const updateAppState = useSetAppState();
-    const [walletSettings,] = useWalletSettings(address);
+    const [walletSettings] = useWalletSettings(address);
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

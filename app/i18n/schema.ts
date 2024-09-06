@@ -12,6 +12,7 @@ export type LocalizationSchema = {
         continueAnyway: string,
         back: string,
         logout: string,
+        logoutFrom: string,
         cancel: string,
         balance: string,
         totalBalance: string,

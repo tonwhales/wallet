@@ -32,11 +32,11 @@ import { ToastDuration, useToaster } from "../../../components/toast/ToastProvid
 import { ThemeType } from "../../../engine/state/theme";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
 import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
+import { TransferEstimate } from "../TransferFragment";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
-import { TransferEstimate } from "../TransferFragment";
 
 const TxAvatar = memo(({
     address,
@@ -107,7 +107,8 @@ export const TransferSingleView = memo(({
     isSpam,
     isWithStateInit,
     isLedger,
-    contact
+    contact,
+    failed
 }: {
     operation: StoredOperation,
     order: Order | LedgerOrder,
@@ -131,7 +132,8 @@ export const TransferSingleView = memo(({
     isSpam: boolean,
     isWithStateInit?: boolean,
     isLedger?: boolean,
-    contact?: AddressContact | null
+    contact?: AddressContact | null,
+    failed: boolean
 }) => {
     const toaster = useToaster();
     const navigation = useTypedNavigation();
@@ -691,7 +693,9 @@ export const TransferSingleView = memo(({
                 <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
                     <RoundButton
                         title={t('common.confirm')}
-                        action={doSend} />
+                        action={doSend}
+                        disabled={failed}
+                    />
                 </View>
             )}
         </View>

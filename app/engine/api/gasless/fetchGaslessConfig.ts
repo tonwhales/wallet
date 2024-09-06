@@ -11,8 +11,8 @@ const gaslessConfigScheme = z.object({
 export type GaslessConfig = z.infer<typeof gaslessConfigScheme>;
 
 export async function fetchGaslessConfig(isTestnet: boolean): Promise<GaslessConfig> {
-    const endpoint = isTestnet ? "https://testnet.tonapi.io" : "https://tonapi.io";
-    const url = `${endpoint}/v2/gasless/config`;
+    const endpoint = `https://connect.tonhubapi.com/gasless/${isTestnet ? 'testnet' : 'mainnet'}`;
+    const url = `${endpoint}/config`;
     const res = await axios.get(url, { method: 'GET' });
 
     if (!res.data) {

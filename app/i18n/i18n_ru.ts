@@ -169,6 +169,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidTransaction": "Неверная транзакция",
             "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
             "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
+            "gaslessFailed": "Не удалось отправить безгазовую транзакцию",
+            "gaslessCooldown": "У вас есть сообщения ожидающие отправки, попробуйте снова через несколько минут"
         },
         "sendAll": "Max",
         "scanQR": "Считать QR код",

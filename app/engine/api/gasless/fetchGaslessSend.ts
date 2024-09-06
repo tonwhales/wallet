@@ -1,17 +1,32 @@
 import axios from "axios";
+import { z } from "zod";
 
 export type GasslessSendParams = {
     wallet_public_key: string,
     boc: string
 }
 
-export async function fetchGaslessSend(body: GasslessSendParams, isTestnet: boolean) {
-    const endpoint = isTestnet ? "https://testnet.tonapi.io" : "https://tonapi.io";
-    const url = `${endpoint}/v2/gasless/send`;
+const gaslessSendError = z.object({ ok: z.literal(false), error: z.string() });
+const gaslessSendSuccess = z.object({ ok: z.literal(true) });
+const gaslessSendResponse = z.union([gaslessSendError, gaslessSendSuccess]);
+
+export type GaslessSendResponse = z.infer<typeof gaslessSendResponse>;
+
+export async function fetchGaslessSend(body: GasslessSendParams, isTestnet: boolean): Promise<GaslessSendResponse> {
+    const endpoint = `https://connect.tonhubapi.com/gasless/${isTestnet ? 'testnet' : 'mainnet'}`;
+    const url = `${endpoint}/send`;
 
     const res = await axios.post(url, body, { method: 'POST' });
 
     if (res.status !== 200) {
         throw new Error('Failed to fetch gasless send');
     }
+
+    const parsed = gaslessSendResponse.safeParse(res.data);
+
+    if (!parsed.success) {
+        throw new Error('Invalid gasless send response');
+    }
+
+    return parsed.data;
 }

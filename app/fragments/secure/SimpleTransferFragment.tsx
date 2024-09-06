@@ -42,10 +42,10 @@ import { Typography } from '../../components/styles';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
 import { WalletVersions } from '../../engine/types';
+import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -79,7 +79,6 @@ export const SimpleTransferFragment = fragment(() => {
     const client = useClient4(network.isTestnet);
     const [price, currency] = usePrice();
     const gaslessConfig = useGaslessConfig();
-
 
     // Ledger
     const ledgerContext = useLedgerTransport();

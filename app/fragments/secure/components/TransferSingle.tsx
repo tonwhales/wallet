@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Linking } from "react-native";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
@@ -8,7 +8,7 @@ import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
-import { backoff } from "../../../utils/time";
+import { backoff, backoffFailaible } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
@@ -27,6 +27,7 @@ import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend } from "../../../engine/api/gasless/fetchGaslessSend";
+import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -38,6 +39,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const commitCommand = useCommitCommand();
     const registerPending = useRegisterPending();
     const [walletSettings,] = useWalletSettings(selected?.address);
+    const [failed, setFailed] = useState(false);
+    const toaster = useToaster();
 
     let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback } = props;
 
@@ -128,6 +131,26 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const isSpam = useDenyAddress(friendlyTarget);
     const spam = useIsSpamWallet(friendlyTarget) || isSpam
     const walletVersion = useWalletVersion();
+
+    const closedRef = useRef(false);
+    const goBack = useCallback(() => {
+        if (!closedRef.current) {
+            closedRef.current = true;
+            navigation.goBack();
+        }
+    }, []);
+
+    const onGaslessFailed = useCallback((cooldown?: boolean) => {
+        setFailed(true);
+        toaster.show({
+            message: cooldown
+                ? t('transfer.error.gaslessCooldown')
+                : t('transfer.error.gaslessFailed'),
+            duration: ToastDuration.LONG,
+            type: 'error',
+            onDestroy: goBack
+        });
+    }, []);
 
     // Confirmation
     const doSend = useCallback(async () => {
@@ -261,10 +284,21 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 )
                 .endCell();
 
-            await backoff('gasless', () => fetchGaslessSend({
-                wallet_public_key: walletKeys.keyPair.publicKey.toString('hex'),
-                boc: msg.toBoc({ idx: false }).toString('hex')
-            }, isTestnet))
+            try {
+                const gaslessTransferRes = await backoffFailaible('gasless', () => fetchGaslessSend({
+                    wallet_public_key: walletKeys.keyPair.publicKey.toString('hex'),
+                    boc: msg.toBoc({ idx: false }).toString('hex')
+                }, isTestnet));
+
+                if (!gaslessTransferRes.ok) {
+                    onGaslessFailed(gaslessTransferRes.error === 'cooldown');
+                    return;
+                }
+            } catch (error) {
+                onGaslessFailed();
+                return;
+            }
+
 
         } else {
             // Create transfer
@@ -414,6 +448,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             isSpam={spam}
             isWithStateInit={!!order.messages[0].stateInit}
             contact={contact}
+            failed={failed}
         />
     );
 });

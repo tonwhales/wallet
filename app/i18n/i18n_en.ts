@@ -185,6 +185,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
+            gaslessFailed: 'Failed to send gasless transaction',
+            gaslessCooldown: 'You have pending messages, try again later in a few minutes'
         },
         sendAll: 'Max',
         scanQR: 'scan qr code',

@@ -11,11 +11,12 @@ export function useGaslessConfig() {
         queryFn: async () => {
             try {
                 return await fetchGaslessConfig(isTestnet);
-            } catch {
+            } catch (e) {
+                console.error('Failed to fetch gasless config', e);
                 return null;
             }
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 1000 * 60, // 1 minute
         refetchOnMount: true,
         refetchOnWindowFocus: true
     });

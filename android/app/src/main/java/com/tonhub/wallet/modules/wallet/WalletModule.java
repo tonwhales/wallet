@@ -3,6 +3,7 @@ package com.tonhub.wallet.modules.wallet;
 import static com.google.android.gms.tapandpay.TapAndPayStatusCodes.TAP_AND_PAY_ATTESTATION_ERROR;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,9 +11,12 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcManager;
 import android.nfc.cardemulation.CardEmulation;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
@@ -20,6 +24,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -29,6 +34,9 @@ import com.google.android.gms.tapandpay.TapAndPayClient;
 import com.google.android.gms.tapandpay.issuer.IsTokenizedRequest;
 import com.google.android.gms.tapandpay.issuer.PushTokenizeRequest;
 import com.google.android.gms.tapandpay.issuer.TokenInfo;
+import com.google.android.gms.tapandpay.issuer.ViewTokenRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -104,7 +112,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
 
                     tokenMap.putString("issuerTokenId", tokenInfo.getIssuerTokenId());
                     tokenMap.putString("dpanLastFour", tokenInfo.getDpanLastFour());
-                    tokenMap.putString("tokenState", tokenInfo.getFpanLastFour());
+                    tokenMap.putString("fpanLastFour", tokenInfo.getFpanLastFour());
                     tokenMap.putInt("tokenState", tokenInfo.getTokenState());
                     tokenMap.putString("issuerName", tokenInfo.getIssuerName());
                     tokenMap.putString("portfolioName", tokenInfo.getPortfolioName());
@@ -118,6 +126,31 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
                 ApiException apiException = (ApiException) task.getException();
                 future.completeExceptionally(apiException);
             }
+        });
+
+        return future;
+    }
+
+    private CompletableFuture<TokenStatus> getTokenStatusByFpanLastFour(String fpanLastFour) {
+        CompletableFuture<TokenStatus> future = new CompletableFuture<>();
+
+        getTokenInfoList().thenAccept((res) -> {
+            for (int i = 0; i < res.size(); i++) {
+                ReadableMap token = res.getMap(i);
+                String fpanLastFourToken = token.getString("fpanLastFour");
+                if (fpanLastFourToken != null && fpanLastFourToken.equals(fpanLastFour)) {
+                    int tokenState = token.getInt("tokenState");
+                    String issuerTokenId = token.getString("issuerTokenId");
+
+                    future.complete(new TokenStatus(tokenState, issuerTokenId));
+                    return;
+                }
+            }
+
+            future.complete(new TokenStatus(-1, null));
+        }).exceptionally(e -> {
+            future.completeExceptionally(e);
+            return null;
         });
 
         return future;
@@ -138,7 +171,20 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         IsTokenizedRequest request = new IsTokenizedRequest.Builder().setNetwork(TapAndPay.CARD_NETWORK_VISA).setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA).setIssuerName("Holders").setIdentifier(primaryAccountNumberSuffix).build();
         tapAndPayClient.isTokenized(request).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                promise.resolve(task.getResult());
+                this.getTokenStatusByFpanLastFour(primaryAccountNumberSuffix).thenAccept((res) -> {
+                    if (res.status == -1) {
+                        promise.resolve(false);
+                        return;
+                    }
+                    if (res.status != TapAndPay.TOKEN_STATE_NEEDS_IDENTITY_VERIFICATION && res.status != TapAndPay.TOKEN_STATE_FELICA_PENDING_PROVISIONING) {
+                        promise.resolve(true);
+                    } else {
+                        promise.resolve(false);
+                    }
+                }).exceptionally(e -> {
+                    promise.reject(e);
+                    return null;
+                });
             } else {
                 ApiException apiException = (ApiException) task.getException();
                 promise.reject(apiException);
@@ -319,6 +365,27 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         });
     }
 
+    private CompletableFuture<TokenStatus> shouldOpenInWallet(String fpanLastFour) {
+        CompletableFuture<TokenStatus> future = new CompletableFuture<>();
+
+        this.getTokenStatusByFpanLastFour(fpanLastFour).thenAccept((res) -> {
+            if (res.status == -1) {
+                future.complete(null);
+                return;
+            }
+            if (res.status != TapAndPay.TOKEN_STATE_NEEDS_IDENTITY_VERIFICATION && res.status != TapAndPay.TOKEN_STATE_FELICA_PENDING_PROVISIONING) {
+                future.complete(null);
+            } else {
+                future.complete(new TokenStatus(res.status, res.issuerToken));
+            }
+        }).exceptionally(e -> {
+            future.completeExceptionally(e);
+            return null;
+        });
+
+        return future;
+    }
+
     private void pushProvision(ProvisionRequest req) {
         if (currentProvisioning != null) {
             req.completableFuture.completeExceptionally(new Exception("Another provisioning is in progress"));
@@ -326,6 +393,39 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         }
 
         this.currentProvisioning = req;
+
+        this.shouldOpenInWallet(req.lastDigits).thenAccept((tokenStatus) -> {
+            if (tokenStatus != null && tokenStatus.issuerToken != null) {
+                // open in wallet
+                ViewTokenRequest request = new ViewTokenRequest.Builder().setTokenServiceProvider(TapAndPay.CARD_NETWORK_VISA).setIssuerTokenId(tokenStatus.issuerToken).build();
+                tapAndPayClient.viewToken(request)
+                        .addOnCompleteListener(
+                                new OnCompleteListener<PendingIntent>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<PendingIntent> task) {
+                                        if (task.isSuccessful()) {
+                                            try {
+                                                task.getResult().send();
+                                            } catch (PendingIntent.CanceledException e) {
+                                            }
+                                        } else {
+                                            ApiException apiException = (ApiException) task.getException();
+                                        }
+                                    }
+                                });
+                this.currentProvisioning.completableFuture.complete(false);
+                this.currentProvisioning = null;
+                return;
+            }
+
+
+        }).exceptionally(e -> {
+            if (this.currentProvisioning != null) {
+                this.currentProvisioning.completableFuture.completeExceptionally(e);
+                this.currentProvisioning = null;
+            }
+            return null;
+        });
 
         CompletableFuture<String> futureOpc = new CompletableFuture<>();
         CompletableFuture<String> walletIdFuture = this.getActiveWalletId();
@@ -337,7 +437,7 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             Throwable cause = e instanceof CompletionException ? e.getCause() : e;
             String causeMessage = cause != null ? cause.getMessage() : null;
 
-            if (cause instanceof ApiException || (causeMessage !=null && causeMessage.contains("15002"))) {
+            if (cause instanceof ApiException || (causeMessage != null && causeMessage.contains("15002"))) {
                 ApiException apiException = (ApiException) cause;
                 if (apiException.getStatusCode() == 15002) {
                     createWallet().thenAccept(res -> {
@@ -392,8 +492,15 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
             } else {
                 if (this.currentProvisioning != null) {
                     this.currentProvisioning.completableFuture.completeExceptionally(new Exception("No current activity"));
+                    this.currentProvisioning = null;
                 }
             }
+        }).exceptionally(e -> {
+            if (this.currentProvisioning != null) {
+                this.currentProvisioning.completableFuture.completeExceptionally(e);
+                this.currentProvisioning = null;
+            }
+            return null;
         });
     }
 

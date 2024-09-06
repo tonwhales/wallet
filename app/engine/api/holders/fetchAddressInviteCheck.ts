@@ -11,7 +11,10 @@ export async function fetchAddressInviteCheck(address: string, isTestnet: boolea
     const endpoint = holdersEndpoint(isTestnet);
     const formattedAddress = Address.parse(address).toString({ testOnly: isTestnet });
 
-    const res = await axios.post(`https://${endpoint}/v2/invite/wallet/check`, { wallet: formattedAddress });
+    const res = await axios.post(`https://${endpoint}/v2/invite/wallet/check`, { 
+        wallet: formattedAddress, 
+        network: isTestnet ? 'ton-testnet' : 'ton-mainnet'
+    });
 
     const parsed = inviteCheckCodec.safeParse(res.data);
 

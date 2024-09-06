@@ -489,6 +489,11 @@ const knownWalletsMainnet = {
         ic: Img_OKX,
         requireMemo: true
     },
+    [Address.parse('EQCbm3Od4lJ65y0hCD9RmNcQxyiEU7RzPlfsrbLhiayCnNuU').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
     [Address.parse('EQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXGkS').toString()]: {
         name: 'OKX',
         ic: Img_OKX,

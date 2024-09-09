@@ -4,6 +4,11 @@ set -e
 
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=TRUE
+
+# Uninstall previous cocoapods
+echo "===== Uninstalling prev cocoapods ====="
+brew uninstall --ignore-dependencies cocoapods || true
+
 # brew install cocoapods
 # CocoaPods 1.15.0 is unstable, so we have to use 1.14.3 as prev stable
 # brew doesn't have version pinning for cocoapods, so we have to install it manually from the commit

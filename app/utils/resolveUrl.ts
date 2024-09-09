@@ -108,6 +108,16 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
         }
     }
 
+    const isInvite = url.pathname.startsWith('/holders/invite');
+    const inviteId = url.pathname.split('holders/invite/')[1]
+
+    if (isInvite && inviteId) {                
+        return {
+            type: 'holders-invite',
+            inviteId: inviteId
+        }
+    }
+
     return { type: 'error', error: ResolveUrlError.InvalidHoldersPath };
 }
 

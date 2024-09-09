@@ -24,7 +24,7 @@ export const Queries = {
         Status: () => ['holders', address, 'status'],
         Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
         Notifications: (id: string) => ['holders', address, 'events', id],
-        WhiteList: () => ['holders', address, 'whitelist'],
+        Invite: () => ['holders', address, 'invite'],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

@@ -1,5 +1,5 @@
 import { createLogger } from '../../utils/log';
-import { holdersEndpoint } from '../api/holders/fetchAccountState';
+import { holdersEndpoint } from '../api/holders/fetchUserState';
 
 let index = 0;
 

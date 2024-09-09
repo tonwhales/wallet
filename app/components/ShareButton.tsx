@@ -4,6 +4,7 @@ import ShareIcon from '@assets/ic_share_address.svg';
 import { t } from "../i18n/t";
 import Share from 'react-native-share';
 import { useTheme } from "../engine/hooks";
+import { useToaster } from "./toast/ToastProvider";
 
 const size = {
     height: 56,
@@ -28,17 +29,25 @@ export const ShareButton = memo(({
     onScreenCapture?: () => Promise<{ uri: string }>
 }) => {
     const theme = useTheme();
+    const toaster = useToaster();
     const onShare = useCallback(async () => {
         let screenShot: { uri: string } | undefined;
         if (onScreenCapture) {
             screenShot = await onScreenCapture();
         }
 
-        Share.open({
-            title: t('receive.share.title'),
-            message: body,
-            url: screenShot?.uri,
-        });
+        try {
+            await Share.open({
+                title: t('receive.share.title'),
+                message: body,
+                url: screenShot?.uri,
+            });
+        } catch {
+            toaster.show({
+                type: 'error',
+                message: t('receive.share.error')
+            });
+        }
     }, [body]);
 
     return (

@@ -95,9 +95,12 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
             query: url.query
         }
     } else if (!!url.query && url.query.path) {
+        const path = decodeURIComponent(url.query.path);
+        delete url.query.path;
+
         return {
             type: 'holders-path',
-            path: decodeURIComponent(url.query.path),
+            path,
             query: url.query
         }
     }

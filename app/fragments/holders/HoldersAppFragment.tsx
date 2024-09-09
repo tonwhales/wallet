@@ -25,7 +25,7 @@ export type HoldersAppParams =
     | { type: HoldersAppParamsType.Prepaid, id: string }
     | { type: HoldersAppParamsType.Create }
     | { type: HoldersAppParamsType.Invite }
-    | { type: HoldersAppParamsType.Path, path: string }
+    | { type: HoldersAppParamsType.Path, path: string, query: { [key: string]: string | undefined } }
     | { type: HoldersAppParamsType.Transactions, query: { [key: string]: string | undefined } };
 
 export const HoldersAppFragment = fragment(() => {

@@ -348,8 +348,13 @@ export const HoldersAppComponent = memo((
                     }
                 }
                 break;
-            case 'path':
+            case HoldersAppParamsType.Path:
                 route = `/${props.variant.path ?? ''}`;
+                for (const [key, value] of Object.entries(props.variant.query)) {
+                    if (!!value) {
+                        queryParams.append(key, value);
+                    }
+                }
                 break;
         }
 

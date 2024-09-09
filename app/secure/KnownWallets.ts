@@ -509,11 +509,52 @@ const knownWalletsMainnet = {
         ic: Img_OKX,
         requireMemo: true
     },
+    [Address.parse('EQCbm3Od4lJ65y0hCD9RmNcQxyiEU7RzPlfsrbLhiayCnNuU').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
     [Address.parse('EQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXGkS').toString()]: {
         name: 'OKX',
         ic: Img_OKX,
         requireMemo: true
     },
+    [Address.parse('EQDxXbLGLNhq_whg05xJH8c6MTlfr-tZReZESYViJgx4Lg4_').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('UQDn6G2gh0LtkzQ0_-uPCKY8fhAO6ELiX1manL8IkVdKbDEu').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('UQADON7zS4TG7pE0oEqxYBRQvkRjQKN64lneV8s3vbWQzTjL').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('UQCjCknscl6fVyRLZq9MLaerdgBLT86A06NLHNDDd2Krztab').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('UQAk2h57jakB5bPdD5jDl_625aXqSDGVqLa9BoLPLFMnrnbQ').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('EQB_LoTHI9i2trGqz4EMjCarI8IgIrRkuHEEstMGWw6nC3Nw').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('EQD5vcDeRhwaLgAvralVC7sJXI-fc2aNcMUXqcx-BQ-OWnOZ').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    
     [Address.parse('EQABMMdzRuntgt9nfRB61qd1wR-cGPagXA3ReQazVYUNrT7p').toString()]: {
         name: 'EXMO Deposit',
         ic: Img_EXMO_Deposit,

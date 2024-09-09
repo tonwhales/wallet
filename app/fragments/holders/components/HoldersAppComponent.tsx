@@ -9,15 +9,15 @@ import { protectNavigation } from '../../apps/components/protect/protectNavigati
 import { getLocales } from 'react-native-localize';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { HoldersAppParams } from '../HoldersAppFragment';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { HoldersAppParams, HoldersAppParamsType } from '../HoldersAppFragment';
 import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useDAppBridge, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { useSelectedAccount } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
-import { HoldersAccountState, holdersUrl } from '../../../engine/api/holders/fetchAccountState';
+import { HoldersUserState, holdersUrl } from '../../../engine/api/holders/fetchUserState';
 import { HoldersAccountStatus, getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
@@ -150,17 +150,7 @@ export const HoldersPlaceholder = memo(() => {
     );
 });
 
-export const HoldersLoader = memo(({
-    loaded,
-    type,
-    onReload: onReaload,
-    onSupport
-}: {
-    loaded: boolean,
-    type: 'account' | 'create' | 'prepaid',
-    onReload?: () => void,
-    onSupport?: () => void
-}) => {
+export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: HoldersAppParamsType }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -208,18 +198,11 @@ export const HoldersLoader = memo(({
     }, []);
 
     const placeholder = useMemo(() => {
-        if (type === 'account') {
-            return (
-                <AccountPlaceholder
-                    theme={theme}
-                    showClose={showClose}
-                    onReload={showClose ? onReaload : undefined}
-                    onSupport={showClose ? onSupport : undefined}
-                />
-            );
+        if (type === HoldersAppParamsType.Account) {
+            return <AccountPlaceholder theme={theme} />;
         }
 
-        if (type === 'prepaid') {
+        if (type === HoldersAppParamsType.Prepaid) {
             return <CardPlaceholder theme={theme} />;
         }
 
@@ -236,7 +219,7 @@ export const HoldersLoader = memo(({
                 },
                 animatedStyles,
                 Platform.select({
-                    ios: { paddingTop: (type === 'account' || type === 'prepaid') ? 0 : safeArea.top },
+                    ios: { paddingTop: (type === HoldersAppParamsType.Account || type === HoldersAppParamsType.Prepaid) ? 0 : safeArea.top },
                     android: { paddingTop: 0 }
                 }),
             ]}
@@ -313,17 +296,28 @@ export const HoldersAppComponent = memo((
 
         let route = '';
         switch (props.variant.type) {
-            case 'create':
+            case HoldersAppParamsType.Invite:
+                route = '/onboarding/invite';
+                break;
+            case HoldersAppParamsType.Create:
                 route = '/create';
                 break;
-            case 'account':
+            case HoldersAppParamsType.Account:
                 route = `/account/${props.variant.id}`;
                 break;
-            case 'prepaid':
+            case HoldersAppParamsType.Prepaid:
                 route = `/card-prepaid/${props.variant.id}`;
                 break;
-            case 'transactions':
+            case HoldersAppParamsType.Transactions:
                 route = `/transactions`;
+                for (const [key, value] of Object.entries(props.variant.query)) {
+                    if (!!value) {
+                        queryParams.append(key, value);
+                    }
+                }
+                break;
+            case HoldersAppParamsType.Path:
+                route = `/${props.variant.path ?? ''}`;
                 for (const [key, value] of Object.entries(props.variant.query)) {
                     if (!!value) {
                         queryParams.append(key, value);
@@ -399,7 +393,7 @@ export const HoldersAppComponent = memo((
                             kycStatus: status.state === 'need-kyc' ? status.kycStatus : null,
                             suspended: (status as { suspended: boolean | undefined }).suspended === true,
                         },
-                        token: status.state === HoldersAccountState.Ok ? status.token : getHoldersToken(acc.address.toString({ testOnly: isTestnet })),
+                        token: status.state === HoldersUserState.Ok ? status.token : getHoldersToken(acc.address.toString({ testOnly: isTestnet })),
                     }
                 }
                 : {},
@@ -519,7 +513,11 @@ export const HoldersAppComponent = memo((
                 webviewDebuggingEnabled={isTestnet}
                 loader={(p) => (
                     <HoldersLoader
-                        type={props.variant.type === 'transactions' ? 'prepaid' : props.variant.type}
+                        type={
+                            props.variant.type === HoldersAppParamsType.Transactions || props.variant.type === HoldersAppParamsType.Path
+                                ? HoldersAppParamsType.Account
+                                : props.variant.type
+                        }
                         {...p}
                         onReload={onReaload}
                         onSupport={onSupport}

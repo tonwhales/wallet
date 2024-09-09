@@ -6,7 +6,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
-import { HoldersAppParams } from './HoldersAppFragment';
+import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
@@ -35,10 +35,10 @@ export const HoldersLandingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [currency,] = usePrimaryCurrency();
 
-    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
+    const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 
     const domain = extractDomain(endpoint);
-    const enroll = useHoldersEnroll({ acc, domain, authContext, authStyle: { paddingTop: 32 } });
+    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
     const lang = getLocales()[0].languageCode;
 
     // Anim
@@ -235,14 +235,7 @@ export const HoldersLandingFragment = fragment(() => {
                         lockScroll: true
                     }}
                     webviewDebuggingEnabled={isTestnet}
-                    loader={(p) => (
-                        <HoldersLoader
-                            type={'create'}
-                            {...p}
-                            onSupport={onSupport}
-                            onReload={onReload}
-                        />
-                    )}
+                    loader={(p) => <HoldersLoader type={HoldersAppParamsType.Create} {...p} />}
                 />
                 <Animated.View style={[StyleSheet.absoluteFill, animatedAuthStyles]} pointerEvents={'none'}>
                     <ScreenHeader

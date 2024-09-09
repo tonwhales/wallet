@@ -27,6 +27,16 @@ brew install yarn
 # Install dependencies you manage with CocoaPods.
 echo "===== Generating node_modules ====="
 yarn
+
+# Ensure the correct version of rexml is installed
+echo "===== Installing correct version of rexml ====="
+gem install rexml -v '~> 3.2.4'
+
+# Ensure the correct version of rexml is activated
+echo "===== Activating correct version of rexml ====="
+bundle exec gem uninstall rexml -v '3.3.6' || true
+bundle exec gem install rexml -v '3.2.4'
+
 echo "===== Installing pods ====="
 pod install
 # the sed command from RN cant find the file... so we have to run it ourselves

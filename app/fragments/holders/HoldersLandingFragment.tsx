@@ -235,7 +235,12 @@ export const HoldersLandingFragment = fragment(() => {
                         lockScroll: true
                     }}
                     webviewDebuggingEnabled={isTestnet}
-                    loader={(p) => <HoldersLoader type={HoldersAppParamsType.Create} {...p} />}
+                    loader={(p) => <HoldersLoader
+                        type={HoldersAppParamsType.Create}
+                        {...p}
+                        onSupport={onSupport}
+                        onReload={onReload}
+                    />}
                 />
                 <Animated.View style={[StyleSheet.absoluteFill, animatedAuthStyles]} pointerEvents={'none'}>
                     <ScreenHeader

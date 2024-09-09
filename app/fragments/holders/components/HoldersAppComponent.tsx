@@ -9,7 +9,7 @@ import { protectNavigation } from '../../apps/components/protect/protectNavigati
 import { getLocales } from 'react-native-localize';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams, HoldersAppParamsType } from '../HoldersAppFragment';
 import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useDAppBridge, usePrimaryCurrency } from '../../../engine/hooks';
@@ -150,7 +150,17 @@ export const HoldersPlaceholder = memo(() => {
     );
 });
 
-export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: HoldersAppParamsType }) => {
+export const HoldersLoader = memo(({
+    loaded,
+    type,
+    onReload,
+    onSupport
+}: {
+    loaded: boolean,
+    type: HoldersAppParamsType,
+    onReload?: () => void,
+    onSupport?: () => void
+}) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -199,7 +209,14 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: Ho
 
     const placeholder = useMemo(() => {
         if (type === HoldersAppParamsType.Account) {
-            return <AccountPlaceholder theme={theme} />;
+            return (
+                <AccountPlaceholder
+                    theme={theme}
+                    showClose={showClose}
+                    onReload={showClose ? onReload : undefined}
+                    onSupport={showClose ? onSupport : undefined}
+                />
+            );
         }
 
         if (type === HoldersAppParamsType.Prepaid) {
@@ -233,7 +250,7 @@ export const HoldersLoader = memo(({ loaded, type }: { loaded: boolean, type: Ho
                         style={({ pressed }) => [
                             {
                                 opacity: pressed ? 0.5 : 1,
-                                backgroundColor: '#1c1c1e',
+                                backgroundColor: type === HoldersAppParamsType.Account ? '#1c1c1e' : theme.surfaceOnBg,
                                 borderRadius: 32,
                                 height: 32, width: 32,
                                 justifyContent: 'center', alignItems: 'center',

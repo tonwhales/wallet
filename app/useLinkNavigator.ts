@@ -733,7 +733,7 @@ export function useLinkNavigator(
                     isTestnet,
                     queryClient
                 });
-                break;
+                break
             }
             case 'holders-invite': {
                 if (!selected) {
@@ -745,7 +745,6 @@ export function useLinkNavigator(
                     isTestnet, 
                     inviteId: resolved.inviteId  
                 })
-                break;
             }
         }
 

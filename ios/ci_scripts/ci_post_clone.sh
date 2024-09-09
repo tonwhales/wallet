@@ -28,14 +28,24 @@ brew install yarn
 echo "===== Generating node_modules ====="
 yarn
 
+# rbenv to manage Ruby versions and gem installations
+echo "===== Installing rbenv ====="
+brew install rbenv
+eval "$(rbenv init -)"
+echo "===== Installing 3.0.0 ====="
+rbenv install 3.0.0
+rbenv global 3.0.0
+echo "===== Installing bundler ====="
+gem install bundler
+
 # Ensure the correct version of rexml is installed
 echo "===== Installing correct version of rexml ====="
-sudo gem install rexml -v '~> 3.2.4'
+gem install rexml -v '~> 3.2.4'
 
 # Ensure the correct version of rexml is activated
 echo "===== Activating correct version of rexml ====="
-sudo gem uninstall rexml -v '3.3.6' || true
-sudo gem install rexml -v '3.2.4'
+gem uninstall rexml -v '3.3.6' || true
+gem install rexml -v '3.2.4'
 
 echo "===== Installing pods ====="
 pod install

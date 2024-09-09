@@ -1,11 +1,11 @@
 import { Address, beginCell, storeStateInit } from "@ton/core";
 import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
-import { fetchAccountToken } from "../../api/holders/fetchAccountToken";
+import { fetchUserToken } from "../../api/holders/fetchUserToken";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { ConnectReplyBuilder } from "../../tonconnect/ConnectReplyBuilder";
-import { holdersUrl } from "../../api/holders/fetchAccountState";
+import { holdersUrl } from "../../api/holders/fetchUserState";
 import { getAppManifest } from "../../getters/getAppManifest";
 import { AppManifest } from "../../api/fetchManifest";
 import { ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
@@ -24,7 +24,8 @@ export type HoldersEnrollParams = {
     },
     domain: string,
     authContext: AuthWalletKeysType,
-    authStyle?: AuthParams | undefined
+    authStyle?: AuthParams | undefined,
+    inviteId?: string
 }
 
 export enum HoldersEnrollErrorType {
@@ -41,7 +42,7 @@ export enum HoldersEnrollErrorType {
 
 export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType } | { type: 'success' };
 
-export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollParams) {
+export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
     const saveAppConnection = useSaveAppConnection();
     const connectApp = useConnectApp();
@@ -58,6 +59,15 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
             const app = connectApp(url);
             const connections = app ? connectAppConnections(extensionKey(app.url)) : [];
             const isInjected = connections.find((item) => item.type === TonConnectBridgeType.Injected);
+
+            if (inviteId) {
+
+                //
+                // Reset holders token with every invite attempt
+                //
+
+                deleteHoldersToken(acc.address.toString({ testOnly: isTestnet }))
+            }
 
             // 
             // Check holders token value
@@ -149,7 +159,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
                         return { type: 'error', error: HoldersEnrollErrorType.NoProof };
                     }
 
-                    let token = await fetchAccountToken({
+                    let token = await fetchUserToken({
                         kind: 'tonconnect-v2',
                         wallet: 'tonhub',
                         config: {
@@ -163,7 +173,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
                                 walletStateInit: stateInitStr
                             }
                         }
-                    }, isTestnet);
+                    }, isTestnet, inviteId);
 
                     setHoldersToken(acc.address.toString({ testOnly: isTestnet }), token);
                 } catch {

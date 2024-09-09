@@ -1,4 +1,4 @@
-import { holdersUrl } from "../../api/holders/fetchAccountState";
+import { holdersUrl } from "../../api/holders/fetchUserState";
 import { useDomainKeys } from "../dapps/useDomainKeys";
 import { deleteHoldersToken } from "./useHoldersAccountStatus";
 import { extractDomain } from "../../utils/extractDomain";

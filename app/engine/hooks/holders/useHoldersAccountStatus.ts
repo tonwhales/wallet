@@ -4,13 +4,13 @@ import { Address } from "@ton/core";
 import { useMemo } from "react";
 import { useNetwork } from "../network/useNetwork";
 import { storage } from "../../../storage/storage";
-import { HoldersAccountState, accountStateCodec, fetchAccountState } from "../../api/holders/fetchAccountState";
+import { HoldersUserState, userStateCodec, fetchUserState } from "../../api/holders/fetchUserState";
 import { z } from 'zod';
 import { removeProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
 
 const holdersAccountStatus = z.union([
-    z.object({ state: z.literal(HoldersAccountState.NeedEnrollment) }),
-    z.intersection(z.object({ token: z.string() }), accountStateCodec),
+    z.object({ state: z.literal(HoldersUserState.NeedEnrollment) }),
+    z.intersection(z.object({ token: z.string() }), userStateCodec),
 ]);
 
 export type HoldersAccountStatus = z.infer<typeof holdersAccountStatus>;
@@ -63,13 +63,13 @@ export function useHoldersAccountStatus(address: string | Address) {
             const token = getHoldersToken(addr);
 
             if (!token) {
-                return { state: HoldersAccountState.NeedEnrollment } as HoldersAccountStatus; // This looks amazingly stupid
+                return { state: HoldersUserState.NeedEnrollment } as HoldersAccountStatus; // This looks amazingly stupid
             }
 
-            const fetched = await fetchAccountState(token, isTestnet);
+            const fetched = await fetchUserState(token, isTestnet);
 
             if (!fetched) {
-                return { state: HoldersAccountState.NeedEnrollment } as HoldersAccountStatus;
+                return { state: HoldersUserState.NeedEnrollment } as HoldersAccountStatus;
             }
 
             return { ...fetched, token } as HoldersAccountStatus;

@@ -68,6 +68,9 @@ export type ResolvedUrl = {
 } | {
     type: 'holders-transactions',
     query: { [key: string]: string | undefined }
+} | {
+    type: 'holders-invite',
+    inviteId: string
 }
 
 export function isUrl(str: string): boolean {
@@ -86,6 +89,16 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
         return {
             type: 'holders-transactions',
             query: url.query
+        }
+    }
+
+    const isInvite = url.pathname.startsWith('/holders/invite');
+    const inviteId = url.pathname.split('holders/invite/')[1]
+
+    if (isInvite && inviteId) {                
+        return {
+            type: 'holders-invite',
+            inviteId: inviteId
         }
     }
 

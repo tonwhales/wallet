@@ -4,7 +4,7 @@ import { Queries } from "../../queries";
 import { queryClient } from "../../clients";
 import { getQueryData } from "../../utils/getQueryData";
 import { HoldersAccountStatus } from "./useHoldersAccountStatus";
-import { HoldersAccountState } from "../../api/holders/fetchAccountState";
+import { HoldersUserState } from "../../api/holders/fetchUserState";
 import { HoldersAccounts } from "./useHoldersAccounts";
 
 function hasAccounts(accs: HoldersAccounts | undefined) {
@@ -24,8 +24,8 @@ export function getHasHoldersProducts(address: string) {
 
     const token = (
         !!status &&
-        status.state !== HoldersAccountState.NoRef &&
-        status.state !== HoldersAccountState.NeedEnrollment
+        status.state !== HoldersUserState.NoRef &&
+        status.state !== HoldersUserState.NeedEnrollment
     ) ? status.token : null;
 
     const accounts = getQueryData<HoldersAccounts>(queryCache, Queries.Holders(address).Cards(!!token ? 'private' : 'public'));

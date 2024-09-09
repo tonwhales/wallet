@@ -32,9 +32,9 @@ import { extractDomain } from './engine/utils/extractDomain';
 import { Linking } from 'react-native';
 import { openWithInApp } from './utils/openWithInApp';
 import { getHoldersToken, HoldersAccountStatus } from './engine/hooks/holders/useHoldersAccountStatus';
-import { HoldersAccountState, holdersUrl } from './engine/api/holders/fetchAccountState';
+import { HoldersUserState, holdersUrl } from './engine/api/holders/fetchUserState';
 import { getIsConnectAppReady } from './engine/hooks/dapps/useIsConnectAppReady';
-import { HoldersAppParams } from './fragments/holders/HoldersAppFragment';
+import { HoldersAppParams, HoldersAppParamsType } from './fragments/holders/HoldersAppFragment';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -473,7 +473,7 @@ function getNeedsEnrollment(url: string, address: string, isTestnet: boolean, qu
         return true;
     }
 
-    if (status.state === HoldersAccountState.NeedEnrollment) {
+    if (status.state === HoldersUserState.NeedEnrollment) {
         return true;
     }
 
@@ -508,15 +508,10 @@ function resolveAndNavigateToHolders(params: {
     const isSelectedAddress = addresses.find((a) => Address.parse(a).equals(selected.address));
     const transactionId = query['transactionId'];
 
-    const holdersNavParams: HoldersAppParams = type === 'holders-transactions'
-        ? {
-            type: 'transactions',
-            query: { transactionId }
-        }
-        : {
-            type: 'path',
-            path: params.path
-        }
+    const holdersNavParams: HoldersAppParams = {
+        type: HoldersAppParamsType.Transactions,
+        query: { transactionId }
+    }
 
     const url = holdersUrl(isTestnet);
 
@@ -565,6 +560,18 @@ function resolveAndNavigateToHolders(params: {
             });
         }
     }
+}
+
+function resolveHoldersInviteLink(params: {
+    navigation: TypedNavigation,
+    isTestnet: boolean,
+    inviteId: string
+}){
+    const { navigation, isTestnet, inviteId } = params
+
+    const endpoint = holdersUrl(isTestnet);
+
+    navigation.navigateHoldersLanding({endpoint, onEnrollType: { type: HoldersAppParamsType.Invite }, inviteId }, isTestnet);
 }
 
 export function useLinkNavigator(
@@ -726,6 +733,18 @@ export function useLinkNavigator(
                     isTestnet,
                     queryClient
                 });
+                break;
+            }
+            case 'holders-invite': {
+                if (!selected) {
+                    return;
+                }
+
+                resolveHoldersInviteLink({
+                    navigation,
+                    isTestnet, 
+                    inviteId: resolved.inviteId  
+                })
                 break;
             }
         }

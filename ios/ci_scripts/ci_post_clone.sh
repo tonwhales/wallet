@@ -4,20 +4,17 @@ set -e
 
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=TRUE
-
-# Uninstall previous cocoapods
-echo "===== Uninstalling prev cocoapods ====="
-brew uninstall --ignore-dependencies cocoapods || true
-
 # brew install cocoapods
 # CocoaPods 1.15.0 is unstable, so we have to use 1.14.3 as prev stable
 # brew doesn't have version pinning for cocoapods, so we have to install it manually from the commit
 echo "===== Uninstalling prev cocoapods ====="
 brew uninstall --ignore-dependencies cocoapods || true
-echo "===== Downloading formula ====="
-curl https://raw.githubusercontent.com/Homebrew/homebrew-core/1364b74ebeedb2eab300d62c99e12f2a6f344277/Formula/c/cocoapods.rb > cocoapods.rb
-echo "===== Installing formula ====="
-brew install cocoapods.rb
+# echo "===== Downloading formula ====="
+# curl https://raw.githubusercontent.com/Homebrew/homebrew-core/1364b74ebeedb2eab300d62c99e12f2a6f344277/Formula/c/cocoapods.rb > cocoapods.rb
+# echo "===== Installing formula ====="
+# brew install cocoapods.rb
+echo "===== Installing  cocoapods====="
+brew install cocoapods
 
 echo "===== Installing node ====="
 # have to add node yourself
@@ -32,28 +29,7 @@ brew install yarn
 # Install dependencies you manage with CocoaPods.
 echo "===== Generating node_modules ====="
 yarn
-
-# rbenv to manage Ruby versions and gem installations
-echo "===== Installing rbenv ====="
-brew install rbenv
-eval "$(rbenv init -)"
-echo "===== Installing 3.0.0 ====="
-rbenv install 3.0.0
-rbenv global 3.0.0
-echo "===== Installing bundler ====="
-gem install bundler
-
-# Ensure the correct version of rexml is installed
-echo "===== Installing correct version of rexml ====="
-gem install rexml -v '~> 3.2.4'
-
-# Ensure the correct version of rexml is activated
-echo "===== Activating correct version of rexml ====="
-gem uninstall rexml -v '3.3.6' || true
-gem install rexml -v '3.2.4'
-
 echo "===== Installing pods ====="
-bundle exec pod install
-
+pod install
 # the sed command from RN cant find the file... so we have to run it ourselves
 sed -i -e  $'s/ && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0)//' /Volumes/workspace/repository/ios/Pods/RCT-Folly/folly/portability/Time.h

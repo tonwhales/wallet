@@ -348,6 +348,14 @@ export const HoldersAppComponent = memo((
                     }
                 }
                 break;
+            case HoldersAppParamsType.Path:
+                route = `/${props.variant.path ?? ''}`;
+                for (const [key, value] of Object.entries(props.variant.query)) {
+                    if (!!value) {
+                        queryParams.append(key, value);
+                    }
+                }
+                break;
         }
 
         const url = `${props.endpoint}${route}?${queryParams.toString()}`;
@@ -494,9 +502,10 @@ export const HoldersAppComponent = memo((
                 webviewDebuggingEnabled={isTestnet}
                 loader={(p) => (
                     <HoldersLoader
-                        type={props.variant.type === HoldersAppParamsType.Transactions 
-                            ? HoldersAppParamsType.Prepaid 
-                            : props.variant.type
+                        type={
+                            props.variant.type === HoldersAppParamsType.Transactions || props.variant.type === HoldersAppParamsType.Path
+                                ? HoldersAppParamsType.Account
+                                : props.variant.type
                         }
                         {...p}
                     />

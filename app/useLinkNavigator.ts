@@ -480,15 +480,20 @@ function getNeedsEnrollment(url: string, address: string, isTestnet: boolean, qu
     return false;
 }
 
-function resolveAndNavigateToHolders(params: {
+type HolderResloveParams = {
     query: { [key: string]: string | undefined },
     navigation: TypedNavigation,
     selected: SelectedAccount,
     updateAppState: (value: AppState, isTestnet: boolean) => void,
     isTestnet: boolean,
     queryClient: QueryClient
-}) {
-    const { query, navigation, selected, updateAppState, queryClient, isTestnet } = params
+}
+
+type HoldersTransactionResolveParams = HolderResloveParams & { type: 'holders-transactions' }
+type HoldersPathResolveParams = HolderResloveParams & { type: 'holders-path', path: string }
+
+function resolveAndNavigateToHolders(params: HoldersTransactionResolveParams | HoldersPathResolveParams) {
+    const { type, query, navigation, selected, updateAppState, queryClient, isTestnet } = params
     const addresses = query['addresses']?.split(',');
 
     if (!addresses || addresses.length === 0) {
@@ -498,10 +503,15 @@ function resolveAndNavigateToHolders(params: {
     const isSelectedAddress = addresses.find((a) => Address.parse(a).equals(selected.address));
     const transactionId = query['transactionId'];
 
-    const holdersNavParams: HoldersAppParams = {
-        type: HoldersAppParamsType.Transactions,
-        query: { transactionId }
-    }
+    const holdersNavParams: HoldersAppParams = type === 'holders-transactions'
+        ? {
+            type: HoldersAppParamsType.Transactions,
+            query: { transactionId }
+        } : {
+            type: HoldersAppParamsType.Path,
+            path: params.path,
+            query
+        }
 
     const url = holdersUrl(isTestnet);
 
@@ -556,12 +566,12 @@ function resolveHoldersInviteLink(params: {
     navigation: TypedNavigation,
     isTestnet: boolean,
     inviteId: string
-}){
+}) {
     const { navigation, isTestnet, inviteId } = params
 
     const endpoint = holdersUrl(isTestnet);
 
-    navigation.navigateHoldersLanding({endpoint, onEnrollType: { type: HoldersAppParamsType.Invite }, inviteId }, isTestnet);
+    navigation.navigateHoldersLanding({ endpoint, onEnrollType: { type: HoldersAppParamsType.Invite }, inviteId }, isTestnet);
 }
 
 export function useLinkNavigator(
@@ -698,6 +708,7 @@ export function useLinkNavigator(
                 }
 
                 resolveAndNavigateToHolders({
+                    type: 'holders-transactions',
                     navigation,
                     query: resolved.query,
                     selected,
@@ -705,7 +716,24 @@ export function useLinkNavigator(
                     isTestnet,
                     queryClient
                 });
-                break
+                break;
+            }
+            case 'holders-path': {
+                if (!selected) {
+                    return;
+                }
+
+                resolveAndNavigateToHolders({
+                    type: 'holders-path',
+                    path: resolved.path,
+                    navigation,
+                    query: resolved.query,
+                    selected,
+                    updateAppState,
+                    isTestnet,
+                    queryClient
+                });
+                break;
             }
             case 'holders-invite': {
                 if (!selected) {
@@ -714,9 +742,10 @@ export function useLinkNavigator(
 
                 resolveHoldersInviteLink({
                     navigation,
-                    isTestnet, 
-                    inviteId: resolved.inviteId  
+                    isTestnet,
+                    inviteId: resolved.inviteId
                 })
+                break;
             }
         }
 

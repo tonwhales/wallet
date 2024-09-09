@@ -26,7 +26,7 @@ import WalletService, { addCardRequestSchema } from "../../modules/WalletService
 import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../storage/appState";
 import { WebViewSourceUri } from "react-native-webview/lib/WebViewTypes";
-import { holdersUrl } from "../../engine/api/holders/fetchAccountState";
+import { holdersUrl } from "../../engine/api/holders/fetchUserState";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;

@@ -502,6 +502,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holders: {
             title: 'Bank account',
+            loadingLongerTitle: 'Connection problems',
+            loadingLonger: 'Check your internet connection and reload page. If the issue persists please contact support',
             accounts: {
                 title: 'Payment accounts',
                 prepaidTitle: 'Prepaid cards',

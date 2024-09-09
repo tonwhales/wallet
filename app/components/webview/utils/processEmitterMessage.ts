@@ -20,7 +20,7 @@ export function processEmitterMessage(
             case DAppEmitterEvents.APP_READY:
                 setTimeout(() => {
                     setLoaded(true);
-                }, 200);
+                }, 100);
                 break;
             default:
                 break;

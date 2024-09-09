@@ -32,6 +32,8 @@ const Img_venera = require('@assets/known/Img_venera.jpeg');
 
 const Img_Team_1 = require('@assets/known/ic_team_1.png');
 const Img_Team_2 = require('@assets/known/ic_team_2.png');
+const Img_Club_1 = require('@assets/ic_club_cosmos.png');
+const Img_Club_2 = require('@assets/ic_club_robot.png');
 const Img_ePN_1 = require('@assets/known/ic_epn_1.png');
 const Img_ePN_2 = require('@assets/known/ic_epn_2.png');
 const Img_Lockups_1 = require('@assets/known/ic_lockups_1.png');
@@ -169,6 +171,24 @@ const knownWalletsMainnet = {
             secondary: '#DEEFFC'
         },
         ic: Img_Team_2,
+        requireMemo: true
+    },
+    [Address.parse('EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB').toString()]: {
+        name: 'Club 1',
+        colors: {
+            primary: '#65C6FF',
+            secondary: '#DEEFFC'
+        },
+        ic: Img_Club_1,
+        requireMemo: true
+    },
+    [Address.parse('EQA_cc5tIQ4haNbMVFUD1d0bNRt17S7wgWEqfP_xEaTACLUB').toString()]: {
+        name: 'Club 2',
+        colors: {
+            primary: '#65C6FF',
+            secondary: '#DEEFFC'
+        },
+        ic: Img_Club_2,
         requireMemo: true
     },
     [Address.parse('EQBeNwQShukLyOWjKWZ0Oxoe5U3ET-ApQIWYeC4VLZ4tmeTm').toString()]: {

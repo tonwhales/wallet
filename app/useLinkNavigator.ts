@@ -508,9 +508,13 @@ function resolveAndNavigateToHolders(params: {
     const isSelectedAddress = addresses.find((a) => Address.parse(a).equals(selected.address));
     const transactionId = query['transactionId'];
 
-    const holdersNavParams: HoldersAppParams = {
+    const holdersNavParams: HoldersAppParams = type === 'holders-transactions' 
+    ? {
         type: HoldersAppParamsType.Transactions,
         query: { transactionId }
+    } : {
+        type: HoldersAppParamsType.Path,
+        path: params.path
     }
 
     const url = holdersUrl(isTestnet);
@@ -733,7 +737,7 @@ export function useLinkNavigator(
                     isTestnet,
                     queryClient
                 });
-                break
+                break;
             }
             case 'holders-invite': {
                 if (!selected) {
@@ -745,6 +749,7 @@ export function useLinkNavigator(
                     isTestnet, 
                     inviteId: resolved.inviteId  
                 })
+                break;
             }
         }
 

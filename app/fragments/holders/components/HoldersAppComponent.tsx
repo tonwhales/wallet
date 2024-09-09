@@ -497,9 +497,10 @@ export const HoldersAppComponent = memo((
                 webviewDebuggingEnabled={isTestnet}
                 loader={(p) => (
                     <HoldersLoader
-                        type={props.variant.type === HoldersAppParamsType.Transactions 
-                            ? HoldersAppParamsType.Prepaid 
-                            : props.variant.type
+                        type={
+                            props.variant.type === HoldersAppParamsType.Transactions || props.variant.type === HoldersAppParamsType.Path
+                                ? HoldersAppParamsType.Account
+                                : props.variant.type
                         }
                         {...p}
                     />

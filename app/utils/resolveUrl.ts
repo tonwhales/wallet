@@ -69,6 +69,10 @@ export type ResolvedUrl = {
     type: 'holders-transactions',
     query: { [key: string]: string | undefined }
 } | {
+    type: 'holders-path',
+    path: string,
+    query: { [key: string]: string | undefined }
+} | {
     type: 'holders-invite',
     inviteId: string
 }
@@ -95,16 +99,6 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
             type: 'holders-path',
             path: decodeURIComponent(url.query.path),
             query: url.query
-        }
-    }
-
-    const isInvite = url.pathname.startsWith('/holders/invite');
-    const inviteId = url.pathname.split('holders/invite/')[1]
-
-    if (isInvite && inviteId) {                
-        return {
-            type: 'holders-invite',
-            inviteId: inviteId
         }
     }
 

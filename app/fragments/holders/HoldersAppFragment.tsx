@@ -16,7 +16,8 @@ export enum HoldersAppParamsType {
     Prepaid = 'prepaid',
     Create = 'create',
     Invite = 'invite',
-    Transactions = 'transactions'
+    Transactions = 'transactions',
+    Path = 'path'
 }
 
 export type HoldersAppParams =
@@ -24,6 +25,7 @@ export type HoldersAppParams =
     | { type: HoldersAppParamsType.Prepaid, id: string }
     | { type: HoldersAppParamsType.Create }
     | { type: HoldersAppParamsType.Invite }
+    | { type: HoldersAppParamsType.Path, path: string }
     | { type: HoldersAppParamsType.Transactions, query: { [key: string]: string | undefined } };
 
 export const HoldersAppFragment = fragment(() => {

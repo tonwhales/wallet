@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer, useState } from "react";
-import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator, BackHandler } from "react-native";
+import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator, BackHandler, Linking } from "react-native";
 import WebView, { WebViewMessageEvent, WebViewNavigation, WebViewProps } from "react-native-webview";
 import { useNetwork, useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
@@ -25,6 +25,8 @@ import { getLockAppWithAuthState } from "../../engine/state/lockAppWithAuthState
 import WalletService, { addCardRequestSchema } from "../../modules/WalletService";
 import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../storage/appState";
+import { WebViewSourceUri } from "react-native-webview/lib/WebViewTypes";
+import { holdersUrl } from "../../engine/api/holders/fetchUserState";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -96,15 +98,28 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
     );
 
+
+
     const safelyOpenUrl = useCallback((url: string) => {
         try {
+            const scheme = new URL(url).protocol.replace(':', '');
+            const sourceUrl = (props.source as WebViewSourceUri)?.uri;
+
+            if (
+                scheme === 'tg'
+                && !!sourceUrl
+                && sourceUrl.startsWith(holdersUrl(isTestnet))
+            ) {
+                Linking.openURL(url);
+                return;
+            }
             let pageDomain = extractDomain(url);
             if (isSafeDomain(pageDomain)) {
                 openWithInApp(url);
                 return;
             }
         } catch { }
-    }, []);
+    }, [props.source]);
 
     const onNavigation = useCallback((url: string) => {
         if (!props.useQueryAPI) {
@@ -329,11 +344,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         // Basic open url
         if (data.name === 'openUrl' && data.args.url) {
             try {
-                let pageDomain = extractDomain(data.args.url);
-                if (isSafeDomain(pageDomain)) {
-                    openWithInApp(data.args.url);
-                    return;
-                }
+                safelyOpenUrl(data.args.url);
             } catch {
                 warn('Failed to open url');
                 return;

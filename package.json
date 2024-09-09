@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "2.3.11",
+  "version": "2.3.13",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -124,7 +124,7 @@
     "react-native-reanimated": "^3.6.1",
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "~3.22.0",
-    "react-native-share": "^9.4.1",
+    "react-native-share": "^10.2.1",
     "react-native-sse": "^1.1.0",
     "react-native-svg": "14.0.0",
     "react-native-tab-view": "^3.5.2",

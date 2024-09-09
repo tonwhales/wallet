@@ -1,5 +1,5 @@
 import axios from "axios";
-import { holdersEndpoint } from "./fetchAccountState";
+import { holdersEndpoint } from "./fetchUserState";
 import { z } from "zod";
 
 const cardCredentialsCodec = z.object({

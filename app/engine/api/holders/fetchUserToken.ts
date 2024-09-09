@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { holdersEndpoint } from './fetchAccountState';
+import { holdersEndpoint } from './fetchUserState';
 import { z } from 'zod';
 
 const tonconnectV2Config = z.object({
@@ -57,12 +57,13 @@ const keys = z.union([tonXKey, tonXLiteKey, tonconnectV2Key]);
 
 export type AccountKeyParam = z.infer<typeof keys>;
 
-export async function fetchAccountToken(key: AccountKeyParam, isTestnet: boolean): Promise<string> {
+export async function fetchUserToken(key: AccountKeyParam, isTestnet: boolean, inviteId?: string): Promise<string> {    
     const endpoint = holdersEndpoint(isTestnet);
     const requestParams = {
         stack: 'ton',
         network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
-        key: key
+        key: key,
+        inviteId
     };
 
     const res = await axios.post(
@@ -71,7 +72,7 @@ export async function fetchAccountToken(key: AccountKeyParam, isTestnet: boolean
     );
 
     if (!res.data.ok) {
-        throw Error('Failed to fetch card token');
+        throw Error('Failed to fetch user token');
     }
     return res.data.token as string;
 }

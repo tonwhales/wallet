@@ -11,7 +11,7 @@ import { extractDomain } from "../../engine/utils/extractDomain";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchAccountState';
+import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchUserState';
 import { Typography } from "../styles";
 import { ConnectedApp } from "../../engine/hooks/dapps/useTonConnectExtenstions";
 

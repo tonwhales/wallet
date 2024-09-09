@@ -167,16 +167,16 @@ export class TypedNavigation {
         this.navigateAndReplaceAll('LedgerApp');
     }
 
-    navigateHoldersLanding({ endpoint, onEnrollType }: { endpoint: string, onEnrollType: HoldersAppParams }, isTestnet: boolean) {
+    navigateHoldersLanding({ endpoint, onEnrollType, inviteId }: { endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }, isTestnet: boolean) {
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
                 if (success) { // navigate only if auth is set up
-                    this.navigate('HoldersLanding', { endpoint, onEnrollType })
+                    this.navigate('HoldersLanding', { endpoint, onEnrollType, inviteId })
                 }
             }
             this.navigateMandatoryAuthSetup({ callback });
         } else {
-            this.navigate('HoldersLanding', { endpoint, onEnrollType });
+            this.navigate('HoldersLanding', { endpoint, onEnrollType, inviteId });
         }
     }
 

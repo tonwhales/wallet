@@ -314,7 +314,7 @@ export const HoldersAppComponent = memo((
         let route = '';
         switch (props.variant.type) {
             case HoldersAppParamsType.Invite:
-                route = '/onboarding/invite';
+                route = '/';
                 break;
             case HoldersAppParamsType.Create:
                 route = '/create';

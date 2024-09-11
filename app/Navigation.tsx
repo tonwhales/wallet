@@ -96,6 +96,7 @@ import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
 import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
+import { W5UpdateFragment } from './fragments/W5UpdateFragment';
 import { WebViewPreloader } from './components/WebViewPreloader';
 import { holdersUrl } from './engine/api/holders/fetchUserState';
 

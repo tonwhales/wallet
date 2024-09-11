@@ -156,6 +156,7 @@ export function TransactionView(props: {
 
                     return (
                         <PreparedMessageView
+                            key={`prep-${i}`}
                             own={props.own}
                             message={m}
                             separator={false}

@@ -14,7 +14,7 @@ import { Address, fromNano, toNano } from "@ton/core";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
-import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fetchAccountState";
+import { holdersUrl as resolveHoldersUrl } from "../../../engine/api/holders/fetchUserState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { Jetton, StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";

@@ -96,6 +96,8 @@ import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
 import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
+import { WebViewPreloader } from './components/WebViewPreloader';
+import { holdersUrl } from './engine/api/holders/fetchUserState';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -469,6 +471,7 @@ export const Navigation = memo(() => {
             <PendingTxsWatcher />
             <TonconnectWatcher />
             <SessionWatcher navRef={navigationRef} />
+            <WebViewPreloader url={holdersUrl(isTestnet)} />
             <Splash hide={hideSplash} />
         </View>
     );

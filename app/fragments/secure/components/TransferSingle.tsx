@@ -140,7 +140,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
     }, []);
 
-    const onGaslessFailed = useCallback((cooldown?: boolean) => {
+    const onGaslessSendFailed = useCallback((cooldown?: boolean) => {
         setFailed(true);
         toaster.show({
             message: cooldown
@@ -291,11 +291,11 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 }, isTestnet));
 
                 if (!gaslessTransferRes.ok) {
-                    onGaslessFailed(gaslessTransferRes.error === 'cooldown');
+                    onGaslessSendFailed(gaslessTransferRes.error === 'cooldown');
                     return;
                 }
             } catch (error) {
-                onGaslessFailed();
+                onGaslessSendFailed();
                 return;
             }
 

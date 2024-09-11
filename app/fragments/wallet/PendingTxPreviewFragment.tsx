@@ -100,7 +100,7 @@ const PendingTxPreview = () => {
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
     const feesPrise = useMemo(() => {
-        if (!price || typeof fees !== 'bigint' && fees.type !== 'ton') {
+        if (!price || (typeof fees !== 'bigint' && fees.type !== 'ton')) {
             return undefined;
         }
 

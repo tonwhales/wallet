@@ -28,6 +28,7 @@ import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend } from "../../../engine/api/gasless/fetchGaslessSend";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
+import { GaslessEstimate } from "../../../engine/api/gasless/fetchGaslessEstimate";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -263,7 +264,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 timeout: Math.ceil(Date.now() / 1000) + 5 * 60,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
-                messages: fees.params.messages.map(message =>
+                messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimate }).params.messages.map(message =>
                     internal({
                         to: message.address,
                         value: BigInt(message.amount),

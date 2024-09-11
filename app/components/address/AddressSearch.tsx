@@ -3,13 +3,14 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useNetwork, useWalletsSettings } from "../../engine/hooks";
+import { useNetwork, usePeparedMessages, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { useDebouncedValue } from "../../utils/useDebouncedValue";
 import { TransactionDescription } from "../../engine/types";
 import { ThemeType } from "../../engine/state/theme";
+import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
 
 export type AddressSearchItem = {
     addr: {
@@ -51,31 +52,43 @@ export const AddressSearch = memo(({
     const network = useNetwork();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
-    const [walletsSettings,] = useWalletsSettings();
+    const gaslessConfig = useGaslessConfig();
+    const [walletsSettings] = useWalletsSettings();
     const debouncedQuery = useDebouncedValue(query?.toLowerCase(), 500);
+    const preparedMessages = usePeparedMessages(lastTwoTxs.flatMap((t) => t.base.outMessages), network.isTestnet)
 
     const lastTxs = useMemo(() => {
-        const two = lastTwoTxs?.slice(0, 2);
-        let addresses: { isBounceable: boolean; isTestOnly: boolean; address: Address; }[] = [];
+        const addresses = new Set<string>();
 
-        if (two && two.length > 1) {
-            const firstAddr = two[0].base.operation.items[0].kind === 'token' ? two[0].base.operation.address : two[0].base.parsed.resolvedAddress;
-            const secondAddr = two[1].base.operation.items[0].kind === 'token' ? two[1].base.operation.address : two[1].base.parsed.resolvedAddress;
+        preparedMessages.forEach((msg) => {
+            try {
+                addresses.add(msg.friendlyTarget);
+            } catch { }
+        });
 
-            const first = Address.parseFriendly(firstAddr);
-            const second = Address.parseFriendly(secondAddr);
+        const parsed = Array.from(addresses).map((a) => {
+            try {
+                const parsed = Address.parseFriendly(a);
 
-            if (first && second) {
-                addresses = first.address.equals(second.address) ? [first] : [first, second];
-            } else if (first) {
-                addresses = [first];
-            } else if (second) {
-                addresses = [second];
+                const isGasProxy = parsed.address.equals(Address.parse('UQBGOzawW2QtzY54knlrS_Plqmfxxz7sdtS-b8LgvN2zkR4_'));
+                let isRelay = false;
+
+                if (!!gaslessConfig.data?.relay_address) {
+                    isRelay = parsed.address.equals(Address.parse(gaslessConfig.data.relay_address));
+                }
+
+                if (isGasProxy || isRelay) {
+                    return null;
+                }
+
+                return parsed;
+            } catch { 
+                return null;
             }
-        }
+        }).filter((a) => !!a) as { isBounceable: boolean; isTestOnly: boolean; address: Address; }[];
 
-        return addresses;
-    }, [lastTwoTxs, contacts]);
+        return parsed;
+    }, [preparedMessages, gaslessConfig]);
 
     const searchItems = useMemo(() => {
         return {

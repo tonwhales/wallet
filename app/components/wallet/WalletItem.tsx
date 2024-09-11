@@ -102,13 +102,11 @@ export const WalletItem = memo((
             <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>
                 <View style={{ flexDirection: 'row' }}>
                     <Text
-                        style={{
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '600',
+                        style={[{
                             color: theme.textPrimary,
                             marginBottom: 2,
                             maxWidth: '90%',
-                        }}
+                        }, Typography.semiBold17_24]}
                         numberOfLines={1}
                     >
                         {walletSettings?.name || `${t('common.wallet')} ${index + 1}`}
@@ -121,13 +119,13 @@ export const WalletItem = memo((
                                 start={[0, 1]}
                                 end={[1, 0]}
                             />
-                            <Text style={[{ color: '#FFF' }, Typography.medium13_18]}>
-                                W5
+                            <Text style={[{ color: theme.white }, Typography.medium13_18]}>
+                                {'W5'}
                             </Text>
                         </View>
                     )}
                 </View>
-                <Text style={{ fontSize: 15, lineHeight: 20, fontWeight: '400', color: '#838D99' }}>
+                <Text style={[{ color: '#838D99' }, Typography.regular15_20]}>
                     {ellipsiseAddress(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }))}
                 </Text>
             </View>

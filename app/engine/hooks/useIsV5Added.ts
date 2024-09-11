@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { WalletVersions } from "../types";
 
-export function useV5IsAdded(): boolean {
+export function useIsV5Added(): boolean {
     const [isAdded, setIsAdded] = useState(true);
     const appState = useAppState();
 

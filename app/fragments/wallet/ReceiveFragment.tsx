@@ -247,11 +247,7 @@ export const ReceiveFragment = fragment(() => {
                             height: 56,
                         }}
                         body={friendly}
-                        textStyle={{
-                            color: theme.textThird,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '600',
-                        }}
+                        textStyle={[{ color: theme.textThird }, Typography.semiBold17_24]}
                     />
                     <ShareButton
                         style={{
@@ -260,11 +256,7 @@ export const ReceiveFragment = fragment(() => {
                             height: 56,
                         }}
                         body={link}
-                        textStyle={{
-                            color: theme.textThird,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '600',
-                        }}
+                        textStyle={[{ color: theme.textThird }, Typography.semiBold17_24]}
                         onScreenCapture={() => {
                             return new Promise((resolve, reject) => {
                                 (async () => {

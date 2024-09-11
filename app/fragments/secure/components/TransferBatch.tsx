@@ -39,11 +39,11 @@ import { ToastDuration, useToaster } from "../../../components/toast/ToastProvid
 import { copyText } from "../../../utils/copyText";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import Minimizer from "../../../modules/Minimizer";
+import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
+import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
-import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 
 export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
     const authContext = useKeysAuth();
@@ -354,12 +354,6 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
             transfer = isV5
                 ? (contract as WalletContractV5R1).createTransfer(transferParams)
                 : (contract as WalletContractV4).createTransfer(transferParams);
-            // transfer = contract.createTransfer({
-            //     seqno: seqno,
-            //     secretKey: walletKeys.keyPair.secretKey,
-            //     sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
-            //     messages,
-            // });
         } catch {
             warn('Failed to create transfer');
             return;

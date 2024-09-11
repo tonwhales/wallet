@@ -276,6 +276,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                     known={known}
                     isSpam={spam}
                     isLedger
+                    failed={false}
                 />
             </ScrollView>
             <RoundButton
@@ -324,9 +325,6 @@ export const LedgerSignTransferFragment = fragment(() => {
 
     // Sign/Transfer state
     const [transferState, setTransferState] = useState<'confirm' | 'sending' | 'sent' | null>(null);
-
-    // TODO: Implement wallet version
-    // const walletVersion = useWalletVersion();
 
     const transferStateTitle = useMemo(() => {
         switch (transferState) {

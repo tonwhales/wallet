@@ -491,12 +491,12 @@ export const TransferFragment = fragment(() => {
                     const tetherTransferPayload = beginCell()
                         .storeUint(OperationType.JettonTransfer, 32)
                         .storeUint(0, 64)
-                        .storeCoins(jettonTransfer.amount) // 1 USDT
-                        .storeAddress(jettonTransfer.destination.address) // address for receiver
-                        .storeAddress(relayerAddress) // address for excesses
-                        .storeMaybeRef(jettonTransfer.customPayload) // custom_payload
-                        .storeCoins(1n) // count of forward transfers in nanoton
-                        .storeMaybeRef(jettonTransfer.forwardPayload) // forward_payload
+                        .storeCoins(jettonTransfer.amount)
+                        .storeAddress(jettonTransfer.destination.address) // receiver address 
+                        .storeAddress(relayerAddress) // excesses address
+                        .storeMaybeRef(jettonTransfer.customPayload) // custom payload
+                        .storeCoins(1n) // forward transfers count in nanoton
+                        .storeMaybeRef(jettonTransfer.forwardPayload) // forward payload
                         .endCell();
 
                     const messageToEstimate = beginCell()

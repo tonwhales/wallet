@@ -858,7 +858,9 @@ export type LocalizationSchema = {
         complete: string,
         error: {
             hasNfts: string,
-            fetchingNfts: string
+            fetchingNfts: string,
+            hasUSDTBalanceTitle: string,
+            hasUSDTBalanceMessage: string
         },
         confirm: {
             title: string,

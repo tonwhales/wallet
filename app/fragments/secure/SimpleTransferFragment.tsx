@@ -1141,10 +1141,7 @@ export const SimpleTransferFragment = fragment(() => {
                                         }}>
                                         {t('txPreview.blockchainFee')}
                                     </Text>
-                                    <Text style={{
-                                        color: theme.textPrimary,
-                                        fontSize: 17, lineHeight: 24, fontWeight: '400'
-                                    }}>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                         {estimation
                                             ? <>
                                                 {`${formatAmount(fromNano(estimation))} TON`}
@@ -1152,10 +1149,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             : '...'
                                         }
                                         {!!estimationPrise && (
-                                            <Text style={{
-                                                color: theme.textSecondary,
-                                                fontSize: 17, lineHeight: 24, fontWeight: '400',
-                                            }}>
+                                            <Text style={[{ color: theme.textSecondary }, Typography.regular17_24]}>
                                                 {` (${estimationPrise})`}
                                             </Text>
 

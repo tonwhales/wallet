@@ -856,7 +856,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         complete: 'Account deletion completed',
         error: {
             hasNfts: 'You have NFTs in your wallet, in order to delete the account, please send them to another wallet.',
-            fetchingNfts: 'Could not find out if there are NFTs on the wallet. In order to delete the account, please make sure there are no NFTs on it.'
+            fetchingNfts: 'Could not find out if there are NFTs on the wallet. In order to delete the account, please make sure there are no NFTs on it.',
+            hasUSDTBalanceTitle: 'You have USDT balance in your wallet',
+            hasUSDTBalanceMessage: 'In order to delete the account, please send them to another wallet.'
         },
         confirm: {
             title: 'Are you sure you want to delete your account and all data from this application?',

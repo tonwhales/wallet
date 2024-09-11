@@ -32,6 +32,8 @@ const Img_venera = require('@assets/known/Img_venera.jpeg');
 
 const Img_Team_1 = require('@assets/known/ic_team_1.png');
 const Img_Team_2 = require('@assets/known/ic_team_2.png');
+const Img_Club_1 = require('@assets/ic_club_cosmos.png');
+const Img_Club_2 = require('@assets/ic_club_robot.png');
 const Img_ePN_1 = require('@assets/known/ic_epn_1.png');
 const Img_ePN_2 = require('@assets/known/ic_epn_2.png');
 const Img_Lockups_1 = require('@assets/known/ic_lockups_1.png');
@@ -169,6 +171,24 @@ const knownWalletsMainnet = {
             secondary: '#DEEFFC'
         },
         ic: Img_Team_2,
+        requireMemo: true
+    },
+    [Address.parse('EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB').toString()]: {
+        name: 'Club 1',
+        colors: {
+            primary: '#65C6FF',
+            secondary: '#DEEFFC'
+        },
+        ic: Img_Club_1,
+        requireMemo: true
+    },
+    [Address.parse('EQA_cc5tIQ4haNbMVFUD1d0bNRt17S7wgWEqfP_xEaTACLUB').toString()]: {
+        name: 'Club 2',
+        colors: {
+            primary: '#65C6FF',
+            secondary: '#DEEFFC'
+        },
+        ic: Img_Club_2,
         requireMemo: true
     },
     [Address.parse('EQBeNwQShukLyOWjKWZ0Oxoe5U3ET-ApQIWYeC4VLZ4tmeTm').toString()]: {
@@ -489,11 +509,52 @@ const knownWalletsMainnet = {
         ic: Img_OKX,
         requireMemo: true
     },
+    [Address.parse('EQCbm3Od4lJ65y0hCD9RmNcQxyiEU7RzPlfsrbLhiayCnNuU').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
     [Address.parse('EQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXGkS').toString()]: {
         name: 'OKX',
         ic: Img_OKX,
         requireMemo: true
     },
+    [Address.parse('EQDxXbLGLNhq_whg05xJH8c6MTlfr-tZReZESYViJgx4Lg4_').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('UQDn6G2gh0LtkzQ0_-uPCKY8fhAO6ELiX1manL8IkVdKbDEu').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('UQADON7zS4TG7pE0oEqxYBRQvkRjQKN64lneV8s3vbWQzTjL').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('UQCjCknscl6fVyRLZq9MLaerdgBLT86A06NLHNDDd2Krztab').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('UQAk2h57jakB5bPdD5jDl_625aXqSDGVqLa9BoLPLFMnrnbQ').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('EQB_LoTHI9i2trGqz4EMjCarI8IgIrRkuHEEstMGWw6nC3Nw').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    [Address.parse('EQD5vcDeRhwaLgAvralVC7sJXI-fc2aNcMUXqcx-BQ-OWnOZ').toString()]: {
+        name: 'OKX',
+        ic: Img_OKX,
+        requireMemo: true
+    },
+    
     [Address.parse('EQABMMdzRuntgt9nfRB61qd1wR-cGPagXA3ReQazVYUNrT7p').toString()]: {
         name: 'EXMO Deposit',
         ic: Img_EXMO_Deposit,

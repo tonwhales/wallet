@@ -162,7 +162,8 @@ export type LocalizationSchema = {
         title: string,
         subtitle: string,
         share: {
-            title: string
+            title: string,
+            error: string
         }
     },
     transfer: {
@@ -503,6 +504,8 @@ export type LocalizationSchema = {
         },
         holders: {
             title: string,
+            loadingLongerTitle: string,
+            loadingLonger: string,
             accounts: {
                 title: string,
                 prepaidTitle: string,

@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { useIsConnectAppReady, useJettonContent, usePrice, useTheme } from "../../engine/hooks";
-import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
+import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
@@ -18,7 +18,7 @@ import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccou
 import { WImage } from "../WImage";
 import { toBnWithDecimals } from "../../utils/withDecimals";
 import { toNano } from "@ton/core";
-import { HoldersAppParams } from "../../fragments/holders/HoldersAppFragment";
+import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
@@ -70,7 +70,7 @@ export const HoldersAccountItem = memo((props: {
             return true;
         }
 
-        if (holdersAccStatus.state === HoldersAccountState.NeedEnrollment) {
+        if (holdersAccStatus.state === HoldersUserState.NeedEnrollment) {
             return true;
         }
 
@@ -86,12 +86,12 @@ export const HoldersAccountItem = memo((props: {
         props.onBeforeOpen?.();
 
         if (needsEnrollment) {
-            const onEnrollType: HoldersAppParams = { type: 'account', id: props.account.id };
+            const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Account, id: props.account.id };
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: 'account', id: props.account.id }, props.isTestnet);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: props.account.id }, props.isTestnet);
     }, [props.account, needsEnrollment, props.isTestnet]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();

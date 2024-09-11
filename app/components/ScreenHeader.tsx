@@ -128,7 +128,7 @@ export const ScreenHeader = memo((
             <View style={{
                 flexDirection: 'row', alignItems: 'center',
                 height: 44,
-                marginTop: 14,
+                marginTop: 14
             }}>
                 <View style={{
                     position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,

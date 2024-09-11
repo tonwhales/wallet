@@ -9,10 +9,12 @@ export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=TRUE
 # brew doesn't have version pinning for cocoapods, so we have to install it manually from the commit
 echo "===== Uninstalling prev cocoapods ====="
 brew uninstall --ignore-dependencies cocoapods || true
-echo "===== Downloading formula ====="
-curl https://raw.githubusercontent.com/Homebrew/homebrew-core/1364b74ebeedb2eab300d62c99e12f2a6f344277/Formula/c/cocoapods.rb > cocoapods.rb
-echo "===== Installing formula ====="
-brew install cocoapods.rb
+# echo "===== Downloading formula ====="
+# curl https://raw.githubusercontent.com/Homebrew/homebrew-core/1364b74ebeedb2eab300d62c99e12f2a6f344277/Formula/c/cocoapods.rb > cocoapods.rb
+# echo "===== Installing formula ====="
+# brew install cocoapods.rb
+echo "===== Installing  cocoapods====="
+brew install cocoapods
 
 echo "===== Installing node ====="
 # have to add node yourself

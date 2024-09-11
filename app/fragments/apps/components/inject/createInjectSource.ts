@@ -221,7 +221,7 @@ export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) =
 
 export const dappWalletAPI = `
 window['dapp-wallet'] = (() => {
-    let __DAPP_WALLET_AVAILIBLE = true;
+    let __DAPP_WALLET_AVAILABLE = true;
     let inProgress = false;
     let currentCallback = null;
 
@@ -290,7 +290,7 @@ window['dapp-wallet'] = (() => {
         }
     }
 
-    const obj = { __DAPP_WALLET_AVAILIBLE, isEnabled, checkIfCardIsAlreadyAdded, canAddCard, addCardToWallet, __response };
+    const obj = { __DAPP_WALLET_AVAILABLE, isEnabled, checkIfCardIsAlreadyAdded, canAddCard, addCardToWallet, __response };
     Object.freeze(obj);
     return obj;
 })();

@@ -6,11 +6,11 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
-import { HoldersAppParams } from './HoldersAppFragment';
+import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
@@ -22,6 +22,7 @@ import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnr
 import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -29,14 +30,15 @@ export const HoldersLandingFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
+    const { showActionSheetWithOptions } = useActionSheet();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [currency,] = usePrimaryCurrency();
 
-    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
+    const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 
     const domain = extractDomain(endpoint);
-    const enroll = useHoldersEnroll({ acc, domain, authContext, authStyle: { paddingTop: 32 } });
+    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
     const lang = getLocales()[0].languageCode;
 
     // Anim
@@ -184,10 +186,45 @@ export const HoldersLandingFragment = fragment(() => {
         }
     }, [onContentProcessDidTerminate, onEnroll]);
 
+    const [renderKey, setRenderKey] = useState(0);
+
+    const onReload = useCallback(() => {
+        setRenderKey(renderKey + 1);
+    }, []);
+
+    const onSupport = useCallback(() => {
+        const tonhubOptions = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
+        const cancelButtonIndex = 0;
+
+        const tonhubSupportSheet = () => {
+            showActionSheetWithOptions({
+                options: tonhubOptions,
+                title: t('settings.support.title'),
+                cancelButtonIndex,
+            }, (selectedIndex?: number) => {
+                switch (selectedIndex) {
+                    case 1:
+                        openWithInApp('https://t.me/WhalesSupportBot');
+                        break;
+                    case 2:
+                        openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+
+        tonhubSupportSheet();
+    }, []);
+
     return (
         <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-            <View style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
+            <View
+                key={`content-${renderKey}`}
+                style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+            >
                 <DAppWebView
                     ref={webRef}
                     source={{ uri: source.url }}
@@ -198,7 +235,12 @@ export const HoldersLandingFragment = fragment(() => {
                         lockScroll: true
                     }}
                     webviewDebuggingEnabled={isTestnet}
-                    loader={(p) => <HoldersLoader type={'create'} {...p} />}
+                    loader={(p) => <HoldersLoader
+                        type={HoldersAppParamsType.Create}
+                        {...p}
+                        onSupport={onSupport}
+                        onReload={onReload}
+                    />}
                 />
                 <Animated.View style={[StyleSheet.absoluteFill, animatedAuthStyles]} pointerEvents={'none'}>
                     <ScreenHeader

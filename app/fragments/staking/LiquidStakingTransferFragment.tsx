@@ -31,42 +31,9 @@ import { Typography } from '../../components/styles';
 import { useValidAmount } from '../../utils/useValidAmount';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { LiquidStakingAmountAction, liquidStakingAmountReducer } from '../../utils/staking/liquidStakingAmountReducer';
 
 export type LiquidStakingTransferParams = Omit<StakingTransferParams, 'target'>;
-
-type AmountAction = { type: 'ton', amount: string } | { type: 'wsTon', amount: string };
-type AmountState = { ton: string, wsTon: string };
-
-function reduceAmountState(withdrawRate: bigint, depositRate: bigint, type: 'withdraw' | 'top_up') {
-    return (state: AmountState, action: AmountAction): AmountState => {
-        try {
-            const amount = action.amount.replace(',', '.').replaceAll(' ', '');
-            if (action.type === 'ton') {
-                const ton = formatInputAmount(action.amount, 9, { skipFormattingDecimals: true }, state.ton);
-                const computed = parseFloat(amount) * parseFloat(fromNano(type === 'withdraw' ? withdrawRate : depositRate)) || 0
-                const wsTon = fromNano(toNano(computed.toFixed(9)));
-
-                if (ton === state.ton) {
-                    return state;
-                }
-
-                return { ton, wsTon };
-            }
-
-            const wsTon = formatInputAmount(action.amount, 9, { skipFormattingDecimals: true }, state.wsTon);
-            const computed = parseFloat(amount) * parseFloat(fromNano(type === 'withdraw' ? withdrawRate : depositRate)) || 0;
-            const ton = fromNano(toNano(computed.toFixed(9)));
-
-            if (wsTon === state.wsTon) {
-                return state;
-            }
-
-            return { ton, wsTon };
-        } catch {
-            return state;
-        }
-    }
-}
 
 export const LiquidStakingTransferFragment = fragment(() => {
     const theme = useTheme();
@@ -101,7 +68,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
     }
 
     if (params?.action === 'top_up' && params.amount) {
-        initAmount = reduceAmountState(
+        initAmount = liquidStakingAmountReducer(
             liquidStaking?.rateWithdraw ?? 0n,
             liquidStaking?.rateDeposit ?? 0n,
             'top_up'
@@ -109,7 +76,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
     }
 
     const [amount, dispatchAmount] = useReducer(
-        reduceAmountState(
+        liquidStakingAmountReducer(
             liquidStaking?.rateWithdraw ?? 0n,
             liquidStaking?.rateDeposit ?? 0n,
             params?.action === 'withdraw' ? 'withdraw' : 'top_up'
@@ -131,7 +98,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
         return 0n;
     }, [params.action, member, account]);
 
-    const onSetAmount = useCallback((action: AmountAction) => {
+    const onSetAmount = useCallback((action: LiquidStakingAmountAction) => {
         setMinAmountWarn(undefined);
         dispatchAmount(action);
     }, []);

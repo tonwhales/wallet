@@ -22,7 +22,7 @@ import DeviceInfo from 'react-native-device-info';
 import { processEmitterMessage } from "./utils/processEmitterMessage";
 import { getLastAuthTimestamp, useKeysAuth } from "../secure/AuthWalletKeys";
 import { getLockAppWithAuthState } from "../../engine/state/lockAppWithAuthState";
-import WalletService, { addCardRequestSchema } from "../../modules/WalletService";
+import { WalletService, addCardRequestSchema } from "../../modules/WalletService";
 import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../storage/appState";
 import { WebViewSourceUri } from "react-native-webview/lib/WebViewTypes";

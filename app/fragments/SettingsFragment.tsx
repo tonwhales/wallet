@@ -20,7 +20,7 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { Typography } from '../components/styles';
-import { HoldersAccountState, holdersUrl as resolveHoldersUrl } from '../engine/api/holders/fetchAccountState';
+import { HoldersUserState, holdersUrl as resolveHoldersUrl } from '../engine/api/holders/fetchUserState';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -122,7 +122,7 @@ export const SettingsFragment = fragment(() => {
         const queryCache = queryClient.getQueryCache();
         const address = seleted!.address.toString({ testOnly: network.isTestnet });
         const status = getQueryData<HoldersAccountStatus>(queryCache, Queries.Holders(address).Status());
-        const token = status?.state === HoldersAccountState.Ok ? status.token : getHoldersToken(address);
+        const token = status?.state === HoldersUserState.Ok ? status.token : getHoldersToken(address);
         const accountsStatus = getQueryData<HoldersAccounts>(queryCache, Queries.Holders(address).Cards(!!token ? 'private' : 'public'));
 
         const initialState = {

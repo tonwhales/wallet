@@ -13,7 +13,7 @@ import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
 import { SelectedAccount } from "../../engine/types"
 import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
 import { ProductBanner } from "./ProductBanner"
-import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState"
+import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState"
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
 import { Typography } from "../styles"
 import { useBanners } from "../../engine/hooks/banners"
@@ -22,7 +22,8 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import { AddressFormatUpdate } from "./AddressFormatUpdate"
 import { TonProductComponent } from "./TonProductComponent"
 import { SpecialJettonProduct } from "./SpecialJettonProduct"
-import { useIsHoldersWhitelisted } from "../../engine/hooks/holders/useIsHoldersWhitelisted"
+import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited"
+import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import { W5Banner } from "./W5Banner"
@@ -38,11 +39,11 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
-    const isHoldersWhitelisted = useIsHoldersWhitelisted(selected!.address, isTestnet);
-    const showHoldersBuiltInBanner = (holdersAccounts?.accounts?.length ?? 0) === 0 && isHoldersWhitelisted;
+    const isHoldersInvited = useIsHoldersInvited(selected!.address, isTestnet);
+    const showHoldersBuiltInBanner = (holdersAccounts?.accounts?.length ?? 0) === 0 && isHoldersInvited;
 
     const needsEnrolment = useMemo(() => {
-        if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
+        if (holdersAccStatus?.state === HoldersUserState.NeedEnrollment) {
             return true;
         }
         return false;
@@ -68,10 +69,10 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: 'create' } }, isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
             return;
         }
-        navigation.navigateHolders({ type: 'create' }, isTestnet);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
     }, [needsEnrolment, isHoldersReady, isTestnet]);
 
     const onProductBannerPress = useCallback((product: ProductAd) => {
@@ -104,7 +105,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 <DappsRequests />
                 <PendingTransactions />
 
-                {(!isHoldersWhitelisted && !!banners?.product) && (
+                {(!isHoldersInvited && !!banners?.product) && (
                     <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
                         <ProductBanner
                             title={banners.product.title}
@@ -119,7 +120,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 {showHoldersBuiltInBanner && (
                     <View style={{
                         paddingHorizontal: 16, marginBottom: 16,
-                        marginTop: (!isHoldersWhitelisted && !!banners?.product) ? 0 : 16
+                        marginTop: (!isHoldersInvited && !!banners?.product) ? 0 : 16
                     }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}
@@ -133,7 +134,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <View style={{
                     marginHorizontal: 16, marginBottom: 16,
-                    marginTop: (showHoldersBuiltInBanner || (!isHoldersWhitelisted && !!banners?.product)) ? 0 : 16
+                    marginTop: (showHoldersBuiltInBanner || (!isHoldersInvited && !!banners?.product)) ? 0 : 16
                 }}>
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.balances')}

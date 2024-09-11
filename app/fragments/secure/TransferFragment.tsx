@@ -32,6 +32,7 @@ import { ReturnStrategy } from '../../engine/tonconnect/types';
 import Minimizer from '../../modules/Minimizer';
 import { warn } from '../../utils/log';
 import { clearLastReturnStrategy } from '../../engine/tonconnect/utils';
+import { parseAnyStringAddress } from '../../utils/parseAnyStringAddress';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
@@ -254,8 +255,8 @@ export const TransferFragment = fragment(() => {
                 };
 
                 try {
-                    target = Address.parseFriendly(params.order.messages[0].target);
-                } catch (error) {
+                    target = parseAnyStringAddress(params.order.messages[0].target, isTestnet);
+                } catch {
                     onError({
                         title: t('transfer.error.invalidAddress'),
                         message: t('transfer.error.invalidAddressMessage')

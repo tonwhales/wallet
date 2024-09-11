@@ -21,7 +21,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonContent, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
@@ -33,7 +33,7 @@ import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
 import { AddressInputState, TransferAddressInput } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
-import { StatusBar } from 'expo-status-bar';
+import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TransferHeader } from '../../components/transfer/TransferHeader';
 import { JettonIcon } from '../../components/products/JettonIcon';
@@ -120,7 +120,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
     const jetton = useJettonContent(jettonWallet?.master ?? null);
-    const isGasless = gaslessConfig?.data?.gas_jettons.map((j) => {
+    const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons.map((j) => {
         return Address.parse(j.master_id);
     }).some((j) => jettonWallet?.master && j.equals(Address.parse(jettonWallet.master)));
     const symbol = jetton ? jetton.symbol : 'TON'
@@ -459,8 +459,10 @@ export const SimpleTransferFragment = fragment(() => {
                     return;
                 }
 
+                const supportsGaslessTransfer = hasGaslessTransfer && isV5;
+
                 // Resolve fee
-                if (config && accountLite) {
+                if (config && accountLite && !supportsGaslessTransfer) {
                     const externalMessage = external({
                         to: contract.address,
                         body: transfer,
@@ -482,7 +484,7 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion]);
+    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion, hasGaslessTransfer]);
 
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
@@ -824,6 +826,14 @@ export const SimpleTransferFragment = fragment(() => {
         scrollRef.current?.scrollTo({ y: 0 });
     }, [selectedInput]);
 
+    useFocusEffect(() => {
+        setStatusBarStyle(Platform.select({
+            android: theme.style === 'dark' ? 'light' : 'dark',
+            ios: 'light',
+            default: 'auto'
+        }));
+    });
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
@@ -1107,7 +1117,7 @@ export const SimpleTransferFragment = fragment(() => {
                         ))}
                     </Animated.View>
                 </View>
-                {!isGasless && (
+                {!!estimation && (
                     <View style={{ marginTop: 16 }}>
                         <Animated.View
                             layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}

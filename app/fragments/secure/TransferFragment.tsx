@@ -476,7 +476,9 @@ export const TransferFragment = fragment(() => {
                     }).filter(a => !!a) as Address[] || [];
 
                 const master = metadata.jettonWallet?.master
-                const isGaslessSupported = master ? gaslessMasters.some(a => a.equals(master)) : false;
+                const isGaslessSupported = (master && isV5)
+                    ? gaslessMasters.some(a => a.equals(master))
+                    : false;
                 let relayerAddress;
 
                 if (gaslessConfig.data?.relay_address) {
@@ -492,14 +494,10 @@ export const TransferFragment = fragment(() => {
                         .storeCoins(jettonTransfer.amount) // 1 USDT
                         .storeAddress(jettonTransfer.destination.address) // address for receiver
                         .storeAddress(relayerAddress) // address for excesses
-                        // .storeBit(false) // null custom_payload
                         .storeMaybeRef(jettonTransfer.customPayload) // custom_payload
                         .storeCoins(1n) // count of forward transfers in nanoton
-                        // .storeMaybeRef(null) // forward_payload
                         .storeMaybeRef(jettonTransfer.forwardPayload) // forward_payload
                         .endCell();
-
-                    // (toNano('0.05') + estim)
 
                     const messageToEstimate = beginCell()
                         .storeWritable(

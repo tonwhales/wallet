@@ -16,3 +16,4 @@ export * from './accounts';
 export { useServerConfig } from './useServerConfig';
 export { useSyncState } from './useSyncState';
 export { useAppVisible } from './useAppVisible';
+export { useIsV5Added as useV5IsAdded } from './useIsV5Added';

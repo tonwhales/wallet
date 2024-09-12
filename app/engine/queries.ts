@@ -44,6 +44,7 @@ export const Queries = {
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
         Known: () => ['jettons', 'known'],
+        GaslessConfig: () => ['jettons', 'gaslessConfig'],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

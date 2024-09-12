@@ -6,7 +6,7 @@ import { getSecureRandomBytes, keyPairFromSeed } from '@ton/crypto';
 import { warn } from '../utils/log';
 import { loadWalletKeys } from './walletKeys';
 import { deriveUtilityKey } from './utilityKeys';
-import { SelectedAccount } from '../engine/types';
+import { SelectedAccount, WalletVersions } from '../engine/types';
 
 export type AppState = {
     addresses: SelectedAccount[],
@@ -30,6 +30,7 @@ const stateStorage_v2 = t.type({
         publicKey: t.string,
         secretKeyEnc: t.string,
         utilityKey: t.string,
+        version: t.union([t.literal(WalletVersions.v4R2), t.literal(WalletVersions.v5R1), t.undefined])
     })),
     selected: t.number
 });
@@ -56,7 +57,8 @@ function serializeAppState(state: AppState, isTestnet: boolean): t.TypeOf<typeof
             address: v.address.toString({ testOnly: isTestnet }),
             publicKey: v.publicKey.toString('base64'),
             secretKeyEnc: v.secretKeyEnc.toString('base64'),
-            utilityKey: v.utilityKey.toString('base64')
+            utilityKey: v.utilityKey.toString('base64'),
+            version: v.version
         }))
     };
 }
@@ -126,7 +128,8 @@ export async function doUpgrade(isTestnet: boolean) {
                     addressString: a.address,
                     publicKey,
                     secretKeyEnc,
-                    utilityKey
+                    utilityKey,
+                    version: WalletVersions.v4R2
                 };
             }))
         }
@@ -181,7 +184,8 @@ export function getAppState(): AppState {
             addressString: v.address,
             publicKey: global.Buffer.from(v.publicKey, 'base64'),
             secretKeyEnc: global.Buffer.from(v.secretKeyEnc, 'base64'),
-            utilityKey: global.Buffer.from(v.utilityKey, 'base64')
+            utilityKey: global.Buffer.from(v.utilityKey, 'base64'),
+            version: v.version || WalletVersions.v4R2
         }))
     };
 }

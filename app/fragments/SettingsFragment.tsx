@@ -55,7 +55,7 @@ export const SettingsFragment = fragment(() => {
     const syncState = useSyncState();
     const [, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
-    const hasHoldersProducts = useHasHoldersProducts(seleted!.address.toString({ testOnly: network.isTestnet }));
+    const hasHoldersProducts = useHasHoldersProducts(seleted?.address.toString({ testOnly: network.isTestnet }) || '');
 
     // Ledger
     const route = useRoute();

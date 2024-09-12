@@ -22,7 +22,7 @@ import { Suspense, memo, useCallback, useEffect, useMemo, useState } from 'react
 import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
-import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal } from '@ton/core';
+import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal, beginCell, toNano } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
@@ -32,6 +32,10 @@ import { ReturnStrategy } from '../../engine/tonconnect/types';
 import Minimizer from '../../modules/Minimizer';
 import { warn } from '../../utils/log';
 import { clearLastReturnStrategy } from '../../engine/tonconnect/utils';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
+import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
+import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
+import { fetchGaslessEstimate, GaslessEstimate } from '../../engine/api/gasless/fetchGaslessEstimate';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
@@ -59,6 +63,13 @@ export type OrderMessage = {
     stateInit: Cell | null,
 }
 
+export type TransferEstimate = {
+    type: 'ton', value: bigint
+} | {
+    type: 'gasless', value: bigint,
+    params: GaslessEstimate
+}
+
 export type ConfirmLoadedPropsSingle = {
     type: 'single',
     source?: TransferRequestSource
@@ -81,7 +92,7 @@ export type ConfirmLoadedPropsSingle = {
     text: string | null,
     order: Order,
     job: string | null,
-    fees: bigint,
+    fees: TransferEstimate,
     metadata: ContractMetadata,
     restricted: boolean,
     callback: ((ok: boolean, result: Cell | null) => void) | null
@@ -145,7 +156,10 @@ export const TransferFragment = fragment(() => {
     const toaster = useToaster();
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const walletVersion = useWalletVersion();
+    const gaslessConfig = useGaslessConfig();
+    const netConfig = useConfig();
+    const [bounceableFormat] = useBounceableWalletFormat();
 
     // Memmoize all parameters just in case
     const from = useMemo(() => getCurrentAddress(), []);
@@ -202,7 +216,6 @@ export const TransferFragment = fragment(() => {
 
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
-    const netConfig = useConfig();
 
     const onError = useCallback(({ message, title }: { message?: string, title: string }) => {
         toaster.show({
@@ -239,13 +252,17 @@ export const TransferFragment = fragment(() => {
 
         backoff('txLoad', async () => {
             // Get contract
-            const contract = contractFromPublicKey(from.publicKey);
+            const contract = contractFromPublicKey(from.publicKey, walletVersion);
+            const isV5 = walletVersion === 'v5R1';
             const tonDnsRootAddress = Address.parse(netConfig.rootDnsAddress);
 
             const emptySecret = Buffer.alloc(64);
 
             let block = await backoff('txLoad-blc', () => client.getLastBlock());
 
+            //
+            // Single transfer
+            //
             if (order.messages.length === 1) {
                 let target: {
                     isBounceable: boolean;
@@ -271,8 +288,22 @@ export const TransferFragment = fragment(() => {
                     backoff('txLoad-seqno', () => fetchSeqno(client, block.last.seqno, target.address))
                 ]);
 
-                let jettonTarget: typeof target | null = null;
+                let jettonTransfer: {
+                    queryId: number | bigint;
+                    amount: bigint;
+                    destination: {
+                        isBounceable: boolean;
+                        isTestOnly: boolean;
+                        address: Address;
+                    };
+                    responseDestination: Address | null;
+                    customPayload: Cell | null;
+                    forwardTonAmount: bigint;
+                    forwardPayload: Cell | null;
+                    jettonWallet: Address;
+                } | null = null;
                 let jettonTargetState: typeof state | null = null;
+                let jettonTarget: typeof target | null = null;
 
                 // Read jetton master
                 if (metadata.jettonWallet) {
@@ -285,9 +316,27 @@ export const TransferFragment = fragment(() => {
                                 let op = sc.loadUint(32);
                                 // Jetton transfer op
                                 if (op === OperationType.JettonTransfer) {
-                                    let queryId = sc.loadUint(64);
-                                    let amount = sc.loadCoins();
+                                    let queryId = sc.loadUintBig(64);
+                                    let jettonAmount = sc.loadCoins();
                                     let jettonTargetAddress = sc.loadAddress();
+                                    let responseDestination = sc.loadMaybeAddress();
+                                    let customPayload = sc.loadBit() ? sc.loadRef() : null;
+                                    let forwardTonAmount = sc.loadCoins();
+                                    let forwardPayload = null;
+                                    if (sc.remainingBits > 0) {
+                                        forwardPayload = sc.loadMaybeRef() ?? sc.asCell();
+                                    }
+
+                                    jettonTransfer = {
+                                        queryId,
+                                        amount: jettonAmount,
+                                        destination: Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat })),
+                                        responseDestination,
+                                        customPayload,
+                                        forwardTonAmount,
+                                        forwardPayload,
+                                        jettonWallet: metadata.jettonWallet.address
+                                    }
 
                                     if (jettonTargetAddress) {
                                         const bounceable = await resolveBounceableTag(jettonTargetAddress, { testOnly: isTestnet, bounceableFormat });
@@ -372,12 +421,16 @@ export const TransferFragment = fragment(() => {
 
                 const accSeqno = await backoff('txLoad-seqno', async () => fetchSeqno(client, block.last.seqno, contract.address));
 
-                let transfer = contract.createTransfer({
+                const transferParams = {
                     seqno: accSeqno,
                     secretKey: emptySecret,
                     sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                     messages: [intMessage]
-                });
+                }
+
+                let transfer = isV5
+                    ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                    : (contract as WalletContractV4).createTransfer(transferParams);
 
                 if (exited) {
                     return;
@@ -404,7 +457,77 @@ export const TransferFragment = fragment(() => {
                 let outMsg = new Cell().asBuilder();
                 storeMessageRelaxed(intMessage)(outMsg);
 
-                let fees = estimateFees(netConfig!, inMsg.endCell(), [outMsg.endCell()], [state!.account.storageStat]);
+                const tonEstimate = estimateFees(netConfig!, inMsg.endCell(), [outMsg.endCell()], [state!.account.storageStat]);
+
+                let fees: TransferEstimate = {
+                    type: 'ton',
+                    value: tonEstimate
+                }
+
+                const gaslessMasters = gaslessConfig
+                    .data
+                    ?.gas_jettons
+                    .map(j => {
+                        try {
+                            return Address.parse(j.master_id);
+                        } catch (error) {
+                            return null;
+                        }
+                    }).filter(a => !!a) as Address[] || [];
+
+                const master = metadata.jettonWallet?.master
+                const isGaslessSupported = (master && isV5)
+                    ? gaslessMasters.some(a => a.equals(master))
+                    : false;
+                let relayerAddress;
+
+                if (gaslessConfig.data?.relay_address) {
+                    try {
+                        relayerAddress = Address.parse(gaslessConfig.data.relay_address)
+                    } catch { }
+                }
+
+                if (!!jettonTransfer && isGaslessSupported) {
+                    const tetherTransferPayload = beginCell()
+                        .storeUint(OperationType.JettonTransfer, 32)
+                        .storeUint(0, 64)
+                        .storeCoins(jettonTransfer.amount)
+                        .storeAddress(jettonTransfer.destination.address) // receiver address 
+                        .storeAddress(relayerAddress) // excesses address
+                        .storeMaybeRef(jettonTransfer.customPayload) // custom payload
+                        .storeCoins(1n) // forward transfers count in nanoton
+                        .storeMaybeRef(jettonTransfer.forwardPayload) // forward payload
+                        .endCell();
+
+                    const messageToEstimate = beginCell()
+                        .storeWritable(
+                            storeMessageRelaxed(
+                                internal({
+                                    to: jettonTransfer.jettonWallet,
+                                    bounce: true,
+                                    value: toNano('0.05') + tonEstimate,
+                                    body: tetherTransferPayload
+                                })
+                            )
+                        )
+                        .endCell();
+
+                    const gaslessEstimate = await backoff('txLoad-gasless', () => fetchGaslessEstimate(
+                        metadata.jettonWallet?.master!,
+                        isTestnet,
+                        {
+                            wallet_address: contract.address.toRawString(),
+                            wallet_public_key: from.publicKey.toString('hex'),
+                            messages: [{ boc: messageToEstimate.toBoc({ idx: false }).toString('hex') }]
+                        }
+                    ));
+
+                    fees = {
+                        type: 'gasless',
+                        value: BigInt(gaslessEstimate.commission),
+                        params: gaslessEstimate
+                    }
+                }
 
                 // Set state
                 setLoadedProps({
@@ -441,6 +564,9 @@ export const TransferFragment = fragment(() => {
                 return;
             }
 
+            //
+            // Batch transfer
+            //
             const config = await backoff('txLoad-cfg', () => fetchConfig());
 
             const outMsgs: Cell[] = [];
@@ -527,12 +653,16 @@ export const TransferFragment = fragment(() => {
             // Create transfer
             const accountSeqno = await backoff('txLoad-seqno', async () => fetchSeqno(client, block.last.seqno, contract.address));
 
-            let transfer = await contract.createTransfer({
+            const transferParams = {
                 seqno: accountSeqno,
                 secretKey: emptySecret,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages: inMsgs
-            });
+            }
+
+            let transfer = isV5
+                ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                : (contract as WalletContractV4).createTransfer(transferParams);
 
             const externalMessage = external({
                 to: contract.address,
@@ -562,7 +692,7 @@ export const TransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, [netConfig, selectedAccount, bounceableFormat]);
+    }, [netConfig, selectedAccount, bounceableFormat, gaslessConfig, walletVersion]);
 
     return (
         <View style={{ flexGrow: 1 }}>

@@ -12,6 +12,7 @@ export type LocalizationSchema = {
         continueAnyway: string,
         back: string,
         logout: string,
+        logoutFrom: string,
         cancel: string,
         balance: string,
         totalBalance: string,
@@ -186,7 +187,9 @@ export type LocalizationSchema = {
             addressIsNotActiveDescription: string,
             invalidTransaction: string,
             invalidTransactionMessage: string,
-            memoRequired: string
+            memoRequired: string,
+            gaslessFailed: string,
+            gaslessCooldown: string
         },
         sendAll: string,
         scanQR: string,
@@ -855,7 +858,9 @@ export type LocalizationSchema = {
         complete: string,
         error: {
             hasNfts: string,
-            fetchingNfts: string
+            fetchingNfts: string,
+            hasUSDTBalanceTitle: string,
+            hasUSDTBalanceMessage: string
         },
         confirm: {
             title: string,
@@ -988,6 +993,7 @@ export type LocalizationSchema = {
         holdersOfflineApp: string,
     },
     wallets: {
+        choose_versions: string;
         switchToAlertTitle: string,
         switchToAlertMessage: string,
         switchToAlertAction: string,
@@ -1042,6 +1048,22 @@ export type LocalizationSchema = {
         bannerTitle: string,
         bannerDescription: string,
     },
+    w5: {
+        banner: {
+            title: string,
+            description: string,
+        },
+        update: {
+            title: string,
+            subtitle_1: string,
+            description_1: string,
+            subtitle_2: string,
+            description_2: string,
+            subtitle_3: string,
+            description_3: string,
+            switch_button: string,
+        },
+    }
     browser: {
         listings: {
             categories: {

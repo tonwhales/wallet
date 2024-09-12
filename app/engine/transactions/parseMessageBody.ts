@@ -11,7 +11,7 @@ export type SupportedMessage =
     | {
         type: 'jetton::transfer',
         data: {
-            queryId: number;
+            queryId: number | bigint;
             amount: bigint;
             destination: Address;
             responseDestination: Address | null;
@@ -97,7 +97,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             };
         }
         case OperationType.JettonTransfer: {
-            let queryId = sc.loadUint(64);
+            let queryId = sc.loadUintBig(64);
             let amount = sc.loadCoins();
             let destination = sc.loadAddress();
             let responseDestination = sc.loadMaybeAddress();

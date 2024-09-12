@@ -137,7 +137,9 @@ const TransactionPreview = () => {
                 op = t('tx.sent');
             }
         } else if (tx.base.parsed.kind === 'in') {
-            if (tx.base.parsed.bounced) {
+            if (tx.base.outMessagesCount > 1) {
+                op = t('tx.batch');
+            } else if (tx.base.parsed.bounced) {
                 op = t('tx.bounced');
             } else {
                 op = t('tx.received');
@@ -309,7 +311,7 @@ const TransactionPreview = () => {
                                 messages={messages}
                                 size={68}
                                 icProps={{
-                                    size: 28,
+                                    size: 14,
                                     borderWidth: 2,
                                     position: 'bottom'
                                 }}

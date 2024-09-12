@@ -10,6 +10,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "continueAnyway": "Все равно продолжить",
         "back": "Назад",
         "logout": "Выйти",
+        "logoutFrom": "Выйти из {{name}}",
         "cancel": "Отменить",
         "balance": "Баланс",
         "totalBalance": "Общий баланс",
@@ -169,6 +170,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidTransaction": "Неверная транзакция",
             "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
             "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
+            "gaslessFailed": "Не удалось отправить безгазовую транзакцию",
+            "gaslessCooldown": "У вас есть сообщения ожидающие отправки, попробуйте снова через несколько минут"
         },
         "sendAll": "Max",
         "scanQR": "Считать QR код",
@@ -853,7 +856,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "complete": "Удаление учетной записи завершено",
         "error": {
             "hasNfts": "У вас на кошельке имеются NFT. Чтобы удалить аккаунт, пожалуйста, отправьте их на другой кошелёк.",
-            "fetchingNfts": "Не удалось получить информацию о наличии на кошельке NFT. Чтобы удалить аккаунт, пожалуйста, убедитесь, что на нем нет NFT."
+            "fetchingNfts": "Не удалось получить информацию о наличии на кошельке NFT. Чтобы удалить аккаунт, пожалуйста, убедитесь, что на нем нет NFT.",
+            "hasUSDTBalanceTitle": "У вас есть баланс USDT на кошельке",
+            "hasUSDTBalanceMessage": "Чтобы удалить аккаунт, пожалуйста, отправьте их на другой кошелёк."
         },
         "confirm": {
             "title": "Вы уверены в том, что хотите удалить аккаунт и все данные из этого приложения?",
@@ -986,6 +991,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "holdersOfflineApp": "Holders Offline App"
     },
     "wallets": {
+        "choose_versions": "Выберите кошельки, которые вы хотите добавить",
         "switchToAlertTitle": "Переключить на {{wallet}}",
         "switchToAlertMessage": "Вы уверены в том, что хотите переключить кошелек?",
         "switchToAlertAction": "Переключить",
@@ -1039,6 +1045,22 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "newAddress": "Новый адрес",
         "bannerTitle": 'Обновите ваш адрес',
         "bannerDescription": 'С EQ на UQ',
+    },
+    "w5": {
+        "banner": {
+            "title": 'Добавить кошелек W5',
+            "description": 'Переводите USDT без газа',
+        },
+        "update": {
+            "title": "Обновите кошелек до W5",
+            "subtitle_1": "Переводы USDT без газа",
+            "description_1": "Вам больше не нужен TON для отправки USDT. Транзакционные сборы могут быть покрыты с вашего баланса токенов.",
+            "subtitle_2": "Экономьте на комиссиях",
+            "description_2": "W5 позволяет увеличить количество операций в одной транзакции в 60 раз и значительно экономить на комиссиях.",
+            "subtitle_3": "Ваша seed-фраза не изменится",
+            "description_3": "Кошельки V4 и W5 имеют одинаковую seed-фразу. Вы всегда можете переключаться между версиями, выбирая нужный адрес в верхней части главного экрана.",
+            "switch_button": "Перейти на W5",
+        },
     },
     "browser": {
         "listings": {

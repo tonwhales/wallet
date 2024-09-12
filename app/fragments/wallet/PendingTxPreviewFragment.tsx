@@ -36,6 +36,7 @@ import { pendingTxToTransferParams } from "../../utils/toTransferParams";
 import { HoldersOp, HoldersOpView } from "../../components/transfer/HoldersOpView";
 import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 
 export type PendingTxPreviewParams = {
     transaction: PendingTransaction;
@@ -99,12 +100,14 @@ const PendingTxPreview = () => {
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
     const feesPrise = useMemo(() => {
-        if (!price) {
+        if (!price || (typeof fees !== 'bigint' && fees.type !== 'ton')) {
             return undefined;
         }
 
-        const isNeg = fees < 0n;
-        const abs = isNeg ? -fees : fees;
+        const amount = typeof fees === 'bigint' ? fees : fees.value;
+
+        const isNeg = amount < 0n;
+        const abs = isNeg ? -amount : amount;
 
         return formatCurrency(
             (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(3),
@@ -402,7 +405,11 @@ const PendingTxPreview = () => {
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                             {!!fees
                                 ? <>
-                                    {`${formatAmount(fromNano(fees))}`}
+                                    {
+                                        (typeof fees !== 'bigint' && fees.type === 'gasless' && !!jetton?.decimals)
+                                            ? `${fromBnWithDecimals(fees.value, jetton.decimals)}`
+                                            : `${formatAmount(fromNano(typeof fees !== 'bigint' ? fees.value : fees))}`
+                                    }
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}
                                     </PerfText>

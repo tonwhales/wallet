@@ -96,6 +96,7 @@ import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
 import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
+import { W5UpdateFragment } from './fragments/W5UpdateFragment';
 import { WebViewPreloader } from './components/WebViewPreloader';
 import { holdersUrl } from './engine/api/holders/fetchUserState';
 
@@ -319,6 +320,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
     modalScreen('NewAddressFormat', NewAddressFormatFragment, safeArea),
+    modalScreen('W5Update', W5UpdateFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
     modalScreen('SearchEngine', SearchEngineFragment, safeArea),
     lockedModalScreen('MandatoryAuthSetup', MandatoryAuthSetupFragment, safeArea),

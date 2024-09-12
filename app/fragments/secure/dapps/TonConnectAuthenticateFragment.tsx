@@ -222,7 +222,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
         try {
             const acc = selectedAccount ?? getCurrentAddress();
-            const contract = contractFromPublicKey(acc.publicKey, walletVersion);
+            const contract = contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
             const config = walletConfigFromContract(contract);
 
             const walletConfig = config.walletConfig;

@@ -26,9 +26,9 @@ import Minimizer from "../../../modules/Minimizer";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
-import { fetchGaslessSend } from "../../../engine/api/gasless/fetchGaslessSend";
+import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
-import { GaslessEstimate } from "../../../engine/api/gasless/fetchGaslessEstimate";
+import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -141,23 +141,40 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
     }, []);
 
-    const onGaslessSendFailed = useCallback((cooldown?: boolean) => {
+    const onGaslessSendFailed = useCallback((reason?: GaslessSendError | string) => {
         setFailed(true);
-        toaster.show({
-            message: cooldown
-                ? t('transfer.error.gaslessCooldown')
-                : t('transfer.error.gaslessFailed'),
-            duration: ToastDuration.LONG,
-            type: 'error',
-            onDestroy: goBack
-        });
+
+        let message;
+
+        switch (reason) {
+            case GaslessSendError.TryLater:
+                message = t('transfer.error.gaslessTryLaterMessage');
+                break;
+            case GaslessSendError.NotEnough:
+                message = t('transfer.error.gaslessNotEnoughFundsMessage');
+                break;
+            case GaslessSendError.Cooldown:
+                message = t('transfer.error.gaslessCooldown');
+                break;
+            default:
+                message = reason;
+                break;
+        }
+
+        Alert.alert(t('transfer.error.gaslessFailed'),
+            message,
+            [{
+                text: t('common.back'),
+                onPress: goBack
+            }]
+        );
     }, []);
 
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
-        const contract = await contractFromPublicKey(acc.publicKey, walletVersion);
+        const contract = await contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
         const isV5 = walletVersion === 'v5R1';
 
         // Check if transfering to yourself
@@ -180,7 +197,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             }
         }
 
-        const isGasless = fees.type === 'gasless';
+        const isGasless = fees.type === 'gasless' && fees.params.ok;
 
         // Check amount
         if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount && !isGasless) {
@@ -264,7 +281,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 timeout: Math.ceil(Date.now() / 1000) + 5 * 60,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
-                messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimate }).params.messages.map(message =>
+                messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimateSuccess }).params.messages.map(message =>
                     internal({
                         to: message.address,
                         value: BigInt(message.amount),
@@ -292,11 +309,11 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 }, isTestnet));
 
                 if (!gaslessTransferRes.ok) {
-                    onGaslessSendFailed(gaslessTransferRes.error === 'cooldown');
+                    onGaslessSendFailed(gaslessTransferRes.error);
                     return;
                 }
             } catch (error) {
-                onGaslessSendFailed();
+                onGaslessSendFailed((error as Error)?.message);
                 return;
             }
 

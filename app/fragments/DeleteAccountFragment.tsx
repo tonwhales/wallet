@@ -169,7 +169,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has at least 0.1 TON 
             if (account && account.balance || BigInt(0) > toNano('0.1')) {
-                const contract = await contractFromPublicKey(selected!.publicKey, walletVersion);
+                const contract = await contractFromPublicKey(selected!.publicKey, walletVersion, network.isTestnet);
                 const isV5 = walletVersion === 'v5R1';
 
                 // Check if same address

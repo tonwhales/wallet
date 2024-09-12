@@ -189,7 +189,12 @@ export type LocalizationSchema = {
             invalidTransactionMessage: string,
             memoRequired: string,
             gaslessFailed: string,
-            gaslessCooldown: string
+            gaslessFailedMessage: string,
+            gaslessCooldown: string,
+            gaslessNotEnoughFunds: string,
+            gaslessNotEnoughFundsMessage: string,
+            gaslessTryLater: string,
+            gaslessTryLaterMessage: string
         },
         sendAll: string,
         scanQR: string,

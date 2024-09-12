@@ -8,9 +8,11 @@ import { getSecureRandomBytes, keyPairFromSeed } from "@ton/crypto";
 import { useDomainKeys } from "../../hooks/dapps/useDomainKeys";
 import { DomainSubkey } from "../../state/domainKeys";
 import { useWalletVersion } from "../useWalletVersion";
+import { useNetwork } from "..";
 
 export function useCreateDomainKeyIfNeeded() {
     const [domainKeys, setDomainKeysState] = useDomainKeys();
+    const { isTestnet } = useNetwork();
     const version = useWalletVersion();
 
     return async (domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys, authStyle?: AuthParams) => {
@@ -25,7 +27,7 @@ export function useCreateDomainKeyIfNeeded() {
 
         // Create new key
         const acc = getCurrentAddress();
-        const contract = contractFromPublicKey(acc.publicKey, version);
+        const contract = contractFromPublicKey(acc.publicKey, version, isTestnet);
         let time = Math.floor(Date.now() / 1000);
 
         // Create signing key

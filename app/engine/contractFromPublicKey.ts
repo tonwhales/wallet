@@ -5,9 +5,9 @@ import { WalletVersions } from './types';
 export const walletContactTypeV4 = 'org.ton.wallets.v4';
 export const walletContactTypeV5 = 'org.ton.wallets.v5';
 
-export function contractFromPublicKey(publicKey: Buffer, version: WalletVersions = WalletVersions.v4R2) {
+export function contractFromPublicKey(publicKey: Buffer, version: WalletVersions = WalletVersions.v4R2, isTestnet: boolean) {
     if (version === WalletVersions.v5R1) {
-        return WalletContractV5R1.create({ workchain: 0, publicKey: publicKey });
+        return WalletContractV5R1.create({ workchain: 0, publicKey: publicKey, walletId: { networkGlobalId: isTestnet ? -3 : -239 } });
     }
 
     return WalletContractV4.create({ workchain: 0, publicKey: publicKey });
@@ -78,5 +78,4 @@ export function walletConfigFromContract(contract: WalletContractV4 | WalletCont
 
         return { walletConfig, type: walletType };
     }
-
 }

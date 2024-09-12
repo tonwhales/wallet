@@ -231,7 +231,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
-        const contract = await contractFromPublicKey(acc.publicKey, walletVersion);
+        const contract = await contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
         const isV5 = walletVersion === 'v5R1';
 
         if (!selected) {

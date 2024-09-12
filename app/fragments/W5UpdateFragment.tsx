@@ -29,7 +29,7 @@ export const W5UpdateFragment = fragment(() => {
 
     const addW5Wallet = useCallback(async () => {
         if (selectedAccount) {
-            const contract = await contractFromPublicKey(selectedAccount.publicKey, WalletVersions.v5R1);
+            const contract = await contractFromPublicKey(selectedAccount.publicKey, WalletVersions.v5R1, isTestnet);
             const appState = getAppState();
 
             const newAppState = {

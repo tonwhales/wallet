@@ -22,8 +22,12 @@ const gaslessEstimateScheme = z.object({
         stateInit: z.string().nullable().optional()
     }))
 });
+const gaslessEstimateSuccess = z.intersection(z.object({ ok: z.literal(true) }), gaslessEstimateScheme);
+const gaslessEstimateError = z.object({ ok: z.literal(false), error: z.string() });
+const gaslessEstimateResponse = z.union([gaslessEstimateSuccess, gaslessEstimateError]);
 
-export type GaslessEstimate = z.infer<typeof gaslessEstimateScheme>;
+export type GaslessEstimate = z.infer<typeof gaslessEstimateResponse>;
+export type GaslessEstimateSuccess = z.infer<typeof gaslessEstimateSuccess>;
 
 export async function fetchGaslessEstimate(master: Address | string, isTestnet: boolean, body: GaslessEstimateParams): Promise<GaslessEstimate> {
     const masterString = typeof master === 'string' ? master : master.toRawString();
@@ -36,7 +40,7 @@ export async function fetchGaslessEstimate(master: Address | string, isTestnet: 
         throw new Error('Failed to fetch gasless estimate');
     }
 
-    const parsed = gaslessEstimateScheme.safeParse(res.data);
+    const parsed = gaslessEstimateResponse.safeParse(res.data);
 
     if (!parsed.success) {
         throw new Error('Invalid gasless estimate response');

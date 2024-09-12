@@ -199,7 +199,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
                 versions.forEach(async (version) => {
                     // Resolve contract
-                    const contract = await contractFromPublicKey(key.publicKey, version);
+                    const contract = await contractFromPublicKey(key.publicKey, version, isTestnet);
 
                     // Persist state
                     const state = getAppState();
@@ -273,7 +273,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
             versions.forEach(async (version) => {
                 // Resolve contract
-                const contract = await contractFromPublicKey(key.publicKey, version);
+                const contract = await contractFromPublicKey(key.publicKey, version, isTestnet);
 
                 // Set new format for new wallets
                 setBounceable(false);

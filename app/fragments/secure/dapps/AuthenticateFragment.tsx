@@ -93,7 +93,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
         }
 
         // Load data
-        const contract = contractFromPublicKey(acc.publicKey, walletVersion);
+        const contract = contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
         const config = walletConfigFromContract(contract);
 
         const walletConfig = config.walletConfig;

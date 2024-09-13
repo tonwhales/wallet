@@ -23,15 +23,25 @@ const stateStorage_v1 = t.type({
     selected: t.number
 });
 
-const stateStorage_v2 = t.type({
-    version: t.literal(2),
-    addresses: t.array(t.type({
+const stateStorageAddress_v2 = t.intersection([
+    t.partial({
+        version: t.union([
+            t.literal(WalletVersions.v4R2),
+            t.literal(WalletVersions.v5R1),
+            t.undefined
+        ])
+    }),
+    t.type({
         address: t.string,
         publicKey: t.string,
         secretKeyEnc: t.string,
         utilityKey: t.string,
-        version: t.union([t.literal(WalletVersions.v4R2), t.literal(WalletVersions.v5R1), t.undefined])
-    })),
+    })
+]);
+
+const stateStorage_v2 = t.type({
+    version: t.literal(2),
+    addresses: t.array(stateStorageAddress_v2),
     selected: t.number
 });
 

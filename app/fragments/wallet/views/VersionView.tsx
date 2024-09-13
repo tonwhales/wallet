@@ -20,16 +20,16 @@ export const VersionView = memo(() => {
         return null;
     }
 
-    const url = newVersionUrl(versions.data);
+    const info: { url: string, isCiritical: boolean } | null = newVersionUrl(versions.data);
 
-    if (!url) {
+    if (!info) {
         return null;
     }
 
     const platform = Platform.OS === 'android' ? 'android' : 'ios';
     const bannerKey = `update-${platform}-${versions.data[platform]?.latest}`;
 
-    if (hiddenBanners.includes(bannerKey)) {
+    if (hiddenBanners.includes(bannerKey) && !info.isCiritical) {
         return null;
     }
 
@@ -39,7 +39,7 @@ export const VersionView = memo(() => {
                 position: 'absolute',
                 justifyContent: 'center', alignItems: 'center',
                 bottom: bottomBarHeight + 16,
-                left: 0, right: 0,
+                left: 0, right: 0
             }}
             entering={FadeInDown}
             exiting={FadeOutDown}
@@ -49,29 +49,45 @@ export const VersionView = memo(() => {
                 minHeight: 44,
                 paddingVertical: 2, paddingHorizontal: 16,
                 justifyContent: 'center', alignItems: 'center',
-                backgroundColor: theme.accent,
+                backgroundColor: info.isCiritical ? theme.warning : theme.accent,
                 borderRadius: 16
             }}>
                 <Pressable
-                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, flexDirection: 'row', alignItems: 'center' })}
                     hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
-                    onPress={() => Linking.openURL(url)}
+                    onPress={() => Linking.openURL(info.url)}
                 >
+                    {info.isCiritical && (
+                        <Image
+                            style={{ width: 24, height: 24, tintColor: theme.textUnchangeable, marginRight: 6 }}
+                            source={require('@assets/ic-spam.png')}
+                        />
+                    )}
                     <Text style={[{ color: theme.textUnchangeable }]}>
                         {t('update.callToAction')}
                     </Text>
+                    {info.isCiritical && (
+                        <Image
+                            source={require('@assets/ic-chevron-right.png')}
+                            style={{ height: 16, width: 16, tintColor: theme.textPrimaryInverted }}
+                        />
+                    )}
                 </Pressable>
-                <View style={{ width: 1, height: 28, backgroundColor: theme.textUnchangeable, marginHorizontal: 12 }} />
-                <Pressable
-                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                    onPress={() => markBannerHidden(bannerKey)}
-                    hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
-                >
-                    <Image
-                        style={{ width: 14, height: 14, tintColor: theme.textUnchangeable }}
-                        source={require('@assets/ic-xmark.png')}
-                    />
-                </Pressable>
+                {!info.isCiritical && (
+                    <>
+                        <View style={{ width: 1, height: 28, backgroundColor: theme.textUnchangeable, marginHorizontal: 12 }} />
+                        <Pressable
+                            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            onPress={() => markBannerHidden(bannerKey)}
+                            hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+                        >
+                            <Image
+                                style={{ width: 14, height: 14, tintColor: theme.textUnchangeable }}
+                                source={require('@assets/ic-xmark.png')}
+                            />
+                        </Pressable>
+                    </>
+                )}
             </View>
         </Animated.View>
     );

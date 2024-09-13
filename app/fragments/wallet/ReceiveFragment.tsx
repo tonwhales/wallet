@@ -257,22 +257,12 @@ export const ReceiveFragment = fragment(() => {
                         }}
                         body={link}
                         textStyle={[{ color: theme.textThird }, Typography.semiBold17_24]}
-                        onScreenCapture={() => {
-                            return new Promise((resolve, reject) => {
-                                (async () => {
-                                    setTimeout(async () => {
-                                        try {
-                                            const localUri = await captureRef(imageRef, {
-                                                height: 440,
-                                                quality: 1,
-                                            });
-                                            resolve({ uri: localUri });
-                                        } catch {
-                                            reject();
-                                        }
-                                    }, 150);
-                                })();
-                            })
+                        onScreenCapture={async () => {
+                            const localUri = await captureRef(imageRef, {
+                                height: 440,
+                                quality: 1,
+                            });
+                            return { uri: localUri };
                         }}
                     />
                 </View>

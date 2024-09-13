@@ -1111,6 +1111,9 @@ export type LocalizationSchema = {
         confirmDescription: string,
         action: string,
         settingsDescription: string
+    },
+    update: {
+        callToAction: string,
     }
 };
 

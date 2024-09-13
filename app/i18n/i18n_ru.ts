@@ -1109,6 +1109,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "confirmDescription": '24 секретных слова записаны и хранятся в надежном месте',
         "action": 'Включить',
         "settingsDescription": 'Авторизация обязательна для отображения банковских продуктов. Чувствительные данные будут скрыты, пока вы не включите авторизацию',
+    },
+    "update": {
+        "callToAction": 'Обновить Tonhub'
     }
 };
 

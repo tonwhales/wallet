@@ -74,7 +74,7 @@ export const WalletSelectVersionsComponent = React.memo((props: {
     useEffect(() => {
         mnemonicToWalletKey(mnemonics.split(' ')).then(({ publicKey }) => {
             const addresses = [WalletVersions.v5R1, WalletVersions.v4R2].map((version) => {
-                const contract = contractFromPublicKey(publicKey, version);
+                const contract = contractFromPublicKey(publicKey, version, isTestnet);
                 const address = contract.address.toString({
                     testOnly: isTestnet,
                     bounceable: false

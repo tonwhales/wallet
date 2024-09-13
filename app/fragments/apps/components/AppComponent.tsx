@@ -115,7 +115,7 @@ export const AppComponent = memo((props: {
 
     const injectSource = useMemo(() => {
         const currentAccount = getCurrentAddress();
-        const contract = contractFromPublicKey(currentAccount.publicKey, walletVersion);
+        const contract = contractFromPublicKey(currentAccount.publicKey, walletVersion, isTestnet);
         const config = walletConfigFromContract(contract);
 
         const walletConfig = config.walletConfig;
@@ -125,7 +125,7 @@ export const AppComponent = memo((props: {
             return '';
         }
 
-        let domainSign = createDomainSignature(domain, domainKey);
+        let domainSign = createDomainSignature(domain, domainKey, isTestnet);
 
         return createInjectSource({
             config: {

@@ -440,7 +440,7 @@ export const SimpleTransferFragment = fragment(() => {
 
                 // Load contract
                 const pubKey = ledgerContext.addr?.publicKey ?? currentAcc.publicKey;
-                const contract = await contractFromPublicKey(pubKey, walletVersion);
+                const contract = await contractFromPublicKey(pubKey, walletVersion, network.isTestnet);
                 const isV5 = walletVersion === WalletVersions.v5R1;
 
                 const transferParams = {
@@ -478,6 +478,9 @@ export const SimpleTransferFragment = fragment(() => {
                     let local = estimateFees(config, inMsg.endCell(), [outMsg.endCell()], storageStats);
                     setEstimation(local);
                     estimationRef.current = local;
+                } else {
+                    setEstimation(null);
+                    estimationRef.current = null;
                 }
             });
         });
@@ -605,7 +608,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Load contract
-        const contract = await contractFromPublicKey(acc!.publicKey, walletVersion);
+        const contract = await contractFromPublicKey(acc!.publicKey, walletVersion, network.isTestnet);
 
         // Check if transfering to yourself
         if (isLedger && !ledgerAddress) {

@@ -186,8 +186,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
-            gaslessFailed: 'Failed to send gasless transaction',
-            gaslessCooldown: 'You have pending messages, try again later in a few minutes'
+            gaslessFailed: 'Failed to send transaction',
+            gaslessFailedMessage: 'Please try again or contact support',
+            gaslessCooldown: 'You have pending messages, try again later in a few minutes',
+            gaslessNotEnoughFunds: 'Not enough funds',
+            gaslessNotEnoughFundsMessage: 'Gasless transfer amount with fee is higher than your balance',
+            gaslessTryLater: 'Try again later',
+            gaslessTryLaterMessage: 'You can try again later or contact support'
         },
         sendAll: 'Max',
         scanQR: 'scan qr code',

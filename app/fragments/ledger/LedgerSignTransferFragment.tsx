@@ -148,7 +148,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         // Parse address
         let address: Address = target.address;
 
-        const contract = await contractFromPublicKey(addr.publicKey, walletVersion);
+        const contract = await contractFromPublicKey(addr.publicKey, walletVersion, network.isTestnet);
         const source = WalletContractV4.create({ workchain: 0, publicKey: addr.publicKey });
 
         try {
@@ -402,7 +402,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             }
 
             // Get contract
-            const contract = contractFromPublicKey(from.publicKey) as WalletContractV4;
+            const contract = contractFromPublicKey(from.publicKey, undefined, network.isTestnet) as WalletContractV4;
 
             // Resolve payload 
             let payload: Cell | null = order.payload ? resolveLedgerPayload(order.payload) : null;

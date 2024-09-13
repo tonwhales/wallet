@@ -99,7 +99,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                     return { type: 'error', error: HoldersEnrollErrorType.ManifestFailed };
                 }
 
-                const contract = contractFromPublicKey(acc.publicKey, version);
+                const contract = contractFromPublicKey(acc.publicKey, version, isTestnet);
 
                 //
                 // Sign

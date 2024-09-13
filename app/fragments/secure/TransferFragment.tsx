@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, View, Alert, Linking, BackHandler } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { backoff } from '../../utils/time';
+import { backoff, backoffFailaible } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
 import { getCurrentAddress } from '../../storage/appState';
@@ -18,7 +18,7 @@ import { TransferBatch } from './components/TransferBatch';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
-import { Suspense, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
@@ -182,6 +182,8 @@ export const TransferFragment = fragment(() => {
         clearLastReturnStrategy();
     }, []);
 
+    const finished = useRef(false);
+
     // Auto-cancel job on unmount
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -218,23 +220,22 @@ export const TransferFragment = fragment(() => {
     const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
 
     const onError = useCallback(({ message, title }: { message?: string, title: string }) => {
-        toaster.show({
-            type: 'error',
-            message: title,
-        });
+        if (finished.current) {
+            return;
+        }
 
-        Alert.alert(
-            title,
-            message,
+        finished.current = true;
+
+        Alert.alert(title, message,
             [{
-                text: t('common.close'),
+                text: t('common.back'),
                 onPress: () => {
                     if (params.back && params.back > 0) {
                         for (let i = 0; i < params.back; i++) {
                             navigation.goBack();
                         }
                     } else {
-                        navigation.popToTop();
+                        navigation.goBack();
                     }
                 }
             }]
@@ -248,11 +249,13 @@ export const TransferFragment = fragment(() => {
             return;
         }
 
-        let exited = false;
-
         backoff('txLoad', async () => {
+            if (finished.current) {
+                return;
+            }
+
             // Get contract
-            const contract = contractFromPublicKey(from.publicKey, walletVersion);
+            const contract = contractFromPublicKey(from.publicKey, walletVersion, isTestnet);
             const isV5 = walletVersion === 'v5R1';
             const tonDnsRootAddress = Address.parse(netConfig.rootDnsAddress);
 
@@ -432,10 +435,6 @@ export const TransferFragment = fragment(() => {
                     ? (contract as WalletContractV5R1).createTransfer(transferParams)
                     : (contract as WalletContractV4).createTransfer(transferParams);
 
-                if (exited) {
-                    return;
-                }
-
                 // Check if wallet is restricted
                 let restricted = false;
                 for (let r of config.wallets.restrict_send) {
@@ -512,20 +511,48 @@ export const TransferFragment = fragment(() => {
                         )
                         .endCell();
 
-                    const gaslessEstimate = await backoff('txLoad-gasless', () => fetchGaslessEstimate(
-                        metadata.jettonWallet?.master!,
-                        isTestnet,
-                        {
-                            wallet_address: contract.address.toRawString(),
-                            wallet_public_key: from.publicKey.toString('hex'),
-                            messages: [{ boc: messageToEstimate.toBoc({ idx: false }).toString('hex') }]
-                        }
-                    ));
+                    try {
+                        const gaslessEstimate = await backoffFailaible('txLoad-gasless', () => fetchGaslessEstimate(
+                            metadata.jettonWallet?.master!,
+                            isTestnet,
+                            {
+                                wallet_address: contract.address.toRawString(),
+                                wallet_public_key: from.publicKey.toString('hex'),
+                                messages: [{ boc: messageToEstimate.toBoc({ idx: false }).toString('hex') }]
+                            }
+                        ));
 
-                    fees = {
-                        type: 'gasless',
-                        value: BigInt(gaslessEstimate.commission),
-                        params: gaslessEstimate
+                        if (!gaslessEstimate.ok) {
+                            if (gaslessEstimate.error === 'not-enough') {
+                                onError({
+                                    title: t('transfer.error.gaslessNotEnoughFunds'),
+                                    message: t('transfer.error.gaslessNotEnoughFundsMessage')
+                                });
+                            } else if (gaslessEstimate.error === 'try-later') {
+                                onError({
+                                    title: t('transfer.error.gaslessTryLater'),
+                                    message: t('transfer.error.gaslessTryLaterMessage')
+                                });
+                            } else {
+                                onError({
+                                    title: t('transfer.error.gaslessFailed'),
+                                    message: t('transfer.error.gaslessFailedMessage')
+                                });
+                            }
+                            return;
+                        }
+
+                        fees = {
+                            type: 'gasless',
+                            value: BigInt(gaslessEstimate.commission),
+                            params: gaslessEstimate
+                        }
+                    } catch {
+                        onError({
+                            title: t('transfer.error.gaslessFailed'),
+                            message: t('transfer.error.gaslessFailedMessage')
+                        });
+                        return;
                     }
                 }
 
@@ -557,10 +584,6 @@ export const TransferFragment = fragment(() => {
                     callback: callback ? callback : null,
                     back: params.back
                 });
-                return;
-            }
-
-            if (exited) {
                 return;
             }
 
@@ -638,7 +661,6 @@ export const TransferFragment = fragment(() => {
                         message: t('transfer.error.invalidTransactionMessage')
                     });
 
-                    exited = true;
                     if (params && params.job) {
                         commitCommand(false, params.job, new Cell());
                     }
@@ -690,9 +712,9 @@ export const TransferFragment = fragment(() => {
         });
 
         return () => {
-            exited = true;
+            finished.current = true;
         };
-    }, [netConfig, selectedAccount, bounceableFormat, gaslessConfig, walletVersion]);
+    }, [netConfig, selectedAccount, bounceableFormat, gaslessConfig.data, walletVersion]);
 
     return (
         <View style={{ flexGrow: 1 }}>

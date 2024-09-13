@@ -31,6 +31,7 @@ export const Queries = {
     ContractInfo: (address: string) => (['contractInfo', address]),
     Config: (network: 'testnet' | 'mainnet') => ['config', network],
     ServerConfig: () => ['serverConfig'],
+    AppVersionsConfig: (network: 'testnet' | 'mainnet') => ['appVersionsConfig', network],
 
     Hints: (address: string) => (['hints', address]),
     Cloud: (address: string) => ({

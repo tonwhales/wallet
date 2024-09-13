@@ -1104,6 +1104,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         confirmDescription: 'I wrote down my wallet 24 secret words and saved them in a safe place',
         action: 'Enable',
         settingsDescription: 'Authentication request is required as the app displays banking products. Sensitive data will be hidden until you turn the authentication on',
+    },
+    update: {
+        callToAction: 'Update Tonhub'
     }
 };
 

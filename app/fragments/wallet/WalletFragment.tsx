@@ -27,6 +27,7 @@ import { useSpecialJetton } from '../../engine/hooks/jettons/useSpecialJetton';
 import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
 import { WalletActions } from './views/WalletActions';
 import { reduceHoldersBalances } from '../../utils/reduceHoldersBalances';
+import { VersionView } from './views/VersionView';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -191,6 +192,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                 </View>
                 <ProductsComponent selected={selectedAcc} />
             </ScrollView>
+            <VersionView/>            
         </View>
     );
 });

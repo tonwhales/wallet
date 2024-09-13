@@ -32,8 +32,11 @@ export const ShareButton = memo(({
     const toaster = useToaster();
     const onShare = useCallback(async () => {
         let screenShot: { uri: string } | undefined;
+
         if (onScreenCapture) {
-            screenShot = await onScreenCapture();
+            try {
+                screenShot = await onScreenCapture();
+            } catch {}
         }
 
         try {
@@ -42,7 +45,12 @@ export const ShareButton = memo(({
                 message: body,
                 url: screenShot?.uri,
             });
-        } catch {
+        } catch (e) {
+            // Failed to capture screen [Error: User did not share]
+            if ((e as Error)?.message === 'User did not share') {
+                return;
+            }
+            
             toaster.show({
                 type: 'error',
                 message: t('receive.share.error')

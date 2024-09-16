@@ -536,7 +536,7 @@ export const TransferFragment = fragment(() => {
                             } else {
                                 onError({
                                     title: t('transfer.error.gaslessFailed'),
-                                    message: t('transfer.error.gaslessFailedMessage')
+                                    message: gaslessEstimate.error
                                 });
                             }
                             return;

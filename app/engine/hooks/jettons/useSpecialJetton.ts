@@ -3,16 +3,16 @@ import { useJettonContent, useJettonWallet, useJettonWalletAddress, useKnownJett
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { Jetton } from '../../types';
 
-export function useSpecialJetton(address: Address) {
+export function useSpecialJetton(address: Address | null | undefined) {
     const { isTestnet: testOnly } = useNetwork();
     const knownJettons = useKnownJettons(testOnly);
     const specialJettonMaster = knownJettons?.specialJetton ?? undefined;
-    let walletAddress = useJettonWalletAddress(specialJettonMaster, address.toString()).data;
+    let walletAddress = useJettonWalletAddress(specialJettonMaster, address?.toString()).data;
     let wallet = useJettonWallet(walletAddress);
     const masterContent = useJettonContent(specialJettonMaster ?? null);
     const [price,] = usePrice();
 
-    if (!specialJettonMaster) {
+    if (!specialJettonMaster || !address) {
         return null;
     }
 

@@ -31,6 +31,7 @@ export const Queries = {
     ContractInfo: (address: string) => (['contractInfo', address]),
     Config: (network: 'testnet' | 'mainnet') => ['config', network],
     ServerConfig: () => ['serverConfig'],
+    AppVersionsConfig: (network: 'testnet' | 'mainnet') => ['appVersionsConfig', network],
 
     Hints: (address: string) => (['hints', address]),
     Cloud: (address: string) => ({
@@ -44,6 +45,7 @@ export const Queries = {
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
         Known: () => ['jettons', 'known'],
+        GaslessConfig: () => ['jettons', 'gaslessConfig'],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

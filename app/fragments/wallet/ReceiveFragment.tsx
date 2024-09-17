@@ -247,11 +247,7 @@ export const ReceiveFragment = fragment(() => {
                             height: 56,
                         }}
                         body={friendly}
-                        textStyle={{
-                            color: theme.textThird,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '600',
-                        }}
+                        textStyle={[{ color: theme.textThird }, Typography.semiBold17_24]}
                     />
                     <ShareButton
                         style={{
@@ -260,27 +256,13 @@ export const ReceiveFragment = fragment(() => {
                             height: 56,
                         }}
                         body={link}
-                        textStyle={{
-                            color: theme.textThird,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '600',
-                        }}
-                        onScreenCapture={() => {
-                            return new Promise((resolve, reject) => {
-                                (async () => {
-                                    setTimeout(async () => {
-                                        try {
-                                            const localUri = await captureRef(imageRef, {
-                                                height: 440,
-                                                quality: 1,
-                                            });
-                                            resolve({ uri: localUri });
-                                        } catch {
-                                            reject();
-                                        }
-                                    }, 150);
-                                })();
-                            })
+                        textStyle={[{ color: theme.textThird }, Typography.semiBold17_24]}
+                        onScreenCapture={async () => {
+                            const localUri = await captureRef(imageRef, {
+                                height: 440,
+                                quality: 1,
+                            });
+                            return { uri: localUri };
                         }}
                     />
                 </View>

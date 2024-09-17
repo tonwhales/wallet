@@ -6,8 +6,8 @@ import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, St
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
-import { Jetton, TransactionDescription } from '../../../engine/types';
-import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
+import { TransactionDescription } from '../../../engine/types';
+import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";

@@ -10,6 +10,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         continueAnyway: 'Continue anyway',
         back: 'Back',
         logout: 'Log Out',
+        logoutFrom: 'Log Out from {{name}}',
         cancel: 'Cancel',
         balance: 'Balance',
         totalBalance: 'Total balance',
@@ -185,6 +186,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
+            gaslessFailed: 'Failed to send transaction',
+            gaslessFailedMessage: 'Please try again or contact support',
+            gaslessCooldown: 'You have pending messages, try again later in a few minutes',
+            gaslessNotEnoughFunds: 'Not enough funds',
+            gaslessNotEnoughFundsMessage: 'Gasless transfer amount with fee is higher than your balance',
+            gaslessTryLater: 'Try again later',
+            gaslessTryLaterMessage: 'You can try again later or contact support'
         },
         sendAll: 'Max',
         scanQR: 'scan qr code',
@@ -853,7 +861,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         complete: 'Account deletion completed',
         error: {
             hasNfts: 'You have NFTs in your wallet, in order to delete the account, please send them to another wallet.',
-            fetchingNfts: 'Could not find out if there are NFTs on the wallet. In order to delete the account, please make sure there are no NFTs on it.'
+            fetchingNfts: 'Could not find out if there are NFTs on the wallet. In order to delete the account, please make sure there are no NFTs on it.',
+            hasUSDTBalanceTitle: 'You have USDT balance in your wallet',
+            hasUSDTBalanceMessage: 'In order to delete the account, please send them to another wallet.'
         },
         confirm: {
             title: 'Are you sure you want to delete your account and all data from this application?',
@@ -986,6 +996,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holdersOfflineApp: 'Holders Offline App',
     },
     wallets: {
+        choose_versions: "Choose wallets to add",
         switchToAlertTitle: 'Switching to {{wallet}}',
         switchToAlertMessage: 'Are you sure you want to switch wallets?',
         switchToAlertAction: 'Switch',
@@ -1040,6 +1051,22 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bannerTitle: 'Update your address',
         bannerDescription: 'From EQ to UQ',
     },
+    w5: {
+        banner: {
+            title: 'Add wallet W5',
+            description: 'Transfer USDT without gas',
+        },
+        update: {
+            title: "Update wallet to W5",
+            subtitle_1: "Gasless USDT transfers",
+            description_1: "You no longer need TON to send USDT. Transaction fees can be covered with your token balance.",
+            subtitle_2: "Save on fees",
+            description_2: "W5 allows to increase the number of operations in a single transaction by 60 times and significantly save on fees.",
+            subtitle_3: "Your seed phrase is unchanged",
+            description_3: "V4 and W5 wallets have the same seed phrase. You can always switch versions by selecting the desired address at the top of the main screen.",
+            switch_button: "Switch to W5",
+        },
+    },
     browser: {
         listings: {
             categories: {
@@ -1082,6 +1109,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         confirmDescription: 'I wrote down my wallet 24 secret words and saved them in a safe place',
         action: 'Enable',
         settingsDescription: 'Authentication request is required as the app displays banking products. Sensitive data will be hidden until you turn the authentication on',
+    },
+    update: {
+        callToAction: 'Update Tonhub'
     }
 };
 

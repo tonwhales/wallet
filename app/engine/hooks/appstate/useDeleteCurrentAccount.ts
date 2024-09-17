@@ -32,11 +32,9 @@ export function useDeleteCurrentAccount() {
         // Clear query cache for the current account
         queryClient.invalidateQueries({ queryKey: ['account', selected.address.toString({ testOnly: isTestnet })] });
         queryClient.invalidateQueries({ queryKey: ['holders', selected.address.toString({ testOnly: isTestnet })] });
-
         
         mixpanelReset(isTestnet);
         mixpanelFlush(isTestnet);
-        
         
         if (appState.addresses.length > 1) {
             deleteHoldersToken(selected.address.toString({ testOnly: isTestnet }));

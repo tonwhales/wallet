@@ -24,6 +24,7 @@ import { getAppData } from '../../../engine/getters/getAppData';
 import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SelectedAccount } from '../../../engine/types';
+import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
 
 type SignState = { type: 'loading' }
     | { type: 'expired' }
@@ -77,6 +78,8 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
         };
     }, []);
 
+    const walletVersion = useWalletVersion();
+
     // Approve
     const acc = useMemo(() => getCurrentAddress(), []);
     let active = useRef(true);
@@ -90,7 +93,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
         }
 
         // Load data
-        const contract = contractFromPublicKey(acc.publicKey);
+        const contract = contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
         const config = walletConfigFromContract(contract);
 
         const walletConfig = config.walletConfig;

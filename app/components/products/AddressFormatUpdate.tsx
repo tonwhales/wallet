@@ -7,6 +7,8 @@ import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banner
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
+import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
+import { WalletVersions } from "../../engine/types";
 
 const bannerId = 'bounceable-format-update';
 
@@ -17,8 +19,9 @@ export const AddressFormatUpdate = memo(() => {
     const hiddenBanners = useHiddenBanners();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const markBannerHidden = useMarkBannerHidden();
-
-    if (hiddenBanners.includes(bannerId) || !bounceableFormat) {
+    const walletVersion = useWalletVersion();
+    
+    if (hiddenBanners.includes(bannerId) || !bounceableFormat || walletVersion === WalletVersions.v5R1) {
         return null;
     }
 

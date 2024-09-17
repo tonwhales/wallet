@@ -37,6 +37,7 @@ import { TransferSingleView } from '../secure/components/TransferSingleView';
 import { RoundButton } from '../../components/RoundButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -138,6 +139,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
 
     const isSpam = useDenyAddress(friendlyTarget);
     let spam = useIsSpamWallet(friendlyTarget) || isSpam
+    const walletVersion = useWalletVersion();
 
     // Confirmation
     const doSend = useCallback(async () => {
@@ -146,7 +148,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         // Parse address
         let address: Address = target.address;
 
-        const contract = await contractFromPublicKey(addr.publicKey);
+        const contract = await contractFromPublicKey(addr.publicKey, walletVersion, network.isTestnet);
         const source = WalletContractV4.create({ workchain: 0, publicKey: addr.publicKey });
 
         try {
@@ -267,13 +269,14 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                     amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
                     jettonAmountString={jettonAmountString}
                     target={target}
-                    fees={fees}
+                    fees={{ type: 'ton', value: fees }}
                     jetton={jetton}
                     walletSettings={walletSettings}
                     text={text}
                     known={known}
                     isSpam={spam}
                     isLedger
+                    failed={false}
                 />
             </ScrollView>
             <RoundButton
@@ -399,7 +402,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             }
 
             // Get contract
-            const contract = contractFromPublicKey(from.publicKey);
+            const contract = contractFromPublicKey(from.publicKey, undefined, network.isTestnet) as WalletContractV4;
 
             // Resolve payload 
             let payload: Cell | null = order.payload ? resolveLedgerPayload(order.payload) : null;

@@ -21,6 +21,11 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { Typography } from '../components/styles';
 import { HoldersUserState, holdersUrl as resolveHoldersUrl } from '../engine/api/holders/fetchUserState';
+import { queryClient } from '../engine/clients';
+import { getQueryData } from '../engine/utils/getQueryData';
+import { Queries } from '../engine/queries';
+import { getHoldersToken, HoldersAccountStatus } from '../engine/hooks/holders/useHoldersAccountStatus';
+import { HoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -34,11 +39,6 @@ import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
-import { queryClient } from '../engine/clients';
-import { getQueryData } from '../engine/utils/getQueryData';
-import { Queries } from '../engine/queries';
-import { getHoldersToken, HoldersAccountStatus } from '../engine/hooks/holders/useHoldersAccountStatus';
-import { HoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -55,7 +55,7 @@ export const SettingsFragment = fragment(() => {
     const syncState = useSyncState();
     const [, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
-    const hasHoldersProducts = useHasHoldersProducts(seleted!.address.toString({ testOnly: network.isTestnet }));
+    const hasHoldersProducts = useHasHoldersProducts(seleted?.address.toString({ testOnly: network.isTestnet }) || '');
 
     // Ledger
     const route = useRoute();

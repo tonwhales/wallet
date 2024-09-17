@@ -32,6 +32,7 @@ import { ReturnStrategy } from '../../engine/tonconnect/types';
 import Minimizer from '../../modules/Minimizer';
 import { warn } from '../../utils/log';
 import { clearLastReturnStrategy } from '../../engine/tonconnect/utils';
+import { parseAnyStringAddress } from '../../utils/parseAnyStringAddress';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';

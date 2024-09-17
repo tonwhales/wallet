@@ -301,6 +301,7 @@ export const TransferFragment = fragment(() => {
                     };
                     responseDestination: Address | null;
                     customPayload: Cell | null;
+                    stateInit: Cell | null;
                     forwardTonAmount: bigint;
                     forwardPayload: Cell | null;
                     jettonWallet: Address;
@@ -338,7 +339,8 @@ export const TransferFragment = fragment(() => {
                                         customPayload,
                                         forwardTonAmount,
                                         forwardPayload,
-                                        jettonWallet: metadata.jettonWallet.address
+                                        jettonWallet: metadata.jettonWallet.address,
+                                        stateInit: order.messages[0].stateInit
                                     }
 
                                     if (jettonTargetAddress) {
@@ -505,7 +507,8 @@ export const TransferFragment = fragment(() => {
                                     to: jettonTransfer.jettonWallet,
                                     bounce: true,
                                     value: toNano('0.05') + tonEstimate,
-                                    body: tetherTransferPayload
+                                    body: tetherTransferPayload,
+                                    init: jettonTransfer.stateInit ? loadStateInit(jettonTransfer.stateInit.asSlice()) : null
                                 })
                             )
                         )

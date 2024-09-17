@@ -137,7 +137,7 @@ export function createOrder(args: {
             amount: args.amount,
             amountAll: args.amountAll,
             payload: args.payload,
-            stateInit: args.stateInit,
+            stateInit: args.stateInit
         }],
         domain: args.domain,
         app: args.app
@@ -191,7 +191,9 @@ export function createJettonOrder(args: {
     amount: bigint,
     tonAmount: bigint,
     txAmount: bigint,
-    payload: Cell | null
+    customPayload: Cell | null,
+    payload: Cell | null,
+    stateInit: Cell | null
 }, isTestnet: boolean): Order {
 
     // Resolve payload
@@ -214,11 +216,10 @@ export function createJettonOrder(args: {
         .storeCoins(args.amount)
         .storeAddress(Address.parse(args.target))
         .storeAddress(args.responseTarget)
-        .storeMaybeRef(null)
+        .storeMaybeRef(args.customPayload)
         .storeCoins(args.tonAmount)
         .storeMaybeRef(payload)
         .endCell();
-
 
     return {
         type: 'order',
@@ -228,7 +229,7 @@ export function createJettonOrder(args: {
             payload: msg,
             amount: args.txAmount,
             amountAll: false,
-            stateInit: null
+            stateInit: args.stateInit
         })
     };
 }

@@ -43,6 +43,7 @@ import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
 import { WalletVersions } from '../../engine/types';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
+import { useJettonPayload } from '../../engine/hooks/jettons/useJettonPayload';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -90,10 +91,10 @@ export const SimpleTransferFragment = fragment(() => {
             } catch { }
         }
     }, [addr]);
+    const address = isLedger ? ledgerAddress : acc!.address;
 
-    const txs = useAccountTransactions((ledgerAddress ?? acc!.address).toString({ testOnly: network.isTestnet })).data;
-
-    const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
+    const txs = useAccountTransactions(address!.toString({ testOnly: network.isTestnet })).data;
+    const accountLite = useAccountLite(address);
 
     const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
         {
@@ -123,7 +124,8 @@ export const SimpleTransferFragment = fragment(() => {
     const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons.map((j) => {
         return Address.parse(j.master_id);
     }).some((j) => jettonWallet?.master && j.equals(Address.parse(jettonWallet.master)));
-    const symbol = jetton ? jetton.symbol : 'TON'
+    const symbol = jetton ? jetton.symbol : 'TON';
+    const { data: jettonPayload, loading: isJettonPayloadLoading } = useJettonPayload(address?.toString({ testOnly: network.isTestnet }), jettonWallet?.master);
 
     const targetAddressValid = useMemo(() => {
         if (target.length > 48) {
@@ -314,7 +316,17 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Resolve jetton order
         if (jettonState) {
-            const txAmount = feeAmount ?? (toNano('0.05') + estim);
+            const customPayload = jettonPayload?.customPayload ?? null;
+            const customPayloadCell = customPayload ? Cell.fromBoc(Buffer.from(customPayload, 'base64'))[0] : null;
+            const stateInit = jettonPayload?.stateInit ?? null;
+            const stateInitCell = stateInit ? Cell.fromBoc(Buffer.from(stateInit, 'base64'))[0] : null;
+
+            let txAmount = feeAmount ?? (toNano('0.05') + estim);
+
+            if (!!stateInit || !!customPayload) {
+                txAmount = feeAmount ?? (toNano('0.1') + estim);
+            }
+
             const tonAmount = forwardAmount ?? 1n;
 
             return createJettonOrder({
@@ -326,7 +338,9 @@ export const SimpleTransferFragment = fragment(() => {
                 amount: validAmount,
                 tonAmount,
                 txAmount,
-                payload: payload
+                customPayload: customPayloadCell,
+                payload: payload,
+                stateInit: stateInitCell
             }, network.isTestnet);
         }
 
@@ -342,7 +356,7 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known, jettonPayload]);
 
     const walletVersion = useWalletVersion();
 
@@ -487,7 +501,7 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion, hasGaslessTransfer]);
+    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion, hasGaslessTransfer, jettonPayload?.customPayload, jettonPayload?.stateInit]);
 
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
@@ -545,7 +559,7 @@ export const SimpleTransferFragment = fragment(() => {
                 });
             }
         }
-    }, [commentString, target, validAmount, stateInit, selectedJetton,]);
+    }, [commentString, target, validAmount, stateInit, selectedJetton]);
 
     const onAddAll = useCallback(() => {
         const amount = jettonState
@@ -990,11 +1004,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 marginBottom: 12,
                                 justifyContent: 'space-between'
                             }}>
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 15, lineHeight: 20,
-                                    color: theme.textSecondary,
-                                }}>
+                                <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                     {`${t('common.balance')}: `}
                                     <ValueComponent
                                         precision={4}
@@ -1007,11 +1017,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
                                     onPress={onAddAll}
                                 >
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 15, lineHeight: 20,
-                                        color: theme.accent,
-                                    }}>
+                                    <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
                                         {t('transfer.sendAll')}
                                     </Text>
                                 </Pressable>
@@ -1044,13 +1050,7 @@ export const SimpleTransferFragment = fragment(() => {
                             />
                             {amountError && (
                                 <Animated.View entering={FadeIn} exiting={FadeOut.duration(100)}>
-                                    <Text style={{
-                                        color: theme.accentRed,
-                                        fontSize: 13,
-                                        lineHeight: 18,
-                                        marginTop: 8,
-                                        fontWeight: '400'
-                                    }}>
+                                    <Text style={[{ color: theme.accentRed, marginTop: 8 }, Typography.regular13_18]}>
                                         {amountError}
                                     </Text>
                                 </Animated.View>
@@ -1189,8 +1189,9 @@ export const SimpleTransferFragment = fragment(() => {
                         onPress={onNext ? onNext : undefined}
                     />
                     : <RoundButton
-                        disabled={!order}
+                        disabled={!order || isJettonPayloadLoading}
                         title={t('common.continue')}
+                        loading={isJettonPayloadLoading}
                         action={doSend}
                     />
                 }

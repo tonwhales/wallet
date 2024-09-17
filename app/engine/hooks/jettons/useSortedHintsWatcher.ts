@@ -1,12 +1,13 @@
 import { useCallback, useEffect } from "react";
 import { getSortedHints, useSortedHintsState } from "./useSortedHints";
 import { useNetwork } from "..";
-import { compareHints, filterHint, getHint } from "../../../utils/hintSortFilter";
+import { compareHints, filterHint, getHint, getMintlessHint } from "../../../utils/hintSortFilter";
 import { queryClient } from "../../clients";
 import { QueryCacheNotifyEvent } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { getQueryData } from "../../utils/getQueryData";
 import { throttle } from "../../../utils/throttle";
+import { MintlessJetton } from "../../api/fetchMintlessHints";
 
 // check if two arrays are equal by content invariant of the order
 function areArraysEqualByContent<T>(a: T[], b: T[]): boolean {
@@ -77,6 +78,11 @@ function useSubToHintChange(
     }, [owner, reSortHints]);
 }
 
+enum HintType {
+    Hint = 'hint',
+    Mintless = 'mintless'
+}
+
 export function useSortedHintsWatcher(address?: string) {
     const { isTestnet } = useNetwork();
     const [, setSortedHints] = useSortedHintsState(address);
@@ -84,12 +90,21 @@ export function useSortedHintsWatcher(address?: string) {
     const resyncAllHintsWeights = useCallback(throttle(() => {
         const cache = queryClient.getQueryCache();
         const hints = getQueryData<string[]>(cache, Queries.Hints(address ?? ''));
-        if (!hints) {
-            return;
-        }
+        const mintlessHints = getQueryData<MintlessJetton[]>(cache, Queries.Mintless(address ?? ''));
 
-        const sorted = hints
-            .map((h) => getHint(cache, h, isTestnet))
+        const allHints = [
+            ...(hints || []).map((h) => ({ hintType: HintType.Hint as HintType.Hint, address: h })),
+            ...(mintlessHints || []).map((h) => ({ hintType: HintType.Mintless as HintType.Mintless, hint: h }))
+        ]
+
+        const sorted = allHints
+            .map((h) => {
+                if (h.hintType === 'hint') {
+                    return getHint(cache, h.address, isTestnet);
+                }
+
+                return getMintlessHint(cache, h.hint, isTestnet);
+            })
             .sort(compareHints).filter(filterHint([])).map((x) => x.address);
 
         setSortedHints(sorted);

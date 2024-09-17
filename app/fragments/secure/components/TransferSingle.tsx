@@ -27,8 +27,10 @@ import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
-import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
+import { useToaster } from "../../../components/toast/ToastProvider";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
+import { queryClient } from "../../../engine/clients";
+import { isMintlessJetton } from "../../../utils/hintSortFilter";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -198,6 +200,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         const isGasless = fees.type === 'gasless' && fees.params.ok;
+        const queryCache = queryClient.getQueryCache();
+        const isMintless = isMintlessJetton(queryCache, target.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }));
 
         // Check amount
         if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount && !isGasless) {
@@ -267,7 +271,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         let lastBlock = await getLastBlock();
         let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, lastBlock, selected!.address));
 
-
         // External message
         let msg: Cell;
 
@@ -281,13 +284,13 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 timeout: Math.ceil(Date.now() / 1000) + 5 * 60,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
-                messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimateSuccess }).params.messages.map(message =>
-                    internal({
+                messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimateSuccess }).params.messages.map(message => {
+                    return internal({
                         to: message.address,
                         value: BigInt(message.amount),
-                        body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null
-                    })
-                )
+                        body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
+                    });
+                })
             });
 
             msg = beginCell()

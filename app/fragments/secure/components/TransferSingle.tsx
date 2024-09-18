@@ -474,6 +474,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             isWithStateInit={!!order.messages[0].stateInit}
             contact={contact}
             failed={failed}
+            isGasless={isGasless}
         />
     );
 });

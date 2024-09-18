@@ -72,7 +72,7 @@ export type OrderMessage = {
 export type TransferEstimate = {
     type: 'ton', value: bigint
 } | {
-    type: 'gasless', value: bigint,
+    type: 'gasless', value: bigint, tonFees: bigint,
     params: GaslessEstimate
 }
 
@@ -553,9 +553,10 @@ export const TransferFragment = fragment(() => {
                                     message: t('transfer.error.gaslessTryLaterMessage')
                                 });
                             } else {
+                                warn(`Gasless estimate failed: ${gaslessEstimate.error}`);
                                 onError({
                                     title: t('transfer.error.gaslessFailed'),
-                                    message: gaslessEstimate.error
+                                    message: t('transfer.error.gaslessFailedEstimate')
                                 });
                             }
                             return;
@@ -573,7 +574,8 @@ export const TransferFragment = fragment(() => {
                         fees = {
                             type: 'gasless',
                             value: BigInt(gaslessEstimate.commission),
-                            params: gaslessEstimate
+                            params: gaslessEstimate,
+                            tonFees: tonEstimate
                         }
                     } catch {
                         onError({

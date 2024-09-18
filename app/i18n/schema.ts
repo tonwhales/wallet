@@ -190,6 +190,7 @@ export type LocalizationSchema = {
             memoRequired: string,
             gaslessFailed: string,
             gaslessFailedMessage: string,
+            gaslessFailedEstimate: string,
             gaslessCooldown: string,
             gaslessCooldownTitle: string,
             gaslessCooldownWait: string,

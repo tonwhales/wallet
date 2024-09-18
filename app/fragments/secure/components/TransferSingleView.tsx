@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { memo, useCallback } from "react";
-import { ScrollView, View, Text, Pressable, Image } from "react-native";
+import { ScrollView, View, Text, Pressable, Image, Alert } from "react-native";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -276,6 +276,22 @@ export const TransferSingleView = memo(({
 
         return null;
     }, [operation?.op]);
+
+
+    const onSend = useCallback(async () => {
+        if (!doSend) {
+            return;
+        }
+
+        try {
+            await doSend();
+        } catch {
+            Alert.alert(
+                t('transfer.error.gaslessFailed'),
+                t('transfer.error.gaslessFailedMessage')
+            );
+        }
+    }, [doSend]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -693,7 +709,7 @@ export const TransferSingleView = memo(({
                 <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
                     <RoundButton
                         title={t('common.confirm')}
-                        action={doSend}
+                        action={onSend}
                         disabled={failed}
                     />
                 </View>

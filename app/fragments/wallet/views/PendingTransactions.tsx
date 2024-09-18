@@ -306,7 +306,7 @@ export const PendingTransactionsList = memo((
                     key={tx.id}
                     tx={tx}
                     first={i === 0}
-                    last={i === txs.length - 1}
+                    last={(i === txs.length - 1) || viewType === 'history'}
                     timeOut={timeOut}
                     viewType={viewType}
                     bounceableFormat={bounceableFormat}

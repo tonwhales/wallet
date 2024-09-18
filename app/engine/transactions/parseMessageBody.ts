@@ -22,7 +22,7 @@ export type SupportedMessage =
     } | {
         type: 'jetton::transfer_notification',
         data: {
-            queryId: number;
+            queryId: number | bigint;
             amount: bigint;
             sender: Address | null;
             forwardPayload: Cell | null;
@@ -30,7 +30,7 @@ export type SupportedMessage =
     } | {
         type: 'whales-staking::deposit',
         data: {
-            queryId: number;
+            queryId: number | bigint;
             gasLimit: bigint;
         }
     } | {
@@ -40,7 +40,7 @@ export type SupportedMessage =
         type: 'withdraw',
         data: {
             stake: bigint;
-            queryId: number;
+            queryId: number | bigint;
             gasLimit: bigint;
         }
     } | {
@@ -122,7 +122,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             };
         }
         case OperationType.JettonTransferNotification: {
-            let queryId = sc.loadUint(64);
+            let queryId = sc.loadUintBig(64);
             let amount = sc.loadCoins();
             let sender = sc.loadMaybeAddress();
             let forwardPayload: Cell | null = null;
@@ -140,7 +140,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             };
         }
         case OperationType.WhalesStakingDeposit: {
-            let queryId = sc.loadUint(64);
+            let queryId = sc.loadUintBig(64);
             let gasLimit = sc.loadCoins();
             return {
                 type: 'whales-staking::deposit',
@@ -157,7 +157,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             };
         }
         case OperationType.WhalesStakingWithdraw: {
-            let queryId = sc.loadUint(64);
+            let queryId = sc.loadUintBig(64);
             let gasLimit = sc.loadCoins();
             const stake = sc.loadCoins();
             return {
@@ -182,7 +182,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             };
         }
         case OperationType.HoldersAccountTopUp: {
-            sc.loadUint(64);
+            sc.loadUintBig(64);
             let amount = sc.loadCoins();
             return {
                 type: 'holders::account::top_up',
@@ -190,7 +190,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             };
         }
         case OperationType.HoldersAccountLimitsChange: {
-            sc.loadUint(64);
+            sc.loadUintBig(64);
             let onetime = sc.loadCoins();
             let daily = sc.loadCoins();
             let monthly = sc.loadCoins();

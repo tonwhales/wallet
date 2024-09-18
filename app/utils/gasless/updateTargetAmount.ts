@@ -69,11 +69,15 @@ export function updateTargetAmount(args: { messages: GaslessMessage[], relayerAd
 
     const diff = BigInt(walletBalance) - relayerAmount - targetAmount;
 
-    if (diff >= 0) {
+    if (diff >= 0n) {
         return messages;
     }
 
     const newTargetAmount = targetAmount + diff;
+
+    if (newTargetAmount < 0n) {
+        return messages;
+    }
 
     const newTargetBuilder = beginCell();
     const prevPayload = targetMessage.payload.beginParse();

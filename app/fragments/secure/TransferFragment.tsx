@@ -563,7 +563,8 @@ export const TransferFragment = fragment(() => {
                             relayerAddress: relayerAddress!,
                             targetAddress: jettonTransfer.destination.address,
                             walletAddress: jettonTransfer.jettonWallet,
-                            isTestnet
+                            isTestnet,
+                            adjustEstimateAmount: minimalAmount
                         });
 
                         fees = {

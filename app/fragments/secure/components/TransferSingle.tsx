@@ -27,7 +27,6 @@ import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
-import { useToaster } from "../../../components/toast/ToastProvider";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
 import { queryClient } from "../../../engine/clients";
 import { isMintlessJetton } from "../../../utils/hintSortFilter";
@@ -41,9 +40,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const account = useAccountLite(selected!.address);
     const commitCommand = useCommitCommand();
     const registerPending = useRegisterPending();
-    const [walletSettings,] = useWalletSettings(selected?.address);
+    const [walletSettings] = useWalletSettings(selected?.address);
     const [failed, setFailed] = useState(false);
-    const toaster = useToaster();
 
     let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback } = props;
 
@@ -143,10 +141,14 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
     }, []);
 
+    const [isGasless, setIsGasless] = useState(fees.type === 'gasless' && fees.params.ok);
+
     const onGaslessSendFailed = useCallback((reason?: GaslessSendError | string) => {
         setFailed(true);
 
         let message;
+        let actions = [{ text: t('common.back'), onPress: goBack }];
+        let title = t('transfer.error.gaslessFailed');
 
         switch (reason) {
             case GaslessSendError.TryLater:
@@ -156,20 +158,25 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 message = t('transfer.error.gaslessNotEnoughFundsMessage');
                 break;
             case GaslessSendError.Cooldown:
+                title = t('transfer.error.gaslessCooldownTitle');
                 message = t('transfer.error.gaslessCooldown');
+                actions = [
+                    { text: t('transfer.error.gaslessCooldownWait'), onPress: goBack },
+                    {
+                        text: t('transfer.error.gaslessCooldownPayTon'), onPress: () => {
+                            setIsGasless(false);
+                            setFailed(false);
+                        }
+                    },
+                ];
+
                 break;
             default:
                 message = reason;
                 break;
         }
 
-        Alert.alert(t('transfer.error.gaslessFailed'),
-            message,
-            [{
-                text: t('common.back'),
-                onPress: goBack
-            }]
-        );
+        Alert.alert(title, message, actions);
     }, []);
 
     // Confirmation
@@ -198,10 +205,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 return;
             }
         }
-
-        const isGasless = fees.type === 'gasless' && fees.params.ok;
-        const queryCache = queryClient.getQueryCache();
-        const isMintless = isMintlessJetton(queryCache, target.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }));
 
         // Check amount
         if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount && !isGasless) {
@@ -289,8 +292,9 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                         to: message.address,
                         value: BigInt(message.amount),
                         body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
-                    });
-                })
+                        init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null,
+                    })
+                )
             });
 
             msg = beginCell()
@@ -354,7 +358,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     ? (contract as WalletContractV5R1).createTransfer(transferParams)
                     : (contract as WalletContractV4).createTransfer(transferParams);
 
-            } catch (e) {
+            } catch {
                 warn('Failed to create transfer');
                 return;
             }
@@ -450,7 +454,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         } else {
             navigation.popToTop();
         }
-    }, [registerPending, jettonAmountString, jetton, fees]);
+    }, [registerPending, jettonAmountString, jetton, fees, isGasless]);
 
     return (
         <TransferSingleView

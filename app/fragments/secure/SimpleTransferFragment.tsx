@@ -79,6 +79,7 @@ export const SimpleTransferFragment = fragment(() => {
     const client = useClient4(network.isTestnet);
     const [price, currency] = usePrice();
     const gaslessConfig = useGaslessConfig();
+    const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
 
     // Ledger
     const ledgerContext = useLedgerTransport();
@@ -1189,7 +1190,8 @@ export const SimpleTransferFragment = fragment(() => {
                         onPress={onNext ? onNext : undefined}
                     />
                     : <RoundButton
-                        disabled={!order}
+                        disabled={!order || gaslessConfigLoading}
+                        loading={gaslessConfigLoading}
                         title={t('common.continue')}
                         action={doSend}
                     />

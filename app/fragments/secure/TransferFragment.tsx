@@ -72,7 +72,7 @@ export type OrderMessage = {
 export type TransferEstimate = {
     type: 'ton', value: bigint
 } | {
-    type: 'gasless', value: bigint,
+    type: 'gasless', value: bigint, tonFees: bigint,
     params: GaslessEstimate
 }
 
@@ -306,6 +306,7 @@ export const TransferFragment = fragment(() => {
                     };
                     responseDestination: Address | null;
                     customPayload: Cell | null;
+                    stateInit: Cell | null;
                     forwardTonAmount: bigint;
                     forwardPayload: Cell | null;
                     jettonWallet: Address;
@@ -343,7 +344,8 @@ export const TransferFragment = fragment(() => {
                                         customPayload,
                                         forwardTonAmount,
                                         forwardPayload,
-                                        jettonWallet: metadata.jettonWallet.address
+                                        jettonWallet: metadata.jettonWallet.address,
+                                        stateInit: order.messages[0].stateInit
                                     }
 
                                     if (jettonTargetAddress) {
@@ -521,7 +523,8 @@ export const TransferFragment = fragment(() => {
                                     to: jettonTransfer.jettonWallet,
                                     bounce: true,
                                     value: toNano('0.05') + tonEstimate,
-                                    body: tetherTransferPayload
+                                    body: tetherTransferPayload,
+                                    init: jettonTransfer.stateInit ? loadStateInit(jettonTransfer.stateInit.asSlice()) : null
                                 })
                             )
                         )
@@ -550,9 +553,10 @@ export const TransferFragment = fragment(() => {
                                     message: t('transfer.error.gaslessTryLaterMessage')
                                 });
                             } else {
+                                warn(`Gasless estimate failed: ${gaslessEstimate.error}`);
                                 onError({
                                     title: t('transfer.error.gaslessFailed'),
-                                    message: gaslessEstimate.error
+                                    message: t('transfer.error.gaslessFailedEstimate')
                                 });
                             }
                             return;
@@ -570,7 +574,8 @@ export const TransferFragment = fragment(() => {
                         fees = {
                             type: 'gasless',
                             value: BigInt(gaslessEstimate.commission),
-                            params: gaslessEstimate
+                            params: gaslessEstimate,
+                            tonFees: tonEstimate
                         }
                     } catch {
                         onError({

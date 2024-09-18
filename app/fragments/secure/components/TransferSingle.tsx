@@ -294,7 +294,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                         body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
                         init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null,
                     })
-                )
+                })
             });
 
             msg = beginCell()

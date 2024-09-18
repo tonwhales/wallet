@@ -1190,10 +1190,9 @@ export const SimpleTransferFragment = fragment(() => {
                         onPress={onNext ? onNext : undefined}
                     />
                     : <RoundButton
-                        disabled={!order || gaslessConfigLoading}
-                        loading={gaslessConfigLoading}
+                        disabled={!order || gaslessConfigLoading || isJettonPayloadLoading}
+                        loading={isJettonPayloadLoading || gaslessConfigLoading}
                         title={t('common.continue')}
-                        loading={isJettonPayloadLoading}
                         action={doSend}
                     />
                 }

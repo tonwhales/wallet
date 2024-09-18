@@ -188,6 +188,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             memoRequired: 'Add a memo/tag to avoid losing funds',
             gaslessFailed: 'Failed to send transaction',
             gaslessFailedMessage: 'Please try again or contact support',
+            gaslessFailedEstimate: 'Failed to estimate fees, please try again later or contact support',
             gaslessCooldown: 'You can only pay the gas fee in the token currency once every few minutes. Please wait or pay the transaction fee in TON.',
             gaslessCooldownTitle: 'Wait a few minutes before the next transaction',
             gaslessCooldownWait: 'I\'ll wait',

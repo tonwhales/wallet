@@ -16,8 +16,7 @@ export type Order = {
         domain: string,
         title: string,
         url: string
-    },
-    gasless?: boolean
+    }
 };
 
 export type LedgerOrder = {

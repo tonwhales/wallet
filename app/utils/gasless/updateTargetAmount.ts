@@ -6,8 +6,13 @@ import { Queries } from "../../engine/queries";
 import { getQueryData } from "../../engine/utils/getQueryData";
 import { StoredJettonWallet } from "../../engine/metadata/StoredMetadata";
 
-export function updateTargetAmount(args: { messages: GaslessMessage[], relayerAddress: Address, targetAddress: Address, walletAddress: Address, isTestnet: boolean }): GaslessMessage[] {
-    const { messages, relayerAddress, targetAddress, walletAddress, isTestnet } = args;
+export function updateTargetAmount(args: {
+    messages: GaslessMessage[],
+    relayerAddress: Address, targetAddress: Address, walletAddress: Address,
+    adjustEstimateAmount: bigint,
+    isTestnet: boolean
+}): GaslessMessage[] {
+    const { messages, relayerAddress, targetAddress, walletAddress, isTestnet, adjustEstimateAmount } = args;
 
     let relayerMessage, targetMessage: { index: number, amount: bigint, payload: Cell } | null = null;
 
@@ -68,12 +73,8 @@ export function updateTargetAmount(args: { messages: GaslessMessage[], relayerAd
     }
 
     const diff = BigInt(walletBalance) - relayerAmount - targetAmount;
-
-    if (diff >= 0n) {
-        return messages;
-    }
-
-    const newTargetAmount = targetAmount + diff;
+    const diffAmount = diff >= 0 ? 0n : diff;
+    const newTargetAmount = targetAmount + adjustEstimateAmount + diffAmount;
 
     if (newTargetAmount < 0n) {
         return messages;

@@ -193,7 +193,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessCooldownWait: 'I\'ll wait',
             gaslessCooldownPayTon: 'Pay gas in TON',
             gaslessNotEnoughFunds: 'Not enough funds',
-            gaslessNotEnoughFundsMessage: 'Gasless transfer amount with fee is higher than your balance',
+            gaslessNotEnoughFundsMessage: 'Gasless transfer amount with fee is higher than your balance, try to send a smaller amount or contact support',
             gaslessTryLater: 'Try again later',
             gaslessTryLaterMessage: 'You can try again later or contact support'
         },

@@ -177,7 +177,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "gaslessCooldownWait": "Подожду",
             "gaslessCooldownPayTon": "Оплатить комиссию в TON",
             "gaslessNotEnoughFunds": "Недостаточно средств",
-            "gaslessNotEnoughFundsMessage": "Сумма транзакции с комиссией превышает ваш баланс",
+            "gaslessNotEnoughFundsMessage": "Сумма транзакции с комиссией превышает ваш баланс, попробуйте отправить меньшую сумму или обратитесь в службу поддержки",
             "gaslessTryLater": "Попробуйте позже",
             "gaslessTryLaterMessage": "Вы можете попробовать позже или обратиться в службу поддержки",
         },

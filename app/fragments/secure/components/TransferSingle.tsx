@@ -290,7 +290,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     internal({
                         to: message.address,
                         value: BigInt(message.amount),
-                        body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null
+                        body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
+                        init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null,
                     })
                 )
             });

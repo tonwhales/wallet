@@ -407,12 +407,14 @@ const PendingTxPreview = () => {
                                 ? <>
                                     {
                                         (typeof fees !== 'bigint' && fees.type === 'gasless' && !!jetton?.decimals)
-                                            ? `${fromBnWithDecimals(fees.value, jetton.decimals)}`
+                                            ? `${fromBnWithDecimals(fees.value, jetton.decimals)} ${jetton.symbol}`
                                             : `${formatAmount(fromNano(typeof fees !== 'bigint' ? fees.value : fees))}`
                                     }
-                                    <PerfText style={{ color: theme.textSecondary }}>
-                                        {` ${feesPrise}`}
-                                    </PerfText>
+                                    {feesPrise && (
+                                        <PerfText style={{ color: theme.textSecondary }}>
+                                            {` ${feesPrise}`}
+                                        </PerfText>
+                                    )}
                                 </>
                                 : '...'
                             }

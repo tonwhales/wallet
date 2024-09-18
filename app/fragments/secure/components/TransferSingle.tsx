@@ -272,7 +272,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         let lastBlock = await getLastBlock();
         let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, lastBlock, selected!.address));
 
-
         // External message
         let msg: Cell;
 
@@ -286,14 +285,14 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 timeout: Math.ceil(Date.now() / 1000) + 5 * 60,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
-                messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimateSuccess }).params.messages.map(message =>
-                    internal({
+                messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimateSuccess }).params.messages.map(message => {
+                    return internal({
                         to: message.address,
                         value: BigInt(message.amount),
                         body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
                         init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null,
                     })
-                )
+                })
             });
 
             msg = beginCell()
@@ -473,6 +472,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             isWithStateInit={!!order.messages[0].stateInit}
             contact={contact}
             failed={failed}
+            isGasless={isGasless}
         />
     );
 });

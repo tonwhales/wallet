@@ -27,7 +27,6 @@ import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
-import { useToaster } from '../../components/toast/ToastProvider';
 import { ReturnStrategy } from '../../engine/tonconnect/types';
 import Minimizer from '../../modules/Minimizer';
 import { warn } from '../../utils/log';
@@ -37,6 +36,12 @@ import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 import { fetchGaslessEstimate, GaslessEstimate } from '../../engine/api/gasless/fetchGaslessEstimate';
+import { getQueryData } from '../../engine/utils/getQueryData';
+import { queryClient } from '../../engine/clients';
+import { Queries } from '../../engine/queries';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { toBnWithDecimals } from '../../utils/withDecimals';
+import { updateTargetAmount } from '../../utils/gasless/updateTargetAmount';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
@@ -154,7 +159,6 @@ export const TransferFragment = fragment(() => {
     const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const toaster = useToaster();
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
     const walletVersion = useWalletVersion();
@@ -488,10 +492,21 @@ export const TransferFragment = fragment(() => {
                 }
 
                 if (!!jettonTransfer && isGaslessSupported) {
+                    const masterContentKey = Queries.Jettons().MasterContent(master!.toString({ testOnly: isTestnet }));
+                    const masterData = getQueryData<(JettonMasterState & { address: string }) | null>(queryClient.getQueryCache(), masterContentKey);
+                    // default is 6 to account for USDT
+                    // for other gasless jettons is negligible 
+                    //(relay fee is higher is higher than the minimal amount by many orders of magnitude)
+                    const decimals = masterData?.decimals ?? 6;
+                    // adjust amount to account for gasless fee bug, TODO: remove this when the bug is fixed
+                    const minimalAmountString = `${decimals > 0 ? 0 : 1}.${'0'.repeat(decimals - 1)}1`;
+                    const minimalAmount = toBnWithDecimals(minimalAmountString, decimals);
+                    const adjustedAmount = jettonTransfer.amount - minimalAmount;
+
                     const tetherTransferPayload = beginCell()
                         .storeUint(OperationType.JettonTransfer, 32)
                         .storeUint(0, 64)
-                        .storeCoins(jettonTransfer.amount)
+                        .storeCoins(adjustedAmount)
                         .storeAddress(jettonTransfer.destination.address) // receiver address 
                         .storeAddress(relayerAddress) // excesses address
                         .storeMaybeRef(jettonTransfer.customPayload) // custom payload
@@ -542,6 +557,14 @@ export const TransferFragment = fragment(() => {
                             }
                             return;
                         }
+
+                        gaslessEstimate.messages = updateTargetAmount({
+                            messages: gaslessEstimate.messages,
+                            relayerAddress: relayerAddress!,
+                            targetAddress: jettonTransfer.destination.address,
+                            walletAddress: jettonTransfer.jettonWallet,
+                            isTestnet
+                        });
 
                         fees = {
                             type: 'gasless',

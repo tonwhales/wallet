@@ -10,7 +10,7 @@ export function useSpecialJetton(address: Address | null | undefined) {
     let walletAddress = useJettonWalletAddress(specialJettonMaster, address?.toString()).data;
     let wallet = useJettonWallet(walletAddress);
     const masterContent = useJettonContent(specialJettonMaster ?? null);
-    const [price,] = usePrice();
+    const [price] = usePrice();
 
     if (!specialJettonMaster || !address) {
         return null;

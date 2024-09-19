@@ -101,8 +101,10 @@ export type ConfirmLoadedPropsSingle = {
     fees: TransferEstimate,
     metadata: ContractMetadata,
     restricted: boolean,
-    callback: ((ok: boolean, result: Cell | null) => void) | null
-    back?: number
+    callback: ((ok: boolean, result: Cell | null) => void) | null,
+    back?: number,
+    useGasless: boolean,
+    onSetUseGasless?: (useGasless: boolean) => void
 }
 
 export type ConfirmLoadedPropsBatch = {
@@ -173,6 +175,8 @@ export const TransferFragment = fragment(() => {
     const job = useMemo(() => params.job, []);
     const callback = useMemo(() => params.callback, []);
 
+    const [useGasless, setUseGasless] = useState(false);
+
     const handleReturnStrategy = useCallback((returnStrategy: string) => {
         if (returnStrategy === 'back') {
             Minimizer.goBack();
@@ -210,6 +214,7 @@ export const TransferFragment = fragment(() => {
         });
 
         return () => {
+            finished.current = true;
             backHandler.remove();
 
             if (params && params.job) {
@@ -248,6 +253,11 @@ export const TransferFragment = fragment(() => {
 
     }, []);
 
+    const onSetUseGasless = useCallback((useGasless: boolean) => {
+        finished.current = false;
+        setUseGasless(useGasless);
+    }, []);
+
     useEffect(() => {
         // Await data
         if (!netConfig) {
@@ -258,6 +268,8 @@ export const TransferFragment = fragment(() => {
             if (finished.current) {
                 return;
             }
+
+            setLoadedProps(null);
 
             // Get contract
             const contract = contractFromPublicKey(from.publicKey, walletVersion, isTestnet);
@@ -493,7 +505,7 @@ export const TransferFragment = fragment(() => {
                     } catch { }
                 }
 
-                if (!!jettonTransfer && isGaslessSupported) {
+                if (!!jettonTransfer && isGaslessSupported && useGasless) {
                     const masterContentKey = Queries.Jettons().MasterContent(master!.toString({ testOnly: isTestnet }));
                     const masterData = getQueryData<(JettonMasterState & { address: string }) | null>(queryClient.getQueryCache(), masterContentKey);
                     // default is 6 to account for USDT
@@ -612,7 +624,9 @@ export const TransferFragment = fragment(() => {
                     fees,
                     metadata,
                     callback: callback ? callback : null,
-                    back: params.back
+                    back: params.back,
+                    useGasless,
+                    onSetUseGasless
                 });
                 return;
             }
@@ -740,11 +754,7 @@ export const TransferFragment = fragment(() => {
                 totalAmount,
             });
         });
-
-        return () => {
-            finished.current = true;
-        };
-    }, [netConfig, selectedAccount, bounceableFormat, gaslessConfig.data, walletVersion]);
+    }, [netConfig, selectedAccount, bounceableFormat, gaslessConfig.data, walletVersion, useGasless]);
 
     return (
         <View style={{ flexGrow: 1 }}>

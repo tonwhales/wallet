@@ -175,7 +175,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         Alert.alert(title, message, actions);
-    }, []);
+    }, [onSetUseGasless]);
 
     // Confirmation
     const doSend = useCallback(async () => {

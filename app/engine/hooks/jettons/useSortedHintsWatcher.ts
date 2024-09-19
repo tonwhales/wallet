@@ -83,6 +83,9 @@ enum HintType {
     Mintless = 'mintless'
 }
 
+type SortableHint = { hintType: HintType.Hint, address: string }
+    | { hintType: HintType.Mintless, address: string, hint: MintlessJetton };
+
 export function useSortedHintsWatcher(address?: string) {
     const { isTestnet } = useNetwork();
     const [, setSortedHints] = useSortedHintsState(address);
@@ -93,13 +96,25 @@ export function useSortedHintsWatcher(address?: string) {
         const mintlessHints = getQueryData<MintlessJetton[]>(cache, Queries.Mintless(address ?? ''));
 
         const allHints = [
-            ...(hints || []).map((h) => ({ hintType: HintType.Hint as HintType.Hint, address: h })),
-            ...(mintlessHints || []).map((h) => ({ hintType: HintType.Mintless as HintType.Mintless, hint: h }))
+            ...(hints || []).map((h) => ({ hintType: HintType.Hint, address: h })),
+            ...(mintlessHints || []).map((h) => ({ hintType: HintType.Mintless, address: h.walletAddress.address, hint: h }))
         ]
 
-        const sorted = allHints
+        const allHintsSet = new Set([...hints ?? [], ...mintlessHints?.map((h) => h.walletAddress.address) ?? []]);
+
+        const noDups: SortableHint[] = Array.from(allHintsSet).map((a) => {
+            const hint = allHints.find((h) => h.address === a);
+
+            if (!hint) {
+                return null;
+            }
+
+            return hint;
+        }).filter((x) => !!x) as SortableHint[];
+
+        const sorted = noDups
             .map((h) => {
-                if (h.hintType === 'hint') {
+                if (h.hintType === HintType.Hint) {
                     return getHint(cache, h.address, isTestnet);
                 }
 

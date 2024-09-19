@@ -62,14 +62,19 @@ export function useMintlessHints(addressString?: string): MintlessJetton[] {
             try {
                 const fetched = await fetchMintlessHints(addressString!);
 
+                const cache = queryClient.getQueryCache();
                 // update jetton wallets with mintless hints
                 fetched?.forEach(hint => {
-                    queryClient.setQueryData<StoredJettonWallet | null>(Queries.Account(hint.walletAddress.address).JettonWallet(), {
-                        balance: hint.balance,
-                        owner: addressString!,
-                        master: hint.jetton.address,
-                        address: hint.walletAddress.address
-                    });
+                    const wallet = getQueryData<StoredJettonWallet | null>(cache, Queries.Account(hint.walletAddress.address).JettonWallet());
+
+                    if (!wallet) {
+                        queryClient.setQueryData<StoredJettonWallet | null>(Queries.Account(hint.walletAddress.address).JettonWallet(), {
+                            balance: hint.balance,
+                            owner: addressString!,
+                            master: hint.jetton.address,
+                            address: hint.walletAddress.address
+                        });
+                    }
                 });
 
                 return fetched;

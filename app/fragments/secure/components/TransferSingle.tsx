@@ -28,8 +28,6 @@ import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
-import { queryClient } from "../../../engine/clients";
-import { isMintlessJetton } from "../../../utils/hintSortFilter";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -45,7 +43,11 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
     let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback } = props;
 
-    const jetton = useJetton({ owner: selected!.address, master: metadata?.jettonWallet?.master, wallet: metadata?.jettonWallet?.address }, true);
+    const jetton = useJetton({
+        owner: selected!.address,
+        master: metadata?.jettonWallet?.master,
+        wallet: metadata?.jettonWallet?.address
+    }, true);
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
@@ -111,7 +113,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             }
         }
     }, []);
-
+    
     if (jettonTarget) {
         target = jettonTarget;
     }

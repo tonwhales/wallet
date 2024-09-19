@@ -13,10 +13,13 @@ import { TonClient4 } from '@ton/ton';
 import { QueryClient } from '@tanstack/react-query';
 import { storage } from '../../../storage/storage';
 import { create, keyResolver, windowedFiniteBatchScheduler } from "@yornaath/batshit";
-import { clients } from '../../clients';
+import { clients, queryClient } from '../../clients';
 import { AsyncLock } from 'teslabot';
 import memoize from '../../../utils/memoize';
 import { tryGetJettonWallet } from '../../metadata/introspections/tryGetJettonWallet';
+import { tryFetchJettonWalletIsClaimed } from '../../metadata/introspections/tryFetchJettonWalletIsClaimed';
+import { fetchMintlessHints, MintlessJetton } from '../../api/fetchMintlessHints';
+import { getQueryData } from '../../utils/getQueryData';
 
 let jettonFetchersLock = new AsyncLock();
 
@@ -110,14 +113,33 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                 await Promise.all(wallets.map(async (wallet) => {
                     try {
                         let address = Address.parse(wallet);
+                        log(`[jetton-wallet] 🟡 batch ${wallet}`);
 
                         let data = await tryFetchJettonWallet(client, await getLastBlock(), address);
                         if (!data) {
                             return;
                         }
 
+                        let isClaimed = await tryFetchJettonWalletIsClaimed(client, await getLastBlock(), address);
+                        let mintlessBalance;
+
+                        if (isClaimed === false) {
+                            const owner = data.owner.toString({ testOnly: isTestnet });
+                            const queryCache = queryClient.getQueryCache();
+                            const queryKey = Queries.Mintless(owner);
+                            let mintlessHints = getQueryData<MintlessJetton[]>(queryCache, queryKey) || [];
+
+                            if (!mintlessHints) {
+                                try {
+                                    mintlessHints = await fetchMintlessHints(owner);
+                                } catch { }
+                            }
+
+                            mintlessBalance = mintlessHints.find(hint => hint.walletAddress.address === wallet)?.balance;
+                        }
+
                         result.push({
-                            balance: data.balance.toString(10),
+                            balance: mintlessBalance || data.balance.toString(10),
                             master: data.master.toString({ testOnly: isTestnet }),
                             owner: data.owner.toString({ testOnly: isTestnet }),
                             address: wallet
@@ -289,6 +311,10 @@ export function usePrefetchHints(queryClient: QueryClient, address?: string) {
                     await queryClient.prefetchQuery({
                         queryKey: Queries.Jettons().MasterContent(hint.jetton.address),
                         queryFn: jettonMasterContentQueryFn(hint.jetton.address, isTestnet),
+                    });
+                    await queryClient.prefetchQuery({
+                        queryKey: Queries.Jettons().Address(address).Wallet(hint.walletAddress.address),
+                        queryFn: jettonWalletAddressQueryFn(hint.walletAddress.address, address, isTestnet)
                     });
                 }
             }));

@@ -175,7 +175,7 @@ export const TransferFragment = fragment(() => {
     const job = useMemo(() => params.job, []);
     const callback = useMemo(() => params.callback, []);
 
-    const [useGasless, setUseGasless] = useState(false);
+    const [useGasless, setUseGasless] = useState(true);
 
     const handleReturnStrategy = useCallback((returnStrategy: string) => {
         if (returnStrategy === 'back') {

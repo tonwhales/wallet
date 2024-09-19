@@ -103,5 +103,5 @@ export function updateTargetAmount(args: {
 
     const newTargetMessage = { ...messages[targetMessage.index], payload: newTargetBuilder.endCell().toBoc({ idx: false }).toString('hex') };
 
-    return messages.map((m, i) => i === targetMessage.index ? newTargetMessage : m);
+    return messages.map((m, i) => i === targetMessage?.index ? newTargetMessage : m);
 }

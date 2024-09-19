@@ -135,7 +135,7 @@ export const TransferSingleView = memo(({
     isLedger?: boolean,
     contact?: AddressContact | null,
     failed: boolean,
-    isGasless: boolean
+    isGasless?: boolean
 }) => {
     const toaster = useToaster();
     const navigation = useTypedNavigation();

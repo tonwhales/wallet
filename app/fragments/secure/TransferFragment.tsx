@@ -27,15 +27,21 @@ import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
-import { useToaster } from '../../components/toast/ToastProvider';
 import { ReturnStrategy } from '../../engine/tonconnect/types';
 import Minimizer from '../../modules/Minimizer';
 import { warn } from '../../utils/log';
 import { clearLastReturnStrategy } from '../../engine/tonconnect/utils';
+import { parseAnyStringAddress } from '../../utils/parseAnyStringAddress';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 import { fetchGaslessEstimate, GaslessEstimate } from '../../engine/api/gasless/fetchGaslessEstimate';
+import { getQueryData } from '../../engine/utils/getQueryData';
+import { queryClient } from '../../engine/clients';
+import { Queries } from '../../engine/queries';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { toBnWithDecimals } from '../../utils/withDecimals';
+import { updateTargetAmount } from '../../utils/gasless/updateTargetAmount';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
@@ -66,7 +72,7 @@ export type OrderMessage = {
 export type TransferEstimate = {
     type: 'ton', value: bigint
 } | {
-    type: 'gasless', value: bigint,
+    type: 'gasless', value: bigint, tonFees: bigint,
     params: GaslessEstimate
 }
 
@@ -153,7 +159,6 @@ export const TransferFragment = fragment(() => {
     const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const toaster = useToaster();
     const client = useClient4(isTestnet);
     const commitCommand = useCommitCommand();
     const walletVersion = useWalletVersion();
@@ -274,8 +279,8 @@ export const TransferFragment = fragment(() => {
                 };
 
                 try {
-                    target = Address.parseFriendly(params.order.messages[0].target);
-                } catch (error) {
+                    target = parseAnyStringAddress(params.order.messages[0].target, isTestnet);
+                } catch {
                     onError({
                         title: t('transfer.error.invalidAddress'),
                         message: t('transfer.error.invalidAddressMessage')
@@ -301,6 +306,7 @@ export const TransferFragment = fragment(() => {
                     };
                     responseDestination: Address | null;
                     customPayload: Cell | null;
+                    stateInit: Cell | null;
                     forwardTonAmount: bigint;
                     forwardPayload: Cell | null;
                     jettonWallet: Address;
@@ -338,7 +344,8 @@ export const TransferFragment = fragment(() => {
                                         customPayload,
                                         forwardTonAmount,
                                         forwardPayload,
-                                        jettonWallet: metadata.jettonWallet.address
+                                        jettonWallet: metadata.jettonWallet.address,
+                                        stateInit: order.messages[0].stateInit
                                     }
 
                                     if (jettonTargetAddress) {
@@ -487,10 +494,21 @@ export const TransferFragment = fragment(() => {
                 }
 
                 if (!!jettonTransfer && isGaslessSupported) {
+                    const masterContentKey = Queries.Jettons().MasterContent(master!.toString({ testOnly: isTestnet }));
+                    const masterData = getQueryData<(JettonMasterState & { address: string }) | null>(queryClient.getQueryCache(), masterContentKey);
+                    // default is 6 to account for USDT
+                    // for other gasless jettons is negligible 
+                    //(relay fee is higher is higher than the minimal amount by many orders of magnitude)
+                    const decimals = masterData?.decimals ?? 6;
+                    // adjust amount to account for gasless fee bug, TODO: remove this when the bug is fixed
+                    const minimalAmountString = `${decimals > 0 ? 0 : 1}.${'0'.repeat(decimals - 1)}1`;
+                    const minimalAmount = toBnWithDecimals(minimalAmountString, decimals);
+                    const adjustedAmount = jettonTransfer.amount - minimalAmount;
+
                     const tetherTransferPayload = beginCell()
                         .storeUint(OperationType.JettonTransfer, 32)
                         .storeUint(0, 64)
-                        .storeCoins(jettonTransfer.amount)
+                        .storeCoins(adjustedAmount)
                         .storeAddress(jettonTransfer.destination.address) // receiver address 
                         .storeAddress(relayerAddress) // excesses address
                         .storeMaybeRef(jettonTransfer.customPayload) // custom payload
@@ -505,7 +523,8 @@ export const TransferFragment = fragment(() => {
                                     to: jettonTransfer.jettonWallet,
                                     bounce: true,
                                     value: toNano('0.05') + tonEstimate,
-                                    body: tetherTransferPayload
+                                    body: tetherTransferPayload,
+                                    init: jettonTransfer.stateInit ? loadStateInit(jettonTransfer.stateInit.asSlice()) : null
                                 })
                             )
                         )
@@ -534,18 +553,29 @@ export const TransferFragment = fragment(() => {
                                     message: t('transfer.error.gaslessTryLaterMessage')
                                 });
                             } else {
+                                warn(`Gasless estimate failed: ${gaslessEstimate.error}`);
                                 onError({
                                     title: t('transfer.error.gaslessFailed'),
-                                    message: gaslessEstimate.error
+                                    message: t('transfer.error.gaslessFailedEstimate')
                                 });
                             }
                             return;
                         }
 
+                        gaslessEstimate.messages = updateTargetAmount({
+                            messages: gaslessEstimate.messages,
+                            relayerAddress: relayerAddress!,
+                            targetAddress: jettonTransfer.destination.address,
+                            walletAddress: jettonTransfer.jettonWallet,
+                            isTestnet,
+                            adjustEstimateAmount: minimalAmount
+                        });
+
                         fees = {
                             type: 'gasless',
                             value: BigInt(gaslessEstimate.commission),
-                            params: gaslessEstimate
+                            params: gaslessEstimate,
+                            tonFees: tonEstimate
                         }
                     } catch {
                         onError({

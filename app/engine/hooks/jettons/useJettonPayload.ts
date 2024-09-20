@@ -7,6 +7,8 @@ import { MintlessJetton } from "../../api/fetchMintlessHints";
 import { Address } from "@ton/core";
 
 export function useJettonPayload(account?: string, masterAddress?: string) {
+    const enabled = !!account && !!masterAddress;
+    
     const query = useQuery({
         queryKey: Queries.Jettons().Address(account || '').WalletPayload(masterAddress || ''),
         queryFn: async () => {
@@ -26,7 +28,7 @@ export function useJettonPayload(account?: string, masterAddress?: string) {
             const res = await fetchJettonPayload(account!, masterAddress!, customPayloadApiUri);
             return res;
         },
-        enabled: !!account && !!masterAddress,
+        enabled,
         staleTime: 1000 * 5,
         refetchOnMount: true,
         refetchOnWindowFocus: true
@@ -34,7 +36,7 @@ export function useJettonPayload(account?: string, masterAddress?: string) {
 
     return {
         data: query.data,
-        loading: query.isFetching || query.isLoading,
+        loading: (query.isFetching || query.isLoading) && enabled,
         isError: query.isError,
     }
 }

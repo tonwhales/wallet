@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -33,9 +33,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { queryClient } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
-import WalletService from '../../modules/WalletService';
-import { Typography } from '../../components/styles';
-import { ItemDivider } from '../../components/ItemDivider';
+import { IosWalletService } from '../../modules/WalletService';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -49,7 +47,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
-    const cards = useHoldersAccounts(acc.address);
+    const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
 
     const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);
@@ -63,19 +61,6 @@ export const DeveloperToolsFragment = fragment(() => {
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
 
-    const [provisioningStatus, setProvisioningStatus] = useState<string | null>('');
-    let formattedStatusString = '';
-
-    // format provisioning status string as JSON adding new lines
-    if (provisioningStatus) {
-        formattedStatusString = provisioningStatus.replace(/,/g, ',\n');
-        formattedStatusString = formattedStatusString.replace(/]/g, ',\n]')
-        formattedStatusString = formattedStatusString.replace(/\[/g, '\n[');
-        formattedStatusString = formattedStatusString.replace(/{/g, '\n{\n');
-        formattedStatusString = formattedStatusString.replace(/}/g, '\n}');
-        formattedStatusString = formattedStatusString.replace(/:/g, ': ');
-    }
-
     const resetCache = useCallback(async () => {
         queryClient.clear();
         queryClient.invalidateQueries();
@@ -83,7 +68,7 @@ export const DeveloperToolsFragment = fragment(() => {
         storagePersistence.clearAll();
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
-        WalletService.setCredentialsInGroupUserDefaults({});
+        IosWalletService.setCredentialsInGroupUserDefaults({});
         reboot();
     }, [isTestnet, clearHolders]);
 
@@ -284,7 +269,7 @@ export const DeveloperToolsFragment = fragment(() => {
                             <ItemButton
                                 title={'Refetch cards'}
                                 onPress={() => {
-                                    cards.refetch();
+                                    accounts.refetch();
                                 }}
                             />
                         </View>
@@ -314,84 +299,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                     navigation.navigate('DevDAppWebView');
                                 }}
                             />
-                        </View>
-                    </View>
-                    <View style={{
-                        marginTop: 16,
-                        backgroundColor: theme.border,
-                        borderRadius: 14,
-                        overflow: 'hidden',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexShrink: 1,
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <Text style={[
-                                Typography.semiBold24_30,
-                                { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
-                            ]}>
-                                {'Provisioning debug'}
-                            </Text>
-                            <ItemButton
-                                title={'getProvisioningCredentials'}
-                                onPress={async () => {
-                                    let res = await WalletService.getCredentials();
-
-                                    for (let i = 0; i < res.length; i++) {
-                                        res[i].token = res[i].token.slice(0, 4) + '...' + res[i].token.slice(-4);
-                                        res[i].identifier = res[i].identifier.slice(0, 4) + '...' + res[i].identifier.slice(-4);
-                                    }
-
-                                    setProvisioningStatus(JSON.stringify(res));
-                                }}
-                            />
-                            {/* <ItemButton
-                                title={'Get RequireAuth'}
-                                onPress={async () => {
-                                    let res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
-                                    setProvisioningStatus(JSON.stringify({ requiresAuthentication: res }));
-                                }}
-                            />
-                            <ItemButton
-                                title={'Toggle RequireAuth'}
-                                onPress={async () => {
-                                    let res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
-                                    await WalletService.setShouldRequireAuthenticationForAppleWallet(!res);
-                                    res = await WalletService.getShouldRequireAuthenticationForAppleWallet();
-
-                                    setProvisioningStatus(JSON.stringify({ requiresAuthentication: res }));
-                                }}
-                            /> */}
-
-                            <ItemButton
-                                title={'Check extension steps'}
-                                onPress={async () => {
-                                    let res = await WalletService.getExtensionData("WNonUIExtHandler");
-                                    setProvisioningStatus(JSON.stringify(res));
-                                }}
-                            />
-                            {!!provisioningStatus && (
-                                <>
-                                    <ItemDivider marginVertical={0} />
-                                    <Text style={[
-                                        Typography.semiBold24_30,
-                                        { color: theme.textPrimary, marginLeft: 16, marginTop: 16 }
-                                    ]}>
-                                        {'Last check result:'}
-                                    </Text>
-                                    <Text style={[
-                                        Typography.regular15_20,
-                                        {
-                                            color: theme.textPrimary,
-                                            padding: 16,
-                                            flexWrap: 'wrap',
-                                            flexShrink: 1,
-                                        }
-                                    ]}>
-                                        {formattedStatusString}
-                                    </Text>
-                                </>
-                            )}
                         </View>
                     </View>
                 </ScrollView>

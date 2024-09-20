@@ -22,11 +22,13 @@ import { useNetwork } from '../../engine/hooks';
 import { useEffect, useState } from 'react';
 import { useOldWalletsBalances } from '../../engine/hooks';
 import { useClient4 } from '../../engine/hooks';
-import { WalletContractV1R1, WalletContractV1R2, WalletContractV1R3, WalletContractV2R1, WalletContractV2R2, WalletContractV3R1, WalletContractV3R2 } from '@ton/ton';
+import { WalletContractV1R1, WalletContractV1R2, WalletContractV1R3, WalletContractV2R1, WalletContractV2R2, WalletContractV3R1, WalletContractV3R2, WalletContractV4 } from '@ton/ton';
 import { getLastBlock } from '../../engine/accountWatcher';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { StatusBar } from 'expo-status-bar';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
+import { WalletVersions } from '../../engine/types';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -42,6 +44,7 @@ const MigrationProcessFragment = fragment(() => {
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const [status, setStatus] = useState<string>(t('migrate.inProgress'));
+    const walletVersion = useWalletVersion();
 
     useEffect(() => {
         let ended = false;
@@ -56,7 +59,7 @@ const MigrationProcessFragment = fragment(() => {
                 navigation.goBack();
                 return;
             }
-            let targetContract = await contractFromPublicKey(key.keyPair.publicKey);
+            let targetContract = await contractFromPublicKey(key.keyPair.publicKey, walletVersion, isTestnet);
 
             // Check possible addresses
             const legacyContracts = [
@@ -67,8 +70,12 @@ const MigrationProcessFragment = fragment(() => {
                 WalletContractV2R2.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
                 WalletContractV3R1.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
                 WalletContractV3R2.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
-                // TODO: add v4, when next version will be implemented
             ];
+            
+            if (walletVersion === WalletVersions.v5R1) {
+                legacyContracts.push(WalletContractV4.create({ workchain: 0, publicKey: key.keyPair.publicKey }));
+                // TODO: add v5, when next version will be implemented
+            }
 
             for (let contract of legacyContracts) {
                 if (ended) {

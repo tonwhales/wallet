@@ -21,7 +21,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonContent, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
@@ -33,12 +33,16 @@ import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
 import { AddressInputState, TransferAddressInput } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
-import { StatusBar } from 'expo-status-bar';
+import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TransferHeader } from '../../components/transfer/TransferHeader';
 import { JettonIcon } from '../../components/products/JettonIcon';
 import { AnimTextInputRef } from '../../components/address/AddressDomainInput';
 import { Typography } from '../../components/styles';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
+import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
+import { WalletVersions } from '../../engine/types';
+import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -74,6 +78,8 @@ export const SimpleTransferFragment = fragment(() => {
     const acc = useSelectedAccount();
     const client = useClient4(network.isTestnet);
     const [price, currency] = usePrice();
+    const gaslessConfig = useGaslessConfig();
+    const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
 
     // Ledger
     const ledgerContext = useLedgerTransport();
@@ -115,6 +121,9 @@ export const SimpleTransferFragment = fragment(() => {
 
     const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
     const jetton = useJettonContent(jettonWallet?.master ?? null);
+    const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons.map((j) => {
+        return Address.parse(j.master_id);
+    }).some((j) => jettonWallet?.master && j.equals(Address.parse(jettonWallet.master)));
     const symbol = jetton ? jetton.symbol : 'TON'
 
     const targetAddressValid = useMemo(() => {
@@ -190,7 +199,7 @@ export const SimpleTransferFragment = fragment(() => {
         );
     }, [price, currency, estimation]);
 
-    const { isSCAM, verified: isVerified } = useVerifyJetton({
+    const { isSCAM } = useVerifyJetton({
         ticker: jettonState?.master?.symbol,
         master: jettonState?.wallet?.master
     });
@@ -336,6 +345,8 @@ export const SimpleTransferFragment = fragment(() => {
 
     }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known]);
 
+    const walletVersion = useWalletVersion();
+
     // Estimate fee
     const config = useConfig();
     const lock = useMemo(() => new AsyncLock(), []);
@@ -430,23 +441,29 @@ export const SimpleTransferFragment = fragment(() => {
 
                 // Load contract
                 const pubKey = ledgerContext.addr?.publicKey ?? currentAcc.publicKey;
-                const contract = await contractFromPublicKey(pubKey);
+                const contract = await contractFromPublicKey(pubKey, walletVersion, network.isTestnet);
+                const isV5 = walletVersion === WalletVersions.v5R1;
 
-                // Create transfer
-                let transfer = contract.createTransfer({
+                const transferParams = {
                     seqno: seqno,
                     secretKey: Buffer.alloc(64),
                     sendMode,
                     messages: [intMessage],
-                });
+                };
 
+                // Create transfer
+                const transfer = isV5
+                    ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                    : (contract as WalletContractV4).createTransfer(transferParams);
 
                 if (ended) {
                     return;
                 }
 
+                const supportsGaslessTransfer = hasGaslessTransfer && isV5;
+
                 // Resolve fee
-                if (config && accountLite) {
+                if (config && accountLite && !supportsGaslessTransfer) {
                     const externalMessage = external({
                         to: contract.address,
                         body: transfer,
@@ -462,13 +479,16 @@ export const SimpleTransferFragment = fragment(() => {
                     let local = estimateFees(config, inMsg.endCell(), [outMsg.endCell()], storageStats);
                     setEstimation(local);
                     estimationRef.current = local;
+                } else {
+                    setEstimation(null);
+                    estimationRef.current = null;
                 }
             });
         });
         return () => {
             ended = true;
         }
-    }, [order, accountLite, client, config, commentString, ledgerAddress]);
+    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion, hasGaslessTransfer]);
 
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
@@ -589,7 +609,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Load contract
-        const contract = await contractFromPublicKey(acc!.publicKey);
+        const contract = await contractFromPublicKey(acc!.publicKey, walletVersion, network.isTestnet);
 
         // Check if transfering to yourself
         if (isLedger && !ledgerAddress) {
@@ -623,6 +643,7 @@ export const SimpleTransferFragment = fragment(() => {
             );
             return;
         }
+
         if (validAmount === 0n) {
             if (!!jettonState) {
                 Alert.alert(t('transfer.error.zeroCoins'));
@@ -667,7 +688,7 @@ export const SimpleTransferFragment = fragment(() => {
             job: params && params.job ? params.job : null,
             callback,
             back: params && params.back ? params.back + 1 : undefined
-        })
+        });
     }, [
         amount, target, domain, commentString,
         accountLite,
@@ -808,6 +829,14 @@ export const SimpleTransferFragment = fragment(() => {
     useEffect(() => {
         scrollRef.current?.scrollTo({ y: 0 });
     }, [selectedInput]);
+
+    useFocusEffect(() => {
+        setStatusBarStyle(Platform.select({
+            android: theme.style === 'dark' ? 'light' : 'dark',
+            ios: 'light',
+            default: 'auto'
+        }));
+    });
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -1092,59 +1121,55 @@ export const SimpleTransferFragment = fragment(() => {
                         ))}
                     </Animated.View>
                 </View>
-                <View style={{ marginTop: 16 }}>
-                    <Animated.View
-                        layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
-                        style={[
-                            seletectInputStyles.fees,
-                            { flex: 1 }
-                        ]}
-                    >
-                        <View style={{
-                            backgroundColor: theme.surfaceOnElevation,
-                            padding: 20, borderRadius: 20,
-                            flexDirection: 'row',
-                            justifyContent: 'space-between', alignItems: 'center',
-                        }}>
-                            <View>
-                                <Text
-                                    style={{
-                                        color: theme.textSecondary,
-                                        fontSize: 13, lineHeight: 18, fontWeight: '400',
-                                        marginBottom: 2
-                                    }}>
-                                    {t('txPreview.blockchainFee')}
-                                </Text>
-                                <Text style={{
-                                    color: theme.textPrimary,
-                                    fontSize: 17, lineHeight: 24, fontWeight: '400'
-                                }}>
-                                    {estimation
-                                        ? <>
-                                            {`${formatAmount(fromNano(estimation))} TON`}
-                                        </>
-                                        : '...'
-                                    }
-                                    {!!estimationPrise && (
-                                        <Text style={{
+                {!!estimation && (
+                    <View style={{ marginTop: 16 }}>
+                        <Animated.View
+                            layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                            style={[
+                                seletectInputStyles.fees,
+                                { flex: 1 }
+                            ]}
+                        >
+                            <View style={{
+                                backgroundColor: theme.surfaceOnElevation,
+                                padding: 20, borderRadius: 20,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between', alignItems: 'center',
+                            }}>
+                                <View>
+                                    <Text
+                                        style={{
                                             color: theme.textSecondary,
-                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                            fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                            marginBottom: 2
                                         }}>
-                                            {` (${estimationPrise})`}
-                                        </Text>
+                                        {t('txPreview.blockchainFee')}
+                                    </Text>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                        {estimation
+                                            ? <>
+                                                {`${formatAmount(fromNano(estimation))} TON`}
+                                            </>
+                                            : '...'
+                                        }
+                                        {!!estimationPrise && (
+                                            <Text style={[{ color: theme.textSecondary }, Typography.regular17_24]}>
+                                                {` (${estimationPrise})`}
+                                            </Text>
 
-                                    )}
-                                </Text>
+                                        )}
+                                    </Text>
+                                </View>
+                                <AboutIconButton
+                                    title={t('txPreview.blockchainFee')}
+                                    description={t('txPreview.blockchainFeeDescription')}
+                                    style={{ height: 24, width: 24, position: undefined }}
+                                    size={24}
+                                />
                             </View>
-                            <AboutIconButton
-                                title={t('txPreview.blockchainFee')}
-                                description={t('txPreview.blockchainFeeDescription')}
-                                style={{ height: 24, width: 24, position: undefined }}
-                                size={24}
-                            />
-                        </View>
-                    </Animated.View>
-                </View>
+                        </Animated.View>
+                    </View>
+                )}
                 <View style={{ height: 56 }} />
             </ScrollView>
             <KeyboardAvoidingView
@@ -1165,7 +1190,8 @@ export const SimpleTransferFragment = fragment(() => {
                         onPress={onNext ? onNext : undefined}
                     />
                     : <RoundButton
-                        disabled={!order}
+                        disabled={!order || gaslessConfigLoading}
+                        loading={gaslessConfigLoading}
                         title={t('common.continue')}
                         action={doSend}
                     />

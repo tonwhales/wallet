@@ -23,6 +23,9 @@ import { beginCell, internal, storeMessage, external, Address, SendMode, toNano 
 import { getLastBlock } from "../engine/accountWatcher";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 import { StatusBar } from "expo-status-bar";
+import { useWalletVersion } from "../engine/hooks/useWalletVersion";
+import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
+import { useSpecialJetton } from "../engine/hooks/jettons/useSpecialJetton";
 
 import IcDelete from '@assets/ic-delete-red.svg';
 import IcCheckAddress from '@assets/ic-check-recipient.svg';
@@ -43,6 +46,9 @@ export const DeleteAccountFragment = fragment(() => {
     const authContext = useKeysAuth();
     const selected = useSelectedAccount();
     const account = useAccountLite(selected?.address);
+    const walletVersion = useWalletVersion();
+    const specialJetton = useSpecialJetton(selected?.address);
+    const specialJettonBalance = specialJetton?.balance ?? 0n;
 
     const onAccountDeleted = useDeleteCurrentAccount();
 
@@ -83,13 +89,21 @@ export const DeleteAccountFragment = fragment(() => {
                     setStatus(undefined);
                     return;
                 }
-            } catch (error) {
+            } catch {
                 Alert.alert(t('deleteAccount.error.fetchingNfts'));
                 ended = true;
                 setStatus(undefined);
                 return;
             }
 
+
+            // Check for USDT jetton balance
+            if (specialJettonBalance > BigInt(0)) {
+                Alert.alert(t('deleteAccount.error.hasUSDTBalanceTitle'), t('deleteAccount.error.hasUSDTBalanceMessage'));
+                ended = true;
+                setStatus(undefined);
+                return;
+            }
 
             let targetAddress: {
                 isBounceable: boolean;
@@ -155,7 +169,8 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has at least 0.1 TON 
             if (account && account.balance || BigInt(0) > toNano('0.1')) {
-                const contract = await contractFromPublicKey(selected!.publicKey);
+                const contract = await contractFromPublicKey(selected!.publicKey, walletVersion, network.isTestnet);
+                const isV5 = walletVersion === 'v5R1';
 
                 // Check if same address
                 if (target.address.equals(contract.address)) {
@@ -167,7 +182,7 @@ export const DeleteAccountFragment = fragment(() => {
                 let seqno = await fetchSeqno(client, await getLastBlock(), selected!.address);
 
                 // Create transfer all & dstr transfer
-                let transfer = contract.createTransfer({
+                const transferParams = {
                     seqno: seqno,
                     secretKey: key.keyPair.secretKey,
                     sendMode: SendMode.CARRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
@@ -176,7 +191,11 @@ export const DeleteAccountFragment = fragment(() => {
                         value: 0n,
                         bounce: false,
                     })]
-                });
+                }
+
+                const transfer = isV5
+                    ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                    : (contract as WalletContractV4).createTransfer(transferParams);
 
                 // Create external message
                 let extMessage = external({

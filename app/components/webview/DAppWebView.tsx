@@ -22,7 +22,7 @@ import DeviceInfo from 'react-native-device-info';
 import { processEmitterMessage } from "./utils/processEmitterMessage";
 import { getLastAuthTimestamp, useKeysAuth } from "../secure/AuthWalletKeys";
 import { getLockAppWithAuthState } from "../../engine/state/lockAppWithAuthState";
-import WalletService, { addCardRequestSchema } from "../../modules/WalletService";
+import { WalletService, addCardRequestSchema } from "../../modules/WalletService";
 import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../storage/appState";
 import { WebViewSourceUri } from "react-native-webview/lib/WebViewTypes";
@@ -212,10 +212,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
             // Wallet API
             if (props.useWalletAPI && parsed.data.name.startsWith('wallet.')) {
-                if (Platform.OS !== 'ios') {
-                    warn('Wallet API is only available on iOS');
-                    return;
-                }
                 const method = parsed.data.name.split('.')[1] as 'isEnabled' | 'checkIfCardIsAlreadyAdded' | 'canAddCard' | 'addCardToWallet';
 
                 switch (method) {

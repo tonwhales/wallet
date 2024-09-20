@@ -4,7 +4,7 @@ import { contractFromPublicKey } from "../contractFromPublicKey";
 import { keyPairFromSeed } from "@ton/crypto";
 import { DomainSubkey } from "../state/domainKeys";
 
-export function createDomainSignature(domain: string, domainKey: DomainSubkey) {
+export function createDomainSignature(domain: string, domainKey: DomainSubkey, isTestnet: boolean) {
     if (!domainKey) {
         throw new Error('Domain key not found');
     }
@@ -12,7 +12,7 @@ export function createDomainSignature(domain: string, domainKey: DomainSubkey) {
     const subkey = keyPairFromSeed(domainKey.secret);
 
     const currentAccount = getCurrentAddress();
-    const contract = contractFromPublicKey(currentAccount.publicKey);
+    const contract = contractFromPublicKey(currentAccount.publicKey, currentAccount.version, isTestnet);
     const time = Math.floor((Date.now() / 1000));
     const toSign = beginCell()
         .storeCoins(1)

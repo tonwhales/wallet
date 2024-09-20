@@ -9,6 +9,7 @@ import { Address } from "@ton/core";
 import { t } from "../../i18n/t";
 import { useNavigationState } from "@react-navigation/native";
 import { KnownWallets } from "../../secure/KnownWallets";
+import { WalletVersions } from "../../engine/types";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -17,7 +18,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
     const navigation = useTypedNavigation();
     const prevScreen = useNavigationState((state) => state.routes[state.index - 1]?.name);
     const { isTestnet } = useNetwork();
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const knownWallets = KnownWallets(isTestnet);
 
     const isPrevScreenLedger = prevScreen?.startsWith('Ledger') ?? false;
@@ -25,13 +26,18 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
     const appState = useAppState();
 
     const ledgerContext = useLedgerTransport();
+
     const connectedLedgerAddress = useMemo(() => {
         if (!ledgerContext?.tonTransport || !ledgerContext.addr?.address) {
             return null;
         }
         try {
             const parsed = Address.parse(ledgerContext.addr.address);
-            return parsed.toString({ bounceable: bounceableFormat, testOnly: isTestnet });
+
+            return parsed.toString({
+                bounceable: bounceableFormat,
+                testOnly: isTestnet
+            });
         } catch {
             return null;
         }
@@ -67,6 +73,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                         selected={index === appState.selected && !isPrevScreenLedger}
                         onSelect={onSelect}
                         bounceableFormat={bounceableFormat}
+                        isW5={wallet.version === WalletVersions.v5R1}
                         isTestnet={isTestnet}
                         knownWallets={knownWallets}
                     />

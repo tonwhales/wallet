@@ -39,6 +39,8 @@ import { ToastDuration, useToaster } from "../../../components/toast/ToastProvid
 import { copyText } from "../../../utils/copyText";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import Minimizer from "../../../modules/Minimizer";
+import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
+import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
@@ -222,12 +224,15 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         }
     }, []);
 
+    const walletVersion = useWalletVersion();
+
 
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
-        const contract = await contractFromPublicKey(acc.publicKey);
+        const contract = await contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
+        const isV5 = walletVersion === 'v5R1';
 
         if (!selected) {
             return;
@@ -340,13 +345,16 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         // Create transfer
         let transfer: Cell;
         try {
-            transfer = contract.createTransfer({
+            const transferParams = {
                 seqno: seqno,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages,
-            });
-        } catch (e) {
+            }
+            transfer = isV5
+                ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                : (contract as WalletContractV4).createTransfer(transferParams);
+        } catch {
             warn('Failed to create transfer');
             return;
         }

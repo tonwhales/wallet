@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Linking } from "react-native";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
@@ -8,7 +8,7 @@ import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
-import { backoff } from "../../../utils/time";
+import { backoff, backoffFailaible } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
@@ -24,6 +24,10 @@ import { ConfirmLoadedPropsSingle } from "../TransferFragment";
 import { PendingTransactionBody } from "../../../engine/state/pending";
 import Minimizer from "../../../modules/Minimizer";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
+import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
+import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
+import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
+import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -34,9 +38,11 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const account = useAccountLite(selected!.address);
     const commitCommand = useCommitCommand();
     const registerPending = useRegisterPending();
-    const [walletSettings,] = useWalletSettings(selected?.address);
 
-    let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback } = props;
+    let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback, onSetUseGasless, useGasless } = props;
+
+    const [walletSettings] = useWalletSettings(selected?.address);
+    const [failed, setFailed] = useState(false);
 
     const jetton = useJetton({ owner: selected!.address, master: metadata?.jettonWallet?.master, wallet: metadata?.jettonWallet?.address }, true);
 
@@ -124,12 +130,59 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
     const isSpam = useDenyAddress(friendlyTarget);
     const spam = useIsSpamWallet(friendlyTarget) || isSpam
+    const walletVersion = useWalletVersion();
+
+    const closedRef = useRef(false);
+    const goBack = useCallback(() => {
+        if (!closedRef.current) {
+            closedRef.current = true;
+            navigation.goBack();
+        }
+    }, []);
+
+    const onGaslessSendFailed = useCallback((reason?: GaslessSendError | string) => {
+        setFailed(true);
+
+        let message;
+        let actions = [{ text: t('common.back'), onPress: goBack }];
+        let title = t('transfer.error.gaslessFailed');
+
+        switch (reason) {
+            case GaslessSendError.TryLater:
+                message = t('transfer.error.gaslessTryLaterMessage');
+                break;
+            case GaslessSendError.NotEnough:
+                message = t('transfer.error.gaslessNotEnoughFundsMessage');
+                break;
+            case GaslessSendError.Cooldown:
+                title = t('transfer.error.gaslessCooldownTitle');
+                message = t('transfer.error.gaslessCooldown');
+                actions = [{ text: t('transfer.error.gaslessCooldownWait'), onPress: goBack }];
+
+                if (!!onSetUseGasless) {
+                    actions.push({
+                        text: t('transfer.error.gaslessCooldownPayTon'), onPress: () => {
+                            onSetUseGasless?.(false);
+                            setFailed(false);
+                        }
+                    })
+                }
+
+                break;
+            default:
+                message = reason;
+                break;
+        }
+
+        Alert.alert(title, message, actions);
+    }, [onSetUseGasless]);
 
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
-        const contract = await contractFromPublicKey(acc.publicKey);
+        const contract = await contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
+        const isV5 = walletVersion === 'v5R1';
 
         // Check if transfering to yourself
         if (target.address.equals(contract.address)) {
@@ -152,10 +205,15 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         // Check amount
-        if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount) {
+        const isGasless = fees.type === 'gasless' && fees.params.ok;
+        if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount && !isGasless) {
+            Alert.alert(t('transfer.error.notEnoughCoins'));
+            return;
+        } else if (isGasless && (jetton?.balance || 0n) < fees.value) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
+
         if (!order.messages[0].amountAll && order.messages[0].amount === BigInt(0)) {
             let allowSeingZero = await new Promise((resolve) => {
                 Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
@@ -215,61 +273,119 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         let lastBlock = await getLastBlock();
         let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, lastBlock, selected!.address));
 
-        // Create transfer
-        let transfer: Cell;
-        try {
-            const internalStateInit = !!order.messages[0].stateInit
-                ? loadStateInit(order.messages[0].stateInit.asSlice())
-                : null;
+        // External message
+        let msg: Cell;
 
-            const body = !!order.messages[0].payload
-                ? order.messages[0].payload
-                : text ? comment(text) : null;
-
-            let intMessage = internal({
-                to: order.messages[0].target,
-                value: order.messages[0].amount,
-                init: internalStateInit,
-                bounce,
-                body,
-            });
-
-            transfer = contract.createTransfer({
-                seqno: seqno,
+        //
+        // Gasless transfer
+        //
+        if (isGasless) {
+            const tetherTransferForSend = (contract as WalletContractV5R1).createTransfer({
+                seqno,
+                authType: 'internal',
+                timeout: Math.ceil(Date.now() / 1000) + 5 * 60,
                 secretKey: walletKeys.keyPair.secretKey,
-                sendMode: order.messages[0].amountAll
-                    ? SendMode.CARRY_ALL_REMAINING_BALANCE
-                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
-                messages: [intMessage],
+                sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+                messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimateSuccess }).params.messages.map(message => {
+                    return internal({
+                        to: message.address,
+                        value: BigInt(message.amount),
+                        body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
+                        init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null,
+                    })
+                })
             });
-        } catch (e) {
-            warn('Failed to create transfer');
-            return;
-        }
 
-        // Create external message
-        const extMessage = external({
-            to: contract.address,
-            body: transfer,
-            init: seqno === 0 ? contract.init : undefined
-        });
+            msg = beginCell()
+                .storeWritable(
+                    storeMessage(
+                        external({
+                            to: contract.address,
+                            init: seqno === 0 ? contract.init : undefined,
+                            body: tetherTransferForSend
+                        })
+                    )
+                )
+                .endCell();
 
-        let msg = beginCell().store(storeMessage(extMessage)).endCell();
-
-        // Sending transaction
-        await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
-
-        // Notify job
-        if (job) {
-            await commitCommand(true, job, transfer);
-        }
-
-        // Notify callback
-        if (callback) {
             try {
-                callback(true, transfer);
+                const gaslessTransferRes = await backoffFailaible('gasless', () => fetchGaslessSend({
+                    wallet_public_key: walletKeys.keyPair.publicKey.toString('hex'),
+                    boc: msg.toBoc({ idx: false }).toString('hex')
+                }, isTestnet));
+
+                if (!gaslessTransferRes.ok) {
+                    onGaslessSendFailed(gaslessTransferRes.error);
+                    return;
+                }
+            } catch (error) {
+                onGaslessSendFailed((error as Error)?.message);
+                return;
+            }
+
+
+        } else {
+            // Create transfer
+            let transfer: Cell;
+            try {
+                const internalStateInit = !!order.messages[0].stateInit
+                    ? loadStateInit(order.messages[0].stateInit.asSlice())
+                    : null;
+
+                const body = !!order.messages[0].payload
+                    ? order.messages[0].payload
+                    : text ? comment(text) : null;
+
+                let intMessage = internal({
+                    to: order.messages[0].target,
+                    value: order.messages[0].amount,
+                    init: internalStateInit,
+                    bounce,
+                    body
+                });
+
+                const transferParams = {
+                    seqno: seqno,
+                    secretKey: walletKeys.keyPair.secretKey,
+                    sendMode: order.messages[0].amountAll
+                        ? SendMode.CARRY_ALL_REMAINING_BALANCE
+                        : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                    messages: [intMessage],
+                }
+
+                transfer = isV5
+                    ? (contract as WalletContractV5R1).createTransfer(transferParams)
+                    : (contract as WalletContractV4).createTransfer(transferParams);
+
             } catch {
-                warn('Failed to execute callback');
+                warn('Failed to create transfer');
+                return;
+            }
+
+            // Create external message
+            const extMessage = external({
+                to: contract.address,
+                body: transfer,
+                init: seqno === 0 ? contract.init : undefined
+            });
+
+            msg = beginCell().store(storeMessage(extMessage)).endCell();
+
+            // Sending transaction
+            await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
+
+            // Notify job
+            if (job) {
+                await commitCommand(true, job, transfer);
+            }
+
+            // Notify callback
+            if (callback) {
+                try {
+                    callback(true, transfer);
+                } catch {
+                    warn('Failed to execute callback');
+                }
             }
         }
 
@@ -337,7 +453,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         } else {
             navigation.popToTop();
         }
-    }, [registerPending, jettonAmountString, jetton]);
+    }, [registerPending, jettonAmountString, jetton, fees]);
 
     return (
         <TransferSingleView
@@ -356,6 +472,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             isSpam={spam}
             isWithStateInit={!!order.messages[0].stateInit}
             contact={contact}
+            failed={failed}
+            isGasless={fees.type === 'gasless' && fees.params.ok}
         />
     );
 });

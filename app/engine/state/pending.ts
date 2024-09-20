@@ -1,6 +1,7 @@
 import { atomFamily } from "recoil";
 import { Address, Cell } from "@ton/core";
 import { Jetton } from "../types";
+import { TransferEstimate } from "../../fragments/secure/TransferFragment";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell, stateInit?: Cell | null }
@@ -19,7 +20,7 @@ export type PendingTransactionStatus = 'pending' | 'sent' | 'timed-out';
 
 export type PendingTransaction = {
     id: string,
-    fees: bigint,
+    fees: TransferEstimate | bigint,
     amount: bigint,
     address: Address | null,
     bounceable?: boolean,

@@ -25,6 +25,7 @@ import { createDomainSignature } from '../../../engine/utils/createDomainSignatu
 import { DomainSubkey, getDomainKey } from '../../../engine/state/domainKeys';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
 
 export const AppComponent = memo((props: {
     endpoint: string,
@@ -110,9 +111,11 @@ export const AppComponent = memo((props: {
     // Injection
     //
 
+    const walletVersion = useWalletVersion();
+
     const injectSource = useMemo(() => {
         const currentAccount = getCurrentAddress();
-        const contract = contractFromPublicKey(currentAccount.publicKey);
+        const contract = contractFromPublicKey(currentAccount.publicKey, walletVersion, isTestnet);
         const config = walletConfigFromContract(contract);
 
         const walletConfig = config.walletConfig;
@@ -122,7 +125,7 @@ export const AppComponent = memo((props: {
             return '';
         }
 
-        let domainSign = createDomainSignature(domain, domainKey);
+        let domainSign = createDomainSignature(domain, domainKey, isTestnet);
 
         return createInjectSource({
             config: {

@@ -26,6 +26,7 @@ import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvi
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
+import { W5Banner } from "./W5Banner"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -100,6 +101,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 backgroundColor: theme.backgroundPrimary,
             }}>
                 <AddressFormatUpdate />
+                <W5Banner />
                 <DappsRequests />
                 <PendingTransactions />
 

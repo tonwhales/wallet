@@ -9,7 +9,7 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";
-import { useTheme } from "../engine/hooks";
+import { useAppState, useTheme, useWalletSettings } from "../engine/hooks";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 import { StatusBar } from "expo-status-bar";
 import { getAppState } from "../storage/appState";
@@ -30,6 +30,12 @@ export const LogoutFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const appState = useAppState();
+    const address = appState.addresses[appState.selected]?.address;
+    const [walletSettings] = useWalletSettings(address);
+
+    const accountName = walletSettings?.name || `${t('common.wallet')} ${appState.selected + 1}`;
+    const shortAccountName = accountName.length > 16 ? `${accountName.slice(0, 8)}...${accountName.slice(accountName.length - 6)}` : accountName;
 
     const { showActionSheetWithOptions } = useActionSheet();
     const onAccountDeleted = useDeleteCurrentAccount();
@@ -150,7 +156,7 @@ export const LogoutFragment = fragment(() => {
                 <View style={{ flexGrow: 1 }} />
                 <View style={{ marginBottom: 16 }}>
                     <RoundButton
-                        title={t('common.logout')}
+                        title={t('common.logoutFrom', { name: shortAccountName })}
                         onPress={showLogoutActSheet}
                         display={'default'}
                         style={{ marginBottom: 16 }}

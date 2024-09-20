@@ -852,6 +852,9 @@ export const SimpleTransferFragment = fragment(() => {
         }));
     });
 
+    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading;
+    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
@@ -1190,8 +1193,8 @@ export const SimpleTransferFragment = fragment(() => {
                         onPress={onNext ? onNext : undefined}
                     />
                     : <RoundButton
-                        disabled={!order || gaslessConfigLoading || isJettonPayloadLoading}
-                        loading={isJettonPayloadLoading || gaslessConfigLoading}
+                        disabled={continueDisabled}
+                        loading={continueLoading}
                         title={t('common.continue')}
                         action={doSend}
                     />

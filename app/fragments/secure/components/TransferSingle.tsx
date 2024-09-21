@@ -38,12 +38,17 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const account = useAccountLite(selected!.address);
     const commitCommand = useCommitCommand();
     const registerPending = useRegisterPending();
+
+    let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback, onSetUseGasless, useGasless } = props;
+
     const [walletSettings] = useWalletSettings(selected?.address);
     const [failed, setFailed] = useState(false);
 
-    let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback } = props;
-
-    const jetton = useJetton({ owner: selected!.address, master: metadata?.jettonWallet?.master, wallet: metadata?.jettonWallet?.address }, true);
+    const jetton = useJetton({
+        owner: selected!.address,
+        master: metadata?.jettonWallet?.master,
+        wallet: metadata?.jettonWallet?.address
+    }, true);
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
@@ -139,8 +144,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
     }, []);
 
-    const [isGasless, setIsGasless] = useState(fees.type === 'gasless' && fees.params.ok);
-
     const onGaslessSendFailed = useCallback((reason?: GaslessSendError | string) => {
         setFailed(true);
 
@@ -158,15 +161,16 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             case GaslessSendError.Cooldown:
                 title = t('transfer.error.gaslessCooldownTitle');
                 message = t('transfer.error.gaslessCooldown');
-                actions = [
-                    { text: t('transfer.error.gaslessCooldownWait'), onPress: goBack },
-                    {
+                actions = [{ text: t('transfer.error.gaslessCooldownWait'), onPress: goBack }];
+
+                if (!!onSetUseGasless) {
+                    actions.push({
                         text: t('transfer.error.gaslessCooldownPayTon'), onPress: () => {
-                            setIsGasless(false);
+                            onSetUseGasless?.(false);
                             setFailed(false);
                         }
-                    },
-                ];
+                    })
+                }
 
                 break;
             default:
@@ -175,7 +179,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         Alert.alert(title, message, actions);
-    }, []);
+    }, [onSetUseGasless]);
 
     // Confirmation
     const doSend = useCallback(async () => {
@@ -205,6 +209,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         // Check amount
+        const isGasless = fees.type === 'gasless' && fees.params.ok;
         if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount && !isGasless) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
@@ -452,7 +457,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         } else {
             navigation.popToTop();
         }
-    }, [registerPending, jettonAmountString, jetton, fees, isGasless]);
+    }, [registerPending, jettonAmountString, jetton, fees]);
 
     return (
         <TransferSingleView
@@ -472,7 +477,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             isWithStateInit={!!order.messages[0].stateInit}
             contact={contact}
             failed={failed}
-            isGasless={isGasless}
+            isGasless={fees.type === 'gasless' && fees.params.ok}
         />
     );
 });

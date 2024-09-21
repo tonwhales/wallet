@@ -34,6 +34,7 @@ export const Queries = {
     AppVersionsConfig: (network: 'testnet' | 'mainnet') => ['appVersionsConfig', network],
 
     Hints: (address: string) => (['hints', address]),
+    Mintless: (address: string) => (['mintless', address]),
     Cloud: (address: string) => ({
         Key: (key: string) => ['cloud', address, key]
     }),
@@ -42,6 +43,7 @@ export const Queries = {
         Address: (address: string) => ({
             AllWallets: () => ['jettons', 'address', address, 'master'],
             Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
+            WalletPayload: (walletAddress: string) => ['jettons', 'address', address, 'wallet', walletAddress, 'payload'],
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
         Known: () => ['jettons', 'known'],

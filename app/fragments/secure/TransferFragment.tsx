@@ -42,6 +42,7 @@ import { Queries } from '../../engine/queries';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { toBnWithDecimals } from '../../utils/withDecimals';
 import { updateTargetAmount } from '../../utils/gasless/updateTargetAmount';
+import { MintlessJetton } from '../../engine/api/fetchMintlessHints';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
@@ -101,8 +102,10 @@ export type ConfirmLoadedPropsSingle = {
     fees: TransferEstimate,
     metadata: ContractMetadata,
     restricted: boolean,
-    callback: ((ok: boolean, result: Cell | null) => void) | null
-    back?: number
+    callback: ((ok: boolean, result: Cell | null) => void) | null,
+    back?: number,
+    useGasless: boolean,
+    onSetUseGasless?: (useGasless: boolean) => void
 }
 
 export type ConfirmLoadedPropsBatch = {
@@ -173,6 +176,8 @@ export const TransferFragment = fragment(() => {
     const job = useMemo(() => params.job, []);
     const callback = useMemo(() => params.callback, []);
 
+    const [useGasless, setUseGasless] = useState(true);
+
     const handleReturnStrategy = useCallback((returnStrategy: string) => {
         if (returnStrategy === 'back') {
             Minimizer.goBack();
@@ -210,6 +215,7 @@ export const TransferFragment = fragment(() => {
         });
 
         return () => {
+            finished.current = true;
             backHandler.remove();
 
             if (params && params.job) {
@@ -248,6 +254,11 @@ export const TransferFragment = fragment(() => {
 
     }, []);
 
+    const onSetUseGasless = useCallback((useGasless: boolean) => {
+        finished.current = false;
+        setUseGasless(useGasless);
+    }, []);
+
     useEffect(() => {
         // Await data
         if (!netConfig) {
@@ -259,6 +270,8 @@ export const TransferFragment = fragment(() => {
                 return;
             }
 
+            setLoadedProps(null);
+
             // Get contract
             const contract = contractFromPublicKey(from.publicKey, walletVersion, isTestnet);
             const isV5 = walletVersion === 'v5R1';
@@ -266,7 +279,7 @@ export const TransferFragment = fragment(() => {
 
             const emptySecret = Buffer.alloc(64);
 
-            let block = await backoff('txLoad-blc', () => client.getLastBlock());
+            const block = await backoff('txLoad-blc', () => client.getLastBlock());
 
             //
             // Single transfer
@@ -314,6 +327,21 @@ export const TransferFragment = fragment(() => {
                 let jettonTargetState: typeof state | null = null;
                 let jettonTarget: typeof target | null = null;
 
+                // check if its a mintless jetton 
+                const queryCache = queryClient.getQueryCache();
+                const address = selectedAccount!.address.toString({ testOnly: isTestnet }) || '';
+                const mintlessJettons = getQueryData<MintlessJetton[]>(queryCache, Queries.Mintless(address));
+                const mintlessJetton = mintlessJettons?.find(j => Address.parse(j.walletAddress.address).equals(target.address));
+
+                if (!!mintlessJetton) {
+                    metadata.jettonWallet = {
+                        balance: BigInt(mintlessJetton.balance),
+                        owner: selectedAccount!.address,
+                        master: Address.parse(mintlessJetton.jetton.address),
+                        address: target.address
+                    };
+                }
+
                 // Read jetton master
                 if (metadata.jettonWallet) {
                     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
@@ -336,10 +364,12 @@ export const TransferFragment = fragment(() => {
                                         forwardPayload = sc.loadMaybeRef() ?? sc.asCell();
                                     }
 
+                                    const destination = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat }));
+
                                     jettonTransfer = {
                                         queryId,
                                         amount: jettonAmount,
-                                        destination: Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat })),
+                                        destination,
                                         responseDestination,
                                         customPayload,
                                         forwardTonAmount,
@@ -359,7 +389,7 @@ export const TransferFragment = fragment(() => {
                 }
 
                 if (jettonTarget) {
-                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, target.address));
+                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, jettonTarget.address));
                 }
 
                 if (order.domain) {
@@ -493,7 +523,7 @@ export const TransferFragment = fragment(() => {
                     } catch { }
                 }
 
-                if (!!jettonTransfer && isGaslessSupported) {
+                if (!!jettonTransfer && isGaslessSupported && useGasless) {
                     const masterContentKey = Queries.Jettons().MasterContent(master!.toString({ testOnly: isTestnet }));
                     const masterData = getQueryData<(JettonMasterState & { address: string }) | null>(queryClient.getQueryCache(), masterContentKey);
                     // default is 6 to account for USDT
@@ -612,7 +642,9 @@ export const TransferFragment = fragment(() => {
                     fees,
                     metadata,
                     callback: callback ? callback : null,
-                    back: params.back
+                    back: params.back,
+                    useGasless,
+                    onSetUseGasless
                 });
                 return;
             }
@@ -740,11 +772,7 @@ export const TransferFragment = fragment(() => {
                 totalAmount,
             });
         });
-
-        return () => {
-            finished.current = true;
-        };
-    }, [netConfig, selectedAccount, bounceableFormat, gaslessConfig.data, walletVersion]);
+    }, [netConfig, selectedAccount, bounceableFormat, gaslessConfig.data, walletVersion, useGasless]);
 
     return (
         <View style={{ flexGrow: 1 }}>

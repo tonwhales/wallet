@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, ScrollView, Text, View, Image } from "react-native";
+import { Platform, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
@@ -17,10 +17,9 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useJettonMaster, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useJettonMaster, useJettonWallet, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { TransactionDescription } from "../../engine/types";
-import { BigMath } from "../../utils/BigMath";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -55,9 +54,9 @@ const TransactionPreview = () => {
     const appState = useAppState();
     const addressBook = useAddressBookContext();
     const [price, currency] = usePrice();
-    const [spamMinAmount,] = useSpamMinAmount();
-    const [dontShowComments,] = useDontShowComments();
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [spamMinAmount] = useSpamMinAmount();
+    const [dontShowComments] = useDontShowComments();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const knownJettonMasters = useKnownJettons(isTestnet)?.masters ?? {};
 
     const isLedger = route.name === 'LedgerTransactionPreview';
@@ -93,7 +92,7 @@ const TransactionPreview = () => {
     }, [tx, isTestnet, bounceableFormat, isLedger]);
 
     const preparedMessages = usePeparedMessages(messages, isTestnet);
-    const [walletsSettings,] = useWalletsSettings();
+    const [walletsSettings] = useWalletsSettings();
     const ownWalletSettings = walletsSettings[opAddressBounceable];
     const opAddressWalletSettings = walletsSettings[opAddressBounceable];
 
@@ -120,7 +119,11 @@ const TransactionPreview = () => {
         );
     }, [price, currency, fees]);
 
-    const jetton = useJettonMaster(tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet }) ?? null);
+    const resolvedAddressString = tx.base.parsed.resolvedAddress;
+    const jetton = useJettonWallet(resolvedAddressString);
+    const metadataMaster = tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
+    const jettonMasterString = metadataMaster ?? jetton?.master ?? null;
+    const jettonMasterContent = useJettonMaster(jettonMasterString);
     const targetContract = useContractInfo(opAddress);
 
     let op: string;
@@ -246,10 +249,11 @@ const TransactionPreview = () => {
         });
     }, []);
 
+    const decimals = (item.kind === 'token' && jettonMasterContent) ? jettonMasterContent.decimals : undefined;
     const amountText = valueText({
         value: item.amount,
         precision: 9,
-        decimals: item.kind === 'token' && jetton ? jetton.decimals : undefined,
+        decimals
     });
 
     const amountColor = kind === 'in'
@@ -258,12 +262,13 @@ const TransactionPreview = () => {
             : theme.accentGreen
         : theme.textPrimary
 
-    const jettonMaster = tx.masterAddressStr ?? tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
-
-    const { isSCAM: isSCAMJetton, verified: verifiedJetton } = useVerifyJetton({
-        ticker: item.kind === 'token' ? jetton?.symbol : undefined,
-        master: jettonMaster
+    const { isSCAM: isSCAMJetton } = useVerifyJetton({
+        ticker: item.kind === 'token' ? jettonMasterContent?.symbol : undefined,
+        master: jettonMasterString
     });
+
+    const symbolString = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}` : '')
+    const singleAmountString = `${amountText[0]}${amountText[1]}${symbolString}`;
 
     return (
         <PerfView
@@ -439,11 +444,7 @@ const TransactionPreview = () => {
                                         numberOfLines={1}
                                         style={[{ color: amountColor }, Typography.semiBold27_32]}
                                     >
-                                        {
-                                            `${amountText[0]}${amountText[1]}${item.kind === 'ton'
-                                                ? ' TON'
-                                                : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`
-                                        }
+                                        {singleAmountString}
                                         {isSCAMJetton && (' • ')}
                                     </Text>
                                     {isSCAMJetton && (
@@ -514,7 +515,7 @@ const TransactionPreview = () => {
                                     <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                         {tx.base.fees
                                             ? <>
-                                                {`${formatAmount(fromNano(fees))}`}
+                                                {`${formatAmount(fromNano(fees))} TON`}
                                                 <PerfText style={{ color: theme.textSecondary }}>
                                                     {` ${feesPrise}`}
                                                 </PerfText>
@@ -591,7 +592,7 @@ const TransactionPreview = () => {
                                     <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                         {tx.base.fees
                                             ? <>
-                                                {`${formatAmount(fromNano(fees))}`}
+                                                {`${formatAmount(fromNano(fees))} TON`}
                                                 <PerfText style={{ color: theme.textSecondary }}>
                                                     {` ${feesPrise}`}
                                                 </PerfText>

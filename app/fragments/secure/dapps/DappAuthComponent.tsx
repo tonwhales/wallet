@@ -14,7 +14,7 @@ import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
 import { CheckBox } from "../../../components/CheckBox";
-import { useTheme, useAppState, useBounceableWalletFormat, useNetwork } from "../../../engine/hooks";
+import { useTheme, useAppState, useBounceableWalletFormat, useNetwork, useSetAppState } from "../../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -81,6 +81,7 @@ export const DappAuthComponent = memo(({
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const appState = useAppState();
+    const updateAppState = useSetAppState();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
@@ -109,6 +110,13 @@ export const DappAuthComponent = memo(({
     const doApprove = useCallback(async () => {
         setIsApproving(true);
         try {
+
+            const index = appState.addresses.findIndex((a) => a.address.equals(selectedAccount.address));
+
+            if (index < 0) {
+                return;
+            }
+            updateAppState({ ...appState, selected: index }, isTestnet);
             await onApprove(selectedAccount);
         } finally {
             setIsApproving(false);
@@ -379,7 +387,7 @@ export const DappAuthComponent = memo(({
                     </View>
                     <View style={{ flexDirection: 'row', width: '100%', gap: 16, marginBottom: 16 }}>
                         <RoundButton
-                            style={{  flex: 1 }}
+                            style={{ flex: 1 }}
                             display={'secondary'}
                             disabled={!onCancel || isApproving}
                             title={t('common.cancel')}

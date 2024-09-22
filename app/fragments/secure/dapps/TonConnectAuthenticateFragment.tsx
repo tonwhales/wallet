@@ -51,17 +51,17 @@ import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
 type SignState =
   | { type: 'loading' }
   | {
-      type: 'initing';
-      name: string;
-      url: string;
-      app: AppManifest;
-      protocolVersion: number;
-      request: ConnectRequest;
-      clientSessionId?: string;
-      returnStrategy?: ReturnStrategy;
-      domain: string;
-      manifestUrl: string;
-    }
+    type: 'initing';
+    name: string;
+    url: string;
+    app: AppManifest;
+    protocolVersion: number;
+    request: ConnectRequest;
+    clientSessionId?: string;
+    returnStrategy?: ReturnStrategy;
+    domain: string;
+    manifestUrl: string;
+  }
   | { type: 'failed'; returnStrategy?: ReturnStrategy };
 
 const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
@@ -418,19 +418,19 @@ export enum TonConnectAuthType {
 
 export type TonConnectAuthProps =
   | {
-      query: ConnectQrQuery;
-      type: TonConnectAuthType.Qr;
-    }
+    query: ConnectQrQuery;
+    type: TonConnectAuthType.Qr;
+  }
   | {
-      type: TonConnectAuthType.Callback;
-      protocolVersion: number;
-      request: ConnectRequest;
-      callback: (result: TonConnectAuthResult) => void;
-    }
+    type: TonConnectAuthType.Callback;
+    protocolVersion: number;
+    request: ConnectRequest;
+    callback: (result: TonConnectAuthResult) => void;
+  }
   | {
-      type: TonConnectAuthType.Link;
-      query: ConnectQrQuery;
-    };
+    type: TonConnectAuthType.Link;
+    query: ConnectQrQuery;
+  };
 
 export const TonConnectAuthenticateFragment = fragment(() => {
   const props = useParams<TonConnectAuthProps>();

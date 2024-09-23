@@ -459,6 +459,9 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
     }, [registerPending, jettonAmountString, jetton, fees]);
 
+    const isGasless = fees.type === 'gasless' && fees.params.ok;
+    const setUseGasless = isGasless ? onSetUseGasless : undefined;
+
     return (
         <TransferSingleView
             operation={operation}
@@ -477,8 +480,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             isWithStateInit={!!order.messages[0].stateInit}
             contact={contact}
             failed={failed}
-            isGasless={fees.type === 'gasless' && fees.params.ok}
-            onSetUseGasless={onSetUseGasless}
+            isGasless={isGasless}
+            onSetUseGasless={setUseGasless}
         />
     );
 });

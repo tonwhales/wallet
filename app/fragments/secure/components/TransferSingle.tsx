@@ -44,7 +44,11 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const [walletSettings] = useWalletSettings(selected?.address);
     const [failed, setFailed] = useState(false);
 
-    const jetton = useJetton({ owner: selected!.address, master: metadata?.jettonWallet?.master, wallet: metadata?.jettonWallet?.address }, true);
+    const jetton = useJetton({
+        owner: selected!.address,
+        master: metadata?.jettonWallet?.master,
+        wallet: metadata?.jettonWallet?.address
+    }, true);
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
@@ -474,6 +478,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             contact={contact}
             failed={failed}
             isGasless={fees.type === 'gasless' && fees.params.ok}
+            onSetUseGasless={onSetUseGasless}
         />
     );
 });

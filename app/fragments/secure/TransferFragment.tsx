@@ -42,6 +42,7 @@ import { Queries } from '../../engine/queries';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { toBnWithDecimals } from '../../utils/withDecimals';
 import { updateTargetAmount } from '../../utils/gasless/updateTargetAmount';
+import { MintlessJetton } from '../../engine/api/fetchMintlessHints';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
@@ -278,7 +279,7 @@ export const TransferFragment = fragment(() => {
 
             const emptySecret = Buffer.alloc(64);
 
-            let block = await backoff('txLoad-blc', () => client.getLastBlock());
+            const block = await backoff('txLoad-blc', () => client.getLastBlock());
 
             //
             // Single transfer
@@ -326,6 +327,21 @@ export const TransferFragment = fragment(() => {
                 let jettonTargetState: typeof state | null = null;
                 let jettonTarget: typeof target | null = null;
 
+                // check if its a mintless jetton 
+                const queryCache = queryClient.getQueryCache();
+                const address = selectedAccount!.address.toString({ testOnly: isTestnet }) || '';
+                const mintlessJettons = getQueryData<MintlessJetton[]>(queryCache, Queries.Mintless(address));
+                const mintlessJetton = mintlessJettons?.find(j => Address.parse(j.walletAddress.address).equals(target.address));
+
+                if (!!mintlessJetton) {
+                    metadata.jettonWallet = {
+                        balance: BigInt(mintlessJetton.balance),
+                        owner: selectedAccount!.address,
+                        master: Address.parse(mintlessJetton.jetton.address),
+                        address: target.address
+                    };
+                }
+
                 // Read jetton master
                 if (metadata.jettonWallet) {
                     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
@@ -348,10 +364,12 @@ export const TransferFragment = fragment(() => {
                                         forwardPayload = sc.loadMaybeRef() ?? sc.asCell();
                                     }
 
+                                    const destination = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat }));
+
                                     jettonTransfer = {
                                         queryId,
                                         amount: jettonAmount,
-                                        destination: Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat })),
+                                        destination,
                                         responseDestination,
                                         customPayload,
                                         forwardTonAmount,
@@ -371,7 +389,7 @@ export const TransferFragment = fragment(() => {
                 }
 
                 if (jettonTarget) {
-                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, target.address));
+                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, jettonTarget.address));
                 }
 
                 if (order.domain) {

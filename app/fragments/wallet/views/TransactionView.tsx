@@ -20,7 +20,7 @@ import { Typography } from '../../../components/styles';
 import { avatarHash } from '../../../utils/avatarHash';
 import { WalletSettings } from '../../../engine/state/walletSettings';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
-import { usePeparedMessages, useVerifyJetton } from '../../../engine/hooks';
+import { useJettonMaster, useJettonWallet, usePeparedMessages, useVerifyJetton } from '../../../engine/hooks';
 import { TxAvatar } from './TxAvatar';
 import { PreparedMessageView } from './PreparedMessageView';
 import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo';
@@ -181,16 +181,18 @@ export function TransactionView(props: {
         ? (spam ? theme.textPrimary : theme.accentGreen)
         : theme.textPrimary;
 
-    const jettonMaster = tx.masterAddressStr ?? tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
+    const resolvedAddressString = tx.base.parsed.resolvedAddress;
+    const jetton = useJettonWallet(resolvedAddressString);
+    const metadataMaster = tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
+    const jettonMasterString = tx.masterAddressStr ?? metadataMaster ?? jetton?.master ?? null;
+    const jettonMasterContent = useJettonMaster(jettonMasterString);
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
         ticker: item.kind === 'token' ? tx.masterMetadata?.symbol : undefined,
-        master: jettonMaster
+        master: jettonMasterString
     });
 
-    const symbolText = `${(item.kind === 'token')
-        ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}`
-        : ' TON'}${isSCAMJetton ? ' • ' : ''}`;
+    const symbolText = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}${isSCAMJetton ? ' • ' : ''}` : '')
 
     return (
         <Pressable

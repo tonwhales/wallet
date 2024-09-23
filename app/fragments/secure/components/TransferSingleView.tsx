@@ -33,6 +33,7 @@ import { ThemeType } from "../../../engine/state/theme";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
 import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
 import { TransferEstimate } from "../TransferFragment";
+import { ItemSwitch } from "../../../components/Item";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
@@ -109,7 +110,8 @@ export const TransferSingleView = memo(({
     isLedger,
     contact,
     failed,
-    isGasless
+    isGasless,
+    onSetUseGasless
 }: {
     operation: StoredOperation,
     order: Order | LedgerOrder,
@@ -135,7 +137,8 @@ export const TransferSingleView = memo(({
     isLedger?: boolean,
     contact?: AddressContact | null,
     failed: boolean,
-    isGasless?: boolean
+    isGasless?: boolean,
+    onSetUseGasless?: (useGasless: boolean) => void
 }) => {
     const toaster = useToaster();
     const navigation = useTypedNavigation();
@@ -384,18 +387,10 @@ export const TransferSingleView = memo(({
                             </View>
                         </View>
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{
-                                fontSize: 17, lineHeight: 24, fontWeight: '600',
-                                color: theme.textPrimary,
-                                marginTop: 8
-                            }}>
+                            <Text style={[{ color: theme.textPrimary, marginTop: 8 }, Typography.semiBold17_24]}>
                                 {t('common.send')}
                             </Text>
-                            <Text style={{
-                                fontSize: 17, lineHeight: 24, fontWeight: '400',
-                                color: theme.textPrimary,
-                                marginTop: 2
-                            }}>
+                            <Text style={[{ color: theme.textPrimary, marginTop: 2 }, Typography.regular17_24]}>
                                 <AddressComponent
                                     bounceable={target.bounceable}
                                     address={target.address}
@@ -452,21 +447,14 @@ export const TransferSingleView = memo(({
 
                     <ItemGroup style={{ marginBottom: 16, marginTop: holdersOp ? 16 : 0 }}>
                         <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                            <Text style={{
-                                fontSize: 13, lineHeight: 18, fontWeight: '400',
-                                color: theme.textSecondary,
-                            }}>
+                            <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
                                 {t('common.from')}
                             </Text>
                             <View style={{ alignItems: 'center', flexDirection: 'row', }}>
-                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                     {!!from.name && (
                                         <Text
-                                            style={{
-                                                fontSize: 17, lineHeight: 24, fontWeight: '400',
-                                                color: theme.textPrimary,
-                                                flexShrink: 1
-                                            }}
+                                            style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.regular17_24]}
                                             numberOfLines={1}
                                             ellipsizeMode={'tail'}
                                         >
@@ -500,10 +488,7 @@ export const TransferSingleView = memo(({
                             </Text>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Text
-                                    style={{
-                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
-                                        color: theme.textSecondary,
-                                    }}
+                                    style={[{ color: theme.textSecondary }, Typography.regular17_24]}
                                 >
                                     <Text style={{ color: theme.textPrimary }}>
                                         {to.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }).replaceAll('-', '\u2011')}
@@ -539,10 +524,7 @@ export const TransferSingleView = memo(({
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: theme.textSecondary,
-                                    }}>
+                                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                         {t('transfer.smartContract')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
@@ -583,10 +565,7 @@ export const TransferSingleView = memo(({
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: theme.textSecondary,
-                                    }}>
+                                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                         {t('transfer.smartContract')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
@@ -652,7 +631,15 @@ export const TransferSingleView = memo(({
                                             </Text>
                                         </View>
                                     </View>
-
+                                    {!!onSetUseGasless && (
+                                        <ItemSwitch
+                                            title={t('transfer.gaslessTransferSwitch', { symbol: jetton?.symbol })}
+                                            value={isGasless ?? false}
+                                            onChange={onSetUseGasless}
+                                            style={{ padding: 0, minHeight: 0, marginTop: 16 }}
+                                            titleStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                        />
+                                    )}
                                     {(amount > toNano('0.2') && !isGasless) && (
                                         <Pressable
                                             onPress={jettonsGasAlert}

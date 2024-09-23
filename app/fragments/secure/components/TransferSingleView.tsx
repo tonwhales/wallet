@@ -33,6 +33,7 @@ import { ThemeType } from "../../../engine/state/theme";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
 import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
 import { TransferEstimate } from "../TransferFragment";
+import { ItemSwitch } from "../../../components/Item";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
@@ -109,7 +110,8 @@ export const TransferSingleView = memo(({
     isLedger,
     contact,
     failed,
-    isGasless
+    isGasless,
+    onSetUseGasless
 }: {
     operation: StoredOperation,
     order: Order | LedgerOrder,
@@ -135,7 +137,8 @@ export const TransferSingleView = memo(({
     isLedger?: boolean,
     contact?: AddressContact | null,
     failed: boolean,
-    isGasless?: boolean
+    isGasless?: boolean,
+    onSetUseGasless?: (useGasless: boolean) => void
 }) => {
     const toaster = useToaster();
     const navigation = useTypedNavigation();
@@ -628,7 +631,15 @@ export const TransferSingleView = memo(({
                                             </Text>
                                         </View>
                                     </View>
-
+                                    {!!onSetUseGasless && (
+                                        <ItemSwitch
+                                            title={t('transfer.gaslessTransferSwitch', { symbol: jetton?.symbol })}
+                                            value={isGasless ?? false}
+                                            onChange={onSetUseGasless}
+                                            style={{ padding: 0, minHeight: 0, marginTop: 16 }}
+                                            titleStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                        />
+                                    )}
                                     {(amount > toNano('0.2') && !isGasless) && (
                                         <Pressable
                                             onPress={jettonsGasAlert}

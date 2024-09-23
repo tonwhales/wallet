@@ -478,6 +478,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             contact={contact}
             failed={failed}
             isGasless={fees.type === 'gasless' && fees.params.ok}
+            onSetUseGasless={onSetUseGasless}
         />
     );
 });

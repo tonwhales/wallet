@@ -43,7 +43,8 @@ export const ItemSwitch = memo((props: {
     onChange: (value: boolean) => void,
     leftIcon?: ImageSourcePropType,
     leftIconComponent?: any,
-    titleStyle?: StyleProp<TextStyle>
+    titleStyle?: StyleProp<TextStyle>,
+    style?: StyleProp<TextStyle>,
     disabled?: boolean,
 }) => {
     const theme = useTheme();
@@ -61,6 +62,7 @@ export const ItemSwitch = memo((props: {
                     minHeight: 72
                 },
                 Platform.select({ android: { opacity: props.disabled ? 0.8 : 1 } }),
+                props.style
             ]}
             disabled={props.disabled}
         >

@@ -233,7 +233,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         notEnoughJettonsTitle: 'Not enough jettons',
         notEnoughJettonsMessage: 'You are trying to send more jettons than you have',
         aboutFees: 'About fees',
-        aboutFeesDescription: 'The fees for transactions on the blockchain depend on several factors, such as network congestion, transaction size, gas price, and blockchain configuration parameters. The higher the demand for transaction processing on the blockchain or the larger the transaction size (message/comment), the higher the fees will be.'
+        aboutFeesDescription: 'The fees for transactions on the blockchain depend on several factors, such as network congestion, transaction size, gas price, and blockchain configuration parameters. The higher the demand for transaction processing on the blockchain or the larger the transaction size (message/comment), the higher the fees will be.',
+        gaslessTransferSwitch: 'Pay gas fee in {{symbol}}'
     },
     auth: {
         phoneVerify: 'Verify phone',

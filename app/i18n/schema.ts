@@ -236,6 +236,7 @@ export type LocalizationSchema = {
         notEnoughJettonsMessage: string,
         aboutFees: string,
         aboutFeesDescription: string,
+        gaslessTransferSwitch: string
     },
     auth: {
         phoneVerify: string,

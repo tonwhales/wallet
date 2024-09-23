@@ -1,10 +1,6 @@
 {
   "name": "wallet",
-<<<<<<< HEAD
-  "version": "2.3.16",
-=======
   "version": "2.3.15",
->>>>>>> master
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",

@@ -9,6 +9,7 @@ import { ThemeType } from "../../engine/state/theme";
 import { Typography } from "../styles";
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const MIN_COMMON_SCREEN_WIDTH = 402
 
 interface BrowserCategoryProps {
     category: ListingsCategory,
@@ -50,6 +51,13 @@ export const BrowserCategory = memo((props: BrowserCategoryProps) => {
         return columns;
     }, [category.listings]);
 
+    const snapToInterval = useMemo(() => {
+        if (SCREEN_WIDTH <= MIN_COMMON_SCREEN_WIDTH) {
+            return SCREEN_WIDTH - 64
+        }
+        return SCREEN_WIDTH - 44
+    }, [])
+
 
     return (
         <View style={styles.container}>
@@ -75,7 +83,7 @@ export const BrowserCategory = memo((props: BrowserCategoryProps) => {
                 horizontal
                 scrollEnabled={columns.length > 1}
                 showsHorizontalScrollIndicator={false}
-                snapToInterval={SCREEN_WIDTH - 64}
+                snapToInterval={snapToInterval}
                 decelerationRate={'fast'}
                 overScrollMode={'never'}
                 renderItem={({ item, index }) =>

@@ -8,6 +8,7 @@ import { Typography } from "../../../../components/styles";
 import { PerfView } from "../../../../components/basic/PerfView";
 import { AddressComponent } from "../../../../components/address/AddressComponent";
 import { KnownWallets } from "../../../../secure/KnownWallets";
+import { useWalletSettings } from "../../../../engine/hooks";
 
 type PreviewToProps = {
     to: {
@@ -34,6 +35,9 @@ export const PreviewTo = memo((props: PreviewToProps) => {
     const bounceable = bounceableFormat || parsedAddress.isBounceable;
     const parsedAddressFriendly = parsedAddress.address.toString({ testOnly, bounceable });
 
+
+    const [walletSettings] = useWalletSettings(parsedAddress.address);
+
     return (
         <Pressable
             onPress={() => onCopyAddress(parsedAddressFriendly)}
@@ -49,7 +53,7 @@ export const PreviewTo = memo((props: PreviewToProps) => {
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {to.name}
+                        {walletSettings.name}
                     </PerfText>
                 )}
                 <PerfText style={[{ color: theme.textSecondary }, Typography.regular17_24]}>

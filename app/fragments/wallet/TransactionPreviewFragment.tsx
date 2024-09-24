@@ -373,13 +373,6 @@ const TransactionPreview = () => {
                     {!!known?.name ? (
                         <PerfView style={{ flexDirection: 'row', gap: 6, marginTop: 2, paddingHorizontal: 16 }}>
                             <PerfText
-                                style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.regular17_24]}
-                                numberOfLines={1}
-                                ellipsizeMode="tail"
-                            >
-                                {known.name}
-                            </PerfText>
-                            <PerfText
                                 style={[{ color: theme.textSecondary }, Typography.regular17_24]}
                                 numberOfLines={1}
                                 ellipsizeMode="tail"

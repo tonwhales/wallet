@@ -276,13 +276,11 @@ export function TransactionView(props: {
                     >
                         {tx.base.outMessagesCount <= 1 && (
                             <>
-                                {known
-                                    ? known.name
-                                    : <AddressComponent
-                                        testOnly={isTestnet}
-                                        address={parsedOpAddr.address}
-                                        bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
-                                    />
+                                {<AddressComponent
+                                    testOnly={isTestnet}
+                                    address={parsedOpAddr.address}
+                                    bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
+                                />
                                 }
                                 {' • '}
                             </>

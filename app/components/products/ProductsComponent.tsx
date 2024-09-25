@@ -24,9 +24,13 @@ import { TonProductComponent } from "./TonProductComponent"
 import { SpecialJettonProduct } from "./SpecialJettonProduct"
 import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited"
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment"
+import { W5Banner } from "./W5Banner"
+import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck"
+import { HoldersBanner } from "./HoldersBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
-import { W5Banner } from "./W5Banner"
+
+type HoldersBanner = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -39,8 +43,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
-    const isHoldersInvited = useIsHoldersInvited(selected!.address, isTestnet);
-    const showHoldersBuiltInBanner = (holdersAccounts?.accounts?.length ?? 0) === 0 && isHoldersInvited;
+    const inviteCheck = useIsHoldersInvited(selected!.address, isTestnet);
+
+    const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
+    const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
+    const holdersBanner: HoldersBanner = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
+    const holderBannerContent = showHoldersBanner ? holdersBanner : null;
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersUserState.NeedEnrollment) {
@@ -105,7 +113,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 <DappsRequests />
                 <PendingTransactions />
 
-                {(!isHoldersInvited && !!banners?.product) && (
+                {(!inviteCheck && !!banners?.product) && (
                     <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
                         <ProductBanner
                             title={banners.product.title}
@@ -117,24 +125,57 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     </View>
                 )}
 
-                {showHoldersBuiltInBanner && (
-                    <View style={{
-                        paddingHorizontal: 16, marginBottom: 16,
-                        marginTop: (!isHoldersInvited && !!banners?.product) ? 0 : 16
-                    }}>
-                        <ProductBanner
-                            title={t('products.holders.card.defaultTitle')}
-                            subtitle={t('products.holders.card.defaultSubtitle')}
-                            onPress={onHoldersPress}
-                            illustration={require('@assets/banners/banner-holders.webp')}
-                            reverse
-                        />
-                    </View>
-                )}
+                {holderBannerContent && (holderBannerContent.type === 'built-in'
+                    ? (
+                        <View style={{
+                            paddingHorizontal: 16, marginBottom: 16,
+                            marginTop: (!inviteCheck && !!banners?.product) ? 0 : 16
+                        }}>
+                            <ProductBanner
+                                title={t('products.holders.card.defaultTitle')}
+                                subtitle={t('products.holders.card.defaultSubtitle')}
+                                onPress={onHoldersPress}
+                                illustration={require('@assets/banners/banner-holders.webp')}
+                                reverse
+                            />
+                        </View>
+                    ) : (
+                        <View style={{
+                            paddingHorizontal: 16, marginBottom: 16,
+                            marginTop: (!inviteCheck && !!banners?.product) ? 0 : 16
+                        }}>
+                            <HoldersBanner
+                                onPress={onHoldersPress}
+                                {...holderBannerContent.banner}
+                            />
+                        </View>
+                    ))}
+
+                <View style={{
+                    paddingHorizontal: 16, marginBottom: 16,
+                    marginTop: (!inviteCheck && !!banners?.product) ? 0 : 16
+                }}>
+                    <HoldersBanner
+                        onPress={onHoldersPress}
+                        {...{
+                            title: {
+                                en: t('products.holders.card.defaultTitle'),
+                                ru: t('products.holders.card.defaultTitle')
+                            },
+                            subtitle: {
+                                en: 'Pay with TON and USDT everywhere',
+                                ru: t('products.holders.card.defaultSubtitle')
+                            },
+                            type: 'built-in',
+                            imageUrl: 'https://img.artpal.com/606172/4-23-2-18-8-3-48m.jpg',
+                            id: 'holders'
+                        }}
+                    />
+                </View>
 
                 <View style={{
                     marginHorizontal: 16, marginBottom: 16,
-                    marginTop: (showHoldersBuiltInBanner || (!isHoldersInvited && !!banners?.product)) ? 0 : 16
+                    marginTop: (!!holderBannerContent || (!inviteCheck && !!banners?.product)) ? 0 : 16
                 }}>
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.balances')}

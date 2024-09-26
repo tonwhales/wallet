@@ -12,6 +12,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited";
 import { Typography } from "../../components/styles";
 import { HoldersAppParamsType } from "../holders/HoldersAppFragment";
+import { HoldersBannerType } from "../../components/products/ProductsComponent";
+import { HoldersBanner } from "../../components/products/HoldersBanner";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -23,7 +25,11 @@ export const ProductsFragment = fragment(() => {
     const status = useHoldersAccountStatus(selected!.address).data;
     const holdersUrl = resolveHoldersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(holdersUrl);
-    const isHoldersInvited = useIsHoldersInvited(selected!.address, network.isTestnet);
+    const inviteCheck = useIsHoldersInvited(selected!.address, network.isTestnet);
+
+    const showHoldersBanner = inviteCheck?.allowed;
+    const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
+    const holderBannerContent = showHoldersBanner ? holdersBanner : null;
 
     const apyWithFee = useMemo(() => {
         if (!!apy) {
@@ -82,7 +88,7 @@ export const ProductsFragment = fragment(() => {
                 <Text style={[{ marginBottom: 24, color: theme.textPrimary }, Typography.semiBold32_38]}>
                     {t('products.addNew')}
                 </Text>
-                {isHoldersInvited && (
+                {holderBannerContent && (holderBannerContent.type === 'built-in' ? (
                     <ProductBanner
                         title={t('products.holders.card.defaultTitle')}
                         subtitle={t('products.holders.card.defaultSubtitle')}
@@ -92,8 +98,14 @@ export const ProductsFragment = fragment(() => {
                         style={{ backgroundColor: theme.surfaceOnElevation }}
                         illustrationStyle={{ backgroundColor: theme.elevation }}
                     />
-                )}
-                <View style={{ marginTop: isHoldersInvited ? 16 : 0 }}>
+                ) : (
+                    <HoldersBanner
+                        onPress={onHolders}
+                        persist={true}
+                        {...holderBannerContent.banner}
+                    />
+                ))}
+                <View style={{ marginTop: inviteCheck ? 16 : 0 }}>
                     <ProductBanner
                         onPress={() => {
                             navigation.goBack();

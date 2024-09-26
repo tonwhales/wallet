@@ -69,7 +69,7 @@ export const VersionView = memo(() => {
                     {info.isCiritical && (
                         <Image
                             source={require('@assets/ic-chevron-right.png')}
-                            style={{ height: 16, width: 16, tintColor: theme.textPrimaryInverted }}
+                            style={{ height: 16, width: 16, tintColor: theme.textUnchangeable }}
                         />
                     )}
                 </Pressable>

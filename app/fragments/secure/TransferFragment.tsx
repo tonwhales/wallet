@@ -231,12 +231,35 @@ export const TransferFragment = fragment(() => {
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
 
-    const onError = useCallback(({ message, title }: { message?: string, title: string }) => {
+    const onError = useCallback(({ message, title, gaslessEstimate }: { message?: string, title: string, gaslessEstimate?: boolean }) => {
         if (finished.current) {
             return;
         }
 
         finished.current = true;
+
+        if (gaslessEstimate) {
+            Alert.alert(title, message,
+                [{
+                    text: t('common.back'),
+                    onPress: () => {
+                        if (params.back && params.back > 0) {
+                            for (let i = 0; i < params.back; i++) {
+                                navigation.goBack();
+                            }
+                        } else {
+                            navigation.goBack();
+                        }
+                    }
+                },
+                {
+                    text: t('transfer.error.gaslessCooldownPayTon'),
+                    onPress: () => onSetUseGasless?.(false)
+                }]
+            );
+
+            return;
+        }
 
         Alert.alert(title, message,
             [{
@@ -437,7 +460,7 @@ export const TransferFragment = fragment(() => {
                         ) {
                             throw Error('Error resolving wallet address');
                         }
-                    } catch (e) {
+                    } catch {
                         onError({ title: t('transfer.error.invalidDomain') });
                         return;
                     }
@@ -576,18 +599,21 @@ export const TransferFragment = fragment(() => {
                             if (gaslessEstimate.error === 'not-enough') {
                                 onError({
                                     title: t('transfer.error.gaslessNotEnoughFunds'),
-                                    message: t('transfer.error.gaslessNotEnoughFundsMessage')
+                                    message: t('transfer.error.gaslessNotEnoughFundsMessage'),
+                                    gaslessEstimate: true
                                 });
                             } else if (gaslessEstimate.error === 'try-later') {
                                 onError({
                                     title: t('transfer.error.gaslessTryLater'),
-                                    message: t('transfer.error.gaslessTryLaterMessage')
+                                    message: t('transfer.error.gaslessTryLaterMessage'),
+                                    gaslessEstimate: true
                                 });
                             } else {
                                 warn(`Gasless estimate failed: ${gaslessEstimate.error}`);
                                 onError({
                                     title: t('transfer.error.gaslessFailed'),
-                                    message: t('transfer.error.gaslessFailedEstimate')
+                                    message: t('transfer.error.gaslessFailedEstimate'),
+                                    gaslessEstimate: true
                                 });
                             }
                             return;

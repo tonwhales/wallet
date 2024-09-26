@@ -360,6 +360,8 @@ export const SimpleTransferFragment = fragment(() => {
     }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known, jettonPayload]);
 
     const walletVersion = useWalletVersion();
+    const isV5 = walletVersion === WalletVersions.v5R1;
+    const supportsGaslessTransfer = hasGaslessTransfer && isV5;
 
     // Estimate fee
     const config = useConfig();
@@ -456,7 +458,6 @@ export const SimpleTransferFragment = fragment(() => {
                 // Load contract
                 const pubKey = ledgerContext.addr?.publicKey ?? currentAcc.publicKey;
                 const contract = await contractFromPublicKey(pubKey, walletVersion, network.isTestnet);
-                const isV5 = walletVersion === WalletVersions.v5R1;
 
                 const transferParams = {
                     seqno: seqno,
@@ -473,8 +474,6 @@ export const SimpleTransferFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-
-                const supportsGaslessTransfer = hasGaslessTransfer && isV5;
 
                 // Resolve fee
                 if (config && accountLite && !supportsGaslessTransfer) {
@@ -502,7 +501,7 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion, hasGaslessTransfer, jettonPayload?.customPayload, jettonPayload?.stateInit]);
+    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion, supportsGaslessTransfer, jettonPayload?.customPayload, jettonPayload?.stateInit]);
 
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
@@ -701,7 +700,8 @@ export const SimpleTransferFragment = fragment(() => {
             order: order as Order,
             job: params && params.job ? params.job : null,
             callback,
-            back: params && params.back ? params.back + 1 : undefined
+            back: params && params.back ? params.back + 1 : undefined,
+            useGasless: supportsGaslessTransfer
         });
     }, [
         amount, target, domain, commentString,
@@ -712,7 +712,8 @@ export const SimpleTransferFragment = fragment(() => {
         jettonState,
         ledgerAddress,
         isLedger,
-        balance
+        balance,
+        supportsGaslessTransfer
     ]);
 
     const onFocus = useCallback((index: number) => {

@@ -48,7 +48,7 @@ export function useJetton(params: { owner: Address | string, master?: Address | 
         symbol,
         description,
         decimals: content.decimals ?? null,
-        icon: content.image?.preview256 ?? null,
+        icon: content.image?.preview256 || content.originalImage || null,
         disabled: false,
         assets: !!content.assets ? [content.assets[0], content.assets[1]] : null,
         pool: content.pool,

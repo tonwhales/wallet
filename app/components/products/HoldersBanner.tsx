@@ -7,7 +7,6 @@ import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInvite
 import { Typography } from "../styles";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
 import { LinearGradient } from "expo-linear-gradient";
-import murmurhash from "murmurhash";
 import { avatarHash } from "../../utils/avatarHash";
 
 const gradients = [

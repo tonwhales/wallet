@@ -52,7 +52,8 @@ export type TransferFragmentProps = {
     order: Order,
     job: string | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
-    back?: number
+    back?: number,
+    useGasless?: boolean
 };
 
 export type OrderMessage = {
@@ -176,7 +177,7 @@ export const TransferFragment = fragment(() => {
     const job = useMemo(() => params.job, []);
     const callback = useMemo(() => params.callback, []);
 
-    const [useGasless, setUseGasless] = useState(true);
+    const [useGasless, setUseGasless] = useState(params.useGasless ?? false);
 
     const handleReturnStrategy = useCallback((returnStrategy: string) => {
         if (returnStrategy === 'back') {

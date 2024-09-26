@@ -30,7 +30,7 @@ import { HoldersBanner } from "./HoldersBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
-type HoldersBanner = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
+export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -47,7 +47,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
-    const holdersBanner: HoldersBanner = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
+    const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
     const holderBannerContent = showHoldersBanner ? holdersBanner : null;
 
     const needsEnrolment = useMemo(() => {
@@ -125,53 +125,27 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     </View>
                 )}
 
-                {holderBannerContent && (holderBannerContent.type === 'built-in'
-                    ? (
-                        <View style={{
-                            paddingHorizontal: 16, marginBottom: 16,
-                            marginTop: (!inviteCheck && !!banners?.product) ? 0 : 16
-                        }}>
-                            <ProductBanner
-                                title={t('products.holders.card.defaultTitle')}
-                                subtitle={t('products.holders.card.defaultSubtitle')}
-                                onPress={onHoldersPress}
-                                illustration={require('@assets/banners/banner-holders.webp')}
-                                reverse
-                            />
-                        </View>
-                    ) : (
-                        <View style={{
-                            paddingHorizontal: 16, marginBottom: 16,
-                            marginTop: (!inviteCheck && !!banners?.product) ? 0 : 16
-                        }}>
-                            <HoldersBanner
-                                onPress={onHoldersPress}
-                                {...holderBannerContent.banner}
-                            />
-                        </View>
-                    ))}
-
-                <View style={{
-                    paddingHorizontal: 16, marginBottom: 16,
-                    marginTop: (!inviteCheck && !!banners?.product) ? 0 : 16
-                }}>
-                    <HoldersBanner
-                        onPress={onHoldersPress}
-                        {...{
-                            title: {
-                                en: t('products.holders.card.defaultTitle'),
-                                ru: t('products.holders.card.defaultTitle')
-                            },
-                            subtitle: {
-                                en: 'Pay with TON and USDT everywhere',
-                                ru: t('products.holders.card.defaultSubtitle')
-                            },
-                            type: 'built-in',
-                            imageUrl: 'https://img.artpal.com/606172/4-23-2-18-8-3-48m.jpg',
-                            id: 'holders'
-                        }}
-                    />
-                </View>
+                {holderBannerContent && (
+                    holderBannerContent.type === 'built-in'
+                        ? (
+                            <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                                <ProductBanner
+                                    title={t('products.holders.card.defaultTitle')}
+                                    subtitle={t('products.holders.card.defaultSubtitle')}
+                                    onPress={onHoldersPress}
+                                    illustration={require('@assets/banners/banner-holders.webp')}
+                                    reverse
+                                />
+                            </View>
+                        ) : (
+                            <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                                <HoldersBanner
+                                    onPress={onHoldersPress}
+                                    {...holderBannerContent.banner}
+                                />
+                            </View>
+                        )
+                )}
 
                 <View style={{
                     marginHorizontal: 16, marginBottom: 16,

@@ -16,6 +16,7 @@ export enum MixpanelEvent {
     HoldersLoadingTime = 'holders_loading_time',
     holdersLongLoadingTime = 'holders_long_loading_time',
     HoldersEnrollmentClose = 'holders_entrollment_close',
+    HoldersBanner = 'holders_banner',
     HoldersClose = 'holders_close',
     Connect = 'connect',
     Transfer = 'transfer',

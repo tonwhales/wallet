@@ -12,6 +12,7 @@ const holdersCustomBanner = z.object({
   title: textWithTranslations,
   subtitle: textWithTranslations,
   id: z.string(),
+  closeable: z.boolean().optional()
 });
 
 const inviteCheckCodec = z.object({
@@ -28,7 +29,6 @@ export async function fetchAddressInviteCheck(address: string, isTestnet: boolea
   const countryCode = getCountry();
   const storeFrontCode = getStoreFront();
   const region = { countryCode, storeFrontCode };
-
 
   try {
     let res = await axios.post(

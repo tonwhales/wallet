@@ -16,6 +16,7 @@ export function useIsHoldersInvited(address: string | Address, isTestnet: boolea
     const query = useQuery({
         queryKey: Queries.Holders(addressString).Invite(),
         refetchOnMount: true,
+        refetchOnWindowFocus: true,
         staleTime: 1000 * 60 * 5, // 5 minutes
         queryFn: async (key) => {
             const check = await fetchAddressInviteCheck(addressString, isTestnet);

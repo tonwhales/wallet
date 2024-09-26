@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import i18n from 'i18next';
 import { Image } from 'expo-image';
 import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck";
@@ -8,6 +8,7 @@ import { Typography } from "../styles";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
 import { LinearGradient } from "expo-linear-gradient";
 import { avatarHash } from "../../utils/avatarHash";
+import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 
 const gradients = [
     ['#5245E5', '#BA39E5'],
@@ -15,7 +16,8 @@ const gradients = [
     ['#42B842', '#1DB884'],
 ]
 
-export const HoldersBanner = memo((props: { onPress?: () => void } & HoldersCustomBanner) => {
+export const HoldersBanner = memo((props: { onPress?: () => void, persist?: boolean } & HoldersCustomBanner) => {
+    const { isTestnet } = useNetwork();
     const selectedAccount = useSelectedAccount();
     const theme = useTheme();
     const lang = i18n.language === 'ru' ? 'ru' : 'en';
@@ -27,13 +29,23 @@ export const HoldersBanner = memo((props: { onPress?: () => void } & HoldersCust
     const gradientHash = avatarHash(selectedAccount?.addressString || '', gradients.length);
     const gradient = gradients[gradientHash];
 
-    if (hiddenBanners.includes(props.id)) {
+    const id = `${props.id}-${selectedAccount?.addressString}`;
+
+    const onPress = () => {
+        trackEvent(
+            MixpanelEvent.HoldersBanner,
+            { id, gradient: gradientHash, wallet: selectedAccount?.addressString, isTestnet, home: !props.persist }
+        );
+        props.onPress?.();
+    }
+
+    if (hiddenBanners.includes(id) && !props.persist && props.closeable) {
         return null;
     }
 
     return (
         <Pressable
-            onPress={props.onPress}
+            onPress={onPress}
             style={({ pressed }) => {
                 return [
                     styles.pressable,
@@ -73,22 +85,24 @@ export const HoldersBanner = memo((props: { onPress?: () => void } & HoldersCust
                     source={{ uri: props.imageUrl }}
                 />
             </View>
-            <Pressable
-                style={({ pressed }) => ({
-                    position: 'absolute',
-                    top: 10, right: 10,
-                    opacity: pressed ? 0.5 : 1
-                })}
-                onPress={() => markBannerHidden(props.id)}
-            >
-                <Image
-                    style={{
-                        tintColor: theme.iconUnchangeable,
-                        height: 24, width: 24
-                    }}
-                    source={require('@assets/ic-close.png')}
-                />
-            </Pressable>
+            {(!props.persist && props.closeable) && (
+                <Pressable
+                    style={({ pressed }) => ({
+                        position: 'absolute',
+                        top: 10, right: 10,
+                        opacity: pressed ? 0.5 : 1
+                    })}
+                    onPress={() => markBannerHidden(id)}
+                >
+                    <Image
+                        style={{
+                            tintColor: theme.iconUnchangeable,
+                            height: 24, width: 24
+                        }}
+                        source={require('@assets/ic-close.png')}
+                    />
+                </Pressable>
+            )}
         </Pressable>
     );
 });

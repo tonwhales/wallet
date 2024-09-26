@@ -595,8 +595,6 @@ export const TransferFragment = fragment(() => {
                             }
                         ));
 
-                        console.log('gaslessEstimate', gaslessEstimate);
-
                         if (!gaslessEstimate.ok) {
                             if (gaslessEstimate.error === 'not-enough') {
                                 onError({

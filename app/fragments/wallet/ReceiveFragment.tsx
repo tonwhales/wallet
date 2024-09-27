@@ -26,13 +26,13 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
-    const params = useParams<{ addr?: string, ledger?: boolean, jetton?: { master: Address, data: JettonMasterState } }>();
+    const params = useParams<{ addr?: string, ledger?: boolean, jetton?: { master: Address, data?: JettonMasterState } }>();
     const selected = useSelectedAccount();
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
 
     const qrSize = 262;
 
-    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(params?.jetton ?? null);
+    const [jetton, setJetton] = useState<{ master: Address, data?: JettonMasterState } | null>(params?.jetton ?? null);
 
     const friendly = useMemo(() => {
         if (params.addr) {
@@ -67,8 +67,10 @@ export const ReceiveFragment = fragment(() => {
             + `/${friendly}`
     }, [jetton, network, friendly]);
 
+    const symbol = jetton?.data?.symbol;
+
     const { isSCAM, verified: isVerified } = useVerifyJetton({
-        ticker: jetton?.data.symbol,
+        ticker: symbol,
         master: jetton?.master?.toString({ testOnly: network.isTestnet })
     });
 
@@ -123,7 +125,7 @@ export const ReceiveFragment = fragment(() => {
                                 <QRCode
                                     data={link}
                                     size={qrSize}
-                                    icon={jetton?.data.image}
+                                    icon={jetton?.data?.image}
                                     color={theme.backgroundUnchangeable}
                                 />
                             </View>
@@ -154,7 +156,7 @@ export const ReceiveFragment = fragment(() => {
                                         justifyContent: 'center'
                                     }}>
                                         <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                                            {!!jetton && (
+                                            {!!jetton?.data ? (
                                                 <WImage
                                                     src={jetton.data.image?.preview256}
                                                     blurhash={jetton.data.image?.blurhash}
@@ -163,9 +165,12 @@ export const ReceiveFragment = fragment(() => {
                                                     borderRadius={23}
                                                     lockLoading
                                                 />
-                                            )}
-                                            {!jetton && (
-                                                <TonIcon width={46} height={46} style={{ height: 46, width: 46 }} />
+                                            ) : (
+                                                <TonIcon
+                                                    width={46}
+                                                    height={46}
+                                                    style={{ height: 46, width: 46 }}
+                                                />
                                             )}
                                             {isVerified ? (
                                                 <View style={{
@@ -195,7 +200,7 @@ export const ReceiveFragment = fragment(() => {
                                         </View>
                                         <View style={{ justifyContent: 'space-between' }}>
                                             <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                                {`${jetton?.data.symbol ?? `TON ${t('common.wallet')}`}`}
+                                                {`${symbol ?? `TON ${t('common.wallet')}`}`}
                                                 {isSCAM && (
                                                     <>
                                                         {' • '}

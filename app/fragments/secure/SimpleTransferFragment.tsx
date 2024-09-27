@@ -120,7 +120,7 @@ export const SimpleTransferFragment = fragment(() => {
     const forwardAmount = params.forwardAmount ?? null;
     const feeAmount = params.feeAmount ?? null;
 
-    const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), true);
+    const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), { suspense: true });
     const jetton = useJettonContent(jettonWallet?.master ?? null);
     const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons.map((j) => {
         return Address.parse(j.master_id);

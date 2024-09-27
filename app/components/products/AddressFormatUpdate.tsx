@@ -38,7 +38,7 @@ export const AddressFormatUpdate = memo(() => {
                     backgroundColor: theme.surfaceOnBg,
                     borderRadius: 20,
                     overflow: 'hidden',
-                    marginHorizontal: 16, marginBottom: 10, marginTop: 16
+                    marginHorizontal: 16, marginTop: 16
                 })}
             >
                 <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>

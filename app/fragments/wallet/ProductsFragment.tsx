@@ -62,7 +62,7 @@ export const ProductsFragment = fragment(() => {
             {Platform.OS === 'android' ? (
                 <ScreenHeader
                     onBackPressed={navigation.goBack}
-                    style={{ paddingTop: safeArea.top, paddingHorizontal: 16 }}
+                    style={{ paddingTop: safeArea.top, paddingHorizontal: 16, backgroundColor: theme.elevation }}
                 />
             ) : (
                 <Pressable onPress={Platform.select({ ios: navigation.goBack })} style={{ flexGrow: 1 }} />

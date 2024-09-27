@@ -17,7 +17,7 @@ export const DappsRequests = memo(() => {
     }
 
     return (
-        <View style={[{ paddingHorizontal: 16, marginBottom: 10 }]}>
+        <View style={[{ paddingHorizontal: 16, marginTop: 16 }]}>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between', alignItems: 'center',

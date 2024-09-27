@@ -329,7 +329,7 @@ export const DappAuthComponent = memo(({
                                     bounceableFormat={bounceableFormat}
                                     isTestnet={isTestnet}
                                     knownWallets={knownWallets}
-                                    isW5={selectedAccount.version === WalletVersions.v5R1}
+                                    isW5={addr.version === WalletVersions.v5R1}
                                 />
                             )
                         })}
@@ -379,7 +379,7 @@ export const DappAuthComponent = memo(({
                     </View>
                     <View style={{ flexDirection: 'row', width: '100%', gap: 16, marginBottom: 16 }}>
                         <RoundButton
-                            style={{  flex: 1 }}
+                            style={{ flex: 1 }}
                             display={'secondary'}
                             disabled={!onCancel || isApproving}
                             title={t('common.cancel')}

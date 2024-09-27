@@ -112,6 +112,7 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                 let measurement = performance.now();
                 await Promise.all(wallets.map(async (wallet) => {
                     try {
+                        const queryCache = queryClient.getQueryCache();
                         let address = Address.parse(wallet);
                         log(`[jetton-wallet] 🟡 batch ${wallet}`);
 
@@ -125,7 +126,7 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
 
                         if (isClaimed === false) {
                             const owner = data.owner.toString({ testOnly: isTestnet });
-                            const queryCache = queryClient.getQueryCache();
+
                             const queryKey = Queries.Mintless(owner);
                             let mintlessHints = getQueryData<MintlessJetton[]>(queryCache, queryKey) || [];
 
@@ -136,6 +137,15 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                             }
 
                             mintlessBalance = mintlessHints.find(hint => hint.walletAddress.address === wallet)?.balance;
+                        }
+
+                        const walletAddressKey = Queries.Jettons()
+                            .Address(data.owner.toString({ testOnly: isTestnet }))
+                            .Wallet(data.master.toString({ testOnly: isTestnet }));
+                        const cachedWalletAddress = getQueryData(queryCache, walletAddressKey);
+
+                        if (!cachedWalletAddress) {
+                            queryClient.setQueriesData(walletAddressKey, wallet)
                         }
 
                         result.push({
@@ -162,14 +172,14 @@ const walletAddressBatcher = memoize((client: TonClient4, isTestnet: boolean) =>
         fetcher: async (args: { master: string, owner: string }[]) => {
             return await jettonFetchersLock.inLock(async () => {
                 let result: { wallet: string, master: string, owner: string }[] = [];
-                let lastBlock = await getLastBlock();
                 log(`[wallet-address] 🟡 batch ${args.length}`);
+                let seqno = (await client.getLastBlock()).last.seqno;
                 let measurement = performance.now();
                 await Promise.all(args.map(async ({ master, owner }) => {
                     try {
                         let wallet = await tryGetJettonWallet(
                             client,
-                            lastBlock,
+                            seqno,
                             { address: Address.parse(owner), master: Address.parse(master) }
                         );
                         if (!wallet) {

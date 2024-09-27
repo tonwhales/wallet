@@ -145,14 +145,7 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                         const cachedWalletAddress = getQueryData(queryCache, walletAddressKey);
 
                         if (!cachedWalletAddress) {
-                            queryClient.setQueriesData(
-                                walletAddressKey,
-                                {
-                                    wallet: wallet,
-                                    master: data.master.toString({ testOnly: isTestnet }),
-                                    owner: data.owner.toString({ testOnly: isTestnet })
-                                }
-                            )
+                            queryClient.setQueriesData(walletAddressKey, wallet)
                         }
 
                         result.push({

@@ -22,7 +22,7 @@ export const ReAnimatedCircularProgress = memo(({
     size: number,
     loaderProgress?: SharedValue<number>,
     loaderOpacity?: SharedValue<number>,
-    rotationActive: boolean,
+    rotationActive?: boolean,
     style?: StyleProp<ViewStyle>,
     strokeWidth?: number,
     color?: string,

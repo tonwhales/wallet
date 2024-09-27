@@ -1,8 +1,8 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
-import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
+import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp, Platform, Share, RefreshControl } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
@@ -22,6 +22,7 @@ import { Typography } from "../../../components/styles";
 import { warn } from "../../../utils/log";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
+import { onHistoryRefreshed } from "../../../engine/effects/onHistoryRefreshed";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -271,6 +272,14 @@ export const WalletTransactions = memo((props: {
         return showActionSheetWithOptions(actionSheetOptions, handleAction);
     }
 
+    const [loading, setLoading] = useState(false)
+    const onRefresh = async () => {
+        setLoading(true)
+
+        await onHistoryRefreshed(props.address.toString({ testOnly: isTestnet }), isTestnet)
+        setLoading(false)
+    }
+
     useEffect(() => {
         // Scroll to top when new pending transactions appear
         if (pending.length > 0) {
@@ -285,6 +294,11 @@ export const WalletTransactions = memo((props: {
             contentContainerStyle={[
                 props.sectionedListProps?.contentContainerStyle
             ]}
+            refreshControl={
+                <RefreshControl
+                    // style={{ opacity: 0 }}
+                    refreshing={loading} onRefresh={onRefresh} />
+            }
             contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}
             scrollEventThrottle={26}

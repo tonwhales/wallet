@@ -30,6 +30,8 @@ import { reduceHoldersBalances } from '../../utils/reduceHoldersBalances';
 import { VersionView } from './views/VersionView';
 import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
 import Animated, { Extrapolation, interpolate, useAnimatedRef, useDerivedValue, useScrollViewOffset, useSharedValue, withTiming } from 'react-native-reanimated';
+import { queryClient } from '../../engine/clients';
+import { Queries } from '../../engine/queries';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -176,7 +178,25 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
     const onRefresh = async () => {
         try {
             setLoading(true)
-            await new Promise((resolve) => setTimeout(resolve, 1550));
+            await queryClient.invalidateQueries({
+                predicate: (query) => {
+                    const queryKey = query.queryKey as string[];
+                    if (queryKey[0] === 'account' && queryKey[2] === 'staking' && ['status'].includes(queryKey[3])) {
+                        return queryKey[1] === selectedAcc.addressString
+                    }
+                    else
+                        if (queryKey[0] === 'account' && queryKey[2] === 'lite') {
+                            return queryKey[1] === selectedAcc.addressString
+                        }
+                        else if (queryKey[0] === 'holder' && queryKey.length === 2) {
+                            return queryKey[1] === selectedAcc.addressString
+                        } else if (queryKey[0] === 'account' && queryKey[2] === 'jettonWallet') {
+                            return queryKey[1] === selectedAcc.addressString
+                        }
+                    return false;
+                }
+            })
+            await new Promise((resolve) => setTimeout(resolve, 250));
         } catch (error) {
 
         } finally {
@@ -193,6 +213,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                 refreshControl={
                     <RefreshControl
                         style={{ opacity: 0 }}
+                        // tintColor={'white'}
                         refreshing={loading} onRefresh={onRefresh} />
                 }
                 style={{ flexBasis: 0 }}

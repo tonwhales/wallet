@@ -114,7 +114,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 <PendingTransactions />
 
                 {(!inviteCheck && !!banners?.product) && (
-                    <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
+                    <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
                         <ProductBanner
                             title={banners.product.title}
                             subtitle={banners.product.description}
@@ -128,7 +128,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 {holderBannerContent && (
                     holderBannerContent.type === 'built-in'
                         ? (
-                            <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                            <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
                                 <ProductBanner
                                     title={t('products.holders.card.defaultTitle')}
                                     subtitle={t('products.holders.card.defaultSubtitle')}
@@ -138,7 +138,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                                 />
                             </View>
                         ) : (
-                            <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                            <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
                                 <HoldersBanner
                                     onPress={onHoldersPress}
                                     {...holderBannerContent.banner}
@@ -148,7 +148,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 )}
 
                 <View style={{
-                    marginHorizontal: 16, marginBottom: 16,
+                    marginHorizontal: 16, marginVertical: 16,
                     marginTop: (!!holderBannerContent || (!inviteCheck && !!banners?.product)) ? 0 : 16
                 }}>
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>

@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { useState } from 'react';
+import { Platform, Pressable, RefreshControl, View } from 'react-native';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
@@ -28,6 +28,8 @@ import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
 import { WalletActions } from './views/WalletActions';
 import { reduceHoldersBalances } from '../../utils/reduceHoldersBalances';
 import { VersionView } from './views/VersionView';
+import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
+import Animated, { Extrapolation, interpolate, useAnimatedRef, useDerivedValue, useScrollViewOffset, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -155,10 +157,44 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
     const address = selectedAcc.address;
     const bottomBarHeight = useBottomTabBarHeight();
 
+
+    const animatedRef = useAnimatedRef<Animated.ScrollView>();
+    const scrollOffset = useScrollViewOffset(animatedRef);
+
+    const [loading, setLoading] = useState(false)
+    const loaderOpacity = useSharedValue(0)
+    const loaderProgress = useSharedValue(0.9)
+
+    useDerivedValue(() => {
+        if (loaderProgress.value !== 0.1 && !loading) {
+            loaderProgress.value = interpolate(scrollOffset.value, [0, -154], [0.9, 0.1], Extrapolation.CLAMP)
+            loaderOpacity.value = interpolate(scrollOffset.value, [0, -154], [0, 1], Extrapolation.CLAMP)
+        }
+
+    });
+
+    const onRefresh = async () => {
+        try {
+            setLoading(true)
+            await new Promise((resolve) => setTimeout(resolve, 1550));
+        } catch (error) {
+
+        } finally {
+            loaderProgress.value = withTiming(0.9, { duration: 500 })
+            setLoading(false)
+        }
+    }
+
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
             <WalletHeader address={address} />
-            <ScrollView
+            <Animated.ScrollView
+                ref={animatedRef}
+                refreshControl={
+                    <RefreshControl
+                        style={{ opacity: 0 }}
+                        refreshing={loading} onRefresh={onRefresh} />
+                }
                 style={{ flexBasis: 0 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                 contentInsetAdjustmentBehavior={"never"}
@@ -171,16 +207,37 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                 overScrollMode={'never'}
             >
                 {Platform.OS === 'ios' && (
-                    <View
-                        style={{
-                            backgroundColor: theme.backgroundUnchangeable,
-                            height: 1000,
+                    <>
+                        <View style={{
+                            zIndex: 1000,
+                            top: -24,
                             position: 'absolute',
-                            top: -1000,
-                            left: 0,
-                            right: 0,
-                        }}
-                    />
+                            width: '100%', alignItems: 'center',
+                        }}>
+                            <ReAnimatedCircularProgress
+                                size={24}
+                                color={theme.iconPrimary}
+                                reverse
+                                infinitRotate
+                                strokeWidth={4}
+                                progress={0.5}
+                                loaderProgress={loaderProgress}
+                                loaderOpacity={loaderOpacity}
+                                rotationActive={loading}
+
+                            />
+                        </View>
+                        <View
+                            style={{
+                                backgroundColor: theme.backgroundUnchangeable,
+                                height: 1000,
+                                position: 'absolute',
+                                top: -1000,
+                                left: 0,
+                                right: 0,
+                            }}
+                        />
+                    </>
                 )}
                 <View collapsable={false}>
                     <WalletCard address={address} />
@@ -191,8 +248,8 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                     />
                 </View>
                 <ProductsComponent selected={selectedAcc} />
-            </ScrollView>
-            <VersionView/>            
+            </Animated.ScrollView>
+            <VersionView />
         </View>
     );
 });

@@ -30,7 +30,7 @@ export const WalletHeader = memo(({ address }: { address: Address }) => {
     const navigation = useTypedNavigation();
 
     const currentWalletIndex = getAppState().selected;
-    const [walletSettings,] = useWalletSettings(address);
+    const [walletSettings] = useWalletSettings(address);
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

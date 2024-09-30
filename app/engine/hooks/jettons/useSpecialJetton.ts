@@ -7,8 +7,8 @@ export function useSpecialJetton(address: Address | null | undefined) {
     const { isTestnet: testOnly } = useNetwork();
     const knownJettons = useKnownJettons(testOnly);
     const specialJettonMaster = knownJettons?.specialJetton ?? undefined;
-    let walletAddress = useJettonWalletAddress(specialJettonMaster, address?.toString()).data;
-    let wallet = useJettonWallet(walletAddress, { refetchInterval: 15000 });
+    const walletAddress = useJettonWalletAddress(specialJettonMaster, address?.toString()).data;
+    const wallet = useJettonWallet(walletAddress, { refetchInterval: 15000 });
     const masterContent = useJettonContent(specialJettonMaster ?? null);
     const [price] = usePrice();
 

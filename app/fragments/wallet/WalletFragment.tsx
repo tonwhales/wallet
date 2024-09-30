@@ -198,6 +198,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
             })
             await new Promise((resolve) => setTimeout(resolve, 250));
         } catch (error) {
+            console.log('error: ', error);
 
         } finally {
             loaderProgress.value = withTiming(0.9, { duration: 500 })
@@ -212,8 +213,9 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                 ref={animatedRef}
                 refreshControl={
                     <RefreshControl
-                        style={{ opacity: 0 }}
-                        // tintColor={'white'}
+                        style={{
+                            opacity: 0,
+                        }}
                         refreshing={loading} onRefresh={onRefresh} />
                 }
                 style={{ flexBasis: 0 }}
@@ -231,7 +233,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                     <>
                         <View style={{
                             zIndex: 1000,
-                            top: -24,
+                            top: -34,
                             position: 'absolute',
                             width: '100%', alignItems: 'center',
                         }}>

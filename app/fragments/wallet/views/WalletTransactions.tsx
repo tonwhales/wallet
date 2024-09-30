@@ -23,6 +23,10 @@ import { warn } from "../../../utils/log";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { onHistoryRefreshed } from "../../../engine/effects/onHistoryRefreshed";
+import Animated, { Extrapolation, interpolate, useAnimatedRef, useDerivedValue, useScrollViewOffset, useSharedValue, withTiming } from "react-native-reanimated";
+
+
+const AnimatedSectionList = Animated.createAnimatedComponent(SectionList<any, any>)
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -117,7 +121,7 @@ export const WalletTransactions = memo((props: {
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
     const [pending,] = usePendingTransactions(props.address, isTestnet);
-    const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
+    const animatedRef = useAnimatedRef<any>();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const [walletsSettings,] = useWalletsSettings();
 
@@ -272,31 +276,53 @@ export const WalletTransactions = memo((props: {
         return showActionSheetWithOptions(actionSheetOptions, handleAction);
     }
 
+    const scrollOffset = useScrollViewOffset(animatedRef);
+
+    const loaderOpacity = useSharedValue(0)
+    const loaderProgress = useSharedValue(0.9)
+
+    useDerivedValue(() => {
+
+        if (loaderProgress.value !== 0.1 && !loading) {
+            loaderProgress.value = interpolate(scrollOffset.value, [0, -154], [0.9, 0.1], Extrapolation.CLAMP)
+            loaderOpacity.value = interpolate(scrollOffset.value, [0, -154], [0, 1], Extrapolation.CLAMP)
+        }
+
+    });
+
     const [loading, setLoading] = useState(false)
     const onRefresh = async () => {
-        setLoading(true)
+        try {
+            setLoading(true)
 
-        await onHistoryRefreshed(props.address.toString({ testOnly: isTestnet }), isTestnet)
-        setLoading(false)
+            await onHistoryRefreshed(props.address.toString({ testOnly: isTestnet }), isTestnet)
+        } catch (error) {
+            console.log(error)
+        } finally {
+            loaderProgress.value = withTiming(0.9, { duration: 500 })
+            setLoading(false)
+
+        }
     }
+
 
     useEffect(() => {
         // Scroll to top when new pending transactions appear
         if (pending.length > 0) {
-            ref.current?.scrollToLocation({ sectionIndex: -1, itemIndex: 0, animated: true });
+            animatedRef.current?.scrollToLocation({ sectionIndex: -1, itemIndex: 0, animated: true });
         }
     }, [pending.length]);
 
     return (
-        <SectionList
-            ref={ref}
+        <AnimatedSectionList
+            ref={animatedRef}
             style={{ flexGrow: 1 }}
             contentContainerStyle={[
                 props.sectionedListProps?.contentContainerStyle
             ]}
             refreshControl={
                 <RefreshControl
-                    // style={{ opacity: 0 }}
+                    style={{ opacity: 0 }}
                     refreshing={loading} onRefresh={onRefresh} />
             }
             contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
@@ -310,7 +336,32 @@ export const WalletTransactions = memo((props: {
             }}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
-            ListHeaderComponent={props.header}
+            ListHeaderComponent={
+                <>
+                    {Platform.OS === 'ios' && (
+                        <View style={{
+                            zIndex: 1000,
+                            top: -34,
+                            position: 'absolute',
+                            width: '100%', alignItems: 'center',
+                        }}>
+                            <ReAnimatedCircularProgress
+                                size={24}
+                                color={theme.iconPrimary}
+                                reverse
+                                infinitRotate
+                                strokeWidth={4}
+                                progress={0.5}
+                                loaderProgress={loaderProgress}
+                                loaderOpacity={loaderOpacity}
+                                rotationActive={loading}
+
+                            />
+                        </View>
+                    )}
+                    {props.header}
+                </>
+            }
             ListFooterComponent={props.hasNext ? (
                 <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                     <ReAnimatedCircularProgress

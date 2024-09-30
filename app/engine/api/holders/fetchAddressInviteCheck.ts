@@ -12,7 +12,8 @@ const holdersCustomBanner = z.object({
   title: textWithTranslations,
   subtitle: textWithTranslations,
   id: z.string(),
-  closeable: z.boolean().optional()
+  closeable: z.boolean().optional(),
+  gradient: z.tuple([z.string(), z.string()]).optional().nullable()
 });
 
 const inviteCheckCodec = z.object({

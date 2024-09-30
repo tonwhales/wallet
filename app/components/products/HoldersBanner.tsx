@@ -27,7 +27,7 @@ export const HoldersBanner = memo((props: { onPress?: () => void, persist?: bool
     const markBannerHidden = useMarkBannerHidden();
 
     const gradientHash = avatarHash(selectedAccount?.addressString || '', gradients.length);
-    const gradient = gradients[gradientHash];
+    const gradient = props.gradient ?? gradients[gradientHash];
 
     const id = `${props.id}-${selectedAccount?.addressString}`;
 

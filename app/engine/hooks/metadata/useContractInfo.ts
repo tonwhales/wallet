@@ -11,8 +11,7 @@ export function useContractInfo(addressString: string | null): ContractInfo {
             }
             return await fetchContractInfo(addressString);
         },
-        refetchOnMount: true,
-        staleTime: Infinity,
+        refetchOnMount: true
     });
 
     return query.data ?? null;

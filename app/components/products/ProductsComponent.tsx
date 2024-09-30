@@ -138,7 +138,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                                 />
                             </View>
                         ) : (
-                            <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
+                            <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
                                 <HoldersBanner
                                     onPress={onHoldersPress}
                                     {...holderBannerContent.banner}

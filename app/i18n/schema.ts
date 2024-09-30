@@ -198,7 +198,9 @@ export type LocalizationSchema = {
             gaslessNotEnoughFunds: string,
             gaslessNotEnoughFundsMessage: string,
             gaslessTryLater: string,
-            gaslessTryLaterMessage: string
+            gaslessTryLaterMessage: string,
+            gaslessNotEnoughCoins: string,
+            notEnoughJettons: string,
         },
         sendAll: string,
         scanQR: string,

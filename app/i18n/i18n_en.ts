@@ -196,7 +196,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessNotEnoughFunds: 'Not enough funds',
             gaslessNotEnoughFundsMessage: 'Gasless transfer amount with fee is higher than your balance, try to send a smaller amount or contact support',
             gaslessTryLater: 'Try again later',
-            gaslessTryLaterMessage: 'You can try again later or contact support'
+            gaslessTryLaterMessage: 'You can try again later or contact support',
+            gaslessNotEnoughCoins: '{{fee}} in fees required to send, missing {{missing}}',
+            notEnoughJettons: 'Not enough {{symbol}}'
         },
         sendAll: 'Max',
         scanQR: 'scan qr code',

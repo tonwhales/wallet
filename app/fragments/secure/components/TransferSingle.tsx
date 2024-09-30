@@ -28,6 +28,7 @@ import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
+import { valueText } from "../../../components/ValueComponent";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -214,7 +215,11 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         } else if (isGasless && (jetton?.balance || 0n) < fees.value) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
+            const feeAmount = valueText({ value: fees.value, decimals: jetton?.decimals ?? 9, precision: 2 });
+            const fee = `${feeAmount[0]}${feeAmount[1]} ${jetton?.symbol}`;
+            const missingAmount = valueText({ value: fees.value - (jetton?.balance || 0n), decimals: jetton?.decimals ?? 9, precision: 2 });
+            const missing = `${missingAmount[0]}${missingAmount[1]} ${jetton?.symbol}`;
+            Alert.alert(t('transfer.error.notEnoughJettons', { symbol: jetton?.symbol }), t('transfer.error.gaslessNotEnoughCoins', { fee, missing }));
             return;
         }
 

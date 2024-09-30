@@ -9,11 +9,11 @@ import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banner
 import { LinearGradient } from "expo-linear-gradient";
 import { avatarHash } from "../../utils/avatarHash";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
+import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 
 const gradients = [
     ['#5245E5', '#BA39E5'],
-    ['#3131CC', '#459DF5'],
-    ['#42B842', '#1DB884'],
+    ['#3131CC', '#459DF5']
 ]
 
 export const HoldersBanner = memo((props: { onPress?: () => void, persist?: boolean } & HoldersCustomBanner) => {
@@ -44,66 +44,71 @@ export const HoldersBanner = memo((props: { onPress?: () => void, persist?: bool
     }
 
     return (
-        <Pressable
-            onPress={onPress}
-            style={({ pressed }) => {
-                return [
-                    styles.pressable,
-                    { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg, }
-                ]
-            }}
+        <Animated.View
+            entering={FadeInUp}
+            exiting={FadeOutDown}
         >
-            <LinearGradient
-                style={styles.gradient}
-                colors={gradient}
-                start={[0, 1]}
-                end={[1, 0]}
-            />
-            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center' }}>
-                <View style={{
-                    justifyContent: 'space-between', padding: 20,
-                    flexGrow: 1, flexShrink: 1,
-                }}>
-                    <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold17_24]}
-                        ellipsizeMode={'tail'}
-                        numberOfLines={1}
-                    >
-                        {title}
-                    </Text>
-                    <Text
-                        style={[{ flex: 1, flexShrink: 1, color: theme.textUnchangeable, opacity: 0.8, }, Typography.regular15_20]}
-                        ellipsizeMode={'tail'}
-                        numberOfLines={2}
-                        adjustsFontSizeToFit={true}
-                        minimumFontScale={0.95}
-                    >
-                        {subtitle}
-                    </Text>
-                </View>
-                <Image
-                    style={styles.img}
-                    source={{ uri: props.imageUrl }}
+            <Pressable
+                onPress={onPress}
+                style={({ pressed }) => {
+                    return [
+                        styles.pressable,
+                        { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg, }
+                    ]
+                }}
+            >
+                <LinearGradient
+                    style={styles.gradient}
+                    colors={gradient}
+                    start={[0, 1]}
+                    end={[1, 0]}
                 />
-            </View>
-            {(!props.persist && props.closeable) && (
-                <Pressable
-                    style={({ pressed }) => ({
-                        position: 'absolute',
-                        top: 10, right: 10,
-                        opacity: pressed ? 0.5 : 1
-                    })}
-                    onPress={() => markBannerHidden(id)}
-                >
+                <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center' }}>
+                    <View style={{
+                        justifyContent: 'space-between', padding: 20,
+                        flexGrow: 1, flexShrink: 1,
+                    }}>
+                        <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold17_24]}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={1}
+                        >
+                            {title}
+                        </Text>
+                        <Text
+                            style={[{ flex: 1, flexShrink: 1, color: theme.textUnchangeable, opacity: 0.8, }, Typography.regular15_20]}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={2}
+                            adjustsFontSizeToFit={true}
+                            minimumFontScale={0.95}
+                        >
+                            {subtitle}
+                        </Text>
+                    </View>
                     <Image
-                        style={{
-                            tintColor: theme.iconUnchangeable,
-                            height: 24, width: 24
-                        }}
-                        source={require('@assets/ic-close.png')}
+                        style={styles.img}
+                        source={{ uri: props.imageUrl }}
                     />
-                </Pressable>
-            )}
-        </Pressable>
+                </View>
+                {(!props.persist && props.closeable) && (
+                    <Pressable
+                        style={({ pressed }) => ({
+                            position: 'absolute',
+                            top: 10, right: 10,
+                            opacity: pressed ? 0.5 : 1
+                        })}
+                        onPress={() => markBannerHidden(id)}
+                    >
+                        <Image
+                            style={{
+                                tintColor: theme.iconUnchangeable,
+                                height: 24, width: 24
+                            }}
+                            source={require('@assets/ic-close.png')}
+                        />
+                    </Pressable>
+                )}
+            </Pressable>
+        </Animated.View>
     );
 });
 

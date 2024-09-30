@@ -13,8 +13,7 @@ import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 
 const gradients = [
     ['#5245E5', '#BA39E5'],
-    ['#3131CC', '#459DF5'],
-    ['#42B842', '#1DB884'],
+    ['#3131CC', '#459DF5']
 ]
 
 export const HoldersBanner = memo((props: { onPress?: () => void, persist?: boolean } & HoldersCustomBanner) => {

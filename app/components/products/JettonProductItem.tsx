@@ -452,11 +452,12 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 </Text>
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                     <ValueComponent
                                         value={balance}
                                         decimals={jetton?.decimals}
                                         precision={1}
+                                        centFontStyle={{ color: theme.textSecondary }}
                                     />
                                     {!!swapAmount ? (
                                         <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
@@ -467,7 +468,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                             {` ${symbol}`}
                                         </Text>
                                     ))}
-                                </PerfText>
+                                </Text>
                                 {!!swapAmount ? (
                                     <PriceComponent
                                         amount={toNano(swapAmount)}
@@ -556,6 +557,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                     value={balance}
                                     decimals={jetton?.decimals}
                                     precision={1}
+                                    centFontStyle={{ color: theme.textSecondary }}
                                 />
                                 {!!swapAmount ? (
                                     <Text style={{ color: theme.textSecondary, fontSize: 15 }}>

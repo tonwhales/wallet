@@ -239,7 +239,10 @@ export const BrowserSearch = memo(({
             if (currentSuggestions.length !== 0) {
                 url = currentSuggestions[0].url;
             } else {
-                toaster.show({ type: 'error', message: t('browser.search.urlNotReachable'), marginBottom: Platform.select({ ios: bottomBarHeight + 16, android: 16 }) });
+                setLockSelection(false)
+                toaster.show({
+                    type: 'error', message: t('browser.search.urlNotReachable'), marginBottom: Platform.select({ ios: bottomBarHeight + 16, android: 16 })
+                });
                 return;
             }
         }

@@ -181,7 +181,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "gaslessNotEnoughFundsMessage": "Сумма транзакции с комиссией превышает ваш баланс, попробуйте отправить меньшую сумму или обратитесь в службу поддержки",
             "gaslessTryLater": "Попробуйте позже",
             "gaslessTryLaterMessage": "Вы можете попробовать позже или обратиться в службу поддержки",
-            "gaslessNotEnoughCoins": "Необходимо комиссии для отправки {{fee}}, не хватает {{missing}}",
+            "gaslessNotEnoughCoins": "Необходимо {{fee}} для оплаты комиссии, не хватает {{missing}}",
             "notEnoughJettons": "Недостаточно {{symbol}}"
         },
         "sendAll": "Max",

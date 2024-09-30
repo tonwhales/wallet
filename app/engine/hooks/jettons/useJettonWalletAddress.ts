@@ -10,6 +10,8 @@ export function useJettonWalletAddress(master?: string | null, wallet?: string |
         queryKey: Queries.Jettons().Address(wallet!).Wallet(master!),
         queryFn: jettonWalletAddressQueryFn(master!, wallet!, isTestnet),
         enabled: !!master && !!wallet,
-        suspense
-    })
+        suspense,
+        refetchOnMount: true,
+        refetchOnWindowFocus: true
+    });
 }

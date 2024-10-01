@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited";
 import { Typography } from "../../components/styles";
 import { HoldersAppParamsType } from "../holders/HoldersAppFragment";
+import { HoldersBannerType } from "../../components/products/ProductsComponent";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -23,7 +24,7 @@ export const ProductsFragment = fragment(() => {
     const status = useHoldersAccountStatus(selected!.address).data;
     const holdersUrl = resolveHoldersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(holdersUrl);
-    const isHoldersInvited = useIsHoldersInvited(selected!.address, network.isTestnet);
+    const inviteCheck = useIsHoldersInvited(selected!.address, network.isTestnet);
 
     const apyWithFee = useMemo(() => {
         if (!!apy) {
@@ -56,7 +57,7 @@ export const ProductsFragment = fragment(() => {
             {Platform.OS === 'android' ? (
                 <ScreenHeader
                     onBackPressed={navigation.goBack}
-                    style={{ paddingTop: safeArea.top, paddingHorizontal: 16 }}
+                    style={{ paddingTop: safeArea.top, paddingHorizontal: 16, backgroundColor: theme.elevation }}
                 />
             ) : (
                 <Pressable onPress={Platform.select({ ios: navigation.goBack })} style={{ flexGrow: 1 }} />
@@ -82,7 +83,7 @@ export const ProductsFragment = fragment(() => {
                 <Text style={[{ marginBottom: 24, color: theme.textPrimary }, Typography.semiBold32_38]}>
                     {t('products.addNew')}
                 </Text>
-                {isHoldersInvited && (
+                {inviteCheck?.allowed && (
                     <ProductBanner
                         title={t('products.holders.card.defaultTitle')}
                         subtitle={t('products.holders.card.defaultSubtitle')}
@@ -93,7 +94,7 @@ export const ProductsFragment = fragment(() => {
                         illustrationStyle={{ backgroundColor: theme.elevation }}
                     />
                 )}
-                <View style={{ marginTop: isHoldersInvited ? 16 : 0 }}>
+                <View style={{ marginTop: inviteCheck?.allowed ? 16 : 0 }}>
                     <ProductBanner
                         onPress={() => {
                             navigation.goBack();

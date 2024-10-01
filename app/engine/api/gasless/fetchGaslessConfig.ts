@@ -1,5 +1,6 @@
 import axios from "axios";
 import { z } from "zod";
+import { whalesConnectEndpoint } from "../../clients";
 
 const gaslessConfigScheme = z.object({
     gas_jettons: z.array(z.object({
@@ -11,7 +12,7 @@ const gaslessConfigScheme = z.object({
 export type GaslessConfig = z.infer<typeof gaslessConfigScheme>;
 
 export async function fetchGaslessConfig(isTestnet: boolean): Promise<GaslessConfig> {
-    const endpoint = `https://connect.tonhubapi.com/gasless/${isTestnet ? 'testnet' : 'mainnet'}`;
+    const endpoint = `${whalesConnectEndpoint}/gasless/${isTestnet ? 'testnet' : 'mainnet'}`;
     const url = `${endpoint}/config`;
     const res = await axios.get(url, { method: 'GET' });
 

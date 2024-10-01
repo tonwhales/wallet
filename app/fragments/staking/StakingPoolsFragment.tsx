@@ -177,7 +177,6 @@ export const StakingPoolsFragment = fragment(() => {
     let team = filterPools(memberData, 'team', processed, network.isTestnet);
     let nominators = filterPools(memberData, 'nominators', processed, network.isTestnet);
     let epn = filterPools(memberData, 'epn', processed, network.isTestnet);
-    let lockups = filterPools(memberData, 'lockup', processed, network.isTestnet);
     let tonkeeper = filterPools(memberData, 'tonkeeper', processed, network.isTestnet);
 
     if (epn.length > 0) {
@@ -275,37 +274,6 @@ export const StakingPoolsFragment = fragment(() => {
                 />
                 <View style={poolItemsStyle}>
                     {clubItems}
-                </View>
-            </View>
-        );
-    }
-
-    if (lockups.length > 0) {
-        const lockupsItems: ReactElement[] = [];
-
-        for (let memberData of lockups) {
-            lockupsItems.push(
-                <StakingPool
-                    key={`lockup-${memberData.pool}`}
-                    pool={Address.parse(memberData.pool)}
-                    balance={memberData.balance}
-                    isLedger={isLedger}
-                    member={memberAddress!}
-                />
-            );
-        }
-        items.push(
-            <View
-                key={'lockups-view'}
-                style={poolViewStyle}
-            >
-                <StakingPoolsHeader
-                    key={'lockups-header'}
-                    text={t('products.staking.pools.lockups')}
-                    description={t('products.staking.pools.lockupsDescription')}
-                />
-                <View style={poolItemsStyle}>
-                    {lockupsItems}
                 </View>
             </View>
         );

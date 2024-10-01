@@ -8,11 +8,11 @@ export function useJetton(params: { owner: Address | string, master?: Address | 
     const { owner, master, wallet } = params;
     const masterStr = typeof master === 'string' ? master : (master?.toString({ testOnly }) ?? null);
     const ownerStr = typeof owner === 'string' ? owner : owner.toString({ testOnly });
-    
+
     const content = useJettonContent(masterStr, suspense);
     const walletAddressStr = useJettonWalletAddress(masterStr, ownerStr, suspense).data;
     const walletStr = walletAddressStr ?? (typeof wallet === 'string' ? wallet : wallet?.toString({ testOnly }));
-    const walletContent = useJettonWallet(walletStr, suspense);
+    const walletContent = useJettonWallet(walletStr, { suspense: true });
 
     if (!content || !walletContent || !walletStr) {
         return null;

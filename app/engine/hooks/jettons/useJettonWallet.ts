@@ -3,14 +3,19 @@ import { Queries } from '../../queries';
 import { jettonWalletQueryFn } from './usePrefetchHints';
 import { useNetwork } from '../network/useNetwork';
 
-export function useJettonWallet(wallet: string | null | undefined, suspense: boolean = false) {
+type JettonWalletQueryParams = {
+    suspense?: boolean;
+    refetchInterval?: number;
+};
+
+export function useJettonWallet(wallet: string | null | undefined, params: JettonWalletQueryParams = { suspense: false }) {
     const { isTestnet } = useNetwork();
-    
+
     let query = useQuery({
         queryKey: Queries.Account(wallet!).JettonWallet(),
         queryFn: jettonWalletQueryFn(wallet!, isTestnet),
         enabled: !!wallet,
-        suspense
+        ...params
     });
 
     return query.data;

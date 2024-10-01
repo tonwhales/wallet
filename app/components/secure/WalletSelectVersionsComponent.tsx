@@ -15,8 +15,6 @@ import { warn } from "../../utils/log";
 import { WalletVersions } from "../../engine/types";
 
 import IcCheck from "@assets/ic-check.svg";
-import { markAddressSecured } from "../../storage/appState";
-
 
 type WalletAddress = string;
 

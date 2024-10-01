@@ -74,7 +74,7 @@ export function updateTargetAmount(args: {
 
     const diff = BigInt(walletBalance) - relayerAmount - targetAmount;
     const diffAmount = diff >= 0 ? 0n : diff;
-    const newTargetAmount = targetAmount + adjustEstimateAmount + diffAmount;
+    const newTargetAmount = targetAmount + diffAmount;
 
     if (newTargetAmount < 0n) {
         return messages;

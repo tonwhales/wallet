@@ -45,11 +45,9 @@ export const StakingPoolHeader = memo(({
             },
         )
     }, [isLedger, currentPool, setParams, active]);
+
     const openMoreInfo = useCallback(() => {
-        openWithInApp(network.isTestnet
-            ? 'https://test.tonwhales.com/staking'
-            : 'https://tonwhales.com/staking'
-        )
+        openWithInApp(KnownPools(network.isTestnet)[currentPoolFriendly]?.webLink)
     }, [network.isTestnet]);
 
     return (

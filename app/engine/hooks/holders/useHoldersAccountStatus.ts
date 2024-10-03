@@ -68,7 +68,8 @@ export function useHoldersAccountStatus(address: string | Address) {
 
             const fetched = await fetchUserState(token, isTestnet);
 
-            if (!fetched) {
+            if (!fetched) { // unauthorized
+                deleteHoldersToken(addr);
                 return { state: HoldersUserState.NeedEnrollment } as HoldersAccountStatus;
             }
 
@@ -76,7 +77,7 @@ export function useHoldersAccountStatus(address: string | Address) {
         },
         refetchOnWindowFocus: true,
         refetchOnMount: true,
-        refetchInterval: 1000 * 60 * 5,
-        staleTime: 1000 * 60 * 60 * 24,
+        refetchInterval: 1000 * 60 * 1,
+        staleTime: 1000 * 60 * 60
     });
 }

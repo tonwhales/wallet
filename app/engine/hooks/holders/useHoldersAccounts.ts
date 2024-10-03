@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { GeneralHoldersAccount, PrePaidHoldersCard, fetchAccountsList, fetchAccountsPublic } from "../../api/holders/fetchAccounts";
-import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
+import { deleteHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersUserState } from "../../api/holders/fetchUserState";
 import { updateProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
 
@@ -44,6 +44,12 @@ export function useHoldersAccounts(address: string | Address) {
             
             if (token) {
                 const res = await fetchAccountsList(token, isTestnet);
+
+                if (!res) {
+                    deleteHoldersToken(addressString);
+                    throw new Error('Unauthorized');
+                }
+
                 type = 'private';
                 accounts = res?.accounts;
                 prepaidCards = res?.prepaidCards;

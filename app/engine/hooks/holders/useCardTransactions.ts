@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { CardNotification, fetchCardsTransactions } from "../../api/holders/fetchCardsTransactions";
 import { Queries } from "../../queries";
-import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
+import { deleteHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersUserState } from "../../api/holders/fetchUserState";
 
 export function useCardTransactions(address: string, id: string) {
@@ -25,6 +25,12 @@ export function useCardTransactions(address: string, id: string) {
         queryFn: async (ctx) => {
             if (!!status && status.state !== HoldersUserState.NeedEnrollment) {
                 const cardRes = await fetchCardsTransactions(status.token, id, 40, ctx.pageParam?.lastCursor, 'desc');
+
+                if (!!cardRes) {
+                    deleteHoldersToken(address);
+                    throw new Error('Unauthorized');
+                }
+
                 if (!!cardRes) {
                     return cardRes;
                 }

@@ -26,7 +26,7 @@ export function useCardTransactions(address: string, id: string) {
             if (!!status && status.state !== HoldersUserState.NeedEnrollment) {
                 const cardRes = await fetchCardsTransactions(status.token, id, 40, ctx.pageParam?.lastCursor, 'desc');
 
-                if (!!cardRes) {
+                if (!cardRes) {
                     deleteHoldersToken(address);
                     throw new Error('Unauthorized');
                 }

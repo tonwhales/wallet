@@ -9,8 +9,10 @@ import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 export const WalletActions = memo(({ theme, navigation, isTestnet }: { theme: ThemeType, navigation: TypedNavigation, isTestnet: boolean }) => {
     const showBuy = isNeocryptoAvailable();
     const appConfig = useAppConfig();
-    const showSwap = appConfig?.features?.swap;
-    
+    // TODO: rm platfrom check after review
+    // dont show swap on ios until the issue with review is resolved
+    const showSwap = appConfig?.features?.swap && Platform.OS === 'android';
+
     return (
         <View style={{ paddingHorizontal: 16 }}>
             <View style={{

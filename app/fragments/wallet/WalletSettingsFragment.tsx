@@ -133,7 +133,7 @@ export const WalletSettingsFragment = fragment(() => {
 
 
     return (
-        <View style={{ flexGrow: 1 }}>
+        <View style={{ flexGrow: 1 }} >
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'
@@ -148,6 +148,7 @@ export const WalletSettingsFragment = fragment(() => {
             </Animated.View>
             {!PLATFORM_IOS && <Animated.View style={animSeparatorStyles} />}
             <ScrollView
+                keyboardShouldPersistTaps="handled"
                 contentInsetAdjustmentBehavior={'never'}
             >
                 <View style={{
@@ -165,6 +166,7 @@ export const WalletSettingsFragment = fragment(() => {
                                     justifyContent: 'center', alignItems: 'center'
                                 }
                             }}
+                            disabled={isInputNameFocus}
                             onPress={onChangeAvatar}
                         >
                             <Avatar
@@ -224,6 +226,7 @@ export const WalletSettingsFragment = fragment(() => {
                                 {t('common.walletAddress')}
                             </Text>
                             <Text
+                                disabled={isInputNameFocus}
                                 onPress={() => {
                                     copyText(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }));
                                     toaster.show(

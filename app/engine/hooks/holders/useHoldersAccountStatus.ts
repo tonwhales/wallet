@@ -77,7 +77,7 @@ export function useHoldersAccountStatus(address: string | Address) {
         },
         refetchOnWindowFocus: true,
         refetchOnMount: true,
-        refetchInterval: 1000 * 60 * 1,
+        refetchInterval: 1000 * 60,
         staleTime: 1000 * 60 * 60
     });
 }

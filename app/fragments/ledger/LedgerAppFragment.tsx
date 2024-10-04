@@ -11,8 +11,8 @@ import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
 import { SettingsFragment } from '../SettingsFragment';
 import { SortedHintsWatcher } from "../../components/SortedHintsWatcher";
-import { LedgerHintsPrefetcher } from "../../components/LedgerHintsPrefetcher";
 import { HintsPrefetcher } from "../../components/HintsPrefetcher";
+import { PendingTxsWatcher } from "../../components/PendingTxsWatcher";
 
 const Tab = createBottomTabNavigator();
 
@@ -34,6 +34,8 @@ export const LedgerAppFragment = fragment(() => {
         navigation.navigateAndReplaceAll('Home')
         return null;
     }
+
+    const address = ledgerContext.addr.address;
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.surfaceOnBg }}>
@@ -102,8 +104,9 @@ export const LedgerAppFragment = fragment(() => {
                     component={SettingsFragment}
                 />
             </Tab.Navigator>
-            <HintsPrefetcher address={ledgerContext.addr?.address} />
-            <SortedHintsWatcher owner={ledgerContext.addr?.address} />
+            <HintsPrefetcher address={address} />
+            <SortedHintsWatcher owner={address} />
+            <PendingTxsWatcher address={address} />
         </View>
     );
 })

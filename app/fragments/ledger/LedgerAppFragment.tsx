@@ -11,6 +11,8 @@ import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
 import { SettingsFragment } from '../SettingsFragment';
 import { SortedHintsWatcher } from "../../components/SortedHintsWatcher";
+import { LedgerHintsPrefetcher } from "../../components/LedgerHintsPrefetcher";
+import { HintsPrefetcher } from "../../components/HintsPrefetcher";
 
 const Tab = createBottomTabNavigator();
 
@@ -100,6 +102,7 @@ export const LedgerAppFragment = fragment(() => {
                     component={SettingsFragment}
                 />
             </Tab.Navigator>
+            <HintsPrefetcher address={ledgerContext.addr?.address} />
             <SortedHintsWatcher owner={ledgerContext.addr?.address} />
         </View>
     );

@@ -61,24 +61,6 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
 
     return (
         <View style={{ flexGrow: 1 }}>
-            {appState.addresses.map((wallet, index) => {
-                if (onSelect && index === appState.selected) {
-                    return null;
-                }
-                return (
-                    <WalletItem
-                        key={`wallet-${index}`}
-                        index={index}
-                        address={wallet.address}
-                        selected={index === appState.selected && !isPrevScreenLedger}
-                        onSelect={onSelect}
-                        bounceableFormat={bounceableFormat}
-                        isW5={wallet.version === WalletVersions.v5R1}
-                        isTestnet={isTestnet}
-                        knownWallets={knownWallets}
-                    />
-                )
-            })}
             {!!connectedLedgerAddress && (
                 <Pressable
                     style={{
@@ -133,6 +115,24 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                     </View>
                 </Pressable>
             )}
+            {appState.addresses.map((wallet, index) => {
+                if (onSelect && index === appState.selected) {
+                    return null;
+                }
+                return (
+                    <WalletItem
+                        key={`wallet-${index}`}
+                        index={index}
+                        address={wallet.address}
+                        selected={index === appState.selected && !isPrevScreenLedger}
+                        onSelect={onSelect}
+                        bounceableFormat={bounceableFormat}
+                        isW5={wallet.version === WalletVersions.v5R1}
+                        isTestnet={isTestnet}
+                        knownWallets={knownWallets}
+                    />
+                )
+            })}
         </View>
     );
 });

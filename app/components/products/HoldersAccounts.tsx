@@ -28,7 +28,7 @@ export const HoldersAccounts = memo(({
     isTestnet: boolean,
     holdersAccStatus?: HoldersAccountStatus
 }) => {
-    const [price,] = usePrice();
+    const [price] = usePrice();
 
     const totalBalance = useMemo(() => {
         return reduceHoldersBalances(accs, price?.price?.usd ?? 0);

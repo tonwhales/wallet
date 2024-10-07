@@ -147,10 +147,9 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         )
                 )}
 
-                <View style={{
-                    marginHorizontal: 16, marginVertical: 16,
-                    marginTop: (!!holderBannerContent || (!inviteCheck && !!banners?.product)) ? 0 : 16
-                }}>
+                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
+
+                <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.balances')}
                     </Text>
@@ -203,8 +202,6 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     key={'pool'}
                     address={selected.address}
                 />
-
-                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
                 <JettonsProductComponent owner={selected.address} key={'jettons'} />
 

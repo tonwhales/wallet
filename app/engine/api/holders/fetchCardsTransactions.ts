@@ -227,6 +227,10 @@ export async function fetchCardsTransactions(
         }
     );
 
+    if (res.status === 401) {
+        return null;
+    }
+
     if (!res.data.ok) {
         throw Error('Error fetching events');
     }

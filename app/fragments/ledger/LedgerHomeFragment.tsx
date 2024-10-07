@@ -92,6 +92,10 @@ export const LedgerHomeFragment = fragment(() => {
         return null;
     }
 
+    useFocusEffect(() => {
+        setStatusBarStyle('light');
+    });
+
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
             <StatusBar style={'light'} />

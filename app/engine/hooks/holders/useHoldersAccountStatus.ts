@@ -7,6 +7,7 @@ import { storage } from "../../../storage/storage";
 import { HoldersUserState, userStateCodec, fetchUserState } from "../../api/holders/fetchUserState";
 import { z } from 'zod';
 import { removeProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
+import axios from "axios";
 
 const holdersAccountStatus = z.union([
     z.object({ state: z.literal(HoldersUserState.NeedEnrollment) }),
@@ -30,7 +31,7 @@ function migrateHoldersToken(addressString: string) {
 
 export function deleteHoldersToken(address: string) {
     // clean up provisioning credentials cache for this address
-    removeProvisioningCredentials(address);    
+    removeProvisioningCredentials(address);
     storage.delete(`holders-jwt-${address}`);
 }
 
@@ -66,14 +67,23 @@ export function useHoldersAccountStatus(address: string | Address) {
                 return { state: HoldersUserState.NeedEnrollment } as HoldersAccountStatus; // This looks amazingly stupid
             }
 
-            const fetched = await fetchUserState(token, isTestnet);
+            try {
+                const fetched = await fetchUserState(token, isTestnet);
 
-            if (!fetched) { // unauthorized
-                deleteHoldersToken(addr);
-                return { state: HoldersUserState.NeedEnrollment } as HoldersAccountStatus;
+                if (!fetched) { // unauthorized
+                    deleteHoldersToken(addr);
+                    return { state: HoldersUserState.NeedEnrollment } as HoldersAccountStatus;
+                }
+
+                return { ...fetched, token } as HoldersAccountStatus;
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    deleteHoldersToken(addressString);
+                    throw new Error('Unauthorized');
+                } else {
+                    throw error;
+                }
             }
-
-            return { ...fetched, token } as HoldersAccountStatus;
         },
         refetchOnWindowFocus: true,
         refetchOnMount: true,

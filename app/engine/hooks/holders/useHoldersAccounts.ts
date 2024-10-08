@@ -7,10 +7,11 @@ import { GeneralHoldersAccount, PrePaidHoldersCard, fetchAccountsList, fetchAcco
 import { deleteHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersUserState } from "../../api/holders/fetchUserState";
 import { updateProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
+import axios from "axios";
 
 export type HoldersAccounts = {
-    accounts: GeneralHoldersAccount[], 
-    type: 'public' | 'private', 
+    accounts: GeneralHoldersAccount[],
+    type: 'public' | 'private',
     prepaidCards?: PrePaidHoldersCard[]
 }
 
@@ -38,38 +39,47 @@ export function useHoldersAccounts(address: string | Address) {
         refetchInterval: 35000,
         staleTime: 35000,
         queryFn: async () => {
-            let accounts;
-            let prepaidCards: PrePaidHoldersCard[] | undefined;
-            let type = 'public';
-            
-            if (token) {
-                const res = await fetchAccountsList(token, isTestnet);
+            try {
+                let accounts;
+                let prepaidCards: PrePaidHoldersCard[] | undefined;
+                let type = 'public';
 
-                if (!res) {
-                    deleteHoldersToken(addressString);
-                    throw new Error('Unauthorized');
+                if (token) {
+                    const res = await fetchAccountsList(token, isTestnet);
+
+                    if (!res) {
+                        deleteHoldersToken(addressString);
+                        throw new Error('Unauthorized');
+                    }
+
+                    type = 'private';
+                    accounts = res?.accounts;
+                    prepaidCards = res?.prepaidCards;
+
+                    // fetch apple pay credentials and update provisioning credentials cache
+                    await updateProvisioningCredentials(addressString, isTestnet);
+                } else {
+                    accounts = await fetchAccountsPublic(addressString, isTestnet);
+                    type = 'public';
                 }
 
-                type = 'private';
-                accounts = res?.accounts;
-                prepaidCards = res?.prepaidCards;
+                const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
 
-                // fetch apple pay credentials and update provisioning credentials cache
-                await updateProvisioningCredentials(addressString, isTestnet);
-            } else {
-                accounts = await fetchAccountsPublic(addressString, isTestnet);
-                type = 'public';
+                const sorted = filtered?.sort((a, b) => {
+                    if (a.cards.length > b.cards.length) return -1;
+                    if (a.cards.length < b.cards.length) return 1;
+                    return 0;
+                });
+
+                return { accounts: sorted, type, prepaidCards } as HoldersAccounts;
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    deleteHoldersToken(addressString);
+                    throw new Error('Unauthorized');
+                } else {
+                    throw error;
+                }
             }
-
-            const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
-
-            const sorted = filtered?.sort((a, b) => {
-                if (a.cards.length > b.cards.length) return -1;
-                if (a.cards.length < b.cards.length) return 1;
-                return 0;
-            });
-
-            return { accounts: sorted, type, prepaidCards } as HoldersAccounts;
         }
     });
 

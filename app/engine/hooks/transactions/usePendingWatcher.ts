@@ -6,15 +6,17 @@ import { useClient4, useNetwork } from '../network';
 import { useWalletV4 } from '../accounts/useWalletV4';
 import { useSetRecoilState } from "recoil";
 import { pendingTransactionsState } from "../../state/pending";
+import { Address } from "@ton/core";
 
-export function usePendingWatcher() {
+export function usePendingWatcher(address?: string) {
     const account = useSelectedAccount();
+    const acc = address || account?.addressString || '';
     const client = useClient4(useNetwork().isTestnet);
-    const setPending = useSetRecoilState(pendingTransactionsState(account?.addressString || ''));
+    const setPending = useSetRecoilState(pendingTransactionsState(acc));
 
-    const v4 = useWalletV4(client, account?.addressString || '');
-    const lite = useAccountLite(account?.address || null);
-    const firstTransaction = useRawAccountTransactions(account?.addressString || '', { refetchOnMount: true }).data?.pages[0]?.[0];
+    const v4 = useWalletV4(client, acc);
+    const lite = useAccountLite(acc ? Address.parse(acc) : null);
+    const firstTransaction = useRawAccountTransactions(acc, { refetchOnMount: true }).data?.pages[0]?.[0];
 
     const txsInSync = firstTransaction?.hash === lite?.last?.hash && (v4.data?.last || 0) >= (lite?.block || 0);
 

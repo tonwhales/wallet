@@ -2,11 +2,10 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
-import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
+import { SectionList, SectionListData, SectionListRenderItemInfo, View, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
-import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
-import { TransactionDescription } from '../../../engine/types';
+import { Jetton } from '../../../engine/types';
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
@@ -14,31 +13,21 @@ import { TransactionsSkeleton } from "../../../components/skeletons/Transactions
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
-import { t } from "../../../i18n/t";
+import { useActionSheet } from "@expo/react-native-action-sheet";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
-import { Typography } from "../../../components/styles";
 import { warn } from "../../../utils/log";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
-
-export const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
-    return (
-        <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
-            <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
-                {title}
-            </Text>
-        </View>
-    )
-});
-SectionHeader.displayName = 'SectionHeader';
+import { JettonTransfer } from "../../../engine/hooks/transactions/useJettonTransactions";
+import { JettonTransactionView } from "./JettonTransactionView";
+import { SectionHeader } from "./WalletTransactions";
 
 type TransactionListItemProps = {
     address: Address,
     theme: ThemeType,
-    onPress: (tx: TransactionDescription) => void,
-    onLongPress?: (tx: TransactionDescription) => void,
+    onPress: (tx: JettonTransfer) => void,
+    onLongPress?: (tx: JettonTransfer) => void,
     ledger?: boolean,
     navigation: TypedNavigation,
     addToDenyList: (address: string | Address, reason: string) => void,
@@ -51,12 +40,13 @@ type TransactionListItemProps = {
     appState: AppState,
     bounceableFormat: boolean,
     walletsSettings: { [key: string]: WalletSettings }
-    knownWallets: { [key: string]: KnownWallet }
+    knownWallets: { [key: string]: KnownWallet },
+    jetton: Jetton
 }
 
-const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
+const JettonTransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<JettonTransfer, { title: string }> & TransactionListItemProps) => {
     return (
-        <TransactionView
+        <JettonTransactionView
             own={props.address}
             tx={item}
             separator={section.data[index + 1] !== undefined}
@@ -66,7 +56,7 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         />
     );
 }, (prev, next) => {
-    return prev.item.id === next.item.id
+    return prev.item.trace_id === next.item.trace_id
         && prev.isTestnet === next.isTestnet
         && prev.dontShowComments === next.dontShowComments
         && prev.spamMinAmount === next.spamMinAmount
@@ -84,10 +74,10 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.walletsSettings === next.walletsSettings
         && prev.knownWallets === next.knownWallets
 });
-TransactionListItem.displayName = 'TransactionListItem';
+JettonTransactionListItem.displayName = 'TransactionListItem';
 
-export const WalletTransactions = memo((props: {
-    txs: TransactionDescription[],
+export const JettonWalletTransactions = memo((props: {
+    txs: JettonTransfer[],
     hasNext: boolean,
     address: Address,
     navigation: TypedNavigation,
@@ -102,49 +92,51 @@ export const WalletTransactions = memo((props: {
     },
     ledger?: boolean,
     theme: ThemeType,
+    jetton: Jetton
 }) => {
-    const bottomBarHeight = useBottomTabBarHeight();
     const theme = props.theme;
     const navigation = props.navigation;
+    const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
-    const [spamMinAmount,] = useSpamMinAmount();
-    const [dontShowComments,] = useDontShowComments();
     const addressBookContext = useAddressBookContext();
     const addressBook = addressBookContext.state;
     const addToDenyList = useAddToDenyList();
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
-    const [pending,] = usePendingTransactions(props.address, isTestnet);
-    const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
-    const [bounceableFormat,] = useBounceableWalletFormat();
-    const [walletsSettings,] = useWalletsSettings();
+    const [spamMinAmount] = useSpamMinAmount();
+    const [dontShowComments] = useDontShowComments();
+    const [pending] = usePendingTransactions(props.address, isTestnet);
+    const [bounceableFormat] = useBounceableWalletFormat();
+    const [walletsSettings] = useWalletsSettings();
+    
+    const ref = useRef<SectionList<JettonTransfer, { title: string }>>(null);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
     const { transactionsSectioned } = useMemo(() => {
-        const sectioned = new Map<string, { title: string, data: TransactionDescription[] }>();
+        const sectioned = new Map<string, { title: string, data: JettonTransfer[] }>();
         for (let i = 0; i < props.txs.length; i++) {
             const t = props.txs[i];
-            const time = getDateKey(t.base.time);
+            const time = getDateKey(t.transaction_now);
             const section = sectioned.get(time);
             if (section) {
                 section.data.push(t);
             } else {
-                sectioned.set(time, { title: formatDate(t.base.time), data: [t] });
+                sectioned.set(time, { title: formatDate(t.transaction_now), data: [t] });
             }
         }
         return { transactionsSectioned: Array.from(sectioned.values()) };
     }, [props.txs]);
 
-    const navigateToPreview = useCallback((transaction: TransactionDescription) => {
+    const navigateToPreview = useCallback((transaction: JettonTransfer) => {
         props.navigation.navigate(
-            props.ledger ? 'LedgerTransactionPreview' : 'Transaction',
+            props.ledger ? 'LedgerJettonTransactionPreview' : 'JettonTransaction',
             { transaction }
         );
     }, [props.ledger, props.navigation]);
 
-    const renderSectionHeader = useCallback((section: { section: SectionListData<TransactionDescription, { title: string }> }) => (
+    const renderSectionHeader = useCallback((section: { section: SectionListData<JettonTransfer, { title: string }> }) => (
         <SectionHeader theme={theme} title={section.section.title} />
     ), [theme]);
 
@@ -167,108 +159,110 @@ export const WalletTransactions = memo((props: {
         navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
     }, []);
 
-    const onRepeatTx = useCallback((tx: TransactionDescription) => {
-        const amount = BigInt(tx.base.parsed.amount);
-        const operation = tx.base.operation;
-        const item = operation.items[0];
-        const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-        const opAddr = Address.parseFriendly(opAddressString);
-        const bounceable = bounceableFormat ? true : opAddr.isBounceable;
-        const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
-        const jetton = item.kind === 'token' ? tx.metadata?.jettonWallet?.master : null;
-        navigation.navigateSimpleTransfer({
-            target,
-            comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
-            amount: amount < 0n ? -amount : amount,
-            job: null,
-            stateInit: null,
-            jetton: jetton,
-            callback: null
-        });
+    const onRepeatTx = useCallback((tx: JettonTransfer) => {
+        // TODO
+        // const amount = BigInt(tx.base.parsed.amount);
+        // const operation = tx.base.operation;
+        // const item = operation.items[0];
+        // const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        // const opAddr = Address.parseFriendly(opAddressString);
+        // const bounceable = bounceableFormat ? true : opAddr.isBounceable;
+        // const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
+        // const jetton = item.kind === 'token' ? tx.metadata?.jettonWallet?.master : null;
+        // navigation.navigateSimpleTransfer({
+        //     target,
+        //     comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
+        //     amount: amount < 0n ? -amount : amount,
+        //     job: null,
+        //     stateInit: null,
+        //     jetton: jetton,
+        //     callback: null
+        // });
     }, [navigation, isTestnet, bounceableFormat]);
 
-    const onLongPress = (tx: TransactionDescription) => {
-        const operation = tx.base.operation;
-        const item = operation.items[0];
-        const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-        const kind = tx.base.parsed.kind;
-        const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${opAddress}`;
-        const txId = `${tx.base.lt}_${tx.base.hash}`;
-        const explorerTxLink = `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-            + `${props.address.toString({ testOnly: isTestnet })}/`
-            + `${txId}`;
-        const itemAmount = BigInt(item.amount);
-        const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
-        const contact = addressBook.contacts[opAddress];
-        const isSpam = !!addressBook.denyList[opAddress]?.reason;
+    const onLongPress = (tx: JettonTransfer) => {
+        // TODO
+        // const operation = tx.base.operation;
+        // const item = operation.items[0];
+        // const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        // const kind = tx.base.parsed.kind;
+        // const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${opAddress}`;
+        // const txId = `${tx.base.lt}_${tx.base.hash}`;
+        // const explorerTxLink = `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
+        //     + `${props.address.toString({ testOnly: isTestnet })}/`
+        //     + `${txId}`;
+        // const itemAmount = BigInt(item.amount);
+        // const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
+        // const contact = addressBook.contacts[opAddress];
+        // const isSpam = !!addressBook.denyList[opAddress]?.reason;
 
-        const spam =
-            !!spamWallets.find((i) => opAddress === i)
-            || isSpam
-            || (
-                absAmount < spamMinAmount
-                && !!tx.base.operation.comment
-                && !knownWallets[opAddress]
-                && !isTestnet
-            ) && kind !== 'out';
+        // const spam =
+        //     !!spamWallets.find((i) => opAddress === i)
+        //     || isSpam
+        //     || (
+        //         absAmount < spamMinAmount
+        //         && !!tx.base.operation.comment
+        //         && !knownWallets[opAddress]
+        //         && !isTestnet
+        //     ) && kind !== 'out';
 
-        const canRepeat = kind === 'out'
-            && !props.ledger
-            && tx.base.parsed.body?.type !== 'payload';
+        // const canRepeat = kind === 'out'
+        //     && !props.ledger
+        //     && tx.base.parsed.body?.type !== 'payload';
 
-        const handleAction = (eN?: number) => {
-            switch (eN) {
-                case 1: {
-                    if (explorerTxLink) {
-                        onShare(explorerTxLink, t('txActions.share.transaction'));
-                    }
-                    break;
-                }
-                case 2: {
-                    onAddressContact(Address.parse(opAddress));
-                    break;
-                }
-                case 3: {
-                    onShare(addressLink, t('txActions.share.address'));
-                    break;
-                }
-                case 4: {
-                    if (!spam) {
-                        onMarkAddressSpam(opAddress);
-                    } else if (canRepeat) {
-                        onRepeatTx(tx);
-                    }
-                    break;
-                }
-                case 5: {
-                    if (canRepeat) {
-                        onRepeatTx(tx);
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
+        // const handleAction = (eN?: number) => {
+        //     switch (eN) {
+        //         case 1: {
+        //             if (explorerTxLink) {
+        //                 onShare(explorerTxLink, t('txActions.share.transaction'));
+        //             }
+        //             break;
+        //         }
+        //         case 2: {
+        //             onAddressContact(Address.parse(opAddress));
+        //             break;
+        //         }
+        //         case 3: {
+        //             onShare(addressLink, t('txActions.share.address'));
+        //             break;
+        //         }
+        //         case 4: {
+        //             if (!spam) {
+        //                 onMarkAddressSpam(opAddress);
+        //             } else if (canRepeat) {
+        //                 onRepeatTx(tx);
+        //             }
+        //             break;
+        //         }
+        //         case 5: {
+        //             if (canRepeat) {
+        //                 onRepeatTx(tx);
+        //             }
+        //             break;
+        //         }
+        //         default:
+        //             break;
+        //     }
+        // }
 
-        const actionSheetOptions: ActionSheetOptions = {
-            options: tx.base.outMessagesCount > 1 ? [
-                t('common.cancel'),
-                t('txActions.txShare'),
-            ] : [
-                t('common.cancel'),
-                t('txActions.txShare'),
-                !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
-                t('txActions.addressShare'),
-                ...(!spam ? [t('txActions.addressMarkSpam')] : []),
-                ...(canRepeat ? [t('txActions.txRepeat')] : []),
-            ],
-            userInterfaceStyle: theme.style,
-            cancelButtonIndex: 0,
-            destructiveButtonIndex: !spam ? 4 : undefined,
-        }
+        // const actionSheetOptions: ActionSheetOptions = {
+        //     options: tx.base.outMessagesCount > 1 ? [
+        //         t('common.cancel'),
+        //         t('txActions.txShare'),
+        //     ] : [
+        //         t('common.cancel'),
+        //         t('txActions.txShare'),
+        //         !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
+        //         t('txActions.addressShare'),
+        //         ...(!spam ? [t('txActions.addressMarkSpam')] : []),
+        //         ...(canRepeat ? [t('txActions.txRepeat')] : []),
+        //     ],
+        //     userInterfaceStyle: theme.style,
+        //     cancelButtonIndex: 0,
+        //     destructiveButtonIndex: !spam ? 4 : undefined,
+        // }
 
-        return showActionSheetWithOptions(actionSheetOptions, handleAction);
+        // return showActionSheetWithOptions(actionSheetOptions, handleAction);
     }
 
     useEffect(() => {
@@ -310,7 +304,7 @@ export const WalletTransactions = memo((props: {
             ) : null}
             ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
             renderItem={(item) => (
-                <TransactionListItem
+                <JettonTransactionListItem
                     {...item}
                     address={props.address}
                     theme={theme}
@@ -329,12 +323,13 @@ export const WalletTransactions = memo((props: {
                     walletsSettings={walletsSettings}
                     knownWallets={knownWallets}
                     addToDenyList={addToDenyList}
+                    jetton={props.jetton}
                 />
             )}
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={1}
-            keyExtractor={(item) => 'tx-' + item.id}
+            keyExtractor={(item) => 'tx-' + item.trace_id}
         />
     );
 });
-WalletTransactions.displayName = 'WalletTransactions';
+JettonWalletTransactions.displayName = 'JettonWalletTransactions';

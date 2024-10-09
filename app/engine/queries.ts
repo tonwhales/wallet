@@ -44,6 +44,7 @@ export const Queries = {
             AllWallets: () => ['jettons', 'address', address, 'master'],
             Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
             WalletPayload: (walletAddress: string) => ['jettons', 'address', address, 'wallet', walletAddress, 'payload'],
+            Transactions: (master: string) => ['jettons', 'address', address, 'master', master, 'transactions']
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
         Known: () => ['jettons', 'known'],

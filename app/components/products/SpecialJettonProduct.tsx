@@ -32,8 +32,8 @@ export const SpecialJettonProduct = memo(({
     const specialJetton = useSpecialJetton(address);
     const content = specialJetton?.masterContent;
     const balance = specialJetton?.balance ?? 0n;
-    const [bounceableFormat,] = useBounceableWalletFormat();
-    const ledgerAddressStr = address?.toString({ bounceable: bounceableFormat, testOnly });
+    const [bounceableFormat] = useBounceableWalletFormat();
+    const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
 
     const onPress = useCallback(() => {
         const jetton = specialJetton ? { master: specialJetton?.master, data: specialJetton?.masterContent } : undefined;
@@ -51,6 +51,17 @@ export const SpecialJettonProduct = memo(({
             return;
         }
 
+        if (!isLedger) {
+            navigation.navigateJettonWallet({
+                owner: address.toString({ bounceable: bounceableFormat, testOnly }),
+                master: specialJetton.master.toString({ bounceable: bounceableFormat, testOnly }),
+                wallet: specialJetton.wallet?.toString({ bounceable: bounceableFormat, testOnly })
+            });
+
+            return;
+        }
+        // TODO: implement LedgerJettonWallet
+
         const tx = {
             amount: null,
             target: null,
@@ -61,12 +72,7 @@ export const SpecialJettonProduct = memo(({
             callback: null
         }
 
-        if (isLedger) {
-            navigation.navigateLedgerTransfer(tx);
-            return;
-        }
-
-        navigation.navigateSimpleTransfer(tx);
+        navigation.navigateLedgerTransfer(tx);
 
     }, [specialJetton, isLedger, ledgerAddressStr, balance]);
 

@@ -116,6 +116,9 @@ export function useJettonTransactions(owner: string, master: string, options: { 
                 query.fetchNextPage();
             }
         },
+        refresh: () => {
+            query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        },
         hasNext: !!query.hasNextPage,
         loading: query.isFetching,
     };

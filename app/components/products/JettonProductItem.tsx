@@ -22,6 +22,7 @@ import { Image } from 'expo-image';
 import { ToastDuration, useToaster } from '../toast/ToastProvider';
 import { copyText } from '../../utils/copyText';
 import { Jetton } from '../../engine/types';
+import { mapJettonToMasterState } from '../../utils/jettons/mapJettonToMasterState';
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -340,17 +341,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     let symbol = jetton.symbol ?? '';
     let isSelected = props.selectParams?.selectedFn ? props.selectParams.selectedFn(jetton) : false;
 
-    const masterState: JettonMasterState & { address: string } = {
-        address: jetton.master.toString({ testOnly: isTestnet }),
-        symbol: jetton.symbol,
-        name: jetton.name,
-        description: jetton.description,
-        decimals: jetton.decimals,
-        assets: jetton.assets ?? undefined,
-        pool: jetton.pool ?? undefined,
-        originalImage: jetton.icon,
-        image: jetton.icon ? { preview256: jetton.icon, blurhash: '' } : null,
-    }
+    const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
 
     return (
         (props.rightAction) ? (

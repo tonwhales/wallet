@@ -40,6 +40,7 @@ type TransferAddressInputProps = {
     lastTwoTxs: TransactionDescription[],
     navigation: TypedNavigation,
     setAddressDomainInputState: (state: AddressInputState) => void,
+    autoFocus?: boolean,
 }
 
 export type AddressInputState = {
@@ -304,7 +305,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         target={props.target}
                         index={props.index}
                         ref={ref}
-                        autoFocus={true}
+                        autoFocus={props.autoFocus}
                         onFocus={props.onFocus}
                         isKnown={isKnown}
                         onSubmit={props.onSubmit}

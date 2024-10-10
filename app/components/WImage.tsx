@@ -42,8 +42,6 @@ export const WImage = memo((props: {
         );
     }
 
-    console.log({ url })
-
     if (url) {
         return (
             <View style={[{

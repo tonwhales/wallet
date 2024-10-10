@@ -21,6 +21,7 @@ import { getCurrentAddress } from '../storage/appState';
 import { Platform } from 'react-native';
 import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
 import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
+import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -248,6 +249,10 @@ export class TypedNavigation {
 
     navigateJettonWallet(param: JettonWalletFragmentParams) {
         this.navigate('JettonWalletFragment', param);
+    }
+
+    navigateJettonTransaction(param: JettonTransactionPreviewParams) {
+        this.navigate('JettonTransaction', param);
     }
 
     navigateReceive(params?: ReceiveFragmentParams) {

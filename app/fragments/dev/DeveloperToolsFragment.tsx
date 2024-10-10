@@ -299,6 +299,25 @@ export const DeveloperToolsFragment = fragment(() => {
                                     navigation.navigate('DevDAppWebView');
                                 }}
                             />
+                            <ItemButton
+                                title={'Run'}
+                                onPress={() => {
+                                    const str = 'RmXijSCTQUVpXUms8boJXDkJGUi4MymFJxo1e8ssASQ=';
+                                    const buff = Buffer.from(str, 'base64');
+                                    const hext = buff.toString('hex');
+                                    console.log(hext, hext === '4665e28d20934145695d49acf1ba095c39091948b8332985271a357bcb2c0124');
+
+                                }}
+                            />
+                            <ItemButton
+                                title={'Run backwards'}
+                                onPress={() => {
+                                    const str = 'dc2ca744b9925a101c8eeaf79cdeafc122a0d17dfaafdb5a77d25678a9b9f1e6=';
+                                    const buff = Buffer.from(str, 'hex');
+                                    const hext = buff.toString('base64');
+                                    console.log(hext);
+                                }}
+                            />
                         </View>
                     </View>
                 </ScrollView>

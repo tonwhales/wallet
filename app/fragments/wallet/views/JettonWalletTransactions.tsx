@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import { Address } from "@ton/core";
+import { Address, toNano } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
 import { SectionList, SectionListData, SectionListRenderItemInfo, View, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
@@ -13,7 +13,7 @@ import { TransactionsSkeleton } from "../../../components/skeletons/Transactions
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useActionSheet } from "@expo/react-native-action-sheet";
+import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { warn } from "../../../utils/log";
@@ -22,6 +22,9 @@ import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { JettonTransfer } from "../../../engine/hooks/transactions/useJettonTransactions";
 import { JettonTransactionView } from "./JettonTransactionView";
 import { SectionHeader } from "./WalletTransactions";
+import { parseForwardPayloadComment } from "../../../utils/spam/isTxSPAM";
+import { t } from "../../../i18n/t";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 
 type TransactionListItemProps = {
     address: Address,
@@ -74,7 +77,7 @@ const JettonTransactionListItem = memo(({ item, section, index, theme, ...props 
         && prev.walletsSettings === next.walletsSettings
         && prev.knownWallets === next.knownWallets
 });
-JettonTransactionListItem.displayName = 'TransactionListItem';
+JettonTransactionListItem.displayName = 'JettonTransactionListItem';
 
 export const JettonWalletTransactions = memo((props: {
     txs: JettonTransfer[],
@@ -83,6 +86,7 @@ export const JettonWalletTransactions = memo((props: {
     navigation: TypedNavigation,
     safeArea: EdgeInsets,
     onLoadMore: () => void,
+    onRefresh?: () => void,
     loading: boolean,
     header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     sectionedListProps?: {
@@ -109,7 +113,7 @@ export const JettonWalletTransactions = memo((props: {
     const [pending] = usePendingTransactions(props.address, isTestnet);
     const [bounceableFormat] = useBounceableWalletFormat();
     const [walletsSettings] = useWalletsSettings();
-    
+
     const ref = useRef<SectionList<JettonTransfer, { title: string }>>(null);
 
     const { showActionSheetWithOptions } = useActionSheet();
@@ -130,10 +134,20 @@ export const JettonWalletTransactions = memo((props: {
     }, [props.txs]);
 
     const navigateToPreview = useCallback((transaction: JettonTransfer) => {
-        props.navigation.navigate(
-            props.ledger ? 'LedgerJettonTransactionPreview' : 'JettonTransaction',
-            { transaction }
-        );
+        if (props.ledger) {
+            navigation.navigate('LedgerJettonTransactionPreview', {
+                transaction,
+                wallet: props.jetton.wallet.toString({ testOnly: isTestnet }),
+                master: props.jetton.master.toString({ testOnly: isTestnet }),
+                owner: props.address.toString({ testOnly: isTestnet })
+            });
+        }
+        navigation.navigateJettonTransaction({
+            transaction,
+            wallet: props.jetton.wallet.toString({ testOnly: isTestnet }),
+            master: props.jetton.master.toString({ testOnly: isTestnet }),
+            owner: props.address.toString({ testOnly: isTestnet })
+        });
     }, [props.ledger, props.navigation]);
 
     const renderSectionHeader = useCallback((section: { section: SectionListData<JettonTransfer, { title: string }> }) => (
@@ -160,117 +174,100 @@ export const JettonWalletTransactions = memo((props: {
     }, []);
 
     const onRepeatTx = useCallback((tx: JettonTransfer) => {
-        // TODO
-        // const amount = BigInt(tx.base.parsed.amount);
-        // const operation = tx.base.operation;
-        // const item = operation.items[0];
-        // const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-        // const opAddr = Address.parseFriendly(opAddressString);
-        // const bounceable = bounceableFormat ? true : opAddr.isBounceable;
-        // const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
-        // const jetton = item.kind === 'token' ? tx.metadata?.jettonWallet?.master : null;
-        // navigation.navigateSimpleTransfer({
-        //     target,
-        //     comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
-        //     amount: amount < 0n ? -amount : amount,
-        //     job: null,
-        //     stateInit: null,
-        //     jetton: jetton,
-        //     callback: null
-        // });
-    }, [navigation, isTestnet, bounceableFormat]);
+        const decimals = props.jetton.decimals ?? 9;
+        const amount = toNano(fromBnWithDecimals(BigInt(tx.amount), decimals));
+        const opAddr = Address.parse(tx.destination);
+        const bounceable = bounceableFormat;
+        const target = opAddr.toString({ testOnly: isTestnet, bounceable });
+        const comment = parseForwardPayloadComment(tx.forward_payload);
+
+        navigation.navigateSimpleTransfer({
+            target,
+            comment: comment,
+            amount: amount < 0n ? -amount : amount,
+            job: null,
+            stateInit: null,
+            jetton: props.jetton.wallet,
+            callback: null
+        });
+    }, [navigation, isTestnet, bounceableFormat, props.jetton]);
 
     const onLongPress = (tx: JettonTransfer) => {
-        // TODO
-        // const operation = tx.base.operation;
-        // const item = operation.items[0];
-        // const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-        // const kind = tx.base.parsed.kind;
-        // const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${opAddress}`;
-        // const txId = `${tx.base.lt}_${tx.base.hash}`;
-        // const explorerTxLink = `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-        //     + `${props.address.toString({ testOnly: isTestnet })}/`
-        //     + `${txId}`;
-        // const itemAmount = BigInt(item.amount);
-        // const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
-        // const contact = addressBook.contacts[opAddress];
-        // const isSpam = !!addressBook.denyList[opAddress]?.reason;
+        const targetAddress = Address.parse(tx.destination);
+        const targetAddressWithBounce = targetAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat });
+        const target = targetAddress.toString({ testOnly: isTestnet });
+        const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${targetAddressWithBounce}`;
+        const buffTxHash = Buffer.from(tx.trace_id, 'base64');
+        const txHash = buffTxHash.toString('base64');
+        const explorerTxLink = `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
+            + `${props.address.toString({ testOnly: isTestnet })}/`
+            + `${tx.transaction_lt}_${encodeURIComponent(txHash)}`;
+        const contact = addressBook.contacts[target];
+        const isSpam = !!addressBook.denyList[target]?.reason;
+        const kind: 'in' | 'out' = targetAddress.equals(props.address) ? 'in' : 'out';
+        const comment = parseForwardPayloadComment(tx.forward_payload);
 
-        // const spam =
-        //     !!spamWallets.find((i) => opAddress === i)
-        //     || isSpam
-        //     || (
-        //         absAmount < spamMinAmount
-        //         && !!tx.base.operation.comment
-        //         && !knownWallets[opAddress]
-        //         && !isTestnet
-        //     ) && kind !== 'out';
+        const spam =
+            !!spamWallets.find((i) => target === i)
+            || isSpam
+            || !!comment && !knownWallets[target] && !isTestnet && kind === 'in';
 
-        // const canRepeat = kind === 'out'
-        //     && !props.ledger
-        //     && tx.base.parsed.body?.type !== 'payload';
+        const canRepeat = kind === 'out'
+            && !props.ledger
+            && !tx.custom_payload
+            && !(!!tx.forward_payload && !comment);
 
-        // const handleAction = (eN?: number) => {
-        //     switch (eN) {
-        //         case 1: {
-        //             if (explorerTxLink) {
-        //                 onShare(explorerTxLink, t('txActions.share.transaction'));
-        //             }
-        //             break;
-        //         }
-        //         case 2: {
-        //             onAddressContact(Address.parse(opAddress));
-        //             break;
-        //         }
-        //         case 3: {
-        //             onShare(addressLink, t('txActions.share.address'));
-        //             break;
-        //         }
-        //         case 4: {
-        //             if (!spam) {
-        //                 onMarkAddressSpam(opAddress);
-        //             } else if (canRepeat) {
-        //                 onRepeatTx(tx);
-        //             }
-        //             break;
-        //         }
-        //         case 5: {
-        //             if (canRepeat) {
-        //                 onRepeatTx(tx);
-        //             }
-        //             break;
-        //         }
-        //         default:
-        //             break;
-        //     }
-        // }
-
-        // const actionSheetOptions: ActionSheetOptions = {
-        //     options: tx.base.outMessagesCount > 1 ? [
-        //         t('common.cancel'),
-        //         t('txActions.txShare'),
-        //     ] : [
-        //         t('common.cancel'),
-        //         t('txActions.txShare'),
-        //         !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
-        //         t('txActions.addressShare'),
-        //         ...(!spam ? [t('txActions.addressMarkSpam')] : []),
-        //         ...(canRepeat ? [t('txActions.txRepeat')] : []),
-        //     ],
-        //     userInterfaceStyle: theme.style,
-        //     cancelButtonIndex: 0,
-        //     destructiveButtonIndex: !spam ? 4 : undefined,
-        // }
-
-        // return showActionSheetWithOptions(actionSheetOptions, handleAction);
-    }
-
-    useEffect(() => {
-        // Scroll to top when new pending transactions appear
-        if (pending.length > 0) {
-            ref.current?.scrollToLocation({ sectionIndex: -1, itemIndex: 0, animated: true });
+        const handleAction = (eN?: number) => {
+            switch (eN) {
+                case 1: {
+                    if (explorerTxLink) {
+                        onShare(explorerTxLink, t('txActions.share.transaction'));
+                    }
+                    break;
+                }
+                case 2: {
+                    onAddressContact(targetAddress);
+                    break;
+                }
+                case 3: {
+                    onShare(addressLink, t('txActions.share.address'));
+                    break;
+                }
+                case 4: {
+                    if (!spam) {
+                        onMarkAddressSpam(target);
+                    } else if (canRepeat) {
+                        onRepeatTx(tx);
+                    }
+                    break;
+                }
+                case 5: {
+                    if (canRepeat) {
+                        onRepeatTx(tx);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
         }
-    }, [pending.length]);
+
+        const actionSheetOptions: ActionSheetOptions = {
+            options: [
+                t('common.cancel'),
+                t('txActions.txShare'),
+                !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
+                t('txActions.addressShare'),
+                ...(!spam ? [t('txActions.addressMarkSpam')] : []),
+                ...(canRepeat ? [t('txActions.txRepeat')] : []),
+            ],
+            userInterfaceStyle: theme.style,
+            cancelButtonIndex: 0,
+            destructiveButtonIndex: !spam ? 4 : undefined,
+        }
+
+        return showActionSheetWithOptions(actionSheetOptions, handleAction);
+    }
 
     return (
         <SectionList
@@ -326,6 +323,8 @@ export const JettonWalletTransactions = memo((props: {
                     jetton={props.jetton}
                 />
             )}
+            onRefresh={props.onRefresh}
+            refreshing={props.loading}
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={1}
             keyExtractor={(item) => 'tx-' + item.trace_id}

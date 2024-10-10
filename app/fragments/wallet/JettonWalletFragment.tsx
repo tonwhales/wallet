@@ -18,6 +18,7 @@ import { JettonWalletTransactions } from "./views/JettonWalletTransactions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJettonTransactions } from "../../engine/hooks/transactions/useJettonTransactions";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 
 export type JettonWalletFragmentProps = {
     owner: string;
@@ -83,17 +84,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
         return null;
     }
 
-    const masterState: JettonMasterState & { address: string } = {
-        address: jettonWallet.master.toString({ testOnly: isTestnet }),
-        symbol: jettonWallet.symbol,
-        name: jettonWallet.name,
-        description: jettonWallet.description,
-        decimals: jettonWallet.decimals,
-        assets: jettonWallet.assets ?? undefined,
-        pool: jettonWallet.pool ?? undefined,
-        originalImage: jettonWallet.icon,
-        image: jettonWallet.icon ? { preview256: jettonWallet.icon, blurhash: '' } : null,
-    };
+    const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jettonWallet, isTestnet);
 
     const swap = useJettonSwap(master);
     const balance = jettonWallet?.balance ?? 0n;
@@ -139,6 +130,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                 address={Address.parse(owner)}
                 safeArea={safeArea}
                 onLoadMore={onReachedEnd}
+                onRefresh={txs.refresh}
                 loading={false}
                 header={
                     <View style={styles.content}>

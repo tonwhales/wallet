@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -34,6 +34,8 @@ import { queryClient } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
+import { getLedgerDebugActions } from '../ledger/LedgerSignTransferFragment';
+import { Typography } from '../../components/styles';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -125,6 +127,8 @@ export const DeveloperToolsFragment = fragment(() => {
             ]
         )
     }, []);
+
+    const [ledgerDubugItems, setLedgerDebugItems] = useState<string[]>(getLedgerDebugActions());
 
     return (
         <View style={{ flexGrow: 1, paddingTop: 32 }}>
@@ -299,6 +303,23 @@ export const DeveloperToolsFragment = fragment(() => {
                                     navigation.navigate('DevDAppWebView');
                                 }}
                             />
+                            <ItemButton
+                                title={'Refresh Ledger Debug Actions'}
+                                onPress={() => {
+                                    setLedgerDebugItems(getLedgerDebugActions());
+                                }}
+                            />
+                            <View style={{ gap: 4, padding: 8 }}>
+                                {ledgerDubugItems.map((item, index) => {
+                                    return (
+                                        <View key={`ldg-deb-${index}`}>
+                                            <Text style={[{ color: theme.warning }, Typography.medium13_18]}>
+                                                {item}
+                                            </Text>
+                                        </View>
+                                    )
+                                })}
+                            </View>
                         </View>
                     </View>
                 </ScrollView>

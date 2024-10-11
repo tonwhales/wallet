@@ -9,6 +9,8 @@ import { TonTransport } from '@ton-community/ton-ledger';
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { navigationRef } from '../../../Navigation';
 import { delay } from "teslabot";
+import { addLedgerDebugAction } from "../LedgerSignTransferFragment";
+import { formatTime } from "../../../utils/dates";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
@@ -65,6 +67,9 @@ const bleSearchStateReducer = (state: BLESearchState, action: BleSearchAction): 
     }
 }
 
+const getTime = () => Math.floor(Date.now() / 1000);
+const getTimeString = () => formatTime(getTime());
+
 export const TransportContext = createContext<
     {
         ledgerConnection: TypedTransport | null,
@@ -97,6 +102,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const reconnectAttempts = useRef<number>(0);
 
     const reset = useCallback(() => {
+        addLedgerDebugAction(`${getTimeString()}: reset `);
         setLedgerConnection(null);
         setTonTransport(null);
         setAddr(null);
@@ -106,6 +112,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     }, []);
 
     const onSetAddr = useCallback((addr: LedgerAddress | null) => {
+        addLedgerDebugAction(`${getTimeString()}: setAddr ${addr?.address}`);
         setAddr(addr);
         if (bleState?.type === 'ongoing') {
             dispatchBleState({ type: 'complete' });
@@ -113,21 +120,28 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     }, [bleState]);
 
     const startHIDSearch = useCallback(async () => {
+        addLedgerDebugAction(`${getTimeString()}: startHIDSearch`);
         let hid: Transport | undefined;
         try { // For some reason, the first time this is called, it fails and only requests permission to connect the HID device
             hid = await TransportHID.create();
+            addLedgerDebugAction(`${getTimeString()}: HID created`);
         } catch {
+            addLedgerDebugAction(`${getTimeString()}: HID create failed, retrying`);
             // Retry to account for first failed create with connect permission request
             hid = await TransportHID.create();
+            addLedgerDebugAction(`${getTimeString()}: HID created`);
         }
 
         if (hid) {
+            addLedgerDebugAction(`${getTimeString()}: HID search complete`);
             setLedgerConnection({ type: 'hid', transport: hid, device: null });
         }
     }, []);
 
     const onDisconnect = useCallback(() => {
         const maxReconnectAttempts = ledgerConnection?.type === 'hid' ? 1 : 2;
+
+        addLedgerDebugAction(`${getTimeString()}: onDisconnect, reconnectAttempts: ${reconnectAttempts.current}`);
 
         // Try to reconnect if we haven't reached the max attempts,
         // on device unlocked or ton app opened events
@@ -142,13 +156,16 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
                     let timeoutAwaiter = new Promise<TransportBLE>((_, reject) => setTimeout(() => reject(new Error('Timeout of 10000 ms occured')), 10000));
                     if (ledgerConnection.type === 'hid') {
+                        addLedgerDebugAction(`${getTimeString()}: HID reconnect`);
                         await Promise.race([startHIDSearch(), timeoutAwaiter]);
                     } else {
+                        addLedgerDebugAction(`${getTimeString()}: BLE reconnect`);
                         const transport = await Promise.race([TransportBLE.open(ledgerConnection.device.id), timeoutAwaiter]);
                         setLedgerConnection({ type: 'ble', transport, device: ledgerConnection.device });
                     }
                     reconnectAttempts.current = 0;
                 } catch {
+                    addLedgerDebugAction(`${getTimeString()}: reconnect failed`);
                     console.warn('[ledger] reconnect failed');
                     await delay(1000);
                     onDisconnect();
@@ -167,6 +184,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     }, [ledgerConnection]);
 
     const startBleSearch = useCallback(() => {
+        addLedgerDebugAction(`${getTimeString()}: startBleSearch`);
         setSearch((prevSearch) => prevSearch + 1);
     }, []);
 
@@ -181,6 +199,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 },
                 next: e => {
                     if (e.type === "add") {
+                        addLedgerDebugAction(`${getTimeString()}: BLE device found`);
                         const device = e.descriptor;
                         dispatchBleState({ type: 'add', device });
                     }
@@ -255,6 +274,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
             let previousAvailable = false;
             powerSub = new Observable(TransportBLE.observeState).subscribe((e: any) => {
+                addLedgerDebugAction(`${getTimeString()}: BLE state ${e.type}`);
                 if (e.type === 'PoweredOff') {
                     Alert.alert(t('hardwareWallet.errors.turnOnBluetooth'));
                     if (sub) sub.unsubscribe();
@@ -280,24 +300,27 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     useEffect(() => {
         let sub: Subscription | null = null;
+        addLedgerDebugAction(`${getTimeString()}: ledgerConnection: ${ledgerConnection?.type}`);
         if (ledgerConnection?.type === 'ble') {
+            addLedgerDebugAction(`${getTimeString()}: setting transport`);
             ledgerConnection.transport.on('disconnect', onDisconnect);
             setTonTransport(new TonTransport(ledgerConnection.transport));
-
         } else if (ledgerConnection?.type === 'hid') {
-
+            
             ledgerConnection.transport.on('disconnect', onDisconnect);
             ledgerConnection.transport.on('onDeviceDisconnect', onDisconnect);
-
+            
             sub = new Observable(TransportHID.listen).subscribe((e: any) => {
                 if (e.type === "remove") {
                     onDisconnect();
                 }
             });
-
+            
+            addLedgerDebugAction(`${getTimeString()}: setting transport`);
             setTonTransport(new TonTransport(ledgerConnection.transport));
         }
         return () => {
+            addLedgerDebugAction(`${getTimeString()}: connection cleanup`);
             sub?.unsubscribe();
             ledgerConnection?.transport.off('disconnect', onDisconnect);
             ledgerConnection?.transport.off('onDeviceDisconnect', onDisconnect);

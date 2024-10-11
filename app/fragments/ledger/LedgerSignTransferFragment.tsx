@@ -38,6 +38,34 @@ import { RoundButton } from '../../components/RoundButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
+import { storage } from '../../storage/storage';
+import { formatTime } from '../../utils/dates';
+
+const ledgerDebugKey = 'ledger-debug';
+
+export function getLedgerDebugActions() {
+    const stored = storage.getString(ledgerDebugKey);
+
+    if (!stored) {
+        return [];
+    }
+
+    try {
+        return JSON.parse(stored) as string[];
+    } catch {
+        return [];
+    }
+}
+
+export function setLedgerDebugActions(actions: string[]) {
+    storage.set(ledgerDebugKey, JSON.stringify(actions));
+}
+
+export function addLedgerDebugAction(action: string) {
+    const actions = getLedgerDebugActions();
+    actions.push(action);
+    setLedgerDebugActions(actions);
+}
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -144,6 +172,9 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
 
     // Confirmation
     const doSend = useCallback(async () => {
+        const getTime = () => Math.floor(Date.now() / 1000);
+        const getTimeString = () => formatTime(getTime());
+        addLedgerDebugAction(`${getTimeString()}: transfer-start`);
         let value: bigint = order.amount;
 
         // Parse address
@@ -180,9 +211,16 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 }
             }
 
+            addLedgerDebugAction(`${getTimeString()}: transfer-loaded`);
+
             // Send sign request to Ledger
             let signed: Cell | null = null;
             try {
+                let app = false;
+                try {
+                    app = await transport.isAppOpen();
+                } catch (error) {}
+                addLedgerDebugAction(`${getTimeString()}: transfer-signing, transport ready: ${!!transport}, app: ${app} context: ${ledgerContext?.addr?.address}`);
                 signed = await transport.signTransaction(path, {
                     to: address!,
                     sendMode: order.amountAll
@@ -193,7 +231,9 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                     bounce,
                     payload: order.payload ? order.payload : undefined,
                 });
+                addLedgerDebugAction(`${getTimeString()}: transfer-signed`);
             } catch (error) {
+                addLedgerDebugAction(`${getTimeString()}: transfer-error: ${(error as Error).message}`);
                 if (error instanceof Error && error.name === 'LockedDeviceError') {
                     Alert.alert(t('hardwareWallet.unlockLedgerDescription'));
                     return;
@@ -209,6 +249,8 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 }]);
                 return;
             }
+
+            addLedgerDebugAction(`${getTimeString()}: transfer-sending`);
 
             // Sending when accepted
             let extMessage = external({
@@ -229,6 +271,8 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 }
             });
 
+            addLedgerDebugAction(`${getTimeString()} transfer-sent`);
+
             registerPending({
                 id: 'pending-' + accountSeqno,
                 status: 'pending',
@@ -243,8 +287,11 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 hash: msg.hash()
             });
 
+            addLedgerDebugAction(`${getTimeString()}: transfer-pending`);
+
             navigation.popToTop();
         } catch (e) {
+            addLedgerDebugAction(`${getTimeString()}: transfer-failed: ${(e as Error).message}`);
             console.warn(e);
             Alert.alert(t('hardwareWallet.errors.transferFailed'), undefined, [{
                 text: t('common.back'),

@@ -309,6 +309,13 @@ export const DeveloperToolsFragment = fragment(() => {
                                     setLedgerDebugItems(getLedgerDebugActions());
                                 }}
                             />
+                            <ItemButton
+                                title={'Reset Ledger Debug Actions'}
+                                onPress={() => {
+                                    setLedgerDebugItems([]);
+                                    setLedgerDebugItems(getLedgerDebugActions());
+                                }}
+                            />
                             <View style={{ gap: 4, padding: 8 }}>
                                 {ledgerDubugItems.map((item, index) => {
                                     return (

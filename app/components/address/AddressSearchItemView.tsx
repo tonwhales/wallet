@@ -10,6 +10,7 @@ import { avatarHash } from "../../utils/avatarHash";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { ThemeType } from "../../engine/state/theme";
+import { ForcedAvatar } from "../avatar/ForcedAvatar";
 
 export const AddressSearchItemView = memo(({
     item,
@@ -49,6 +50,43 @@ export const AddressSearchItemView = memo(({
         }
     }, [onPress, item, known, bounceable]);
 
+    let avatar = (
+        <Avatar
+            address={addressString}
+            id={addressString}
+            size={46}
+            borderWith={0}
+            markContact={item.type === 'contact'}
+            icProps={{
+                isOwn: item.type === 'own',
+                backgroundColor: theme.elevation
+            }}
+            hash={settings?.avatar}
+            theme={theme}
+            knownWallets={knownWallets}
+            backgroundColor={avatarColor}
+        />
+    )
+
+    if (item.isLedger) {
+        avatar = (
+            <Image
+                style={{ width: 46, height: 46 }}
+                source={require('@assets/ledger_device.png')}
+            />
+        );
+    }
+
+    if (item.type === 'holders') {
+        avatar = (
+            <ForcedAvatar
+                type={'holders'}
+                size={46}
+                icProps={{ position: 'right' }}
+            />
+        );
+    }
+
     return (
         <Pressable
             onPress={action}
@@ -57,28 +95,7 @@ export const AddressSearchItemView = memo(({
         >
             <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
-                    {item.isLedger ? (
-                        <Image
-                            style={{ width: 46, height: 46 }}
-                            source={require('@assets/ledger_device.png')}
-                        />
-                    ) : (
-                        <Avatar
-                            address={addressString}
-                            id={addressString}
-                            size={46}
-                            borderWith={0}
-                            markContact={item.type === 'contact'}
-                            icProps={{
-                                isOwn: item.type === 'own',
-                                backgroundColor: theme.elevation
-                            }}
-                            hash={settings?.avatar}
-                            theme={theme}
-                            knownWallets={knownWallets}
-                            backgroundColor={avatarColor}
-                        />
-                    )}
+                    {avatar}
                 </View>
                 <View style={{ flexShrink: 1, justifyContent: 'center' }}>
                     <Text

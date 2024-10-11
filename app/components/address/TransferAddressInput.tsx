@@ -6,7 +6,7 @@ import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AnimTextInputRef } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useHoldersAccounts, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -20,6 +20,7 @@ import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -153,8 +154,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const screenWidth = dimentions.screen.width;
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
     const [walletSettings,] = useWalletSettings(validAddressFriendly);
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
+
+    const holdersAccounts = useHoldersAccountTrargets(appState.addresses[appState.selected].address);
+    const isTargetHolders = holdersAccounts.find((acc) => props.validAddress?.equals(acc.address));
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -244,6 +248,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
                         knownWallets={props.knownWallets}
+                        forceAvatar={isTargetHolders ? 'holders' : undefined}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={{
@@ -297,6 +302,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
                         knownWallets={props.knownWallets}
+                        forceAvatar={isTargetHolders ? 'holders' : undefined}
                     />
                     <AddressDomainInput
                         input={addressDomainInputState.input}
@@ -340,7 +346,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             testOnly: props.isTestnet,
                             bounceable: item.known ? true : item.addr.isBounceable
                         });
-                        
+
                         let name = item.type !== 'unknown' ? item.title : friendly;
 
                         if (item.isLedger) {
@@ -365,6 +371,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     bounceableFormat={bounceableFormat}
                     knownWallets={props.knownWallets}
                     lastTwoTxs={props.lastTwoTxs}
+                    holdersAccounts={holdersAccounts}
                 />
             </View>
         </View>

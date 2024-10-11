@@ -47,6 +47,7 @@ import { useJettonPayload } from '../../engine/hooks/jettons/useJettonPayload';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { useHoldersAccountTrargets } from '../../engine/hooks/holders/useHoldersAccountTrargets';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -96,6 +97,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const txs = useAccountTransactions(address!.toString({ testOnly: network.isTestnet })).data;
     const accountLite = useAccountLite(address);
+    const holdersAccounts = useHoldersAccountTrargets(address!);
 
     const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
         {
@@ -216,26 +218,6 @@ export const SimpleTransferFragment = fragment(() => {
         return value;
     }, [jettonState, accountLite?.balance, isLedger]);
 
-    const amountError = useMemo(() => {
-        if (amount.length === 0) {
-            return undefined;
-        }
-        if (validAmount === null) {
-            return t('transfer.error.invalidAmount');
-        }
-        if (validAmount < 0n) {
-            return t('transfer.error.invalidAmount');
-        }
-        if (validAmount > balance) {
-            return t('transfer.error.notEnoughCoins');
-        }
-        if (validAmount === 0n && !!jettonState) {
-            return t('transfer.error.zeroCoins');
-        }
-
-        return undefined;
-    }, [validAmount, balance, amount]);
-
     const commitCommand = useCommitCommand();
     const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
@@ -253,17 +235,6 @@ export const SimpleTransferFragment = fragment(() => {
 
     // Resolve known wallets params
     const known = knownWallets[targetAddressValid?.address.toString({ testOnly: network.isTestnet }) ?? ''];
-
-    // Resolve memo error string
-    const commentError = useMemo(() => {
-        if (!known || !known.requireMemo) {
-            return undefined;
-        }
-        if (!commentString || commentString.length === 0) {
-            return t('transfer.error.memoRequired');
-        }
-        return undefined;
-    }, [commentString, known]);
 
     // Resolve order
     const order = useMemo(() => {
@@ -729,6 +700,56 @@ export const SimpleTransferFragment = fragment(() => {
         setSelectedInput(null);
     }, []);
 
+    const holdersTarget = holdersAccounts?.find((a) => targetAddressValid?.address.equals(a.address));
+    const holdersTargetJetton = holdersTarget?.jettonMaster ? Address.parse(holdersTarget.jettonMaster) : null;
+    const jettonMaster = jettonState?.master?.address ? Address.parse(jettonState.master.address) : null;
+    const shouldAddMemo = holdersTarget?.memo ? (holdersTarget.memo !== commentString) : false;
+    const shouldChangeJetton = holdersTargetJetton
+        ? !jettonMaster?.equals(holdersTargetJetton)
+        : holdersTarget && !!jettonState && holdersTarget.symbol === 'TON';
+
+    const amountError = useMemo(() => {
+        if (shouldChangeJetton) {
+            return t('transfer.error.jettonChange', { symbol: holdersTarget?.symbol });
+        }
+
+        if (amount.length === 0) {
+            return undefined;
+        }
+        if (validAmount === null) {
+            return t('transfer.error.invalidAmount');
+        }
+        if (validAmount < 0n) {
+            return t('transfer.error.invalidAmount');
+        }
+        if (validAmount > balance) {
+            return t('transfer.error.notEnoughCoins');
+        }
+        if (validAmount === 0n && !!jettonState) {
+            return t('transfer.error.zeroCoins');
+        }
+
+        return undefined;
+    }, [validAmount, balance, amount, shouldChangeJetton, holdersTarget?.symbol]);
+
+    // Resolve memo error string
+    const commentError = useMemo(() => {
+        const isEmpty = !commentString || commentString.length === 0;
+        const isKnownWithMemo = !!known && known.requireMemo;
+
+        if (isEmpty && isKnownWithMemo) {
+            return t('transfer.error.memoRequired');
+        }
+
+        const validMemo = commentString === holdersTarget?.memo;
+
+        if (shouldAddMemo && (isEmpty || !validMemo)) {
+            return t('transfer.error.memoChange', { memo: holdersTarget?.memo });
+        }
+
+        return undefined;
+    }, [commentString, known, shouldAddMemo, holdersTarget?.memo]);
+
     const { selected, onNext, header } = useMemo<{
         selected: 'amount' | 'address' | 'comment' | null,
         onNext: (() => void) | null,
@@ -853,7 +874,7 @@ export const SimpleTransferFragment = fragment(() => {
         }));
     });
 
-    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading;
+    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
 
     return (
@@ -905,8 +926,9 @@ export const SimpleTransferFragment = fragment(() => {
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
-                        onSearchItemSelected={() => {
+                        onSearchItemSelected={(item) => {
                             scrollRef.current?.scrollTo({ y: 0 });
+                            setComment(item.memo || '');
                         }}
                         knownWallets={knownWallets}
                         lastTwoTxs={txs?.slice(0, 2) ?? []}

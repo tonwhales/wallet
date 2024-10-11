@@ -16,6 +16,11 @@ import { delay } from 'teslabot';
 import { ThemeType } from '../../engine/state/theme';
 import { Typography } from '../../components/styles';
 import { useFocusEffect } from "@react-navigation/native";
+import { addLedgerDebugAction } from "./LedgerSignTransferFragment";
+import { formatTime } from "../../utils/dates";
+
+const getTime = () => Math.floor(Date.now() / 1000);
+const getTimeString = () => formatTime(getTime());
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 type AccountsLite = ReturnType<typeof useAccountsLite>;
@@ -228,6 +233,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
     }, [ledgerContext?.tonTransport]);
 
     const onLoadAccount = useCallback((async (acc: LedgerAccount) => {
+        addLedgerDebugAction(`${getTimeString()}: loadAccount ${acc.i} transport: ${!!ledgerContext?.tonTransport}`);
         if (!ledgerContext?.tonTransport) {
             Alert.alert(t('hardwareWallet.errors.noDevice'));
             ledgerContext?.setLedgerConnection(null);
@@ -235,13 +241,26 @@ export const LedgerSelectAccountFragment = fragment(() => {
         }
         setSelected(acc.i);
         let path = pathFromAccountNumber(acc.i, network.isTestnet);
+        addLedgerDebugAction(`${getTimeString()}: path: ${path}`);
         try {
+            addLedgerDebugAction(`${getTimeString()}: validating address...`);
             await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
+            addLedgerDebugAction(`${getTimeString()}: validated address`);
             ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
+            addLedgerDebugAction(`${getTimeString()}: address set`);
             setSelected(undefined);
         } catch (e) {
+            addLedgerDebugAction(`${getTimeString()}: error: ${(e as Error).message}`);
             setSelected(undefined);
-            let isAppOpen = await ledgerContext.tonTransport?.isAppOpen();
+
+            let isAppOpen = false;
+            try {
+                isAppOpen = await ledgerContext?.tonTransport?.isAppOpen();
+            } catch (e) {
+                addLedgerDebugAction(`${getTimeString()}: error, isAppOpen: error, ${(e as Error).message}`);
+            }
+
+            addLedgerDebugAction(`${getTimeString()}: error, isAppOpen: ${isAppOpen}`);
 
             if (!isAppOpen) {
                 console.warn('[ledger] closed app');
@@ -250,6 +269,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
             }
 
             if (e instanceof Error && e.name === 'LockedDeviceError') {
+                addLedgerDebugAction(`${getTimeString()}: error, locked device`);
                 console.warn('[ledger] locked device');
                 setConnectionState('locked-device');
             }

@@ -44,10 +44,11 @@ import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
 import { WalletVersions } from '../../engine/types';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 import { useJettonPayload } from '../../engine/hooks/jettons/useJettonPayload';
+import { useHoldersAccountTrargets } from '../../engine/hooks/holders/useHoldersAccountTrargets';
+import { AddressSearchItem } from '../../components/address/AddressSearch';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { useHoldersAccountTrargets } from '../../engine/hooks/holders/useHoldersAccountTrargets';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -68,7 +69,7 @@ export type SimpleTransferParams = {
     }
 }
 
-export const SimpleTransferFragment = fragment(() => {
+const SimpleTransferComponent = () => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
@@ -95,7 +96,6 @@ export const SimpleTransferFragment = fragment(() => {
     }, [addr]);
     const address = isLedger ? ledgerAddress : acc!.address;
 
-    const txs = useAccountTransactions(address!.toString({ testOnly: network.isTestnet })).data;
     const accountLite = useAccountLite(address);
     const holdersAccounts = useHoldersAccountTrargets(address!);
 
@@ -877,6 +877,11 @@ export const SimpleTransferFragment = fragment(() => {
     const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
 
+    const onSearchItemSelected = useCallback((item: AddressSearchItem) => {
+        scrollRef.current?.scrollTo({ y: 0 });
+        setComment(item.memo || '');
+    }, []);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
@@ -926,12 +931,8 @@ export const SimpleTransferFragment = fragment(() => {
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
-                        onSearchItemSelected={(item) => {
-                            scrollRef.current?.scrollTo({ y: 0 });
-                            setComment(item.memo || '');
-                        }}
+                        onSearchItemSelected={onSearchItemSelected}
                         knownWallets={knownWallets}
-                        lastTwoTxs={txs?.slice(0, 2) ?? []}
                         navigation={navigation}
                     />
                 </Animated.View>
@@ -1225,4 +1226,8 @@ export const SimpleTransferFragment = fragment(() => {
             </KeyboardAvoidingView>
         </View>
     );
-});
+}
+
+SimpleTransferComponent.name = 'SimpleTransfer';
+
+export const SimpleTransferFragment = fragment(SimpleTransferComponent);

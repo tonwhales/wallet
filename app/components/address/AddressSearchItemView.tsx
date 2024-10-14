@@ -1,8 +1,6 @@
 import React, { memo, useCallback } from "react";
 import { View, Text, Pressable, Image } from "react-native";
-import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
-import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
@@ -11,6 +9,7 @@ import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { ThemeType } from "../../engine/state/theme";
 import { ForcedAvatar } from "../avatar/ForcedAvatar";
+import { Typography } from "../styles";
 
 export const AddressSearchItemView = memo(({
     item,
@@ -42,8 +41,6 @@ export const AddressSearchItemView = memo(({
         ? bounceableFormat
         : item.addr.isBounceable
 
-    const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
-
     const action = useCallback(() => {
         if (onPress) {
             onPress({ ...item, addr: { ...item.addr, isBounceable: bounceable }, known: !!known });
@@ -66,7 +63,7 @@ export const AddressSearchItemView = memo(({
             knownWallets={knownWallets}
             backgroundColor={avatarColor}
         />
-    )
+    );
 
     if (item.isLedger) {
         avatar = (
@@ -90,23 +87,24 @@ export const AddressSearchItemView = memo(({
     return (
         <Pressable
             onPress={action}
-            onPressIn={onPressIn}
-            onPressOut={onPressOut}
+            style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1
+            })}
         >
-            <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
+            <View style={{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     {avatar}
                 </View>
                 <View style={{ flexShrink: 1, justifyContent: 'center' }}>
                     <Text
-                        style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                         ellipsizeMode={'tail'}
                         numberOfLines={1}
                     >
                         {item.isLedger ? 'Ledger' : item.title}
                     </Text>
                     <Text
-                        style={{ color: theme.textSecondary, fontSize: 15, lineHeight: 20, fontWeight: '400' }}
+                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
@@ -118,7 +116,7 @@ export const AddressSearchItemView = memo(({
                         />
                     </Text>
                 </View>
-            </Animated.View>
+            </View>
         </Pressable>
     );
 });

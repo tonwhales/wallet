@@ -76,7 +76,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
     }, [ledgerContext]);
     const account = useAccountLite(ledgerAddress);
     const [walletSettings] = useWalletSettings(ledgerAddress!);
-    const registerPending = useRegisterPending(ledgerContext.addr?.address);
+    const registerPending = useRegisterPending(ledgerAddress?.toString({ testOnly: network.isTestnet }));
 
     const {
         restricted,

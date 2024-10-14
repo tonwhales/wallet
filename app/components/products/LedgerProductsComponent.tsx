@@ -19,7 +19,7 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
-                <PendingTransactions address={addr} />
+                <PendingTransactions address={address.toString({ testOnly })} />
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',

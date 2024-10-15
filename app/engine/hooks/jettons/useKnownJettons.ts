@@ -21,8 +21,7 @@ export function useKnownJettons(isTestnet: boolean): KnownJettons | null {
     const builtInTickers = KnownJettonTickers;
 
     // Merge built-in data with fetched (built-in data has higher priority)
-    // const specialJetton = builtInSpecialJetton ?? knownJettons?.specialJetton;
-    const specialJetton = isTestnet ? 'kQBHBo6uqp7uLsnCl8qUNIBW6-MTfyB-tc6wEe4F1Cn38bM3' : builtInSpecialJetton ?? knownJettons?.specialJetton;
+    const specialJetton = builtInSpecialJetton ?? knownJettons?.specialJetton;
     const masters = { ...builtInMasters, ...(knownJettons?.masters ?? {}) };
     const tickers = [...new Set([...builtInTickers, ...(knownJettons?.tickers ?? [])])];
 

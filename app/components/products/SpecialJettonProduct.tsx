@@ -37,43 +37,40 @@ export const SpecialJettonProduct = memo(({
 
     const onPress = useCallback(() => {
         const jetton = specialJetton ? { master: specialJetton?.master, data: specialJetton?.masterContent } : undefined;
+        const hasWallet = !!specialJetton?.wallet;
 
-        if (balance === 0n) {
-            if (isLedger) {
+        if (isLedger) {
+            if (!hasWallet || balance === 0n) {
                 navigation.navigate('LedgerReceive', { addr: ledgerAddressStr, ledger: true, jetton });
-            } else {
-                navigation.navigate('Receive', { jetton });
+                return;
             }
+
+            // TODO: implement LedgerJettonWallet
+            const tx = {
+                amount: null,
+                target: null,
+                comment: null,
+                jetton: specialJetton.wallet,
+                stateInit: null,
+                job: null,
+                callback: null
+            }
+
+            navigation.navigateLedgerTransfer(tx);
             return;
         }
 
-        if (!specialJetton || !specialJetton.wallet) {
-            return;
-        }
-
-        if (!isLedger) {
+        if (hasWallet) {
             navigation.navigateJettonWallet({
                 owner: address.toString({ bounceable: bounceableFormat, testOnly }),
-                master: specialJetton.master.toString({ bounceable: bounceableFormat, testOnly }),
-                wallet: specialJetton.wallet?.toString({ bounceable: bounceableFormat, testOnly })
+                master: specialJetton.master.toString({ testOnly }),
+                wallet: specialJetton.wallet?.toString({ testOnly })
             });
 
             return;
         }
-        // TODO: implement LedgerJettonWallet
 
-        const tx = {
-            amount: null,
-            target: null,
-            comment: null,
-            jetton: specialJetton.wallet,
-            stateInit: null,
-            job: null,
-            callback: null
-        }
-
-        navigation.navigateLedgerTransfer(tx);
-
+        navigation.navigate('Receive', { jetton });
     }, [specialJetton, isLedger, ledgerAddressStr, balance]);
 
     return (

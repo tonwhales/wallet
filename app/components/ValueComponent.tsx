@@ -82,7 +82,7 @@ export function ValueComponent(props: {
             parts.unshift(t);
         }
         t = parts.join(' ');
-        return <>{t}</>
+        return <Text style={props.fontStyle}>{`${t} ${props.suffix || ''}`}</Text>
     }
 
     let p = t.split('.');

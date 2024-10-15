@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJettonTransactions } from "../../engine/hooks/transactions/useJettonTransactions";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
+import Animated, { FadeOut } from "react-native-reanimated";
 
 export type JettonWalletFragmentProps = {
     owner: string;
@@ -51,13 +52,13 @@ const JettonWalletSkeleton = memo(() => {
         <View style={styles.container}>
             <ScreenHeader
                 onBackPressed={navigation.goBack}
-                titleComponent={(
-                    <View style={styles.skeletonHeaderTitleComponent}>
-                        <View style={[styles.sekeletonHeaderTitle, { backgroundColor: theme.textSecondary }]} />
-                        <View style={[styles.skeleteonHeaderSubtitle, { backgroundColor: theme.textSecondary }]} />
-                    </View>
-                )}
+                style={{ paddingHorizontal: 16 }}
             />
+            <View style={styles.skeletonContent}>
+                <View style={[styles.skeletonIcon, { backgroundColor: theme.surfaceOnBg }]} />
+                <View style={[styles.skeletonBalance, { backgroundColor: theme.surfaceOnBg }]} />
+                <View style={[styles.skeletonActions, { backgroundColor: theme.surfaceOnBg }]} />
+            </View>
         </View>
     );
 });
@@ -202,7 +203,7 @@ export const JettonWalletFragment = fragment(() => {
             styles.fragment,
             Platform.select({ android: { backgroundColor: theme.backgroundPrimary } })
         ]}>
-            <Suspense fallback={<JettonWalletSkeleton />} >
+            <Suspense fallback={<JettonWalletSkeleton />}>
                 <JettonWalletComponent
                     owner={owner}
                     master={master}
@@ -247,15 +248,42 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 2
     },
+    skeletonContent: {
+        flexGrow: 1,
+        padding: 16,
+        alignItems: 'center'
+    },
     sekeletonHeaderTitle: {
         height: 28,
-        borderRadius: 28,
-        width: 64
+        borderRadius: 8,
+        width: 64,
+        opacity: 0.5
     },
     skeleteonHeaderSubtitle: {
         height: 24,
-        borderRadius: 24,
-        width: 52
+        borderRadius: 8,
+        width: 128,
+        opacity: 0.5
+    },
+    skeletonIcon: {
+        height: 72,
+        width: 72,
+        borderRadius: 36,
+        opacity: 0.5
+    },
+    skeletonBalance: {
+        height: 48,
+        width: 160,
+        borderRadius: 8,
+        opacity: 0.5,
+        marginTop: 8
+    },
+    skeletonActions: {
+        height: 92,
+        width: '100%',
+        borderRadius: 20,
+        opacity: 0.5,
+        marginTop: 28
     },
     jettonIcon: {
         height: 72,

@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { View, Text, Image } from "react-native";
 import { t } from "../../i18n/t";
@@ -13,7 +13,8 @@ import { reduceHoldersBalances } from "../../utils/reduceHoldersBalances";
 import { usePrice } from "../../engine/PriceContext";
 
 import IcHide from '@assets/ic-hide.svg';
-import IcHolders from '@assets/ic-holders-white.svg';
+
+const hideIcon = <IcHide height={36} width={36} style={{ width: 36, height: 36 }} />;
 
 export const HoldersAccounts = memo(({
     accs,
@@ -33,6 +34,10 @@ export const HoldersAccounts = memo(({
     const totalBalance = useMemo(() => {
         return reduceHoldersBalances(accs, price?.price?.usd ?? 0);
     }, [accs, price?.price?.usd]);
+
+    const rightAction = useCallback((item: GeneralHoldersAccount) => {
+        markAccount(item.id, true);
+    }, []);
 
     if (accs.length === 0) {
         return null;
@@ -57,8 +62,8 @@ export const HoldersAccounts = memo(({
                             <HoldersAccountItem
                                 key={`card-${index}`}
                                 account={item}
-                                rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                                rightAction={() => markAccount(item.id, true)}
+                                rightActionIcon={hideIcon}
+                                rightAction={rightAction}
                                 style={{ paddingVertical: 0 }}
                                 isTestnet={isTestnet}
                                 hideCardsIfEmpty
@@ -83,8 +88,8 @@ export const HoldersAccounts = memo(({
                     <HoldersAccountItem
                         key={`card-${index}`}
                         account={item}
-                        rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                        rightAction={() => markAccount(item.id, true)}
+                        rightActionIcon={hideIcon}
+                        rightAction={rightAction}
                         isTestnet={isTestnet}
                         holdersAccStatus={holdersAccStatus}
                         hideCardsIfEmpty
@@ -114,34 +119,10 @@ export const HoldersAccounts = memo(({
                                 source={require('@assets/ic-holders-accounts.png')}
                                 style={{ width: 46, height: 46, borderRadius: 23 }}
                             />
-                            <View
-                                style={{
-                                    position: 'absolute', bottom: -2, right: -2,
-                                    width: 20, height: 20,
-                                    borderRadius: 10,
-                                    backgroundColor: theme.surfaceOnBg,
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                <View style={{
-                                    backgroundColor: theme.accent,
-                                    width: 17, height: 17,
-                                    borderRadius: 9,
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <IcHolders
-                                        height={12}
-                                        width={12}
-                                        color={theme.white}
-                                    />
-                                </View>
-                            </View>
                         </View>
                         <View style={{ marginLeft: 12, flexShrink: 1 }}>
                             <PerfText
-                                style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                 ellipsizeMode="tail"
                                 numberOfLines={1}
                             >

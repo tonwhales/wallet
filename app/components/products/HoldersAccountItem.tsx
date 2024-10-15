@@ -23,11 +23,46 @@ import { getAccountName } from "../../utils/holders/getAccountName";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
+function resolveIcon(params: { image?: { blurhash: string, preview256: string } | null, ticker?: string }) {
+
+    if (params.image) {
+        return (
+            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
+                <WImage
+                    src={params.image.preview256}
+                    width={46}
+                    height={46}
+                    borderRadius={46}
+                />
+            </View>
+        );
+    };
+
+    if (params.ticker === 'USDT') {
+        return (
+            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
+                <WImage
+                    requireSource={require('@assets/known/ic-usdt.png')}
+                    width={46}
+                    height={46}
+                    borderRadius={23}
+                />
+            </View>
+        );
+    };
+
+    return (
+        <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+            <IcTonIcon width={46} height={46} />
+        </View>
+    );
+}
+
 export const HoldersAccountItem = memo((props: {
     account: GeneralHoldersAccount,
     last?: boolean,
     first?: boolean,
-    rightAction?: () => void
+    rightAction?: (acc: GeneralHoldersAccount) => void
     rightActionIcon?: any,
     single?: boolean,
     hidden?: boolean,
@@ -114,7 +149,7 @@ export const HoldersAccountItem = memo((props: {
                     onPress={() => {
                         swipableRef.current?.close();
                         if (props.rightAction) {
-                            props.rightAction();
+                            props.rightAction(props.account);
                         }
                     }}
                 >
@@ -141,20 +176,7 @@ export const HoldersAccountItem = memo((props: {
                 >
                     <View style={[{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
-                            {jettonMasterContent?.image ? (
-                                <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
-                                    <WImage
-                                        src={jettonMasterContent?.image?.preview256}
-                                        width={46}
-                                        height={46}
-                                        borderRadius={46}
-                                    />
-                                </View>
-                            ) : (
-                                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                                    <IcTonIcon width={46} height={46} />
-                                </View>
-                            )}
+                            {resolveIcon({ image: jettonMasterContent?.image, ticker: props.account.cryptoCurrency?.ticker })}
                             <View style={{ marginLeft: 12, flexShrink: 1 }}>
                                 <PerfText
                                     style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}

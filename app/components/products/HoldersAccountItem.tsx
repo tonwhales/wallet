@@ -38,7 +38,7 @@ export const HoldersAccountItem = memo((props: {
     holdersAccStatus?: HoldersAccountStatus,
     onBeforeOpen?: () => void
 }) => {
-    const [price,] = usePrice();
+    const [price] = usePrice();
     const jettonMasterContent = useJettonContent(props?.account?.cryptoCurrency?.tokenContract ?? null);
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();

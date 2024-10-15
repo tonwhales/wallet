@@ -30,7 +30,7 @@ import { TonTransport } from '@ton-community/ton-ledger';
 import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
-import { fromBnWithDecimals } from '../../utils/withDecimals';
+import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { Address, Cell, SendMode, WalletContractV4, beginCell, external, internal, storeMessage, storeMessageRelaxed } from '@ton/ton';
 import { estimateFees } from '../../utils/estimateFees';
 import { TransferSingleView } from '../secure/components/TransferSingleView';
@@ -38,6 +38,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
+import { ledgerOrderToPendingTransactionBody, LedgerTransferPayload, PendingTransactionBody } from '../../engine/state/pending';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -76,7 +77,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
     }, [ledgerContext]);
     const account = useAccountLite(ledgerAddress);
     const [walletSettings] = useWalletSettings(ledgerAddress!);
-    const registerPending = useRegisterPending(ledgerContext.addr?.address);
+    const registerPending = useRegisterPending(ledgerAddress?.toString({ testOnly: network.isTestnet }));
 
     const {
         restricted,
@@ -154,13 +155,12 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
 
         try {
             // Fetch data
-            const [[accountSeqno, account, targetState, block]] = await Promise.all([
+            const [[accountSeqno, targetState, block]] = await Promise.all([
                 backoff('transfer-fetch-data', async () => {
                     const block = await backoff('ledger-lastblock', () => client.getLastBlock());
                     const seqno = await backoff('ledger-contract-seqno', () => fetchSeqno(client, block.last.seqno, contract.address));
                     return Promise.all([
                         seqno,
-                        backoff('ledger-lite', () => client.getAccountLite(block.last.seqno, contract.address)),
                         backoff('ledger-target', () => client.getAccount(block.last.seqno, address)),
                         block
                     ])
@@ -229,6 +229,17 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 }
             });
 
+
+            let transferPayload: LedgerTransferPayload | null = null;
+
+            if (order.payload?.type === 'jetton-transfer' && !!jetton) {
+                transferPayload = { ...order.payload, jetton };
+            } else if (order.payload?.type === 'comment') {
+                transferPayload = order.payload;
+            }
+
+            const pendingBody: PendingTransactionBody | null = ledgerOrderToPendingTransactionBody(transferPayload);
+
             registerPending({
                 id: 'pending-' + accountSeqno,
                 status: 'pending',
@@ -238,7 +249,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 bounceable: target.bounceable,
                 seqno: accountSeqno,
                 blockSeqno: block.last.seqno,
-                body: body,
+                body: pendingBody,
                 time: Math.floor(Date.now() / 1000),
                 hash: msg.hash()
             });

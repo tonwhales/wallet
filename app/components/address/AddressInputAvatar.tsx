@@ -3,6 +3,7 @@ import { Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Avatar } from "../avatar/Avatar";
 import { KnownWallet } from "../../secure/KnownWallets";
+import { ForcedAvatar, ForcedAvatarType } from "../avatar/ForcedAvatar";
 
 export const AddressInputAvatar = memo(({
     size,
@@ -14,7 +15,8 @@ export const AddressInputAvatar = memo(({
     hash,
     isLedger,
     avatarColor,
-    knownWallets
+    knownWallets,
+    forceAvatar
 }: {
     size: number,
     theme: ThemeType,
@@ -25,8 +27,21 @@ export const AddressInputAvatar = memo(({
     hash: number | null
     isLedger?: boolean,
     avatarColor: string,
-    knownWallets: { [key: string]: KnownWallet }
+    knownWallets: { [key: string]: KnownWallet },
+    forceAvatar?: ForcedAvatarType
 }) => {
+
+    if (forceAvatar) {
+        return (
+            <ForcedAvatar
+                type={forceAvatar}
+                size={size}
+                icProps={{ isOwn }}
+            />
+        );
+    }
+
+
     if (isLedger) {
         return (
             <Image

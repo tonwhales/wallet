@@ -1,8 +1,10 @@
-import { Address } from "@ton/core";
+import { Address, Cell } from "@ton/core";
 import { TransactionDescription } from "../../engine/types";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { BigMath } from "../BigMath";
 import { SPAM_KEYWORDS_EN, SPAM_KEYWORDS_RU } from "./spamKeywords";
+import { JettonTransfer } from "../../engine/hooks/transactions/useJettonTransactions";
+import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 
 const triggerScore = 100;
 const enKeys = Object.entries(SPAM_KEYWORDS_EN);
@@ -43,6 +45,62 @@ export function matchesWeightedKeywords(comment?: string | null) {
     const ru_score = getKeywordsScore(comment, ruKeys);
 
     return (en_score + ru_score) >= triggerScore;
+}
+
+export function parseForwardPayloadComment(payload: string | null) {
+    if (!payload) {
+        return null;
+    }
+    
+    try {
+        const cell = Cell.fromBoc(Buffer.from(payload, 'base64'))[0];
+        const body = parseBody(cell);
+        if (body && body.type === 'comment') {
+            return body.comment;
+        }
+    } catch { }
+
+    return null;
+}
+
+export function isJettonTxSPAM(
+    tx: JettonTransfer,
+    config: {
+        knownWallets: { [key: string]: KnownWallet },
+        isDenyAddress: (addressString?: string | null) => boolean,
+        spamWallets: string[],
+        spamMinAmount: bigint,
+        isTestnet: boolean,
+        own: Address
+    }
+) {
+    const source = tx.source;
+    const sourceAddress = Address.parse(source);
+    const kind: 'in' | 'out' = sourceAddress.equals(config.own) ? 'out' : 'in';
+
+    if (kind !== 'in' || config.isTestnet) {
+        return false;
+    }
+
+    if (config.isDenyAddress(source)) {
+        return true;
+    }
+
+    if (config.spamWallets.includes(source)) {
+        return true;
+    }
+
+    if (!!config.knownWallets[source]) {
+        return false;
+    }
+
+    const comment = parseForwardPayloadComment(tx.forward_payload);
+
+    if (comment) {
+        return matchesWeightedKeywords(comment);
+    }
+
+    return false;
 }
 
 export function isTxSPAM(

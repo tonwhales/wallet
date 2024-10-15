@@ -544,7 +544,8 @@ const SimpleTransferComponent = () => {
     // Scroll state tracking
     //
 
-    const [selectedInput, setSelectedInput] = useState<number | null>(0);
+    const hasParamsFilled = !!params.target && !!params.amount;
+    const [selectedInput, setSelectedInput] = useState<number | null>(hasParamsFilled ? null : 0);
 
     const refs = useMemo(() => {
         let r: RefObject<ATextInputRef>[] = [];
@@ -934,6 +935,7 @@ const SimpleTransferComponent = () => {
                         onSearchItemSelected={onSearchItemSelected}
                         knownWallets={knownWallets}
                         navigation={navigation}
+                        autoFocus={selectedInput === 0}
                     />
                 </Animated.View>
                 {selected === 'address' && (

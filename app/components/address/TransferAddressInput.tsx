@@ -161,7 +161,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
     const lastTwoTxs = useMemo(() => {
         return txs?.slice(0, 2) || [];
-    }, [txs?.[0].id, txs?.[1].id]);
+    }, [txs?.[0]?.id, txs?.[1]?.id]);
 
     const holdersAccounts = useHoldersAccountTrargets(appState.addresses[appState.selected].address);
     const isTargetHolders = holdersAccounts.find((acc) => props.validAddress?.equals(acc.address));

@@ -1,25 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { useNetwork } from "..";
+import { useNetwork, useSelectedAccount } from "..";
 import { Queries } from "../../queries";
-import { BrowserListing, fetchBrowserListings } from "../../api/fetchBrowserListings";
-import { z } from 'zod';
+import { fetchHoldersBrowserListings } from "../../api/fetchHoldersBrowserListings";
+import { BrowserListingsWithCategory, categoryCodec } from "./useBrowserListings";
+import { useIsHoldersInvited } from "../holders/useIsHoldersInvited";
 
-export const categoryCodec = z.object({
-    id: z.string(),
-    title: z.string().optional(),
-    description: z.string().optional(),
-    weight: z.union([z.number(), z.string()]).optional()
-});
-
-export type BrowserListingCategory = z.infer<typeof categoryCodec>;
-export type BrowserListingsWithCategory = Omit<BrowserListing, 'category'> & { category?: BrowserListingCategory | null };
-
-export function useBrowserListings() {
+export function useHoldersBrowserListings() {
     const { isTestnet } = useNetwork();
-    return useQuery({
-        queryKey: Queries.BrowserListings(isTestnet ? 'testnet' : 'mainnet'),
+    const selectedAccount = useSelectedAccount();
+    const inviteCheck = useIsHoldersInvited(selectedAccount!.address, isTestnet);
+    const query = useQuery({
+        queryKey: Queries.HoldersBrowserListings(isTestnet ? 'testnet' : 'mainnet'),
         queryFn: async () => {
-            let res = await fetchBrowserListings();
+            let res = await fetchHoldersBrowserListings();
 
             if (!isTestnet) {
                 res = res.filter(b => !b.is_test);
@@ -48,7 +41,7 @@ export function useBrowserListings() {
                             ...b,
                             category: categoryParsed.data
                         }
-                    } catch (error) {
+                    } catch {
                         return { ...b, category: null };
                     }
                 });
@@ -59,5 +52,11 @@ export function useBrowserListings() {
         refetchOnWindowFocus: true,
         staleTime: 1000 * 60 * 60, // 1 hour
     });
+
+    if (!inviteCheck) {
+        return [];
+    }
+
+    return query.data;
 }
 

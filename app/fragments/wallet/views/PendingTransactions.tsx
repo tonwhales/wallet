@@ -248,7 +248,7 @@ const PendingTransactionView = memo(({
                             decimals={(body?.type === 'token' && body.jetton.decimals) ? body.jetton.decimals : undefined}
                             precision={3}
                         />
-                        {body?.type === 'token' && body.jetton.symbol ? ` ${body.jetton.symbol}` : ' TON'}
+                        {(body?.type === 'token' && !!body.jetton?.symbol) ? ` ${body.jetton.symbol}` : ' TON'}
                     </Text>
                     {tx.body?.type !== 'token' && (
                         <PriceComponent

@@ -169,7 +169,7 @@ export const TransferSingleView = memo(({
                 return `${formatAmount(fromNano(fees.tonFees))} TON`;
             }
 
-            return !!jetton?.decimals
+            return (!!jetton && !!jetton?.decimals)
                 ? `${fromBnWithDecimals(fees.value, jetton.decimals)} ${jetton.symbol}`
                 : null;
         }

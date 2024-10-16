@@ -19,6 +19,10 @@ export function useJettonContent(master: string | null, suspense: boolean = fals
         suspense
     }).data ?? null;
 
+    if (!data) {
+        return null;
+    }
+
     if (data?.symbol === 'USD₮') {
         data.symbol = 'USDT';
     }

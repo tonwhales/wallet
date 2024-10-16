@@ -165,7 +165,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                             />
                                         </Text>
                                         <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                                            {`1 ${jettonWallet.symbol} ≈ ${formatCurrency(rate!.toString(), currency)}`}
+                                            {`1 ${jettonWallet?.symbol} ≈ ${formatCurrency(rate!.toString(), currency)}`}
                                         </Text>
                                     </>
                                 )}

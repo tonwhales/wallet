@@ -1,7 +1,7 @@
 import axios from "axios";
 import { z } from "zod";
 
-const browserListingCodec = z.object({
+export const browserListingCodec = z.object({
     id: z.number(),
     weight: z.number().optional(),
     image_url: z.string().nullable().optional(),
@@ -19,7 +19,7 @@ const browserListingCodec = z.object({
     is_test: z.boolean().nullable().optional()
 });
 
-const browserListingsResponseCodec = z.object({ banners: z.array(browserListingCodec) });
+export const browserListingsResponseCodec = z.object({ banners: z.array(browserListingCodec) });
 
 export type BrowserListing = z.infer<typeof browserListingCodec>;
 

@@ -20,6 +20,10 @@ import { useJettonTransactions } from "../../engine/hooks/transactions/useJetton
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 import Animated, { FadeOut } from "react-native-reanimated";
+import { useJettonRate } from "../../engine/hooks/jettons/useJettonRate";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
+import { CurrencySymbols, formatCurrency } from "../../utils/formatCurrency";
+import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
 
 export type JettonWalletFragmentProps = {
     owner: string;
@@ -87,12 +91,10 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
 
     const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jettonWallet, isTestnet);
 
-    const swap = useJettonSwap(master);
+    const [rate, currency] = useJettonRate(master);
+    const decimals = jettonWallet?.decimals ?? 9;
     const balance = jettonWallet?.balance ?? 0n;
-    const balanceNum = Number(fromNano(balance));
-    const swapAmount = (!!swap && balance > 0n)
-        ? (Number(fromNano(swap)) * balanceNum).toFixed(2)
-        : null;
+    const swapAmount = rate ? calculateSwapAmount(balance, rate, decimals) : undefined;
 
     return (
         <View style={[styles.container, Platform.select({
@@ -154,20 +156,16 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                 />
                                 {!!swapAmount && (
                                     <>
-                                        <PriceComponent
-                                            amount={toNano(swapAmount)}
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                alignSelf: 'center',
-                                                paddingHorizontal: 0, paddingVertical: 0,
-                                                paddingLeft: 0,
-                                                height: undefined,
-                                            }}
-                                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                            theme={theme}
-                                        />
                                         <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                                            {`1 ${jettonWallet.symbol} ≈ ${swapAmount} TON`}
+                                            <ValueComponent
+                                                value={swapAmount}
+                                                precision={2}
+                                                decimals={decimals}
+                                                suffix={CurrencySymbols[currency]?.symbol}
+                                            />
+                                        </Text>
+                                        <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                            {`1 ${jettonWallet.symbol} ≈ ${formatCurrency(rate!.toString(), currency)}`}
                                         </Text>
                                     </>
                                 )}

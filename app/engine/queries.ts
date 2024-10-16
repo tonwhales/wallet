@@ -49,6 +49,7 @@ export const Queries = {
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
         Known: () => ['jettons', 'known'],
         GaslessConfig: () => ['jettons', 'gaslessConfig'],
+        Rates: (masterAddress: string) => ['jettons', 'rates', masterAddress],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

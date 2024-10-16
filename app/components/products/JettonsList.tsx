@@ -19,7 +19,7 @@ import { ItemDivider } from "../ItemDivider";
 import Animated, { Easing, LinearTransition, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
-import { filterHint, getHint, HintsFilter } from "../../utils/hintSortFilter";
+import { filterHint, getHint, HintsFilter } from "../../utils/jettons/hintSortFilter";
 import { queryClient } from "../../engine/clients";
 
 const EmptyListItem = memo(() => {

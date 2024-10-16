@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { getSortedHints, useSortedHintsState } from "./useSortedHints";
 import { useNetwork } from "..";
-import { compareHints, filterHint, getHint, getMintlessHint } from "../../../utils/hintSortFilter";
+import { compareHints, filterHint, getHint, getMintlessHint } from "../../../utils/jettons/hintSortFilter";
 import { queryClient } from "../../clients";
 import { QueryCacheNotifyEvent } from "@tanstack/react-query";
 import { Queries } from "../../queries";
@@ -60,7 +60,7 @@ function useSubToHintChange(
                     || (queryKey[0] === 'jettons' && queryKey[1] === 'master' && queryKey[3] === 'content')
                 ) {
                     reSortHints();
-                } else if ((queryKey[0] === 'jettons' && queryKey[1] === 'swap')) {
+                } else if ((queryKey[0] === 'jettons' && queryKey[1] === 'rates')) {
                     // check if the "price" changed so we can re-sort the hints
                     const newData = action.data as bigint | undefined | null;
                     const prev = getQueryData<bigint | undefined | null>(cache, queryKey);

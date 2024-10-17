@@ -484,7 +484,6 @@ export const HoldersAppComponent = memo((
                                 : props.variant.type
                         }
                         {...p}
-                        loaded={false}
                         onReload={onReaload}
                         onSupport={onSupport}
                     />

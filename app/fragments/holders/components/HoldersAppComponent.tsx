@@ -28,6 +28,9 @@ import { t } from '../../../i18n/t';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { AccountPlaceholder } from './AccountPlaceholder';
 import { Image } from "expo-image";
+import { CardPlaceholder } from './CardPlaceholder';
+
+import IcHolders from '@assets/ic_holders.svg';
 
 export const holdersSupportUrl = 'https://t.me/Welcome_holders';
 export const supportFormUrl = 'https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN';
@@ -38,8 +41,6 @@ export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
 
-import IcHolders from '@assets/ic_holders.svg';
-import { CardPlaceholder } from './CardPlaceholder';
 
 export const HoldersPlaceholder = memo(() => {
     const animation = useSharedValue(0);

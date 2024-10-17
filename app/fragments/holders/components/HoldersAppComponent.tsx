@@ -22,14 +22,17 @@ import { HoldersAccountStatus, getHoldersToken } from '../../../engine/hooks/hol
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppWebView';
-import { ThemeType } from '../../../engine/state/theme';
-import { useDimensions } from '@react-native-community/hooks';
 import { HoldersAccounts } from '../../../engine/hooks/holders/useHoldersAccounts';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { t } from '../../../i18n/t';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { AccountPlaceholder } from './AccountPlaceholder';
 import { Image } from "expo-image";
+
+export const holdersSupportUrl = 'https://t.me/Welcome_holders';
+export const supportFormUrl = 'https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN';
+export const holdersSupportWebUrl = 'https://help.holders.io/en';
+
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
@@ -444,13 +447,13 @@ export const HoldersAppComponent = memo((
             }, (selectedIndex?: number) => {
                 switch (selectedIndex) {
                     case 1:
-                        openWithInApp('https://t.me/WhalesSupportBot');
+                        openWithInApp(holdersSupportUrl);
                         break;
                     case 2:
-                        openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                        openWithInApp(supportFormUrl);
                         break;
                     case 3:
-                        openWithInApp('https://help.holders.io/en');
+                        openWithInApp(holdersSupportWebUrl);
                         break;
                     default:
                         break;

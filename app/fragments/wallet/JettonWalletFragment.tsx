@@ -5,23 +5,19 @@ import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
-import { Address, fromNano, toNano } from "@ton/core";
+import { Address } from "@ton/core";
 import { Typography } from "../../components/styles";
 import { memo, Suspense, useCallback } from "react";
 import { JettonIcon } from "../../components/products/JettonIcon";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { ValueComponent } from "../../components/ValueComponent";
-import { useJettonSwap } from "../../engine/hooks/jettons/useJettonSwap";
-import { PriceComponent } from "../../components/PriceComponent";
 import { WalletActions } from "./views/WalletActions";
 import { JettonWalletTransactions } from "./views/JettonWalletTransactions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJettonTransactions } from "../../engine/hooks/transactions/useJettonTransactions";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
-import Animated, { FadeOut } from "react-native-reanimated";
 import { useJettonRate } from "../../engine/hooks/jettons/useJettonRate";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
 import { CurrencySymbols, formatCurrency } from "../../utils/formatCurrency";
 import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
 
@@ -165,7 +161,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                             />
                                         </Text>
                                         <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                                            {`1 ${jettonWallet?.symbol} ≈ ${formatCurrency(rate!.toString(), currency)}`}
+                                            {`1 ${jettonWallet?.symbol} ≈ ${formatCurrency(rate!.toFixed(2), currency)}`}
                                         </Text>
                                     </>
                                 )}

@@ -23,7 +23,7 @@ export function useSpecialJetton(address: Address | null | undefined) {
         return null;
     }
 
-    const specialJetton: Jetton | null = walletAddress ? {
+    const specialJetton: Jetton | null = !!wallet?.address ? {
         balance: BigInt(wallet?.balance ?? 0n),
         decimals: masterContent?.decimals ?? 6,
         description: masterContent?.description ?? '',
@@ -31,7 +31,7 @@ export function useSpecialJetton(address: Address | null | undefined) {
         symbol: masterContent?.symbol ?? '',
         icon: masterContent?.image?.preview256 ?? '',
         master: Address.parse(specialJettonMaster),
-        wallet: Address.parse(walletAddress),
+        wallet: Address.parse(wallet.address),
     } : null;
 
     const balanceString = fromBnWithDecimals(specialJetton?.balance ?? 0n, masterContent?.decimals ?? 6);

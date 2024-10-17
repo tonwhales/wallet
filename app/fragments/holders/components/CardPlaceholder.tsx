@@ -1,15 +1,16 @@
 import { memo, useEffect } from "react";
 import { ThemeType } from "../../../engine/state/theme";
+import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { Easing, Extrapolation, FadeInDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
-import { Platform, View, Text } from "react-native";
-import { } from "react-native";
-import { RoundButton } from "../../../components/RoundButton";
+import { Platform, View } from "react-native";
+import { Text } from "react-native";
+import { Image } from "expo-image"; import Animated, { Easing, Extrapolation, FadeInDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { t } from "../../../i18n/t";
-import { Image } from "expo-image";
+import { RoundButton } from "../../../components/RoundButton";
 import { Typography } from "../../../components/styles";
+;
 
-export const AccountPlaceholder = memo(({
+export const CardPlaceholder = memo(({
     theme,
     onReload,
     onSupport,
@@ -20,7 +21,9 @@ export const AccountPlaceholder = memo(({
     onSupport?: () => void,
     showClose?: boolean
 }) => {
+    const dimensions = useDimensions();
     const safeArea = useSafeAreaInsets();
+
     const animation = useSharedValue(0);
 
     useEffect(() => {
@@ -61,74 +64,50 @@ export const AccountPlaceholder = memo(({
                 android: { paddingTop: safeArea.top }
             })
         ]}>
-            <View
-                style={[
-                    {
-                        backgroundColor: theme.backgroundUnchangeable,
-                        position: 'absolute', top: 0, left: 0, right: 0
-                    },
-                    Platform.select({
-                        ios: { height: safeArea.top - 8 },
-                        android: { height: safeArea.top }
-                    }),
-                ]}
-            />
-            <Animated.View style={[{
-                backgroundColor: theme.backgroundUnchangeable,
-                borderBottomLeftRadius: 20,
-                borderBottomRightRadius: 20,
-                paddingTop: 8
-            }, animatedStyles]}>
-                <View style={[
-                    {
-                        height: 44,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingHorizontal: 16,
-                        width: '100%'
-                    },
-                ]}>
-                    <View style={{
-                        width: 32, height: 32,
-                        backgroundColor: '#1c1c1e',
-                        borderRadius: 16,
-                        opacity: showClose ? 0 : 1
-                    }} />
-                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <View style={{
-                            backgroundColor: '#1c1c1e',
-                            height: 28, width: 132,
-                            borderRadius: 20
-                        }} />
-                    </View>
-                    <View style={{
-                        width: 32, height: 32,
-                        backgroundColor: '#1c1c1e',
-                        borderRadius: 16
-                    }} />
-                </View>
-                <View
-                    style={{
-                        height: 28,
-                        width: 78,
-                        backgroundColor: '#1c1c1e',
-                        borderRadius: 20,
-                        marginTop: 20 + 38 + 20,
-                        alignSelf: 'center'
-                    }}
-                />
-                <View
-                    style={{
+            <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                marginTop: 44 + 24,
+                gap: 26
+            }}>
+                <Animated.View
+                    style={[{
                         backgroundColor: theme.surfaceOnBg,
-                        height: 96,
-                        borderRadius: 20,
-                        marginTop: 24,
-                        marginHorizontal: 16,
-                        marginBottom: - 48
-                    }}
+                        width: 32,
+                        height: 152,
+                        borderTopEndRadius: 18,
+                        borderBottomEndRadius: 18
+                    }, animatedStyles]}
                 />
-            </Animated.View>
-
+                <Animated.View
+                    style={[{
+                        backgroundColor: theme.surfaceOnBg,
+                        width: dimensions.screen.width - 98,
+                        height: 184,
+                        borderRadius: 20
+                    }, animatedStyles]}
+                />
+                <Animated.View
+                    style={[{
+                        backgroundColor: theme.surfaceOnBg,
+                        width: 32,
+                        height: 152,
+                        borderTopStartRadius: 18,
+                        borderBottomStartRadius: 18
+                    }, animatedStyles]}
+                />
+            </View>
+            <Animated.View style={[{
+                backgroundColor: theme.surfaceOnBg,
+                alignSelf: 'center',
+                height: 96,
+                width: dimensions.screen.width - 32,
+                marginTop: 38,
+                borderRadius: 20,
+                opacity: 1
+            }, animatedStyles]} />
             {(onReload || onSupport) && (
                 <View style={{
                     flexGrow: 1,

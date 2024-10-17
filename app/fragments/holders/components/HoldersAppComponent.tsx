@@ -36,66 +36,7 @@ export function normalizePath(path: string) {
 }
 
 import IcHolders from '@assets/ic_holders.svg';
-
-const CardPlaceholder = memo(({ theme }: { theme: ThemeType }) => {
-    const dimensions = useDimensions();
-    const safeArea = useSafeAreaInsets();
-
-    return (
-        <View style={[
-            { flexGrow: 1, width: '100%' },
-            Platform.select({
-                ios: { paddingTop: safeArea.top - 8 },
-                android: { paddingTop: safeArea.top }
-            })
-        ]}>
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%',
-                marginTop: 44 + 24,
-                gap: 26
-            }}>
-                <View
-                    style={{
-                        backgroundColor: theme.surfaceOnBg,
-                        width: 32,
-                        height: 152,
-                        borderTopEndRadius: 18,
-                        borderBottomEndRadius: 18
-                    }}
-                />
-                <View
-                    style={{
-                        backgroundColor: theme.surfaceOnBg,
-                        width: dimensions.screen.width - 98,
-                        height: 184,
-                        borderRadius: 20
-                    }}
-                />
-                <View
-                    style={{
-                        backgroundColor: theme.surfaceOnBg,
-                        width: 32,
-                        height: 152,
-                        borderTopStartRadius: 18,
-                        borderBottomStartRadius: 18
-                    }}
-                />
-            </View>
-            <View style={{
-                backgroundColor: theme.surfaceOnBg,
-                alignSelf: 'center',
-                height: 96,
-                width: dimensions.screen.width - 32,
-                marginTop: 38,
-                borderRadius: 20,
-                opacity: 1
-            }} />
-        </View>
-    );
-});
+import { CardPlaceholder } from './CardPlaceholder';
 
 export const HoldersPlaceholder = memo(() => {
     const animation = useSharedValue(0);
@@ -220,7 +161,14 @@ export const HoldersLoader = memo(({
         }
 
         if (type === HoldersAppParamsType.Prepaid) {
-            return <CardPlaceholder theme={theme} />;
+            return (
+                <CardPlaceholder
+                    theme={theme}
+                    showClose={showClose}
+                    onReload={showClose ? onReload : undefined}
+                    onSupport={showClose ? onSupport : undefined}
+                />
+            );
         }
 
         return <HoldersPlaceholder />;
@@ -536,6 +484,7 @@ export const HoldersAppComponent = memo((
                                 : props.variant.type
                         }
                         {...p}
+                        loaded={false}
                         onReload={onReaload}
                         onSupport={onSupport}
                     />

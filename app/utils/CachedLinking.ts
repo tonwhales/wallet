@@ -1,6 +1,7 @@
 import { Linking } from "react-native";
 import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
+import branch from 'react-native-branch'
 
 let lastLink: string | null = null;
 let listener: (((link: string) => void) | null) = null;
@@ -20,6 +21,61 @@ function handleLinkReceived(link: string) {
         handleLinkReceived(url);
     }
 })();
+
+// Listener
+branch.subscribe({
+    onOpenStart: ({
+        uri,
+        cachedInitialEvent
+    }) => {
+        console.log(
+            'subscribe onOpenStart, will open ' +
+            uri +
+            ' cachedInitialEvent is ' +
+            cachedInitialEvent,
+        );
+    },
+    onOpenComplete: ({
+        error,
+        params,
+        uri
+    }) => {
+        if (error) {
+            console.error(
+                'subscribe onOpenComplete, Error from opening uri: ' +
+                uri +
+                ' error: ' +
+                error,
+            );
+            return;
+        }
+        else if (params) {
+            if (!params['+clicked_branch_link']) {
+                if (params['+non_branch_link']) {
+                    console.log('non_branch_link: ' + uri);
+                    // Route based on non-Branch links
+                    return;
+                }
+            } else {
+                // Handle params
+                let deepLinkPath = params.$deeplink_path as string; 
+                let canonicalUrl = params.$canonical_url as string;
+                // Route based on Branch link data 
+                return
+            }
+        }
+    },
+});
+
+(async () => {
+    try {
+        let latestParams = await branch.getLatestReferringParams() // Params from last open
+        console.log('latestParams', latestParams)
+    } catch (error) {
+        console.error('getLatestReferringParams error')
+    }
+})();
+
 
 // Subscribe for links
 Linking.addEventListener('url', (e) => {

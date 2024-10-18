@@ -3,11 +3,15 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
 #import <ReactNativePerformance/ReactNativePerformance.h>
+#import <RNBranch/RNBranch.h>
+
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [RNBranch.branch checkPasteboardOnInstall];
+	[RNBranch initSessionWithLaunchOptions:launchOptions isReferrable:YES];
   [ReactNativePerformance onAppStarted];
   // Disable iCloud backup
   NSArray *urlArray = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask];

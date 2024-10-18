@@ -1,5 +1,6 @@
 PODS:
   - boost (1.76.0)
+  - BranchSDK (3.6.3)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
   - EXApplication (5.3.1):
@@ -487,6 +488,9 @@ PODS:
     - React-Core
   - react-native-blurhash (1.1.11):
     - React-Core
+  - react-native-branch (6.3.0):
+    - BranchSDK (= 3.6.3)
+    - React-Core
   - react-native-context-menu-view (1.12.0):
     - React
   - react-native-fast-pbkdf2 (0.3.1):
@@ -765,6 +769,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
   - react-native-blurhash (from `../node_modules/react-native-blurhash`)
+  - react-native-branch (from `../node_modules/react-native-branch`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - react-native-minimizer (from `../node_modules/react-native-minimizer`)
@@ -812,6 +817,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
+    - BranchSDK
     - CocoaAsyncSocket
     - Flipper
     - Flipper-Boost-iOSX
@@ -951,6 +957,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ble-plx"
   react-native-blurhash:
     :path: "../node_modules/react-native-blurhash"
+  react-native-branch:
+    :path: "../node_modules/react-native-branch"
   react-native-context-menu-view:
     :path: "../node_modules/react-native-context-menu-view"
   react-native-fast-pbkdf2:
@@ -1042,6 +1050,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  BranchSDK: a5418b5fde1b837567cf00a4a7f2ed45abf2e26c
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EXApplication: 042aa2e3f05258a16962ea1a9914bf288db9c9a1
@@ -1116,6 +1125,7 @@ SPEC CHECKSUMS:
   React-logger: cebf22b6cf43434e471dc561e5911b40ac01d289
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
   react-native-blurhash: a59e6bf8117a0304488ed576abd440f4b0777a8c
+  react-native-branch: 2d064d63b23ea395bc3ee187faadfc8937d791fd
   react-native-context-menu-view: 2ae33d47b93dadab8bce27cddc1506f17411f7e5
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-minimizer: bd07450123d8c685acb2dff64f0213b0c7b5dbd6

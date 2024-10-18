@@ -15,7 +15,6 @@ export function usePendingWatcher(address?: string) {
     const toRemove = pending.filter(a => a.seqno <= (firstTransactionSeqno || 0)).map(a => a.id);
 
     useEffect(() => {
-        // return;
         if (!toRemove) {
             return;
         }

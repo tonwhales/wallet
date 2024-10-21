@@ -13,7 +13,7 @@ export function usePriceQuery(): [PriceState, string] {
         staleTime: 1000 * 60
     });
 
-    let [currency,] = usePrimaryCurrency();
+    let [currency] = usePrimaryCurrency();
 
     return [
         price.data!,

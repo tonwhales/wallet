@@ -99,6 +99,7 @@ import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetu
 import { W5UpdateFragment } from './fragments/W5UpdateFragment';
 import { WebViewPreloader } from './components/WebViewPreloader';
 import { holdersUrl } from './engine/api/holders/fetchUserState';
+import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -234,6 +235,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     genericScreen('BackupIntro', BackupIntroFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
+    modalScreen('JettonTransaction', JettonTransactionPreviewFragment, safeArea),
     modalScreen('PendingTransaction', PendingTxPreviewFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),

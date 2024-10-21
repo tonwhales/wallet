@@ -25,7 +25,7 @@ const accountPublicSchema = z.object({
   accountIndex: z.number(),
   address: z.nullable(z.string()),
   state: z.string(),
-  name: z.string().nullable().optional(),
+  name: z.string().nullish(),
   balance: z.string(),
   partner: z.string(),
   tzOffset: z.number(),
@@ -148,15 +148,15 @@ const cardSchema = z.object({
   status: cardStatusSchema,
   walletId: z.string().optional().nullable(),
   fiatCurrency: z.string(),
-  lastFourDigits: z.string().nullable().optional(),
+  lastFourDigits: z.string().nullish(),
   productId: z.string(),
   personalizationCode: z.string(),
-  delivery: cardDeliverySchema.nullable().optional(),
+  delivery: cardDeliverySchema.nullish(),
   seed: z.string().nullable().optional(),
   updatedAt: z.string(),
   createdAt: z.string(),
-  provider: z.string().optional().nullable(),
-  kind: z.string().optional().nullable()
+  provider: z.string().nullish(),
+  kind: z.string().nullish()
 });
 
 const cardDebit = cardSchema.and(z.object({ type: z.literal('DEBIT') }),);
@@ -176,8 +176,8 @@ const cryptoCurrencyTicker = z.union([
 const accountSchema = z.object({
   id: z.string(),
   accountIndex: z.number(),
-  address: z.string().optional().nullable(),
-  name: z.string().nullable().optional(),
+  address: z.string().nullish(),
+  name: z.string().nullish(),
   seed: z.string().nullable(),
   state: z.string(),
   balance: z.string(),
@@ -190,7 +190,7 @@ const accountSchema = z.object({
   cryptoCurrency: z.object({
     decimals: z.number(),
     ticker: cryptoCurrencyTicker,
-    tokenContract: z.string().nullable().optional(),
+    tokenContract: z.string().nullish()
   }),
 
   limits: accountLimitsSchema,

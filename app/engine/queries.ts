@@ -44,10 +44,12 @@ export const Queries = {
             AllWallets: () => ['jettons', 'address', address, 'master'],
             Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
             WalletPayload: (walletAddress: string) => ['jettons', 'address', address, 'wallet', walletAddress, 'payload'],
+            Transactions: (master: string) => ['jettons', 'address', address, 'master', master, 'transactions']
         }),
         Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
         Known: () => ['jettons', 'known'],
         GaslessConfig: () => ['jettons', 'gaslessConfig'],
+        Rates: (masterAddress: string) => ['jettons', 'rates', masterAddress],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({
@@ -60,6 +62,7 @@ export const Queries = {
 
     Banners: (language: string, version: string, buildNumber: string) => (['banners', language, version, buildNumber]),
     BrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', network]),
+    HoldersBrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', 'holders', network]),
 
     AppConfig: (network: 'mainnet' | 'testnet') => (['appConfig', network]),
 }

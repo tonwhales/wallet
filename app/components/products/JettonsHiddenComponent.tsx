@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react"
+import React, { memo, useEffect, useState } from "react"
 import { View, Pressable, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
@@ -16,7 +16,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
     const { isTestnet: testOnly } = useNetwork();
     const markJettonActive = useMarkJettonActive();
     const hints = useSortedHints(owner.toString({ testOnly }));
-    let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    let [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const hiddenList = hints
         .filter((s) => !!disabledState.disabled[s])

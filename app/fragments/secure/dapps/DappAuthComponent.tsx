@@ -357,7 +357,7 @@ export const DappAuthComponent = memo(({
                                         bounceableFormat={bounceableFormat}
                                         isTestnet={isTestnet}
                                         knownWallets={knownWallets}
-                                        isW5={selectedAccount.version === WalletVersions.v5R1}
+                                        isW5={addr.version === WalletVersions.v5R1}
                                     />
                                 );
                             })}

@@ -7,19 +7,18 @@ import { t } from "../../../i18n/t";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
 
-import Scanner from '@assets/ic-scan-white.svg';
 import NoConnection from '@assets/ic-no-connection.svg';
 
 export const LedgerWalletHeader = memo(() => {
     const theme = useTheme();
-    const network = useNetwork();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const syncState = useSyncState();
 
     const onQRCodeRead = useCallback((src: string) => {
         try {
-            let res = resolveUrl(src, network.isTestnet);
+            let res = resolveUrl(src, isTestnet);
             if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
                 if (res.type === 'transaction') {
                     if (res.payload) {
@@ -39,7 +38,7 @@ export const LedgerWalletHeader = memo(() => {
                         // });
                     } else {
                         navigation.navigateLedgerTransfer({
-                            target: res.address.toString({ testOnly: network.isTestnet }),
+                            target: res.address.toString({ testOnly: isTestnet }),
                             comment: res.comment,
                             amount: res.amount,
                             stateInit: res.stateInit,
@@ -51,7 +50,7 @@ export const LedgerWalletHeader = memo(() => {
                     return;
                 }
                 navigation.navigateLedgerTransfer({
-                    target: res.address.toString({ testOnly: network.isTestnet }),
+                    target: res.address.toString({ testOnly: isTestnet }),
                     comment: res.comment,
                     amount: res.amount,
                     stateInit: null,

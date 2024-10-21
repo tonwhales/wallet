@@ -29,7 +29,7 @@ export const AccountPlaceholder = memo(({
                 duration: 500,
                 easing: Easing.bezier(0.25, 0.1, 0.25, 1)
             }),
-            10,
+            14,
             true,
         );
     }, []);

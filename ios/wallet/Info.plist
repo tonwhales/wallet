@@ -37,6 +37,7 @@
 			<array>
 				<string>$(BUNDLE_TC_SCHEMA)</string>
 				<string>$(BUNDLE_LINK_SCHEMA)</string>
+				<string>$(BUNDLE_TH_SCHEMA)</string>
 			</array>
 		</dict>
 	</array>

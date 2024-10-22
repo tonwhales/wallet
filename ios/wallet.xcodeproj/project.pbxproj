@@ -599,6 +599,7 @@
 				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_LINK_SCHEMA = ton;
 				BUNDLE_TC_SCHEMA = tc;
+				BUNDLE_TH_SCHEMA = tonhub;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -655,6 +656,7 @@
 				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_LINK_SCHEMA = ton;
 				BUNDLE_TC_SCHEMA = tc;
+				BUNDLE_TH_SCHEMA = tonhub;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = WhalesAppRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -1273,6 +1275,7 @@
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
 				BUNDLE_TC_SCHEMA = "tc-test";
+				BUNDLE_TH_SCHEMA = "tonhub-test";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -1395,6 +1398,7 @@
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
 				BUNDLE_TC_SCHEMA = "tc-test";
+				BUNDLE_TH_SCHEMA = "tonhub-test";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = wallet/wallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";

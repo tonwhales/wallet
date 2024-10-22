@@ -1,7 +1,10 @@
 import { Linking } from "react-native";
 import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
-import branch from 'react-native-branch'
+import branch, { BranchParams } from 'react-native-branch'
+import { storeDebugItem } from "./debug/DebugContext";
+import { getAppState } from "../storage/appState";
+import { sharedStoragePersistence } from "../storage/storage";
 
 let lastLink: string | null = null;
 let listener: (((link: string) => void) | null) = null;
@@ -17,68 +20,113 @@ function handleLinkReceived(link: string) {
 // Fetch initial
 (async () => {
     let url = await Linking.getInitialURL();
+    storeDebugItem(`initialURL ${url}`);
     if (url) {
         handleLinkReceived(url);
     }
 })();
 
+type TrimmedBranchParams = Omit<BranchParams, '+clicked_branch_link' | '~referring_link'>;
+
+const branchLinksKey = 'branch-links';
+
+function getBranchParams(): TrimmedBranchParams[] {
+    const stored = sharedStoragePersistence.getString(branchLinksKey);
+    if (!stored) {
+        return [];
+    }
+    return JSON.parse(stored);
+}
+
+function storeBranchParams(params: TrimmedBranchParams) {
+    const stored = getBranchParams();
+    stored.push(params);
+    sharedStoragePersistence.set(branchLinksKey, JSON.stringify(stored));
+}
+
+export function getLatestBranchParams(): TrimmedBranchParams | null {
+    const stored = getBranchParams();
+    return stored[stored.length - 1] ?? null;
+}
+
+function handleBranchLink(params: TrimmedBranchParams) {
+    const appState = getAppState();
+
+    if (
+        appState.addresses.length === 0
+        || appState.selected > 0
+    ) {
+        storeBranchParams(params);
+        return;
+    }
+
+    const deepLink = params.$deeplink_path as string;
+
+    if (deepLink) {
+        const uri = `https://tonhub.com/${deepLink}`;
+        const url = new URL(uri);
+        // append params as query
+        for (const [key, value] of Object.entries(params)) {
+            if (key === '$deeplink_path') {
+                continue;
+            }
+            url.searchParams.append(key, value as string);
+        }
+        handleLinkReceived(url.toString());
+    }
+}
+
 // Listener
 branch.subscribe({
-    onOpenStart: ({
-        uri,
-        cachedInitialEvent
-    }) => {
-        console.log(
-            'subscribe onOpenStart, will open ' +
-            uri +
-            ' cachedInitialEvent is ' +
-            cachedInitialEvent,
-        );
-    },
     onOpenComplete: ({
         error,
         params,
         uri
     }) => {
         if (error) {
-            console.error(
-                'subscribe onOpenComplete, Error from opening uri: ' +
-                uri +
-                ' error: ' +
-                error,
-            );
+            storeDebugItem(`branch.onOpenComplete error ${JSON.stringify({ params, uri, error })}`);
             return;
         }
-        else if (params) {
+
+        if (params) {
+            storeDebugItem(`branch.onOpenComplete success ${JSON.stringify({ params, uri, error })}`);
             if (!params['+clicked_branch_link']) {
-                if (params['+non_branch_link']) {
-                    console.log('non_branch_link: ' + uri);
-                    // Route based on non-Branch links
-                    return;
-                }
-            } else {
-                // Handle params
-                let deepLinkPath = params.$deeplink_path as string; 
-                let canonicalUrl = params.$canonical_url as string;
-                // Route based on Branch link data 
-                return
+                // this will be handled in Linking.getInitialURL
+                return;
             }
+            // Routing with Branch link data 
+            let passingParams = params as Partial<BranchParams>;
+            delete passingParams['+clicked_branch_link'];
+            delete passingParams['~referring_link'];
+
+            handleBranchLink(passingParams);
+            return;
         }
     },
+
 });
 
 (async () => {
     try {
-        let latestParams = await branch.getLatestReferringParams() // Params from last open
-        console.log('latestParams', latestParams)
+        const latestParams = await branch.getLatestReferringParams() // Params from last open
+        storeDebugItem(`branch.latestParams ${JSON.stringify(latestParams)}`);
+        console.log('latestParams', latestParams);
+        const isTrackingDisabled = await branch.isTrackingDisabled();
+        const firstReferringParams = await branch.getFirstReferringParams();
+        // const lastAttributedTouchData = await branch.lastAttributedTouchData(24 * 60 * 60 * 1000);
+        storeDebugItem(`branch.isTrackingDisabled ${isTrackingDisabled}`);
+        storeDebugItem(`branch.firstReferringParams ${JSON.stringify(firstReferringParams)}`);
+        // storeDebugItem(`branch.lastAttributedTouchData ${JSON.stringify(lastAttributedTouchData)}`);
     } catch (error) {
-        console.error('getLatestReferringParams error')
+        storeDebugItem(`branch.latestParams ${error}`);
+        console.error('getLatestReferringParams error');
     }
 })();
 
 
 // Subscribe for links
 Linking.addEventListener('url', (e) => {
+    storeDebugItem(`Linking listener ${e.url}`);
     handleLinkReceived(e.url);
 });
 

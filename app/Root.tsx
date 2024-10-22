@@ -17,6 +17,7 @@ import { ThemeProvider } from './engine/ThemeContext';
 import { PriceLoader } from './engine/PriceContext';
 import { migrateDontShowComments } from './engine/state/spam';
 import { AppBlurContextProvider } from './components/AppBlurContext';
+import { DebugContextProvider } from './utils/debug/DebugContext';
 
 const PERSISTANCE_VERSION = '23';
 // set default value for spam comments
@@ -60,7 +61,10 @@ export const Root = memo(() => {
                                     <AddressBookLoader>
                                         <LedgerTransportProvider>
                                             <AppBlurContextProvider>
-                                                <Navigation />
+                                                {/* TODO: remove before pushing to prod */}
+                                                <DebugContextProvider>
+                                                    <Navigation />
+                                                </DebugContextProvider>
                                             </AppBlurContextProvider>
                                         </LedgerTransportProvider>
                                     </AddressBookLoader>

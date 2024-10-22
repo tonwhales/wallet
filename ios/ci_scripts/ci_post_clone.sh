@@ -2,6 +2,26 @@
 
 set -e
 
+echo "===== Passing down env variables ====="
+
+# for future reference
+# https://developer.apple.com/documentation/xcode/environment-variable-reference
+
+cd ../wallet
+
+# Ensure the BRANCH_KEY_TEST environment variable is set
+if [ -z "$BRANCH_KEY_TEST" ]; then
+    echo "Error: BRANCH_KEY_TEST environment variable is not set."
+    exit 1
+fi
+
+plutil -replace branch_key.test -string "$BRANCH_KEY_TEST" Info.plist
+plutil -replace branch_key.live -string "$BRANCH_KEY_LIVE" Info.plist
+
+plutil -p Info.plist
+
+echo "===== Evn variables replaced ====="
+
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=TRUE
 # brew install cocoapods

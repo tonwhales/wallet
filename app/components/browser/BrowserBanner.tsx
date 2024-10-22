@@ -49,7 +49,7 @@ export const BrowserBanner = memo(({
         };
     });
 
-    const { isTestnet} = useNetwork();
+    const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);

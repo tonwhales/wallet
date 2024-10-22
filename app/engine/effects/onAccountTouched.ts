@@ -15,7 +15,7 @@ export async function onAccountsTouched(accounts: Set<string>) {
                     return false;
                 }
 
-                // Invalidate all jetton txs querie on jetton wallet touched
+                // Invalidate all jetton txs query on jetton wallet touched
                 if (queryKey[2] === 'jettonWallet') {
                     const queryCache = queryClient.getQueryCache();
                     const jettonWalletData = getQueryData<StoredJettonWallet>(queryCache, query.queryKey);

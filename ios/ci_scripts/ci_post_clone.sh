@@ -9,13 +9,12 @@ echo "===== Passing down env variables ====="
 
 cd ../wallet
 
-# Ensure the BRANCH_KEY_TEST environment variable is set
-if [ -z "$BRANCH_KEY_TEST" ]; then
-    echo "Error: BRANCH_KEY_TEST environment variable is not set."
+# Ensure the BRANCH_KEY_LIVE environment variable is set
+if [ -z "$BRANCH_KEY_LIVE" ]; then
+    echo "Error: BRANCH_KEY_LIVE environment variable is not set."
     exit 1
 fi
 
-plutil -replace branch_key.test -string "$BRANCH_KEY_TEST" Info.plist
 plutil -replace branch_key.live -string "$BRANCH_KEY_LIVE" Info.plist
 
 plutil -p Info.plist

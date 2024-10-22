@@ -10,6 +10,9 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		3645EA592CC7EE70001F6723 /* branch.json in Resources */ = {isa = PBXBuildFile; fileRef = 3645EA582CC7EE70001F6723 /* branch.json */; };
+		3645EA5A2CC7EE70001F6723 /* branch.json in Resources */ = {isa = PBXBuildFile; fileRef = 3645EA582CC7EE70001F6723 /* branch.json */; };
+		3645EA5B2CC7EE70001F6723 /* branch.json in Resources */ = {isa = PBXBuildFile; fileRef = 3645EA582CC7EE70001F6723 /* branch.json */; };
 		36592C632C60F74C00C09D22 /* WatchConnectivitySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */; };
 		369709122C47C967008C7641 /* RNAppleProvisioning.m in Sources */ = {isa = PBXBuildFile; fileRef = 369709112C47C967008C7641 /* RNAppleProvisioning.m */; };
 		36BFDFF22C5BB3B40016DC6B /* RNAppleProvisioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BFDFF12C5BB3B40016DC6B /* RNAppleProvisioning.swift */; };
@@ -76,6 +79,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = wallet/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = wallet/main.m; sourceTree = "<group>"; };
 		339975B5EBE33A54805BCA85 /* Pods-WhalesApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.release.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.release.xcconfig"; sourceTree = "<group>"; };
+		3645EA582CC7EE70001F6723 /* branch.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = branch.json; path = ../branch.json; sourceTree = "<group>"; };
 		369709112C47C967008C7641 /* RNAppleProvisioning.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNAppleProvisioning.m; sourceTree = "<group>"; };
 		36BFDFF12C5BB3B40016DC6B /* RNAppleProvisioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNAppleProvisioning.swift; sourceTree = "<group>"; };
 		36BFDFF32C5BB4330016DC6B /* AddCardRequestHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCardRequestHandler.swift; sourceTree = "<group>"; };
@@ -198,6 +202,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				3645EA582CC7EE70001F6723 /* branch.json */,
 				36D5B6782C52603B000A4A55 /* WatchConnectivitySession.swift */,
 				36BFE0052C5BD6E50016DC6B /* ProvisioningUtils.swift */,
 				36D5B6732C525A41000A4A55 /* WhalesAppRelease.entitlements */,
@@ -372,6 +377,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
+				3645EA592CC7EE70001F6723 /* branch.json in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 			);
@@ -383,6 +389,7 @@
 			files = (
 				36D5B64D2C525944000A4A55 /* Media.xcassets in Resources */,
 				36D5B6522C525944000A4A55 /* Base in Resources */,
+				3645EA5A2CC7EE70001F6723 /* branch.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,6 +398,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				36D5B6652C52596E000A4A55 /* Media.xcassets in Resources */,
+				3645EA5B2CC7EE70001F6723 /* branch.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

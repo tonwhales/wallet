@@ -29,6 +29,8 @@ import com.tonhub.wallet.modules.store.KeyStorePackage;
 import com.shopify.reactnativeperformance.ReactNativePerformance;
 import com.tonhub.wallet.modules.wallet.WalletPackage;
 
+import io.branch.rnbranch.RNBranchModule;
+
 public class MainApplication extends Application implements ReactApplication {
     private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(
             this,
@@ -74,6 +76,8 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         ReactNativePerformance.onAppStarted();
+        RNBranchModule.enableLogging();
+        RNBranchModule.getAutoInstance(this);
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {

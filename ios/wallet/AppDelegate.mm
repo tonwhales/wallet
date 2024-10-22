@@ -61,14 +61,18 @@
 
 // Linking API
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-  return [RCTLinkingManager application:application openURL:url options:options];
+  // return [RCTLinkingManager application:application openURL:url options:options];
+  [RNBranch application:app openURL:url options:options];
+  return YES;
 }
 
 // Universal Links
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
-  return [RCTLinkingManager application:application
-                   continueUserActivity:userActivity
-                     restorationHandler:restorationHandler];
+  // return [RCTLinkingManager application:application
+  //                  continueUserActivity:userActivity
+  //                    restorationHandler:restorationHandler];
+  [RNBranch continueUserActivity:userActivity];
+  return YES;
 }
 
 @end

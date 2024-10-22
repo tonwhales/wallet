@@ -4,19 +4,19 @@ import { z } from "zod";
 export const browserListingCodec = z.object({
     id: z.number(),
     weight: z.number().optional(),
-    image_url: z.string().nullable().optional(),
-    icon_url: z.string().nullable().optional(),
-    title: z.string().nullable().optional(),
-    description: z.string().nullable().optional(),
-    banner_type: z.string().nullable().optional(),
+    image_url: z.string().nullish(),
+    icon_url: z.string().nullish(),
+    title: z.string().nullish(),
+    description: z.string().nullish(),
+    banner_type: z.string().nullish(),
     product_url: z.string(),
     start_date: z.number(),
     expiration_date: z.number(),
-    regions_to_exclude: z.string().nullable().optional(),
-    regions_to_include: z.string().nullable().optional(),
+    regions_to_exclude: z.string().nullish(),
+    regions_to_include: z.string().nullish(),
     enabled: z.boolean(),
-    category: z.string().nullable().optional(),
-    is_test: z.boolean().nullable().optional()
+    category: z.string().nullish(),
+    is_test: z.boolean().nullish()
 });
 
 export const browserListingsResponseCodec = z.object({ banners: z.array(browserListingCodec) });

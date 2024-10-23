@@ -29,7 +29,7 @@ function areArraysEqualByContent<T>(a: T[], b: T[]): boolean {
 
 function useSubToHintChange(
     reSortHints: () => void,
-    owner: string,
+    owner: string
 ) {
     useEffect(() => {
         const cache = queryClient.getQueryCache();
@@ -39,7 +39,7 @@ function useSubToHintChange(
                 const action = e.action;
 
                 // only care about success updates
-                if (action.type !== 'success') {
+                if (action.type !== 'success' || !action.data) {
                     return;
                 }
 

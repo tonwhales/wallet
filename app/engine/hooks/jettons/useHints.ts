@@ -47,9 +47,9 @@ export function useHints(addressString?: string): string[] {
             return Array.from(hints);
         },
         enabled: !!addressString,
-        refetchInterval: 10000,
+        refetchInterval: 15_000,
         refetchOnMount: true,
-        refetchOnWindowFocus: true,
+        refetchOnWindowFocus: true
     });
 
     return hints.data || [];
@@ -83,7 +83,7 @@ export function useMintlessHints(addressString?: string): MintlessJetton[] {
             }
         },
         enabled: !!addressString,
-        refetchInterval: 10000,
+        refetchInterval: 15_000,
         refetchOnMount: true,
         refetchOnWindowFocus: true
     });

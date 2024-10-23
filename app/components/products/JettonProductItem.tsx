@@ -8,9 +8,7 @@ import { Suspense, memo, useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useJetton, useJettonWallet, useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { PerfText } from '../basic/PerfText';
-import { useJettonSwap } from '../../engine/hooks/jettons/useJettonSwap';
-import { PriceComponent } from '../PriceComponent';
-import { Address, fromNano, toNano } from '@ton/core';
+import { Address } from '@ton/core';
 import { JettonIcon } from './JettonIcon';
 import { Typography } from '../styles';
 import { PerfView } from '../basic/PerfView';
@@ -24,11 +22,10 @@ import { copyText } from '../../utils/copyText';
 import { Jetton } from '../../engine/types';
 import { mapJettonToMasterState } from '../../utils/jettons/mapJettonToMasterState';
 import { useJettonRate } from '../../engine/hooks/jettons/useJettonRate';
-import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { CurrencySymbols } from '../../utils/formatCurrency';
+import { calculateSwapAmount } from '../../utils/jettons/calculateSwapAmount';
 
 import IcCheck from "@assets/ic-check.svg";
-import { calculateSwapAmount } from '../../utils/jettons/calculateSwapAmount';
 
 type JettonProductItemProps = {
     wallet: Address,

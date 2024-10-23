@@ -1,11 +1,10 @@
 import React, { memo, useMemo } from "react"
-import { StyleProp, ViewStyle, TextStyle, Text } from "react-native"
+import { StyleProp, ViewStyle, TextStyle, Text, StyleSheet } from "react-native"
 import { CurrencySymbols, formatCurrency } from "../utils/formatCurrency"
 import { usePrice } from "../engine/hooks";
 import { fromNano } from "@ton/core";
 import { ThemeType } from "../engine/state/theme";
 import { PerfView } from "./basic/PerfView";
-import { PerfText } from "./basic/PerfText";
 import { Typography } from "./styles";
 
 import TonSign from '@assets/ic_ton_sign.svg';
@@ -79,23 +78,10 @@ export const PriceComponent = memo((
     return (
         <PerfView style={[{
             backgroundColor: theme.accent,
-            borderRadius: 16,
-            height: 28,
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            alignSelf: 'flex-start',
-            paddingVertical: 4,
-            paddingHorizontal: 12,
             paddingLeft: showSign ? 2 : 12
-        }, style]}>
+        }, styles.container, style]}>
             {showSign && (
-                <PerfView style={{
-                    height: 24, width: 24,
-                    justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: theme.ton, borderRadius: 12,
-                    marginRight: 6
-                }}>
+                <PerfView style={[styles.sign, { backgroundColor: theme.ton }]}>
                     <TonSign
                         height={12}
                         width={12}
@@ -111,4 +97,25 @@ export const PriceComponent = memo((
             </Text>
         </PerfView>
     );
+});
+
+const styles = StyleSheet.create({
+    container: {
+        borderRadius: 16,
+        height: 28,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        paddingVertical: 4,
+        paddingHorizontal: 12,
+    },
+    sign: {
+        height: 24,
+        width: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 12,
+        marginRight: 6
+    }
 });

@@ -20,6 +20,12 @@ import { Typography } from "../../components/styles";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
 
+export type ReceiveFragmentParams = {
+    addr?: string;
+    ledger?: boolean;
+    jetton?: { master: Address, data?: JettonMasterState };
+}
+
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();

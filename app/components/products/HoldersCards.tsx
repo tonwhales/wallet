@@ -12,7 +12,6 @@ import { toNano } from "@ton/core";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 
 import IcHide from '@assets/ic-hide.svg';
-import IcHolders from '@assets/ic-holders-white.svg';
 
 export const HoldersCards = memo(({
     cards,
@@ -116,30 +115,6 @@ export const HoldersCards = memo(({
                                 source={require('@assets/ic-holders-accounts.png')}
                                 style={{ width: 46, height: 46, borderRadius: 23 }}
                             />
-                            <View
-                                style={{
-                                    position: 'absolute', bottom: -2, right: -2,
-                                    width: 20, height: 20,
-                                    borderRadius: 10,
-                                    backgroundColor: theme.surfaceOnBg,
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                <View style={{
-                                    backgroundColor: theme.accent,
-                                    width: 17, height: 17,
-                                    borderRadius: 9,
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <IcHolders
-                                        height={12}
-                                        width={12}
-                                        color={theme.white}
-                                    />
-                                </View>
-                            </View>
                         </View>
                         <View style={{ marginLeft: 12, flexShrink: 1 }}>
                             <PerfText

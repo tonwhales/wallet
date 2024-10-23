@@ -62,11 +62,11 @@ function useIsFetchingSpecialJetton(account: string) {
 
 
 
-export function useSyncState(): 'online' | 'connecting' | 'updating' {
+export function useSyncState(address?: string): 'online' | 'connecting' | 'updating' {
     const account = useSelectedAccount();
     const socketState = useRecoilValue(blockWatcherAtom);
 
-    const acc = account?.addressString || 'default-null';
+    const acc = address || account?.addressString || 'default-null';
 
     const isFetchingAccount = useIsFetching(Queries.Account(acc).All());
     const isFetchingSpecialJetton = useIsFetchingSpecialJetton(acc);

@@ -5,12 +5,15 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LedgerNavigationStack } from "./LedgerHomeFragment";
-import { useAccountTransactions, useTheme } from "../../engine/hooks";
+import { useAccountTransactions, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
 import { SettingsFragment } from '../SettingsFragment';
 import { SortedHintsWatcher } from "../../components/SortedHintsWatcher";
+import { HintsPrefetcher } from "../../components/HintsPrefetcher";
+import { PendingTxsWatcher } from "../../components/PendingTxsWatcher";
+import { Address } from "@ton/core";
 
 const Tab = createBottomTabNavigator();
 
@@ -24,6 +27,7 @@ export const LedgerAppFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
+    const { isTestnet: testOnly } = useNetwork();
 
     if (
         !ledgerContext?.tonTransport
@@ -32,6 +36,9 @@ export const LedgerAppFragment = fragment(() => {
         navigation.navigateAndReplaceAll('Home')
         return null;
     }
+
+    const address = Address.parse(ledgerContext.addr.address);
+    const addressString = address.toString({ testOnly });
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.surfaceOnBg }}>
@@ -100,7 +107,9 @@ export const LedgerAppFragment = fragment(() => {
                     component={SettingsFragment}
                 />
             </Tab.Navigator>
-            <SortedHintsWatcher owner={ledgerContext.addr?.address} />
+            <HintsPrefetcher address={addressString} />
+            <SortedHintsWatcher owner={addressString} />
+            <PendingTxsWatcher address={addressString} />
         </View>
     );
 })

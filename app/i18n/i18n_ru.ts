@@ -170,6 +170,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidTransaction": "Неверная транзакция",
             "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
             "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
+            "memoChange": "Измените мемо/тег на \"{{memo}}\"",
             "gaslessFailed": "Не удалось отправить транзакцию",
             "gaslessFailedMessage": "Попробуйте снова или обратитесь в службу поддержки",
             "gaslessFailedEstimate": "Не удалось рассчитать комиссию, попробуйте позже или обратитесь в службу поддержки",
@@ -182,7 +183,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "gaslessTryLater": "Попробуйте позже",
             "gaslessTryLaterMessage": "Вы можете попробовать позже или обратиться в службу поддержки",
             "gaslessNotEnoughCoins": "Необходимо {{fee}} для оплаты комиссии, не хватает {{missing}}",
-            "notEnoughJettons": "Недостаточно {{symbol}}"
+            "notEnoughJettons": "Недостаточно {{symbol}}",
+            "jettonChange": "Получатель поддерживает только транзакции в {{symbol}}, пожалуйста, измените получателя или валюту транзакции",
         },
         "sendAll": "Max",
         "scanQR": "Считать QR код",
@@ -520,7 +522,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "loadingLongerTitle": "Проблемы c подключением",
             "loadingLonger": "Проверьте подключение к интернету и перезагрузите страницу. Если проблема сохраняется, обратитесь в службу поддержки",
             "accounts": {
-                "title": "Счета",
+                "title": 'Счета и карты',
                 "prepaidTitle": 'Prepaid карты',
                 "account": 'Счет',
                 "basicAccount": 'Базовый счет',

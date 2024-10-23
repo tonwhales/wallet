@@ -260,6 +260,8 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
                 txs = txs.slice(1);
             }
 
+            log(`[txns-query] fetched ${txs.length} txs`);
+
             return txs;
         },
         structuralSharing: (old, next) => {

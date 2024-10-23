@@ -60,6 +60,12 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
         }
     }, [txs.next, txs.hasNext]);
 
+    const onRefresh = useCallback(() => {
+        if (!txs.loading) {
+            txs.refresh();
+        }
+    }, [txs.refresh, txs.loading]);
+
     return (
         <View style={{ flex: 1, backgroundColor: props.theme.backgroundPrimary }}>
             <TabHeader title={t('transactions.history')} />
@@ -118,6 +124,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                                     viewType={'history'}
                                     address={address.toString({ testOnly: isTestnet })}
                                 />}
+                                refresh={{
+                                    onRefresh,
+                                    refreshing: txs.refreshing
+                                }}
                             />
                         )
                     } else {

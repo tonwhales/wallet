@@ -4,8 +4,30 @@ import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { ThemeType } from "../../../engine/state/theme";
 import { t } from "../../../i18n/t";
 import { Typography } from "../../../components/styles";
+import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
+import { Address } from "@ton/core";
 
-export type WalletActionType = "send" | "receive" | "buy" | "swap";
+export enum WalletActionType {
+    Send = 'send',
+    Receive = 'receive',
+    Buy = 'buy',
+    Swap = 'swap',
+};
+
+export type WalletAction = {
+    type: WalletActionType.Buy
+} | {
+    type: WalletActionType.Send,
+    jetton?: Address
+} | {
+    type: WalletActionType.Receive,
+    jetton?: {
+        master: Address,
+        data?: JettonMasterState
+    }
+} | {
+    type: WalletActionType.Swap
+}
 
 const nullTransfer = {
     amount: null,
@@ -18,16 +40,16 @@ const nullTransfer = {
 };
 
 export const WalletActionButton = memo(({
-    type,
+    action,
     navigation,
     theme
 }: {
-    type: WalletActionType,
+    action: WalletAction,
     navigation: TypedNavigation,
     theme: ThemeType,
 }) => {
 
-    switch (type) {
+    switch (action.type) {
         case 'buy': {
             return (
                 <Pressable
@@ -57,7 +79,7 @@ export const WalletActionButton = memo(({
         case 'send': {
             return (
                 <Pressable
-                    onPress={() => navigation.navigateSimpleTransfer(nullTransfer)}
+                    onPress={() => navigation.navigateSimpleTransfer({ ...nullTransfer, jetton: action.jetton })}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -86,7 +108,7 @@ export const WalletActionButton = memo(({
         case 'receive': {
             return (
                 <Pressable
-                    onPress={() => navigation.navigate('Receive')}
+                    onPress={() => navigation.navigateReceive(action.jetton ? { jetton: action.jetton } : undefined)}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>

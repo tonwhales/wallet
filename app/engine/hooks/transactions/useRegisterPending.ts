@@ -1,10 +1,11 @@
 import { PendingTransaction } from "../../state/pending";
 import { useNetwork, usePendingTransactions, useSelectedAccount } from "..";
 
-export function useRegisterPending() {
+export function useRegisterPending(address?: string) {
     const account = useSelectedAccount();
     const network = useNetwork();
-    const [, update] = usePendingTransactions(account?.addressString ?? '', network.isTestnet);
+    const accountString = address || account?.addressString || '';
+    const [, update] = usePendingTransactions(accountString, network.isTestnet);
 
     return (tx: PendingTransaction) => {
         update((old) => {

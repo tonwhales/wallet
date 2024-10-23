@@ -4,11 +4,11 @@ import { Queries } from "../../queries";
 import { BrowserListing, fetchBrowserListings } from "../../api/fetchBrowserListings";
 import { z } from 'zod';
 
-const categoryCodec = z.object({
+export const categoryCodec = z.object({
     id: z.string(),
     title: z.string().optional(),
     description: z.string().optional(),
-    weight: z.number().optional()
+    weight: z.union([z.number(), z.string()]).optional()
 });
 
 export type BrowserListingCategory = z.infer<typeof categoryCodec>;

@@ -104,7 +104,10 @@ export const LiquidStakingFragment = fragment(() => {
         navigation.navigateLiquidWithdrawAction(isLedger);
     }, [isLedger]);
 
-    const openMoreInfo = useCallback(() => openWithInApp(network.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), [network.isTestnet]);
+    const openMoreInfo = useCallback(() => {
+        openWithInApp(KnownPools(network.isTestnet)[targetPoolFriendly]?.webLink)
+    }
+        , [network.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
     const hasStake = useMemo(() => {

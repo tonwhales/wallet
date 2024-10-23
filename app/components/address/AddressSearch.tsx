@@ -11,6 +11,9 @@ import { useDebouncedValue } from "../../utils/useDebouncedValue";
 import { TransactionDescription } from "../../engine/types";
 import { ThemeType } from "../../engine/state/theme";
 import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
+import { HoldersAccountTarget } from "../../engine/hooks/holders/useHoldersAccountTrargets";
+import { Typography } from "../styles";
+import { getAccountName } from "../../utils/holders/getAccountName";
 
 export type AddressSearchItem = {
     addr: {
@@ -20,10 +23,11 @@ export type AddressSearchItem = {
     },
     title: string,
     searchable: string,
-    type: 'contact' | 'known' | 'unknown' | 'own',
+    type: 'contact' | 'known' | 'unknown' | 'own' | 'holders',
     icon?: string,
     isLedger?: boolean,
     known?: boolean,
+    memo?: string
 };
 
 export const AddressSearch = memo(({
@@ -34,7 +38,8 @@ export const AddressSearch = memo(({
     bounceableFormat,
     knownWallets,
     lastTwoTxs,
-    theme
+    theme,
+    holdersAccounts
 }: {
     query?: string,
     onSelect?: (item: AddressSearchItem) => void,
@@ -47,7 +52,8 @@ export const AddressSearch = memo(({
     bounceableFormat: boolean,
     knownWallets: { [key: string]: KnownWallet },
     lastTwoTxs: TransactionDescription[],
-    theme: ThemeType
+    theme: ThemeType,
+    holdersAccounts?: HoldersAccountTarget[]
 }) => {
     const network = useNetwork();
     const addressBook = useAddressBookContext().state;
@@ -82,7 +88,7 @@ export const AddressSearch = memo(({
                 }
 
                 return parsed;
-            } catch { 
+            } catch {
                 return null;
             }
         }).filter((a) => !!a) as { isBounceable: boolean; isTestOnly: boolean; address: Address; }[];
@@ -92,6 +98,22 @@ export const AddressSearch = memo(({
 
     const searchItems = useMemo(() => {
         return {
+            holders: (holdersAccounts || []).map((acc) => {
+                const title = getAccountName(acc.accountIndex, acc.name);
+                const searchable = `${title.toLowerCase()} ${acc.address.toString({ testOnly: network.isTestnet }).toLowerCase()}`;
+
+                return {
+                    type: 'holders',
+                    addr: {
+                        isBounceable: false,
+                        isTestOnly: network.isTestnet,
+                        address: acc.address
+                    },
+                    title,
+                    searchable,
+                    memo: acc.memo
+                }
+            }) as AddressSearchItem[],
             own: myWallets.map((acc) => {
                 const walletSettings = walletsSettings[acc.addressString];
                 let title = `${t('common.wallet')} ${acc.index + 1}`;
@@ -164,7 +186,8 @@ export const AddressSearch = memo(({
             return {
                 recent: lastTxs,
                 searchRes: searchItems.contact,
-                myWallets: searchItems.own
+                myWallets: searchItems.own,
+                holders: searchItems.holders
             };
         }
 
@@ -173,30 +196,72 @@ export const AddressSearch = memo(({
         return {
             recent: lastTxs.filter((a) => a.address.toString({ testOnly: network.isTestnet, bounceable: a.isBounceable }).includes(debouncedQuery)),
             searchRes: searchRes,
-            myWallets: searchItems.own.filter((i) => i.searchable.includes(debouncedQuery))
+            myWallets: searchItems.own.filter((i) => i.searchable.includes(debouncedQuery)),
+            holders: searchItems.holders.filter((i) => i.searchable.includes(debouncedQuery))
         };
     }, [searchItems, lastTxs, debouncedQuery, bounceableFormat, network]);
 
-    if ((filtered.searchRes.length === 0) && filtered.recent.length === 0 && filtered.myWallets.length === 0) {
+    if (
+        (filtered.searchRes.length === 0)
+        && filtered.recent.length === 0
+        && filtered.myWallets.length === 0
+        && filtered.holders.length === 0
+    ) {
         return null;
     }
 
     return (
         <View style={{ marginTop: 16 }}>
-            {filtered.recent.length > 0 && (
+            {filtered.holders.length > 0 && (
                 <View style={transfer ? {
                     borderRadius: 20,
                     backgroundColor: theme.surfaceOnElevation,
                     padding: 2
                 } : undefined}>
-                    <Text style={{
-                        fontSize: 17, fontWeight: '600',
-                        lineHeight: 24,
+                    <Text style={[{
                         color: theme.textPrimary,
                         marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
-                    }}>
+                    }, Typography.semiBold17_24]}>
+                        {t('products.holders.accounts.title')}
+                    </Text>
+                    <View style={transfer ? {
+                        backgroundColor: theme.elevation,
+                        borderRadius: 18,
+                        paddingHorizontal: 16,
+                        paddingVertical: 8
+                    } : undefined}>
+                        {filtered.holders.map((item, index) => {
+                            return (
+                                <AddressSearchItemView
+                                    key={index}
+                                    item={item}
+                                    onPress={onSelect}
+                                    walletsSettings={walletsSettings}
+                                    testOnly={network.isTestnet}
+                                    theme={theme}
+                                    bounceableFormat={bounceableFormat}
+                                    knownWallets={knownWallets}
+                                />
+                            );
+                        })}
+                    </View>
+                </View>
+            )}
+            {filtered.recent.length > 0 && (
+                <View style={transfer ? {
+                    borderRadius: 20,
+                    backgroundColor: theme.surfaceOnElevation,
+                    padding: 2,
+                    marginTop: filtered.holders.length > 0 ? 24 : 0
+                } : undefined}>
+                    <Text style={[{
+                        color: theme.textPrimary,
+                        marginBottom: 12,
+                        marginLeft: transfer ? 16 : 0,
+                        marginTop: transfer ? 16 : 0
+                    }, Typography.semiBold17_24]}>
                         {t('common.recent')}
                     </Text>
                     <View style={transfer ? {
@@ -260,16 +325,17 @@ export const AddressSearch = memo(({
                     borderRadius: 20,
                     backgroundColor: theme.surfaceOnElevation,
                     padding: 2,
-                    marginTop: filtered.recent.length > 0 ? 24 : 0
+                    marginTop: (
+                        filtered.recent.length > 0
+                        || filtered.holders.length > 0
+                    ) ? 24 : 0
                 } : undefined}>
-                    <Text style={{
-                        fontSize: 17, fontWeight: '600',
-                        lineHeight: 24,
+                    <Text style={[{
                         color: theme.textPrimary,
                         marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
-                    }}>
+                    }, Typography.semiBold17_24]}>
                         {t('contacts.contacts')}
                     </Text>
                     <View style={transfer ? {
@@ -300,16 +366,20 @@ export const AddressSearch = memo(({
                     borderRadius: 20,
                     backgroundColor: theme.surfaceOnElevation,
                     padding: 2,
-                    marginTop: filtered.recent.length > 0 || filtered.searchRes.length > 0 ? 24 : 0
+                    marginTop:
+                        (
+                            filtered.recent.length > 0
+                            || filtered.searchRes.length > 0
+                            || filtered.holders.length > 0
+                        )
+                            ? 24 : 0
                 } : undefined}>
-                    <Text style={{
-                        fontSize: 17, fontWeight: '600',
-                        lineHeight: 24,
+                    <Text style={[{
                         color: theme.textPrimary,
                         marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
-                    }}>
+                    }, Typography.semiBold17_24]}>
                         {t('common.myWallets')}
                     </Text>
                     <View style={transfer ? {

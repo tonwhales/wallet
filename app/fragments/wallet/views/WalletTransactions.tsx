@@ -23,7 +23,7 @@ import { warn } from "../../../utils/log";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 
-const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
+export const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
         <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
             <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
@@ -94,6 +94,10 @@ export const WalletTransactions = memo((props: {
     safeArea: EdgeInsets,
     onLoadMore: () => void,
     loading: boolean,
+    refresh?: {
+        onRefresh: () => void,
+        refreshing: boolean
+    }
     header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     sectionedListProps?: {
         contentContainerStyle?: StyleProp<ViewStyle>,
@@ -334,6 +338,8 @@ export const WalletTransactions = memo((props: {
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={1}
             keyExtractor={(item) => 'tx-' + item.id}
+            onRefresh={props.refresh?.onRefresh}
+            refreshing={props.refresh?.refreshing}
         />
     );
 });

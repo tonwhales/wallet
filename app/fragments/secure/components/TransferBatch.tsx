@@ -594,7 +594,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                             marginLeft: 16
                                         }}
                                     >
-                                        {'-' + fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals) + ' ' + value[1].jettonMaster.symbol}
+                                        {'-' + fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster?.decimals) + ' ' + value[1].jettonMaster?.symbol}
                                     </Text>
                                 </View>
                             )
@@ -602,14 +602,11 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                     </ItemGroup>
                     <ItemGroup style={{ marginBottom: 16 }}>
                         <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                            <Text style={{
-                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: theme.textSecondary,
-                            }}>
+                            <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                 {t('common.from')}
                             </Text>
                             <View style={{ flexDirection: 'row' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                     <AddressComponent
                                         address={selected!.address}
                                         bounceable={bounceableFormat}
@@ -619,11 +616,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                 </Text>
                                 {walletSettings?.name && (
                                     <Text
-                                        style={{
-                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
-                                            color: theme.textSecondary,
-                                            flexShrink: 1, marginLeft: 6
-                                        }}
+                                        style={[{ color: theme.textSecondary, flexShrink: 1, marginLeft: 6 }, Typography.regular17_24]}
                                         numberOfLines={1}
                                         ellipsizeMode={'tail'}
                                     >
@@ -635,14 +628,11 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                     </ItemGroup>
                     <ItemCollapsible titleComponent={
                         <View style={{ justifyContent: 'center' }}>
-                            <Text style={{
-                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: theme.textSecondary,
-                            }}>
+                            <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                 {t('transfer.feeTotalTitle')}
                             </Text>
                             <View style={{ flexDirection: 'row' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                     {fromNano(fees + gas.total) + ' TON'}
                                 </Text>
                                 <PriceComponent

@@ -2,6 +2,8 @@ import { atomFamily } from "recoil";
 import { Address, Cell } from "@ton/core";
 import { Jetton } from "../types";
 import { TransferEstimate } from "../../fragments/secure/TransferFragment";
+import { TonPayloadFormat } from "@ton-community/ton-ledger";
+import { parseBody } from "../transactions/parseWalletTransaction";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell, stateInit?: Cell | null }
@@ -31,6 +33,60 @@ export type PendingTransaction = {
     hash: Buffer,
     status: PendingTransactionStatus
 };
+
+type LedgerJettonTransferPayload = {
+    type: 'jetton-transfer',
+    queryId: bigint | null,
+    amount: bigint,
+    destination: Address,
+    responseDestination: Address,
+    customPayload: Cell | null,
+    forwardAmount: bigint,
+    forwardPayload: Cell | null,
+    bounceable?: boolean,
+    jetton: Jetton
+}
+
+type LedgerCommentPayload = {
+    type: 'comment';
+    text: string;
+}
+
+export type LedgerTransferPayload = LedgerCommentPayload | LedgerJettonTransferPayload;
+
+export function ledgerOrderToPendingTransactionBody(payload: LedgerTransferPayload | null): PendingTransactionBody | null {
+    if (!payload) {
+        return null;
+    }
+
+    if (payload.type === 'comment') {
+        return { type: 'comment', comment: payload.text };
+    }
+
+    if (payload.type === 'jetton-transfer') {
+        let comment: string | null = null;
+
+        if (payload.forwardPayload) {
+            const body = parseBody(payload.forwardPayload);
+            if (body && body.type === 'comment') {
+                comment = body.comment;
+            }
+        }
+
+        return {
+            type: 'token',
+            amount: payload.amount,
+            jetton: payload.jetton,
+            target: payload.destination,
+            bounceable: payload.bounceable,
+            comment
+        };
+    }
+
+    // TODO: add nft transfer support
+
+    return null;
+}
 
 export const pendingTransactionsState = atomFamily<PendingTransaction[], string>({
     key: "pendingTransactionsState",

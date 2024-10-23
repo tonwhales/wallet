@@ -9,6 +9,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TonProductComponent } from "./TonProductComponent";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
 import { Address } from "@ton/core";
+import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions";
 
 export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
     const theme = useTheme();
@@ -18,6 +19,7 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
+                <PendingTransactions address={address.toString({ testOnly })} />
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',

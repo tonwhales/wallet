@@ -1,7 +1,7 @@
 import axios from "axios";
 import { z } from "zod";
 
-const specialJettonCodec = z.string().nullable().optional();
+const specialJettonCodec = z.string().nullish();
 const knownJettonTickersCodec = z.array(z.string());
 const jettonMastersCodec = z.record(z.object({}));
 

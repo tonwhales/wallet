@@ -6,7 +6,7 @@ import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AnimTextInputRef } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useWalletSettings } from "../../engine/hooks";
+import { useAccountTransactions, useAppState, useBounceableWalletFormat, useHoldersAccounts, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -20,6 +20,8 @@ import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
+import { Typography } from "../styles";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -37,9 +39,9 @@ type TransferAddressInputProps = {
     onNext?: () => void,
     onSearchItemSelected?: (item: AddressSearchItem) => void,
     knownWallets: { [key: string]: KnownWallet },
-    lastTwoTxs: TransactionDescription[],
     navigation: TypedNavigation,
     setAddressDomainInputState: (state: AddressInputState) => void,
+    autoFocus?: boolean,
 }
 
 export type AddressInputState = {
@@ -152,9 +154,17 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const dimentions = useDimensions();
     const screenWidth = dimentions.screen.width;
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
-    const [walletSettings,] = useWalletSettings(validAddressFriendly);
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [walletSettings] = useWalletSettings(validAddressFriendly);
+    const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
+    const txs = useAccountTransactions(props.acc.toString({ testOnly: props.isTestnet })).data;
+
+    const lastTwoTxs = useMemo(() => {
+        return txs?.slice(0, 2) || [];
+    }, [txs?.[0]?.id, txs?.[1]?.id]);
+
+    const holdersAccounts = useHoldersAccountTrargets(appState.addresses[appState.selected].address);
+    const isTargetHolders = holdersAccounts.find((acc) => props.validAddress?.equals(acc.address));
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -170,20 +180,22 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     }, [ledgerTransport.addr?.address, props.validAddress]);
 
-    const myWallets = appState.addresses
-        .map((acc, index) => ({
-            address: acc.address,
-            addressString: acc.address.toString({ testOnly: props.isTestnet }),
-            index: index
-        }))
-        .concat(ledgerTransport.addr ? [
-            {
-                address: Address.parse(ledgerTransport.addr.address),
-                addressString: Address.parse(ledgerTransport.addr.address).toString({ testOnly: props.isTestnet }),
-                index: -2
-            }
-        ] : [])
-        .filter((acc) => !acc.address.equals(props.acc));
+    const myWallets = useMemo(() => {
+        return appState.addresses
+            .map((acc, index) => ({
+                address: acc.address,
+                addressString: acc.address.toString({ testOnly: props.isTestnet }),
+                index: index
+            }))
+            .concat(ledgerTransport.addr ? [
+                {
+                    address: Address.parse(ledgerTransport.addr.address),
+                    addressString: Address.parse(ledgerTransport.addr.address).toString({ testOnly: props.isTestnet }),
+                    index: -2
+                }
+            ] : [])
+            .filter((acc) => !acc.address.equals(props.acc))
+    }, [appState.addresses, ledgerTransport.addr?.address]);
 
     const own = !!myWallets.find((acc) => {
         if (props.validAddress) {
@@ -218,6 +230,31 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         (ref as RefObject<AnimTextInputRef>)?.current?.setText(addressDomainInputState.input);
     }, []);
 
+    const onAddressSearchItemSelected = useCallback((item: AddressSearchItem) => {
+        const friendly = item.addr.address.toString({
+            testOnly: props.isTestnet,
+            bounceable: item.known ? true : item.addr.isBounceable
+        });
+
+        let name = item.type !== 'unknown' ? item.title : friendly;
+
+        if (item.isLedger) {
+            name = 'Ledger';
+        }
+
+        dispatchAddressDomainInput({
+            type: InputActionType.InputTarget,
+            input: name.trim(),
+            target: friendly
+        });
+
+        (ref as RefObject<AnimTextInputRef>)?.current?.setText(name.trim());
+
+        if (props.onSearchItemSelected) {
+            props.onSearchItemSelected(item);
+        }
+    }, [props.onSearchItemSelected]);
+
     return (
         <View>
             <View
@@ -244,23 +281,13 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
                         knownWallets={props.knownWallets}
+                        forceAvatar={isTargetHolders ? 'holders' : undefined}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
-                        <PerfText style={{
-                            color: theme.textSecondary,
-                            fontSize: 15,
-                            lineHeight: 20,
-                            fontWeight: '400'
-                        }}>
+                        <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                             {t('common.recipient')}
                         </PerfText>
-                        <PerfText style={{
-                            color: theme.textPrimary,
-                            fontSize: 17,
-                            lineHeight: 24,
-                            fontWeight: '400',
-                            marginTop: 2,
-                        }}>
+                        <PerfText style={[{ color: theme.textPrimary, marginTop: 2 }, Typography.regular17_24]}>
                             {props.target.slice(0, 4) + '...' + props.target.slice(-4)}
                         </PerfText>
                     </View>
@@ -297,6 +324,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
                         knownWallets={props.knownWallets}
+                        forceAvatar={isTargetHolders ? 'holders' : undefined}
                     />
                     <AddressDomainInput
                         input={addressDomainInputState.input}
@@ -304,7 +332,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         target={props.target}
                         index={props.index}
                         ref={ref}
-                        autoFocus={true}
+                        autoFocus={props.autoFocus}
                         onFocus={props.onFocus}
                         isKnown={isKnown}
                         onSubmit={props.onSubmit}
@@ -335,36 +363,14 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 )}
                 <AddressSearch
                     theme={theme}
-                    onSelect={(item) => {
-                        const friendly = item.addr.address.toString({
-                            testOnly: props.isTestnet,
-                            bounceable: item.known ? true : item.addr.isBounceable
-                        });
-                        
-                        let name = item.type !== 'unknown' ? item.title : friendly;
-
-                        if (item.isLedger) {
-                            name = 'Ledger';
-                        }
-
-                        dispatchAddressDomainInput({
-                            type: InputActionType.InputTarget,
-                            input: name.trim(),
-                            target: friendly
-                        });
-
-                        (ref as RefObject<AnimTextInputRef>)?.current?.setText(name.trim());
-
-                        if (props.onSearchItemSelected) {
-                            props.onSearchItemSelected(item);
-                        }
-                    }}
+                    onSelect={onAddressSearchItemSelected}
                     query={query}
                     transfer
                     myWallets={myWallets}
                     bounceableFormat={bounceableFormat}
                     knownWallets={props.knownWallets}
-                    lastTwoTxs={props.lastTwoTxs}
+                    lastTwoTxs={lastTwoTxs}
+                    holdersAccounts={holdersAccounts}
                 />
             </View>
         </View>

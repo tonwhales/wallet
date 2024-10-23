@@ -13,8 +13,8 @@ export type GaslessEstimateParams = {
 const gaslessMessageScheme = z.object({
     address: z.string(),
     amount: z.string(),
-    payload: z.string().nullable().optional(),
-    stateInit: z.string().nullable().optional()
+    payload: z.string().nullish(),
+    stateInit: z.string().nullish()
 });
 
 const gaslessEstimateScheme = z.object({

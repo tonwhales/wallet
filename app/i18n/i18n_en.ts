@@ -186,6 +186,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
+            memoChange: 'Change memo/tag to \"{{memo}}\"',
             gaslessFailed: 'Failed to send transaction',
             gaslessFailedMessage: 'Please try again or contact support',
             gaslessFailedEstimate: 'Failed to estimate fees, please try again later or contact support',
@@ -198,7 +199,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessTryLater: 'Try again later',
             gaslessTryLaterMessage: 'You can try again later or contact support',
             gaslessNotEnoughCoins: '{{fee}} in fees required to send, missing {{missing}}',
-            notEnoughJettons: 'Not enough {{symbol}}'
+            notEnoughJettons: 'Not enough {{symbol}}',
+            jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency'
         },
         sendAll: 'Max',
         scanQR: 'scan qr code',
@@ -520,7 +522,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLongerTitle: 'Connection problems',
             loadingLonger: 'Check your internet connection and reload page. If the issue persists please contact support',
             accounts: {
-                title: 'Payment accounts',
+                title: 'Accounts & Cards',
                 prepaidTitle: 'Prepaid cards',
                 account: 'Account',
                 basicAccount: 'Basic account',

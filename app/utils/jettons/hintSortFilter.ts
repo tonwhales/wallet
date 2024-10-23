@@ -1,18 +1,21 @@
-import { Address, fromNano } from "@ton/core";
-import { queryClient } from "../engine/clients";
-import { StoredContractMetadata, StoredJettonWallet } from "../engine/metadata/StoredMetadata";
-import { Queries } from "../engine/queries";
-import { verifyJetton } from "../engine/hooks/jettons/useVerifyJetton";
-import { JettonMasterState } from "../engine/metadata/fetchJettonMasterContent";
-import { getQueryData } from "../engine/utils/getQueryData";
+import { Address, toNano } from "@ton/core";
+import { queryClient } from "../../engine/clients";
+import { StoredContractMetadata, StoredJettonWallet } from "../../engine/metadata/StoredMetadata";
+import { Queries } from "../../engine/queries";
+import { verifyJetton } from "../../engine/hooks/jettons/useVerifyJetton";
+import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
+import { getQueryData } from "../../engine/utils/getQueryData";
 import { QueryCache } from "@tanstack/react-query";
-import { jettonMasterContentQueryFn, jettonWalletQueryFn } from "../engine/hooks/jettons/usePrefetchHints";
-import { MintlessJetton } from "../engine/api/fetchMintlessHints";
+import { jettonMasterContentQueryFn, jettonWalletQueryFn } from "../../engine/hooks/jettons/usePrefetchHints";
+import { MintlessJetton } from "../../engine/api/fetchMintlessHints";
+import { calculateSwapAmount } from "./calculateSwapAmount";
+import { fromBnWithDecimals, toBnWithDecimals } from "../withDecimals";
+import { calculateHintRateNum } from "./calculateHintRateNum";
 
 type Hint = {
     address: string,
     loaded?: boolean;
-    swap?: bigint | null;
+    rate?: number | null;
     verified?: boolean;
     isSCAM?: boolean;
     balance?: bigint;
@@ -67,7 +70,7 @@ export function getHint(queryCache: QueryCache, hint: string, isTestnet: boolean
         const jettonWallet = getQueryData<StoredJettonWallet | null>(queryCache, Queries.Account(wallet.toString({ testOnly: isTestnet })).JettonWallet());
         const masterStr = contractMeta?.jettonWallet?.master ?? jettonWallet?.master ?? '';
         const masterContent = getQueryData<JettonMasterState | null>(queryCache, Queries.Jettons().MasterContent(masterStr));
-        const swap = getQueryData<bigint | null | undefined>(queryCache, Queries.Jettons().Swap(masterStr));
+        const rates = getQueryData<Record<string, number> | null | undefined>(queryCache, Queries.Jettons().Rates(masterStr));
 
         const { verified, isSCAM } = verifyJetton({ ticker: masterContent?.symbol, master: masterStr }, isTestnet);
 
@@ -84,7 +87,11 @@ export function getHint(queryCache: QueryCache, hint: string, isTestnet: boolean
             return { address: hint };
         }
 
-        return { address: hint, swap, verified, isSCAM, balance: BigInt(jettonWallet.balance), loaded: true };
+        const decimals = masterContent.decimals ?? 9;
+        const usdRate = rates?.['USD'];
+        const rate = usdRate? calculateHintRateNum(BigInt(jettonWallet.balance), usdRate, decimals): undefined;
+
+        return { address: hint, rate, verified, isSCAM, balance: BigInt(jettonWallet.balance), loaded: true };
     } catch {
         return { address: hint };
     }
@@ -94,7 +101,7 @@ export function getMintlessHint(queryCache: QueryCache, hint: MintlessJetton, is
     try {
         const masterStr = hint.jetton.address;
         const masterContent = getQueryData<JettonMasterState | null>(queryCache, Queries.Jettons().MasterContent(masterStr));
-        const swap = getQueryData<bigint | null | undefined>(queryCache, Queries.Jettons().Swap(masterStr));
+        const rates = getQueryData<Record<string, number> | null | undefined>(queryCache, Queries.Jettons().Rates(masterStr));
 
         const { verified, isSCAM } = verifyJetton({ ticker: masterContent?.symbol, master: masterStr }, isTestnet);
 
@@ -107,7 +114,11 @@ export function getMintlessHint(queryCache: QueryCache, hint: MintlessJetton, is
             return { address: hint.walletAddress.address };
         }
 
-        return { address: hint.walletAddress.address, swap, verified, isSCAM, balance: BigInt(hint.balance), loaded: true };
+        const decimals = masterContent.decimals ?? 9;
+        const usdRate = rates?.['USD'];
+        const rate = usdRate? calculateHintRateNum(BigInt(hint.balance), usdRate, decimals): undefined;
+
+        return { address: hint.walletAddress.address, rate, verified, isSCAM, balance: BigInt(hint.balance), loaded: true };
     } catch {
         return { address: hint.jetton.address };
     }
@@ -156,22 +167,30 @@ export function compareHints(a: Hint, b: Hint): number {
         weightB += 1;
     }
 
-    const diff = weightB - weightA;
-    if (diff === 0) {
-        if (a.swap && b.swap) {
-            const aSwapAmount = Number(fromNano(a.swap)) * Number(fromNano(a.balance ?? 0n));
-            const bSwapAmount = Number(fromNano(b.swap)) * Number(fromNano(b.balance ?? 0n));
-            return bSwapAmount > aSwapAmount ? 1 : -1;
+    if (a.rate && b.rate) {
+        weightA += 1;
+        weightB += 1;
+
+        if (a.rate > b.rate) {
+            weightA += 2;
+        } else {
+            weightB += 2;
         }
 
-        if (a.swap) {
-            return -1;
-        }
-
-        if (b.swap) {
-            return 1;
-        }
+    } else if (a.rate) {
+        weightA += 2;
+    } else if (b.rate) {
+        weightB += 2;
     }
+
+    if (!a.balance || a.balance === 0n) {
+        weightA -= 3;
+    }
+    if (!b.balance || b.balance === 0n) {
+        weightB -= 3;
+    }
+
+    const diff = weightB - weightA;
 
     return diff > 0 ? 1 : -1;
 }

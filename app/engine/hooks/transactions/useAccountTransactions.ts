@@ -4,7 +4,7 @@ import { ContractMetadata } from '../../metadata/Metadata';
 import { useContractMetadatas } from '../metadata/useContractMetadatas';
 import { useJettonContents } from '../jettons/useJettonContents';
 import { StoredContractMetadata } from '../../metadata/StoredMetadata';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { TransactionDescription } from '../../types';
 import { useNetwork } from '..';
 
@@ -40,7 +40,9 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
     data: TransactionDescription[] | null,
     next: () => void,
     hasNext: boolean,
-    loading: boolean
+    loading: boolean,
+    refresh: () => void,
+    refreshing: boolean
 } {
     const { isTestnet } = useNetwork();
     let raw = useRawAccountTransactions(account, options);
@@ -104,6 +106,26 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
         }) || null;
     }, [baseTxs, metadatasMap, jettonMasterMetadatas]);
 
+    // Refreshing state only for manual on pull to refresh called
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const timerRef = useRef<NodeJS.Timeout>();
+
+    useEffect(() => {
+        if (!raw.isRefetching) {
+            setIsRefreshing(false);
+        } else {
+            timerRef.current = setTimeout(() => {
+                setIsRefreshing(false);
+            }, 35000);
+        }
+
+        return () => {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            }
+        }
+    }, [raw.isRefetching]);
+
     return {
         data: txs,
         next: () => {
@@ -111,6 +133,11 @@ export function useAccountTransactions(account: string, options: { refetchOnMoun
                 raw.fetchNextPage();
             }
         },
+        refresh: () => {
+            setIsRefreshing(true);
+            raw.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        },
+        refreshing: isRefreshing,
         hasNext: !!raw.hasNextPage,
         loading: raw.isFetching,
     }

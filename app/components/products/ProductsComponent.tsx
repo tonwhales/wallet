@@ -50,12 +50,9 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
     const holderBannerContent = showHoldersBanner ? holdersBanner : null;
 
-    const needsEnrolment = useMemo(() => {
-        if (holdersAccStatus?.state === HoldersUserState.NeedEnrollment) {
-            return true;
-        }
-        return false;
-    }, [holdersAccStatus]);
+    const needsEnrollment = useMemo(() => {
+        return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+    }, [holdersAccStatus?.state]);
 
     // Resolve accounts
     let accounts: ReactElement[] = [];
@@ -76,12 +73,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     }
 
     const onHoldersPress = useCallback(() => {
-        if (needsEnrolment || !isHoldersReady) {
+        if (needsEnrollment || !isHoldersReady) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
             return;
         }
         navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
-    }, [needsEnrolment, isHoldersReady, isTestnet]);
+    }, [needsEnrollment, isHoldersReady, isTestnet]);
 
     const onProductBannerPress = useCallback((product: ProductAd) => {
         trackEvent(

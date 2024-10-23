@@ -23,7 +23,7 @@ const mintlessJettonScheme = z.object({
         decimals: z.number(),
         image: z.string(),
         verification: z.string(),
-        customPayloadApiUri: z.string().nullable().optional()
+        customPayloadApiUri: z.string().nullish()
     }),
     extensions: z.array(z.string()),
     lock: z.object({

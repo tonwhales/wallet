@@ -9,10 +9,10 @@ const imagePreview = z.object({
 
 const contentCodec = z.object({
     name: z.string().nullable(),
-    description: z.string().nullable().optional(),
+    description: z.string().nullish(),
     symbol: z.string().nullable(),
-    decimals: z.union([z.number(), z.string()]).nullable().optional(),
-    originalImage: z.string().nullable().optional(),
+    decimals: z.union([z.number(), z.string()]).nullish(),
+    originalImage: z.string().nullish(),
     image: imagePreview.nullable(),
 });
 

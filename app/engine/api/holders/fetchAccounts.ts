@@ -152,7 +152,7 @@ const cardSchema = z.object({
   productId: z.string(),
   personalizationCode: z.string(),
   delivery: cardDeliverySchema.nullish(),
-  seed: z.string().nullable().optional(),
+  seed: z.string().nullish(),
   updatedAt: z.string(),
   createdAt: z.string(),
   provider: z.string().nullish(),

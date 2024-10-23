@@ -11,8 +11,8 @@ export function usePendingWatcher(address?: string) {
     const [pending, setPending] = usePendingTransactions(acc, isTestnet);
 
     const firstTransaction = useRawAccountTransactions(acc, { refetchOnMount: true }).data?.pages[0]?.[0];
-    const firstTransactionSeqno = firstTransaction?.parsed.seqno;
-    const toRemove = pending.filter(a => a.seqno <= (firstTransactionSeqno || 0)).map(a => a.id);
+    const firstTransactionTime = firstTransaction?.time;
+    const toRemove = pending.filter(a => a.time < (firstTransactionTime || 0)).map(a => a.id);
 
     useEffect(() => {
         if (!toRemove) {

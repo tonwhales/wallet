@@ -133,7 +133,6 @@ export const LiquidStakingPendingComponent = memo((
                                 }]
                             },
                             text: null,
-                            job: null,
                             callback: null
                         });
                     }}

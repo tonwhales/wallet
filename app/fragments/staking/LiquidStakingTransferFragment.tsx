@@ -228,7 +228,6 @@ export const LiquidStakingTransferFragment = fragment(() => {
                 }]
             },
             text: null,
-            job: null,
             callback: null
         });
     }, [amount, params, member, liquidStaking, balance, network, depositFee]);

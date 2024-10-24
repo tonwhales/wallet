@@ -27,7 +27,6 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
             comment: tx.body.comment,
             amount: toNano(amount),
             stateInit: null,
-            job: null,
             jetton: tx.body.jetton.wallet,
             callback: null
         };
@@ -37,7 +36,6 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
         return {
             type: 'transfer',
             text: null,
-            job: null,
             order: {
                 type: 'order',
                 messages: [{
@@ -58,7 +56,6 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
             comment: tx.body.comment,
             amount: -tx.amount,
             stateInit: null,
-            job: null,
             jetton: null,
             callback: null
         };
@@ -70,7 +67,6 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
         comment: null,
         amount: -tx.amount,
         stateInit: null,
-        job: null,
         jetton: null,
         callback: null
     };
@@ -114,7 +110,6 @@ export function previewToTransferParams(
                 amount: toNano(amount),
                 jetton,
                 stateInit: null,
-                job: null,
                 callback: null
             }
         }
@@ -132,7 +127,6 @@ export function previewToTransferParams(
             target,
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
             amount: BigInt(tx.base.parsed.amount) > 0n ? BigInt(tx.base.parsed.amount) : -BigInt(tx.base.parsed.amount),
-            job: null,
             stateInit: null,
             jetton: null,
             callback: null

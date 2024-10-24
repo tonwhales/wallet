@@ -184,7 +184,6 @@ export const WalletTransactions = memo((props: {
             target,
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
             amount: amount < 0n ? -amount : amount,
-            job: null,
             stateInit: null,
             jetton: jetton,
             callback: null

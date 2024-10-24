@@ -42,7 +42,6 @@ export const LedgerWalletHeader = memo(() => {
                             comment: res.comment,
                             amount: res.amount,
                             stateInit: res.stateInit,
-                            job: null,
                             jetton: null,
                             callback: null
                         });
@@ -54,7 +53,6 @@ export const LedgerWalletHeader = memo(() => {
                     comment: res.comment,
                     amount: res.amount,
                     stateInit: null,
-                    job: null,
                     jetton: res.jettonMaster,
                     callback: null
                 });

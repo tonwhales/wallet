@@ -96,7 +96,6 @@ export const AssetsFragment = fragment(() => {
             comment: null,
             jetton: jetton.wallet,
             stateInit: null,
-            job: null,
             callback: null
         });
     }, []);
@@ -111,7 +110,6 @@ export const AssetsFragment = fragment(() => {
                 amount: null,
                 target: target,
                 stateInit: null,
-                job: null,
                 comment: null,
                 jetton: null,
                 callback: null
@@ -122,7 +120,6 @@ export const AssetsFragment = fragment(() => {
             amount: null,
             target: target,
             stateInit: null,
-            job: null,
             comment: null,
             jetton: null,
             callback: null

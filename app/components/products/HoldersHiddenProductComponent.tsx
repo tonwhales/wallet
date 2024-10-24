@@ -8,8 +8,9 @@ import { Typography } from "../styles";
 import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
 import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { Image } from "expo-image";
 
-import Show from '@assets/ic-show.svg';
+const showIcon = <Image source={require('@assets/ic-show.png')} style={{ width: 36, height: 36 }} />;
 
 export const holdersCardImageMap: { [key: string]: any } = {
     'classic': require('@assets/holders/classic.png'),
@@ -91,7 +92,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     hidden={true}
                                     last={index === hiddenAccountsList.length - 1}
                                     rightAction={() => markAccount(item.id, false)}
-                                    rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                    rightActionIcon={showIcon}
                                     single={hiddenAccountsList.length === 1}
                                     style={{ flex: undefined }}
                                     isTestnet={network.isTestnet}
@@ -143,7 +144,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     hidden={true}
                                     last={index === hiddenPrepaidList.length - 1}
                                     rightAction={() => markPrepaidCard(item.id, false)}
-                                    rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                    rightActionIcon={showIcon}
                                     single={hiddenPrepaidList.length === 1}
                                     style={{ paddingVertical: 0 }}
                                     isTestnet={network.isTestnet}

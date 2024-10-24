@@ -20,10 +20,35 @@ import { toBnWithDecimals } from "../../utils/withDecimals";
 import { toNano } from "@ton/core";
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
+import { Image } from "expo-image";
 
-import IcTonIcon from '@assets/ic-ton-acc.svg';
+const usdtIcon = (
+    <Image
+        source={require('@assets/known/ic-usdt.png')}
+        style={{
+            borderRadius: 23,
+            height: 46,
+            width: 46
+        }}
+    />
+);
+
+const tonIcon = (
+    <Image
+        source={require('@assets/ic-ton-acc.png')}
+        style={{
+            borderRadius: 23,
+            height: 46,
+            width: 46
+        }}
+    />
+);
 
 function resolveIcon(params: { image?: { blurhash: string, preview256: string } | null, ticker?: string }) {
+
+    if (params.ticker === 'USDT') {
+        return usdtIcon;
+    };
 
     if (params.image) {
         return (
@@ -38,24 +63,7 @@ function resolveIcon(params: { image?: { blurhash: string, preview256: string } 
         );
     };
 
-    if (params.ticker === 'USDT') {
-        return (
-            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
-                <WImage
-                    requireSource={require('@assets/known/ic-usdt.png')}
-                    width={46}
-                    height={46}
-                    borderRadius={23}
-                />
-            </View>
-        );
-    };
-
-    return (
-        <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-            <IcTonIcon width={46} height={46} />
-        </View>
-    );
+    return tonIcon;
 }
 
 export const HoldersAccountItem = memo((props: {
@@ -242,11 +250,6 @@ export const HoldersAccountItem = memo((props: {
                                         />
                                     )
                                 })}
-                                {props.account.cards.length === 0 && (
-                                    <PerfText style={[{ color: theme.textSecondary }, Typography.medium17_24]}>
-                                        {t('products.holders.accounts.noCards')}
-                                    </PerfText>
-                                )}
                             </ScrollView>
                         ) : (
                             <View style={{ height: 20 }} />

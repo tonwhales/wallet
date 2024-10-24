@@ -161,3 +161,5 @@ export const WalletHeader = memo(({ address }: { address: Address }) => {
         </View>
     );
 });
+
+WalletHeader.displayName = 'WalletHeader';

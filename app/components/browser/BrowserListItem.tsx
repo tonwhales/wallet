@@ -27,19 +27,16 @@ export const BrowserListItem = memo(({
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const needsEnrolment = useMemo(() => {
-        if (holdersAccStatus?.state === HoldersUserState.NeedEnrollment) {
-            return true;
-        }
-        return false;
-    }, [holdersAccStatus]);
+    const needsEnrollment = useMemo(() => {
+        return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+    }, [holdersAccStatus?.state]);
     const onHoldersPress = useCallback(() => {
-        if (needsEnrolment || !isHoldersReady) {
+        if (needsEnrollment || !isHoldersReady) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
             return;
         }
         navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
-    }, [needsEnrolment, isHoldersReady, isTestnet]);
+    }, [needsEnrollment, isHoldersReady, isTestnet]);
 
     const onPress = useCallback(() => {
         trackEvent(MixpanelEvent.ProductBannerClick, {

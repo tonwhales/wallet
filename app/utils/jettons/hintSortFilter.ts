@@ -1,4 +1,4 @@
-import { Address, toNano } from "@ton/core";
+import { Address } from "@ton/core";
 import { queryClient } from "../../engine/clients";
 import { StoredContractMetadata, StoredJettonWallet } from "../../engine/metadata/StoredMetadata";
 import { Queries } from "../../engine/queries";
@@ -8,8 +8,6 @@ import { getQueryData } from "../../engine/utils/getQueryData";
 import { QueryCache } from "@tanstack/react-query";
 import { jettonMasterContentQueryFn, jettonWalletQueryFn } from "../../engine/hooks/jettons/usePrefetchHints";
 import { MintlessJetton } from "../../engine/api/fetchMintlessHints";
-import { calculateSwapAmount } from "./calculateSwapAmount";
-import { fromBnWithDecimals, toBnWithDecimals } from "../withDecimals";
 import { calculateHintRateNum } from "./calculateHintRateNum";
 
 type Hint = {

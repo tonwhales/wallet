@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Image } from "react-native";
+import { Image } from "expo-image";
 import { GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { ThemeType } from "../../engine/state/theme";
 import { PerfView } from "../basic/PerfView";

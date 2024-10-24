@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from "react";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
-import { View, Text, Image } from "react-native";
+import { View, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { ThemeType } from "../../engine/state/theme";
 import { HoldersAccountItem } from "./HoldersAccountItem";
@@ -11,10 +11,9 @@ import { PriceComponent } from "../PriceComponent";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { reduceHoldersBalances } from "../../utils/reduceHoldersBalances";
 import { usePrice } from "../../engine/PriceContext";
+import { Image } from "expo-image";
 
-import IcHide from '@assets/ic-hide.svg';
-
-const hideIcon = <IcHide height={36} width={36} style={{ width: 36, height: 36 }} />;
+const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
 export const HoldersAccounts = memo(({
     accs,

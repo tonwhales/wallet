@@ -3,7 +3,6 @@ import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
 import branch, { BranchParams } from 'react-native-branch'
 import { storeDebugItem } from "./debug/DebugContext";
-import { getAppState } from "../storage/appState";
 import { sharedStoragePersistence } from "../storage/storage";
 
 let lastLink: string | null = null;
@@ -29,6 +28,7 @@ function handleLinkReceived(link: string) {
 type TrimmedBranchParams = Omit<BranchParams, '+clicked_branch_link' | '~referring_link'>;
 
 const branchLinksKey = 'branch-links';
+const branchCampaignKey = 'branch-campaign';
 
 function getBranchParams(): TrimmedBranchParams[] {
     const stored = sharedStoragePersistence.getString(branchLinksKey);
@@ -49,22 +49,28 @@ export function getLatestBranchParams(): TrimmedBranchParams | null {
     return stored[stored.length - 1] ?? null;
 }
 
+export function getCampaignId(): string | undefined {
+    return sharedStoragePersistence.getString(branchCampaignKey);
+}
+
+export function storeCampaignId(campaignId: string) {
+    sharedStoragePersistence.set(branchCampaignKey, campaignId);
+}
+
 function handleBranchLink(params: TrimmedBranchParams) {
-    const appState = getAppState();
-
-    if (
-        appState.addresses.length === 0
-        || appState.selected > 0
-    ) {
-        storeBranchParams(params);
-        return;
-    }
-
+    storeBranchParams(params);
     const deepLink = params.$deeplink_path as string;
 
     if (deepLink) {
         const uri = `https://tonhub.com/${deepLink}`;
         const url = new URL(uri);
+
+        const campaignId = url.searchParams.get('campaignId');
+
+        if (campaignId) {
+            storeCampaignId(campaignId);
+        }
+
         // append params as query
         for (const [key, value] of Object.entries(params)) {
             if (key === '$deeplink_path') {
@@ -110,16 +116,12 @@ branch.subscribe({
     try {
         const latestParams = await branch.getLatestReferringParams() // Params from last open
         storeDebugItem(`branch.latestParams ${JSON.stringify(latestParams)}`);
-        console.log('latestParams', latestParams);
         const isTrackingDisabled = await branch.isTrackingDisabled();
         const firstReferringParams = await branch.getFirstReferringParams();
-        // const lastAttributedTouchData = await branch.lastAttributedTouchData(24 * 60 * 60 * 1000);
         storeDebugItem(`branch.isTrackingDisabled ${isTrackingDisabled}`);
         storeDebugItem(`branch.firstReferringParams ${JSON.stringify(firstReferringParams)}`);
-        // storeDebugItem(`branch.lastAttributedTouchData ${JSON.stringify(lastAttributedTouchData)}`);
-    } catch (error) {
-        storeDebugItem(`branch.latestParams ${error}`);
-        console.error('getLatestReferringParams error');
+    } catch {
+        storeDebugItem('branch.latestParams');
     }
 })();
 

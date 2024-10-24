@@ -608,4 +608,6 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
         )
     );
 });
+
+JettonProductItemComponent.displayName = 'JettonProductItemComponent';
 JettonProductItem.displayName = 'JettonProductItem';

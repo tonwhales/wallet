@@ -56,3 +56,5 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
         </View>
     );
 });
+
+HoldersProductComponent.displayName = 'HoldersProductComponent';

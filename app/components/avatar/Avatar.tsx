@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Image } from 'react-native';
 import { avatarHash } from '../../utils/avatarHash';
 import { KnownAvatar } from './KnownAvatar';
 import { Image as ExpoImage } from 'expo-image';
@@ -97,7 +96,7 @@ export function resolveAvatarIc(
                 },
                 icPosition
             ]}>
-                <Image
+                <ExpoImage
                     source={myWalletSource}
                     style={{
                         width: icSize,
@@ -121,7 +120,7 @@ export function resolveAvatarIc(
                 },
                 icPosition
             ]}>
-                <Image
+                <ExpoImage
                     source={contactSource}
                     style={{
                         width: icSize - (2 * icOutline),
@@ -139,7 +138,7 @@ export function resolveAvatarIc(
                 width: icSize, height: icSize, borderRadius: icSize,
                 backgroundColor: icProps?.backgroundColor ?? theme.surfaceOnElevation
             }, icPosition]}>
-                <Image
+                <ExpoImage
                     source={verifiedSource}
                     style={{ height: icSize, width: icSize }}
                 />

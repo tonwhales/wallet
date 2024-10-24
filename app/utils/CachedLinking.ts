@@ -2,7 +2,6 @@ import { Linking } from "react-native";
 import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
 import branch, { BranchParams } from 'react-native-branch'
-import { storeDebugItem } from "./debug/DebugContext";
 import { sharedStoragePersistence } from "../storage/storage";
 
 let lastLink: string | null = null;
@@ -16,38 +15,28 @@ function handleLinkReceived(link: string) {
     }
 }
 
+function checkForBranchCampaignId(uri: string) {
+    try {
+        const url = new URL(uri);
+        const campaignId = url.searchParams.get('campaignId')
+        if (campaignId) {
+            storeCampaignId(campaignId);
+        }
+    } catch {}
+}
+
 // Fetch initial
 (async () => {
     let url = await Linking.getInitialURL();
-    storeDebugItem(`initialURL ${url}`);
     if (url) {
+        checkForBranchCampaignId(url);
         handleLinkReceived(url);
     }
 })();
 
 type TrimmedBranchParams = Omit<BranchParams, '+clicked_branch_link' | '~referring_link'>;
 
-const branchLinksKey = 'branch-links';
 const branchCampaignKey = 'branch-campaign';
-
-function getBranchParams(): TrimmedBranchParams[] {
-    const stored = sharedStoragePersistence.getString(branchLinksKey);
-    if (!stored) {
-        return [];
-    }
-    return JSON.parse(stored);
-}
-
-function storeBranchParams(params: TrimmedBranchParams) {
-    const stored = getBranchParams();
-    stored.push(params);
-    sharedStoragePersistence.set(branchLinksKey, JSON.stringify(stored));
-}
-
-export function getLatestBranchParams(): TrimmedBranchParams | null {
-    const stored = getBranchParams();
-    return stored[stored.length - 1] ?? null;
-}
 
 export function getCampaignId(): string | undefined {
     return sharedStoragePersistence.getString(branchCampaignKey);
@@ -58,7 +47,6 @@ export function storeCampaignId(campaignId: string) {
 }
 
 function handleBranchLink(params: TrimmedBranchParams) {
-    storeBranchParams(params);
     const deepLink = params.$deeplink_path as string;
 
     if (deepLink) {
@@ -90,12 +78,13 @@ branch.subscribe({
         uri
     }) => {
         if (error) {
-            storeDebugItem(`branch.onOpenComplete error ${JSON.stringify({ params, uri, error })}`);
             return;
         }
 
         if (params) {
-            storeDebugItem(`branch.onOpenComplete success ${JSON.stringify({ params, uri, error })}`);
+            if (uri) {
+                checkForBranchCampaignId(uri);
+            }
             if (!params['+clicked_branch_link']) {
                 // this will be handled in Linking.getInitialURL
                 return;
@@ -112,23 +101,9 @@ branch.subscribe({
 
 });
 
-(async () => {
-    try {
-        const latestParams = await branch.getLatestReferringParams() // Params from last open
-        storeDebugItem(`branch.latestParams ${JSON.stringify(latestParams)}`);
-        const isTrackingDisabled = await branch.isTrackingDisabled();
-        const firstReferringParams = await branch.getFirstReferringParams();
-        storeDebugItem(`branch.isTrackingDisabled ${isTrackingDisabled}`);
-        storeDebugItem(`branch.firstReferringParams ${JSON.stringify(firstReferringParams)}`);
-    } catch {
-        storeDebugItem('branch.latestParams');
-    }
-})();
-
-
 // Subscribe for links
 Linking.addEventListener('url', (e) => {
-    storeDebugItem(`Linking listener ${e.url}`);
+    checkForBranchCampaignId(e.url);
     handleLinkReceived(e.url);
 });
 

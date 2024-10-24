@@ -458,7 +458,7 @@ async function resolveAndNavigateToJettonTransfer(
 function getNeedsEnrollment(url: string, address: string, isTestnet: boolean, queryClient: QueryClient) {
 
     if (!getHoldersToken(address)) {
-        return false;
+        return true;
     }
 
     const queryCache = queryClient.getQueryCache();

@@ -17,8 +17,8 @@ export function useIsHoldersInvited(address: string | Address, isTestnet: boolea
         queryKey: Queries.Holders(addressString).Invite(),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        staleTime: 1000 * 60, // 1 minute
-        queryFn: async (key) => {
+        staleTime: 1000 * 30,
+        queryFn: async () => {
             const check = await fetchAddressInviteCheck(addressString, isTestnet);
 
             if (!!check.banner?.imageUrl) {

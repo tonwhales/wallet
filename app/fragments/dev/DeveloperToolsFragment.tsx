@@ -34,7 +34,6 @@ import { queryClient } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
-import { useDebugContext } from '../../utils/debug/DebugContext';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -45,7 +44,6 @@ export const DeveloperToolsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const offlineApp = useOfflineApp();
     const countryCodes = getCountryCodes();
-    const debugMenu = useDebugContext();
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
@@ -300,13 +298,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                 onPress={() => {
                                     navigation.navigate('DevDAppWebView');
                                 }}
-                            />
-                        </View>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton
-                                title={'Show debug'}
-                                onPress={debugMenu.showDebug}
-                                hint={debugMenu.isVisible ? 'true' : 'false'}
                             />
                         </View>
                     </View>

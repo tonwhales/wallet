@@ -1,4 +1,4 @@
-import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { atom, useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { storage } from "../../../storage/storage";
 import { z } from "zod";
 
@@ -38,6 +38,12 @@ const hiddenBannersState = atom({
 
 export function useHiddenBanners() {
     return useRecoilValue(hiddenBannersState);
+}
+
+export function useSetHiddenBanners() {
+    return useRecoilCallback(({ set }) => (banners: string[]) => {
+        set(hiddenBannersState, banners);
+    });
 }
 
 export function useMarkBannerHidden() {

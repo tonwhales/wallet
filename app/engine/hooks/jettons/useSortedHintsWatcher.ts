@@ -34,7 +34,7 @@ function useSubToHintChange(
     useEffect(() => {
         const cache = queryClient.getQueryCache();
         const unsub = cache.subscribe((e: QueryCacheNotifyEvent) => {
-            const queryKey = e.query.queryKey;
+            const queryKey = e.query?.queryKey;
             if (e.type === 'updated') {
                 const action = e.action;
 

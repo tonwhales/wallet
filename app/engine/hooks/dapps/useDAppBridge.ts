@@ -209,7 +209,6 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                                     url: app.url
                                 } : undefined
                             },
-                            job: null,
                             callback: (ok, result) => {
                                 if (ok) {
                                     callback({

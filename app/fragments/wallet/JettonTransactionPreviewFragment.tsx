@@ -384,7 +384,6 @@ const JettonTransactionPreview = () => {
                                 target: destinationAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat }),
                                 comment: comment,
                                 amount: isNeg ? -txAmount : txAmount,
-                                job: null,
                                 stateInit: null,
                                 jetton: Address.parse(wallet),
                                 callback: null

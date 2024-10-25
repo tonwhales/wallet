@@ -79,7 +79,6 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
                         url: prepared.app.url,
                     } : undefined
                 },
-                job: null,
                 callback: resultCallback
             });
         }

@@ -22,7 +22,7 @@ import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRe
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonContent, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
+import { useAccountLite, useClient4, useConfig, useJettonContent, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -58,7 +58,6 @@ export type SimpleTransferParams = {
     feeAmount?: bigint | null,
     forwardAmount?: bigint | null,
     stateInit?: Cell | null,
-    job?: string | null,
     jetton?: Address | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
@@ -218,15 +217,11 @@ const SimpleTransferComponent = () => {
         return value;
     }, [jettonState, accountLite?.balance, isLedger]);
 
-    const commitCommand = useCommitCommand();
     const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
     // Auto-cancel job
     useEffect(() => {
         return () => {
-            if (params && params.job) {
-                commitCommand(false, params.job, new Cell());
-            }
             if (params && params.callback) {
                 params.callback(false, null);
             }
@@ -670,7 +665,6 @@ const SimpleTransferComponent = () => {
         navigation.navigateTransfer({
             text: commentString,
             order: order as Order,
-            job: params && params.job ? params.job : null,
             callback,
             back: params && params.back ? params.back + 1 : undefined,
             useGasless: supportsGaslessTransfer

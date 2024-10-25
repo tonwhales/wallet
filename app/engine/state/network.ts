@@ -35,7 +35,9 @@ export const networkSelector = selector({
             return { isTestnet: true };
         }
 
-        return { isTestnet: get(isTestnetAtom) || false };
+        // TODO: remove this before merging to develop
+        // return { isTestnet: get(isTestnetAtom) || false };
+        return { isTestnet: get(isTestnetAtom) || true };
     },
     set: ({ set }, newValue) => {
         if (IS_SANDBOX) {

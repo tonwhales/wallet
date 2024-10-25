@@ -47,6 +47,7 @@ export const HoldersBanner = memo((props: { onPress?: () => void, persist?: bool
         <Animated.View
             entering={FadeInUp}
             exiting={FadeOutDown}
+            style={{ paddingHorizontal: 16, marginVertical: 16 }}
         >
             <Pressable
                 onPress={onPress}

@@ -98,7 +98,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     }, [selected, isTestnet]);
 
-    const showAddNewProduct = !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
+    const showAddNewProduct = showHoldersBanner || !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
 
     return (
         <View>
@@ -135,12 +135,10 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                                 />
                             </View>
                         ) : (
-                            <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
-                                <HoldersBanner
-                                    onPress={onHoldersPress}
-                                    {...holderBannerContent.banner}
-                                />
-                            </View>
+                            <HoldersBanner
+                                onPress={onHoldersPress}
+                                {...holderBannerContent.banner}
+                            />
                         )
                 )}
 

@@ -126,6 +126,7 @@ export const HomeFragment = fragment(() => {
                         headerShown: false,
                         header: undefined,
                         unmountOnBlur: false,
+                        freezeOnBlur: true,
                         tabBarStyle: {
                             backgroundColor: theme.transparent,
                             borderTopColor: theme.border,

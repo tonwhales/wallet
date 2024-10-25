@@ -404,8 +404,8 @@ export const TransferFragment = fragment(() => {
                     }
                 }
 
-                if (jettonTarget) {
-                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, jettonTarget.address));
+                if (!!jettonTarget) {
+                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, jettonTarget!.address));
                 }
 
                 if (order.domain) {

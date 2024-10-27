@@ -76,13 +76,40 @@ target 'WhalesApp' do
     end
   end
 
-  permissions_path = '../node_modules/react-native-permissions/ios'
-  
-  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+  def node_require(script)
+    # Resolve script with node to allow for hoisting
+    require Pod::Executable.execute_command('node', ['-p',
+     "require.resolve(
+       '#{script}',
+       {paths: [process.argv[1]]},
+     )", __dir__]).strip
+  end
 
-  # Optional: exprimental feature
-  #
-  # post_integrate do |installer|
-  #   expo_patch_react_imports!(installer)
-  # end
+  # Use it to require both react-native's and this package's scripts:
+  node_require('react-native/scripts/react_native_pods.rb')
+  node_require('react-native-permissions/scripts/setup.rb')
+
+  # ⬇️ uncomment the permissions you need
+  setup_permissions([
+    # 'AppTrackingTransparency',
+    # 'Bluetooth',
+    # 'Calendars',
+    # 'CalendarsWriteOnly',
+    'Camera',
+    # 'Contacts',
+    # 'FaceID',
+    # 'LocationAccuracy',
+    # 'LocationAlways',
+    # 'LocationWhenInUse',
+    # 'MediaLibrary',
+    # 'Microphone',
+    # 'Motion',
+    # 'Notifications',
+    # 'PhotoLibrary',
+    # 'PhotoLibraryAddOnly',
+    # 'Reminders',
+    # 'Siri',
+    # 'SpeechRecognition',
+    # 'StoreKit',
+  ])
 end

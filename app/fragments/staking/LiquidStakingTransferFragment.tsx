@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, Image } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
@@ -15,7 +15,7 @@ import { useParams } from '../../utils/useParams';
 import { useRoute } from '@react-navigation/native';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
+import { formatCurrency } from '../../utils/formatCurrency';
 import { Address, Builder, beginCell, fromNano, toNano } from '@ton/core';
 import { useAccountLite, useLiquidStakingMember, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
@@ -29,9 +29,8 @@ import { storeLiquidDeposit, storeLiquidWithdraw } from '../../utils/LiquidStaki
 import { ItemDivider } from '../../components/ItemDivider';
 import { Typography } from '../../components/styles';
 import { useValidAmount } from '../../utils/useValidAmount';
-
-import IcTonIcon from '@assets/ic-ton-acc.svg';
 import { LiquidStakingAmountAction, liquidStakingAmountReducer } from '../../utils/staking/liquidStakingAmountReducer';
+import { Image } from "expo-image";
 
 export type LiquidStakingTransferParams = Omit<StakingTransferParams, 'target'>;
 
@@ -229,7 +228,6 @@ export const LiquidStakingTransferFragment = fragment(() => {
                 }]
             },
             text: null,
-            job: null,
             callback: null
         });
     }, [amount, params, member, liquidStaking, balance, network, depositFee]);
@@ -460,7 +458,10 @@ export const LiquidStakingTransferFragment = fragment(() => {
                             >
                                 <View style={{ flexDirection: 'row' }}>
                                     <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                                        <IcTonIcon width={46} height={46} />
+                                        <Image
+                                            source={require('@assets/ic-ton-acc.png')}
+                                            style={{ height: 46, width: 46 }}
+                                        />
                                         <View style={{
                                             justifyContent: 'center', alignItems: 'center',
                                             height: 20, width: 20, borderRadius: 10,
@@ -545,7 +546,10 @@ export const LiquidStakingTransferFragment = fragment(() => {
                             >
                                 <View style={{ flexDirection: 'row' }}>
                                     <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                                        <IcTonIcon width={46} height={46} />
+                                        <Image
+                                            source={require('@assets/ic-ton-acc.png')}
+                                            style={{ height: 46, width: 46 }}
+                                        />
                                         <View style={{
                                             justifyContent: 'center', alignItems: 'center',
                                             height: 20, width: 20, borderRadius: 10,

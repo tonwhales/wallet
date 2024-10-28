@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { View, Image, Text, useWindowDimensions } from "react-native";
+import { View, Text, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -18,8 +18,7 @@ import { AssetsListItem } from "../../components/jettons/AssetsListItem";
 import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 import { FlashList } from "@shopify/flash-list";
 import { Typography } from "../../components/styles";
-
-import TonIcon from '@assets/ic-ton-acc.svg';
+import { Image } from "expo-image";
 
 type ListItem = { type: 'jetton', address: Address } | { type: 'ton' };
 
@@ -97,7 +96,6 @@ export const AssetsFragment = fragment(() => {
             comment: null,
             jetton: jetton.wallet,
             stateInit: null,
-            job: null,
             callback: null
         });
     }, []);
@@ -112,7 +110,6 @@ export const AssetsFragment = fragment(() => {
                 amount: null,
                 target: target,
                 stateInit: null,
-                job: null,
                 comment: null,
                 jetton: null,
                 callback: null
@@ -123,7 +120,6 @@ export const AssetsFragment = fragment(() => {
             amount: null,
             target: target,
             stateInit: null,
-            job: null,
             comment: null,
             jetton: null,
             callback: null
@@ -178,7 +174,10 @@ export const AssetsFragment = fragment(() => {
                             onSelect={onTonSelected}
                             icon={
                                 <View style={{ width: 46, height: 46 }}>
-                                    <TonIcon width={46} height={46} />
+                                    <Image
+                                        source={require('@assets/ic-ton-acc.png')}
+                                        style={{ height: 46, width: 46 }}
+                                    />
                                     <View style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 20, width: 20, borderRadius: 10,

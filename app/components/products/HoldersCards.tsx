@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import { PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { ThemeType } from "../../engine/state/theme";
-import { View, Text, Image } from "react-native";
+import { View, Text } from "react-native";
 import { Typography } from "../styles";
 import { t } from "../../i18n/t";
 import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
@@ -10,8 +10,9 @@ import { PerfText } from "../basic/PerfText";
 import { PriceComponent } from "../PriceComponent";
 import { toNano } from "@ton/core";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { Image } from "expo-image";
 
-import IcHide from '@assets/ic-hide.svg';
+const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
 export const HoldersCards = memo(({
     cards,
@@ -62,7 +63,7 @@ export const HoldersCards = memo(({
                             <HoldersPrepaidCard
                                 key={`card-${index}`}
                                 card={item}
-                                rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                rightActionIcon={hideIcon}
                                 rightAction={() => markPrepaidCard(item.id, true)}
                                 style={{ paddingVertical: 0 }}
                                 isTestnet={isTestnet}
@@ -84,7 +85,7 @@ export const HoldersCards = memo(({
                     <HoldersPrepaidCard
                         key={`card-${index}`}
                         card={item}
-                        rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                        rightActionIcon={hideIcon}
                         rightAction={() => markPrepaidCard(item.id, true)}
                         style={{ paddingVertical: 0 }}
                         isTestnet={isTestnet}

@@ -19,7 +19,7 @@ import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useBounceableWalletFormat, useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useBounceableWalletFormat, useClient4, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
 import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal, beginCell, toNano } from '@ton/core';
@@ -50,7 +50,6 @@ export type TransferFragmentProps = {
     source?: TransferRequestSource
     text: string | null,
     order: Order,
-    job: string | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
     useGasless?: boolean
@@ -99,7 +98,6 @@ export type ConfirmLoadedPropsSingle = {
     },
     text: string | null,
     order: Order,
-    job: string | null,
     fees: TransferEstimate,
     metadata: ContractMetadata,
     restricted: boolean,
@@ -113,7 +111,6 @@ export type ConfirmLoadedPropsBatch = {
     type: 'batch',
     source?: TransferRequestSource
     text: string | null,
-    job: string | null,
     order: {
         messages: OrderMessage[],
         app?: {
@@ -164,7 +161,6 @@ export const TransferFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const client = useClient4(isTestnet);
-    const commitCommand = useCommitCommand();
     const walletVersion = useWalletVersion();
     const gaslessConfig = useGaslessConfig();
     const netConfig = useConfig();
@@ -174,7 +170,6 @@ export const TransferFragment = fragment(() => {
     const from = useMemo(() => getCurrentAddress(), []);
     const text = useMemo(() => params.text, []);
     const order = useMemo(() => params.order, []);
-    const job = useMemo(() => params.job, []);
     const callback = useMemo(() => params.callback, []);
 
     const [useGasless, setUseGasless] = useState(params.useGasless ?? false);
@@ -219,9 +214,6 @@ export const TransferFragment = fragment(() => {
             finished.current = true;
             backHandler.remove();
 
-            if (params && params.job) {
-                commitCommand(false, params.job, new Cell());
-            }
             if (params && params.callback) {
                 params.callback(false, null);
             }
@@ -412,8 +404,8 @@ export const TransferFragment = fragment(() => {
                     }
                 }
 
-                if (jettonTarget) {
-                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, jettonTarget.address));
+                if (!!jettonTarget) {
+                    jettonTargetState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, jettonTarget!.address));
                 }
 
                 if (order.domain) {
@@ -665,7 +657,6 @@ export const TransferFragment = fragment(() => {
                     } : undefined,
                     order,
                     text,
-                    job,
                     fees,
                     metadata,
                     callback: callback ? callback : null,
@@ -750,9 +741,6 @@ export const TransferFragment = fragment(() => {
                         message: t('transfer.error.invalidTransactionMessage')
                     });
 
-                    if (params && params.job) {
-                        commitCommand(false, params.job, new Cell());
-                    }
                     if (params && params.callback) {
                         params.callback(false, null);
                     }
@@ -792,7 +780,6 @@ export const TransferFragment = fragment(() => {
                 type: 'batch',
                 order: { messages, app: order.app },
                 text,
-                job,
                 fees,
                 callback: callback ? callback : null,
                 back: params.back,

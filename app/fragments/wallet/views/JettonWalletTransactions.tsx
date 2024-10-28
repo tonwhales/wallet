@@ -185,7 +185,6 @@ export const JettonWalletTransactions = memo((props: {
             target,
             comment: comment,
             amount: amount < 0n ? -amount : amount,
-            job: null,
             stateInit: null,
             jetton: props.jetton.wallet,
             callback: null

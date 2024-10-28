@@ -8,8 +8,9 @@ import { useMarkJettonActive } from "../../engine/hooks/jettons/useMarkJettonAct
 import { Typography } from "../styles";
 import { Address } from "@ton/core";
 import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
+import { Image } from "expo-image";
 
-import Show from '@assets/ic-show.svg';
+const showIcon = <Image source={require('@assets/ic-show.png')} style={{ width: 36, height: 36 }} />;
 
 export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
@@ -72,7 +73,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
                             last={isLast}
                             itemStyle={{ borderRadius: 20 }}
                             rightAction={() => markJettonActive(j)}
-                            rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
+                            rightActionIcon={showIcon}
                             single={hiddenList.length === 1}
                             owner={owner}
                             card

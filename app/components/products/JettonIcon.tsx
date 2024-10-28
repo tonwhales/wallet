@@ -1,11 +1,10 @@
 import { memo } from "react";
-import { View, Image } from "react-native";
+import { View } from "react-native";
 import { WImage } from "../WImage";
 import { ThemeType } from "../../engine/state/theme";
 import { useKnownJettons } from "../../engine/hooks";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
-
-import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { Image } from "expo-image";
 
 export const JettonIcon = memo(({
     size,
@@ -40,10 +39,13 @@ export const JettonIcon = memo(({
                             borderRadius={size * 0.5}
                         />
                     ) : (
-                        <IcTonIcon
-                            width={size * 0.5}
-                            height={size * 0.5}
-                            style={{ width: size * 0.5, height: size * 0.5 }}
+                        <Image
+                            source={require('@assets/ic-ton-acc.png')}
+                            style={{
+                                borderRadius: 23,
+                                height: size * 0.5,
+                                width: size * 0.5
+                            }}
                         />
                     )}
                     {isKnown0 && (
@@ -69,10 +71,13 @@ export const JettonIcon = memo(({
                             borderRadius={size * 0.5}
                         />
                     ) : (
-                        <IcTonIcon
-                            width={size * 0.5}
-                            height={size * 0.5}
-                            style={{ width: size * 0.5, height: size * 0.5 }}
+                        <Image
+                            source={require('@assets/ic-ton-acc.png')}
+                            style={{
+                                borderRadius: 23,
+                                height: size * 0.5,
+                                width: size * 0.5
+                            }}
                         />
                     )}
                     {isKnown1 && (
@@ -133,3 +138,5 @@ export const JettonIcon = memo(({
         </View>
     );
 });
+
+JettonIcon.displayName = 'JettonIcon';

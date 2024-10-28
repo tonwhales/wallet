@@ -140,7 +140,6 @@ export class TypedNavigation {
         textCell: Cell,
         payloadCell: Cell,
         text: string,
-        job: string | null,
         name: string,
         callback: ((ok: boolean, result: Cell | null) => void) | null,
     }) {

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { View, Image, Text } from "react-native";
+import { View, Text } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { useMarkJettonDisabled } from "../../engine/hooks/jettons/useMarkJettonDisabled";
 import { useCloudValue, useNetwork, useTheme } from "../../engine/hooks";
@@ -9,15 +9,16 @@ import { t } from "../../i18n/t";
 import { Typography } from "../styles";
 import { Address } from "@ton/core";
 import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
+import { Image } from "expo-image";
 
-import IcHide from '@assets/ic-hide.svg';
+const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
 export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const markJettonDisabled = useMarkJettonDisabled();
     const hints = useSortedHints(owner.toString({ testOnly }));
-    let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    let [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const visibleList = hints
         .filter((s) => !disabledState.disabled[s])
@@ -59,7 +60,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
                             first={index === 0}
                             last={index === visibleList.length - 1}
                             rightAction={() => markJettonDisabled(wallet)}
-                            rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                            rightActionIcon={hideIcon}
                             single={visibleList.length === 1}
                             owner={owner}
                         />
@@ -83,7 +84,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
                             key={'jt' + wallet.toString({ testOnly })}
                             wallet={wallet}
                             rightAction={() => markJettonDisabled(wallet)}
-                            rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                            rightActionIcon={hideIcon}
                             card
                             owner={owner}
                         />

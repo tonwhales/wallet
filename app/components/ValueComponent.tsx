@@ -145,4 +145,5 @@ export function ValueComponent(props: {
             </Text>
         </Text>
     );
-}
+} 
+ValueComponent.displayName = 'ValueComponent';

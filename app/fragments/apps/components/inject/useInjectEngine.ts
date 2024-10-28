@@ -93,7 +93,6 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                         }
                     },
                     text: src.text ? src.text : null,
-                    job: null,
                     callback: callback!,
                     back: 1
                 });
@@ -103,7 +102,6 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                     amount: src.value,
                     stateInit: src.stateInit ? src.stateInit : null,
                     comment: src.text ? src.text : null,
-                    job: null,
                     jetton: null,
                     callback: callback!,
                     back: 1,
@@ -140,7 +138,6 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                 textCell: src.textCell,
                 payloadCell: src.payloadCell,
                 text: parseString(src.textCell.beginParse()),
-                job: null,
                 callback: callback!,
                 name
             });
@@ -185,7 +182,6 @@ export function useTonhubBridgeEngine(domain: string, name: string, isTestnet: b
                         }
                     },
                     text: null,
-                    job: null,
                     callback: callback!,
                     back: 1
                 });

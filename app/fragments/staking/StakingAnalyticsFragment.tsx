@@ -1,4 +1,4 @@
-import { View, Text, Platform, Pressable } from "react-native";
+import { View, Text, Platform, Pressable, useWindowDimensions } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -6,7 +6,6 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
-import { useDimensions } from "@react-native-community/hooks";
 import { LineChart } from "react-native-chart-kit";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -16,10 +15,10 @@ import { useNetwork, useSelectedAccount, useStakingPool, useTheme } from "../../
 import { Address, fromNano } from "@ton/core";
 import { useNominatorInfo } from "../../engine/hooks/staking/useNominatorInfo";
 import { NominatorPeriod } from "../../engine/api/fetchStakingNominator";
-
-import IcGrowth from "@assets/ic-growth.svg";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import IcGrowth from "@assets/ic-growth.svg";
 
 type Dataset = {
     /** The data corresponding to the x-axis label. */
@@ -148,7 +147,7 @@ export const StakingAnalyticsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const stakingPoolInfo = useStakingPool(pool);
@@ -365,7 +364,7 @@ export const StakingAnalyticsFragment = fragment(() => {
                         labels: chart.labels,
                         datasets: [{ data: chart.data, withDots: true }],
                     }}
-                    width={dimensions.screen.width - 16}
+                    width={dimensions.width - 16}
                     height={238 + 64}
                     transparent
                     chartConfig={{

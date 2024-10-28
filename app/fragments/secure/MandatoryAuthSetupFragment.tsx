@@ -1,4 +1,4 @@
-import { Platform, View, Text, Image } from "react-native";
+import { Platform, View, Text, Image, useWindowDimensions } from "react-native";
 import { fragment } from "../../fragment";
 import { AuthRejectReason, useKeysAuth } from "../../components/secure/AuthWalletKeys";
 import { StatusBar } from "expo-status-bar";
@@ -9,7 +9,6 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { Typography } from "../../components/styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useDimensions } from "@react-native-community/hooks";
 import { CheckBox } from "../../components/CheckBox";
 import { useCallback, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
@@ -22,7 +21,7 @@ import WarningIcon from '@assets/ic-warning-banner.svg';
 export type MandatoryAuthSetupParams = { callback?: (ok: boolean) => void };
 
 export const MandatoryAuthSetupFragment = fragment(() => {
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -96,12 +95,12 @@ export const MandatoryAuthSetupFragment = fragment(() => {
                 <View style={{
                     justifyContent: 'center', alignItems: 'center',
                     aspectRatio: 1,
-                    width: dimensions.screen.width - 128,
+                    width: dimensions.width - 128,
                     marginTop: -16
                 }}>
                     <Image
                         resizeMode={'contain'}
-                        style={{ width: dimensions.screen.width - 128 }}
+                        style={{ width: dimensions.width - 128 }}
                         source={theme.style === 'dark' ? require('@assets/banner_backup_dark.webp') : require('@assets/banner_backup.webp')}
                     />
                 </View>

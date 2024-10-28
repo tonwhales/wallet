@@ -6,7 +6,7 @@ import { useIsFetching } from '@tanstack/react-query';
 import { useJettonWalletAddress, useKnownJettons, useNetwork } from '.';
 
 function useIsFetchingTxs(account: string) {
-    return useIsFetching(Queries.Transactions(account));
+    return useIsFetching({ queryKey: Queries.Transactions(account) });
 }
 
 function useIsFetchingHints(account: string) {
@@ -27,7 +27,7 @@ function useIsFetchingSpecialJettonAddress(account: string) {
 
     const walletAddressQueryKey = Queries.Jettons().Address(account).Wallet(specialJettonMaster);
 
-    return useIsFetching(walletAddressQueryKey);
+    return useIsFetching({ queryKey: walletAddressQueryKey });
 }
 
 function useIsFetchingMasterContent() {
@@ -37,7 +37,7 @@ function useIsFetchingMasterContent() {
 
     const masterContentQueryKey = Queries.Jettons().MasterContent(specialJettonMaster);
 
-    return useIsFetching(masterContentQueryKey);
+    return useIsFetching({ queryKey: masterContentQueryKey });
 }
 
 function useIsFetchingWalletContent(account: string) {
@@ -49,7 +49,7 @@ function useIsFetchingWalletContent(account: string) {
 
     const walletContentQueryKey = Queries.Account(walletAddressStr).JettonWallet();
 
-    return useIsFetching(walletContentQueryKey);
+    return useIsFetching({ queryKey: walletContentQueryKey });
 }
 
 function useIsFetchingSpecialJetton(account: string) {
@@ -68,7 +68,7 @@ export function useSyncState(address?: string): 'online' | 'connecting' | 'updat
 
     const acc = address || account?.addressString || 'default-null';
 
-    const isFetchingAccount = useIsFetching(Queries.Account(acc).All());
+    const isFetchingAccount = useIsFetching({ queryKey: Queries.Account(acc).All() });
     const isFetchingSpecialJetton = useIsFetchingSpecialJetton(acc);
     const isFetchingTransactions = useIsFetchingTxs(acc);
     const isFetchingHints = useIsFetchingHints(acc);

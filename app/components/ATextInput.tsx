@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions, useWindowDimensions } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { Easing, FadeIn, FadeInUp, FadeOut, FadeOutDown, LinearTransition, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTheme } from '../engine/hooks';
-import { useDimensions } from '@react-native-community/hooks';
 import { Typography } from './styles';
 
 import Clear from '@assets/ic-clear.svg';
@@ -126,8 +125,8 @@ export interface ATextInputProps {
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const theme = useTheme();
-    const dimentions = useDimensions();
-    const screenWidth = props.screenWidth ?? dimentions.screen.width;
+    const dimentions = useWindowDimensions();
+    const screenWidth = props.screenWidth ?? dimentions.width;
 
     const [focused, setFocused] = useState(false);
 

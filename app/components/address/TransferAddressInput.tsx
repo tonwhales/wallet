@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Platform, Pressable, useWindowDimensions, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { avatarColors } from "../avatar/Avatar";
@@ -14,14 +14,12 @@ import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
-import { useDimensions } from "@react-native-community/hooks";
-import { TransactionDescription } from "../../engine/types";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
-
-import IcChevron from '@assets/ic_chevron_forward.svg';
 import { useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
 import { Typography } from "../styles";
+
+import IcChevron from '@assets/ic_chevron_forward.svg';
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -151,8 +149,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const contact = addressBookContext.asContact(props.target);
     const appState = useAppState();
     const theme = props.theme;
-    const dimentions = useDimensions();
-    const screenWidth = dimentions.screen.width;
+    const dimentions = useWindowDimensions();
+    const screenWidth = dimentions.width;
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
     const [walletSettings] = useWalletSettings(validAddressFriendly);
     const [bounceableFormat] = useBounceableWalletFormat();

@@ -2,7 +2,6 @@ import { memo, useCallback, useState } from 'react';
 import { useTheme } from '../../engine/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { useDimensions } from '@react-native-community/hooks';
 import {
   View,
   Image,
@@ -11,6 +10,7 @@ import {
   Alert,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  useWindowDimensions,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { EmptyIllustrations } from './BrowserExtensions';
@@ -62,7 +62,7 @@ export const BrowserConnections = memo(
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const bottomBarHeight = useBottomTabBarHeight();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
 
     let [apps, setApps] = useState(groupItems(getConnectionReferences()));
 
@@ -109,8 +109,8 @@ export const BrowserConnections = memo(
           style={{
             justifyContent: 'center',
             alignItems: 'center',
-            width: dimensions.screen.width - 32,
-            height: (dimensions.screen.width - 32) * 0.91,
+            width: dimensions.width - 32,
+            height: (dimensions.width - 32) * 0.91,
             borderRadius: 20,
             overflow: 'hidden',
             marginBottom: 22,
@@ -118,8 +118,8 @@ export const BrowserConnections = memo(
           <Image
             resizeMode={'center'}
             style={{
-              height: dimensions.screen.width - 32,
-              width: dimensions.screen.width - 32,
+              height: dimensions.width - 32,
+              width: dimensions.width - 32,
               marginTop: -20,
             }}
             source={EmptyIllustrations[theme.style]}

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Platform, View, Text, Image, FlatList } from "react-native";
+import { Platform, View, Text, Image, FlatList, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
 import { ContactItemView } from "../../components/Contacts/ContactItemView";
@@ -13,7 +13,6 @@ import { ContactTransactionView } from "../../components/Contacts/ContactTransac
 import { useParams } from "../../utils/useParams";
 import { StatusBar } from "expo-status-bar";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
-import { useDimensions } from "@react-native-community/hooks";
 import { ATextInput } from "../../components/ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { Typography } from "../../components/styles";
@@ -32,7 +31,7 @@ export const ContactsFragment = fragment(() => {
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
     const account = useSelectedAccount();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const transactions = useAccountTransactions(account?.addressString ?? '').data ?? [];
     const knownWallets = KnownWallets(isTestnet);
 
@@ -161,14 +160,14 @@ export const ContactsFragment = fragment(() => {
                         <View style={{ alignItems: 'center' }}>
                             <View style={{
                                 justifyContent: 'center', alignItems: 'center',
-                                width: dimensions.screen.width - 32,
-                                height: (dimensions.screen.width - 32) * 0.72,
+                                width: dimensions.width - 32,
+                                height: (dimensions.width - 32) * 0.72,
                                 borderRadius: 20, overflow: 'hidden',
                                 marginTop: 20
                             }}>
                                 <Image
                                     resizeMode={'center'}
-                                    style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -66 }}
+                                    style={{ height: dimensions.width - 32, width: dimensions.width - 32, marginTop: -66 }}
                                     source={EmptyIllustrations[theme.style]}
                                 />
                             </View>

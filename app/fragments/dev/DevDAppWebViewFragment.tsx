@@ -3,7 +3,6 @@ import { fragment } from "../../fragment";
 import { StatusBar } from "expo-status-bar";
 import { useBounceableWalletFormat, useCreateDomainKeyIfNeeded, useDAppBridge, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { usePermissions } from "expo-notifications";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCurrentAddress } from "../../storage/appState";
 import i18n from 'i18next';
@@ -31,6 +30,7 @@ import { tonhubBridgeSource } from "../apps/components/inject/createInjectSource
 import { getPlatform } from "../../engine/tonconnect/config";
 
 import Chevron from '@assets/ic-chevron-down.svg';
+import { usePermissions } from "../../utils/expo/usePermissions";
 
 type EngineOptions = 'ton-x' | 'ton-connect' | 'none' | 'tonhub-bridge';
 const engineOptions: EngineOptions[] = ['ton-x', 'ton-connect', 'none', 'tonhub-bridge'];
@@ -42,9 +42,9 @@ export const DevDAppWebViewFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
     const theme = useTheme();
-    const [pushPemissions,] = usePermissions();
+    const pushPemissionsGranted = usePermissions();
     const [, currency] = usePrice();
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
 
     const initExampleUrl = isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com/';
 
@@ -61,7 +61,6 @@ export const DevDAppWebViewFragment = fragment(() => {
     const endpoint = useMemo(() => {
         try {
             const selected = getCurrentAddress();
-            const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
 
             const source = new URL(url);
 
@@ -72,13 +71,13 @@ export const DevDAppWebViewFragment = fragment(() => {
             source.searchParams.set('lang', i18n.language);
             source.searchParams.set('currency', currency);
             source.searchParams.set('themeStyle', theme.style === 'dark' ? 'dark' : 'light');
-            source.searchParams.set('pushNotifications', pushNotifications ? 'true' : 'false');
+            source.searchParams.set('pushNotifications', pushPemissionsGranted ? 'true' : 'false');
 
             return source.toString();
         } catch {
             return url;
         }
-    }, [url, pushPemissions, currency, theme.style]);
+    }, [url, pushPemissionsGranted, currency, theme.style]);
 
     const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {

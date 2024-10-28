@@ -60,7 +60,7 @@ export const HoldersBanner = memo((props: { onPress?: () => void, persist?: bool
             >
                 <LinearGradient
                     style={styles.gradient}
-                    colors={gradient}
+                    colors={gradient as [string, string, ...string[]]}
                     start={[0, 1]}
                     end={[1, 0]}
                 />

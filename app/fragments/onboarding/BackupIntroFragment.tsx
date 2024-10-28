@@ -1,19 +1,18 @@
 import React from "react";
 import { useRoute } from "@react-navigation/native";
-import { Platform, ScrollView, Text, View, Image } from "react-native";
+import { Platform, ScrollView, Text, View, Image, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
 import { useTheme } from '../../engine/hooks';
-import { useDimensions } from "@react-native-community/hooks";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getBackup, markAddressSecured } from "../../storage/appState";
 
 export const BackupIntroFragment = systemFragment(() => {
     const theme = useTheme();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
@@ -26,7 +25,7 @@ export const BackupIntroFragment = systemFragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : 16,
         }}>
             <ScreenHeader />
-            <ScrollView style={{ width: '100%', height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
+            <ScrollView style={{ width: '100%', height: dimensions.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
                     <Text style={{
                         fontSize: 32, lineHeight: 38,
@@ -52,11 +51,11 @@ export const BackupIntroFragment = systemFragment(() => {
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         aspectRatio: 0.92,
-                        width: dimensions.screen.width - 32,
+                        width: dimensions.width - 32,
                     }}>
                         <Image
                             resizeMode={'contain'}
-                            style={{ width: dimensions.screen.width - 32 }}
+                            style={{ width: dimensions.width - 32 }}
                             source={theme.style === 'dark' ? require('@assets/banner_backup_dark.webp') : require('@assets/banner_backup.webp')}
                         />
                     </View>

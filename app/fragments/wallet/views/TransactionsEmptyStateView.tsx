@@ -1,12 +1,11 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, useWindowDimensions } from "react-native";
 import { t } from "../../../i18n/t";
 import { RoundButton } from "../../../components/RoundButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useNetwork, useTheme } from "../../../engine/hooks";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
-import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../components/styles";
 import { isNeocryptoAvailable } from "../../../utils/isNeocryptoAvailable";
@@ -21,7 +20,7 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
     const showBuy = isNeocryptoAvailable();
 
@@ -41,17 +40,17 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     }, [isLedger, ledgerContext]);
 
     return (
-        <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, minHeight: dimensions.window.height - safeArea.bottom - 112 }}>
+        <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, minHeight: dimensions.height - safeArea.bottom - 112 }}>
             <View style={{
                 justifyContent: 'center', alignItems: 'center',
-                width: dimensions.screen.width - 32,
-                height: (dimensions.screen.width - 32) * 0.91,
+                width: dimensions.width - 32,
+                height: (dimensions.width - 32) * 0.91,
                 borderRadius: 20, overflow: 'hidden',
                 marginBottom: 32,
             }}>
                 <Image
                     resizeMode={'center'}
-                    style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                    style={{ height: dimensions.width - 32, width: dimensions.width - 32, marginTop: -20 }}
                     source={EmptyIllustrations[theme.style]}
                 />
             </View>

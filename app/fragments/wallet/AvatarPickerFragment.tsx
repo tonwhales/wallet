@@ -1,4 +1,4 @@
-import { Platform, Pressable, View, ScrollView, Text } from "react-native";
+import { Platform, Pressable, View, ScrollView, Text, useWindowDimensions } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -10,7 +10,6 @@ import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
-import { useDimensions } from "@react-native-community/hooks";
 import { Typography } from "../../components/styles";
 import { KnownWallets } from "../../secure/KnownWallets";
 
@@ -23,7 +22,7 @@ export const AvatarPickerFragment = fragment(() => {
     const knownWallets = KnownWallets(isTestnet);
     const selected = useSelectedAccount();
     const address = selected!.address;
-    const dimentions = useDimensions();
+    const dimentions = useWindowDimensions();
 
     const [hashState, setHash] = useState(hash);
     const [selectedColor, setColor] = useState(initColor);
@@ -55,7 +54,7 @@ export const AvatarPickerFragment = fragment(() => {
             <View style={{ flexGrow: 1 }} />
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                 <Avatar
-                    size={Math.floor((dimentions.window.height / 2.5)) - 64}
+                    size={Math.floor((dimentions.height / 2.5)) - 64}
                     hash={hashState}
                     borderColor={theme.transparent}
                     theme={theme}

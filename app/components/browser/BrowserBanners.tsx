@@ -1,14 +1,13 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
-import { FlatList, Platform, View } from "react-native";
-import { useDimensions } from "@react-native-community/hooks";
+import { FlatList, Platform, useWindowDimensions, View } from "react-native";
 import { BrowserBanner } from "./BrowserBanner";
 import { useSharedValue } from "react-native-reanimated";
 import { useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] }) => {
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
@@ -16,7 +15,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
     const isPressed = useRef(false);
     const [activeSlide, setActiveSlide] = useState(0);
 
-    const scrollViewWidth = dimensions.screen.width
+    const scrollViewWidth = dimensions.width
     const boxWidth = scrollViewWidth * 0.85;
     const boxDistance = scrollViewWidth - boxWidth;
     const halfBoxDistance = boxDistance / 2;
@@ -96,7 +95,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
                     />
                 </View>
             )}
-            style={{ flexGrow: 1, width: dimensions.screen.width }}
+            style={{ flexGrow: 1, width: dimensions.width }}
             contentContainerStyle={{ paddingVertical: 16 }}
             contentInsetAdjustmentBehavior={'never'}
             decelerationRate={Platform.select({ ios: 0.9, android: 1 })}

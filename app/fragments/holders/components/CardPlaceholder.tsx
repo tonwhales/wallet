@@ -1,8 +1,7 @@
 import { memo, useEffect } from "react";
 import { ThemeType } from "../../../engine/state/theme";
-import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Platform, View } from "react-native";
+import { Platform, useWindowDimensions, View } from "react-native";
 import { Text } from "react-native";
 import { Image } from "expo-image"; import Animated, { Easing, Extrapolation, FadeInDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { t } from "../../../i18n/t";
@@ -21,7 +20,7 @@ export const CardPlaceholder = memo(({
     onSupport?: () => void,
     showClose?: boolean
 }) => {
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
 
     const animation = useSharedValue(0);
@@ -84,7 +83,7 @@ export const CardPlaceholder = memo(({
                 <Animated.View
                     style={[{
                         backgroundColor: theme.surfaceOnBg,
-                        width: dimensions.screen.width - 98,
+                        width: dimensions.width - 98,
                         height: 184,
                         borderRadius: 20
                     }, animatedStyles]}
@@ -103,7 +102,7 @@ export const CardPlaceholder = memo(({
                 backgroundColor: theme.surfaceOnBg,
                 alignSelf: 'center',
                 height: 96,
-                width: dimensions.screen.width - 32,
+                width: dimensions.width - 32,
                 marginTop: 38,
                 borderRadius: 20,
                 opacity: 1

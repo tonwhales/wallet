@@ -13,7 +13,6 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { DAppWebView, DAppWebViewProps } from "../../components/webview/DAppWebView";
 import { getCurrentAddress } from "../../storage/appState";
-import { usePermissions } from "expo-notifications";
 import i18n from 'i18next';
 import { useInjectEngine } from "../apps/components/inject/useInjectEngine";
 import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomain";
@@ -26,6 +25,7 @@ import { CloseButton } from "../../components/navigation/CloseButton";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../i18n/t";
 import WebView from "react-native-webview";
+import { usePermissions } from "../../utils/expo/usePermissions";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
 
@@ -63,14 +63,13 @@ export const DAppWebViewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
-    const [pushPemissions,] = usePermissions();
+    const pushPemissionsGranted = usePermissions();
     const [, currency] = usePrice();
     const { showActionSheetWithOptions } = useActionSheet();
 
     const endpoint = useMemo(() => {
         try {
             const selected = getCurrentAddress();
-            const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
 
             const source = new URL(url);
 
@@ -83,7 +82,7 @@ export const DAppWebViewFragment = fragment(() => {
             source.searchParams.set('themeStyle', theme.style === 'dark' ? 'dark' : 'light');
             source.searchParams.set('theme-style', theme.style === 'dark' ? 'dark' : 'light');
             source.searchParams.set('theme', 'holders');
-            source.searchParams.set('pushNotifications', pushNotifications ? 'true' : 'false');
+            source.searchParams.set('pushNotifications', pushPemissionsGranted ? 'true' : 'false');
 
             if (refId) {
                 source.searchParams.set('refId', encodeURIComponent(refId));
@@ -93,7 +92,7 @@ export const DAppWebViewFragment = fragment(() => {
         } catch {
             return url;
         }
-    }, [url, pushPemissions, currency, theme.style]);
+    }, [url, pushPemissionsGranted, currency, theme.style]);
 
     const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {

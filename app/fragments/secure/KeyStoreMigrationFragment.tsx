@@ -1,4 +1,4 @@
-import { View, Image, Alert, Platform, ScrollView, Text } from "react-native";
+import { View, Image, Alert, Platform, ScrollView, Text, useWindowDimensions } from "react-native";
 import { systemFragment } from "../../systemFragment";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,7 +13,6 @@ import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { StatusBar } from "expo-status-bar";
 import { resolveOnboarding } from "../resolveOnboarding";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useDimensions } from "@react-native-community/hooks";
 import * as KeyStore from "../../storage/modules/KeyStore";
 
 export const KeyStoreMigrationFragment = systemFragment(() => {
@@ -23,7 +22,7 @@ export const KeyStoreMigrationFragment = systemFragment(() => {
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const [state, setState] = useState<'loading' | undefined>();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
 
     const onStart = useCallback(async () => {
         setState('loading');
@@ -73,7 +72,7 @@ export const KeyStoreMigrationFragment = systemFragment(() => {
             ) : (
                 <>
                     <View style={{ flexGrow: 1 }} />
-                    <ScrollView style={{ width: '100%', height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
+                    <ScrollView style={{ width: '100%', height: dimensions.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
                         <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
                             <Text style={{
                                 fontSize: 32, lineHeight: 38,
@@ -99,11 +98,11 @@ export const KeyStoreMigrationFragment = systemFragment(() => {
                             <View style={{
                                 justifyContent: 'center', alignItems: 'center',
                                 aspectRatio: 0.92,
-                                width: dimensions.screen.width - 32,
+                                width: dimensions.width - 32,
                             }}>
                                 <Image
                                     resizeMode={'contain'}
-                                    style={{ width: dimensions.screen.width - 32 }}
+                                    style={{ width: dimensions.width - 32 }}
                                     source={theme.style === 'dark' ? require('@assets/banner_backup_dark.webp') : require('@assets/banner_backup.webp')}
                                 />
                             </View>

@@ -1,9 +1,8 @@
 import { memo, useCallback, useMemo } from "react";
 import { BrowserListingItem } from "./BrowserListings";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { View, Text } from "react-native";
+import { View, Text, useWindowDimensions } from "react-native";
 import { ProductButton } from "../../fragments/wallet/products/ProductButton";
-import { useDimensions } from "@react-native-community/hooks";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { Typography } from "../styles";
@@ -21,7 +20,7 @@ export const BrowserListItem = memo(({
     navigation: TypedNavigation,
     theme: ThemeType
 }) => {
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
     const url = holdersUrl(isTestnet);
@@ -101,7 +100,7 @@ export const BrowserListItem = memo(({
             flexGrow: 1,
             height: 56,
             width: '100%',
-            maxWidth: dimensions.screen.width - 32,
+            maxWidth: dimensions.width - 32,
         }}>
             <ProductButton
                 name={item.title ?? ''}

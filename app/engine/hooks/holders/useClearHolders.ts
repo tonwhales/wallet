@@ -17,7 +17,7 @@ export function useClearHolders(isTestnet: boolean) {
 
         setDomainKeysState(temp);
 
-        await queryClient.cancelQueries(['holders']);
-        await queryClient.removeQueries(['holders']);
+        await queryClient.cancelQueries({ predicate: (query) => query.queryKey[0] === 'holders' });
+        await queryClient.removeQueries({ predicate: (query) => query.queryKey[0] === 'holders' });
     }
 }

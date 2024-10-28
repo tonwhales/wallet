@@ -10,8 +10,7 @@ export function useContractMetadatas(contracts: string[]) {
         queries: contracts.map(m => ({
             queryKey: Queries.ContractMetadata(m),
             queryFn: contractMetadataQueryFn(isTestnet, m),
-            staleTime: Infinity,
-            cacheTime: Infinity,
+            staleTime: Infinity
         })),
     });
 }

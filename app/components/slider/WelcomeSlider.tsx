@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
-import { ScrollView, View, StyleProp, ViewStyle } from "react-native";
-import { useDimensions } from "@react-native-community/hooks";
+import { ScrollView, View, StyleProp, ViewStyle, useWindowDimensions } from "react-native";
 import { t } from "../../i18n/t";
 import { Slide } from "./Slide";
 import { useNetwork, useTheme } from "../../engine/hooks";
@@ -31,7 +30,7 @@ const slides = (isTestnet: boolean, dark?: boolean) => [
 export const WelcomeSlider = memo(({ style }: { style?: StyleProp<ViewStyle> }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
 
     const slidesComponents = slides(isTestnet, theme.style === ThemeStyle.Dark);
 
@@ -48,7 +47,7 @@ export const WelcomeSlider = memo(({ style }: { style?: StyleProp<ViewStyle> }) 
     useEffect(() => {
         const timerId = setTimeout(() => {
             if (activeSlide < slidesComponents.length - 1) {
-                scrollRef.current?.scrollTo({ x: (activeSlide + 1) * dimensions.screen.width, animated: true });
+                scrollRef.current?.scrollTo({ x: (activeSlide + 1) * dimensions.width, animated: true });
             } else {
                 scrollRef.current?.scrollTo({ x: 0, animated: true });
             }
@@ -63,7 +62,7 @@ export const WelcomeSlider = memo(({ style }: { style?: StyleProp<ViewStyle> }) 
             <View style={{
                 height: 44,
                 flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
-                width: dimensions.screen.width,
+                width: dimensions.width,
             }}>
                 {slidesComponents.map((_, index) => {
                     return (
@@ -86,8 +85,8 @@ export const WelcomeSlider = memo(({ style }: { style?: StyleProp<ViewStyle> }) 
                     horizontal={true}
                     pagingEnabled={true}
                     snapToAlignment={'center'}
-                    style={{ flexGrow: 1, width: dimensions.screen.width }}
-                    contentContainerStyle={{ width: dimensions.screen.width * slidesComponents.length }}
+                    style={{ flexGrow: 1, width: dimensions.width }}
+                    contentContainerStyle={{ width: dimensions.width * slidesComponents.length }}
                     showsHorizontalScrollIndicator={false}
                     bounces={false}
                     onScroll={onScroll}

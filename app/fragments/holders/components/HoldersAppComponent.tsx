@@ -284,7 +284,13 @@ export const HoldersAppComponent = memo((
                 }
                 break;
             case HoldersAppParamsType.Path:
-                route = `/${props.variant.path ?? ''}`;
+                // check if path is has a leading slash
+                if (props.variant.path.startsWith('/')) {
+                    route = props.variant.path;
+                } else {
+                    route = `/${props.variant.path}`;
+                }
+
                 for (const [key, value] of Object.entries(props.variant.query)) {
                     if (!!value) {
                         queryParams.append(key, value);
@@ -300,7 +306,7 @@ export const HoldersAppComponent = memo((
         }
 
         const urlString = url.toString();
-        const initialRoute = `${route}?${queryParams.toString()}`;
+        let initialRoute = urlString.split(props.endpoint)[1];
 
         queryParams.append('initial-route', route);
 

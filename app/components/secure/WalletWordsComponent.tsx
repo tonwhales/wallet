@@ -9,9 +9,12 @@ import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { RoundButton } from "../RoundButton";
 import { AutocompleteView } from "../AutocompleteView";
-import { useTheme } from "../../engine/hooks";
-import { mnemonicValidate } from "@ton/crypto";
+import { useAppState, useNetwork, useTheme } from "../../engine/hooks";
+import { mnemonicToWalletKey, mnemonicValidate } from "@ton/crypto";
 import { randomEngLetter } from "../../utils/randomEngLetter";
+import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
+import { WalletVersions } from "../../engine/types";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const WalletWordsComponent = React.memo((props: {
     onComplete: (v: {
@@ -19,9 +22,15 @@ export const WalletWordsComponent = React.memo((props: {
         deviceEncryption: DeviceEncryption
     }) => void,
 }) => {
+
+
+
     const theme = useTheme();
-    const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
+    const appState = useAppState();
+    const { isTestnet } = useNetwork();
+    const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
 
     // References to all fields
     const animatedRefs: AnimatedRef<View>[] = [];
@@ -62,6 +71,38 @@ export const WalletWordsComponent = React.memo((props: {
             return;
         }
         const deviceEncryption = await getDeviceEncryption();
+
+        const mnemonics = normalized.join(' ')
+
+        const newAddresses = await mnemonicToWalletKey(mnemonics.split(' ')).then(({ publicKey }) => {
+            const addresses = [WalletVersions.v5R1, WalletVersions.v4R2].map((version) => {
+                const contract = contractFromPublicKey(publicKey, version, isTestnet);
+                const address = contract.address.toString({
+                    testOnly: isTestnet,
+                    bounceable: false
+                });
+
+                return { address, version };
+            });
+
+
+            const currentAddresses = appState.addresses.map((wallet: any) => {
+                const parsedAddressFriendly = wallet.address.toString({
+                    testOnly: isTestnet,
+                    bounceable: false
+                });
+
+                return parsedAddressFriendly
+            })
+            const result = addresses.filter(addr => !currentAddresses.includes(addr.address));
+
+            return result
+        });
+
+        if (!newAddresses.length) {
+            navigation.goBack()
+            return
+        }
         props.onComplete({ mnemonics: normalized.join(' '), deviceEncryption });
     }, []);
 

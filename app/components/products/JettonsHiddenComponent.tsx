@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react"
+import React, { memo, useEffect, useState } from "react"
 import { View, Pressable, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
@@ -8,15 +8,16 @@ import { useMarkJettonActive } from "../../engine/hooks/jettons/useMarkJettonAct
 import { Typography } from "../styles";
 import { Address } from "@ton/core";
 import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
+import { Image } from "expo-image";
 
-import Show from '@assets/ic-show.svg';
+const showIcon = <Image source={require('@assets/ic-show.png')} style={{ width: 36, height: 36 }} />;
 
 export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const markJettonActive = useMarkJettonActive();
     const hints = useSortedHints(owner.toString({ testOnly }));
-    let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    let [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const hiddenList = hints
         .filter((s) => !!disabledState.disabled[s])
@@ -72,7 +73,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
                             last={isLast}
                             itemStyle={{ borderRadius: 20 }}
                             rightAction={() => markJettonActive(j)}
-                            rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
+                            rightActionIcon={showIcon}
                             single={hiddenList.length === 1}
                             owner={owner}
                             card

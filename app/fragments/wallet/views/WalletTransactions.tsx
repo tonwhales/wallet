@@ -23,7 +23,7 @@ import { warn } from "../../../utils/log";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 
-const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
+export const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
         <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
             <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
@@ -94,6 +94,10 @@ export const WalletTransactions = memo((props: {
     safeArea: EdgeInsets,
     onLoadMore: () => void,
     loading: boolean,
+    refresh?: {
+        onRefresh: () => void,
+        refreshing: boolean
+    }
     header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     sectionedListProps?: {
         contentContainerStyle?: StyleProp<ViewStyle>,
@@ -117,8 +121,8 @@ export const WalletTransactions = memo((props: {
     const appState = useAppState();
     const [pending,] = usePendingTransactions(props.address, isTestnet);
     const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
-    const [bounceableFormat,] = useBounceableWalletFormat();
-    const [walletsSettings,] = useWalletsSettings();
+    const [bounceableFormat] = useBounceableWalletFormat();
+    const [walletsSettings] = useWalletsSettings();
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -180,7 +184,6 @@ export const WalletTransactions = memo((props: {
             target,
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
             amount: amount < 0n ? -amount : amount,
-            job: null,
             stateInit: null,
             jetton: jetton,
             callback: null
@@ -278,6 +281,29 @@ export const WalletTransactions = memo((props: {
         }
     }, [pending.length]);
 
+    const renderItem = useCallback((item: SectionListRenderItemInfo<TransactionDescription, { title: string }>) => (
+        <TransactionListItem
+            {...item}
+            address={props.address}
+            theme={theme}
+            onPress={navigateToPreview}
+            onLongPress={onLongPress}
+            ledger={props.ledger}
+            navigation={navigation}
+            spamMinAmount={spamMinAmount}
+            dontShowComments={dontShowComments}
+            denyList={addressBook.denyList}
+            contacts={addressBook.contacts}
+            isTestnet={isTestnet}
+            spamWallets={spamWallets}
+            appState={appState}
+            bounceableFormat={bounceableFormat}
+            walletsSettings={walletsSettings}
+            knownWallets={knownWallets}
+            addToDenyList={addToDenyList}
+        />
+    ), [props.address, theme, navigateToPreview, onLongPress, props.ledger, spamMinAmount, dontShowComments, addressBook.denyList, addressBook.contacts, isTestnet, spamWallets, appState, bounceableFormat, walletsSettings, knownWallets]);
+
     return (
         <SectionList
             ref={ref}
@@ -287,10 +313,9 @@ export const WalletTransactions = memo((props: {
             ]}
             contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}
-            scrollEventThrottle={26}
+            scrollEventThrottle={50}
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
-            initialNumToRender={15}
             onScrollToIndexFailed={() => {
                 warn('Failed to scroll to index');
             }}
@@ -309,31 +334,13 @@ export const WalletTransactions = memo((props: {
                 </View>
             ) : null}
             ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
-            renderItem={(item) => (
-                <TransactionListItem
-                    {...item}
-                    address={props.address}
-                    theme={theme}
-                    onPress={navigateToPreview}
-                    onLongPress={onLongPress}
-                    ledger={props.ledger}
-                    navigation={navigation}
-                    spamMinAmount={spamMinAmount}
-                    dontShowComments={dontShowComments}
-                    denyList={addressBook.denyList}
-                    contacts={addressBook.contacts}
-                    isTestnet={isTestnet}
-                    spamWallets={spamWallets}
-                    appState={appState}
-                    bounceableFormat={bounceableFormat}
-                    walletsSettings={walletsSettings}
-                    knownWallets={knownWallets}
-                    addToDenyList={addToDenyList}
-                />
-            )}
+            renderItem={renderItem}
+            initialNumToRender={16}
             onEndReached={() => props.onLoadMore()}
-            onEndReachedThreshold={1}
+            onEndReachedThreshold={0.2}
             keyExtractor={(item) => 'tx-' + item.id}
+            onRefresh={props.refresh?.onRefresh}
+            refreshing={props.refresh?.refreshing}
         />
     );
 });

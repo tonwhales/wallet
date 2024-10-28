@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { getSortedHints, useSortedHintsState } from "./useSortedHints";
 import { useNetwork } from "..";
-import { compareHints, filterHint, getHint, getMintlessHint } from "../../../utils/hintSortFilter";
+import { compareHints, filterHint, getHint, getMintlessHint } from "../../../utils/jettons/hintSortFilter";
 import { queryClient } from "../../clients";
 import { QueryCacheNotifyEvent } from "@tanstack/react-query";
 import { Queries } from "../../queries";
@@ -29,17 +29,17 @@ function areArraysEqualByContent<T>(a: T[], b: T[]): boolean {
 
 function useSubToHintChange(
     reSortHints: () => void,
-    owner: string,
+    owner: string
 ) {
     useEffect(() => {
         const cache = queryClient.getQueryCache();
         const unsub = cache.subscribe((e: QueryCacheNotifyEvent) => {
-            const queryKey = e.query.queryKey;
+            const queryKey = e.query?.queryKey;
             if (e.type === 'updated') {
                 const action = e.action;
 
                 // only care about success updates
-                if (action.type !== 'success') {
+                if (action.type !== 'success' || !action.data) {
                     return;
                 }
 
@@ -60,7 +60,7 @@ function useSubToHintChange(
                     || (queryKey[0] === 'jettons' && queryKey[1] === 'master' && queryKey[3] === 'content')
                 ) {
                     reSortHints();
-                } else if ((queryKey[0] === 'jettons' && queryKey[1] === 'swap')) {
+                } else if ((queryKey[0] === 'jettons' && queryKey[1] === 'rates')) {
                     // check if the "price" changed so we can re-sort the hints
                     const newData = action.data as bigint | undefined | null;
                     const prev = getQueryData<bigint | undefined | null>(cache, queryKey);

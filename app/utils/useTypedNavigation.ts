@@ -19,6 +19,9 @@ import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
 import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
 import { getCurrentAddress } from '../storage/appState';
 import { Platform } from 'react-native';
+import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
+import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
+import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -137,7 +140,6 @@ export class TypedNavigation {
         textCell: Cell,
         payloadCell: Cell,
         text: string,
-        job: string | null,
         name: string,
         callback: ((ok: boolean, result: Cell | null) => void) | null,
     }) {
@@ -242,6 +244,18 @@ export class TypedNavigation {
 
     navigateMandatoryAuthSetup(params?: MandatoryAuthSetupParams) {
         this.navigate('MandatoryAuthSetup', params);
+    }
+
+    navigateJettonWallet(param: JettonWalletFragmentParams) {
+        this.navigate('JettonWalletFragment', param);
+    }
+
+    navigateJettonTransaction(param: JettonTransactionPreviewParams) {
+        this.navigate('JettonTransaction', param);
+    }
+
+    navigateReceive(params?: ReceiveFragmentParams) {
+        this.navigate('Receive', params);
     }
 }
 

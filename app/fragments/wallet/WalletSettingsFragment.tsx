@@ -6,10 +6,10 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { avatarHash } from "../../utils/avatarHash";
 import { Avatar, avatarColors, avatarImages } from "../../components/avatar/Avatar";
-import { useCallback, useMemo, useState } from "react";
+import { createRef, Ref, useCallback, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
-import { ATextInput } from "../../components/ATextInput";
+import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { StatusBar } from "expo-status-bar";
@@ -18,6 +18,9 @@ import { useKeyboard } from "@react-native-community/hooks";
 import { Typography } from "../../components/styles";
 import { RoundButton } from "../../components/RoundButton";
 import { KnownWallets } from "../../secure/KnownWallets";
+import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated";
+
+const PLATFORM_IOS = Platform.OS === 'ios'
 
 export const WalletSettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -33,6 +36,14 @@ export const WalletSettingsFragment = fragment(() => {
     const [bounceableFormat,] = useBounceableWalletFormat();
 
     const [walletSettings, setSettings] = useWalletSettings(address);
+    const [isInputNameFocus, setIsInputNameFocus] = useState(false);
+
+    const ref: Ref<ATextInputRef> = createRef()
+
+    const [avatarHeight, setAvatarHeight] = useState(0)
+    const addressInputHeight = useSharedValue(106)
+
+    const hideElementsOpacity = useSharedValue(1)
 
     const initHash = (walletSettings?.avatar !== null && walletSettings?.avatar !== undefined)
         ? walletSettings.avatar
@@ -70,18 +81,74 @@ export const WalletSettingsFragment = fragment(() => {
         navigation.navigate('AvatarPicker', { callback, hash: avatar, initColor: initColorHash });
     }, []);
 
+    const onInputNameFocus = () => {
+        setIsInputNameFocus(true)
+    }
+    const onInputNameBlur = () => {
+        setIsInputNameFocus(false)
+
+    }
+
+    useDerivedValue(() => {
+        if (isInputNameFocus) {
+            hideElementsOpacity.value = withTiming(0)
+        } else {
+            hideElementsOpacity.value = withTiming(1)
+        }
+    }, [isInputNameFocus])
+
+
+    const animAvatarStyles = useAnimatedStyle(() => {
+
+        return {
+            opacity: hideElementsOpacity.value,
+        }
+
+    })
+
+    const animWalletAddressStyles = useAnimatedStyle(() => {
+
+        return {
+            opacity: isInputNameFocus ? withTiming(0) : withTiming(1),
+        }
+    })
+    const animHeaderStyles = useAnimatedStyle(() => {
+
+        return {
+            height: isInputNameFocus ? withTiming(0) : withTiming(106),
+            opacity: isInputNameFocus ? withTiming(0) : withTiming(1),
+        }
+    })
+
+    const animWalletNameStyles = useAnimatedStyle(() => {
+
+        return {
+            top: isInputNameFocus ? withTiming(-avatarHeight) : withTiming(0),
+        }
+    })
+
+    const animSeparatorStyles = useAnimatedStyle(() => {
+        return { height: isInputNameFocus ? withTiming(safeArea.top) : withTiming(0), }
+    })
+
+
     return (
-        <View style={{ flexGrow: 1 }}>
+        <View style={{ flexGrow: 1 }} >
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'
             })} />
-            <ScreenHeader
-                onClosePressed={navigation.goBack}
-                style={Platform.select({ android: { paddingTop: safeArea.top } })}
-                title={walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`}
-            />
+            <Animated.View
+                style={animHeaderStyles}>
+                <ScreenHeader
+                    onClosePressed={navigation.goBack}
+                    style={Platform.select({ android: { paddingTop: safeArea.top } })}
+                    title={walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`}
+                />
+            </Animated.View>
+            {!PLATFORM_IOS && <Animated.View style={animSeparatorStyles} />}
             <ScrollView
+                keyboardShouldPersistTaps="handled"
                 contentInsetAdjustmentBehavior={'never'}
             >
                 <View style={{
@@ -89,38 +156,44 @@ export const WalletSettingsFragment = fragment(() => {
                     alignItems: 'center',
                     paddingHorizontal: 16, flexGrow: 1
                 }}>
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                                justifyContent: 'center', alignItems: 'center'
-                            }
-                        }}
-                        onPress={onChangeAvatar}
-                    >
-                        <Avatar
-                            size={100}
-                            borderColor={theme.surfaceOnElevation}
-                            hash={avatar}
-                            theme={theme}
-                            knownWallets={knownWallets}
-                            id={address.toString({ testOnly: isTestnet })}
-                            backgroundColor={avatarColors[selectedColor]}
-                        />
-                        <Text style={[
-                            { color: theme.accent, marginTop: 12 },
-                            Typography.medium17_24
-                        ]}>
-                            {t('wallets.settings.changeAvatar')}
-                        </Text>
-                    </Pressable>
-                    <View style={{
-                        flex: 1,
+
+                    <Animated.View style={animAvatarStyles}
+                        onLayout={(e) => setAvatarHeight(e.nativeEvent.layout.height)}>
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1,
+                                    justifyContent: 'center', alignItems: 'center'
+                                }
+                            }}
+                            disabled={isInputNameFocus}
+                            onPress={onChangeAvatar}
+                        >
+                            <Avatar
+                                size={100}
+                                borderColor={theme.surfaceOnElevation}
+                                hash={avatar}
+                                theme={theme}
+                                knownWallets={knownWallets}
+                                id={address.toString({ testOnly: isTestnet })}
+                                backgroundColor={avatarColors[selectedColor]}
+                            />
+                            <Text style={[
+                                { color: theme.accent, marginTop: 12 },
+                                Typography.medium17_24
+                            ]}>
+                                {t('wallets.settings.changeAvatar')}
+                            </Text>
+                        </Pressable>
+                    </Animated.View>
+
+                    <Animated.View style={[{
                         backgroundColor: theme.surfaceOnElevation,
                         marginTop: 20,
                         paddingVertical: 20,
                         width: '100%', borderRadius: 20,
-                    }}>
+
+                    }, animWalletNameStyles]}>
                         <ATextInput
                             label={t('common.walletName')}
                             blurOnSubmit={true}
@@ -130,44 +203,53 @@ export const WalletSettingsFragment = fragment(() => {
                             onValueChange={(newValue) => {
                                 setName(newValue.trimStart());
                             }}
+                            index={1}
+                            ref={ref}
+                            onFocus={onInputNameFocus}
+                            onBlur={onInputNameBlur}
                         />
-                    </View>
-                    <View style={{
-                        backgroundColor: theme.surfaceOnElevation,
-                        paddingVertical: 10,
-                        paddingHorizontal: 16,
-                        marginTop: 20,
-                        width: '100%', borderRadius: 20
-                    }}>
-                        <Text style={[
-                            { color: theme.textSecondary },
-                            Typography.medium13_18
-                        ]}>
-                            {t('common.walletAddress')}
-                        </Text>
-                        <Text
-                            onPress={() => {
-                                copyText(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }));
-                                toaster.show(
-                                    {
-                                        message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
-                                        type: 'default',
-                                        duration: ToastDuration.SHORT,
-                                        marginBottom: Platform.select({
-                                            ios: keyboard.keyboardShown ? keyboard.keyboardHeight + 16 : safeArea.bottom + 16,
-                                            android: keyboard.keyboardShown ? keyboard.keyboardHeight : 16
-                                        })
-                                    }
-                                );
-                            }}
-                            style={[
-                                { color: theme.textPrimary },
-                                Typography.regular17_24
-                            ]}
-                        >
-                            {address.toString({ testOnly: isTestnet, bounceable: bounceableFormat })}
-                        </Text>
-                    </View>
+                    </Animated.View>
+                    <Animated.View
+                        style={animWalletAddressStyles}
+                        onLayout={(e) => addressInputHeight.value = e.nativeEvent.layout.height}>
+                        <View style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            paddingVertical: 10,
+                            paddingHorizontal: 16,
+                            marginTop: 20,
+                            width: '100%', borderRadius: 20
+                        }}>
+                            <Text style={[
+                                { color: theme.textSecondary },
+                                Typography.medium13_18
+                            ]}>
+                                {t('common.walletAddress')}
+                            </Text>
+                            <Text
+                                disabled={isInputNameFocus}
+                                onPress={() => {
+                                    copyText(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }));
+                                    toaster.show(
+                                        {
+                                            message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                                            type: 'default',
+                                            duration: ToastDuration.SHORT,
+                                            marginBottom: Platform.select({
+                                                ios: keyboard.keyboardShown ? keyboard.keyboardHeight + 16 : safeArea.bottom + 16,
+                                                android: keyboard.keyboardShown ? keyboard.keyboardHeight : 16
+                                            })
+                                        }
+                                    );
+                                }}
+                                style={[
+                                    { color: theme.textPrimary },
+                                    Typography.regular17_24
+                                ]}
+                            >
+                                {address.toString({ testOnly: isTestnet, bounceable: bounceableFormat })}
+                            </Text>
+                        </View>
+                    </Animated.View>
                 </View>
             </ScrollView>
             <KeyboardAvoidingView

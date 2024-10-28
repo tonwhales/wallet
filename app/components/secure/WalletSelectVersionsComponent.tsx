@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { t } from "../../i18n/t";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useAppState, useNetwork, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { RoundButton } from "../RoundButton";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -43,6 +43,7 @@ export const WalletSelectVersionsComponent = React.memo((props: {
 }) => {
     const { onContinue, mnemonics } = props;
     const theme = useTheme();
+    const appState = useAppState();
     const { isTestnet } = useNetwork();
     const [addresses, setAddresses] = useState<WalletAddressVersion[]>([]);
     const [balances, setBalances] = useState<WalletBalances>({});
@@ -81,9 +82,18 @@ export const WalletSelectVersionsComponent = React.memo((props: {
                 return { address, version };
             });
 
-            setAddresses(addresses);
+            const currentAddresses = appState.addresses.map((wallet: any) => {
+                const parsedAddressFriendly = wallet.address.toString({
+                    testOnly: isTestnet,
+                    bounceable: false
+                });
 
-            addresses.forEach(async (item) => {
+                return parsedAddressFriendly
+            })
+            const newAddresses = addresses.filter(addr => !currentAddresses.includes(addr.address));
+            setAddresses(newAddresses);
+
+            newAddresses.forEach(async (item) => {
                 const balance = await fetchBalance(item.address, isTestnet);
                 setBalances((balances) => ({ ...balances, [item.address]: fromNano(balance) }));
             });

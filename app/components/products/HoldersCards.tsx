@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import { PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { ThemeType } from "../../engine/state/theme";
-import { View, Text, Image } from "react-native";
+import { View, Text } from "react-native";
 import { Typography } from "../styles";
 import { t } from "../../i18n/t";
 import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
@@ -10,9 +10,9 @@ import { PerfText } from "../basic/PerfText";
 import { PriceComponent } from "../PriceComponent";
 import { toNano } from "@ton/core";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { Image } from "expo-image";
 
-import IcHide from '@assets/ic-hide.svg';
-import IcHolders from '@assets/ic-holders-white.svg';
+const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
 export const HoldersCards = memo(({
     cards,
@@ -63,7 +63,7 @@ export const HoldersCards = memo(({
                             <HoldersPrepaidCard
                                 key={`card-${index}`}
                                 card={item}
-                                rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                rightActionIcon={hideIcon}
                                 rightAction={() => markPrepaidCard(item.id, true)}
                                 style={{ paddingVertical: 0 }}
                                 isTestnet={isTestnet}
@@ -85,7 +85,7 @@ export const HoldersCards = memo(({
                     <HoldersPrepaidCard
                         key={`card-${index}`}
                         card={item}
-                        rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                        rightActionIcon={hideIcon}
                         rightAction={() => markPrepaidCard(item.id, true)}
                         style={{ paddingVertical: 0 }}
                         isTestnet={isTestnet}
@@ -116,30 +116,6 @@ export const HoldersCards = memo(({
                                 source={require('@assets/ic-holders-accounts.png')}
                                 style={{ width: 46, height: 46, borderRadius: 23 }}
                             />
-                            <View
-                                style={{
-                                    position: 'absolute', bottom: -2, right: -2,
-                                    width: 20, height: 20,
-                                    borderRadius: 10,
-                                    backgroundColor: theme.surfaceOnBg,
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}
-                            >
-                                <View style={{
-                                    backgroundColor: theme.accent,
-                                    width: 17, height: 17,
-                                    borderRadius: 9,
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <IcHolders
-                                        height={12}
-                                        width={12}
-                                        color={theme.white}
-                                    />
-                                </View>
-                            </View>
                         </View>
                         <View style={{ marginLeft: 12, flexShrink: 1 }}>
                             <PerfText

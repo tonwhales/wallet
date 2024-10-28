@@ -15,7 +15,7 @@ import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { TransferSingleView } from "./TransferSingleView";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode } from "@ton/core";
-import { useAccountLite, useClient4, useCommitCommand, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
+import { useAccountLite, useClient4, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
@@ -37,10 +37,9 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const account = useAccountLite(selected!.address);
-    const commitCommand = useCommitCommand();
     const registerPending = useRegisterPending();
 
-    let { restricted, target, jettonTarget, text, order, job, fees, metadata, callback, onSetUseGasless, useGasless } = props;
+    let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless, useGasless } = props;
 
     const [walletSettings] = useWalletSettings(selected?.address);
     const [failed, setFailed] = useState(false);
@@ -382,11 +381,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
             // Sending transaction
             await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
-
-            // Notify job
-            if (job) {
-                await commitCommand(true, job, transfer);
-            }
 
             // Notify callback
             if (callback) {

@@ -1,18 +1,16 @@
 import { memo } from "react";
 import { View, Text } from "react-native";
-import { useConnectPendingRequests, useCurrentJob, useNetwork, useTheme } from "../../../engine/hooks";
+import { useConnectPendingRequests, useNetwork, useTheme } from "../../../engine/hooks";
 import { t } from "../../../i18n/t";
 import { Typography } from "../../../components/styles";
-import { TonXRequestButton } from "../views/TonXRequestButton";
 import { TonConnectRequestButton } from "../views/TonConnectRequestButton";
 
 export const DappsRequests = memo(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const [tonconnectRequests,] = useConnectPendingRequests();
-    const [tonXRequest,] = useCurrentJob();
 
-    if (!tonXRequest && tonconnectRequests.length === 0) {
+    if (tonconnectRequests.length === 0) {
         return null;
     }
 
@@ -32,15 +30,6 @@ export const DappsRequests = memo(() => {
                 borderRadius: 20,
                 backgroundColor: theme.surfaceOnBg,
             }}>
-                {!!tonXRequest && (
-                    <>
-                        <TonXRequestButton
-                            key={`ton-x-req`}
-                            request={tonXRequest}
-                            divider={tonconnectRequests.length > 0}
-                        />
-                    </>
-                )}
                 {tonconnectRequests.map((r, index) => {
                     return (
                         <TonConnectRequestButton

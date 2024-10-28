@@ -50,12 +50,9 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
     const holderBannerContent = showHoldersBanner ? holdersBanner : null;
 
-    const needsEnrolment = useMemo(() => {
-        if (holdersAccStatus?.state === HoldersUserState.NeedEnrollment) {
-            return true;
-        }
-        return false;
-    }, [holdersAccStatus]);
+    const needsEnrollment = useMemo(() => {
+        return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+    }, [holdersAccStatus?.state]);
 
     // Resolve accounts
     let accounts: ReactElement[] = [];
@@ -76,12 +73,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     }
 
     const onHoldersPress = useCallback(() => {
-        if (needsEnrolment || !isHoldersReady) {
+        if (needsEnrollment || !isHoldersReady) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
             return;
         }
         navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
-    }, [needsEnrolment, isHoldersReady, isTestnet]);
+    }, [needsEnrollment, isHoldersReady, isTestnet]);
 
     const onProductBannerPress = useCallback((product: ProductAd) => {
         trackEvent(
@@ -101,7 +98,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     }, [selected, isTestnet]);
 
-    const showAddNewProduct = !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
+    const showAddNewProduct = showHoldersBanner || !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
 
     return (
         <View>
@@ -138,20 +135,17 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                                 />
                             </View>
                         ) : (
-                            <View style={{ paddingHorizontal: 16, marginVertical: 16 }}>
-                                <HoldersBanner
-                                    onPress={onHoldersPress}
-                                    {...holderBannerContent.banner}
-                                />
-                            </View>
+                            <HoldersBanner
+                                onPress={onHoldersPress}
+                                {...holderBannerContent.banner}
+                            />
                         )
                 )}
 
-                <View style={{
-                    marginHorizontal: 16, marginVertical: 16,
-                    marginTop: (!!holderBannerContent || (!inviteCheck && !!banners?.product)) ? 0 : 16
-                }}>
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
+
+                <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
+                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                         {t('common.balances')}
                     </Text>
                     <View style={{
@@ -203,8 +197,6 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     key={'pool'}
                     address={selected.address}
                 />
-
-                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
                 <JettonsProductComponent owner={selected.address} key={'jettons'} />
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { View, Text, Pressable, ScrollView, Image, Platform, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, Platform, Alert } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -17,8 +17,13 @@ import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterConten
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
+import { Image } from "expo-image";
 
-import TonIcon from '@assets/ic-ton-acc.svg';
+export type ReceiveFragmentParams = {
+    addr?: string;
+    ledger?: boolean;
+    jetton?: { master: Address, data?: JettonMasterState };
+}
 
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();
@@ -166,9 +171,8 @@ export const ReceiveFragment = fragment(() => {
                                                     lockLoading
                                                 />
                                             ) : (
-                                                <TonIcon
-                                                    width={46}
-                                                    height={46}
+                                                <Image
+                                                    source={require('@assets/ic-ton-acc.png')}
                                                     style={{ height: 46, width: 46 }}
                                                 />
                                             )}

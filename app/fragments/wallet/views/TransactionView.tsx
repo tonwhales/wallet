@@ -145,6 +145,22 @@ export function TransactionView(props: {
         }
     );
 
+    const amountColor = (kind === 'in')
+        ? (spam ? theme.textPrimary : theme.accentGreen)
+        : theme.textPrimary;
+
+    const resolvedAddressString = tx.base.parsed.resolvedAddress;
+    const jetton = useJettonWallet(resolvedAddressString);
+    const metadataMaster = tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
+    const jettonMasterString = tx.masterAddressStr ?? metadataMaster ?? jetton?.master ?? null;
+    const jettonMasterContent = useJettonMaster(jettonMasterString);
+
+    const { isSCAM: isSCAMJetton } = useVerifyJetton({
+        ticker: item.kind === 'token' ? tx.masterMetadata?.symbol : undefined,
+        master: jettonMasterString
+    });
+
+    const symbolText = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}${isSCAMJetton ? ' • ' : ''}` : '')
 
     if (preparedMessages.length > 1) {
         return (
@@ -177,22 +193,7 @@ export function TransactionView(props: {
             </>
         );
     }
-    const amountColor = (kind === 'in')
-        ? (spam ? theme.textPrimary : theme.accentGreen)
-        : theme.textPrimary;
 
-    const resolvedAddressString = tx.base.parsed.resolvedAddress;
-    const jetton = useJettonWallet(resolvedAddressString);
-    const metadataMaster = tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
-    const jettonMasterString = tx.masterAddressStr ?? metadataMaster ?? jetton?.master ?? null;
-    const jettonMasterContent = useJettonMaster(jettonMasterString);
-
-    const { isSCAM: isSCAMJetton } = useVerifyJetton({
-        ticker: item.kind === 'token' ? tx.masterMetadata?.symbol : undefined,
-        master: jettonMasterString
-    });
-
-    const symbolText = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}${isSCAMJetton ? ' • ' : ''}` : '')
 
     return (
         <Pressable

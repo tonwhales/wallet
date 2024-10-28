@@ -12,7 +12,7 @@ import * as StoreReview from 'expo-store-review';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle, useHasHoldersProducts } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
@@ -20,12 +20,14 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { Typography } from '../components/styles';
-import { HoldersUserState, holdersUrl as resolveHoldersUrl } from '../engine/api/holders/fetchUserState';
+import { holdersUrl, HoldersUserState, holdersUrl as resolveHoldersUrl } from '../engine/api/holders/fetchUserState';
 import { queryClient } from '../engine/clients';
 import { getQueryData } from '../engine/utils/getQueryData';
 import { Queries } from '../engine/queries';
-import { getHoldersToken, HoldersAccountStatus } from '../engine/hooks/holders/useHoldersAccountStatus';
+import { getHoldersToken, HoldersAccountStatus, useHoldersAccountStatus } from '../engine/hooks/holders/useHoldersAccountStatus';
 import { HoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
+import { useIsHoldersInvited } from '../engine/hooks/holders/useIsHoldersInvited';
+import { HoldersAppParamsType } from './holders/HoldersAppFragment';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -42,25 +44,43 @@ import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
-    const [themeStyle,] = useThemeStyle();
+    const [themeStyle] = useThemeStyle();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const bottomBarHeight = useBottomTabBarHeight();
     const { showActionSheetWithOptions } = useActionSheet();
     const currentWalletIndex = getAppState().selected;
-    const seleted = useSelectedAccount();
-    const [walletSettings,] = useWalletSettings(seleted?.address);
+    const selected = useSelectedAccount();
+    const [walletSettings] = useWalletSettings(selected?.address);
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();
     const [, currency] = usePrice();
-    const [bounceableFormat,] = useBounceableWalletFormat();
-    const hasHoldersProducts = useHasHoldersProducts(seleted?.address.toString({ testOnly: network.isTestnet }) || '');
+    const [bounceableFormat] = useBounceableWalletFormat();
+    const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '');
+    const inviteCheck = useIsHoldersInvited(selected!.address, network.isTestnet);
+    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const url = holdersUrl(network.isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
+    
+    const showHoldersItem = inviteCheck?.allowed || hasHoldersProducts;
 
     // Ledger
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
     const ledgerContext = useLedgerTransport();
+
+    const needsEnrollment = useMemo(() => {
+        return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+    }, [holdersAccStatus?.state]);
+
+    const onHoldersPress = useCallback(() => {
+        if (needsEnrollment || !isHoldersReady) {
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, network.isTestnet);
+            return;
+        }
+        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, network.isTestnet);
+    }, [needsEnrollment, isHoldersReady, network.isTestnet]);
 
     const onVersionTap = useMemo(() => {
         let count = 0;
@@ -120,7 +140,7 @@ export const SettingsFragment = fragment(() => {
         const holdersOptions = [t('common.cancel'), t('settings.support.holders'), t('settings.support.tonhub')];
 
         const queryCache = queryClient.getQueryCache();
-        const address = seleted!.address.toString({ testOnly: network.isTestnet });
+        const address = selected!.address.toString({ testOnly: network.isTestnet });
         const status = getQueryData<HoldersAccountStatus>(queryCache, Queries.Holders(address).Status());
         const token = status?.state === HoldersUserState.Ok ? status.token : getHoldersToken(address);
         const accountsStatus = getQueryData<HoldersAccounts>(queryCache, Queries.Holders(address).Cards(!!token ? 'private' : 'public'));
@@ -263,6 +283,13 @@ export const SettingsFragment = fragment(() => {
                             onPress={() => navigation.navigate('Security')}
                         />
                     )}
+                    {showHoldersItem && (
+                        <ItemButton
+                            leftIcon={require('@assets/ic-card.png')}
+                            title={t('products.holders.accounts.title')}
+                            onPress={onHoldersPress}
+                        />
+                    )}
                     {oldWalletsBalance > 0n && (
                         <ItemButton
                             leftIcon={require('@assets/ic-wallets.png')}
@@ -290,7 +317,7 @@ export const SettingsFragment = fragment(() => {
                         leftIconComponent={<IcNewAddressFormat width={24} height={24} />}
                         title={t('newAddressFormat.title')}
                         onPress={() => navigation.navigate('NewAddressFormat')}
-                        hint={seleted?.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat }).slice(0, 2)}
+                        hint={selected?.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat }).slice(0, 2)}
                     />
                 </View>
                 <View style={{

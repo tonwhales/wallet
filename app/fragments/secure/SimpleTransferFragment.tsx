@@ -22,7 +22,7 @@ import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRe
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { useAccountLite, useAccountTransactions, useClient4, useCommitCommand, useConfig, useJettonContent, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
+import { useAccountLite, useClient4, useConfig, useJettonContent, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -44,8 +44,10 @@ import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
 import { WalletVersions } from '../../engine/types';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
 import { useJettonPayload } from '../../engine/hooks/jettons/useJettonPayload';
+import { useHoldersAccountTrargets } from '../../engine/hooks/holders/useHoldersAccountTrargets';
+import { AddressSearchItem } from '../../components/address/AddressSearch';
+import { Image } from 'expo-image';
 
-import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
 export type SimpleTransferParams = {
@@ -56,7 +58,6 @@ export type SimpleTransferParams = {
     feeAmount?: bigint | null,
     forwardAmount?: bigint | null,
     stateInit?: Cell | null,
-    job?: string | null,
     jetton?: Address | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
@@ -67,7 +68,7 @@ export type SimpleTransferParams = {
     }
 }
 
-export const SimpleTransferFragment = fragment(() => {
+const SimpleTransferComponent = () => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
@@ -94,8 +95,8 @@ export const SimpleTransferFragment = fragment(() => {
     }, [addr]);
     const address = isLedger ? ledgerAddress : acc!.address;
 
-    const txs = useAccountTransactions(address!.toString({ testOnly: network.isTestnet })).data;
     const accountLite = useAccountLite(address);
+    const holdersAccounts = useHoldersAccountTrargets(address!);
 
     const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
         {
@@ -216,35 +217,11 @@ export const SimpleTransferFragment = fragment(() => {
         return value;
     }, [jettonState, accountLite?.balance, isLedger]);
 
-    const amountError = useMemo(() => {
-        if (amount.length === 0) {
-            return undefined;
-        }
-        if (validAmount === null) {
-            return t('transfer.error.invalidAmount');
-        }
-        if (validAmount < 0n) {
-            return t('transfer.error.invalidAmount');
-        }
-        if (validAmount > balance) {
-            return t('transfer.error.notEnoughCoins');
-        }
-        if (validAmount === 0n && !!jettonState) {
-            return t('transfer.error.zeroCoins');
-        }
-
-        return undefined;
-    }, [validAmount, balance, amount]);
-
-    const commitCommand = useCommitCommand();
     const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
     // Auto-cancel job
     useEffect(() => {
         return () => {
-            if (params && params.job) {
-                commitCommand(false, params.job, new Cell());
-            }
             if (params && params.callback) {
                 params.callback(false, null);
             }
@@ -253,17 +230,6 @@ export const SimpleTransferFragment = fragment(() => {
 
     // Resolve known wallets params
     const known = knownWallets[targetAddressValid?.address.toString({ testOnly: network.isTestnet }) ?? ''];
-
-    // Resolve memo error string
-    const commentError = useMemo(() => {
-        if (!known || !known.requireMemo) {
-            return undefined;
-        }
-        if (!commentString || commentString.length === 0) {
-            return t('transfer.error.memoRequired');
-        }
-        return undefined;
-    }, [commentString, known]);
 
     // Resolve order
     const order = useMemo(() => {
@@ -573,7 +539,8 @@ export const SimpleTransferFragment = fragment(() => {
     // Scroll state tracking
     //
 
-    const [selectedInput, setSelectedInput] = useState<number | null>(0);
+    const hasParamsFilled = !!params.target && !!params.amount;
+    const [selectedInput, setSelectedInput] = useState<number | null>(hasParamsFilled ? null : 0);
 
     const refs = useMemo(() => {
         let r: RefObject<ATextInputRef>[] = [];
@@ -698,7 +665,6 @@ export const SimpleTransferFragment = fragment(() => {
         navigation.navigateTransfer({
             text: commentString,
             order: order as Order,
-            job: params && params.job ? params.job : null,
             callback,
             back: params && params.back ? params.back + 1 : undefined,
             useGasless: supportsGaslessTransfer
@@ -728,6 +694,56 @@ export const SimpleTransferFragment = fragment(() => {
         Keyboard.dismiss();
         setSelectedInput(null);
     }, []);
+
+    const holdersTarget = holdersAccounts?.find((a) => targetAddressValid?.address.equals(a.address));
+    const holdersTargetJetton = holdersTarget?.jettonMaster ? Address.parse(holdersTarget.jettonMaster) : null;
+    const jettonMaster = jettonState?.master?.address ? Address.parse(jettonState.master.address) : null;
+    const shouldAddMemo = holdersTarget?.memo ? (holdersTarget.memo !== commentString) : false;
+    const shouldChangeJetton = holdersTargetJetton
+        ? !jettonMaster?.equals(holdersTargetJetton)
+        : holdersTarget && !!jettonState && holdersTarget.symbol === 'TON';
+
+    const amountError = useMemo(() => {
+        if (shouldChangeJetton) {
+            return t('transfer.error.jettonChange', { symbol: holdersTarget?.symbol });
+        }
+
+        if (amount.length === 0) {
+            return undefined;
+        }
+        if (validAmount === null) {
+            return t('transfer.error.invalidAmount');
+        }
+        if (validAmount < 0n) {
+            return t('transfer.error.invalidAmount');
+        }
+        if (validAmount > balance) {
+            return t('transfer.error.notEnoughCoins');
+        }
+        if (validAmount === 0n && !!jettonState) {
+            return t('transfer.error.zeroCoins');
+        }
+
+        return undefined;
+    }, [validAmount, balance, amount, shouldChangeJetton, holdersTarget?.symbol]);
+
+    // Resolve memo error string
+    const commentError = useMemo(() => {
+        const isEmpty = !commentString || commentString.length === 0;
+        const isKnownWithMemo = !!known && known.requireMemo;
+
+        if (isEmpty && isKnownWithMemo) {
+            return t('transfer.error.memoRequired');
+        }
+
+        const validMemo = commentString === holdersTarget?.memo;
+
+        if (shouldAddMemo && (isEmpty || !validMemo)) {
+            return t('transfer.error.memoChange', { memo: holdersTarget?.memo });
+        }
+
+        return undefined;
+    }, [commentString, known, shouldAddMemo, holdersTarget?.memo]);
 
     const { selected, onNext, header } = useMemo<{
         selected: 'amount' | 'address' | 'comment' | null,
@@ -853,8 +869,13 @@ export const SimpleTransferFragment = fragment(() => {
         }));
     });
 
-    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading;
+    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
+
+    const onSearchItemSelected = useCallback((item: AddressSearchItem) => {
+        scrollRef.current?.scrollTo({ y: 0 });
+        setComment(item.memo || '');
+    }, []);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -905,12 +926,10 @@ export const SimpleTransferFragment = fragment(() => {
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
-                        onSearchItemSelected={() => {
-                            scrollRef.current?.scrollTo({ y: 0 });
-                        }}
+                        onSearchItemSelected={onSearchItemSelected}
                         knownWallets={knownWallets}
-                        lastTwoTxs={txs?.slice(0, 2) ?? []}
                         navigation={navigation}
+                        autoFocus={selectedInput === 0}
                     />
                 </Animated.View>
                 {selected === 'address' && (
@@ -961,7 +980,14 @@ export const SimpleTransferFragment = fragment(() => {
                                                     isSCAM={isSCAM}
                                                 />
                                             ) : (
-                                                <IcTonIcon width={46} height={46} />
+                                                <Image
+                                                    source={require('@assets/ic-ton-acc.png')}
+                                                    style={{
+
+                                                        height: 46,
+                                                        width: 46
+                                                    }}
+                                                />
                                             )}
                                         </View>
                                         <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
@@ -1203,4 +1229,8 @@ export const SimpleTransferFragment = fragment(() => {
             </KeyboardAvoidingView>
         </View>
     );
-});
+}
+
+SimpleTransferComponent.name = 'SimpleTransfer';
+
+export const SimpleTransferFragment = fragment(SimpleTransferComponent);

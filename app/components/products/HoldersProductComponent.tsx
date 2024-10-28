@@ -36,7 +36,7 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
     }
 
     return (
-        <View style={{ marginBottom: (hasAccounts || hasPrepaid) ? 16 : 0 }}>
+        <View style={{ marginTop: (hasAccounts || hasPrepaid) ? 16 : 0 }}>
             <HoldersAccounts
                 theme={theme}
                 isTestnet={network.isTestnet}
@@ -56,3 +56,5 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
         </View>
     );
 });
+
+HoldersProductComponent.displayName = 'HoldersProductComponent';

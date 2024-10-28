@@ -28,6 +28,7 @@ import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
 import { WalletActions } from './views/WalletActions';
 import { reduceHoldersBalances } from '../../utils/reduceHoldersBalances';
 import { VersionView } from './views/VersionView';
+import { JettonWalletFragment } from './JettonWalletFragment';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -232,7 +233,8 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    fullScreen('LiquidStaking', LiquidStakingFragment)
+    fullScreen('LiquidStaking', LiquidStakingFragment),
+    fullScreen('JettonWalletFragment', JettonWalletFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

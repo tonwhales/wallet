@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { Pressable, View, Image, Text } from "react-native";
+import { Pressable, View, Text } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
@@ -9,8 +9,7 @@ import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { Address } from "@ton/core";
 import { useAccountLite, useBounceableWalletFormat } from "../../engine/hooks";
-
-import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { Image } from "expo-image";
 
 export const TonProductComponent = memo(({
     theme,
@@ -65,7 +64,14 @@ export const TonProductComponent = memo(({
                 animatedStyle
             ]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                    <IcTonIcon width={46} height={46} />
+                    <Image
+                        source={require('@assets/ic-ton-acc.png')}
+                        style={{
+                            borderRadius: 23,
+                            height: 46,
+                            width: 46
+                        }}
+                    />
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         height: 20, width: 20, borderRadius: 10,

@@ -34,6 +34,7 @@ import { queryClient } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
+import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -44,6 +45,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const offlineApp = useOfflineApp();
     const countryCodes = getCountryCodes();
+    const setHiddenBanners = useSetHiddenBanners();
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
@@ -66,11 +68,12 @@ export const DeveloperToolsFragment = fragment(() => {
         queryClient.invalidateQueries();
         storageQuery.clearAll();
         storagePersistence.clearAll();
+        setHiddenBanners([]);
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
         IosWalletService.setCredentialsInGroupUserDefaults({});
         reboot();
-    }, [isTestnet, clearHolders]);
+    }, [isTestnet, clearHolders, setHiddenBanners]);
 
     const switchNetwork = useCallback(() => {
         Alert.alert(

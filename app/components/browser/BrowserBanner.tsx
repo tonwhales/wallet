@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
 import { View, Text, Pressable } from "react-native";
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from "react-native-reanimated";
@@ -9,6 +9,9 @@ import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { Image } from 'expo-image'
+import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount } from "../../engine/hooks";
+import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
+import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 
 export const BrowserBanner = memo(({
     banner,
@@ -46,12 +49,33 @@ export const BrowserBanner = memo(({
         };
     });
 
+    const { isTestnet } = useNetwork();
+    const selected = useSelectedAccount();
+    const url = holdersUrl(isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
+    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const needsEnrollment = useMemo(() => {
+        return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+    }, [holdersAccStatus?.state]);
+    const onHoldersPress = useCallback(() => {
+        if (needsEnrollment || !isHoldersReady) {
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
+            return;
+        }
+        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
+    }, [needsEnrollment, isHoldersReady, isTestnet]);
+
     const onPress = useCallback(() => {
         trackEvent(MixpanelEvent.ProductBannerClick, {
             id: banner.id,
             product_url: banner.product_url,
             type: 'banner'
         });
+
+        if (banner.isHolders) {
+            onHoldersPress();
+            return;
+        }
 
         const domain = extractDomain(banner.product_url);
         const titleComponent = (
@@ -97,7 +121,7 @@ export const BrowserBanner = memo(({
                 forward: true
             },
         });
-    }, [banner]);
+    }, [banner, onHoldersPress]);
 
     return (
         <Animated.View style={animScale}>

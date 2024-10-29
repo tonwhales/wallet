@@ -226,7 +226,7 @@ function tryResolveTonconnectRequest(
             };
 
             const prepared: TransferFragmentProps = {
-                text: null, job: null,
+                text: null,
                 order: {
                     type: 'order',
                     messages: messages,
@@ -446,7 +446,6 @@ async function resolveAndNavigateToJettonTransfer(
         comment: resolved.comment,
         amount: resolved.amount,
         stateInit: null,
-        job: null,
         jetton: Address.parse(jettonWalletAddress),
         callback: null,
         payload: resolved.payload,
@@ -606,7 +605,6 @@ export function useLinkNavigator(
                             }]
                         },
                         text: resolved.comment,
-                        job: null,
                         callback: null
                     });
                 } else {
@@ -615,7 +613,6 @@ export function useLinkNavigator(
                         comment: resolved.comment,
                         amount: resolved.amount,
                         stateInit: resolved.stateInit,
-                        job: null,
                         jetton: null,
                         callback: null
                     });

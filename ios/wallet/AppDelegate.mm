@@ -31,7 +31,13 @@
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
  }
 
-- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge {
+- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge 
+{
+  return [self bundleURL];
+}
+ 
+- (NSURL *)bundleURL
+{
  #ifdef DEBUG
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
  #else

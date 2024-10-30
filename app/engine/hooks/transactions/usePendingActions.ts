@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { usePendingTransactions } from "..";
+import { PendingTransactionStatus } from "../../state/pending";
 
 export function usePendingActions(address: string, isTestnet: boolean) {
     const [pending, setPending] = usePendingTransactions(address, isTestnet);
@@ -22,7 +23,7 @@ export function usePendingActions(address: string, isTestnet: boolean) {
         setPendingRef.current((prev) => {
             return prev.map((tx) => {
                 if (tx.id === id) {
-                    return { ...tx, status: 'timed-out' };
+                    return { ...tx, status: PendingTransactionStatus.TimedOut };
                 }
                 return tx;
             });

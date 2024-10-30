@@ -2,7 +2,6 @@ import { atomFamily } from "recoil";
 import { Address, Cell } from "@ton/core";
 import { Jetton } from "../types";
 import { TransferEstimate } from "../../fragments/secure/TransferFragment";
-import { TonPayloadFormat } from "@ton-community/ton-ledger";
 import { parseBody } from "../transactions/parseWalletTransaction";
 
 export type PendingTransactionBody =
@@ -18,7 +17,11 @@ export type PendingTransactionBody =
     }
     | { type: 'batch' };
 
-export type PendingTransactionStatus = 'pending' | 'sent' | 'timed-out';
+export enum PendingTransactionStatus {
+    Pending = 'pending',
+    Sent = 'sent',
+    TimedOut = 'timed-out'
+};
 
 export type PendingTransaction = {
     id: string,

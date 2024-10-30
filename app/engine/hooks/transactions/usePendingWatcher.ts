@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useRawAccountTransactions } from './useRawAccountTransactions';
 import { useNetwork } from '../network';
 import { usePendingTransactions } from ".";
+import { PendingTransactionStatus } from "../../state/pending";
 
 export function usePendingWatcher(address?: string) {
     const { isTestnet } = useNetwork();
@@ -19,7 +20,12 @@ export function usePendingWatcher(address?: string) {
             return;
         }
 
-        const newPending = pending.filter(a => !toRemove.includes(a.id));
+        const newPending = pending.map(t => {
+            if (toRemove.includes(t.id)) {
+                return { ...t, status: PendingTransactionStatus.Sent };
+            }
+            return t;
+        });
         setPending(newPending);
     }, [toRemove.join(',')]);
 }

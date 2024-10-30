@@ -4,14 +4,8 @@ module.exports = function (api) {
 
   const plugins = [
     ["@babel/plugin-transform-flow-strip-types", { "loose": true }],
-    ["@babel/plugin-proposal-class-properties", { "loose": true }],
     ["@babel/plugin-proposal-private-methods", { "loose": true }],
-    [
-      'react-native-reanimated/plugin',
-      {
-        globals: ['__scanCodes'],
-      },
-    ],
+    ["@babel/plugin-proposal-class-properties", { "loose": true }],
     [
       'module-resolver',
       {
@@ -22,6 +16,12 @@ module.exports = function (api) {
         },
       },
     ],
+    [
+      'react-native-reanimated/plugin',
+      {
+        globals: ['__scanCodes'],
+      },
+    ],
   ];
 
   if (babelEnv !== 'development') {
@@ -30,6 +30,7 @@ module.exports = function (api) {
 
   return {
     presets: ['babel-preset-expo'],
+    // presets: ['module:@react-native/babel-preset'],
     plugins: plugins
   };
 };

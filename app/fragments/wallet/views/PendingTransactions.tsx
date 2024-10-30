@@ -289,7 +289,7 @@ export const PendingTransactionsList = memo((
         viewType?: 'history' | 'main'
     }
 ) => {
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const appConfig = useAppConfig();
 
     return (

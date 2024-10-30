@@ -2255,7 +2255,6 @@ DEPENDENCIES:
   - ImageColors (from `../node_modules/react-native-image-colors/ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
-  - OpenSSL-Universal
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2743,6 +2742,6 @@ SPEC CHECKSUMS:
   Yoga: 1d66db49f38fd9e576a1d7c3b081e46ab4c28b9e
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: b654593f82eaee1ebffd7e1c2d889cdfadbf0797
+PODFILE CHECKSUM: b565cec505d5654aeaf2143ac8a94cd7e26202c2
 
 COCOAPODS: 1.15.2

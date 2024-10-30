@@ -47,7 +47,7 @@ export function getHoldersToken(address: string) {
     return storage.getString(`holders-jwt-${address}`);
 }
 
-export function useHoldersAccountStatus(address: string | Address) {
+export function useHoldersAccountStatus(address: string | Address | undefined) {
     const { isTestnet } = useNetwork();
 
     const addressString = useMemo(() => {
@@ -58,7 +58,7 @@ export function useHoldersAccountStatus(address: string | Address) {
     }, [address, isTestnet]);
 
     return useQuery({
-        queryKey: Queries.Holders(addressString).Status(),
+        queryKey: Queries.Holders(addressString!).Status(),
         queryFn: async (key) => {
             let addr = key.queryKey[1];
             const token = getHoldersToken(addr);
@@ -78,13 +78,14 @@ export function useHoldersAccountStatus(address: string | Address) {
                 return { ...fetched, token } as HoldersAccountStatus;
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
-                    deleteHoldersToken(addressString);
+                    deleteHoldersToken(addressString!);
                     throw new Error('Unauthorized');
                 } else {
                     throw error;
                 }
             }
         },
+        enabled: !!addressString,
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         refetchInterval: 1000 * 60,

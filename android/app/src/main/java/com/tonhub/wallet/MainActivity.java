@@ -1,5 +1,6 @@
 package com.tonhub.wallet;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -9,6 +10,7 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
 import expo.modules.ReactActivityDelegateWrapper;
+import io.branch.rnbranch.RNBranchModule;
 
 public class MainActivity extends ReactActivity {
   @Override
@@ -18,6 +20,18 @@ public class MainActivity extends ReactActivity {
     // This is required for expo-splash-screen.
     setTheme(R.style.AppTheme);
     super.onCreate(null);
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    RNBranchModule.initSession(getIntent().getData(), this);
+  }
+
+  @Override
+  public void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    RNBranchModule.onNewIntent(intent);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Linking } from "react-native";
+import { Linking, Platform } from "react-native";
 import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
 
@@ -58,15 +58,25 @@ function handleHoldersData(data: object | null | undefined) {
     handleLinkReceived(url.toString());
 }
 
-// Handle push notifications
-Notifications.addNotificationResponseReceivedListener((response) => {
+function handleNotificationResponse(response: Notifications.NotificationResponse | null) {
+    if (!response) {
+        return;
+    }
     let data = response.notification.request.content.data;
     if (data && typeof data['url'] === 'string') {
         handleLinkReceived(data['url']);
     } else if (data && typeof data['type'] === 'string' && data['type'].toLowerCase().includes('holders-push')) {
         handleHoldersData(data);
     }
-});
+}
+
+// Handle push notifications
+Notifications.addNotificationResponseReceivedListener(handleNotificationResponse);
+
+// Handle app opened from notification for Android
+if (Platform.OS === 'android') {
+    Notifications.getLastNotificationResponseAsync().then(handleNotificationResponse);
+}
 
 export const CachedLinking = {
     setListener: (handler: (link: string) => void) => {

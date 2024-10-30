@@ -22,7 +22,7 @@ function checkForBranchCampaignId(uri: string) {
         if (campaignId) {
             storeCampaignId(campaignId);
         }
-    } catch {}
+    } catch { }
 }
 
 // Fetch initial
@@ -85,17 +85,19 @@ branch.subscribe({
             if (uri) {
                 checkForBranchCampaignId(uri);
             }
-            if (!params['+clicked_branch_link']) {
-                // this will be handled in Linking.getInitialURL
+            if (params['+clicked_branch_link']) {
+                // Routing with Branch link data 
+                let passingParams = params as Partial<BranchParams>;
+                delete passingParams['+clicked_branch_link'];
+                delete passingParams['~referring_link'];
+
+                handleBranchLink(passingParams);
                 return;
             }
-            // Routing with Branch link data 
-            let passingParams = params as Partial<BranchParams>;
-            delete passingParams['+clicked_branch_link'];
-            delete passingParams['~referring_link'];
 
-            handleBranchLink(passingParams);
-            return;
+            if (uri) {
+                handleLinkReceived(uri);
+            }
         }
     },
 

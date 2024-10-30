@@ -60,7 +60,6 @@ export const Root = memo(() => {
                                     <AddressBookLoader>
                                         <LedgerTransportProvider>
                                             <AppBlurContextProvider>
-                                                {/* TODO: remove before pushing to prod */}
                                                 <Navigation />
                                             </AppBlurContextProvider>
                                         </LedgerTransportProvider>

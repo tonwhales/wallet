@@ -35,7 +35,6 @@ export const networkSelector = selector({
             return { isTestnet: true };
         }
 
-        // TODO: remove this before merging to develop
         return { isTestnet: get(isTestnetAtom) || false };
     },
     set: ({ set }, newValue) => {

@@ -17,7 +17,7 @@ export function useIsHoldersInvited(address: string | Address | undefined, isTes
         queryKey: Queries.Holders(addressString!).Invite(),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        staleTime: 1000 * 60, // 1 minute
+        staleTime: 1000 * 30,
         queryFn: async (key) => {
             const check = await fetchAddressInviteCheck(addressString!, isTestnet);
 

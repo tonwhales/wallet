@@ -457,7 +457,7 @@ async function resolveAndNavigateToJettonTransfer(
 function getNeedsEnrollment(url: string, address: string, isTestnet: boolean, queryClient: QueryClient) {
 
     if (!getHoldersToken(address)) {
-        return false;
+        return true;
     }
 
     const queryCache = queryClient.getQueryCache();
@@ -495,11 +495,7 @@ function resolveAndNavigateToHolders(params: HoldersTransactionResolveParams | H
     const { type, query, navigation, selected, updateAppState, queryClient, isTestnet } = params
     const addresses = query['addresses']?.split(',');
 
-    if (!addresses || addresses.length === 0) {
-        return;
-    }
-
-    const isSelectedAddress = addresses.find((a) => Address.parse(a).equals(selected.address));
+    const isSelectedAddress = addresses?.find((a) => Address.parse(a).equals(selected.address));
     const transactionId = query['transactionId'];
 
     const holdersNavParams: HoldersAppParams = type === 'holders-transactions'
@@ -514,7 +510,7 @@ function resolveAndNavigateToHolders(params: HoldersTransactionResolveParams | H
 
     const url = holdersUrl(isTestnet);
 
-    if (isSelectedAddress) {
+    if (isSelectedAddress || !addresses || addresses.length === 0) {
         const normalizedAddress = selected.address.toString({ testOnly: isTestnet });
         const needsEnrollment = getNeedsEnrollment(url, normalizedAddress, isTestnet, queryClient);
 

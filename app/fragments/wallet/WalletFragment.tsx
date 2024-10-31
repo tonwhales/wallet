@@ -39,7 +39,7 @@ const WalletCard = memo(({ address }: { address: Address }) => {
     const staking = useStaking();
     const liquidBalance = useLiquidStakingBalance(address);
     const holdersCards = useHoldersAccounts(address).data?.accounts;
-    const [price,] = usePrice();
+    const [price] = usePrice();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {

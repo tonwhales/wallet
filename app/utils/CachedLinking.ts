@@ -155,7 +155,11 @@ function handleNotificationResponse(response: Notifications.NotificationResponse
 
 // Handle push notifications
 Notifications.addNotificationResponseReceivedListener(handleNotificationResponse);
-Notifications.getLastNotificationResponseAsync().then(handleNotificationResponse);
+
+// Handle app opened from notification for Android
+if (Platform.OS === 'android') {
+    Notifications.getLastNotificationResponseAsync().then(handleNotificationResponse);
+}
 
 export const CachedLinking = {
     setListener: (handler: (link: string) => void) => {

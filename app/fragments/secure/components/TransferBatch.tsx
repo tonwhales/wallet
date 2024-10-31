@@ -41,6 +41,7 @@ import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import Minimizer from "../../../modules/Minimizer";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
+import { PendingTransactionStatus } from "../../../engine/state/pending";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
@@ -385,7 +386,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         // Register pending
         registerPending({
             id: 'pending-' + seqno,
-            status: 'pending',
+            status: PendingTransactionStatus.Pending,
             fees: fees,
             amount: totalAmount * (BigInt(-1)),
             address: null,

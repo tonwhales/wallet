@@ -38,7 +38,7 @@ import { RoundButton } from '../../components/RoundButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
-import { ledgerOrderToPendingTransactionBody, LedgerTransferPayload, PendingTransactionBody } from '../../engine/state/pending';
+import { ledgerOrderToPendingTransactionBody, LedgerTransferPayload, PendingTransactionBody, PendingTransactionStatus } from '../../engine/state/pending';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -242,7 +242,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
 
             registerPending({
                 id: 'pending-' + accountSeqno,
-                status: 'pending',
+                status: PendingTransactionStatus.Pending,
                 fees: fees,
                 amount: value,
                 address: target.address,

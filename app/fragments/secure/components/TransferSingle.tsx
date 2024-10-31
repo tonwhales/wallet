@@ -21,7 +21,7 @@ import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { ConfirmLoadedPropsSingle } from "../TransferFragment";
-import { PendingTransactionBody } from "../../../engine/state/pending";
+import { PendingTransactionBody, PendingTransactionStatus } from "../../../engine/state/pending";
 import Minimizer from "../../../modules/Minimizer";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
@@ -422,7 +422,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         // Register pending
         registerPending({
             id: 'pending-' + seqno,
-            status: 'pending',
+            status: PendingTransactionStatus.Pending,
             fees: fees,
             amount: amount,
             address: target.address,

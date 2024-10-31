@@ -58,8 +58,8 @@ export const SettingsFragment = fragment(() => {
     const [, currency] = usePrice();
     const [bounceableFormat] = useBounceableWalletFormat();
     const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '');
-    const inviteCheck = useIsHoldersInvited(selected!.address, network.isTestnet);
-    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const inviteCheck = useIsHoldersInvited(selected?.address, network.isTestnet);
+    const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     

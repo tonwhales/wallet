@@ -23,6 +23,8 @@ import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebV
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { queryClient } from '../../engine/clients';
+import { Queries } from '../../engine/queries';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -82,6 +84,9 @@ export const HoldersLandingFragment = fragment(() => {
                 isAuthenticating.current = false;
                 return;
             }
+
+            const addressString = acc.address.toString({ testOnly: isTestnet });
+            await queryClient.refetchQueries({ queryKey: Queries.Holders(addressString).Invite() })
 
             const res = await enroll();
 

@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { fetchAddressInviteCheck } from "../../api/holders/fetchAddressInviteCheck";
 import { Image } from 'expo-image'
 
-export function useIsHoldersInvited(address: string | Address, isTestnet: boolean) {
+export function useIsHoldersInvited(address: string | Address | undefined, isTestnet: boolean) {
     const addressString = useMemo(() => {
         if (address instanceof Address) {
             return address.toString({ testOnly: isTestnet });
@@ -14,19 +14,20 @@ export function useIsHoldersInvited(address: string | Address, isTestnet: boolea
     }, [address, isTestnet]);
 
     const query = useQuery({
-        queryKey: Queries.Holders(addressString).Invite(),
+        queryKey: Queries.Holders(addressString!).Invite(),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        staleTime: 1000 * 60, // 1 minute
+        staleTime: 1000 * 30,
         queryFn: async (key) => {
-            const check = await fetchAddressInviteCheck(addressString, isTestnet);
+            const check = await fetchAddressInviteCheck(addressString!, isTestnet);
 
             if (!!check.banner?.imageUrl) {
                 Image.prefetch(check.banner.imageUrl);
             }
 
             return check;
-        }
+        },
+        enabled: !!addressString,
     });
 
     return query.data;

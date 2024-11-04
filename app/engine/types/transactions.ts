@@ -1,7 +1,5 @@
 import { AccountStatus, Address, Cell } from '@ton/core';
 import { LocalizedResources } from '../../i18n/schema';
-import { JettonMasterState } from '../metadata/fetchJettonMasterContent';
-import { ContractMetadata } from '../metadata/Metadata';
 
 export type StoredAddressExternal = {
     bits: number;
@@ -144,11 +142,7 @@ export type OperationItem = {
 export type TransactionDescription = {
     id: string;
     base: StoredTransaction;
-    metadata: ContractMetadata | null;
-    masterMetadata: JettonMasterState | null;
-    icon: string | null;
     op: string | null;
     title: string | null;
     verified: boolean | null;
-    masterAddressStr: string | null | undefined;
 };

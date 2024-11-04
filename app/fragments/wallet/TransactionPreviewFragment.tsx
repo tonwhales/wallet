@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useJettonMaster, useJettonWallet, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useJettonMaster, useJettonWallet, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { TransactionDescription } from "../../engine/types";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
@@ -87,10 +87,6 @@ const TransactionPreview = () => {
     const parsedAddress = parsedOpAddr.address;
     const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
 
-    const repeatParams = useMemo(() => {
-        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger)
-    }, [tx, isTestnet, bounceableFormat, isLedger]);
-
     const preparedMessages = usePeparedMessages(messages, isTestnet);
     const [walletsSettings] = useWalletsSettings();
     const ownWalletSettings = walletsSettings[opAddressBounceable];
@@ -121,10 +117,13 @@ const TransactionPreview = () => {
 
     const resolvedAddressString = tx.base.parsed.resolvedAddress;
     const jetton = useJettonWallet(resolvedAddressString);
-    const metadataMaster = tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
-    const jettonMasterString = metadataMaster ?? jetton?.master ?? null;
+    const jettonMasterString = jetton?.master ?? null;
     const jettonMasterContent = useJettonMaster(jettonMasterString);
     const targetContract = useContractInfo(opAddress);
+
+    const repeatParams = useMemo(() => {
+        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals ?? 9);
+    }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals]);
 
     let op: string;
     if (tx.op) {

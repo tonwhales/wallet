@@ -151,12 +151,11 @@ export function TransactionView(props: {
 
     const resolvedAddressString = tx.base.parsed.resolvedAddress;
     const jetton = useJettonWallet(resolvedAddressString);
-    const metadataMaster = tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
-    const jettonMasterString = tx.masterAddressStr ?? metadataMaster ?? jetton?.master ?? null;
+    const jettonMasterString = jetton?.master ?? null;
     const jettonMasterContent = useJettonMaster(jettonMasterString);
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
-        ticker: item.kind === 'token' ? tx.masterMetadata?.symbol : undefined,
+        ticker: item.kind === 'token' ? jettonMasterContent?.symbol : undefined,
         master: jettonMasterString
     });
 
@@ -311,7 +310,7 @@ export function TransactionView(props: {
                                     {kind === 'in' ? '+' : '-'}
                                     <ValueComponent
                                         value={absAmount}
-                                        decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
+                                        decimals={item.kind === 'token' ? jettonMasterContent?.decimals : undefined}
                                         precision={3}
                                         centFontStyle={{ fontSize: 15 }}
                                     />

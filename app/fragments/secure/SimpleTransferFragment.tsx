@@ -982,21 +982,12 @@ const SimpleTransferComponent = () => {
                                             ) : (
                                                 <Image
                                                     source={require('@assets/ic-ton-acc.png')}
-                                                    style={{
-
-                                                        height: 46,
-                                                        width: 46
-                                                    }}
+                                                    style={{ height: 46, width: 46 }}
                                                 />
                                             )}
                                         </View>
                                         <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
-                                            <Text style={{
-                                                fontSize: 17,
-                                                color: theme.textPrimary,
-                                                fontWeight: '600',
-                                                lineHeight: 24
-                                            }}>
+                                            <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                                 {symbol}
                                             </Text>
                                             <Text
@@ -1005,12 +996,7 @@ const SimpleTransferComponent = () => {
                                                 ellipsizeMode={'tail'}
                                             >
                                                 <Text
-                                                    style={{
-                                                        fontSize: 15,
-                                                        fontWeight: '400',
-                                                        lineHeight: 20,
-                                                        color: theme.textSecondary,
-                                                    }}
+                                                    style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                                     selectable={false}
                                                 >
                                                     {isSCAM && (

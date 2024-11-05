@@ -34,6 +34,7 @@ export const Queries = {
     AppVersionsConfig: (network: 'testnet' | 'mainnet') => ['appVersionsConfig', network],
 
     Hints: (address: string) => (['hints', address]),
+    HintsFull: (address: string) => (['hints', 'full', address]),
     Mintless: (address: string) => (['mintless', address]),
     Cloud: (address: string) => ({
         Key: (key: string) => ['cloud', address, key]

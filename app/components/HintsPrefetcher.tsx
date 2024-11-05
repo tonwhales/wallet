@@ -1,13 +1,11 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { usePrefetchHints } from '../engine/hooks';
 import { useSelectedAccount } from '../engine/hooks';
+import { useHintsFull } from '../engine/hooks/jettons/useHintsFull';
 
 export function HintsPrefetcher(props: { address?: string }) {
     const selected = useSelectedAccount();
-    const client = useQueryClient();
     const address = props.address || selected?.addressString;
 
-    usePrefetchHints(client, address);
+    useHintsFull(address);
 
     return null;
 }

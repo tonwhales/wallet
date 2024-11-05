@@ -1,18 +1,18 @@
 import * as React from 'react';
-import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
-import { Suspense, memo, useCallback, useMemo } from 'react';
+import { Suspense, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { WalletAddress } from '../../components/address/WalletAddress';
 import { WalletHeader } from './views/WalletHeader';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, useNetwork, usePrice, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
+import { useAccountLite, useHoldersAccounts, useHoldersAccountStatus, useLiquidStakingBalance, useNetwork, usePrice, useSelectedAccount, useStaking, useSyncState, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { Address, toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
@@ -29,6 +29,9 @@ import { WalletActions } from './views/WalletActions';
 import { reduceHoldersBalances } from '../../utils/reduceHoldersBalances';
 import { VersionView } from './views/VersionView';
 import { JettonWalletFragment } from './JettonWalletFragment';
+import { queryClient } from '../../engine/clients';
+import { HoldersUserState } from '../../engine/api/holders/fetchUserState';
+import { Queries } from '../../engine/queries';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -154,7 +157,65 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const address = selectedAcc.address;
+    const addressString = address.toString({ testOnly: network.isTestnet });
     const bottomBarHeight = useBottomTabBarHeight();
+    const syncState = useSyncState(addressString);
+    const holdersStatus = useHoldersAccountStatus(addressString).data;
+    const specialJetton = useSpecialJetton(address);
+    const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
+
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    useEffect(() => {
+        if (syncState !== 'updating') {
+            setIsRefreshing(false);
+        }
+    }, [syncState]);
+
+    const onRefresh = useCallback(() => {
+        setIsRefreshing(true);
+        queryClient.refetchQueries({
+            predicate: query => {
+                if (
+                    query.queryKey[0] === 'account'
+                    && query.queryKey[1] === addressString
+                    && query.queryKey[2] === 'lite'
+                ) {
+                    return true;
+                }
+
+                if (
+                    query.queryKey[0] === 'hints'
+                    && query.queryKey[1] === 'full'
+                    && query.queryKey[2] === addressString
+                ) {
+                    return true;
+                }
+
+                if (
+                    query.queryKey[0] === 'account'
+                    && query.queryKey[1] === specialJettonWallet
+                    && query.queryKey[2] === 'jettonWallet'
+                ) {
+                    return true;
+                }
+
+                const token = (
+                    !!holdersStatus &&
+                    holdersStatus.state !== HoldersUserState.NoRef &&
+                    holdersStatus.state !== HoldersUserState.NeedEnrollment
+                ) ? holdersStatus.token : null;
+
+                const holdersQueryKey = Queries.Holders(addressString).Cards(!!token ? 'private' : 'public');
+
+                if (query.queryKey.join(',') === holdersQueryKey.join(',')) {
+                    return true;
+                }
+
+                return false;
+            }
+        });
+    }, [network, addressString, holdersStatus, specialJettonWallet]);
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
@@ -170,6 +231,13 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                 decelerationRate={'normal'}
                 alwaysBounceVertical={true}
                 overScrollMode={'never'}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={onRefresh}
+                        style={{ zIndex: 2000 }}
+                    />
+                }
             >
                 {Platform.OS === 'ios' && (
                     <View
@@ -193,7 +261,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                 </View>
                 <ProductsComponent selected={selectedAcc} />
             </ScrollView>
-            <VersionView/>            
+            <VersionView />
         </View>
     );
 });

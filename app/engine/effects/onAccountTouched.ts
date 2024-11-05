@@ -29,7 +29,6 @@ export async function onAccountsTouched(accounts: Set<string>) {
                             refetchPage: (last, index, allPages) => index == 0,
                         });
                     }
-
                 }
 
                 return true;

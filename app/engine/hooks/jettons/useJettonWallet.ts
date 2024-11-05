@@ -15,6 +15,8 @@ export function useJettonWallet(wallet: string | null | undefined, params: Jetto
         queryKey: Queries.Account(wallet!).JettonWallet(),
         queryFn: jettonWalletQueryFn(wallet!, isTestnet),
         enabled: !!wallet,
+        refetchOnMount: true,
+        staleTime: 1000 * 15,
         ...params
     });
 

@@ -3,7 +3,8 @@ import { useSelectedAccount } from './appstate/useSelectedAccount';
 import { useRecoilValue } from 'recoil';
 import { blockWatcherAtom } from '../state/blockWatcherState';
 import { useIsFetching } from '@tanstack/react-query';
-import { useJettonWalletAddress, useKnownJettons, useNetwork } from '.';
+import { useHoldersAccountStatus, useJettonWalletAddress, useKnownJettons, useNetwork } from '.';
+import { HoldersUserState } from '../api/holders/fetchUserState';
 
 function useIsFetchingTxs(account: string) {
     return useIsFetching(Queries.Transactions(account));
@@ -60,7 +61,19 @@ function useIsFetchingSpecialJetton(account: string) {
     return isFetchingMasterContent + isFetchingWalletContent + isFetchingWalletAddress;
 }
 
+function useIsFetchingHoldersAccounts(account: string) {
+    const status = useHoldersAccountStatus(account).data;
 
+    const token = (
+        !!status &&
+        status.state !== HoldersUserState.NoRef &&
+        status.state !== HoldersUserState.NeedEnrollment
+    ) ? status.token : null;
+
+    const holdersQueryKey = Queries.Holders(account).Cards(!!token ? 'private' : 'public');
+
+    return useIsFetching(holdersQueryKey);
+}
 
 export function useSyncState(address?: string): 'online' | 'connecting' | 'updating' {
     const account = useSelectedAccount();
@@ -70,18 +83,13 @@ export function useSyncState(address?: string): 'online' | 'connecting' | 'updat
 
     const isFetchingAccount = useIsFetching(Queries.Account(acc).All());
     const isFetchingSpecialJetton = useIsFetchingSpecialJetton(acc);
-    const isFetchingTransactions = useIsFetchingTxs(acc);
-    const isFetchingHints = useIsFetchingHints(acc);
-
-    if (isFetchingHints > 0) {
-        return 'updating';
-    }
+    const isFetchingHoldersAccounts = useIsFetchingHoldersAccounts(acc);
 
     if (isFetchingSpecialJetton > 0) {
         return 'updating';
     }
 
-    if (isFetchingTransactions > 0) {
+    if (isFetchingHoldersAccounts > 0) {
         return 'updating';
     }
 

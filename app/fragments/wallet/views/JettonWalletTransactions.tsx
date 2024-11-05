@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { memo, useCallback, useMemo, useRef } from "react";
 import { Address, toNano } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
@@ -7,7 +7,7 @@ import { formatDate, getDateKey } from "../../../utils/dates";
 import { ThemeType } from "../../../engine/state/theme";
 import { Jetton } from '../../../engine/types';
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
-import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
+import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
@@ -24,7 +24,8 @@ import { JettonTransactionView } from "./JettonTransactionView";
 import { SectionHeader } from "./WalletTransactions";
 import { parseForwardPayloadComment } from "../../../utils/spam/isTxSPAM";
 import { t } from "../../../i18n/t";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
 
 type TransactionListItemProps = {
     address: Address,
@@ -110,9 +111,9 @@ export const JettonWalletTransactions = memo((props: {
     const appState = useAppState();
     const [spamMinAmount] = useSpamMinAmount();
     const [dontShowComments] = useDontShowComments();
-    const [pending] = usePendingTransactions(props.address, isTestnet);
     const [bounceableFormat] = useBounceableWalletFormat();
     const [walletsSettings] = useWalletsSettings();
+    const gaslessConfig = useGaslessConfig().data;
 
     const ref = useRef<SectionList<JettonTransfer, { title: string }>>(null);
 
@@ -122,6 +123,11 @@ export const JettonWalletTransactions = memo((props: {
         const sectioned = new Map<string, { title: string, data: JettonTransfer[] }>();
         for (let i = 0; i < props.txs.length; i++) {
             const t = props.txs[i];
+
+            if (gaslessConfig?.relay_address && Address.parse(gaslessConfig.relay_address).equals(Address.parse(t.destination))) {
+                continue;
+            }
+
             const time = getDateKey(t.transaction_now);
             const section = sectioned.get(time);
             if (section) {
@@ -131,7 +137,7 @@ export const JettonWalletTransactions = memo((props: {
             }
         }
         return { transactionsSectioned: Array.from(sectioned.values()) };
-    }, [props.txs]);
+    }, [props.txs, gaslessConfig?.relay_address]);
 
     const navigateToPreview = useCallback((transaction: JettonTransfer) => {
         if (props.ledger) {

@@ -18,7 +18,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const { isTestnet: testOnly } = useNetwork();
     const markJettonDisabled = useMarkJettonDisabled();
     const hints = useSortedHints(owner.toString({ testOnly }));
-    let [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const visibleList = hints
         .filter((s) => !disabledState.disabled[s])

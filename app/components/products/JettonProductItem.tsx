@@ -8,7 +8,7 @@ import { Suspense, memo, useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useJetton, useJettonWallet, useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { PerfText } from '../basic/PerfText';
-import { Address } from '@ton/core';
+import { Address, toNano } from '@ton/core';
 import { JettonIcon } from './JettonIcon';
 import { Typography } from '../styles';
 import { PerfView } from '../basic/PerfView';
@@ -430,14 +430,18 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 >
                                     <Text style={{ flexShrink: 1 }}>
                                         {isSCAM && (
-                                            <>
-                                                <Text style={{ color: theme.accentRed }}>
-                                                    {'SCAM'}
-                                                </Text>
-                                                {description ? ' • ' : ''}
-                                            </>
+                                            <Text style={{ color: theme.accentRed }}>
+                                                {'SCAM'}
+                                            </Text>
                                         )}
-                                        {description}
+                                        {!!rate && (
+                                            <ValueComponent
+                                                value={toNano(rate)}
+                                                precision={2}
+                                                suffix={` ${CurrencySymbols[currency]?.symbol}`}
+                                                forcePrecision
+                                            />
+                                        )}
                                     </Text>
                                 </Text>
                             </View>
@@ -446,34 +450,23 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                     <ValueComponent
                                         value={balance}
                                         decimals={jetton?.decimals}
-                                        precision={1}
+                                        precision={2}
+                                        forcePrecision
                                         centFontStyle={{ color: theme.textSecondary }}
+                                        suffix={` ${symbol}`}
                                     />
-                                    {!!swapAmount ? (
-                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                            {` ${symbol}`}
-                                        </Text>
-                                    ) : (symbol.length <= 5 && (
-                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                            {` ${symbol}`}
-                                        </Text>
-                                    ))}
                                 </Text>
-                                {!!swapAmount ? (
+                                {!!swapAmount && (
                                     <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                         <ValueComponent
                                             value={swapAmount}
                                             precision={2}
-                                            suffix={CurrencySymbols[currency]?.symbol}
+                                            suffix={` ${CurrencySymbols[currency]?.symbol}`}
                                             decimals={decimals}
                                             forcePrecision
                                         />
                                     </Text>
-                                ) : (symbol.length > 5 && (
-                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {` ${symbol}`}
-                                    </Text>
-                                ))}
+                                )}
                             </View>
                         </View>
                     </Pressable>
@@ -527,14 +520,18 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         >
                             <Text style={{ flexShrink: 1 }}>
                                 {isSCAM && (
-                                    <>
-                                        <Text style={{ color: theme.accentRed }}>
-                                            {'SCAM'}
-                                        </Text>
-                                        {description ? ' • ' : ''}
-                                    </>
+                                    <Text style={{ color: theme.accentRed }}>
+                                        {'SCAM'}
+                                    </Text>
                                 )}
-                                {description}
+                                {!!rate && (
+                                    <ValueComponent
+                                        value={toNano(rate)}
+                                        precision={2}
+                                        suffix={` ${CurrencySymbols[currency]?.symbol}`}
+                                        forcePrecision
+                                    />
+                                )}
                             </Text>
                         </Text>
                     </View>
@@ -547,32 +544,20 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                     precision={2}
                                     forcePrecision
                                     centFontStyle={{ color: theme.textSecondary }}
+                                    suffix={` ${symbol}`}
                                 />
-                                {!!swapAmount ? (
-                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {` ${symbol}`}
-                                    </Text>
-                                ) : (symbol.length <= 5 && (
-                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {` ${symbol}`}
-                                    </Text>
-                                ))}
                             </Text>
-                            {!!swapAmount ? (
+                            {!!swapAmount && (
                                 <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                     <ValueComponent
                                         value={swapAmount}
                                         precision={2}
-                                        suffix={CurrencySymbols[currency]?.symbol}
+                                        suffix={` ${CurrencySymbols[currency]?.symbol}`}
                                         decimals={decimals}
                                         forcePrecision
                                     />
                                 </Text>
-                            ) : (symbol.length > 5 && (
-                                <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                    {` ${symbol}`}
-                                </Text>
-                            ))}
+                            )}
                         </View>
                     ) : (
                         !props.selectParams.hideSelection && (

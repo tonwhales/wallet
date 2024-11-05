@@ -271,7 +271,7 @@ export const PendingTransactionsList = memo((
         ]}>
             {txs.map((tx, i) => (
                 <PendingTransactionView
-                    key={tx.id}
+                    key={`tx-${tx.id}-${viewType}`}
                     tx={tx}
                     first={i === 0}
                     last={(i === txs.length - 1) || viewType === 'history'}
@@ -285,7 +285,19 @@ export const PendingTransactionsList = memo((
 });
 PendingTransactionsList.displayName = 'PendingTransactionsView';
 
-export const PendingTransactions = memo(({ address, viewType = 'main' }: { address?: string, viewType?: 'history' | 'main' }) => {
+export const PendingTransactions = memo(({
+    address,
+    viewType = 'main',
+    filter,
+    onChange,
+    listStyle
+}: {
+    address?: string,
+    viewType?: 'history' | 'main',
+    filter?: (tx: PendingTransaction) => boolean,
+    onChange?: (txs: PendingTransaction[]) => void,
+    listStyle?: StyleProp<ViewStyle>
+}) => {
     const account = useSelectedAccount();
     const network = useNetwork();
     const { state: pending, removePending } = usePendingActions(address ?? account?.addressString ?? '', network.isTestnet);
@@ -294,10 +306,11 @@ export const PendingTransactions = memo(({ address, viewType = 'main' }: { addre
     const txs = useMemo(() => {
         // Show only pending on history tab
         if (viewType === 'history') {
-            return pending.filter((tx) => tx.status !== 'sent' && tx.status !== 'timed-out');
+            return pending
+                .filter(filter ?? ((tx) => tx.status !== 'sent' && tx.status !== 'timed-out'))
         }
 
-        return pending;
+        return pending.filter(filter ?? (() => true));
     }, [pending]);
 
     useEffect(() => {
@@ -309,6 +322,10 @@ export const PendingTransactions = memo(({ address, viewType = 'main' }: { addre
 
             removePending(toRemove);
         }, 15 * 1000);
+
+        return () => {
+            onChange?.(pending);
+        }
     }, [pending]);
 
     if (txs.length <= 0) {
@@ -337,6 +354,7 @@ export const PendingTransactions = memo(({ address, viewType = 'main' }: { addre
                 theme={theme}
                 txs={txs}
                 viewType={viewType}
+                style={listStyle}
             />
         </View>
     );

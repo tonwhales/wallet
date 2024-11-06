@@ -536,6 +536,7 @@ export type LocalizationSchema = {
                 hiddenCards: string,
                 primaryName: string,
                 paymentName: string,
+                topUp: string,
             },
             pageTitles: {
                 general: string,

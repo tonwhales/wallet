@@ -533,7 +533,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "hiddenCards": "Скрытые карты",
                 "hiddenAccounts": "Скрытые счета",
                 "primaryName": 'Основной счет',
-                "paymentName": 'Платежный счет {{accountIndex}}'
+                "paymentName": 'Платежный счет {{accountIndex}}',
+                "topUp": 'Пополнить счёт',
             },
             "pageTitles": {
                 "general": "Tonhub Cards",

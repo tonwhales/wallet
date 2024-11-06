@@ -12,7 +12,7 @@ export function useJetton(params: { owner: Address | string, master?: Address | 
     const content = useJettonContent(masterStr, suspense);
     const walletAddressStr = useJettonWalletAddress(masterStr, ownerStr, suspense).data;
     const walletStr = walletAddressStr ?? (typeof wallet === 'string' ? wallet : wallet?.toString({ testOnly }));
-    const walletContent = useJettonWallet(walletStr, { suspense: true });
+    const walletContent = useJettonWallet(walletStr);
 
     if (!content || !walletContent || !walletStr) {
         return null;

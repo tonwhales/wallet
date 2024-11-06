@@ -44,11 +44,11 @@ const hintsFullCodec = z.object({
     hints: z.array(jettonBalanceCodec)
 });
 
-export type JettonBalance = z.infer<typeof jettonBalanceCodec>;
+export type JettonFull = z.infer<typeof jettonBalanceCodec>;
 export type JettonPreview = z.infer<typeof jettonPreviewCodec>;
 export type WalletAddress = z.infer<typeof walletAddressCodec>;
 
-export async function fetchHintsFull(address: string, isTestnet?: boolean): Promise<JettonBalance[]> {
+export async function fetchHintsFull(address: string, isTestnet?: boolean): Promise<JettonFull[]> {
     const uri = `${whalesConnectEndpoint}/hints/full/${encodeURIComponent(address)}`;
     const url = new URL(uri);
     if (isTestnet) {

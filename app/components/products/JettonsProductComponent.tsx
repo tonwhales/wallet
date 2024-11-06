@@ -8,8 +8,8 @@ import { PerfText } from "../basic/PerfText";
 import { t } from "../../i18n/t";
 import { Typography } from "../styles";
 import { Address } from "@ton/core";
-import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 import { Image } from "expo-image";
+import { useHintsFull } from "../../engine/hooks/jettons/useHintsFull";
 
 const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
@@ -17,20 +17,11 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const markJettonDisabled = useMarkJettonDisabled();
-    const hints = useSortedHints(owner.toString({ testOnly }));
+    const hints = useHintsFull(owner.toString({ testOnly })).data ?? [];
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const visibleList = hints
-        .filter((s) => !disabledState.disabled[s])
-        .map((s) => {
-            try {
-                let wallet = Address.parse(s);
-                return wallet;
-            } catch {
-                return null;
-            }
-        })
-        .filter((j) => !!j) as Address[];
+        .filter((s) => !disabledState.disabled[s.jetton.address])
 
     if (visibleList.length === 0) {
         return null;
@@ -52,14 +43,14 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
                         {t('jetton.productButtonTitle')}
                     </Text>
                 </View>
-                {visibleList.map((wallet, index) => {
+                {visibleList.map((hint, index) => {
                     return (
                         <JettonProductItem
-                            key={'jt' + wallet.toString({ testOnly })}
-                            wallet={wallet}
+                            key={'jt' + hint.jetton.address}
+                            hint={hint}
                             first={index === 0}
                             last={index === visibleList.length - 1}
-                            rightAction={() => markJettonDisabled(wallet)}
+                            rightAction={() => markJettonDisabled(hint.jetton.address)}
                             rightActionIcon={hideIcon}
                             single={visibleList.length === 1}
                             owner={owner}
@@ -75,15 +66,15 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
                 items={visibleList}
-                renderItem={(wallet) => {
-                    if (!wallet) {
+                renderItem={(hint) => {
+                    if (!hint) {
                         return null;
                     }
                     return (
                         <JettonProductItem
-                            key={'jt' + wallet.toString({ testOnly })}
-                            wallet={wallet}
-                            rightAction={() => markJettonDisabled(wallet)}
+                            key={'jt' + hint.jetton.address}
+                            hint={hint}
+                            rightAction={() => markJettonDisabled(hint.jetton.address)}
                             rightActionIcon={hideIcon}
                             card
                             owner={owner}

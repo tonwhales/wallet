@@ -6,7 +6,7 @@ import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
 import { Suspense, memo, useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
-import { useJetton, useJettonWallet, useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
+import { useNetwork, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { PerfText } from '../basic/PerfText';
 import { Address, toNano } from '@ton/core';
 import { JettonIcon } from './JettonIcon';
@@ -19,16 +19,16 @@ import { t } from '../../i18n/t';
 import { Image } from 'expo-image';
 import { ToastDuration, useToaster } from '../toast/ToastProvider';
 import { copyText } from '../../utils/copyText';
-import { Jetton } from '../../engine/types';
-import { mapJettonToMasterState } from '../../utils/jettons/mapJettonToMasterState';
+import { mapJettonFullToMasterState } from '../../utils/jettons/mapJettonToMasterState';
 import { useJettonRate } from '../../engine/hooks/jettons/useJettonRate';
 import { CurrencySymbols } from '../../utils/formatCurrency';
 import { calculateSwapAmount } from '../../utils/jettons/calculateSwapAmount';
+import { JettonFull } from '../../engine/api/fetchHintsFull';
 
 import IcCheck from "@assets/ic-check.svg";
 
 type JettonProductItemProps = {
-    wallet: Address,
+    hint: JettonFull,
     owner: Address,
     last?: boolean,
     first?: boolean,
@@ -39,8 +39,8 @@ type JettonProductItemProps = {
     ledger?: boolean,
     itemStyle?: StyleProp<ViewStyle>,
     selectParams?: {
-        onSelect: (j: Jetton) => void,
-        selectedFn?: (j: Jetton) => boolean
+        onSelect: (j: JettonFull) => void,
+        selectedFn?: (j: JettonFull) => boolean
         hideSelection?: boolean,
     }
     selected?: boolean,
@@ -49,18 +49,17 @@ type JettonProductItemProps = {
 
 const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loading' | 'failed' }) => {
     const theme = useTheme();
-    const { isTestnet: testOnly } = useNetwork();
     const toaster = useToaster();
     const swipableRef = useRef<Swipeable>(null);
 
     const onPressed = useCallback(() => {
-        copyText(props.wallet.toString({ testOnly }));
+        copyText(props.hint.walletAddress.address);
         toaster.show({
             message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
             type: 'default',
             duration: ToastDuration.SHORT,
         });
-    }, [props.wallet]);
+    }, [props.hint]);
 
     return (
         (props.rightAction) ? (
@@ -171,7 +170,7 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
                                 style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                             >
                                 <PerfText style={{ flexShrink: 1 }}>
-                                    {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                                    {ellipsiseAddress(props.hint.walletAddress.address, { start: 6, end: 6 })}
                                 </PerfText>
                             </PerfText>
                         </PerfView>
@@ -254,7 +253,7 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
                             style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         >
                             <PerfText style={{ flexShrink: 1 }}>
-                                {ellipsiseAddress(props.wallet.toString({ testOnly }), { start: 6, end: 6 })}
+                                {ellipsiseAddress(props.hint.walletAddress.address, { start: 6, end: 6 })}
                             </PerfText>
                         </PerfText>
                     </PerfView>
@@ -290,30 +289,29 @@ export const JettonProductItem = memo((props: JettonProductItemProps) => {
 
 const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     const theme = useTheme();
+    const { hint } = props;
     const { isTestnet } = useNetwork();
-    const jettonWallet = useJettonWallet(props.wallet.toString({ testOnly: isTestnet }));
-    const jetton = useJetton({ owner: props.owner, master: jettonWallet?.master, wallet: props.wallet }, true);
     const navigation = useTypedNavigation();
-    const balance = jetton?.balance ?? 0n;
-    const [rate, currency] = useJettonRate(jetton?.master.toString({ testOnly: isTestnet }));
-    const decimals = jetton?.decimals ?? 9;
+    const balance = BigInt(hint.balance) ?? 0n;
+    const [rate, currency] = useJettonRate(hint.jetton.address);
+    const decimals = hint.jetton.decimals ?? 9;
     const swapAmount = rate ? calculateSwapAmount(balance, rate, decimals) : undefined;
     const swipableRef = useRef<Swipeable>(null);
 
     const { isSCAM } = useVerifyJetton({
-        ticker: jetton?.symbol,
-        master: jetton?.master.toString({ testOnly: isTestnet })
+        ticker: hint.jetton.symbol,
+        master: hint.jetton.address
     });
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     const onPress = useCallback(() => {
-        if (!jetton) {
+        if (!hint) {
             return;
         }
 
         if (props.selectParams?.onSelect) {
-            props.selectParams.onSelect(jetton);
+            props.selectParams.onSelect(hint);
             return;
         }
 
@@ -323,24 +321,25 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                 amount: null,
                 target: null,
                 comment: null,
-                jetton: jetton.wallet,
+                jetton: hint.walletAddress.address,
                 stateInit: null,
                 job: null,
                 callback: null
             }
         );
-    }, [jetton, props.ledger, props.selectParams?.onSelect]);
+    }, [hint, props.ledger, props.selectParams?.onSelect]);
 
-    if (!jetton) {
+    if (!hint) {
         return null;
     }
 
-    let name = jetton.name;
-    let description = jetton.description;
-    let symbol = jetton.symbol ?? '';
-    let isSelected = props.selectParams?.selectedFn ? props.selectParams.selectedFn(jetton) : false;
+    const name = hint.jetton.name;
+    const symbol = hint.jetton.symbol;
+    const isSelected = props.selectParams?.selectedFn
+        ? props.selectParams.selectedFn(hint)
+        : false;
 
-    const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
+    const masterState: JettonMasterState & { address: string } = mapJettonFullToMasterState(hint);
 
     return (
         (props.rightAction) ? (
@@ -449,7 +448,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                     <ValueComponent
                                         value={balance}
-                                        decimals={jetton?.decimals}
+                                        decimals={hint.jetton.decimals}
                                         precision={2}
                                         forcePrecision
                                         centFontStyle={{ color: theme.textSecondary }}
@@ -540,7 +539,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                             <Text style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.semiBold17_24]}>
                                 <ValueComponent
                                     value={balance}
-                                    decimals={jetton?.decimals}
+                                    decimals={hint.jetton.decimals}
                                     precision={2}
                                     forcePrecision
                                     centFontStyle={{ color: theme.textSecondary }}

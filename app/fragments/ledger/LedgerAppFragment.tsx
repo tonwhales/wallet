@@ -10,7 +10,6 @@ import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
 import { SettingsFragment } from '../SettingsFragment';
-import { SortedHintsWatcher } from "../../components/SortedHintsWatcher";
 import { HintsPrefetcher } from "../../components/HintsPrefetcher";
 import { PendingTxsWatcher } from "../../components/PendingTxsWatcher";
 import { Address } from "@ton/core";
@@ -108,7 +107,6 @@ export const LedgerAppFragment = fragment(() => {
                 />
             </Tab.Navigator>
             <HintsPrefetcher address={addressString} />
-            <SortedHintsWatcher owner={addressString} />
             <PendingTxsWatcher address={addressString} />
         </View>
     );

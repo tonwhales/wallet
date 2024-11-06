@@ -11,16 +11,16 @@ import { useRoute } from "@react-navigation/native";
 import { useCloudValue, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { Jetton } from "../../engine/types";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { AssetsListItem } from "../../components/jettons/AssetsListItem";
-import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 import { FlashList } from "@shopify/flash-list";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
+import { useHintsFull } from "../../engine/hooks/jettons/useHintsFull";
+import { JettonFull } from "../../engine/api/fetchHintsFull";
 
-type ListItem = { type: 'jetton', address: Address } | { type: 'ton' };
+type ListItem = { type: 'jetton', hint: JettonFull } | { type: 'ton' };
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -29,7 +29,7 @@ export const AssetsFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
-    let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const { target, callback, selectedJetton } = useParams<{
         target: string,
@@ -49,33 +49,25 @@ export const AssetsFragment = fragment(() => {
 
     const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
 
-    const sortedHints = useSortedHints(owner.toString({ testOnly: network.isTestnet }));
-
-    const hints = useMemo(() => {
-        return sortedHints.map((s) => {
-            try {
-                let wallet = Address.parse(s);
-                return wallet;
-            } catch {
-                return null;
-            }
-        }).filter((j) => !!j) as Address[];
-    }, [sortedHints]);
+    const hints = useHintsFull(owner.toString({ testOnly: network.isTestnet })).data ?? [];
 
     const visibleList = useMemo(() => {
         const filtered = hints
-            .filter((j) => !disabledState.disabled[j.toString({ testOnly: network.isTestnet })] || isLedgerScreen)
-            .map((j) => ({
+            .filter((j) => !disabledState.disabled[j.jetton.address] || isLedgerScreen)
+            .map((h) => ({
                 type: 'jetton',
-                address: j
+                hint: h
             }));
 
         return [{ type: 'ton' }, ...filtered] as ListItem[];
     }, [disabledState, network, isLedgerScreen, hints]);
 
-    const onSelected = useCallback((jetton: Jetton) => {
+    const onSelected = useCallback((hint: JettonFull) => {
         if (callback) {
-            onCallback({ wallet: jetton.wallet, master: jetton.master });
+            onCallback({
+                wallet: Address.parse(hint.walletAddress.address),
+                master: Address.parse(hint.jetton.address)
+            });
             return;
         }
         if (isLedgerScreen) {
@@ -83,7 +75,7 @@ export const AssetsFragment = fragment(() => {
                 amount: null,
                 target: target,
                 comment: null,
-                jetton: jetton.wallet,
+                jetton: Address.parse(hint.walletAddress.address),
                 stateInit: null,
                 job: null,
                 callback: null
@@ -94,7 +86,7 @@ export const AssetsFragment = fragment(() => {
             amount: null,
             target: target,
             comment: null,
-            jetton: jetton.wallet,
+            jetton: Address.parse(hint.walletAddress.address),
             stateInit: null,
             callback: null
         });
@@ -153,10 +145,9 @@ export const AssetsFragment = fragment(() => {
                 data={visibleList}
                 renderItem={({ item }: { item: ListItem }) => {
                     if (item.type !== 'ton') {
-                        const wallet = item.address;
                         return (
                             <AssetsListItem
-                                wallet={wallet}
+                                hint={item.hint}
                                 owner={owner}
                                 onSelect={onSelected}
                                 hideSelection={!callback}

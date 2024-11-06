@@ -13,7 +13,7 @@ const contentCodec = z.object({
     symbol: z.string().nullable(),
     decimals: z.union([z.number(), z.string()]).nullish(),
     originalImage: z.string().nullish(),
-    image: imagePreview.nullable(),
+    image: imagePreview.nullish(),
 });
 
 const lpAssetCodec = z.discriminatedUnion('type', [

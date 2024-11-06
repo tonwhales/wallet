@@ -1,11 +1,11 @@
 import { memo, useCallback } from "react";
-import { Jetton } from "../../engine/types";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { JettonProductItem } from "../products/JettonProductItem";
+import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 export const AssetsListItem = memo(({
-    wallet,
+    hint,
     owner,
     onSelect,
     selected,
@@ -13,22 +13,22 @@ export const AssetsListItem = memo(({
     isTestnet,
     theme
 }: {
-    wallet: Address,
+    hint: JettonFull,
     owner: Address,
-    onSelect: (j: Jetton) => void,
+    onSelect: (j: JettonFull) => void,
     selected?: Address,
     hideSelection?: boolean,
     isTestnet: boolean,
     theme: ThemeType
 }) => {
 
-    const selectedFn = useCallback((j: Jetton) => {
-        return j.master.toString({ testOnly: isTestnet }) === selected?.toString({ testOnly: isTestnet })
+    const selectedFn = useCallback((h: JettonFull) => {
+        return h.jetton.address === selected?.toString({ testOnly: isTestnet })
     }, [selected, isTestnet]);
 
     return (
         <JettonProductItem
-            wallet={wallet}
+            hint={hint}
             owner={owner}
             card
             selectParams={{

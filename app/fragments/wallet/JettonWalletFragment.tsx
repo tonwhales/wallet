@@ -1,6 +1,6 @@
 import { fragment } from "../../fragment";
 import { useJetton, useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
-import { StatusBar } from "expo-status-bar";
+import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -20,8 +20,7 @@ import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterSta
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
 import { PendingTransactions } from "./views/PendingTransactions";
-import { queryClient } from "../../engine/clients";
-import { Queries } from "../../engine/queries";
+import { useFocusEffect } from "@react-navigation/native";
 
 export type JettonWalletFragmentProps = {
     owner: string;
@@ -100,12 +99,15 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
 
     const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
 
+    useFocusEffect(() => {
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+    });
+
     return (
         <View style={[styles.container, Platform.select({
             android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
             ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
         })]}>
-            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 style={styles.header}
@@ -184,7 +186,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                             <PendingTransactions
                                 address={ownerAddress.toString({ testOnly: isTestnet })}
                                 onChange={onRefresh}
-                                viewType={'history'}
+                                viewType={'jetton-history'}
                                 filter={(ptx) => {
                                     if (ptx.body?.type !== 'token') {
                                         return false;

@@ -131,14 +131,11 @@ const WalletCard = memo(({ address }: { address: Address }) => {
                     marginTop: 16,
                     alignSelf: 'center',
                 }}
-                textStyle={{
-                    fontSize: 15,
-                    lineHeight: 20,
+                textStyle={[{
                     color: theme.textUnchangeable,
-                    fontWeight: '400',
                     opacity: 0.5,
                     fontFamily: undefined
-                }}
+                }, Typography.regular15_20]}
                 disableContextMenu
                 copyOnPress
                 copyToastProps={Platform.select({
@@ -217,6 +214,10 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
         });
     }, [network, addressString, holdersStatus, specialJettonWallet]);
 
+    useFocusEffect(() => {
+        setStatusBarStyle('light');
+    });
+
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
             <WalletHeader address={address} />
@@ -235,6 +236,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                     <RefreshControl
                         refreshing={isRefreshing}
                         onRefresh={onRefresh}
+                        tintColor={theme.textUnchangeable}
                         style={{ zIndex: 2000 }}
                     />
                 }
@@ -308,10 +310,6 @@ const navigation = (safeArea: EdgeInsets) => [
 export const WalletNavigationStack = memo(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-
-    useFocusEffect(() => {
-        setStatusBarStyle('light');
-    });
 
     return (
         <Stack.Navigator

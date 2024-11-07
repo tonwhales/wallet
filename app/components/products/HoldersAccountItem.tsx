@@ -4,8 +4,6 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import Animated from "react-native-reanimated";
-import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { useIsConnectAppReady, useJettonContent, usePrice, useTheme } from "../../engine/hooks";
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
@@ -159,9 +157,6 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({ type: HoldersAppParamsType.Topup, id: props.account.id }, props.isTestnet);
     }, [props.account, needsEnrollment, props.isTestnet]);
 
-
-    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
-
     let subtitle = isPro ? t('products.holders.accounts.proAccount') : t('products.holders.accounts.basicAccount');
 
     const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
@@ -197,13 +192,11 @@ export const HoldersAccountItem = memo((props: {
             useNativeAnimations={true}
             renderRightActions={renderRightAction}
         >
-            <Animated.View style={animatedStyle}>
+            <View>
                 <View style={[{ borderRadius: 20, overflow: 'hidden', flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
                     <TouchableOpacity
-                        onPressIn={onPressIn}
-                        onPressOut={onPressOut}
                         onPress={onPress}
-                        activeOpacity={0.8}
+                        activeOpacity={0.5}
                     >
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                             {resolveIcon({ image: jettonMasterContent?.image, ticker: props.account.cryptoCurrency?.ticker })}
@@ -294,7 +287,7 @@ export const HoldersAccountItem = memo((props: {
                         </Text>
                     </Pressable>
                 </View>
-            </Animated.View>
+            </View>
         </Swipeable >
     );
 });

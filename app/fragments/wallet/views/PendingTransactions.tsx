@@ -38,7 +38,7 @@ const PendingTransactionView = memo(({
     first?: boolean,
     last?: boolean,
     single?: boolean,
-    viewType?: 'history' | 'main',
+    viewType?: 'history' | 'main' | 'jetton-history',
     bounceableFormat?: boolean,
     txTimeout: number
 }) => {
@@ -254,7 +254,7 @@ export const PendingTransactionsList = memo((
         theme: ThemeType,
         txs: PendingTransaction[],
         style?: StyleProp<ViewStyle>,
-        viewType?: 'history' | 'main'
+        viewType?: 'history' | 'main' | 'jetton-history'
     }
 ) => {
     const [bounceableFormat] = useBounceableWalletFormat();
@@ -293,7 +293,7 @@ export const PendingTransactions = memo(({
     listStyle
 }: {
     address?: string,
-    viewType?: 'history' | 'main',
+    viewType?: 'history' | 'main' | 'jetton-history',
     filter?: (tx: PendingTransaction) => boolean,
     onChange?: (txs: PendingTransaction[]) => void,
     listStyle?: StyleProp<ViewStyle>
@@ -305,9 +305,10 @@ export const PendingTransactions = memo(({
 
     const txs = useMemo(() => {
         // Show only pending on history tab
-        if (viewType === 'history') {
+        if (viewType !== 'main') {
             return pending
-                .filter(filter ?? ((tx) => tx.status !== 'sent' && tx.status !== 'timed-out'))
+                .filter(((tx) => tx.status !== 'sent' && tx.status !== 'timed-out'))
+                .filter(filter ?? (() => true));
         }
 
         return pending.filter(filter ?? (() => true));

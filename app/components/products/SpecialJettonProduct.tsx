@@ -1,9 +1,7 @@
-import { memo, useCallback } from "react";
-import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
+import { memo, useCallback, useEffect } from "react";
 import { ThemeType } from "../../engine/state/theme";
-import { TypedNavigation } from "../../utils/useTypedNavigation";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Pressable, View, Image, Text } from "react-native";
-import Animated from "react-native-reanimated";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
@@ -15,27 +13,27 @@ import { useBounceableWalletFormat } from "../../engine/hooks";
 
 export const SpecialJettonProduct = memo(({
     theme,
-    navigation,
     isLedger,
     address,
     testOnly,
     divider
 }: {
     theme: ThemeType,
-    navigation: TypedNavigation,
     isLedger?: boolean,
     address: Address,
     testOnly: boolean,
     divider?: 'top' | 'bottom'
 }) => {
-    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+    const navigation = useTypedNavigation();
     const specialJetton = useSpecialJetton(address);
     const balance = specialJetton?.balance ?? 0n;
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
 
     const onPress = useCallback(() => {
-        const jetton = specialJetton ? { master: specialJetton?.master, data: specialJetton.masterContent } : undefined;
+        const jetton = specialJetton
+            ? { master: specialJetton.master, data: specialJetton.masterContent }
+            : undefined;
         const hasWallet = !!specialJetton?.wallet;
 
         if (isLedger) {
@@ -69,20 +67,16 @@ export const SpecialJettonProduct = memo(({
             return;
         }
 
-        navigation.navigate('Receive', { jetton });
-    }, [specialJetton, isLedger, ledgerAddressStr, balance]);
+        navigation.navigateReceive({ jetton });
+    }, [specialJetton, isLedger, ledgerAddressStr, navigation]);
 
     return (
         <Pressable
-            onPressIn={onPressIn}
-            onPressOut={onPressOut}
-            style={({ pressed }) => {
-                return { flex: 1, opacity: pressed ? 0.8 : 1 }
-            }}
+            style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.5 : 1 })}
             onPress={onPress}
         >
             {divider === 'top' && <ItemDivider marginVertical={0} />}
-            <Animated.View style={[
+            <View style={[
                 {
                     flexDirection: 'row', flexGrow: 1,
                     alignItems: 'center',
@@ -91,7 +85,6 @@ export const SpecialJettonProduct = memo(({
                     borderRadius: 20,
                     overflow: 'hidden'
                 },
-                animatedStyle
             ]}>
                 <View style={{
                     width: 46, height: 46, borderRadius: 23,
@@ -161,7 +154,7 @@ export const SpecialJettonProduct = memo(({
                         hideCentsIfNull
                     />
                 </View>
-            </Animated.View>
+            </View>
             {divider === 'bottom' && <ItemDivider marginVertical={0} />}
         </Pressable>
     );

@@ -1,33 +1,29 @@
 import { memo, useCallback } from "react";
 import { Pressable, View, Text } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
-import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { TypedNavigation } from "../../utils/useTypedNavigation";
-import Animated from "react-native-reanimated";
 import { ValueComponent } from "../ValueComponent";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { Address } from "@ton/core";
 import { useAccountLite, useBounceableWalletFormat } from "../../engine/hooks";
 import { Image } from "expo-image";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const TonProductComponent = memo(({
     theme,
-    navigation,
     isLedger,
     address,
     testOnly
 }: {
     theme: ThemeType,
-    navigation: TypedNavigation,
     isLedger?: boolean,
     address: Address,
     testOnly?: boolean,
 }) => {
-    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+    const navigation = useTypedNavigation();
     const accountLite = useAccountLite(address);
     const balance = accountLite?.balance ?? 0n;
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerAddressStr = address?.toString({ bounceable: bounceableFormat, testOnly });
 
     const onTonPress = useCallback(() => {
@@ -45,24 +41,19 @@ export const TonProductComponent = memo(({
 
     return (
         <Pressable
-            onPressIn={onPressIn}
-            onPressOut={onPressOut}
             style={({ pressed }) => {
                 return { flex: 1, opacity: pressed ? 0.8 : 1 }
             }}
             onPress={onTonPress}
         >
-            <Animated.View style={[
-                {
-                    flexDirection: 'row', flexGrow: 1,
-                    alignItems: 'center',
-                    padding: 20,
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20,
-                    overflow: 'hidden'
-                },
-                animatedStyle
-            ]}>
+            <View style={{
+                flexDirection: 'row', flexGrow: 1,
+                alignItems: 'center',
+                padding: 20,
+                backgroundColor: theme.surfaceOnBg,
+                borderRadius: 20,
+                overflow: 'hidden'
+            }}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                     <Image
                         source={require('@assets/ic-ton-acc.png')}
@@ -86,7 +77,7 @@ export const TonProductComponent = memo(({
                 </View>
                 <View style={{ marginLeft: 12, flexShrink: 1 }}>
                     <Text
-                        style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                         ellipsizeMode="tail"
                         numberOfLines={1}
                     >
@@ -95,7 +86,7 @@ export const TonProductComponent = memo(({
                     <Text
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
-                        style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
+                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                     >
                         {'The Open Network'}
                     </Text>
@@ -118,7 +109,7 @@ export const TonProductComponent = memo(({
                         hideCentsIfNull
                     />
                 </View>
-            </Animated.View>
+            </View>
         </Pressable>
     );
 });

@@ -11,14 +11,8 @@ function useIsFetchingTxs(account: string) {
 }
 
 function useIsFetchingHints(account: string) {
-    const hintsQueryKey = Queries.Hints(account);
-    const mintlessHintsQueryKey = Queries.Mintless(account);
-
-    return useIsFetching({
-        predicate: (query) => {
-            return query.queryKey === hintsQueryKey || query.queryKey === mintlessHintsQueryKey;
-        }
-    });
+    const hintsQueryKey = Queries.HintsFull(account);
+    return useIsFetching(hintsQueryKey);
 }
 
 function useIsFetchingSpecialJettonAddress(account: string) {
@@ -82,10 +76,16 @@ export function useSyncState(address?: string): 'online' | 'connecting' | 'updat
     const acc = address || account?.addressString || 'default-null';
 
     const isFetchingAccount = useIsFetching(Queries.Account(acc).All());
-    const isFetchingSpecialJetton = useIsFetchingSpecialJetton(acc);
     const isFetchingHoldersAccounts = useIsFetchingHoldersAccounts(acc);
+    const isFetchingHints = useIsFetchingHints(acc)
 
-    if (isFetchingSpecialJetton > 0) {
+    console.log({
+        isFetchingAccount,
+        isFetchingHints,
+        isFetchingHoldersAccounts
+    })
+
+    if (isFetchingHints > 0) {
         return 'updating';
     }
 

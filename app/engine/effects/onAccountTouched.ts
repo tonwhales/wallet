@@ -2,7 +2,6 @@ import { Address } from '@ton/core';
 import { queryClient } from '../clients';
 import { Queries } from '../queries';
 import { getQueryData } from '../utils/getQueryData';
-import { JettonFull } from '../api/fetchHintsFull';
 
 export async function onAccountsTouched(accounts: Set<string>) {
     const cache = queryClient.getQueryCache();
@@ -31,10 +30,11 @@ export async function onAccountsTouched(accounts: Set<string>) {
                     });
                 }
             } else if (queryKey[0] === 'jettons' && queryKey[1] === 'full') {
-                const cached = getQueryData<JettonFull[]>(cache, queryKey);
+                const cached = getQueryData<{ addressesIndex: Record<string, number> }>(cache, queryKey);
                 if (cached) {
-                    for (const hint of cached) {
-                        if (accounts.has(hint.jetton.address)) {
+                    for (const address of accounts) {
+                        const index = cached.addressesIndex[address];
+                        if (index !== undefined) {
                             return true;
                         }
                     }

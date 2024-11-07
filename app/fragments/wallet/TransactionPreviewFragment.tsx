@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useJettonMaster, useJettonWallet, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { TransactionDescription } from "../../engine/types";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
@@ -40,6 +40,7 @@ import { previewToTransferParams } from "../../utils/toTransferParams";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
 import { isTxSPAM } from "../../utils/spam/isTxSPAM";
+import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -116,9 +117,12 @@ const TransactionPreview = () => {
     }, [price, currency, fees]);
 
     const resolvedAddressString = tx.base.parsed.resolvedAddress;
-    const jetton = useJettonWallet(resolvedAddressString);
-    const jettonMasterString = jetton?.master ?? null;
-    const jettonMasterContent = useJettonMaster(jettonMasterString);
+    const jetton = useJetton({
+        owner: address!.toString({ testOnly: isTestnet }),
+        wallet: resolvedAddressString,
+    });
+    const jettonMaster = jetton?.master ?? null;
+    const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : null;
     const targetContract = useContractInfo(opAddress);
 
     const repeatParams = useMemo(() => {
@@ -263,7 +267,7 @@ const TransactionPreview = () => {
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
         ticker: item.kind === 'token' ? jettonMasterContent?.symbol : undefined,
-        master: jettonMasterString
+        master: jettonMaster?.toString({ testOnly: isTestnet }),
     });
 
     const symbolString = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}` : '')

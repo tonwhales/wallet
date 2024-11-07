@@ -3,12 +3,11 @@ import { View, Pressable, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { JettonProductItem } from "./JettonProductItem";
-import { useCloudValue, useNetwork, useTheme } from "../../engine/hooks";
+import { useCloudValue, useHintsFull, useNetwork, useTheme } from "../../engine/hooks";
 import { useMarkJettonActive } from "../../engine/hooks/jettons/useMarkJettonActive";
 import { Typography } from "../styles";
 import { Address } from "@ton/core";
 import { Image } from "expo-image";
-import { useHintsFull } from "../../engine/hooks/jettons/useHintsFull";
 
 const showIcon = <Image source={require('@assets/ic-show.png')} style={{ width: 36, height: 36 }} />;
 
@@ -16,7 +15,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const markJettonActive = useMarkJettonActive();
-    const hints = useHintsFull(owner.toString({ testOnly })).data ?? [];
+    const hints = useHintsFull(owner.toString({ testOnly })).data?.hints ?? [];
     let [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const hiddenList = hints

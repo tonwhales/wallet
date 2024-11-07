@@ -1,5 +1,4 @@
-import { useSelectedAccount } from '../engine/hooks';
-import { useHintsFull } from '../engine/hooks/jettons/useHintsFull';
+import { useHintsFull, useSelectedAccount } from '../engine/hooks';
 
 export function HintsPrefetcher(props: { address?: string }) {
     const selected = useSelectedAccount();

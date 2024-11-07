@@ -8,7 +8,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { SelectableButton } from "../../components/SelectableButton";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useCloudValue, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useCloudValue, useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -17,7 +17,6 @@ import { AssetsListItem } from "../../components/jettons/AssetsListItem";
 import { FlashList } from "@shopify/flash-list";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
-import { useHintsFull } from "../../engine/hooks/jettons/useHintsFull";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 type ListItem = { type: 'jetton', hint: JettonFull } | { type: 'ton' };
@@ -49,7 +48,7 @@ export const AssetsFragment = fragment(() => {
 
     const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
 
-    const hints = useHintsFull(owner.toString({ testOnly: network.isTestnet })).data ?? [];
+    const hints = useHintsFull(owner.toString({ testOnly: network.isTestnet })).data?.hints ?? [];
 
     const visibleList = useMemo(() => {
         const filtered = hints

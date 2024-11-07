@@ -30,13 +30,12 @@ export const SpecialJettonProduct = memo(({
 }) => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
     const specialJetton = useSpecialJetton(address);
-    const content = specialJetton?.masterContent;
     const balance = specialJetton?.balance ?? 0n;
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
 
     const onPress = useCallback(() => {
-        const jetton = specialJetton ? { master: specialJetton?.master, data: specialJetton?.masterContent } : undefined;
+        const jetton = specialJetton ? { master: specialJetton?.master, data: specialJetton.masterContent } : undefined;
         const hasWallet = !!specialJetton?.wallet;
 
         if (isLedger) {
@@ -132,7 +131,7 @@ export const SpecialJettonProduct = memo(({
                         ellipsizeMode={'tail'}
                         style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
                     >
-                        {content?.description ?? 'Tether Token for Tether USD'}
+                        {specialJetton?.description ?? 'Tether Token for Tether USD'}
                     </Text>
                 </View>
                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
@@ -140,12 +139,12 @@ export const SpecialJettonProduct = memo(({
                         <ValueComponent
                             value={balance}
                             precision={2}
-                            decimals={content?.decimals ?? 6}
+                            decimals={specialJetton?.decimals ?? 6}
                             centFontStyle={{ color: theme.textSecondary }}
                         />
                         <Text
                             style={{ color: theme.textSecondary, fontSize: 15 }}>
-                            {` ${content?.symbol ?? 'USDT'}`}
+                            {` ${specialJetton?.symbol ?? 'USDT'}`}
                         </Text>
                     </Text>
                     <PriceComponent

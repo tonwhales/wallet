@@ -2,16 +2,15 @@ import React, { memo } from "react";
 import { View, Text, Image } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { t } from "../../i18n/t";
-import { useTheme } from "../../engine/hooks";
+import { useHintsFull, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
-import { useHintsFull } from "../../engine/hooks/jettons/useHintsFull";
 
 export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { address: Address, testOnly: boolean }) => {
     const theme = useTheme();
-    const hints = useHintsFull(address.toString({ testOnly })).data ?? [];
+    const hints = useHintsFull(address.toString({ testOnly })).data?.hints ?? [];
 
     if (hints.length === 0) {
         return null;

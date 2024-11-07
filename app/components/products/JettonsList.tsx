@@ -1,7 +1,7 @@
 import { Pressable, View, Text, Platform, useWindowDimensions } from "react-native";
 import { ItemSwitch } from "../Item";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,9 +18,7 @@ import { ItemDivider } from "../ItemDivider";
 import Animated, { Easing, LinearTransition, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
-import { filterHint, getHint, getHintFull, HintsFilter } from "../../utils/jettons/hintSortFilter";
-import { queryClient } from "../../engine/clients";
-import { useHintsFull } from "../../engine/hooks/jettons/useHintsFull";
+import { filterHint, getHintFull, HintsFilter } from "../../utils/jettons/hintSortFilter";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 const EmptyListItem = memo(() => {
@@ -109,7 +107,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
     }, [selected, ledgerContext, testOnly]);
 
     const [filter, setFilter] = useState<HintsFilter[] | null>(null);
-    const jettons: JettonFull[] = useHintsFull(addressStr).data ?? [];
+    const jettons: JettonFull[] = useHintsFull(addressStr).data?.hints ?? [];
     const [filteredJettons, setFilteredJettons] = useState(jettons);
 
     useEffect(() => {

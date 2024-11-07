@@ -7,7 +7,7 @@ import { warn } from '../../../utils/log';
 export function useHintsFull(addressString?: string) {
     const { isTestnet } = useNetwork();
 
-    return useQuery<JettonFull[]>({
+    return useQuery<{ hints: JettonFull[], addressesIndex: Record<string, number> }>({
         queryKey: Queries.HintsFull(addressString || ''),
         queryFn: async () => {
             try {

@@ -25,8 +25,6 @@ export function useJettonRate(master?: string): [number | null, string] {
     const rates = useQuery({
         queryKey: Queries.Jettons().Rates(master ?? ''),
         queryFn: jettonRatesQueryFn(master!, isTestnet),
-        refetchOnMount: true,
-        staleTime: 1000 * 60,
         enabled: !!master
     }).data;
 

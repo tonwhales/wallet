@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useJetton, useNetwork, useTheme } from "../../engine/hooks";
+import { useJetton, useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -17,7 +17,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useJettonTransactions } from "../../engine/hooks/transactions/useJettonTransactions";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
-import { useJettonRate } from "../../engine/hooks/jettons/useJettonRate";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
 import { PendingTransactions } from "./views/PendingTransactions";
@@ -74,7 +73,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
     const safeArea = useSafeAreaInsets();
     const ownerAddress = Address.parse(owner);
 
-    const jettonWallet = useJetton({ owner, master, wallet }, true);
+    const jetton = useJetton({ owner, master, wallet }, true);
     const txs = useJettonTransactions(owner, master, { refetchOnMount: true });
     const transactions = txs.data ?? [];
 
@@ -86,24 +85,21 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
 
     const onRefresh = useCallback(() => {
         txs.refresh();
-        queryClient.refetchQueries({
-            queryKey: Queries
-                .Account(jettonWallet?.wallet?.toString({ testOnly: isTestnet }) || '')
-                .JettonWallet()
-        });
-    }, [txs.refresh]);
+        queryClient.refetchQueries({ queryKey: Queries.HintsFull(owner) });
+    }, [txs.refresh, owner]);
 
-    const [rate, currency] = useJettonRate(master);
-    const decimals = jettonWallet?.decimals ?? 9;
-    const balance = jettonWallet?.balance ?? 0n;
+    const [currency] = usePrimaryCurrency();
+    const rate = jetton?.prices?.[currency];
+    const decimals = jetton?.decimals ?? 9;
+    const balance = jetton?.balance ?? 0n;
     const swapAmount = rate ? calculateSwapAmount(balance, rate, decimals) : undefined;
 
-    if (!jettonWallet) {
+    if (!jetton) {
         navigation.goBack();
         return null;
     }
 
-    const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jettonWallet, isTestnet);
+    const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
 
     return (
         <View style={[styles.container, Platform.select({
@@ -121,7 +117,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                             numberOfLines={1}
                             ellipsizeMode={'tail'}
                         >
-                            {jettonWallet?.symbol}
+                            {jetton?.symbol}
                         </Text>
                         {!!rate && (
                             <Text
@@ -142,7 +138,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
             />
 
             <JettonWalletTransactions
-                jetton={jettonWallet}
+                jetton={jetton}
                 theme={theme}
                 navigation={navigation}
                 txs={transactions}
@@ -164,12 +160,12 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                         <View style={{ marginTop: 16, width: '100%' }}>
                             <View style={{ gap: 8, alignItems: 'center' }}>
                                 <ValueComponent
-                                    value={jettonWallet?.balance ?? 0n}
-                                    decimals={jettonWallet?.decimals ?? 9}
+                                    value={jetton?.balance ?? 0n}
+                                    decimals={jetton?.decimals ?? 9}
                                     precision={2}
                                     fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
                                     centFontStyle={{ color: theme.textSecondary }}
-                                    suffix={jettonWallet?.symbol ? `${jettonWallet.symbol}` : ''}
+                                    suffix={jetton?.symbol ? `${jetton.symbol}` : ''}
                                 />
                                 <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                     <ValueComponent
@@ -181,7 +177,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                 </Text>
                             </View>
                             <WalletActions
-                                jetton={jettonWallet}
+                                jetton={jetton}
                                 theme={theme}
                                 navigation={navigation}
                                 isTestnet={isTestnet}

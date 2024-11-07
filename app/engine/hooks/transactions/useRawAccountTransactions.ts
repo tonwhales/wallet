@@ -7,6 +7,7 @@ import { useClient4, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
 import { log } from '../../../utils/log';
 import { addTxHints } from '../jettons/useHints';
+import { queryClient } from '../../clients';
 
 const TRANSACTIONS_LENGTH = 16;
 
@@ -50,6 +51,7 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
             log(`[txns-query] fetching ${lt}_${hash} ${sliceFirst ? 'sliceFirst' : ''}`);
 
             let txs = await fetchAccountTransactions(accountAddr, isTestnet, { lt, hash });
+            let shouldRefetchJttons = false;
 
             // Add jetton wallets to hints (in case of hits worker lag being to high)
             const txHints = txs
@@ -58,6 +60,10 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
                     const isJetton = tx.operation.items.length > 0
                         ? tx.operation.items[0].kind === 'token'
                         : false;
+
+                        if (!shouldRefetchJttons && isJetton) {
+                            shouldRefetchJttons = true;
+                        }
 
                     return isIn && isJetton;
                 })
@@ -71,6 +77,10 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
             }
 
             log(`[txns-query] fetched ${txs.length} txs`);
+
+            if (shouldRefetchJttons) {
+                queryClient.refetchQueries({ queryKey: Queries.HintsFull(account) });
+            }
 
             return txs;
         },

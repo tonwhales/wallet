@@ -91,7 +91,6 @@ import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStaking
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
-import { SortedHintsWatcher } from './components/SortedHintsWatcher';
 import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
@@ -447,9 +446,6 @@ export const Navigation = memo(() => {
     // Watch for holders updates
     useHoldersWatcher();
 
-    // Jetton hints watcher
-    const selected = appState.addresses.find((value, index) => index === appState.selected)?.address.toString({ testOnly: isTestnet });
-
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>
             <NavigationContainer
@@ -471,7 +467,6 @@ export const Navigation = memo(() => {
                 </Stack.Navigator>
             </NavigationContainer>
             <HintsPrefetcher />
-            <SortedHintsWatcher owner={selected} />
             <PendingTxsWatcher />
             <TonconnectWatcher />
             <SessionWatcher navRef={navigationRef} />

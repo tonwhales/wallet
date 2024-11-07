@@ -41,14 +41,18 @@ const jettonBalanceCodec = z.object({
 });
 
 const hintsFullCodec = z.object({
-    hints: z.array(jettonBalanceCodec)
+    hints: z.array(jettonBalanceCodec),
+    addressesIndex: z.record(z.number())
 });
 
 export type JettonFull = z.infer<typeof jettonBalanceCodec>;
 export type JettonPreview = z.infer<typeof jettonPreviewCodec>;
 export type WalletAddress = z.infer<typeof walletAddressCodec>;
 
-export async function fetchHintsFull(address: string, isTestnet?: boolean): Promise<JettonFull[]> {
+export async function fetchHintsFull(address: string, isTestnet?: boolean): Promise<{
+    hints: JettonFull[],
+    addressesIndex: Record<string, number>
+}> {
     const uri = `${whalesConnectEndpoint}/hints/full/${encodeURIComponent(address)}`;
     const url = new URL(uri);
     if (isTestnet) {
@@ -63,5 +67,5 @@ export async function fetchHintsFull(address: string, isTestnet?: boolean): Prom
         throw Error('Invalid hints');
     }
 
-    return parsed.data.hints;
+    return parsed.data;
 }

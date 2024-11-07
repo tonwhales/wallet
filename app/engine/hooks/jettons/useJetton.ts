@@ -1,8 +1,8 @@
 import { Address } from "@ton/core";
 import { useHintsFull, useNetwork } from "..";
-import { t } from "../../../i18n/t";
 import { Jetton } from "../../types";
 import { mapJettonFullToMasterState } from "../../../utils/jettons/mapJettonToMasterState";
+import { useMemo } from "react";
 
 export function useJetton(params: { owner: Address | string, master?: Address | string, wallet?: Address | string }, suspense?: boolean): Jetton | null {
     const { isTestnet: testOnly } = useNetwork();
@@ -14,54 +14,49 @@ export function useJetton(params: { owner: Address | string, master?: Address | 
     const hintsFull = useHintsFull(ownerStr);
     const key = masterStr ?? walletStr;
     const jettonIndex = key ? hintsFull.data?.addressesIndex?.[key] : null;
+    const hint = (jettonIndex !== null && jettonIndex !== undefined)
+        ? hintsFull.data?.hints[jettonIndex]
+        : undefined;
 
-    if (jettonIndex === undefined || jettonIndex === null) {
-        return null;
-    }
+    return useMemo(() => {
+        if (!hint) {
+            return null;
+        }
 
-    const hint = hintsFull.data?.hints[jettonIndex];
+        const content = mapJettonFullToMasterState(hint);
+        const walletContent = {
+            balance: hint.balance,
+            master: hint.jetton.address,
+            owner: hint.walletAddress.address,
+            address: hint.walletAddress.address,
+        }
 
-    if (!hint) {
-        return null;
-    }
+        let name = content.name ?? '';
+        let symbol = content.symbol ?? '';
+        let description = content.description ?? '';
+        let balance = walletContent?.balance ?? 0;
 
-    const content = mapJettonFullToMasterState(hint);
-    const walletContent = {
-        balance: hint.balance,
-        master: hint.jetton.address,
-        owner: hint.walletAddress.address,
-        address: hint.walletAddress.address,
-    }
+        if (symbol === 'USD₮') {
+            symbol = 'USDT';
+        }
 
-    if (!content || !walletContent) {
-        return null;
-    }
+        if (name === 'USD₮' || name === 'TetherUSD₮') {
+            name = 'USDT';
+        }
 
-    let name = content.name ?? '';
-    let symbol = content.symbol ?? '';
-    let description = content.description ?? '';
-    let balance = walletContent?.balance ?? 0;
-
-    if (symbol === 'USD₮') {
-        symbol = 'USDT';
-    }
-
-    if (name === 'USD₮' || name === 'TetherUSD₮') {
-        name = 'USDT';
-    }
-
-    return {
-        balance: BigInt(balance),
-        wallet: Address.parse(hint.walletAddress.address),
-        master: Address.parse(hint.jetton.address),
-        name,
-        symbol,
-        description,
-        decimals: content.decimals ?? null,
-        icon: content.image?.preview256 || content.originalImage || null,
-        disabled: false,
-        assets: !!content.assets ? [content.assets[0], content.assets[1]] : null,
-        pool: content.pool,
-        prices: hint.price?.prices,
-    };
+        return {
+            balance: BigInt(balance),
+            wallet: Address.parse(hint.walletAddress.address),
+            master: Address.parse(hint.jetton.address),
+            name,
+            symbol,
+            description,
+            decimals: content.decimals ?? null,
+            icon: content.image?.preview256 || content.originalImage || null,
+            disabled: false,
+            assets: !!content.assets ? [content.assets[0], content.assets[1]] : null,
+            pool: content.pool,
+            prices: hint.price?.prices,
+        };
+    }, [!!hint, hint?.balance, hint?.price])
 }

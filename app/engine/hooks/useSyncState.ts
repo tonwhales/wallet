@@ -79,12 +79,6 @@ export function useSyncState(address?: string): 'online' | 'connecting' | 'updat
     const isFetchingHoldersAccounts = useIsFetchingHoldersAccounts(acc);
     const isFetchingHints = useIsFetchingHints(acc)
 
-    console.log({
-        isFetchingAccount,
-        isFetchingHints,
-        isFetchingHoldersAccounts
-    })
-
     if (isFetchingHints > 0) {
         return 'updating';
     }

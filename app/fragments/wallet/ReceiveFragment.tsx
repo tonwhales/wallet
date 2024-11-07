@@ -18,6 +18,7 @@ import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
+import { JettonViewType } from "./AssetsFragment";
 
 export type ReceiveFragmentParams = {
     addr?: string;
@@ -144,13 +145,14 @@ export const ReceiveFragment = fragment(() => {
                                         opacity: pressed ? 0.5 : 1,
                                     }
                                 }}
-                                onPress={() => {
-                                    if (params.ledger) {
-                                        navigation.navigate('LedgerAssets', { callback: onAssetSelected, selectedJetton: asset?.master });
-                                        return;
-                                    }
-                                    navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: asset?.master });
-                                }}
+                                onPress={() => navigation.navigateAssets(
+                                    {
+                                        callback: onAssetSelected,
+                                        selectedJetton: asset?.master,
+                                        jettonViewType: JettonViewType.Receive
+                                    },
+                                    params.ledger
+                                )}
                             >
                                 <View style={{
                                     flexDirection: 'row',

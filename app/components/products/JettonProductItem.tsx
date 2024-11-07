@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
-import { Suspense, memo, useCallback, useRef } from 'react';
+import { Suspense, memo, useCallback, useMemo, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useNetwork, usePrimaryCurrency, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { PerfText } from '../basic/PerfText';
@@ -21,6 +21,7 @@ import { mapJettonFullToMasterState } from '../../utils/jettons/mapJettonToMaste
 import { CurrencySymbols } from '../../utils/formatCurrency';
 import { calculateSwapAmount } from '../../utils/jettons/calculateSwapAmount';
 import { JettonFull } from '../../engine/api/fetchHintsFull';
+import { JettonViewType } from '../../fragments/wallet/AssetsFragment';
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -42,6 +43,7 @@ type JettonProductItemProps = {
     }
     selected?: boolean,
     onReady?: (address: string) => void,
+    jettonViewType: JettonViewType
 };
 
 const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loading' | 'failed' }) => {
@@ -286,7 +288,7 @@ export const JettonProductItem = memo((props: JettonProductItemProps) => {
 
 const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     const theme = useTheme();
-    const { hint } = props;
+    const { hint, jettonViewType } = props;
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const balance = BigInt(hint.balance) ?? 0n;
@@ -336,6 +338,53 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
         : false;
 
     const masterState: JettonMasterState & { address: string } = mapJettonFullToMasterState(hint);
+
+    const showRate = !!rate && jettonViewType === JettonViewType.Default;
+    const subtitle = useMemo(() => {
+        switch (jettonViewType) {
+            case JettonViewType.Default:
+                return (
+                    <Text
+                        numberOfLines={1} ellipsizeMode={'tail'}
+                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                    >
+                        <Text style={{ flexShrink: 1 }}>
+                            {isSCAM && (
+                                <Text style={{ color: theme.accentRed }}>
+                                    {'SCAM'}
+                                </Text>
+                            )}
+                            {rate && (
+                                <ValueComponent
+                                    value={toNano(rate)}
+                                    precision={2}
+                                    suffix={` ${CurrencySymbols[currency]?.symbol}`}
+                                    forcePrecision
+                                />
+                            )}
+                        </Text>
+                    </Text>
+                );
+            case JettonViewType.Receive:
+                return null;
+            case JettonViewType.Transfer:
+                return (
+                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                        <ValueComponent
+                            value={balance}
+                            decimals={hint.jetton.decimals}
+                            precision={2}
+                            forcePrecision
+                            centFontStyle={{ color: theme.textSecondary }}
+                            suffix={` ${symbol}`}
+                        />
+                    </Text>
+                );
+            default:
+                return null;
+        }
+
+    }, [rate, balance, symbol, jettonViewType, currency, isSCAM, theme]);
 
     return (
         (props.rightAction) ? (
@@ -406,7 +455,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 isTestnet={isTestnet}
                                 backgroundColor={theme.surfaceOnElevation}
                             />
-                            <View style={{ marginLeft: 12, flex: 1 }}>
+                            <View style={{ marginLeft: 12, flex: 1, justifyContent: 'center' }}>
                                 <PerfText
                                     style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
                                     ellipsizeMode="tail"
@@ -414,26 +463,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 >
                                     {name}
                                 </PerfText>
-                                <Text
-                                    numberOfLines={1} ellipsizeMode={'tail'}
-                                    style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                >
-                                    <Text style={{ flexShrink: 1 }}>
-                                        {isSCAM && (
-                                            <Text style={{ color: theme.accentRed }}>
-                                                {'SCAM'}
-                                            </Text>
-                                        )}
-                                        {!!rate && (
-                                            <ValueComponent
-                                                value={toNano(rate)}
-                                                precision={2}
-                                                suffix={` ${CurrencySymbols[currency]?.symbol}`}
-                                                forcePrecision
-                                            />
-                                        )}
-                                    </Text>
-                                </Text>
+                                {subtitle}
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
                                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
@@ -493,7 +523,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         theme={theme}
                         isTestnet={isTestnet}
                     />
-                    <View style={{ marginLeft: 12, flex: 1 }}>
+                    <View style={{ marginLeft: 12, flex: 1, justifyContent: 'center' }}>
                         <PerfText
                             style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
                             ellipsizeMode="tail"
@@ -501,26 +531,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         >
                             {name}
                         </PerfText>
-                        <Text
-                            numberOfLines={1} ellipsizeMode={'tail'}
-                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                        >
-                            <Text style={{ flexShrink: 1 }}>
-                                {isSCAM && (
-                                    <Text style={{ color: theme.accentRed }}>
-                                        {'SCAM'}
-                                    </Text>
-                                )}
-                                {!!rate && (
-                                    <ValueComponent
-                                        value={toNano(rate)}
-                                        precision={2}
-                                        suffix={` ${CurrencySymbols[currency]?.symbol}`}
-                                        forcePrecision
-                                    />
-                                )}
-                            </Text>
-                        </Text>
+                        {subtitle}
                     </View>
                     {!props.selectParams ? (
                         <View style={{ alignItems: 'flex-end' }}>

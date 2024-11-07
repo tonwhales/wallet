@@ -1,14 +1,13 @@
 import { useCallback, useMemo } from "react";
-import { View, Text, useWindowDimensions } from "react-native";
+import { View, Text, useWindowDimensions, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { SelectableButton } from "../../components/SelectableButton";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useCloudValue, useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAccountLite, useCloudValue, useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -18,8 +17,24 @@ import { FlashList } from "@shopify/flash-list";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
+import { ValueComponent } from "../../components/ValueComponent";
+
+import IcCheck from "@assets/ic-check.svg";
 
 type ListItem = { type: 'jetton', hint: JettonFull } | { type: 'ton' };
+
+export enum JettonViewType {
+    Transfer = 'transfer',
+    Receive = 'receive',
+    Default = 'default'
+}
+
+export type AssetsFragmentParams = {
+    target?: string,
+    callback?: (selected?: { wallet?: Address, master: Address }) => void,
+    selectedJetton?: Address,
+    jettonViewType: JettonViewType
+}
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -30,11 +45,7 @@ export const AssetsFragment = fragment(() => {
     const selected = useSelectedAccount();
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
-    const { target, callback, selectedJetton } = useParams<{
-        target: string,
-        callback?: (selected?: { wallet?: Address, master: Address }) => void,
-        selectedJetton?: Address
-    }>();
+    const { target, callback, selectedJetton, jettonViewType } = useParams<AssetsFragmentParams>();
 
     const route = useRoute();
     const isLedgerScreen = route.name === 'LedgerAssets';
@@ -47,7 +58,7 @@ export const AssetsFragment = fragment(() => {
     }, [ledgerTransport, isLedgerScreen]);
 
     const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
-
+    const account = useAccountLite(owner);
     const hints = useHintsFull(owner.toString({ testOnly: network.isTestnet })).data?.hints ?? [];
 
     const visibleList = useMemo(() => {
@@ -153,16 +164,51 @@ export const AssetsFragment = fragment(() => {
                                 selected={selectedJetton}
                                 isTestnet={network.isTestnet}
                                 theme={theme}
+                                jettonViewType={jettonViewType}
                             />
                         )
                     }
 
                     return (
-                        <SelectableButton
-                            title={'TON'}
-                            subtitle={t('common.balance')}
-                            onSelect={onTonSelected}
-                            icon={
+                        // <SelectableButton
+                        //     title={'TON'}
+                        //     onSelect={onTonSelected}
+                        //     icon={
+                        //         <View style={{ width: 46, height: 46 }}>
+                        //             <Image
+                        //                 source={require('@assets/ic-ton-acc.png')}
+                        //                 style={{ height: 46, width: 46 }}
+                        //             />
+                        //             <View style={{
+                        //                 justifyContent: 'center', alignItems: 'center',
+                        //                 height: 20, width: 20, borderRadius: 10,
+                        //                 position: 'absolute', right: -2, bottom: -2,
+                        //                 backgroundColor: theme.surfaceOnBg
+                        //             }}>
+                        //                 <Image
+                        //                     source={require('@assets/ic-verified.png')}
+                        //                     style={{ height: 20, width: 20 }}
+                        //                 />
+                        //             </View>
+                        //         </View>
+                        //     }
+                        //     style={{ height: 86 }}
+                        //     selected={!selectedJetton}
+                        //     hideSelection={!callback}
+                        // />
+                        <View style={{ height: 86 }}>
+                            <Pressable
+                                style={{
+                                    backgroundColor: theme.surfaceOnElevation,
+                                    padding: 20,
+                                    marginBottom: 16,
+                                    borderRadius: 20,
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}
+                                onPress={onTonSelected}
+                            >
                                 <View style={{ width: 46, height: 46 }}>
                                     <Image
                                         source={require('@assets/ic-ton-acc.png')}
@@ -180,11 +226,34 @@ export const AssetsFragment = fragment(() => {
                                         />
                                     </View>
                                 </View>
-                            }
-                            style={{ height: 86 }}
-                            selected={!selectedJetton}
-                            hideSelection={!callback}
-                        />
+                                <View style={{ justifyContent: 'center', flexGrow: 1, flex: 1, marginLeft: 12 }}>
+                                    <Text style={[{ flexShrink: 1, color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                        {'TON'}
+                                    </Text>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                            <ValueComponent
+                                                value={account?.balance || 0n}
+                                                precision={2}
+                                                suffix={' TON'}
+                                                centFontStyle={{ color: theme.textSecondary }}
+                                                forcePrecision
+                                            />
+                                    </Text>
+                                </View>
+                                {!!callback && (
+                                    <View style={{
+                                        justifyContent: 'center', alignItems: 'center',
+                                        height: 24, width: 24,
+                                        backgroundColor: selected ? theme.accent : theme.divider,
+                                        borderRadius: 12
+                                    }}>
+                                        {!selectedJetton && (
+                                            <IcCheck color={theme.white} height={16} width={16} style={{ height: 16, width: 16 }} />
+                                        )}
+                                    </View>
+                                )}
+                            </Pressable>
+                        </View>
                     )
                 }}
                 // to see less blank space

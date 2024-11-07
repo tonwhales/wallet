@@ -3,6 +3,7 @@ import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { JettonProductItem } from "../products/JettonProductItem";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
+import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
 
 export const AssetsListItem = memo(({
     hint,
@@ -11,7 +12,8 @@ export const AssetsListItem = memo(({
     selected,
     hideSelection,
     isTestnet,
-    theme
+    theme,
+    jettonViewType
 }: {
     hint: JettonFull,
     owner: Address,
@@ -19,7 +21,8 @@ export const AssetsListItem = memo(({
     selected?: Address,
     hideSelection?: boolean,
     isTestnet: boolean,
-    theme: ThemeType
+    theme: ThemeType,
+    jettonViewType: JettonViewType
 }) => {
 
     const selectedFn = useCallback((h: JettonFull) => {
@@ -36,9 +39,8 @@ export const AssetsListItem = memo(({
                 selectedFn,
                 hideSelection
             }}
-            itemStyle={{
-                backgroundColor: theme.surfaceOnElevation
-            }}
+            itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
+            jettonViewType={jettonViewType}
         />
     );
 });

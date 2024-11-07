@@ -22,6 +22,7 @@ import { Platform } from 'react-native';
 import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
 import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
 import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
+import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -256,6 +257,14 @@ export class TypedNavigation {
 
     navigateReceive(params?: ReceiveFragmentParams) {
         this.navigate('Receive', params);
+    }
+
+    navigateAssets(params: AssetsFragmentParams, isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerAssets', params);
+            return;
+        }
+        this.navigate('Assets', params);
     }
 }
 

@@ -8,6 +8,7 @@ import { useMarkJettonActive } from "../../engine/hooks/jettons/useMarkJettonAct
 import { Typography } from "../styles";
 import { Address } from "@ton/core";
 import { Image } from "expo-image";
+import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
 
 const showIcon = <Image source={require('@assets/ic-show.png')} style={{ width: 36, height: 36 }} />;
 
@@ -67,6 +68,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
                             single={hiddenList.length === 1}
                             owner={owner}
                             card
+                            jettonViewType={JettonViewType.Default}
                         />
                     )
                 }}

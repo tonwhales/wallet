@@ -50,6 +50,7 @@ import { Image } from 'expo-image';
 import { mapJettonToMasterState } from '../../utils/jettons/mapJettonToMasterState';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { JettonViewType } from '../wallet/AssetsFragment';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -549,8 +550,8 @@ const SimpleTransferComponent = () => {
 
     const keyboard = useKeyboard();
 
-    const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
-        if (selected) {
+    const onAssetSelected = useCallback((selected?: { master: Address, wallet?: Address }) => {
+        if (selected && selected.wallet) {
             setJetton(selected.wallet);
             return;
         }
@@ -946,12 +947,13 @@ const SimpleTransferComponent = () => {
                         >
                             <Pressable
                                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                                onPress={() => navigation.navigate(
-                                    isLedger ? 'LedgerAssets' : 'Assets',
+                                onPress={() => navigation.navigateAssets(
                                     {
                                         callback: onAssetSelected,
-                                        selectedJetton: jetton?.master
-                                    }
+                                        selectedJetton: jetton?.master,
+                                        jettonViewType: JettonViewType.Transfer
+                                    },
+                                    isLedger
                                 )}
                             >
                                 <View style={{

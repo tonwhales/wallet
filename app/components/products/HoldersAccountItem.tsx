@@ -44,6 +44,16 @@ const tonIcon = (
     />
 );
 
+const topUpIcon = (
+    <Image
+        source={require('@assets/ic-acc-topup.png')}
+        style={{
+            height: 24,
+            width: 24
+        }}
+    />
+);
+
 function resolveIcon(params: { image?: { blurhash: string, preview256: string } | null, ticker?: string }) {
 
     if (params.ticker === 'USDT') {
@@ -137,6 +147,19 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: props.account.id }, props.isTestnet);
     }, [props.account, needsEnrollment, props.isTestnet]);
 
+    const onTopUp = useCallback(() => {
+        props.onBeforeOpen?.();
+
+        if (needsEnrollment) {
+            const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Topup, id: props.account.id };
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
+            return;
+        }
+
+        navigation.navigateHolders({ type: HoldersAppParamsType.Topup, id: props.account.id }, props.isTestnet);
+    }, [props.account, needsEnrollment, props.isTestnet]);
+
+
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     let subtitle = isPro ? t('products.holders.accounts.proAccount') : t('products.holders.accounts.basicAccount');
@@ -175,14 +198,13 @@ export const HoldersAccountItem = memo((props: {
             renderRightActions={renderRightAction}
         >
             <Animated.View style={animatedStyle}>
-                <TouchableOpacity
-                    style={{ borderRadius: 20, overflow: 'hidden' }}
-                    onPressIn={onPressIn}
-                    onPressOut={onPressOut}
-                    onPress={onPress}
-                    activeOpacity={0.8}
-                >
-                    <View style={[{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
+                <View style={[{ borderRadius: 20, overflow: 'hidden', flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
+                    <TouchableOpacity
+                        onPressIn={onPressIn}
+                        onPressOut={onPressOut}
+                        onPress={onPress}
+                        activeOpacity={0.8}
+                    >
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                             {resolveIcon({ image: jettonMasterContent?.image, ticker: props.account.cryptoCurrency?.ticker })}
                             <View style={{ marginLeft: 12, flexShrink: 1 }}>
@@ -254,10 +276,26 @@ export const HoldersAccountItem = memo((props: {
                         ) : (
                             <View style={{ height: 20 }} />
                         )}
-                    </View>
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                    <Pressable
+                        onPress={onTopUp}
+                        style={({ pressed }) => ({
+                            flexDirection: 'row',
+                            gap: 8,
+                            opacity: pressed ? 0.5 : 1,
+                            marginLeft: 78,
+                            marginBottom: 20,
+                            alignItems: 'center'
+                        })}
+                    >
+                        {topUpIcon}
+                        <Text style={[{ color: theme.textThird }, Typography.medium15_20]}>
+                            {t('products.holders.accounts.topUp')}
+                        </Text>
+                    </Pressable>
+                </View>
             </Animated.View>
-        </Swipeable>
+        </Swipeable >
     );
 });
 HoldersAccountItem.displayName = 'HoldersAccountItem';

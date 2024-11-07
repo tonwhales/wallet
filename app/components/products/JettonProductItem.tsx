@@ -2,8 +2,6 @@ import * as React from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
-import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
-import Animated from 'react-native-reanimated';
 import { Suspense, memo, useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useNetwork, usePrimaryCurrency, useTheme, useVerifyJetton } from '../../engine/hooks';
@@ -303,8 +301,6 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
         master: hint.jetton.address
     });
 
-    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
-
     const onPress = useCallback(() => {
         if (!hint) {
             return;
@@ -343,10 +339,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
 
     return (
         (props.rightAction) ? (
-            <Animated.View style={[
-                { flex: 1, flexDirection: 'row', paddingHorizontal: props.card ? 0 : 16 },
-                animatedStyle
-            ]}>
+            <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: props.card ? 0 : 16 }}>
                 <Swipeable
                     ref={swipableRef}
                     overshootRight={false}
@@ -397,9 +390,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                     }}
                 >
                     <Pressable
-                        style={({ pressed }) => ({ flexGrow: 1, opacity: pressed ? 0.8 : 1 })}
-                        onPressIn={onPressIn}
-                        onPressOut={onPressOut}
+                        style={({ pressed }) => ({ flexGrow: 1, opacity: pressed ? 0.5 : 1 })}
                         onPress={onPress}
                     >
                         <View style={[{
@@ -481,22 +472,19 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         }}
                     />
                 )}
-            </Animated.View>
+            </View>
         ) : (
             <Pressable
-                onPressIn={onPressIn}
-                onPressOut={onPressOut}
-                style={{ flex: 1, borderRadius: 20, overflow: 'hidden', maxHeight: 102 }}
+                style={({ pressed }) => ({ flex: 1, borderRadius: 20, overflow: 'hidden', maxHeight: 102, opacity: pressed ? 0.5 : 1 })}
                 onPress={onPress}
             >
-                <Animated.View style={[
+                <View style={[
                     {
                         flexDirection: 'row', flexGrow: 1,
                         alignItems: 'center',
                         padding: 20,
                         backgroundColor: theme.surfaceOnBg
                     },
-                    animatedStyle,
                     props.itemStyle
                 ]}>
                     <JettonIcon
@@ -576,7 +564,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                             </View>
                         )
                     )}
-                </Animated.View>
+                </View>
                 {!props.last && !props.card && (
                     <PerfView
                         style={{

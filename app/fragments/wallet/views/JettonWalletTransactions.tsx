@@ -332,7 +332,7 @@ export const JettonWalletTransactions = memo((props: {
             refreshing={props.loading}
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={1}
-            keyExtractor={(item) => 'tx-' + item.trace_id}
+            keyExtractor={(item) => 'tx-' + item.trace_id + item.transaction_lt}
         />
     );
 });

@@ -85,8 +85,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
 
     const onRefresh = useCallback(() => {
         txs.refresh();
-        queryClient.refetchQueries({ queryKey: Queries.HintsFull(owner) });
-    }, [txs.refresh, owner]);
+    }, [txs.refresh]);
 
     const [currency] = usePrimaryCurrency();
     const rate = jetton?.prices?.[currency];

@@ -3,6 +3,7 @@ import { Queries } from '../../queries';
 import { useNetwork } from '..';
 import { log } from '../../../utils/log';
 import { fetchJettonTransactions } from '../../api/fetchJettonTransactions';
+import { queryClient } from '../../clients';
 
 const TRANSACTIONS_LENGTH = 16;
 
@@ -57,6 +58,10 @@ export function useJettonTransactions(owner: string, master: string, options: { 
 
             if (sliceFirst) {
                 txs = txs.slice(1);
+            }
+
+            if (!lt && !hash) {
+                queryClient.refetchQueries({ queryKey: Queries.HintsFull(owner) });
             }
 
             return txs;

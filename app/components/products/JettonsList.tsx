@@ -119,6 +119,20 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
         }
     }, [jettons, filter, testOnly]);
 
+    const renderItem = useCallback(({ item }: { item: JettonFull }) => {
+        return (
+            <JettonProductItem
+                card
+                last
+                hint={item}
+                itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
+                ledger={isLedger}
+                owner={selected!.address}
+                jettonViewType={JettonViewType.Default}
+            />
+        );
+    }, [theme, isLedger, selected]);
+
     return (
         <Animated.View
             style={{ flexGrow: 1 }}
@@ -148,17 +162,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
             />
             <FlashList
                 data={filteredJettons}
-                renderItem={({ item }: { item: JettonFull }) => (
-                    <JettonProductItem
-                        card
-                        last
-                        hint={item}
-                        itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
-                        ledger={isLedger}
-                        owner={selected!.address}
-                        jettonViewType={JettonViewType.Default}
-                    />
-                )}
+                renderItem={renderItem}
                 // to see less blank space
                 estimatedItemSize={80}
                 contentContainerStyle={{ paddingHorizontal: 16 }}

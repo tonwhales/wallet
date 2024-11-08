@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { View, Text, Image } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { t } from "../../i18n/t";
@@ -8,10 +8,24 @@ import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
 import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
+import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { address: Address, testOnly: boolean }) => {
     const theme = useTheme();
     const hints = useHintsFull(address.toString({ testOnly })).data?.hints ?? [];
+
+    const renderItem = useCallback((h: JettonFull) => {
+        return (
+            <JettonProductItem
+                key={'jt' + h.jetton.address}
+                hint={h}
+                card
+                ledger
+                owner={address}
+                jettonViewType={JettonViewType.Default}
+            />
+        );
+    }, [address]);
 
     if (hints.length === 0) {
         return null;
@@ -56,16 +70,7 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
                 items={hints}
-                renderItem={(h) => (
-                    <JettonProductItem
-                        key={'jt' + h.jetton.address}
-                        hint={h}
-                        card
-                        ledger
-                        owner={address}
-                        jettonViewType={JettonViewType.Default}
-                    />
-                )}
+                renderItem={renderItem}
                 renderFace={() => {
                     return (
                         <View style={[

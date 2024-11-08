@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { View, Text } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { useMarkJettonDisabled } from "../../engine/hooks/jettons/useMarkJettonDisabled";
@@ -10,6 +10,7 @@ import { Typography } from "../styles";
 import { Address } from "@ton/core";
 import { Image } from "expo-image";
 import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
+import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
@@ -21,7 +22,24 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const visibleList = hints
-        .filter((s) => !disabledState.disabled[s.jetton.address])
+        .filter((s) => !disabledState.disabled[s.jetton.address]);
+
+        const renderItem = useCallback((hint: JettonFull) => {
+            if (!hint) {
+                return null;
+            }
+            return (
+                <JettonProductItem
+                    key={'jt' + hint.jetton.address}
+                    hint={hint}
+                    rightAction={() => markJettonDisabled(hint.jetton.address)}
+                    rightActionIcon={hideIcon}
+                    card
+                    owner={owner}
+                    jettonViewType={JettonViewType.Default}
+                />
+            )
+        }, [hideIcon, owner, markJettonDisabled]);
 
     if (visibleList.length === 0) {
         return null;
@@ -67,22 +85,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
                 items={visibleList}
-                renderItem={(hint) => {
-                    if (!hint) {
-                        return null;
-                    }
-                    return (
-                        <JettonProductItem
-                            key={'jt' + hint.jetton.address}
-                            hint={hint}
-                            rightAction={() => markJettonDisabled(hint.jetton.address)}
-                            rightActionIcon={hideIcon}
-                            card
-                            owner={owner}
-                            jettonViewType={JettonViewType.Default}
-                        />
-                    )
-                }}
+                renderItem={renderItem}
                 renderFace={() => {
                     return (
                         <View style={[

@@ -398,7 +398,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                 return null;
         }
 
-    }, [rate, balance, symbol, jettonViewType, currency, isSCAM, theme]);
+    }, [rate, balance, symbol, jettonViewType, currency, isSCAM, theme, hint.jetton.decimals]);
 
     return (
         (props.rightAction) ? (

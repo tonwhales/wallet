@@ -170,32 +170,6 @@ export const AssetsFragment = fragment(() => {
                     }
 
                     return (
-                        // <SelectableButton
-                        //     title={'TON'}
-                        //     onSelect={onTonSelected}
-                        //     icon={
-                        //         <View style={{ width: 46, height: 46 }}>
-                        //             <Image
-                        //                 source={require('@assets/ic-ton-acc.png')}
-                        //                 style={{ height: 46, width: 46 }}
-                        //             />
-                        //             <View style={{
-                        //                 justifyContent: 'center', alignItems: 'center',
-                        //                 height: 20, width: 20, borderRadius: 10,
-                        //                 position: 'absolute', right: -2, bottom: -2,
-                        //                 backgroundColor: theme.surfaceOnBg
-                        //             }}>
-                        //                 <Image
-                        //                     source={require('@assets/ic-verified.png')}
-                        //                     style={{ height: 20, width: 20 }}
-                        //                 />
-                        //             </View>
-                        //         </View>
-                        //     }
-                        //     style={{ height: 86 }}
-                        //     selected={!selectedJetton}
-                        //     hideSelection={!callback}
-                        // />
                         <View style={{ height: 86 }}>
                             <Pressable
                                 style={{

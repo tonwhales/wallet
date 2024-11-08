@@ -339,10 +339,24 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
 
     const masterState: JettonMasterState & { address: string } = mapJettonFullToMasterState(hint);
 
-    const showRate = !!rate && jettonViewType === JettonViewType.Default;
     const subtitle = useMemo(() => {
         switch (jettonViewType) {
             case JettonViewType.Default:
+                const showRate = !!rate && rate !== 0;
+
+                if (!showRate && !isSCAM) {
+                    return null;
+                } else if (isSCAM) {
+                    return (
+                        <Text
+                            numberOfLines={1} ellipsizeMode={'tail'}
+                            style={[{ color: theme.accentRed }, Typography.regular15_20]}
+                        >
+                            {'SCAM'}
+                        </Text>
+                    )
+                }
+
                 return (
                     <Text
                         numberOfLines={1} ellipsizeMode={'tail'}
@@ -354,7 +368,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                     {'SCAM'}
                                 </Text>
                             )}
-                            {rate && (
+                            {showRate && (
                                 <ValueComponent
                                     value={toNano(rate)}
                                     precision={2}

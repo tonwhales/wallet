@@ -117,7 +117,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
             const filtered = jettons.filter((j) => filterFn(getHintFull(j, testOnly)));
             setFilteredJettons(filtered);
         }
-    }, [jettons, filter]);
+    }, [jettons, filter, testOnly]);
 
     return (
         <Animated.View

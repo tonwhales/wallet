@@ -307,7 +307,7 @@ export const PendingTransactions = memo(({
         // Show only pending on history tab
         if (viewType !== 'main') {
             return pending
-                .filter(((tx) => tx.status !== 'sent' && tx.status !== 'timed-out'))
+                .filter((tx) => tx.status !== 'sent' && tx.status !== 'timed-out')
                 .filter(filter ?? (() => true));
         }
 

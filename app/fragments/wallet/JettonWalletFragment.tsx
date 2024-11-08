@@ -21,6 +21,7 @@ import { CurrencySymbols } from "../../utils/formatCurrency";
 import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
 import { PendingTransactions } from "./views/PendingTransactions";
 import { useFocusEffect } from "@react-navigation/native";
+import { PendingTransaction } from "../../engine/state/pending";
 
 export type JettonWalletFragmentProps = {
     owner: string;
@@ -92,16 +93,24 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
     const balance = jetton?.balance ?? 0n;
     const swapAmount = rate ? calculateSwapAmount(balance, rate, decimals) : undefined;
 
+    const pendingFilter = useCallback((ptx: PendingTransaction) => {
+        if (ptx.body?.type !== 'token') {
+            return false;
+        }
+
+        return ptx.body.jetton.master.toString({ testOnly: isTestnet }) === master;
+    }, [isTestnet]);
+
+    useFocusEffect(() => {
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+    });
+
     if (!jetton) {
         navigation.goBack();
         return null;
     }
 
     const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
-
-    useFocusEffect(() => {
-        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-    });
 
     return (
         <View style={[styles.container, Platform.select({
@@ -187,13 +196,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                 address={ownerAddress.toString({ testOnly: isTestnet })}
                                 onChange={onRefresh}
                                 viewType={'jetton-history'}
-                                filter={(ptx) => {
-                                    if (ptx.body?.type !== 'token') {
-                                        return false;
-                                    }
-
-                                    return ptx.body.jetton.master.toString({ testOnly: isTestnet }) === master;
-                                }}
+                                filter={pendingFilter}
                             />
                         </View>
                     </View>

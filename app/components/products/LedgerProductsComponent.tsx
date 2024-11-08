@@ -5,7 +5,6 @@ import { StakingProductComponent } from "./StakingProductComponent";
 import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
 import { useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { TonProductComponent } from "./TonProductComponent";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
 import { Address } from "@ton/core";
@@ -13,7 +12,6 @@ import { PendingTransactions } from "../../fragments/wallet/views/PendingTransac
 
 export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
     const theme = useTheme();
-    const navigation = useTypedNavigation();
     const address = Address.parse(addr);
 
     return (
@@ -40,7 +38,6 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
                     <TonProductComponent
                         key={'ton-native'}
                         theme={theme}
-                        navigation={navigation}
                         address={address}
                         testOnly={testOnly}
                         isLedger={true}
@@ -49,7 +46,6 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
                     <SpecialJettonProduct
                         key={'special-jettton'}
                         theme={theme}
-                        navigation={navigation}
                         address={address}
                         testOnly={testOnly}
                         divider={'top'}

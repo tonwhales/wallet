@@ -1,5 +1,5 @@
 import { backoff } from '../../utils/time';
-import { onAccountTouched, onAccountsTouched } from './onAccountTouched';
+import { onAccountsTouched } from './onAccountTouched';
 import { queryClient } from '../clients';
 import { Address, TonClient4 } from '@ton/ton';
 
@@ -7,18 +7,23 @@ export function getMissedBlocksRange(lastBlock: number, newBlock: number) {
     return [...new Array(newBlock - lastBlock - 1).fill(0).map((a, i) => lastBlock + i + 1)];
 }
 
+async function invalidateAllAccounts() {
+    await queryClient.invalidateQueries({
+        queryKey: ['account'],
+    });
+
+    await queryClient.invalidateQueries({
+        queryKey: ['transactions'],
+        refetchPage: (last, index, allPages) => index == 0,
+    });
+
+    await queryClient.invalidateQueries({
+        queryKey: ['hints', 'full'],
+        refetchPage: (last, index, allPages) => index == 0,
+    });
+}
+
 export async function onBlockMissed(client: TonClient4, lastBlock: number, newBlock: number, isTestnet: boolean) {
-    async function invalidateAllAccounts() {
-        await queryClient.invalidateQueries({
-            queryKey: ['account'],
-        });
-
-        await queryClient.invalidateQueries({
-            queryKey: ['transactions'],
-            refetchPage: (last, index, allPages) => index == 0,
-        });
-    }
-
     let missedBlocksRange = getMissedBlocksRange(lastBlock, newBlock);
     if (missedBlocksRange.length < 5) {
         try {

@@ -3,15 +3,14 @@ import { Queries } from '../../queries';
 import { useNetwork } from '../network/useNetwork';
 import { jettonWalletAddressQueryFn } from './usePrefetchHints';
 
-export function useJettonWalletAddress(master?: string | null, wallet?: string | null, suspense: boolean = false) {
+export function useJettonWalletAddress(master?: string | null, account?: string | null, suspense: boolean = false) {
     let isTestnet = useNetwork().isTestnet;
 
     return useQuery({
-        queryKey: Queries.Jettons().Address(wallet!).Wallet(master!),
-        queryFn: jettonWalletAddressQueryFn(master!, wallet!, isTestnet),
-        enabled: !!master && !!wallet,
+        queryKey: Queries.Jettons().Address(account!).Wallet(master!),
+        queryFn: jettonWalletAddressQueryFn(master!, account!, isTestnet),
+        enabled: !!master && !!account,
         suspense,
-        refetchOnMount: true,
-        refetchOnWindowFocus: true
+        refetchOnMount: true
     });
 }

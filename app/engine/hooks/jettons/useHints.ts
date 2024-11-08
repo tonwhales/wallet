@@ -11,7 +11,7 @@ import { getQueryData } from '../../utils/getQueryData';
 const txsHintsKey = 'txsHints';
 const txsHintsCodec = z.array(z.string());
 
-function getTxsHints(owner: string): string[] {
+export function getTxsHints(owner: string): string[] {
     const hints = storagePersistence.getString(`${txsHintsKey}/${owner}`);
     if (!hints) {
         return [];
@@ -47,9 +47,8 @@ export function useHints(addressString?: string): string[] {
             return Array.from(hints);
         },
         enabled: !!addressString,
-        refetchInterval: 15_000,
         refetchOnMount: true,
-        refetchOnWindowFocus: true
+        staleTime: 1000 * 30
     });
 
     return hints.data || [];
@@ -83,9 +82,8 @@ export function useMintlessHints(addressString?: string): MintlessJetton[] {
             }
         },
         enabled: !!addressString,
-        refetchInterval: 15_000,
         refetchOnMount: true,
-        refetchOnWindowFocus: true
+        staleTime: 1000 * 30
     });
 
     return hints.data || [];

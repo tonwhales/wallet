@@ -2,9 +2,9 @@ import { Address } from '@ton/core';
 import { queryClient } from '../clients';
 import { Queries } from '../queries';
 import { getQueryData } from '../utils/getQueryData';
-import { StoredJettonWallet } from '../metadata/StoredMetadata';
 
 export async function onAccountsTouched(accounts: Set<string>) {
+    const cache = queryClient.getQueryCache();
     queryClient.invalidateQueries({
         predicate: (query) => {
             const queryKey = query.queryKey as string[];
@@ -15,23 +15,6 @@ export async function onAccountsTouched(accounts: Set<string>) {
                     return false;
                 }
 
-                // Invalidate all jetton txs query on jetton wallet touched
-                if (queryKey[2] === 'jettonWallet') {
-                    const queryCache = queryClient.getQueryCache();
-                    const jettonWalletData = getQueryData<StoredJettonWallet>(queryCache, query.queryKey);
-
-                    if (jettonWalletData) {
-                        const master = jettonWalletData.master;
-                        const owner = jettonWalletData.owner;
-
-                        queryClient.invalidateQueries({
-                            queryKey: Queries.Jettons().Address(owner).Transactions(master),
-                            refetchPage: (last, index, allPages) => index == 0,
-                        });
-                    }
-
-                }
-
                 return true;
             } else if (queryKey[0] === 'transactions') {
                 return accounts.has(queryKey[1]);
@@ -39,6 +22,23 @@ export async function onAccountsTouched(accounts: Set<string>) {
                 return accounts.has(queryKey[3]);
             } else if (queryKey[0] === 'staking' && queryKey[1] === 'member' && queryKey[2] === 'liquid') {
                 return accounts.has(queryKey[4]);
+            } else if (queryKey[0] === 'jettons' && queryKey[1] === 'address' && queryKey[3] === 'master' && queryKey[5] === 'transactions') {
+                if (accounts.has(queryKey[2])) {
+                    queryClient.invalidateQueries({
+                        queryKey: queryKey,
+                        refetchPage: (last, index, allPages) => index == 0,
+                    });
+                }
+            } else if (queryKey[0] === 'jettons' && queryKey[1] === 'full') {
+                const cached = getQueryData<{ addressesIndex: Record<string, number> }>(cache, queryKey);
+                if (cached) {
+                    for (const address of accounts) {
+                        const index = cached.addressesIndex[address];
+                        if (index !== undefined) {
+                            return true;
+                        }
+                    }
+                }
             }
             return false;
         },
@@ -50,6 +50,7 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
     let address = Address.parse(account).toString({ testOnly: isTestnet });
 
     queryClient.invalidateQueries(Queries.Account(address).All());
+    queryClient.invalidateQueries(Queries.HintsFull(address));
     queryClient.invalidateQueries({
         queryKey: Queries.Transactions(address),
         refetchPage: (last, index, allPages) => index == 0,

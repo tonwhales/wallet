@@ -47,7 +47,7 @@ export const DeleteAccountFragment = fragment(() => {
     const selected = useSelectedAccount();
     const account = useAccountLite(selected?.address);
     const walletVersion = useWalletVersion();
-    const specialJetton = useSpecialJetton(selected?.address);
+    const specialJetton = useSpecialJetton(selected!.address);
     const specialJettonBalance = specialJetton?.balance ?? 0n;
 
     const onAccountDeleted = useDeleteCurrentAccount();

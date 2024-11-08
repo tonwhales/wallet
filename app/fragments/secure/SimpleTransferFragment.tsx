@@ -22,7 +22,7 @@ import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRe
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useConfig, useJettonContent, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
+import { useAccountLite, useClient4, useConfig, useJetton, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -47,8 +47,10 @@ import { useJettonPayload } from '../../engine/hooks/jettons/useJettonPayload';
 import { useHoldersAccountTrargets } from '../../engine/hooks/holders/useHoldersAccountTrargets';
 import { AddressSearchItem } from '../../components/address/AddressSearch';
 import { Image } from 'expo-image';
+import { mapJettonToMasterState } from '../../utils/jettons/mapJettonToMasterState';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { JettonViewType } from '../wallet/AssetsFragment';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -93,7 +95,7 @@ const SimpleTransferComponent = () => {
             } catch { }
         }
     }, [addr]);
-    const address = isLedger ? ledgerAddress : acc!.address;
+    const address = isLedger ? ledgerAddress! : acc!.address;
 
     const accountLite = useAccountLite(address);
     const holdersAccounts = useHoldersAccountTrargets(address!);
@@ -121,13 +123,18 @@ const SimpleTransferComponent = () => {
     const forwardAmount = params.forwardAmount ?? null;
     const feeAmount = params.feeAmount ?? null;
 
-    const jettonWallet = useJettonWallet(selectedJetton?.toString({ testOnly: network.isTestnet }), { suspense: true });
-    const jetton = useJettonContent(jettonWallet?.master ?? null);
+    const jetton = useJetton({
+        owner: address?.toString({ testOnly: network.isTestnet }),
+        wallet: selectedJetton?.toString({ testOnly: network.isTestnet })
+    });
     const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons.map((j) => {
         return Address.parse(j.master_id);
-    }).some((j) => jettonWallet?.master && j.equals(Address.parse(jettonWallet.master)));
+    }).some((j) => jetton?.master && j.equals(jetton.master));
     const symbol = jetton ? jetton.symbol : 'TON';
-    const { data: jettonPayload, loading: isJettonPayloadLoading } = useJettonPayload(address?.toString({ testOnly: network.isTestnet }), jettonWallet?.master);
+    const { data: jettonPayload, loading: isJettonPayloadLoading } = useJettonPayload(
+        address?.toString({ testOnly: network.isTestnet }),
+        jetton?.master?.toString({ testOnly: network.isTestnet })
+    );
 
     const targetAddressValid = useMemo(() => {
         if (target.length > 48) {
@@ -140,17 +147,6 @@ const SimpleTransferComponent = () => {
         }
     }, [target]);
 
-    const jettonState = useMemo(() => {
-        if (!selectedJetton) {
-            return null;
-        }
-
-        if (!jettonWallet || !jetton) {
-            return null;
-        }
-        return { wallet: jettonWallet, master: jetton, walletAddress: selectedJetton };
-    }, [selectedJetton, jetton, jettonWallet]);
-
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
 
@@ -161,8 +157,8 @@ const SimpleTransferComponent = () => {
         try {
             const valid = amount.replace(',', '.').replaceAll(' ', '');
             // Manage jettons with decimals
-            if (jettonState) {
-                value = toBnWithDecimals(valid, jettonState.master.decimals ?? 9);
+            if (jetton) {
+                value = toBnWithDecimals(valid, jetton?.decimals ?? 9);
             } else {
                 value = toNano(valid);
             }
@@ -170,10 +166,10 @@ const SimpleTransferComponent = () => {
         } catch {
             return null;
         }
-    }, [amount, jettonState]);
+    }, [amount, jetton]);
 
     const priceText = useMemo(() => {
-        if (!price || jettonState || !validAmount) {
+        if (!price || jetton || !validAmount) {
             return undefined;
         }
 
@@ -185,7 +181,7 @@ const SimpleTransferComponent = () => {
             currency,
             isNeg
         );
-    }, [jettonState, validAmount, price, currency]);
+    }, [jetton, validAmount, price, currency]);
 
     const estimationPrise = useMemo(() => {
         if (!estimation || !price || !validAmount) {
@@ -203,19 +199,19 @@ const SimpleTransferComponent = () => {
     }, [price, currency, estimation]);
 
     const { isSCAM } = useVerifyJetton({
-        ticker: jettonState?.master?.symbol,
-        master: jettonState?.wallet?.master
+        ticker: jetton?.symbol,
+        master: jetton?.master?.toString({ testOnly: network.isTestnet }),
     });
 
     const balance = useMemo(() => {
         let value: bigint;
-        if (jettonState) {
-            value = BigInt(jettonState.wallet.balance);
+        if (jetton) {
+            value = jetton.balance;
         } else {
             value = accountLite?.balance || 0n;
         }
         return value;
-    }, [jettonState, accountLite?.balance, isLedger]);
+    }, [jetton, accountLite?.balance, isLedger]);
 
     const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
@@ -254,10 +250,10 @@ const SimpleTransferComponent = () => {
 
         if (isLedger && ledgerAddress) {
             // Resolve jetton order
-            if (jettonState) {
+            if (jetton) {
                 const txForwardAmount = toNano('0.05') + estim;
                 return createLedgerJettonOrder({
-                    wallet: jettonState.walletAddress,
+                    wallet: jetton.wallet,
                     target: target,
                     domain: domain,
                     responseTarget: ledgerAddress,
@@ -282,7 +278,7 @@ const SimpleTransferComponent = () => {
         }
 
         // Resolve jetton order
-        if (jettonState) {
+        if (jetton) {
             const customPayload = jettonPayload?.customPayload ?? null;
             const customPayloadCell = customPayload ? Cell.fromBoc(Buffer.from(customPayload, 'base64'))[0] : null;
             const stateInit = jettonPayload?.stateInit ?? null;
@@ -297,7 +293,7 @@ const SimpleTransferComponent = () => {
             const tonAmount = forwardAmount ?? 1n;
 
             return createJettonOrder({
-                wallet: jettonState.walletAddress,
+                wallet: jetton.wallet,
                 target: target,
                 domain: domain,
                 responseTarget: acc!.address,
@@ -323,7 +319,7 @@ const SimpleTransferComponent = () => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, known, jettonPayload]);
+    }, [validAmount, target, domain, commentString, stateInit, jetton, params?.app, acc, ledgerAddress, known, jettonPayload]);
 
     const walletVersion = useWalletVersion();
     const isV5 = walletVersion === WalletVersions.v5R1;
@@ -528,12 +524,12 @@ const SimpleTransferComponent = () => {
     }, [commentString, target, validAmount, stateInit, selectedJetton]);
 
     const onAddAll = useCallback(() => {
-        const amount = jettonState
-            ? fromBnWithDecimals(balance, jettonState.master.decimals)
+        const amount = jetton
+            ? fromBnWithDecimals(balance, jetton.decimals)
             : fromNano(balance);
-        const formatted = formatInputAmount(amount.replace('.', ','), jettonState?.master.decimals ?? 9, { skipFormattingDecimals: true });
+        const formatted = formatInputAmount(amount.replace('.', ','), jetton?.decimals ?? 9, { skipFormattingDecimals: true });
         setAmount(formatted);
-    }, [balance, jettonState]);
+    }, [balance, jetton]);
 
     //
     // Scroll state tracking
@@ -554,8 +550,8 @@ const SimpleTransferComponent = () => {
 
     const keyboard = useKeyboard();
 
-    const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
-        if (selected) {
+    const onAssetSelected = useCallback((selected?: { master: Address, wallet?: Address }) => {
+        if (selected && selected.wallet) {
             setJetton(selected.wallet);
             return;
         }
@@ -625,7 +621,7 @@ const SimpleTransferComponent = () => {
         }
 
         if (validAmount === 0n) {
-            if (!!jettonState) {
+            if (!!jetton) {
                 Alert.alert(t('transfer.error.zeroCoins'));
                 return;
             }
@@ -675,7 +671,7 @@ const SimpleTransferComponent = () => {
         stateInit,
         order,
         callback,
-        jettonState,
+        jetton,
         ledgerAddress,
         isLedger,
         balance,
@@ -697,11 +693,11 @@ const SimpleTransferComponent = () => {
 
     const holdersTarget = holdersAccounts?.find((a) => targetAddressValid?.address.equals(a.address));
     const holdersTargetJetton = holdersTarget?.jettonMaster ? Address.parse(holdersTarget.jettonMaster) : null;
-    const jettonMaster = jettonState?.master?.address ? Address.parse(jettonState.master.address) : null;
+    const jettonMaster = jetton?.master;
     const shouldAddMemo = holdersTarget?.memo ? (holdersTarget.memo !== commentString) : false;
     const shouldChangeJetton = holdersTargetJetton
         ? !jettonMaster?.equals(holdersTargetJetton)
-        : holdersTarget && !!jettonState && holdersTarget.symbol === 'TON';
+        : holdersTarget && !!jetton && holdersTarget.symbol === 'TON';
 
     const amountError = useMemo(() => {
         if (shouldChangeJetton) {
@@ -720,7 +716,7 @@ const SimpleTransferComponent = () => {
         if (validAmount > balance) {
             return t('transfer.error.notEnoughCoins');
         }
-        if (validAmount === 0n && !!jettonState) {
+        if (validAmount === 0n && !!jetton) {
             return t('transfer.error.zeroCoins');
         }
 
@@ -951,12 +947,13 @@ const SimpleTransferComponent = () => {
                         >
                             <Pressable
                                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                                onPress={() => navigation.navigate(
-                                    isLedger ? 'LedgerAssets' : 'Assets',
+                                onPress={() => navigation.navigateAssets(
                                     {
                                         callback: onAssetSelected,
-                                        selectedJetton: jettonState ? Address.parse(jettonWallet!.master) : undefined
-                                    }
+                                        selectedJetton: jetton?.master,
+                                        jettonViewType: JettonViewType.Transfer
+                                    },
+                                    isLedger
                                 )}
                             >
                                 <View style={{
@@ -970,60 +967,40 @@ const SimpleTransferComponent = () => {
                                             justifyContent: 'center', alignItems: 'center',
                                             marginRight: 12
                                         }}>
-                                            {!!jettonState ? (
+                                            {!!jetton ? (
                                                 <JettonIcon
                                                     isTestnet={network.isTestnet}
                                                     theme={theme}
                                                     size={46}
-                                                    jetton={jettonState.master}
+                                                    jetton={mapJettonToMasterState(jetton, network.isTestnet)}
                                                     backgroundColor={theme.elevation}
                                                     isSCAM={isSCAM}
                                                 />
                                             ) : (
                                                 <Image
                                                     source={require('@assets/ic-ton-acc.png')}
-                                                    style={{
-
-                                                        height: 46,
-                                                        width: 46
-                                                    }}
+                                                    style={{ height: 46, width: 46 }}
                                                 />
                                             )}
                                         </View>
-                                        <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
-                                            <Text style={{
-                                                fontSize: 17,
-                                                color: theme.textPrimary,
-                                                fontWeight: '600',
-                                                lineHeight: 24
-                                            }}>
+                                        <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
+                                            <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                                 {symbol}
                                             </Text>
-                                            <Text
-                                                style={{ flexShrink: 1 }}
-                                                numberOfLines={4}
-                                                ellipsizeMode={'tail'}
-                                            >
+                                            {isSCAM && (
                                                 <Text
-                                                    style={{
-                                                        fontSize: 15,
-                                                        fontWeight: '400',
-                                                        lineHeight: 20,
-                                                        color: theme.textSecondary,
-                                                    }}
-                                                    selectable={false}
+                                                    style={{ flexShrink: 1 }}
+                                                    numberOfLines={4}
+                                                    ellipsizeMode={'tail'}
                                                 >
-                                                    {isSCAM && (
-                                                        <>
-                                                            <Text style={{ color: theme.accentRed }}>
-                                                                {'SCAM'}
-                                                            </Text>
-                                                            {jettonState?.master.description ? ' • ' : ''}
-                                                        </>
-                                                    )}
-                                                    {`${jettonState?.master.description ?? 'The Open Network'}`}
+                                                    <Text
+                                                        style={[{ color: theme.accentRed }, Typography.regular15_20]}
+                                                        selectable={false}
+                                                    >
+                                                        {'SCAM'}
+                                                    </Text>
                                                 </Text>
-                                            </Text>
+                                            )}
                                         </View>
                                     </View>
                                     <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
@@ -1040,9 +1017,9 @@ const SimpleTransferComponent = () => {
                                     <ValueComponent
                                         precision={4}
                                         value={balance}
-                                        decimals={jettonState ? jettonState.master.decimals : undefined}
+                                        decimals={jetton ? jetton.decimals : undefined}
+                                        suffix={jetton ? ` ${jetton.symbol}` : ''}
                                     />
-                                    {jettonState ? ` ${jettonState.master.symbol}` : ''}
                                 </Text>
                                 <Pressable
                                     style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
@@ -1059,7 +1036,7 @@ const SimpleTransferComponent = () => {
                                 onFocus={onFocus}
                                 value={amount}
                                 onValueChange={(newVal) => {
-                                    const formatted = formatInputAmount(newVal, jettonState?.master.decimals ?? 9, { skipFormattingDecimals: true }, amount);
+                                    const formatted = formatInputAmount(newVal, jetton?.decimals ?? 9, { skipFormattingDecimals: true }, amount);
                                     setAmount(formatted);
                                 }}
                                 keyboardType={'numeric'}
@@ -1076,7 +1053,7 @@ const SimpleTransferComponent = () => {
                                 }}
                                 suffix={priceText}
                                 hideClearButton
-                                prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
+                                prefix={jetton ? jetton.symbol : 'TON'}
                                 cursorColor={theme.accent}
                             />
                             {amountError && (

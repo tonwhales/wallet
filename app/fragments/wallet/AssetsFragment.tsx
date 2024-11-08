@@ -1,26 +1,40 @@
 import { useCallback, useMemo } from "react";
-import { View, Text, useWindowDimensions } from "react-native";
+import { View, Text, useWindowDimensions, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { SelectableButton } from "../../components/SelectableButton";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useCloudValue, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAccountLite, useCloudValue, useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { Jetton } from "../../engine/types";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { AssetsListItem } from "../../components/jettons/AssetsListItem";
-import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 import { FlashList } from "@shopify/flash-list";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
+import { JettonFull } from "../../engine/api/fetchHintsFull";
+import { ValueComponent } from "../../components/ValueComponent";
 
-type ListItem = { type: 'jetton', address: Address } | { type: 'ton' };
+import IcCheck from "@assets/ic-check.svg";
+
+type ListItem = { type: 'jetton', hint: JettonFull } | { type: 'ton' };
+
+export enum JettonViewType {
+    Transfer = 'transfer',
+    Receive = 'receive',
+    Default = 'default'
+}
+
+export type AssetsFragmentParams = {
+    target?: string,
+    callback?: (selected?: { wallet?: Address, master: Address }) => void,
+    selectedJetton?: Address,
+    jettonViewType: JettonViewType
+}
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -29,13 +43,9 @@ export const AssetsFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
-    let [disabledState,] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
+    const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
-    const { target, callback, selectedJetton } = useParams<{
-        target: string,
-        callback?: (selected?: { wallet?: Address, master: Address }) => void,
-        selectedJetton?: Address
-    }>();
+    const { target, callback, selectedJetton, jettonViewType } = useParams<AssetsFragmentParams>();
 
     const route = useRoute();
     const isLedgerScreen = route.name === 'LedgerAssets';
@@ -48,34 +58,26 @@ export const AssetsFragment = fragment(() => {
     }, [ledgerTransport, isLedgerScreen]);
 
     const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
-
-    const sortedHints = useSortedHints(owner.toString({ testOnly: network.isTestnet }));
-
-    const hints = useMemo(() => {
-        return sortedHints.map((s) => {
-            try {
-                let wallet = Address.parse(s);
-                return wallet;
-            } catch {
-                return null;
-            }
-        }).filter((j) => !!j) as Address[];
-    }, [sortedHints]);
+    const account = useAccountLite(owner);
+    const hints = useHintsFull(owner.toString({ testOnly: network.isTestnet })).data?.hints ?? [];
 
     const visibleList = useMemo(() => {
         const filtered = hints
-            .filter((j) => !disabledState.disabled[j.toString({ testOnly: network.isTestnet })] || isLedgerScreen)
-            .map((j) => ({
+            .filter((j) => !disabledState.disabled[j.jetton.address] || isLedgerScreen)
+            .map((h) => ({
                 type: 'jetton',
-                address: j
+                hint: h
             }));
 
         return [{ type: 'ton' }, ...filtered] as ListItem[];
     }, [disabledState, network, isLedgerScreen, hints]);
 
-    const onSelected = useCallback((jetton: Jetton) => {
+    const onSelected = useCallback((hint: JettonFull) => {
         if (callback) {
-            onCallback({ wallet: jetton.wallet, master: jetton.master });
+            onCallback({
+                wallet: Address.parse(hint.walletAddress.address),
+                master: Address.parse(hint.jetton.address)
+            });
             return;
         }
         if (isLedgerScreen) {
@@ -83,7 +85,7 @@ export const AssetsFragment = fragment(() => {
                 amount: null,
                 target: target,
                 comment: null,
-                jetton: jetton.wallet,
+                jetton: Address.parse(hint.walletAddress.address),
                 stateInit: null,
                 job: null,
                 callback: null
@@ -94,7 +96,7 @@ export const AssetsFragment = fragment(() => {
             amount: null,
             target: target,
             comment: null,
-            jetton: jetton.wallet,
+            jetton: Address.parse(hint.walletAddress.address),
             stateInit: null,
             callback: null
         });
@@ -153,26 +155,34 @@ export const AssetsFragment = fragment(() => {
                 data={visibleList}
                 renderItem={({ item }: { item: ListItem }) => {
                     if (item.type !== 'ton') {
-                        const wallet = item.address;
                         return (
                             <AssetsListItem
-                                wallet={wallet}
+                                hint={item.hint}
                                 owner={owner}
                                 onSelect={onSelected}
                                 hideSelection={!callback}
                                 selected={selectedJetton}
                                 isTestnet={network.isTestnet}
                                 theme={theme}
+                                jettonViewType={jettonViewType}
                             />
                         )
                     }
 
                     return (
-                        <SelectableButton
-                            title={'TON'}
-                            subtitle={t('common.balance')}
-                            onSelect={onTonSelected}
-                            icon={
+                        <View style={{ height: 86 }}>
+                            <Pressable
+                                style={{
+                                    backgroundColor: theme.surfaceOnElevation,
+                                    padding: 20,
+                                    marginBottom: 16,
+                                    borderRadius: 20,
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}
+                                onPress={onTonSelected}
+                            >
                                 <View style={{ width: 46, height: 46 }}>
                                     <Image
                                         source={require('@assets/ic-ton-acc.png')}
@@ -190,11 +200,34 @@ export const AssetsFragment = fragment(() => {
                                         />
                                     </View>
                                 </View>
-                            }
-                            style={{ height: 86 }}
-                            selected={!selectedJetton}
-                            hideSelection={!callback}
-                        />
+                                <View style={{ justifyContent: 'center', flexGrow: 1, flex: 1, marginLeft: 12 }}>
+                                    <Text style={[{ flexShrink: 1, color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                        {'TON'}
+                                    </Text>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                            <ValueComponent
+                                                value={account?.balance || 0n}
+                                                precision={2}
+                                                suffix={' TON'}
+                                                centFontStyle={{ color: theme.textSecondary }}
+                                                forcePrecision
+                                            />
+                                    </Text>
+                                </View>
+                                {!!callback && (
+                                    <View style={{
+                                        justifyContent: 'center', alignItems: 'center',
+                                        height: 24, width: 24,
+                                        backgroundColor: selected ? theme.accent : theme.divider,
+                                        borderRadius: 12
+                                    }}>
+                                        {!selectedJetton && (
+                                            <IcCheck color={theme.white} height={16} width={16} style={{ height: 16, width: 16 }} />
+                                        )}
+                                    </View>
+                                )}
+                            </Pressable>
+                        </View>
                     )
                 }}
                 // to see less blank space

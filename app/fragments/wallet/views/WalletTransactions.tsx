@@ -22,6 +22,11 @@ import { Typography } from "../../../components/styles";
 import { warn } from "../../../utils/log";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
+import { queryClient } from "../../../engine/clients";
+import { getQueryData } from "../../../engine/utils/getQueryData";
+import { Queries } from "../../../engine/queries";
+import { StoredJettonWallet } from "../../../engine/metadata/StoredMetadata";
+import { jettonWalletQueryFn } from "../../../engine/hooks/jettons/usePrefetchHints";
 
 export const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -112,14 +117,14 @@ export const WalletTransactions = memo((props: {
     const navigation = props.navigation;
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
-    const [spamMinAmount,] = useSpamMinAmount();
-    const [dontShowComments,] = useDontShowComments();
+    const [spamMinAmount] = useSpamMinAmount();
+    const [dontShowComments] = useDontShowComments();
     const addressBookContext = useAddressBookContext();
     const addressBook = addressBookContext.state;
     const addToDenyList = useAddToDenyList();
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
-    const [pending,] = usePendingTransactions(props.address, isTestnet);
+    const [pending] = usePendingTransactions(props.address, isTestnet);
     const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
     const [bounceableFormat] = useBounceableWalletFormat();
     const [walletsSettings] = useWalletsSettings();
@@ -171,7 +176,7 @@ export const WalletTransactions = memo((props: {
         navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
     }, []);
 
-    const onRepeatTx = useCallback((tx: TransactionDescription) => {
+    const onRepeatTx = useCallback(async (tx: TransactionDescription) => {
         const amount = BigInt(tx.base.parsed.amount);
         const operation = tx.base.operation;
         const item = operation.items[0];
@@ -179,7 +184,35 @@ export const WalletTransactions = memo((props: {
         const opAddr = Address.parseFriendly(opAddressString);
         const bounceable = bounceableFormat ? true : opAddr.isBounceable;
         const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
-        const jetton = item.kind === 'token' ? tx.metadata?.jettonWallet?.master : null;
+
+        let jetton = null;
+
+        if (item.kind === 'token') {
+            const queryCache = queryClient.getQueryCache();
+            const jettonWallet = getQueryData<StoredJettonWallet | null | undefined>(
+                queryCache,
+                Queries.Account(opAddressString).JettonWallet()
+            );
+
+            if (jettonWallet) {
+                jetton = Address.parse(jettonWallet.master);
+            } else {
+                try {
+                    const res = await queryClient.fetchQuery({
+                        queryKey: Queries.Account(opAddressString).JettonWallet(),
+                        queryFn: jettonWalletQueryFn(opAddressString, isTestnet)
+                    });
+
+                    if (res) {
+                        jetton = Address.parse(res.master);
+                    }
+
+                } catch {
+                    warn('Failed to fetch jetton wallet');
+                }
+            }
+        }
+
         navigation.navigateSimpleTransfer({
             target,
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,

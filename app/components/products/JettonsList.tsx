@@ -1,12 +1,11 @@
 import { Pressable, View, Text, Platform, useWindowDimensions } from "react-native";
 import { ItemSwitch } from "../Item";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
-import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
 import { ScreenHeader } from "../ScreenHeader";
 import { t } from "../../i18n/t";
 import { Image } from "expo-image";
@@ -19,8 +18,9 @@ import { ItemDivider } from "../ItemDivider";
 import Animated, { Easing, LinearTransition, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
-import { filterHint, getHint, HintsFilter } from "../../utils/jettons/hintSortFilter";
-import { queryClient } from "../../engine/clients";
+import { filterHint, getHintFull, HintsFilter } from "../../utils/jettons/hintSortFilter";
+import { JettonFull } from "../../engine/api/fetchHintsFull";
+import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
 
 const EmptyListItem = memo(() => {
     const theme = useTheme();
@@ -107,19 +107,31 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
         return selected!.address.toString({ testOnly });
     }, [selected, ledgerContext, testOnly]);
 
-    const [filter, setFilter] = useState<HintsFilter[]>([]);
-    const jettons = useSortedHints(addressStr);
+    const [filter, setFilter] = useState<HintsFilter[] | null>(null);
+    const jettons: JettonFull[] = useHintsFull(addressStr).data?.hints ?? [];
     const [filteredJettons, setFilteredJettons] = useState(jettons);
 
     useEffect(() => {
-        const cache = queryClient.getQueryCache();
-        setFilteredJettons(
-            jettons
-                .map((h) => getHint(cache, h, testOnly))
-                .filter(filterHint(filter)).map((x) => x.address)
-        );
+        if (filter !== null) {
+            const filterFn = filterHint(filter);
+            const filtered = jettons.filter((j) => filterFn(getHintFull(j, testOnly)));
+            setFilteredJettons(filtered);
+        }
+    }, [jettons, filter, testOnly]);
 
-    }, [jettons, filter]);
+    const renderItem = useCallback(({ item }: { item: JettonFull }) => {
+        return (
+            <JettonProductItem
+                card
+                last
+                hint={item}
+                itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
+                ledger={isLedger}
+                owner={selected!.address}
+                jettonViewType={JettonViewType.Default}
+            />
+        );
+    }, [theme, isLedger, selected]);
 
     return (
         <Animated.View
@@ -150,23 +162,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
             />
             <FlashList
                 data={filteredJettons}
-                renderItem={({ item }: { item: string }) => {
-                    try {
-                        const wallet = Address.parse(item);
-                        return (
-                            <JettonProductItem
-                                card
-                                last
-                                wallet={wallet}
-                                itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
-                                ledger={isLedger}
-                                owner={selected!.address}
-                            />
-                        )
-                    } catch (error) {
-                        return null;
-                    }
-                }}
+                renderItem={renderItem}
                 // to see less blank space
                 estimatedItemSize={80}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
@@ -203,9 +199,11 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
             />
             <JettonsFilterModal
                 isModalVisible={isModalVisible}
-                setFilter={setFilter}
-                filter={filter}
-                setModalVisible={setModalVisible}
+                onApply={(filter) => {
+                    setModalVisible(false);
+                    setFilter(filter);
+                }}
+                filter={filter ?? []}
             />
         </Animated.View>
     );
@@ -214,19 +212,17 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
 
 const JettonsFilterModal = memo(({
     isModalVisible,
-    setFilter,
     filter,
-    setModalVisible
+    onApply
 }: {
     isModalVisible: boolean,
-    setFilter: (filter: HintsFilter[]) => void,
-    filter: HintsFilter[] | undefined,
-    setModalVisible: (visible: boolean) => void
+    filter: HintsFilter[] | null,
+    onApply: (filter: HintsFilter[] | null) => void
 }) => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
 
-    const [value, setValue] = useState<HintsFilter[]>([]);
+    const [value, setValue] = useState<HintsFilter[] | null>(filter);
 
     useEffect(() => {
         setValue(filter ?? []);
@@ -242,14 +238,15 @@ const JettonsFilterModal = memo(({
     })
 
     useEffect(() => {
-        scamHeight.value = value.includes('verified') ? 0 : 72;
+        scamHeight.value = value?.includes('verified') ? 0 : 72;
     }, [value]);
 
     const onUpdateValue = useCallback((key: HintsFilter) => {
-        if (value.includes(key)) {
+        if (value?.includes(key)) {
             setValue(value.filter((v) => v !== key));
         } else {
-            setValue([...value, key]);
+            const newValue = value ? [...value, key] : [key];
+            setValue(newValue);
         }
     }, [value]);
 
@@ -257,7 +254,7 @@ const JettonsFilterModal = memo(({
         <Modal
             isVisible={isModalVisible}
             avoidKeyboard
-            onBackdropPress={() => setModalVisible(false)}
+            onBackdropPress={() => onApply(value)}
         >
             <View
                 style={{
@@ -276,27 +273,26 @@ const JettonsFilterModal = memo(({
                 <ItemDivider />
                 <ItemSwitch
                     title={t('common.unverified')}
-                    value={!value.includes('verified')}
+                    value={!value?.includes('verified')}
                     onChange={() => onUpdateValue('verified')}
                 />
                 <Animated.View style={scamStyle}>
                     <ItemSwitch
                         title={'SCAM'}
-                        value={!value.includes('scam')}
+                        value={!value?.includes('scam')}
                         onChange={() => onUpdateValue('scam')}
                     />
                 </Animated.View>
                 <ItemSwitch
                     title={t('jetton.emptyBalance')}
-                    value={!value.includes('balance')}
+                    value={!value?.includes('balance')}
                     onChange={() => onUpdateValue('balance')}
                 />
                 <RoundButton
                     title={t('common.apply')}
                     style={{ marginHorizontal: 16, marginBottom: 16 }}
                     onPress={() => {
-                        setModalVisible(false);
-                        setFilter(value);
+                        onApply(value);
                     }}
                 />
             </View>

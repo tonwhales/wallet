@@ -9,6 +9,7 @@ import { QueryCache } from "@tanstack/react-query";
 import { jettonMasterContentQueryFn, jettonWalletQueryFn } from "../../engine/hooks/jettons/usePrefetchHints";
 import { MintlessJetton } from "../../engine/api/fetchMintlessHints";
 import { calculateHintRateNum } from "./calculateHintRateNum";
+import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 type Hint = {
     address: string,
@@ -59,6 +60,15 @@ export function filterHint(filter: HintsFilter[]): (hint: Hint) => boolean {
 
         return true;
     }
+}
+
+export function getHintFull(jetton: JettonFull, isTestnet: boolean): Hint {
+    const { verified, isSCAM } = verifyJetton({ ticker: jetton.jetton.symbol, master: jetton.jetton.address }, isTestnet);    
+    const decimals = jetton.jetton.decimals ?? 9;
+    const usdRate = jetton.price?.prices?.['USD'];
+    const rate = usdRate? calculateHintRateNum(BigInt(jetton.balance), usdRate, decimals): undefined;
+
+    return { address: jetton.walletAddress.address, rate, verified, isSCAM, balance: BigInt(jetton.balance), loaded: true };
 }
 
 export function getHint(queryCache: QueryCache, hint: string, isTestnet: boolean): Hint {

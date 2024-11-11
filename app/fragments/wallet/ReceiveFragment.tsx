@@ -11,13 +11,14 @@ import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton, useJettonContent } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
+import { JettonViewType } from "./AssetsFragment";
 
 export type ReceiveFragmentParams = {
     addr?: string;
@@ -37,7 +38,9 @@ export const ReceiveFragment = fragment(() => {
 
     const qrSize = 262;
 
-    const [jetton, setJetton] = useState<{ master: Address, data?: JettonMasterState } | null>(params?.jetton ?? null);
+    const [asset, setAsset] = useState<{ master: Address, data?: JettonMasterState } | null>(params?.jetton ?? null);
+    const jettonMaster = useJettonContent(asset?.master?.toString({ testOnly: network.isTestnet }));
+    const assetContent = asset?.data ?? jettonMaster;
 
     const friendly = useMemo(() => {
         if (params.addr) {
@@ -55,28 +58,28 @@ export const ReceiveFragment = fragment(() => {
         if (selected) {
             const data = getJettonMaster(selected.master, network.isTestnet);
             if (data) {
-                setJetton({ master: selected.master, data });
+                setAsset({ master: selected.master, data });
                 return;
             }
         }
-        setJetton(null);
+        setAsset(null);
     }, []);
 
     const link = useMemo(() => {
-        if (jetton) {
+        if (asset) {
             return `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer`
                 + `/${friendly}`
-                + `?jetton=${jetton.master.toString({ testOnly: network.isTestnet })}`
+                + `?jetton=${asset.master.toString({ testOnly: network.isTestnet })}`
         }
         return `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer`
             + `/${friendly}`
-    }, [jetton, network, friendly]);
+    }, [asset, network, friendly]);
 
-    const symbol = jetton?.data?.symbol;
+    const symbol = assetContent?.symbol;
 
     const { isSCAM, verified: isVerified } = useVerifyJetton({
         ticker: symbol,
-        master: jetton?.master?.toString({ testOnly: network.isTestnet })
+        master: asset?.master?.toString({ testOnly: network.isTestnet })
     });
 
     return (
@@ -130,7 +133,7 @@ export const ReceiveFragment = fragment(() => {
                                 <QRCode
                                     data={link}
                                     size={qrSize}
-                                    icon={jetton?.data?.image}
+                                    icon={assetContent?.image}
                                     color={theme.backgroundUnchangeable}
                                 />
                             </View>
@@ -142,13 +145,14 @@ export const ReceiveFragment = fragment(() => {
                                         opacity: pressed ? 0.5 : 1,
                                     }
                                 }}
-                                onPress={() => {
-                                    if (params.ledger) {
-                                        navigation.navigate('LedgerAssets', { callback: onAssetSelected, selectedJetton: jetton?.master });
-                                        return;
-                                    }
-                                    navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jetton?.master });
-                                }}
+                                onPress={() => navigation.navigateAssets(
+                                    {
+                                        callback: onAssetSelected,
+                                        selectedJetton: asset?.master,
+                                        jettonViewType: JettonViewType.Receive
+                                    },
+                                    params.ledger
+                                )}
                             >
                                 <View style={{
                                     flexDirection: 'row',
@@ -161,10 +165,9 @@ export const ReceiveFragment = fragment(() => {
                                         justifyContent: 'center'
                                     }}>
                                         <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                                            {!!jetton?.data ? (
+                                            {!!assetContent ? (
                                                 <WImage
-                                                    src={jetton.data.image?.preview256}
-                                                    blurhash={jetton.data.image?.blurhash}
+                                                    src={assetContent.originalImage}
                                                     width={46}
                                                     height={46}
                                                     borderRadius={23}

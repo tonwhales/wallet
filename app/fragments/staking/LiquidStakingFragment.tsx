@@ -45,7 +45,7 @@ export const LiquidStakingFragment = fragment(() => {
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
     const nominator = useLiquidStakingMember(memberAddress)?.data;
     const apy = useStakingApy()?.apy;
-    const { state: pendingTxs, removePending, markAsTimedOut } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
+    const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
 
     const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
     const apyWithFee = useMemo(() => {
@@ -394,7 +394,6 @@ export const LiquidStakingFragment = fragment(() => {
                             <PendingTransactionsList
                                 theme={theme}
                                 txs={pendingPoolTxs}
-                                timeOut={markAsTimedOut}
                                 style={{ marginBottom: 16 }}
                             />
                         )}

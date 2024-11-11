@@ -12,5 +12,6 @@ export type Jetton = {
     decimals: number | null;
     disabled?: boolean;
     assets?: [LPAssetMetadata, LPAssetMetadata] | null,
-    pool?: 'dedust' | 'ston-fi' | null
+    pool?: 'dedust' | 'ston-fi' | null,
+    prices?: Record<string, number> | undefined
 };

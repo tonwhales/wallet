@@ -27,7 +27,9 @@ export type PreparedMessage = {
 };
 
 export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean): PreparedMessage[] {
-    const addresses = messages.map(m => m.info.type === 'internal' ? m.info.dest : null).filter(m => !!m) as string[];
+    const addresses = messages.length > 1
+        ? messages.map(m => m.info.type === 'internal' ? m.info.dest : null).filter(m => !!m) as string[]
+        : [];
     const metadatas = useContractMetadatas(addresses).map(m => m.data).filter(m => !!m) as StoredContractMetadata[];
     const gaslessConfig = useGaslessConfig().data;
 

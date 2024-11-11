@@ -155,7 +155,6 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         <TonProductComponent
                             key={'ton-native'}
                             theme={theme}
-                            navigation={navigation}
                             address={selected.address}
                             testOnly={isTestnet}
                         />
@@ -163,7 +162,6 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         <SpecialJettonProduct
                             key={'special-jettton'}
                             theme={theme}
-                            navigation={navigation}
                             address={selected.address}
                             testOnly={isTestnet}
                             divider={'top'}

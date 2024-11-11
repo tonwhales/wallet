@@ -43,7 +43,7 @@ function useSubToHintChange(
                     return;
                 }
 
-                if (queryKey[0] === 'hints' && queryKey[1] === owner) {
+                if (queryKey[0] === 'hints' && queryKey[1] === 'full' && queryKey[2] === owner) {
                     // check if the hint was added or removed
                     const sorted = getSortedHints(owner);
                     const hints = action.data as string[] | undefined | null;
@@ -92,7 +92,7 @@ export function useSortedHintsWatcher(address?: string) {
 
     const resyncAllHintsWeights = useCallback(throttle(() => {
         const cache = queryClient.getQueryCache();
-        const hints = getQueryData<string[]>(cache, Queries.Hints(address ?? ''));
+        const hints = getQueryData<string[]>(cache, Queries.HintsFull(address ?? ''));
         const mintlessHints = getQueryData<MintlessJetton[]>(cache, Queries.Mintless(address ?? ''));
 
         const allHints = [

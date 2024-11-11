@@ -534,6 +534,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 hiddenAccounts: 'Hidden accounts',
                 primaryName: 'Main account',
                 paymentName: 'Payment account {{accountIndex}}',
+                topUp: 'Top up account',
             },
             pageTitles: {
                 general: 'Tonhub Cards',

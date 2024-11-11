@@ -215,15 +215,18 @@ export const QRCode = memo((props: {
                 top: 0, left: 0, bottom: 0, right: 0,
                 justifyContent: 'center', alignItems: 'center'
             }}>
-                {!props.icon && <TonIcon height={46} width={46} style={{ height: 46, width: 46 }} />}
-                {props.icon && <WImage
-                    src={props.icon?.preview256}
-                    blurhash={props.icon?.blurhash}
-                    width={46}
-                    height={46}
-                    borderRadius={23}
-                    lockLoading
-                />}
+                {props.icon ? (
+                    <WImage
+                        src={props.icon?.preview256}
+                        blurhash={props.icon?.blurhash}
+                        width={46}
+                        height={46}
+                        borderRadius={23}
+                        lockLoading
+                    />
+                ) : (
+                    <TonIcon height={46} width={46} style={{ height: 46, width: 46 }} />
+                )}
             </View>
         </Animated.View>
     );

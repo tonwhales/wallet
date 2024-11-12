@@ -298,7 +298,7 @@ export const HoldersAppComponent = memo((
                 }
                 break;
             case HoldersAppParamsType.Topup:
-                route = `/account/${props.variant.id}/deposit`;
+                route = `/account/${props.variant.id}?deposit-open=true`;
                 break;
         }
 
@@ -478,6 +478,15 @@ export const HoldersAppComponent = memo((
         tonhubSupportSheet();
     }, []);
 
+    const isAccount = props.variant.type === HoldersAppParamsType.Transactions
+        || props.variant.type === HoldersAppParamsType.Path
+        || props.variant.type === HoldersAppParamsType.Topup;
+
+    const loaderType = isAccount
+        ? HoldersAppParamsType.Account
+        : props.variant.type
+
+
     return (
         <View
             key={`content-${renderKey}`}
@@ -495,11 +504,7 @@ export const HoldersAppComponent = memo((
                 webviewDebuggingEnabled={isTestnet}
                 loader={(p) => (
                     <HoldersLoader
-                        type={
-                            props.variant.type === HoldersAppParamsType.Transactions || props.variant.type === HoldersAppParamsType.Path
-                                ? HoldersAppParamsType.Account
-                                : props.variant.type
-                        }
+                        type={loaderType}
                         {...p}
                         onReload={onReaload}
                         onSupport={onSupport}

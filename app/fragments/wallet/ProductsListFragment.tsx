@@ -64,7 +64,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                         />
                     );
                 },
-                estimatedItemSize: 166
+                estimatedItemSize: 122
             };
         } else {
             return {

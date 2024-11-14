@@ -6,22 +6,22 @@ import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AnimTextInputRef } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAccountTransactions, useAppState, useBounceableWalletFormat, useHoldersAccounts, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { AddressSearch, AddressSearchItem } from "./AddressSearch";
+import { AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
-import { TransactionDescription } from "../../engine/types";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
-
-import IcChevron from '@assets/ic_chevron_forward.svg';
 import { useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
 import { Typography } from "../styles";
+import { Image } from "expo-image";
+
+import IcChevron from '@assets/ic_chevron_forward.svg';
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -146,7 +146,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     );
 
     const isKnown: boolean = !!props.knownWallets[props.target];
-    const query = addressDomainInputState.input;
     const addressBookContext = useAddressBookContext();
     const contact = addressBookContext.asContact(props.target);
     const appState = useAppState();
@@ -157,11 +156,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [walletSettings] = useWalletSettings(validAddressFriendly);
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
-    const txs = useAccountTransactions(props.acc.toString({ testOnly: props.isTestnet })).data;
-
-    const lastTwoTxs = useMemo(() => {
-        return txs?.slice(0, 2) || [];
-    }, [txs?.[0]?.id, txs?.[1]?.id]);
 
     const holdersAccounts = useHoldersAccountTrargets(appState.addresses[appState.selected].address);
     const isTargetHolders = holdersAccounts.find((acc) => props.validAddress?.equals(acc.address));
@@ -255,6 +249,13 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     }, [props.onSearchItemSelected]);
 
+    const openAddressBook = useCallback(() => {
+        props.navigation.navigate('AddressBook', {
+            account: props.acc.toString({ testOnly: props.isTestnet }),
+            onSelected: onAddressSearchItemSelected
+        });
+    }, [onAddressSearchItemSelected]);
+
     return (
         <View>
             <View
@@ -345,33 +346,33 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         navigation={props.navigation}
                         theme={theme}
                         isTestnet={props.isTestnet}
+                        rightAction={(
+                            <Pressable
+                            style={({ pressed }) => ({
+                                opacity: pressed ? 0.5 : 1
+                            })}
+                                onPress={openAddressBook}
+                                hitSlop={4}
+                            >
+                                <Image
+                                    source={require('@assets/ic-contact.png')}
+                                    style={{ height: 24, width: 24, tintColor: theme.accent }}
+                                />
+                            </Pressable>
+                        )}
                     />
                 </View>
                 {!props.validAddress && (props.target.length >= 48) && (
                     <Animated.View entering={FadeIn} exiting={FadeOut}>
-                        <PerfText style={{
+                        <PerfText style={[{
                             color: theme.accentRed,
-                            fontSize: 13,
-                            lineHeight: 18,
                             marginTop: 4,
                             marginLeft: 16,
-                            fontWeight: '400'
-                        }}>
+                        }, Typography.regular13_18]}>
                             {t('transfer.error.invalidAddress')}
                         </PerfText>
                     </Animated.View>
                 )}
-                <AddressSearch
-                    theme={theme}
-                    onSelect={onAddressSearchItemSelected}
-                    query={query}
-                    transfer
-                    myWallets={myWallets}
-                    bounceableFormat={bounceableFormat}
-                    knownWallets={props.knownWallets}
-                    lastTwoTxs={lastTwoTxs}
-                    holdersAccounts={holdersAccounts}
-                />
             </View>
         </View>
     );

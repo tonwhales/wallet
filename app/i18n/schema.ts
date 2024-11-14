@@ -82,6 +82,7 @@ export type LocalizationSchema = {
         loading: string,
         notFound: string,
         unverified: string,
+        addressBook: string
     },
     syncStatus: {
         connecting: string,

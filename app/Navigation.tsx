@@ -99,6 +99,7 @@ import { W5UpdateFragment } from './fragments/W5UpdateFragment';
 import { WebViewPreloader } from './components/WebViewPreloader';
 import { holdersUrl } from './engine/api/holders/fetchUserState';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
+import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -341,7 +342,8 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreenModal('AppAuth', AppAuthFragment, safeArea),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
     genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
-    fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea)
+    fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea),
+    modalScreen('AddressBook', AddressBookFragment, safeArea)
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

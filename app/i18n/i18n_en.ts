@@ -80,6 +80,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         loading: 'Loading...',
         notFound: 'Not found',
         unverified: 'Unverified',
+        addressBook: 'Address book',
     },
     syncStatus: {
         connecting: 'Connecting',

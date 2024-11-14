@@ -145,19 +145,9 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: props.account.id }, props.isTestnet);
     }, [props.account, needsEnrollment, props.isTestnet]);
 
-    const onTopUp = useCallback(() => {
-        props.onBeforeOpen?.();
-
-        if (needsEnrollment) {
-            const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Topup, id: props.account.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
-            return;
-        }
-
-        navigation.navigateHolders({ type: HoldersAppParamsType.Topup, id: props.account.id }, props.isTestnet);
-    }, [props.account, needsEnrollment, props.isTestnet]);
-
-    let subtitle = isPro ? t('products.holders.accounts.proAccount') : t('products.holders.accounts.basicAccount');
+    const subtitle = isPro
+        ? t('products.holders.accounts.proAccount')
+        : t('products.holders.accounts.basicAccount');
 
     const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
         ? () => {
@@ -270,25 +260,9 @@ export const HoldersAccountItem = memo((props: {
                             <View style={{ height: 20 }} />
                         )}
                     </TouchableOpacity>
-                    <Pressable
-                        onPress={onTopUp}
-                        style={({ pressed }) => ({
-                            flexDirection: 'row',
-                            gap: 8,
-                            opacity: pressed ? 0.5 : 1,
-                            marginLeft: 78,
-                            marginBottom: 20,
-                            alignItems: 'center'
-                        })}
-                    >
-                        {topUpIcon}
-                        <Text style={[{ color: theme.textThird }, Typography.medium15_20]}>
-                            {t('products.holders.accounts.topUp')}
-                        </Text>
-                    </Pressable>
                 </View>
             </View>
-        </Swipeable >
+        </Swipeable>
     );
 });
 HoldersAccountItem.displayName = 'HoldersAccountItem';

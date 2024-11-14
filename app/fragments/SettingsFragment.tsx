@@ -62,13 +62,12 @@ export const SettingsFragment = fragment(() => {
     const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
-    const isLedпer = useRoute().name === 'LedgerSettings';
 
-    const showHoldersItem = !isLedпer && (inviteCheck?.allowed || hasHoldersProducts);
-
+    
     // Ledger
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
+    const showHoldersItem = !isLedger && (inviteCheck?.allowed || hasHoldersProducts);
     const ledgerContext = useLedgerTransport();
 
     const needsEnrollment = useMemo(() => {

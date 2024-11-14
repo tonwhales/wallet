@@ -1,34 +1,30 @@
-import { useMemo } from "react";
-import { WalletContractV1R1, WalletContractV1R2, WalletContractV1R3, WalletContractV2R1, WalletContractV2R2, WalletContractV3R1, WalletContractV3R2 } from "@ton/ton";
 import { useSelectedAccount } from "../appstate/useSelectedAccount";
-import { useAccountsLite } from "./useAccountsLite";
+import { useQuery } from "@tanstack/react-query";
+import { Queries } from "../../queries";
+import { fetchOldWalletBalances } from "../../api/fetchOldWalletBalances";
 
 export function useOldWalletsBalances() {
-    let account = useSelectedAccount();
+    const account = useSelectedAccount();
 
-    let wallets = useMemo(() => {
-        if (!account) {
-            return [];
+    const query = useQuery({
+        queryKey: Queries.Account(account!.addressString).OldWallets(),
+        queryFn: async () => {
+            return await fetchOldWalletBalances(account!.publicKey);
+        },
+        enabled: !!account,
+        staleTime: 1000 * 60 * 5,
+    });
+
+    try {
+        if (query.data) {
+            const total = BigInt(query.data.totalBalance);
+            const accounts = query.data.accounts;
+            return { total, accounts };
         }
-        return [
-            WalletContractV1R1.create({ workchain: 0, publicKey: account.publicKey }).address,
-            WalletContractV1R2.create({ workchain: 0, publicKey: account.publicKey }).address,
-            WalletContractV1R3.create({ workchain: 0, publicKey: account.publicKey }).address,
-            WalletContractV2R1.create({ workchain: 0, publicKey: account.publicKey }).address,
-            WalletContractV2R2.create({ workchain: 0, publicKey: account.publicKey }).address,
-            WalletContractV3R1.create({ workchain: 0, publicKey: account.publicKey }).address,
-            WalletContractV3R2.create({ workchain: 0, publicKey: account.publicKey }).address,
-        ];
-    }, [account]);
 
-    const accounts = useAccountsLite(wallets);
+        return { total: 0n, accounts: [] };
+    } catch {
+        return { total: 0n, accounts: [] };
+    }
 
-    const totalBalance = accounts.reduce((total, acc) => {
-        if (!!acc?.data?.balance) {
-            return total + BigInt(acc?.data?.balance.coins);
-        }
-        return total;
-    }, BigInt(0));
-
-    return { total: totalBalance, accounts };
 }

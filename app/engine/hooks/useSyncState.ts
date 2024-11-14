@@ -75,7 +75,24 @@ export function useSyncState(address?: string): 'online' | 'connecting' | 'updat
 
     const acc = address || account?.addressString || 'default-null';
 
-    const isFetchingAccount = useIsFetching(Queries.Account(acc).All());
+    const isFetchingAccount = useIsFetching({
+        predicate: (query) => {
+            if (query.queryKey[0] !== 'account') {
+                return false;
+            }
+
+            if (query.queryKey[1] !== acc) {
+                return false;
+            }
+
+            if (query.queryKey[2] === 'lite' ||  query.queryKey[2] !== 'wallet-v4') {
+                return true;
+            }
+
+            return false;
+        }
+    });
+
     const isFetchingHoldersAccounts = useIsFetchingHoldersAccounts(acc);
     const isFetchingHints = useIsFetchingHints(acc)
 

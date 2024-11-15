@@ -18,7 +18,7 @@ const stakingActiveSchema = z.record(
 );
 
 async function fetchStakingActive(isTestnet: boolean, address: Address, pools: Address[]) {
-    const url = `${whalesConnectEndpoint}/staking/info`;
+    const url = `${whalesConnectEndpoint}/member/staking/info`;
 
     const res = await axios.post(url, {
         isTestnet,

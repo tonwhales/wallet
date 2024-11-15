@@ -1,27 +1,43 @@
 import { useQuery } from "@tanstack/react-query";
-import { useClient4, useNetwork } from "..";
+import { useNetwork } from "..";
 import { getLiquidStakingAddress } from "../../../utils/KnownPools";
 import { Queries } from "../../queries";
-import { LiquidStakingPool } from "../../../utils/LiquidStakingContract";
-import { fetchStakingStatus } from "../../api/fetchStakingStatus";
+import { fetchLiquidStakingStatus } from "../../api/fetchLiquidStakingStatus";
+import { Address } from "@ton/core";
 
 export function useLiquidStaking() {
   const network = useNetwork();
-  const client = useClient4(network.isTestnet);
   const pool = getLiquidStakingAddress(network.isTestnet);
 
   return useQuery({
     queryFn: async () => {
-      const status = await fetchStakingStatus(client, network.isTestnet);
+      
+      const status = await fetchLiquidStakingStatus(network.isTestnet);
 
       if (!status) {
         return null;
       }
 
-      const contract = client.open(LiquidStakingPool.createFromAddress(pool));
-      const poolStatus = await contract.getPoolStatus(pool, status, network.isTestnet)
-
-      return poolStatus;
+      return {
+        ...status,
+        rateDeposit: BigInt(status.rateDeposit),
+        rateWithdraw: BigInt(status.rateWithdraw),
+        extras: {
+          ...status.extras,
+          minStake: BigInt(status.extras.minStake),
+          depositFee: BigInt(status.extras.depositFee),
+          withdrawFee: BigInt(status.extras.withdrawFee),
+          receiptPrice: BigInt(status.extras.receiptPrice),
+          address: Address.parse(status.extras.address),
+        },
+        balances: {
+          minterSupply: BigInt(status.balances.minterSupply),
+          totalBalance: BigInt(status.balances.totalBalance),
+          totalSent: BigInt(status.balances.totalSent),
+          totalPendingWithdraw: BigInt(status.balances.totalPendingWithdraw),
+          totalBalanceWithdraw: BigInt(status.balances.totalBalanceWithdraw),
+        }
+      }
     },
     refetchInterval: 5 * 60 * 1000,
     staleTime: 5 * 60 * 1000,

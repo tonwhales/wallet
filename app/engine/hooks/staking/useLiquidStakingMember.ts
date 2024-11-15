@@ -1,35 +1,50 @@
 import { Address } from "@ton/core";
-import { useClient4, useNetwork } from "../network";
+import { useNetwork } from "../network";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { getLiquidStakingAddress } from "../../../utils/KnownPools";
-import { LiquidStakingWallet } from "../../../utils/LiquidStakingWallet";
-import { TonClient4 } from "@ton/ton";
+import { z } from "zod";
+import { whalesConnectEndpoint } from "../../clients";
+import axios from "axios";
 
-function fetchLiquidStakingMemberQueryFn(client: TonClient4, pool: Address, member: Address) {
+const liquidStakingMemberScheme = z.object({
+    balance: z.string(),
+    owner: z.string(),
+    master: z.string(),
+    code: z.string(),
+    pendingWithdrawals: z.record(z.string())
+}).nullish();
+
+function fetchLiquidStakingMemberQueryFn(isTestnet: boolean, account: Address) {
     return async () => {
-        const walletAddress = LiquidStakingWallet.contractAddress(member, pool);
-        const walletContract = client.open(LiquidStakingWallet.createFromAddress(walletAddress));
+        const url = `${whalesConnectEndpoint}/staking/liquid/info`;
+        const res = await axios.post(url, {
+            isTestnet,
+            address: account.toString({ testOnly: isTestnet })
+        });
 
-        const state = await walletContract.getState();
+        const parsed = liquidStakingMemberScheme.safeParse(res.data);
 
-        return state?.data ?? null;
+        if (!parsed.success) {
+            throw new Error('Invalid response');
+        }
+
+        return parsed.data;
     };
 }
 
-export function useLiquidStakingMember(member: Address | null | undefined) {
-    const network = useNetwork();
-    const client = useClient4(network.isTestnet);
-    const pool = getLiquidStakingAddress(network.isTestnet);
-
-    if (!member) {
-        return null;
-    }
+export function useLiquidStakingMember(account: Address | null | undefined) {
+    const { isTestnet } = useNetwork();
+    const pool = getLiquidStakingAddress(isTestnet);
 
     return useQuery({
-        queryFn: fetchLiquidStakingMemberQueryFn(client, pool, member),
+        queryFn: fetchLiquidStakingMemberQueryFn(isTestnet, account!),
         refetchOnMount: true,
-        queryKey: Queries.StakingLiquidMember(pool.toString({ testOnly: network.isTestnet }), member.toString({ testOnly: network.isTestnet })),
-        staleTime: 1000 * 30
+        queryKey: Queries.StakingLiquidMember(
+            pool.toString({ testOnly: isTestnet }),
+            account!.toString({ testOnly: isTestnet })
+        ),
+        staleTime: 1000 * 30,
+        enabled: !!account
     });
 }

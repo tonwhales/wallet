@@ -106,13 +106,17 @@ export const LiquidStakingFragment = fragment(() => {
 
     const openMoreInfo = useCallback(() => {
         openWithInApp(KnownPools(network.isTestnet)[targetPoolFriendly]?.webLink)
-    }
-        , [network.isTestnet]);
+    }, [network.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
-    const hasStake = useMemo(() => {
-        return (nominator?.balance || 0n) > 0n
-    }, [nominator]);
+    const stakeInfo = useMemo(() => {
+        const amount = nominator?.balance || 0n;
+        const balance = BigInt(amount);
+        return {
+            balance,
+            hasStake: balance > 0n
+        }
+    }, [nominator?.balance]);
 
     // weird bug with status bar not changing color with component
     useFocusEffect(() => {
@@ -322,9 +326,9 @@ export const LiquidStakingFragment = fragment(() => {
                             <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                                 <Pressable
                                     onPress={onUnstake}
-                                    disabled={!hasStake}
+                                    disabled={!stakeInfo.hasStake}
                                     style={({ pressed }) => ({
-                                        opacity: (!hasStake || pressed) ? 0.5 : 1,
+                                        opacity: (!stakeInfo.hasStake || pressed) ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,
                                         marginHorizontal: 4
                                     })}
@@ -406,7 +410,7 @@ export const LiquidStakingFragment = fragment(() => {
                             />
                         )}
                         <LiquidStakingMember
-                            balance={nominator?.balance ?? 0n}
+                            balance={stakeInfo.balance}
                             rateWithdraw={liquidStaking?.rateWithdraw ?? 0n}
                         />
                         {__DEV__ && (

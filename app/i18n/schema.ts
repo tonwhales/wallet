@@ -82,6 +82,7 @@ export type LocalizationSchema = {
         loading: string,
         notFound: string,
         unverified: string,
+        gasless: string
     },
     syncStatus: {
         connecting: string,
@@ -1078,6 +1079,7 @@ export type LocalizationSchema = {
             description_3: string,
             switch_button: string,
         },
+        gaslessInfo: string
     }
     browser: {
         listings: {

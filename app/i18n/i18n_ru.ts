@@ -80,6 +80,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "loading": 'Загрузка...',
         "notFound": "Не найден",
         "unverified": "Неверифицированные",
+        "addressBook": "Адресная книга",
         "gasless": "Gasless"
     },
     "syncStatus": {

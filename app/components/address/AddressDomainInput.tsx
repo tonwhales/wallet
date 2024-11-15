@@ -43,7 +43,8 @@ export const AddressDomainInput = memo(forwardRef(({
     knownWallets,
     theme,
     isTestnet,
-    navigation
+    navigation,
+    rightAction
 }: {
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
@@ -63,6 +64,7 @@ export const AddressDomainInput = memo(forwardRef(({
     theme: ThemeType,
     isTestnet: boolean,
     navigation: TypedNavigation,
+    rightAction?: React.ReactNode
 }, ref: ForwardedRef<AnimTextInputRef>) => {
     const client = useClient4(isTestnet);
     const netConfig = useConfig();
@@ -176,7 +178,7 @@ export const AddressDomainInput = memo(forwardRef(({
         if (input.length === 0) {
             return (
                 <Animated.View entering={FadeIn} exiting={FadeOut}>
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         {!!onQRCodeRead && (
                             <Pressable
                                 onPress={openScanner}
@@ -188,6 +190,11 @@ export const AddressDomainInput = memo(forwardRef(({
                                 />
                             </Pressable>
                         )}
+                        {rightAction && (
+                            <View style={{ marginLeft: 8 }}>
+                                {rightAction}
+                            </View>
+                        )}
                     </View>
                 </Animated.View>
             )
@@ -195,19 +202,26 @@ export const AddressDomainInput = memo(forwardRef(({
 
         return (
             <Animated.View entering={FadeIn} exiting={FadeOut}>
-                <Pressable
-                    onPress={() => dispatch({ type: InputActionType.Clear })}
-                    style={{ height: 24, width: 24 }}
-                    hitSlop={36}
-                >
-                    <Image
-                        source={require('@assets/ic-clear.png')}
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Pressable
+                        onPress={() => dispatch({ type: InputActionType.Clear })}
                         style={{ height: 24, width: 24 }}
-                    />
-                </Pressable>
+                        hitSlop={36}
+                    >
+                        <Image
+                            source={require('@assets/ic-clear.png')}
+                            style={{ height: 24, width: 24 }}
+                        />
+                    </Pressable>
+                    {rightAction && (
+                        <View style={{ marginLeft: 8 }}>
+                            {rightAction}
+                        </View>
+                    )}
+                </View>
             </Animated.View>
         )
-    }, [resolving, input, onQRCodeRead, openScanner]);
+    }, [resolving, input, onQRCodeRead, openScanner, rightAction]);
 
     useEffect(() => {
         if (!netConfig) {

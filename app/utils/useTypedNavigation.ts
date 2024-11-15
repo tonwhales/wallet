@@ -23,6 +23,7 @@ import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../frag
 import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
 import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
 import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
+import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -265,6 +266,10 @@ export class TypedNavigation {
             return;
         }
         this.navigate('Assets', params);
+    }
+
+    navigateAddressBook(params: AddressBookParams) {
+        this.navigate('AddressBook', params);
     }
 }
 

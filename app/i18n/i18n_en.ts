@@ -81,6 +81,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         notFound: 'Not found',
         unverified: 'Unverified',
         addressBook: 'Address book',
+        gasless: 'Gasless'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -1077,6 +1078,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             description_3: "V4 and W5 wallets have the same seed phrase. You can always switch versions by selecting the desired address at the top of the main screen.",
             switch_button: "Switch to W5",
         },
+        gaslessInfo: 'TON isn\'t required to pay gas fee when sending this token. The fee will be deducted directly from your token balance.'
     },
     browser: {
         listings: {

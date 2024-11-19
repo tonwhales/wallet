@@ -9,7 +9,6 @@ import { useParams } from "../../utils/useParams";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import Animated from "react-native-reanimated";
 import { Ionicons } from '@expo/vector-icons';
 import { ATextInput } from "../../components/ATextInput";
 import { t } from "../../i18n/t";

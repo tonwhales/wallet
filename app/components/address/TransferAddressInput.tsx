@@ -48,6 +48,7 @@ export type AddressInputState = {
     input: string,
     target: string,
     domain: string | undefined,
+    suffix: string | undefined
 }
 
 export enum InputActionType {
@@ -76,6 +77,7 @@ export type AddressInputAction = {
     type: InputActionType.InputTarget,
     input: string,
     target: string,
+    suffix: string,
 } | { type: InputActionType.Clear }
 
 export function addressInputReducer(ref: ForwardedRef<AnimTextInputRef>) {
@@ -90,7 +92,8 @@ export function addressInputReducer(ref: ForwardedRef<AnimTextInputRef>) {
                     return {
                         input: action.input,
                         domain: undefined,
-                        target: action.input
+                        target: action.input,
+                        suffix: undefined
                     };
                 } catch {
                     // ignore
@@ -98,36 +101,42 @@ export function addressInputReducer(ref: ForwardedRef<AnimTextInputRef>) {
                 return {
                     input: action.input,
                     domain: undefined,
-                    target: ''
+                    target: '',
+                    suffix: undefined
                 };
             case InputActionType.Target:
                 return {
                     ...state,
-                    target: action.target
+                    target: action.target,
+                    suffix: undefined
                 };
             case InputActionType.Domain:
                 return {
                     ...state,
-                    domain: action.domain
+                    domain: action.domain,
+                    suffix: undefined
                 };
             case InputActionType.DomainTarget:
                 return {
                     ...state,
                     domain: action.domain,
-                    target: action.target
+                    target: action.target,
+                    suffix: undefined
                 };
             case InputActionType.InputTarget:
                 return {
                     ...state,
                     input: action.input,
-                    target: action.target
+                    target: action.target,
+                    suffix: action.suffix
                 };
             case InputActionType.Clear:
                 (ref as RefObject<AnimTextInputRef>)?.current?.setText('');
                 return {
                     input: '',
                     target: '',
-                    domain: undefined
+                    domain: undefined,
+                    suffix: undefined
                 };
             default:
                 return state;
@@ -141,7 +150,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         {
             input: props?.target || '',
             target: props?.target || '',
-            domain: undefined
+            domain: undefined,
+            suffix: undefined,
         }
     );
 
@@ -210,13 +220,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     }, [select, isSelected]);
 
     useEffect(() => {
-        // debounce dispatching of input setAddressDomainInputState
-        const timeout = setTimeout(() => {
-            props.setAddressDomainInputState(addressDomainInputState);
-        }, 200);
-        return () => {
-            clearTimeout(timeout);
-        }
+        props.setAddressDomainInputState(addressDomainInputState);
     }, [addressDomainInputState]);
 
     // set input value on mount
@@ -236,10 +240,13 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             name = 'Ledger';
         }
 
+        const suff = friendly.slice(0, 4) + '...' + friendly.slice(friendly.length - 4);
+
         dispatchAddressDomainInput({
             type: InputActionType.InputTarget,
             input: name.trim(),
-            target: friendly
+            target: friendly,
+            suffix: suff
         });
 
         (ref as RefObject<AnimTextInputRef>)?.current?.setText(name.trim());
@@ -306,14 +313,16 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 }
                 pointerEvents={isSelected ? undefined : 'none'}
             >
-                <View style={{
-                    backgroundColor: props.theme.surfaceOnElevation,
-                    paddingVertical: 20,
-                    paddingHorizontal: 20,
-                    width: '100%', borderRadius: 20,
-                    flexDirection: 'row', alignItems: 'center',
-                    gap: 16
-                }}>
+                <View
+                    style={{
+                        backgroundColor: props.theme.surfaceOnElevation,
+                        paddingVertical: 20,
+                        paddingHorizontal: 20,
+                        width: '100%', borderRadius: 20,
+                        flexDirection: 'row', alignItems: 'center',
+                        gap: 16
+                    }}
+                >
                     <AddressInputAvatar
                         size={46}
                         theme={theme}
@@ -348,18 +357,19 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         isTestnet={props.isTestnet}
                         rightAction={(
                             <Pressable
-                            style={({ pressed }) => ({
-                                opacity: pressed ? 0.5 : 1
-                            })}
+                                style={({ pressed }) => ({
+                                    opacity: pressed ? 0.5 : 1
+                                })}
                                 onPress={openAddressBook}
                                 hitSlop={4}
                             >
                                 <Image
-                                    source={require('@assets/ic-contact.png')}
+                                    source={require('@assets/ic-address-book.png')}
                                     style={{ height: 24, width: 24, tintColor: theme.accent }}
                                 />
                             </Pressable>
                         )}
+                        suffix={addressDomainInputState.suffix}
                     />
                 </View>
                 {!props.validAddress && (props.target.length >= 48) && (

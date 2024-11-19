@@ -4,15 +4,18 @@ import { OperationType } from "../../engine/transactions/parseMessageBody";
 import { queryClient } from "../../engine/clients";
 import { Queries } from "../../engine/queries";
 import { getQueryData } from "../../engine/utils/getQueryData";
-import { StoredJettonWallet } from "../../engine/metadata/StoredMetadata";
+import { HintsFull } from "../../engine/hooks/jettons/useHintsFull";
 
 export function updateTargetAmount(args: {
+    amount: bigint,
     messages: GaslessMessage[],
-    relayerAddress: Address, targetAddress: Address, walletAddress: Address,
+    relayerAddress: Address, targetAddress: Address,
+    walletAddress: Address,
+    owner: Address,
     adjustEstimateAmount: bigint,
     isTestnet: boolean
 }): GaslessMessage[] {
-    const { messages, relayerAddress, targetAddress, walletAddress, isTestnet, adjustEstimateAmount } = args;
+    const { messages, relayerAddress, targetAddress, isTestnet, walletAddress, owner, amount } = args;
 
     let relayerMessage, targetMessage: { index: number, amount: bigint, payload: Cell } | null = null;
 
@@ -64,17 +67,39 @@ export function updateTargetAmount(args: {
     const relayerAmount = relayerMessage.amount;
     const targetAmount = targetMessage.amount;
 
+    //
+    // Get wallet balance
+    //
+
     const queryCache = queryClient.getQueryCache();
-    const jettonWalletKey = Queries.Account(walletAddress.toString({ testOnly: isTestnet })).JettonWallet();
-    const walletBalance = getQueryData<StoredJettonWallet | null>(queryCache, jettonWalletKey)?.balance;
+    const ownerStr = owner.toString({ testOnly: isTestnet });
+    const hintsKey = Queries.HintsFull(ownerStr || '');
+    const hintsFull = getQueryData<HintsFull | null>(queryCache, hintsKey);
+    const walletHintIndex = hintsFull?.addressesIndex?.[walletAddress.toString({ testOnly: isTestnet })] ?? null;
+    const walletHint = walletHintIndex !== null ? hintsFull?.hints[walletHintIndex] : null;
+    const walletBalance = walletHint?.balance ?? null;
 
     if (!walletBalance) {
         return messages;
     }
 
-    const diff = BigInt(walletBalance) - relayerAmount - targetAmount;
-    const diffAmount = diff >= 0 ? 0n : diff;
-    const newTargetAmount = targetAmount + diffAmount;
+    //
+    // Calculate new target amount
+    //
+
+    // If the difference between the new amount (from estimate) and the old amount is equal to the adjust amount (min decimal),
+    // then we need to add the adjust amount to preserve the original target amount user entered
+    const addAdjustAmount = amount - targetAmount === args.adjustEstimateAmount; 
+    const adjustEstimateAmount = addAdjustAmount ? args.adjustEstimateAmount : 0n;
+
+    // Calculate the difference between the wallet balance and the sum of the relayer and target amounts
+    // if the difference is greater than or equal to zero, then we don't need to adjust the target amount
+    // (e.g. the wallet has enough balance to cover the relayer and target amounts), otherwise we need to adjust the target amount to send the remaining balance
+    const diff = BigInt(walletBalance) - (relayerAmount + targetAmount);
+    const diffAmount = diff >= 0n ? 0n : (diff - adjustEstimateAmount);
+
+    // Calculate the new target amount
+    const newTargetAmount = targetAmount + diffAmount + adjustEstimateAmount;
 
     if (newTargetAmount < 0n) {
         return messages;

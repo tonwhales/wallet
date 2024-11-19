@@ -612,12 +612,14 @@ export const TransferFragment = fragment(() => {
                         }
 
                         gaslessEstimate.messages = updateTargetAmount({
+                            amount: jettonTransfer.amount,
                             messages: gaslessEstimate.messages,
                             relayerAddress: relayerAddress!,
                             targetAddress: jettonTransfer.destination.address,
                             walletAddress: jettonTransfer.jettonWallet,
                             isTestnet,
-                            adjustEstimateAmount: minimalAmount
+                            adjustEstimateAmount: minimalAmount,
+                            owner: selectedAccount!.address
                         });
 
                         fees = {

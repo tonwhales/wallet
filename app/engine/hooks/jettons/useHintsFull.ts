@@ -4,10 +4,15 @@ import { fetchHintsFull, JettonFull } from '../../api/fetchHintsFull';
 import { useNetwork } from '../network';
 import { warn } from '../../../utils/log';
 
+export type HintsFull = {
+    hints: JettonFull[],
+    addressesIndex: Record<string, number>
+}
+
 export function useHintsFull(addressString?: string) {
     const { isTestnet } = useNetwork();
 
-    return useQuery<{ hints: JettonFull[], addressesIndex: Record<string, number> }>({
+    return useQuery<HintsFull>({
         queryKey: Queries.HintsFull(addressString || ''),
         queryFn: async () => {
             try {

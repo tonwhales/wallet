@@ -104,7 +104,8 @@ const SimpleTransferComponent = () => {
         {
             input: params?.target || '',
             target: params?.target || '',
-            domain: undefined
+            domain: undefined,
+            suffix: undefined,
         }
     );
 

@@ -1,10 +1,9 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { Alert, Pressable, Image, TextInput, View, Text, Platform, } from "react-native"
-import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, setNativeProps, useAnimatedRef, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react"
+import { Alert, Pressable, Image, TextInput, View, Text, } from "react-native"
+import Animated, { FadeIn, FadeOut, LinearTransition, cancelAnimation, interpolate, useAnimatedRef, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
-import { ATextInputRef } from "../ATextInput";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useClient4, useConfig } from "../../engine/hooks";
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
@@ -43,7 +42,9 @@ export const AddressDomainInput = memo(forwardRef(({
     knownWallets,
     theme,
     isTestnet,
-    navigation
+    navigation,
+    rightAction,
+    suffix
 }: {
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
@@ -63,6 +64,8 @@ export const AddressDomainInput = memo(forwardRef(({
     theme: ThemeType,
     isTestnet: boolean,
     navigation: TypedNavigation,
+    rightAction?: React.ReactNode,
+    suffix?: string
 }, ref: ForwardedRef<AnimTextInputRef>) => {
     const client = useClient4(isTestnet);
     const netConfig = useConfig();
@@ -134,31 +137,34 @@ export const AddressDomainInput = memo(forwardRef(({
         setResolving(false);
     }, [bounceableFormat, isTestnet, client]);
 
-    const { suffix, textInput } = useMemo(() => {
-        let suffix = undefined;
+    const { suff, textInput } = useMemo(() => {
+
+        let suff = undefined;
         let textInput = input;
 
         if (domain && target) {
             const t = target;
 
             return {
-                suffix: t.slice(0, 4) + '...' + t.slice(t.length - 4),
+                suff: t.slice(0, 4) + '...' + t.slice(t.length - 4),
                 textInput: input
             }
         }
 
         if (!resolving && target) {
             if (isKnown) {
-                suffix = target.slice(0, 4) + '...' + target.slice(target.length - 4);
-                textInput = `${knownWallets[target].name}`
+                suff = target.slice(0, 4) + '...' + target.slice(target.length - 4);
+                textInput = `${knownWallets[target].name}`;
             } else if (contact) {
-                suffix = target.slice(0, 4) + '...' + target.slice(target.length - 4);
-                textInput = `${contact.name}`
+                suff = target.slice(0, 4) + '...' + target.slice(target.length - 4);
+                textInput = `${contact.name}`;
+            } else if (suffix) {
+                suff = suffix;
             }
         }
 
-        return { suffix, textInput };
-    }, [resolving, isKnown, contact, target, input, domain]);
+        return { suff, textInput };
+    }, [resolving, isKnown, contact, target, input, domain, suffix]);
 
     const actionsRight = useMemo(() => {
         if (resolving) {
@@ -176,7 +182,7 @@ export const AddressDomainInput = memo(forwardRef(({
         if (input.length === 0) {
             return (
                 <Animated.View entering={FadeIn} exiting={FadeOut}>
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         {!!onQRCodeRead && (
                             <Pressable
                                 onPress={openScanner}
@@ -188,6 +194,11 @@ export const AddressDomainInput = memo(forwardRef(({
                                 />
                             </Pressable>
                         )}
+                        {rightAction && (
+                            <View style={{ marginLeft: 8 }}>
+                                {rightAction}
+                            </View>
+                        )}
                     </View>
                 </Animated.View>
             )
@@ -195,19 +206,21 @@ export const AddressDomainInput = memo(forwardRef(({
 
         return (
             <Animated.View entering={FadeIn} exiting={FadeOut}>
-                <Pressable
-                    onPress={() => dispatch({ type: InputActionType.Clear })}
-                    style={{ height: 24, width: 24 }}
-                    hitSlop={36}
-                >
-                    <Image
-                        source={require('@assets/ic-clear.png')}
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Pressable
+                        onPress={() => dispatch({ type: InputActionType.Clear })}
                         style={{ height: 24, width: 24 }}
-                    />
-                </Pressable>
+                        hitSlop={36}
+                    >
+                        <Image
+                            source={require('@assets/ic-clear.png')}
+                            style={{ height: 24, width: 24 }}
+                        />
+                    </Pressable>
+                </View>
             </Animated.View>
         )
-    }, [resolving, input, onQRCodeRead, openScanner]);
+    }, [resolving, input, onQRCodeRead, openScanner, rightAction]);
 
     useEffect(() => {
         if (!netConfig) {
@@ -269,13 +282,15 @@ export const AddressDomainInput = memo(forwardRef(({
     }, [valueNotEmpty]);
 
     return (
-        <View style={{
-            position: 'relative',
-            flexDirection: 'row',
-            alignItems: 'center',
-            minHeight: 26,
-            flexShrink: 1
-        }}>
+        <View
+            style={{
+                position: 'relative',
+                flexDirection: 'row',
+                alignItems: 'center',
+                minHeight: 26,
+                flexShrink: 1
+            }}
+        >
             <View style={[
                 { position: 'absolute', top: 0, right: 0, left: 0, paddingHorizontal: 16 },
                 { marginLeft: -16 }
@@ -301,19 +316,18 @@ export const AddressDomainInput = memo(forwardRef(({
             </View>
             <View style={{ width: '100%', flex: 1, flexShrink: 1 }}>
                 <Animated.View style={labelShiftStyle} />
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ justifyContent: 'center', gap: 4 }}>
                     <AnimatedInput
                         ref={animatedRef}
-                        style={{
+                        style={[{
                             color: theme.textPrimary,
                             marginHorizontal: 0, marginVertical: 0,
                             paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
                             paddingLeft: 0, paddingRight: 0,
-                            fontSize: 17, fontWeight: '400',
                             textAlignVertical: 'center',
                             flexShrink: 1,
-                            flexGrow: suffix ? 0 : 1
-                        }}
+                            flex: 1,
+                        }, Typography.regular17_24]}
                         selectionColor={theme.accent}
                         cursorColor={theme.textPrimary}
                         autoFocus={autoFocus}
@@ -341,26 +355,23 @@ export const AddressDomainInput = memo(forwardRef(({
                         onBlur={() => onBlur?.(index)}
                         onSubmitEditing={() => onSubmit?.(index)}
                     />
-                    {suffix && (
-                        <Text
-                            numberOfLines={1}
-                            ellipsizeMode={'tail'}
-                            style={[
-                                {
-                                    flexGrow: 1,
-                                    alignSelf: 'center',
-                                    flexShrink: 1,
-                                    textAlignVertical: 'bottom',
-                                    flex: 1,
-                                    marginLeft: 5,
-                                    color: theme.textSecondary,
-                                    textAlign: 'left'
-                                },
-                                Typography.regular17_24
-                            ]}
-                        >
-                            {suffix}
-                        </Text>
+                    {suff && (
+                        <Animated.View style={{ justifyContent: 'center' }} layout={LinearTransition}>
+                            <Text
+                                numberOfLines={1}
+                                style={[
+                                    {
+                                        flexShrink: 1,
+                                        textAlignVertical: 'bottom',
+                                        color: theme.textSecondary,
+                                        textAlign: 'left'
+                                    },
+                                    Typography.regular17_24
+                                ]}
+                            >
+                                {suff}
+                            </Text>
+                        </Animated.View>
                     )}
                 </View>
                 <Animated.View style={[inputHeightCompensatorStyle, { backgroundColor: 'rgba(255,125,0,0.2)' }]} />

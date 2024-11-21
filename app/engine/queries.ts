@@ -9,6 +9,7 @@ export const Queries = {
             Status: () => ['account', address, 'staking', 'status'],
             Params: () => ['account', address, 'staking', 'params'],
         }),
+        OldWallets: () => ['account', address, 'oldWallets'],
     }),
     Job: (address: string) => (['job', address]),
 

@@ -80,7 +80,7 @@ export const HoldersAccounts = memo(({
             title={t('products.holders.accounts.title')}
             // re-map to add height correction for accounts with no cards
             items={accs.map((item) => {
-                return { ...item, height: item.cards.length > 0 ? 166 : 130 }
+                return { ...item, height: item.cards.length > 0 ? 122 : 86 }
             })}
             renderItem={(item, index) => {
                 return (

@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import { ThemeType } from "../../engine/state/theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Pressable, View, Image, Text } from "react-native";
@@ -10,6 +10,9 @@ import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
 import { ItemDivider } from "../ItemDivider";
 import { useBounceableWalletFormat } from "../../engine/hooks";
+import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
+import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
+import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
 
 export const SpecialJettonProduct = memo(({
     theme,
@@ -29,6 +32,26 @@ export const SpecialJettonProduct = memo(({
     const balance = specialJetton?.balance ?? 0n;
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
+    const gaslessConfig = useGaslessConfig().data;
+    const walletVersion = useWalletVersion(address);
+
+    const isGassless = useMemo(() => {
+        if (walletVersion !== 'v5R1') {
+            return false;
+        }
+
+        if (!gaslessConfig) {
+            return false;
+        }
+
+        return gaslessConfig.gas_jettons.find((j) => {
+            try {
+                return specialJetton?.master?.equals(Address.parse(j.master_id));
+            } catch (error) {
+                return false;
+            }
+        }) !== undefined;
+    }, [gaslessConfig?.gas_jettons, walletVersion, specialJetton?.master]);
 
     const onPress = useCallback(() => {
         const jetton = specialJetton
@@ -112,17 +135,20 @@ export const SpecialJettonProduct = memo(({
                     </View>
                 </View>
                 <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                    <Text
-                        style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {'USDT'}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text
+                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {'USDT'}
+                        </Text>
+                        {isGassless && (<GaslessInfoButton />)}
+                    </View>
                     <Text
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
-                        style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
+                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                     >
                         {specialJetton?.description ?? 'Tether Token for Tether USD'}
                     </Text>

@@ -146,7 +146,7 @@ export const HoldersCards = memo(({
                                         alignSelf: 'flex-end',
                                         height: undefined
                                     }}
-                                    textStyle={[{ color: theme.textSecondary }, Typography.semiBold17_24]}
+                                    textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                     currencyCode={cards[0].fiatCurrency}
                                     theme={theme}
                                 />

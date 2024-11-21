@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SendMode, internal, external, beginCell, storeMessage } from '@ton/core';
+import { SendMode, internal, external, beginCell, storeMessage, Address } from '@ton/core';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { WalletKeys } from '../../storage/walletKeys';
@@ -19,7 +19,7 @@ import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useOldWalletsBalances } from '../../engine/hooks';
 import { useClient4 } from '../../engine/hooks';
 import { WalletContractV1R1, WalletContractV1R2, WalletContractV1R3, WalletContractV2R1, WalletContractV2R2, WalletContractV3R1, WalletContractV3R2, WalletContractV4 } from '@ton/ton';
@@ -29,6 +29,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { StatusBar } from 'expo-status-bar';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { WalletVersions } from '../../engine/types';
+import { Typography } from '../../components/styles';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -142,9 +143,9 @@ export const MigrationFragment = systemFragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const [confirm, setConfirm] = React.useState(false);
+    const [confirm, setConfirm] = useState(false);
     const navigation = useTypedNavigation();
-    const animRef = React.useRef<LottieView>(null);
+    const animRef = useRef<LottieView>(null);
 
     useEffect(() => {
         if (Platform.OS === 'ios') {
@@ -153,7 +154,8 @@ export const MigrationFragment = systemFragment(() => {
     }, []);
 
     const state = useOldWalletsBalances();
-    const s = state.total;
+    const total = state.total;
+    const accounts = state.accounts;
 
     if (!confirm) {
         return (
@@ -182,26 +184,23 @@ export const MigrationFragment = systemFragment(() => {
                     </View>
 
                     <Text
-                        style={{
+                        style={[{
                             marginHorizontal: 16,
-                            fontSize: 30,
-                            fontWeight: '700',
                             textAlign: 'center',
                             marginTop: 26,
                             marginBottom: 10,
                             color: theme.textPrimary
-                        }}
+                        }, Typography.semiBold27_32]}
                     >
                         {t('migrate.title')}
                     </Text>
                     <Text
-                        style={{
+                        style={[{
                             marginHorizontal: 16,
-                            fontSize: 16,
                             textAlign: 'center',
                             marginBottom: 10,
                             color: theme.textPrimary
-                        }}
+                        }, Typography.regular15_20]}
                     >
                         {t('migrate.subtitle')}
                     </Text>
@@ -212,7 +211,7 @@ export const MigrationFragment = systemFragment(() => {
                         borderRadius: 14,
                         padding: 16
                     }}>
-                        {state.accounts.map((v, i) => {
+                        {accounts.map((v, i) => {
                             if (!v) {
                                 return null;
                             }
@@ -231,17 +230,18 @@ export const MigrationFragment = systemFragment(() => {
                                         }}
                                     >
                                         <WalletAddress
-                                            address={v.address}
+                                            address={Address.parse(v.address)}
                                             elipsise={{ start: 4, end: 10 }}
-                                            value={v?.address.toString({ testOnly: isTestnet })}
+                                            value={Address.parse(v.address).toString({ testOnly: isTestnet })}
                                             style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
                                             theme={theme}
                                         />
-                                        <Text style={{ color: theme.textPrimary }}>
+                                        <Text style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
                                             <ValueComponent
-                                                value={v.data?.balance.coins ?? 0n}
+                                                value={v.balance.coins ?? 0n}
                                                 precision={4}
-                                            /> TON
+                                                suffix={'TON'}
+                                            />
                                         </Text>
                                     </View>
                                 </>
@@ -254,8 +254,8 @@ export const MigrationFragment = systemFragment(() => {
                     <RoundButton
                         title={t('common.start')}
                         onPress={() => setConfirm(true)}
-                        disabled={s <= BigInt(0)}
-                        display={s <= BigInt(0) ? 'secondary' : 'default'}
+                        disabled={total <= BigInt(0)}
+                        display={total <= BigInt(0) ? 'secondary' : 'default'}
                     />
                 </View>
             </>

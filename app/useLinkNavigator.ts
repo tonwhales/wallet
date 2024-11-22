@@ -35,6 +35,7 @@ import { getHoldersToken, HoldersAccountStatus } from './engine/hooks/holders/us
 import { HoldersUserState, holdersUrl } from './engine/api/holders/fetchUserState';
 import { getIsConnectAppReady } from './engine/hooks/dapps/useIsConnectAppReady';
 import { HoldersAppParams, HoldersAppParamsType } from './fragments/holders/HoldersAppFragment';
+import { sharedStoragePersistence } from './storage/storage';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -569,6 +570,16 @@ function resolveHoldersInviteLink(params: {
     navigation.navigateHoldersLanding({ endpoint, onEnrollType: { type: HoldersAppParamsType.Invite }, inviteId }, isTestnet);
 }
 
+const inviteIdKey = 'inviteId';
+
+export function getInviteId(): string | undefined {
+    return sharedStoragePersistence.getString(inviteIdKey);
+}
+
+export function storeInviteId(inviteId: string) {
+    sharedStoragePersistence.set(inviteIdKey, inviteId);
+}
+
 export function useLinkNavigator(
     isTestnet: boolean,
     toastProps?: { duration?: ToastDuration, marginBottom?: number },
@@ -729,6 +740,8 @@ export function useLinkNavigator(
                 break;
             }
             case 'holders-invite': {
+                storeInviteId(resolved.inviteId);
+
                 if (!selected) {
                     return;
                 }

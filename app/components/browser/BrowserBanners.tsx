@@ -14,6 +14,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
 
     const scrollRef = useRef<FlatList>(null);
     const isPressed = useRef(false);
+    const isScrolling = useRef(false);
     const [activeSlide, setActiveSlide] = useState(0);
 
     const scrollViewWidth = dimensions.screen.width
@@ -28,6 +29,8 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
 
         const timerId = setTimeout(() => {
             if (banners.length === 0) return;
+            if (isScrolling.current) return
+
             if (activeSlide < banners.length - 1 && !isPressed.current) {
                 scrollRef.current?.scrollToIndex({
                     index: activeSlide + 1,
@@ -64,7 +67,11 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
                 left: halfBoxDistance,
                 right: halfBoxDistance,
             }}
-            onScrollBeginDrag={() => isPressed.current = true}
+            onScrollAnimationEnd={() => isScrolling.current = false}
+            onScrollBeginDrag={() => {
+                isPressed.current = true;
+                isScrolling.current = false;
+            }}
             onScrollEndDrag={() => isPressed.current = false}
             contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
             snapToAlignment={'center'}

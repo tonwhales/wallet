@@ -218,7 +218,7 @@ export const AssetsFragment = fragment(() => {
                                     <View style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 24, width: 24,
-                                        backgroundColor: selected ? theme.accent : theme.divider,
+                                        backgroundColor: !selectedJetton ? theme.accent : theme.divider,
                                         borderRadius: 12
                                     }}>
                                         {!selectedJetton && (

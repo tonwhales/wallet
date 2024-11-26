@@ -11,6 +11,8 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 
 import io.branch.rnbranch.RNBranchModule
 
+import expo.modules.ReactActivityDelegateWrapper
+
 class MainActivity : ReactActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
@@ -28,8 +30,16 @@ class MainActivity : ReactActivity() {
      * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
      * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
      */
-    override fun createReactActivityDelegate(): ReactActivityDelegate =
-        DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+    override fun createReactActivityDelegate(): ReactActivityDelegate {
+        return ReactActivityDelegateWrapper(
+            this,
+            BuildConfig.IS_NEW_ARCHITECTURE_ENABLED,
+            object : DefaultReactActivityDelegate(
+                this,
+                mainComponentName,
+                fabricEnabled
+            ){})
+    }
 
     override fun onStart() {
         super.onStart()

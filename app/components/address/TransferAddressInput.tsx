@@ -23,8 +23,6 @@ import { Image } from "expo-image";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
-import IcChevron from '@assets/ic_chevron_forward.svg';
-
 type TransferAddressInputProps = {
     acc: Address,
     theme: ThemeType,

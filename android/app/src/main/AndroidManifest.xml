@@ -50,6 +50,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
+        android:supportsRtl="true"
         android:usesCleartextTraffic="true">
         <meta-data
             android:name="expo.modules.updates.ENABLED"
@@ -119,8 +120,5 @@
 		<!-- Set to `true` to use `BranchKey.test` -->
 		<meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
 
-        <activity
-            android:name="com.facebook.react.devsupport.DevSettingsActivity"
-            android:exported="false" />
     </application>
 </manifest>

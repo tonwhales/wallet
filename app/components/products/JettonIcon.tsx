@@ -103,7 +103,7 @@ export const JettonIcon = memo(({
     return (
         <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 0 }}>
             <WImage
-                src={jetton.image?.preview256 ?? undefined}
+                src={jetton.image?.preview256 ?? jetton.originalImage ?? undefined}
                 width={size}
                 height={size}
                 borderRadius={size}

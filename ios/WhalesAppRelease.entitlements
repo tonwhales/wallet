@@ -8,6 +8,8 @@
 	<array>
 		<string>applinks:tonhub.com</string>
 		<string>applinks:test.tonhub.com</string>
+		<string>applinks:tonhub.app.link</string>
+		<string>applinks:tonhub-alternate.app.link</string>
 	</array>
 	<key>com.apple.developer.pass-type-identifiers</key>
 	<array>

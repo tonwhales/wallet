@@ -10,8 +10,6 @@ import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
-import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import Animated from "react-native-reanimated";
 import { Address } from "@ton/core";
 import { LiquidStakingPool } from "../staking/LiquidStakingPool";
 import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
@@ -63,8 +61,6 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
             return acc + item.balance;
         }, 0n);
     }, [active, liquidBalance]);
-
-    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     if (!address) {
         return null;
@@ -173,7 +169,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                                 </View>
                                 <View style={{ flexShrink: 1 }}>
                                     <PerfText
-                                        style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                         ellipsizeMode="tail"
                                         numberOfLines={1}
                                     >
@@ -220,7 +216,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
     }
 
     return (
-        <Animated.View style={animatedStyle}>
+        <View>
             <View style={{
                 backgroundColor: theme.surfaceOnBg,
                 borderRadius: 20,
@@ -262,8 +258,6 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                     style={({ pressed }) => {
                         return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
                     }}
-                    onPressIn={onPressIn}
-                    onPressOut={onPressOut}
                 >
                     <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                         <View style={icStyle}>
@@ -293,6 +287,6 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                     </View>
                 </Pressable>
             </View>
-        </Animated.View>
+        </View>
     );
 })

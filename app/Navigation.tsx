@@ -91,7 +91,6 @@ import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStaking
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
-import { SortedHintsWatcher } from './components/SortedHintsWatcher';
 import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
@@ -100,6 +99,7 @@ import { W5UpdateFragment } from './fragments/W5UpdateFragment';
 import { WebViewPreloader } from './components/WebViewPreloader';
 import { holdersUrl } from './engine/api/holders/fetchUserState';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
+import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -342,7 +342,8 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreenModal('AppAuth', AppAuthFragment, safeArea),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
     genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
-    fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea)
+    fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea),
+    modalScreen('AddressBook', AddressBookFragment, safeArea)
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();
@@ -447,9 +448,6 @@ export const Navigation = memo(() => {
     // Watch for holders updates
     useHoldersWatcher();
 
-    // Jetton hints watcher
-    const selected = appState.addresses.find((value, index) => index === appState.selected)?.address.toString({ testOnly: isTestnet });
-
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>
             <NavigationContainer
@@ -471,7 +469,6 @@ export const Navigation = memo(() => {
                 </Stack.Navigator>
             </NavigationContainer>
             <HintsPrefetcher />
-            <SortedHintsWatcher owner={selected} />
             <PendingTxsWatcher />
             <TonconnectWatcher />
             <SessionWatcher navRef={navigationRef} />

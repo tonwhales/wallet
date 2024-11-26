@@ -80,6 +80,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "loading": 'Загрузка...',
         "notFound": "Не найден",
         "unverified": "Неверифицированные",
+        "addressBook": "Адресная книга",
+        "gasless": "Gasless"
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -533,7 +535,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "hiddenCards": "Скрытые карты",
                 "hiddenAccounts": "Скрытые счета",
                 "primaryName": 'Основной счет',
-                "paymentName": 'Платежный счет {{accountIndex}}'
+                "paymentName": 'Платежный счет {{accountIndex}}',
+                "topUp": 'Пополнить счёт',
             },
             "pageTitles": {
                 "general": "Tonhub Cards",
@@ -1075,6 +1078,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "description_3": "Кошельки V4 и W5 имеют одинаковую seed-фразу. Вы всегда можете переключаться между версиями, выбирая нужный адрес в верхней части главного экрана.",
             "switch_button": "Перейти на W5",
         },
+        "gaslessInfo": "TON не требуется для оплаты комиссии за газ при отправке этого токена. Комиссия будет удержана непосредственно из вашего баланса данного токена."
     },
     "browser": {
         "listings": {

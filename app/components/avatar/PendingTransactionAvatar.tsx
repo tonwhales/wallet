@@ -28,7 +28,7 @@ export const PendingTransactionAvatar = memo(({
     theme: ThemeType,
     forceAvatar?: ForcedAvatarType
 }) => {
-    const [walletSettings,] = useWalletSettings(address);
+    const [walletSettings] = useWalletSettings(address);
     const avatarColorHash = walletSettings?.color ?? avatarHash(avatarId, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 

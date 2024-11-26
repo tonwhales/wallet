@@ -1,15 +1,18 @@
 import { Address, toNano } from "@ton/core";
-import { useJettonContent, useJettonWallet, useJettonWalletAddress, useKnownJettons, useNetwork, usePrice } from "..";
+import { useJetton, useKnownJettons, useNetwork, usePrice } from "..";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
-import { Jetton } from '../../types';
+import { mapJettonToMasterState } from "../../../utils/jettons/mapJettonToMasterState";
 
-export function useSpecialJetton(address: Address | null | undefined) {
+export function useSpecialJetton(address: Address) {
     const { isTestnet: testOnly } = useNetwork();
     const knownJettons = useKnownJettons(testOnly);
     const specialJettonMaster = knownJettons?.specialJetton ?? undefined;
-    const walletAddress = useJettonWalletAddress(specialJettonMaster, address?.toString({ testOnly })).data;
-    const wallet = useJettonWallet(walletAddress, { refetchInterval: 45_000 });
-    const masterContent = useJettonContent(specialJettonMaster ?? null);
+
+    const jetton = useJetton({
+        owner: address?.toString({ testOnly }),
+        master: specialJettonMaster,
+    });
+    
     const [price] = usePrice();
 
     if (!specialJettonMaster || !address) {
@@ -23,18 +26,7 @@ export function useSpecialJetton(address: Address | null | undefined) {
         return null;
     }
 
-    const specialJetton: Jetton | null = !!wallet?.address ? {
-        balance: BigInt(wallet?.balance ?? 0n),
-        decimals: masterContent?.decimals ?? 6,
-        description: masterContent?.description ?? '',
-        name: masterContent?.name ?? '',
-        symbol: masterContent?.symbol ?? '',
-        icon: masterContent?.image?.preview256 ?? '',
-        master: Address.parse(specialJettonMaster),
-        wallet: Address.parse(wallet.address),
-    } : null;
-
-    const balanceString = fromBnWithDecimals(specialJetton?.balance ?? 0n, masterContent?.decimals ?? 6);
+    const balanceString = fromBnWithDecimals(jetton?.balance ?? 0n, jetton?.decimals ?? 6);
     const nano = toNano(balanceString);
     const tonRate = price?.price?.usd ? 1 / price.price.usd : 0; // 1 usd = tonRate * ton
 
@@ -46,7 +38,14 @@ export function useSpecialJetton(address: Address | null | undefined) {
         console.warn('Failed to convert balance to TON');
     }
 
-    return { ...specialJetton, nano, toTon, masterContent, master: Address.parse(specialJettonMaster) };
+    const masterContent = jetton ? mapJettonToMasterState(jetton, testOnly) : undefined;
+
+    return { 
+        ...jetton, 
+        nano, toTon, masterContent, 
+        master: Address.parse(specialJettonMaster),
+        description: 'Tether Token for Tether USD' 
+    };
 }
 
 export type SpecialJetton = ReturnType<typeof useSpecialJetton>;

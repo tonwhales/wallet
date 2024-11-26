@@ -1,35 +1,39 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { View, Text, Image } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { t } from "../../i18n/t";
-import { useTheme } from "../../engine/hooks";
+import { useHintsFull, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
-import { useSortedHints } from "../../engine/hooks/jettons/useSortedHints";
+import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
+import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { address: Address, testOnly: boolean }) => {
     const theme = useTheme();
-    const hints = useSortedHints(address.toString({ testOnly }));
-    const jettons = hints
-        .map((s) => {
-            try {
-                let wallet = Address.parse(s);
-                return wallet;
-            } catch {
-                return null;
-            }
-        })
-        .filter((j) => !!j) as Address[];
+    const hints = useHintsFull(address.toString({ testOnly })).data?.hints ?? [];
 
-    if (jettons.length === 0) {
+    const renderItem = useCallback((h: JettonFull) => {
+        return (
+            <JettonProductItem
+                key={'jt' + h.jetton.address}
+                hint={h}
+                card
+                ledger
+                owner={address}
+                jettonViewType={JettonViewType.Default}
+            />
+        );
+    }, [address]);
+
+    if (hints.length === 0) {
         return null;
     }
 
-    if (jettons.length < 3) {
+    if (hints.length < 3) {
         return (
-            <View style={{ marginBottom: jettons.length > 0 ? 16 : 0 }}>
+            <View style={{ marginBottom: hints.length > 0 ? 16 : 0 }}>
                 <View
                     style={{
                         flexDirection: 'row',
@@ -43,16 +47,17 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                         {t('jetton.productButtonTitle')}
                     </Text>
                 </View>
-                {jettons.map((j, index) => {
+                {hints.map((h, index) => {
                     return (
                         <JettonProductItem
-                            key={'jt' + j.toString({ testOnly })}
-                            wallet={j}
+                            key={'jt' + h.jetton.address}
+                            hint={h}
                             first={index === 0}
-                            last={index === jettons.length - 1}
-                            single={jettons.length === 1}
+                            last={index === hints.length - 1}
+                            single={hints.length === 1}
                             ledger
                             owner={address}
+                            jettonViewType={JettonViewType.Default}
                         />
                     )
                 })}
@@ -64,18 +69,8 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
         <View style={{ marginBottom: 16 }}>
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
-                items={jettons}
-                renderItem={(j) => {
-                    return !j ? null : (
-                        <JettonProductItem
-                            key={'jt' + j.toString({ testOnly })}
-                            wallet={j}
-                            card
-                            ledger
-                            owner={address}
-                        />
-                    )
-                }}
+                items={hints}
+                renderItem={renderItem}
                 renderFace={() => {
                     return (
                         <View style={[

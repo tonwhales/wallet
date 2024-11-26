@@ -34,6 +34,8 @@
     <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
 
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -86,7 +88,37 @@
 
                 <data android:scheme="com.tonhub.wallet" />
             </intent-filter>
+
+            <!-- Branch App Links - Live App -->
+			<intent-filter android:autoVerify="true">
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<!-- REPLACE `android:host` with your `app.link` domain -->
+				<data android:scheme="https" android:host="tonhub.app.link" />
+				<!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
+				<data android:scheme="https" android:host="tonhub-alternate.app.link" />
+			</intent-filter>
+
+			<!-- Branch App Links - Test App -->
+			<intent-filter android:autoVerify="true">
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="https" android:host="tonhub.test-app.link" />
+				<!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
+				<data android:scheme="https" android:host="tonhub-alternate.test-app.link" />
+			</intent-filter>
         </activity>
+
+        <!-- Branch init -->
+		<!-- REPLACE `BranchKey` with the value from your Branch Dashboard -->
+		<meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_XXX" />
+		<!-- REPLACE `BranchKey.test` with the value from your Branch Dashboard -->
+		<meta-data android:name="io.branch.sdk.BranchKey.test" android:value="key_test_XXX" />
+		<!-- Set to `true` to use `BranchKey.test` -->
+		<meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
+
         <activity
             android:name="com.facebook.react.devsupport.DevSettingsActivity"
             android:exported="false" />

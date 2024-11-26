@@ -77,7 +77,8 @@ export function previewToTransferParams(
     tx: TransactionDescription,
     isTestnet: boolean,
     bounceableFormat: boolean,
-    isLedger: boolean
+    isLedger: boolean,
+    decimals?: number
 ): RepeatTxParams | null {
 
     if (isLedger) {
@@ -98,8 +99,6 @@ export function previewToTransferParams(
             const bounceable = bounceableFormat ? true : opAddr.isBounceable;
             const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
             const comment = operation.comment;
-            const master = tx.masterMetadata;
-            const decimals = master?.decimals ?? 9;
             const amount = fromBnWithDecimals(item.amount, decimals);
             const jetton = Address.parse(tx.base.parsed.resolvedAddress);
 

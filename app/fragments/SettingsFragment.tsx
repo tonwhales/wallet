@@ -58,16 +58,16 @@ export const SettingsFragment = fragment(() => {
     const [, currency] = usePrice();
     const [bounceableFormat] = useBounceableWalletFormat();
     const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '');
-    const inviteCheck = useIsHoldersInvited(selected!.address, network.isTestnet);
-    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const inviteCheck = useIsHoldersInvited(selected?.address, network.isTestnet);
+    const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
-    
-    const showHoldersItem = inviteCheck?.allowed || hasHoldersProducts;
 
+    
     // Ledger
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
+    const showHoldersItem = !isLedger && (inviteCheck?.allowed || hasHoldersProducts);
     const ledgerContext = useLedgerTransport();
 
     const needsEnrollment = useMemo(() => {

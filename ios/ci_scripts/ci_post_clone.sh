@@ -2,6 +2,25 @@
 
 set -e
 
+echo "===== Passing down env variables ====="
+
+# for future reference
+# https://developer.apple.com/documentation/xcode/environment-variable-reference
+
+cd ../wallet
+
+# Ensure the BRANCH_KEY_LIVE environment variable is set
+if [ -z "$BRANCH_KEY_LIVE" ]; then
+    echo "Error: BRANCH_KEY_LIVE environment variable is not set."
+    exit 1
+fi
+
+plutil -replace branch_key.live -string "$BRANCH_KEY_LIVE" Info.plist
+
+plutil -p Info.plist
+
+echo "===== Evn variables replaced ====="
+
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=TRUE
 # brew install cocoapods
@@ -30,6 +49,6 @@ brew install yarn
 echo "===== Generating node_modules ====="
 yarn
 echo "===== Installing pods ====="
-pod install
+PRODUCTION=1 pod install
 # the sed command from RN cant find the file... so we have to run it ourselves
 sed -i -e  $'s/ && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0)//' /Volumes/workspace/repository/ios/Pods/RCT-Folly/folly/portability/Time.h

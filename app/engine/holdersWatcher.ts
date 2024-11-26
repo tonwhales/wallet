@@ -4,8 +4,6 @@ import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
 import { HoldersUserState } from "./api/holders/fetchUserState";
 import { useNetwork } from "./hooks/network/useNetwork";
 import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
-import { queryClient } from "./clients";
-import { Queries } from "./queries";
 import { useHoldersAccounts } from "./hooks";
 
 export function useHoldersWatcher() {
@@ -35,7 +33,6 @@ export function useHoldersWatcher() {
             }
             if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
                 cards.refetch();
-                queryClient.refetchQueries({ queryKey: Queries.Holders(account?.address.toString({ testOnly: isTestnet }) ?? '').Notifications(event.card) })
 
                 return;
             }

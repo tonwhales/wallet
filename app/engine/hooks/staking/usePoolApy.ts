@@ -12,8 +12,8 @@ export function usePoolApys(pool: string) {
         queryFn: () => {
             return fetchPoolApys(pool);
         },
-        refetchInterval: 1000 * 60 * 30, // sync every 30 mins
-        staleTime: 1000 * 60 * 30, // 30 mins
+        refetchInterval: 1000 * 60 * 30,
+        staleTime: 1000 * 60 * 30
     }).data;
 }
 

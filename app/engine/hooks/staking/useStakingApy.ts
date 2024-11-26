@@ -11,6 +11,6 @@ export function useStakingApy() {
         queryFn: () => {
             return fetchApy(isTestnet);
         },
-        refetchInterval: 1000 * 60 * 5, // sync every 5 minutes
+        refetchInterval: 1000 * 60 * 30
     }).data;
 }

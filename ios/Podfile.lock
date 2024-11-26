@@ -1929,6 +1929,9 @@ PODS:
   - react-native-branch (6.3.0):
     - BranchSDK (= 3.6.3)
     - React-Core
+  - react-native-branch (6.3.0):
+    - BranchSDK (= 3.6.3)
+    - React-Core
   - react-native-context-menu-view (1.12.0):
     - React
   - react-native-fast-pbkdf2 (0.3.1):

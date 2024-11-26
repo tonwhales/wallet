@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { memo } from "react";
-import { View, Text, Pressable, StyleProp, ViewStyle, Image } from "react-native";
+import { View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { PendingTransactionAvatar } from "../../../components/avatar/PendingTransactionAvatar";
@@ -23,29 +23,13 @@ import { Typography } from "../../../components/styles";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
-import { useLastWatchedBlock } from "../../../engine/hooks/useLastWatchedBlock";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
-
-function checkIfTxFailed(tx: PendingTransaction, txTimeout: number = 60, lastWatchedBlock: { seqno: number, lastUtime: number } | null) {
-    const currentBlock = lastWatchedBlock?.seqno ?? 0;
-    const blockToCheck = tx.blockSeqno + 20;
-
-    if (tx.blockSeqno === currentBlock || blockToCheck >= currentBlock) {
-        return false;
-    }
-
-    let blockCreatedAt = lastWatchedBlock?.lastUtime ?? 0;
-
-    // check if block was created after transaction expiration date
-    return blockCreatedAt > (tx.time + txTimeout);
-}
 
 const PendingTransactionView = memo(({
     tx,
     first,
     last,
     single,
-    timeOut,
     viewType = 'main',
     bounceableFormat,
     txTimeout
@@ -54,21 +38,19 @@ const PendingTransactionView = memo(({
     first?: boolean,
     last?: boolean,
     single?: boolean,
-    timeOut?: (id: string) => void,
-    viewType?: 'history' | 'main',
+    viewType?: 'history' | 'main' | 'jetton-history',
     bounceableFormat?: boolean,
     txTimeout: number
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const lastBlock = useLastWatchedBlock();
     const navigation = useTypedNavigation();
     const body = tx.body;
     const targetFriendly = body?.type === 'token'
         ? body.target.toString({ testOnly: isTestnet })
         : tx.address?.toString({ testOnly: isTestnet });
     const contact = useContact(targetFriendly);
-    const [settings,] = useWalletSettings(targetFriendly);
+    const [settings] = useWalletSettings(targetFriendly);
     const knownWallets = KnownWallets(isTestnet);
     const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
     const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
@@ -118,18 +100,6 @@ const PendingTransactionView = memo(({
         : tx.amount > 0n
             ? tx.amount
             : -tx.amount;
-
-    // check if transaction timed out after 20 blocks and tx timeout
-    useEffect(() => {
-        if (tx.status === 'pending') {
-            const failed = checkIfTxFailed(tx, txTimeout, lastBlock);
-
-            // mark as timed out
-            if (failed) {
-                timeOut?.(tx.id);
-            }
-        }
-    }, [lastBlock, timeOut, tx.status]);
 
     const onOpen = useCallback(() => {
         navigation.navigatePendingTx({
@@ -278,18 +248,16 @@ export const PendingTransactionsList = memo((
     {
         theme,
         txs,
-        timeOut,
         style,
         viewType = 'main'
     }: {
         theme: ThemeType,
         txs: PendingTransaction[],
-        timeOut?: (id: string) => void,
         style?: StyleProp<ViewStyle>,
-        viewType?: 'history' | 'main'
+        viewType?: 'history' | 'main' | 'jetton-history'
     }
 ) => {
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const appConfig = useAppConfig();
 
     return (
@@ -303,11 +271,10 @@ export const PendingTransactionsList = memo((
         ]}>
             {txs.map((tx, i) => (
                 <PendingTransactionView
-                    key={tx.id}
+                    key={`tx-${tx.id}-${viewType}`}
                     tx={tx}
                     first={i === 0}
                     last={(i === txs.length - 1) || viewType === 'history'}
-                    timeOut={timeOut}
                     viewType={viewType}
                     bounceableFormat={bounceableFormat}
                     txTimeout={appConfig.txTimeout}
@@ -318,19 +285,33 @@ export const PendingTransactionsList = memo((
 });
 PendingTransactionsList.displayName = 'PendingTransactionsView';
 
-export const PendingTransactions = memo(({ address, viewType = 'main' }: { address?: string, viewType?: 'history' | 'main' }) => {
+export const PendingTransactions = memo(({
+    address,
+    viewType = 'main',
+    filter,
+    onChange,
+    listStyle
+}: {
+    address?: string,
+    viewType?: 'history' | 'main' | 'jetton-history',
+    filter?: (tx: PendingTransaction) => boolean,
+    onChange?: (txs: PendingTransaction[]) => void,
+    listStyle?: StyleProp<ViewStyle>
+}) => {
     const account = useSelectedAccount();
     const network = useNetwork();
-    const { state: pending, removePending, markAsTimedOut } = usePendingActions(address ?? account?.addressString ?? '', network.isTestnet);
+    const { state: pending, removePending } = usePendingActions(address ?? account?.addressString ?? '', network.isTestnet);
     const theme = useTheme();
 
     const txs = useMemo(() => {
         // Show only pending on history tab
-        if (viewType === 'history') {
-            return pending.filter((tx) => tx.status !== 'sent' && tx.status !== 'timed-out');
+        if (viewType !== 'main') {
+            return pending
+                .filter((tx) => tx.status !== 'sent' && tx.status !== 'timed-out')
+                .filter(filter ?? (() => true));
         }
 
-        return pending;
+        return pending.filter(filter ?? (() => true));
     }, [pending]);
 
     useEffect(() => {
@@ -342,6 +323,10 @@ export const PendingTransactions = memo(({ address, viewType = 'main' }: { addre
 
             removePending(toRemove);
         }, 15 * 1000);
+
+        return () => {
+            onChange?.(pending);
+        }
     }, [pending]);
 
     if (txs.length <= 0) {
@@ -369,8 +354,8 @@ export const PendingTransactions = memo(({ address, viewType = 'main' }: { addre
             <PendingTransactionsList
                 theme={theme}
                 txs={txs}
-                timeOut={markAsTimedOut}
                 viewType={viewType}
+                style={listStyle}
             />
         </View>
     );

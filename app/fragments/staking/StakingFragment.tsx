@@ -56,7 +56,7 @@ export const StakingFragment = fragment(() => {
     const pool = useStakingPool(targetPool, memberAddress);
     const member = pool?.member;
     const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: network.isTestnet }));
-    const { state: pendingTxs, removePending, markAsTimedOut } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
+    const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
@@ -363,7 +363,6 @@ export const StakingFragment = fragment(() => {
                             <PendingTransactionsList
                                 theme={theme}
                                 txs={pendingPoolTxs}
-                                timeOut={markAsTimedOut}
                                 style={{ marginBottom: 16 }}
                             />
                         )}

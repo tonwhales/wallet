@@ -108,7 +108,7 @@ function resolveHoldersUrl(url: Url<Record<string, string | undefined>>): Resolv
     const isInvite = url.pathname.startsWith('/holders/invite');
     const inviteId = url.pathname.split('holders/invite/')[1]
 
-    if (isInvite && inviteId) {                
+    if (isInvite && inviteId) {
         return {
             type: 'holders-invite',
             inviteId: inviteId
@@ -252,6 +252,11 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
         const isTonUrl = url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:';
         const isHttpUrl = url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:';
+        const isTonhubUrl = url.protocol.toLowerCase() === 'tonhub:' || url.protocol.toLowerCase() === 'tonhub-test:';
+
+        if (isTonhubUrl && url.host.toLowerCase() === 'holders') {
+            return resolveHoldersUrl(url);
+        }
 
         // ton url
         if (isTonUrl) {

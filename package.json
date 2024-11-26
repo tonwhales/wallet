@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "2.3.22",
+  "version": "2.4.2",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -112,6 +112,7 @@
     "react-native-ble-plx": "^2.0.3",
     "react-native-blurhash": "^1.1.10",
     "react-native-bouncy-checkbox": "^2.1.9",
+    "react-native-branch": "^6.3.0",
     "react-native-chart-kit": "^6.12.0",
     "react-native-collapsible": "^1.6.0",
     "react-native-context-menu-view": "^1.6.0",

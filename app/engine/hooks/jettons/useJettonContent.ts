@@ -4,7 +4,7 @@ import { jettonMasterContentQueryFn } from './usePrefetchHints';
 import { useNetwork } from '../network/useNetwork';
 import { JettonMasterState } from '../../metadata/fetchJettonMasterContent';
 
-export function useJettonContent(master: string | null, suspense: boolean = false): (JettonMasterState & { address: string }) | null {
+export function useJettonContent(master: string | null | undefined, suspense: boolean = false): (JettonMasterState & { address: string }) | null {
     const { isTestnet } = useNetwork();
 
     const data = useQuery({

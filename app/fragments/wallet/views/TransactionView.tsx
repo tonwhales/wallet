@@ -20,12 +20,13 @@ import { Typography } from '../../../components/styles';
 import { avatarHash } from '../../../utils/avatarHash';
 import { WalletSettings } from '../../../engine/state/walletSettings';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
-import { useJettonMaster, useJettonWallet, usePeparedMessages, useVerifyJetton } from '../../../engine/hooks';
+import { useJetton, usePeparedMessages, useVerifyJetton } from '../../../engine/hooks';
 import { TxAvatar } from './TxAvatar';
 import { PreparedMessageView } from './PreparedMessageView';
 import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo';
 import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
+import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
 
 export function TransactionView(props: {
     own: Address,
@@ -54,7 +55,8 @@ export function TransactionView(props: {
         spamMinAmount, dontShowComments, spamWallets,
         contacts,
         isTestnet,
-        knownWallets
+        knownWallets,
+        own
     } = props;
     const parsed = tx.base.parsed;
     const operation = tx.base.operation;
@@ -150,14 +152,13 @@ export function TransactionView(props: {
         : theme.textPrimary;
 
     const resolvedAddressString = tx.base.parsed.resolvedAddress;
-    const jetton = useJettonWallet(resolvedAddressString);
-    const metadataMaster = tx.metadata?.jettonWallet?.master?.toString({ testOnly: isTestnet });
-    const jettonMasterString = tx.masterAddressStr ?? metadataMaster ?? jetton?.master ?? null;
-    const jettonMasterContent = useJettonMaster(jettonMasterString);
+    const jetton = useJetton({ owner: own, wallet: resolvedAddressString });
+    const jettonMaster = jetton?.master ?? null;
+    const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : null;
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
-        ticker: item.kind === 'token' ? tx.masterMetadata?.symbol : undefined,
-        master: jettonMasterString
+        ticker: item.kind === 'token' ? jettonMasterContent?.symbol : undefined,
+        master: jettonMaster?.toString({ testOnly: isTestnet }),
     });
 
     const symbolText = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}${isSCAMJetton ? ' • ' : ''}` : '')
@@ -173,7 +174,7 @@ export function TransactionView(props: {
                     return (
                         <PreparedMessageView
                             key={`prep-${i}`}
-                            own={props.own}
+                            own={own}
                             message={m}
                             separator={false}
                             theme={theme}
@@ -311,7 +312,7 @@ export function TransactionView(props: {
                                     {kind === 'in' ? '+' : '-'}
                                     <ValueComponent
                                         value={absAmount}
-                                        decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
+                                        decimals={item.kind === 'token' ? jettonMasterContent?.decimals : undefined}
                                         precision={3}
                                         centFontStyle={{ fontSize: 15 }}
                                     />

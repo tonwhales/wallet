@@ -21,7 +21,7 @@ import { getQueryData } from '../../utils/getQueryData';
 import { fetchJettonWallet } from '../../metadata/introspections/fetchJettonWallet';
 import { fetchJettonWalletAddress } from '../../metadata/introspections/fetchJettonWalletAddress';
 
-let jettonFetchersLock = new AsyncLock();
+const jettonFetchersLock = new AsyncLock();
 
 const metadataBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
     return create({
@@ -31,10 +31,12 @@ const metadataBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                 let measurement = performance.now();
                 let result: StoredContractMetadata[] = [];
 
+                const seqno = await getLastBlock();
+
                 await Promise.all(addressesString.map(async (addressString) => {
                     try {
                         let address = Address.parse(addressString);
-                        let metadata = await fetchMetadata(client, await getLastBlock(), address, isTestnet);
+                        let metadata = await fetchMetadata(client, seqno, address, isTestnet);
 
                         result.push({
                             jettonMaster: metadata.jettonMaster ? {
@@ -58,12 +60,12 @@ const metadataBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
 
                 }));
 
-                log('[contract-metadata] 🟢 in ' + (performance.now() - measurement).toFixed(1));
+                log('[contract-metadata] batch 🟢 in ' + (performance.now() - measurement).toFixed(1));
                 return result;
             })
         },
         resolver: keyResolver('address'),
-        scheduler: windowedFiniteBatchScheduler({ windowMs: 1000, maxBatchSize: 40 }),
+        scheduler: windowedFiniteBatchScheduler({ windowMs: 1000, maxBatchSize: 50 }),
     });
 });
 
@@ -110,13 +112,13 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                 const result: StoredJettonWallet[] = [];
                 log(`[jetton-wallet] 🟡 batch ${wallets.length}`);
                 let measurement = performance.now();
+                const seqno = await getLastBlock();
                 await Promise.all(wallets.map(async (wallet) => {
                     try {
                         log(`[jetton-wallet] 🟡 batch ${wallet}`);
 
                         const queryCache = queryClient.getQueryCache();
                         const address = Address.parse(wallet);
-                        const seqno = (await client.getLastBlock()).last.seqno;
                         const data = await fetchJettonWallet(seqno, address, isTestnet);
 
                         if (!data) {
@@ -167,7 +169,7 @@ const walletBatcher = memoize((client: TonClient4, isTestnet: boolean) => {
                         console.warn(`[jetton-wallet] 🔴 ${wallet}`, error);
                     }
                 }));
-                log(`[jetton-wallet] 🟢 in ${(performance.now() - measurement).toFixed(1)}`);
+                log(`[jetton-wallet] batch 🟢 in ${(performance.now() - measurement).toFixed(1)}`);
                 return result;
             });
         },
@@ -182,7 +184,7 @@ const walletAddressBatcher = memoize((client: TonClient4, isTestnet: boolean) =>
             return await jettonFetchersLock.inLock(async () => {
                 const result: { wallet: string, master: string, owner: string }[] = [];
                 log(`[jetton-wallet-address] 🟡 batch ${args.length}`);
-                const seqno = (await client.getLastBlock()).last.seqno;
+                const seqno = await getLastBlock();
                 const measurement = performance.now();
                 await Promise.all(args.map(async ({ master, owner }) => {
                     try {
@@ -205,7 +207,7 @@ const walletAddressBatcher = memoize((client: TonClient4, isTestnet: boolean) =>
                         console.warn(`[jetton-wallet-address] 🔴 ${owner}`, error);
                     }
                 }));
-                log(`[wallet-address] 🟢 in ${(performance.now() - measurement).toFixed(1)}`);
+                log(`[wallet-address] batch 🟢 in ${(performance.now() - measurement).toFixed(1)}`);
                 return result;
             });
         },

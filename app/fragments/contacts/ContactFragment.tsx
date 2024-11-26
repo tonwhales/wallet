@@ -21,6 +21,8 @@ import { requiredFields } from "./ContactNewFragment";
 import { ContactEdit } from "../../components/Contacts/ContactEdit";
 import { Avatar } from "../../components/avatar/Avatar";
 import { KnownWallets } from "../../secure/KnownWallets";
+import { Typography } from "../../components/styles";
+import { JettonViewType } from "../wallet/AssetsFragment";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -144,24 +146,14 @@ export const ContactFragment = fragment(() => {
                                         hashColor
                                     />
                                 </View>
-                                <Text style={{
-                                    fontSize: 32, lineHeight: 38,
-                                    fontWeight: '600',
-                                    color: theme.textPrimary,
-                                    marginTop: 16
-                                }}>
+                                <Text style={[{ color: theme.textPrimary, marginTop: 16 }, Typography.semiBold32_38]}>
                                     {name}
                                 </Text>
                                 <Pressable
                                     onPress={onCopy}
                                     style={{ marginTop: 4, flexDirection: 'row', alignItems: 'center' }}
                                 >
-                                    <Text style={{
-                                        fontSize: 17, lineHeight: 24,
-                                        fontWeight: '400',
-                                        marginTop: 4,
-                                        color: theme.textSecondary
-                                    }}>
+                                    <Text style={[{ marginTop: 4, color: theme.textSecondary }, Typography.regular17_24]}>
                                         {shortAddressStr}
                                     </Text>
                                     <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={theme.iconPrimary} />
@@ -179,12 +171,10 @@ export const ContactFragment = fragment(() => {
                                         }}
                                     >
                                         <Pressable
-                                            onPress={() => {
-                                                navigation.navigate(
-                                                    'Assets',
-                                                    { target: parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }) }
-                                                );
-                                            }}
+                                            onPress={() => navigation.navigateAssets({
+                                                target: parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }),
+                                                jettonViewType: JettonViewType.Transfer
+                                            })}
                                             style={({ pressed }) => ({
                                                 opacity: pressed ? 0.5 : 1,
                                                 borderRadius: 14,
@@ -202,12 +192,7 @@ export const ContactFragment = fragment(() => {
                                                     }}>
                                                     <Image source={require('@assets/ic_send.png')} />
                                                 </View>
-                                                <Text style={{
-                                                    fontSize: 15, lineHeight: 20,
-                                                    color: theme.textPrimary,
-                                                    marginTop: 6,
-                                                    fontWeight: '500'
-                                                }}>
+                                                <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.semiBold15_20]}>
                                                     {t('wallet.actions.send')}
                                                 </Text>
                                             </View>
@@ -228,12 +213,7 @@ export const ContactFragment = fragment(() => {
                                                     }}>
                                                     <ShareIcon height={24} width={24} color={'white'} style={{ height: 12, width: 12 }} />
                                                 </View>
-                                                <Text style={{
-                                                    fontSize: 15, lineHeight: 20,
-                                                    color: theme.textPrimary,
-                                                    marginTop: 6,
-                                                    fontWeight: '500'
-                                                }}>
+                                                <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
                                                     {t('common.share')}
                                                 </Text>
                                             </View>

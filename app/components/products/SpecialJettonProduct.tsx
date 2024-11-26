@@ -1,9 +1,7 @@
-import { memo, useCallback } from "react";
-import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import { ThemeType } from "../../engine/state/theme";
-import { TypedNavigation } from "../../utils/useTypedNavigation";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Pressable, View, Image, Text } from "react-native";
-import Animated from "react-native-reanimated";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
@@ -12,31 +10,53 @@ import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
 import { ItemDivider } from "../ItemDivider";
 import { useBounceableWalletFormat } from "../../engine/hooks";
+import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
+import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
+import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
 
 export const SpecialJettonProduct = memo(({
     theme,
-    navigation,
     isLedger,
     address,
     testOnly,
     divider
 }: {
     theme: ThemeType,
-    navigation: TypedNavigation,
     isLedger?: boolean,
     address: Address,
     testOnly: boolean,
     divider?: 'top' | 'bottom'
 }) => {
-    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+    const navigation = useTypedNavigation();
     const specialJetton = useSpecialJetton(address);
-    const content = specialJetton?.masterContent;
     const balance = specialJetton?.balance ?? 0n;
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
+    const gaslessConfig = useGaslessConfig().data;
+    const walletVersion = useWalletVersion(address);
+
+    const isGassless = useMemo(() => {
+        if (walletVersion !== 'v5R1') {
+            return false;
+        }
+
+        if (!gaslessConfig) {
+            return false;
+        }
+
+        return gaslessConfig.gas_jettons.find((j) => {
+            try {
+                return specialJetton?.master?.equals(Address.parse(j.master_id));
+            } catch (error) {
+                return false;
+            }
+        }) !== undefined;
+    }, [gaslessConfig?.gas_jettons, walletVersion, specialJetton?.master]);
 
     const onPress = useCallback(() => {
-        const jetton = specialJetton ? { master: specialJetton?.master, data: specialJetton?.masterContent } : undefined;
+        const jetton = specialJetton
+            ? { master: specialJetton.master, data: specialJetton.masterContent }
+            : undefined;
         const hasWallet = !!specialJetton?.wallet;
 
         if (isLedger) {
@@ -70,20 +90,16 @@ export const SpecialJettonProduct = memo(({
             return;
         }
 
-        navigation.navigate('Receive', { jetton });
-    }, [specialJetton, isLedger, ledgerAddressStr, balance]);
+        navigation.navigateReceive({ jetton });
+    }, [specialJetton, isLedger, ledgerAddressStr, navigation]);
 
     return (
         <Pressable
-            onPressIn={onPressIn}
-            onPressOut={onPressOut}
-            style={({ pressed }) => {
-                return { flex: 1, opacity: pressed ? 0.8 : 1 }
-            }}
+            style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.5 : 1 })}
             onPress={onPress}
         >
             {divider === 'top' && <ItemDivider marginVertical={0} />}
-            <Animated.View style={[
+            <View style={[
                 {
                     flexDirection: 'row', flexGrow: 1,
                     alignItems: 'center',
@@ -92,7 +108,6 @@ export const SpecialJettonProduct = memo(({
                     borderRadius: 20,
                     overflow: 'hidden'
                 },
-                animatedStyle
             ]}>
                 <View style={{
                     width: 46, height: 46, borderRadius: 23,
@@ -120,19 +135,22 @@ export const SpecialJettonProduct = memo(({
                     </View>
                 </View>
                 <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                    <Text
-                        style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {'USDT'}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text
+                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {'USDT'}
+                        </Text>
+                        {isGassless && (<GaslessInfoButton />)}
+                    </View>
                     <Text
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
-                        style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
+                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                     >
-                        {content?.description ?? 'Tether Token for Tether USD'}
+                        {specialJetton?.description ?? 'Tether Token for Tether USD'}
                     </Text>
                 </View>
                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
@@ -140,12 +158,12 @@ export const SpecialJettonProduct = memo(({
                         <ValueComponent
                             value={balance}
                             precision={2}
-                            decimals={content?.decimals ?? 6}
+                            decimals={specialJetton?.decimals ?? 6}
                             centFontStyle={{ color: theme.textSecondary }}
                         />
                         <Text
                             style={{ color: theme.textSecondary, fontSize: 15 }}>
-                            {` ${content?.symbol ?? 'USDT'}`}
+                            {` ${specialJetton?.symbol ?? 'USDT'}`}
                         </Text>
                     </Text>
                     <PriceComponent
@@ -162,7 +180,7 @@ export const SpecialJettonProduct = memo(({
                         hideCentsIfNull
                     />
                 </View>
-            </Animated.View>
+            </View>
             {divider === 'bottom' && <ItemDivider marginVertical={0} />}
         </Pressable>
     );

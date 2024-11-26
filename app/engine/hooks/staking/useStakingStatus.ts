@@ -12,7 +12,8 @@ export function useStakingStatus() {
         queryFn: async () => {
             return await fetchStakingStatus(client, isTestnet);
         },
-        refetchInterval: 1_000 * 60 * 5, // every 5 minutes
+        refetchInterval: 1000 * 60 * 30,
+        staleTime: 1000 * 60 * 30,
         refetchOnMount: true,
     }).data;
 }

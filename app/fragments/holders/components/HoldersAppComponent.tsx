@@ -36,11 +36,9 @@ export const holdersSupportUrl = 'https://t.me/Welcome_holders';
 export const supportFormUrl = 'https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN';
 export const holdersSupportWebUrl = 'https://help.holders.io/en';
 
-
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
-
 
 export const HoldersPlaceholder = memo(() => {
     const animation = useSharedValue(0);
@@ -250,7 +248,7 @@ export const HoldersAppComponent = memo((
     const acc = useMemo(() => getCurrentAddress(), []);
     const status = props.status;
     const accountsStatus = props.accounts;
-    const [currency,] = usePrimaryCurrency();
+    const [currency] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
     const url = holdersUrl(isTestnet);
     const { showActionSheetWithOptions } = useActionSheet();
@@ -286,21 +284,36 @@ export const HoldersAppComponent = memo((
                 }
                 break;
             case HoldersAppParamsType.Path:
-                route = `/${props.variant.path ?? ''}`;
+                // check if path is has a leading slash
+                if (props.variant.path.startsWith('/')) {
+                    route = props.variant.path;
+                } else {
+                    route = `/${props.variant.path}`;
+                }
+
                 for (const [key, value] of Object.entries(props.variant.query)) {
                     if (!!value) {
                         queryParams.append(key, value);
                     }
                 }
                 break;
+            case HoldersAppParamsType.Topup:
+                route = `/account/${props.variant.id}/deposit`;
+                break;
         }
 
-        const url = `${props.endpoint}${route}?${queryParams.toString()}`;
-        const initialRoute = `${route}?${queryParams.toString()}`;
+        const uri = `${props.endpoint}${route}`;
+        const url = new URL(uri);
+        for (const [key, value] of queryParams.entries()) {
+            url.searchParams.append(key, value);
+        }
+
+        const urlString = url.toString();
+        let initialRoute = urlString.split(props.endpoint)[1];
 
         queryParams.append('initial-route', route);
 
-        return { url, initialRoute, queryParams: queryParams.toString() };
+        return { url: urlString, initialRoute, queryParams: queryParams.toString() };
     }, [props, lang, currency, status, theme]);
 
     // 

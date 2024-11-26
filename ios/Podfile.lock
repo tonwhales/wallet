@@ -16,7 +16,7 @@ PODS:
     - React-Core
   - EXNotifications (0.29.4):
     - ExpoModulesCore
-  - Expo (52.0.0-preview.11):
+  - Expo (52.0.11):
     - ExpoModulesCore
   - ExpoAsset (11.0.0):
     - ExpoModulesCore
@@ -30,9 +30,9 @@ PODS:
     - ExpoModulesCore
   - ExpoDevice (7.0.1):
     - ExpoModulesCore
-  - ExpoFileSystem (18.0.0):
+  - ExpoFileSystem (18.0.4):
     - ExpoModulesCore
-  - ExpoFont (13.0.0):
+  - ExpoFont (13.0.1):
     - ExpoModulesCore
   - ExpoHaptics (14.0.0):
     - ExpoModulesCore
@@ -52,7 +52,7 @@ PODS:
     - ExpoModulesCore
   - ExpoLocalAuthentication (15.0.1):
     - ExpoModulesCore
-  - ExpoModulesCore (2.0.0-preview.7):
+  - ExpoModulesCore (2.0.6):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2623,14 +2623,14 @@ SPEC CHECKSUMS:
   EXConstants: 33cb635065c7c1fe09a0fce5c8ddde8a0a2860c4
   EXImageLoader: 759063a65ab016b836f73972d3bb25404888713d
   EXNotifications: 3aa75b51d57b5331001befad0a0e073eaaef0203
-  Expo: eaac14ce79fdcf88941721388b67934a7135b3b6
+  Expo: 148aac4ce0da148c63447d09ae41ddb153f35506
   ExpoAsset: 9de2f325e8c97a4c6c2bc85e507ae7f0809c91aa
   ExpoBlur: 562b3da84d3cd79016c411671eaf71a404266415
   ExpoCamera: 2e143e08e9b21d473df866f8d5476e7198b721d1
   ExpoCrypto: 8465f71eb3798c194c0a509d4a76e5c429656d83
   ExpoDevice: e24dd19a43065182eb246bc0e7f84186862f1e83
-  ExpoFileSystem: d8b51caca86749a132c8ffde46be9a175e46b819
-  ExpoFont: 2fb6d98e0a5352bebcaa568d6bfbba0e0f2e0097
+  ExpoFileSystem: dc2679a2b5d4c465ca881129074da95faee943d5
+  ExpoFont: 7522d869d84ee2ee8093ee997fef5b86f85d856b
   ExpoHaptics: e636188d1d5f7ccb79f3c1bfab47aaf5a1768c73
   ExpoImage: bd04fd6e5f97d2a29284bd7113cc51d7c206d17d
   ExpoImagePicker: 6977a8aa31e7fc21d209e9a5f0772f360f5f5f50
@@ -2638,7 +2638,7 @@ SPEC CHECKSUMS:
   ExpoLinearGradient: 7ca3b1d1625a1ab85c129abce4a3cdc78a9500a3
   ExpoLinking: 05ab69d3b5b1b0600d6a1a043d8d1ea3bb61a71a
   ExpoLocalAuthentication: fb519b5d39df0cc216e43fef3cc8e2db1930a01e
-  ExpoModulesCore: 00a820930efd4a62ba41eb2bdc8015a2134255d0
+  ExpoModulesCore: bb3f481a7912159f2289a653e4195146170f0a00
   ExpoNetwork: 786e4a0f27543c9c70d595d24f59759167da854b
   ExpoRandom: 099ddce39b39ffb984b45118d031e8713e962a50
   ExpoScreenCapture: 14768e6fe66412d678862858f5c2e0241b7f84b7

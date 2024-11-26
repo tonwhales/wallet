@@ -5,7 +5,6 @@ import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransfer
 import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
-import { BarCodeScanner } from 'expo-barcode-scanner';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
@@ -18,12 +17,12 @@ import { MandatoryAuthSetupParams } from '../fragments/secure/MandatoryAuthSetup
 import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
 import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
 import { getCurrentAddress } from '../storage/appState';
-import { Platform } from 'react-native';
 import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
 import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
 import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
 import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
 import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
+import { Camera } from 'expo-camera';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -203,7 +202,7 @@ export class TypedNavigation {
 
     navigateScanner(params: { callback: (src: string) => void }, modal?: boolean) {
         (async () => {
-            await BarCodeScanner.requestPermissionsAsync();
+            await Camera.requestCameraPermissionsAsync();
             this.navigate('Scanner', params);
         })();
     }

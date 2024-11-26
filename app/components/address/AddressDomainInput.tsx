@@ -1,7 +1,7 @@
 import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react"
 import { Alert, Pressable, Image, TextInput, View, Text, } from "react-native"
 import Animated, { FadeIn, FadeOut, LinearTransition, cancelAnimation, interpolate, useAnimatedRef, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { Camera } from 'expo-camera';
 import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
@@ -77,7 +77,7 @@ export const AddressDomainInput = memo(forwardRef(({
         }
 
         (async () => {
-            await BarCodeScanner.requestPermissionsAsync();
+            await Camera.requestCameraPermissionsAsync();
             navigation.popToTop();
             navigation.navigateScanner({ callback: onQRCodeRead });
         })();

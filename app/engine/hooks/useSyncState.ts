@@ -3,21 +3,16 @@ import { useSelectedAccount } from './appstate/useSelectedAccount';
 import { useRecoilValue } from 'recoil';
 import { blockWatcherAtom } from '../state/blockWatcherState';
 import { useIsFetching } from '@tanstack/react-query';
-import { useJettonWalletAddress, useKnownJettons, useNetwork } from '.';
+import { useHoldersAccountStatus, useJettonWalletAddress, useKnownJettons, useNetwork } from '.';
+import { HoldersUserState } from '../api/holders/fetchUserState';
 
 function useIsFetchingTxs(account: string) {
     return useIsFetching({ queryKey: Queries.Transactions(account) });
 }
 
 function useIsFetchingHints(account: string) {
-    const hintsQueryKey = Queries.Hints(account);
-    const mintlessHintsQueryKey = Queries.Mintless(account);
-
-    return useIsFetching({
-        predicate: (query) => {
-            return query.queryKey === hintsQueryKey || query.queryKey === mintlessHintsQueryKey;
-        }
-    });
+    const hintsQueryKey = Queries.HintsFull(account);
+    return useIsFetching(hintsQueryKey);
 }
 
 function useIsFetchingSpecialJettonAddress(account: string) {
@@ -60,7 +55,19 @@ function useIsFetchingSpecialJetton(account: string) {
     return isFetchingMasterContent + isFetchingWalletContent + isFetchingWalletAddress;
 }
 
+function useIsFetchingHoldersAccounts(account: string) {
+    const status = useHoldersAccountStatus(account).data;
 
+    const token = (
+        !!status &&
+        status.state !== HoldersUserState.NoRef &&
+        status.state !== HoldersUserState.NeedEnrollment
+    ) ? status.token : null;
+
+    const holdersQueryKey = Queries.Holders(account).Cards(!!token ? 'private' : 'public');
+
+    return useIsFetching(holdersQueryKey);
+}
 
 export function useSyncState(address?: string): 'online' | 'connecting' | 'updating' {
     const account = useSelectedAccount();
@@ -68,20 +75,32 @@ export function useSyncState(address?: string): 'online' | 'connecting' | 'updat
 
     const acc = address || account?.addressString || 'default-null';
 
-    const isFetchingAccount = useIsFetching({ queryKey: Queries.Account(acc).All() });
-    const isFetchingSpecialJetton = useIsFetchingSpecialJetton(acc);
-    const isFetchingTransactions = useIsFetchingTxs(acc);
-    const isFetchingHints = useIsFetchingHints(acc);
+    const isFetchingAccount = useIsFetching({
+        predicate: (query) => {
+            if (query.queryKey[0] !== 'account') {
+                return false;
+            }
+
+            if (query.queryKey[1] !== acc) {
+                return false;
+            }
+
+            if (query.queryKey[2] === 'lite' ||  query.queryKey[2] !== 'wallet-v4') {
+                return true;
+            }
+
+            return false;
+        }
+    });
+
+    const isFetchingHoldersAccounts = useIsFetchingHoldersAccounts(acc);
+    const isFetchingHints = useIsFetchingHints(acc)
 
     if (isFetchingHints > 0) {
         return 'updating';
     }
 
-    if (isFetchingSpecialJetton > 0) {
-        return 'updating';
-    }
-
-    if (isFetchingTransactions > 0) {
+    if (isFetchingHoldersAccounts > 0) {
         return 'updating';
     }
 

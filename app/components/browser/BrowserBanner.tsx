@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Platform } from "react-native";
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from "react-native-reanimated";
 import { ThemeType } from "../../engine/state/theme";
 import { Typography } from "../styles";
@@ -12,6 +12,10 @@ import { Image } from 'expo-image'
 import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount } from "../../engine/hooks";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
+import { useModalAlert } from "../ModalAlert";
+import { t } from "../../i18n/t";
+import { useAppConfig } from "../../engine/hooks/useAppConfig";
+import i18n from 'i18next';
 
 export const BrowserBanner = memo(({
     banner,
@@ -51,12 +55,16 @@ export const BrowserBanner = memo(({
 
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
+    const modal = useModalAlert();
+    const appConfig = useAppConfig();
+    const lang = i18n.language === 'ru' ? 'ru' : 'en';
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const needsEnrollment = useMemo(() => {
         return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     }, [holdersAccStatus?.state]);
+
     const onHoldersPress = useCallback(() => {
         if (needsEnrollment || !isHoldersReady) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
@@ -65,7 +73,7 @@ export const BrowserBanner = memo(({
         navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
     }, [needsEnrollment, isHoldersReady, isTestnet]);
 
-    const onPress = useCallback(() => {
+    const openProduct = useCallback(() => {
         trackEvent(MixpanelEvent.ProductBannerClick, {
             id: banner.id,
             product_url: banner.product_url,
@@ -123,6 +131,37 @@ export const BrowserBanner = memo(({
         });
     }, [banner, onHoldersPress]);
 
+    const onBannerPress = useCallback(() => {
+        if (Platform.OS === 'android' || banner.isHolders) {
+            openProduct();
+            return;
+        }
+
+        const configText = appConfig.browserAlerTexts?.[lang]?.message;
+        const message = configText ?? t('browser.alertModal.message');
+
+        modal.current?.showWithProps({
+            title: banner.title,
+            message,
+            icon: banner.icon_url,
+            buttons: [
+                {
+                    text: t('common.cancel'),
+                    onPress: () => { },
+                    display: 'text_secondary'
+                },
+                {
+                    text: t('browser.alertModal.action'),
+                    onPress: openProduct,
+                    display: 'text'
+                }
+            ]
+        });
+    }, [
+        modal, openProduct, appConfig.browserAlerTexts, i18n,
+        banner.title, banner.icon_url, banner.isHolders
+    ]);
+
     return (
         <Animated.View style={animScale}>
             <Pressable
@@ -133,7 +172,7 @@ export const BrowserBanner = memo(({
                     overflow: 'hidden',
                     opacity: pressed ? 0.8 : 1
                 })}
-                onPress={onPress}
+                onPress={onBannerPress}
             >
                 <Image
                     source={{ uri: banner.image_url || undefined }}

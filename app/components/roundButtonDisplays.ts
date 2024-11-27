@@ -7,6 +7,7 @@ export type RoundButtonDisplay =
     | 'pro'
     | 'telegram'
     | 'text'
+    | 'text_secondary'
     | 'secondary'
     | 'secondary_contrast'
     | 'disabled'
@@ -74,5 +75,10 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             borderColor: theme.surfaceOnBg,
             textColor: theme.accentRed,
         },
+        text_secondary: {
+            backgroundColor: theme.transparent,
+            borderColor: theme.transparent,
+            textColor: theme.textSecondary,
+        }
     }
 }

@@ -1107,6 +1107,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 ddg: 'DuckDuckGo',
                 google: 'Google',
             }
+        },
+        alertModal: {
+            message: 'You are about to open a third-party web application, which are not part of our application. By engaging with these, you agree to the terms and policies of the respective third parties.',
+            action: 'Open'
         }
     },
     swap: {

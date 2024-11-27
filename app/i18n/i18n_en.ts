@@ -1109,7 +1109,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             }
         },
         alertModal: {
-            message: 'You are about to open a third-party web application, which are not part of our application. By engaging with these, you agree to the terms and policies of the respective third parties.',
+            message: 'You are about to open a third-party web application.We are not responsible for the content or security of third-party apps',
             action: 'Open'
         }
     },

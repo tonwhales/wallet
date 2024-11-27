@@ -76,10 +76,10 @@ export const SettingsFragment = fragment(() => {
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrollment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, network.isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Accounts } }, network.isTestnet);
             return;
         }
-        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, network.isTestnet);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Accounts }, network.isTestnet);
     }, [needsEnrollment, isHoldersReady, network.isTestnet]);
 
     const onVersionTap = useMemo(() => {

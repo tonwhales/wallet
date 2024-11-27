@@ -13,6 +13,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 export enum HoldersAppParamsType {
     Account = 'account',
+    Accounts = 'accounts',
     Prepaid = 'prepaid',
     Create = 'create',
     Invite = 'invite',
@@ -23,6 +24,7 @@ export enum HoldersAppParamsType {
 
 export type HoldersAppParams =
     | { type: HoldersAppParamsType.Account, id: string }
+    | { type: HoldersAppParamsType.Accounts }
     | { type: HoldersAppParamsType.Prepaid, id: string }
     | { type: HoldersAppParamsType.Create }
     | { type: HoldersAppParamsType.Invite }

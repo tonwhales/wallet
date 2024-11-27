@@ -147,7 +147,6 @@ export const BrowserBanner = memo(({
             buttons: [
                 {
                     text: t('common.cancel'),
-                    onPress: () => { },
                     display: 'text_secondary'
                 },
                 {

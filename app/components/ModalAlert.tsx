@@ -16,7 +16,7 @@ export type ModalAlertRef = {
 
 export type ModalAlertButton = {
     text: string;
-    onPress: () => void;
+    onPress?: () => void;
     display?: RoundButtonDisplay
 }
 
@@ -139,7 +139,7 @@ export const ModalAlert = memo(forwardRef((
                             style={{ flex: 1 }}
                             display={button.display}
                             onPress={() => {
-                                button.onPress();
+                                button.onPress?.();
                                 setAlertState({ ...alertState, isOpen: false });
                             }}
                         />

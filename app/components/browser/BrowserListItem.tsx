@@ -121,7 +121,6 @@ export const BrowserListItem = memo(({
             buttons: [
                 {
                     text: t('common.cancel'),
-                    onPress: () => { },
                     display: 'text_secondary'
                 },
                 {

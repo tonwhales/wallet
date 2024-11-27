@@ -2,12 +2,12 @@ import axios from "axios";
 import { z } from "zod";
 import { whalesConnectEndpoint } from "../clients";
 
-const browserAlerTextsSchema = z.record(z.object({ message: z.string() }));
+const browserAlertTextsSchema = z.record(z.object({ message: z.string() }));
 
 const appConfigCodec = z.object({
     txTimeout: z.number(),
     features: z.record(z.boolean()).optional(),
-    browserAlerTexts: browserAlerTextsSchema.nullish(),
+    browserAlerTexts: browserAlertTextsSchema.nullish(),
 });
 
 export type AppConfig = z.infer<typeof appConfigCodec>;

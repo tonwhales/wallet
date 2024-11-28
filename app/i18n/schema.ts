@@ -167,7 +167,8 @@ export type LocalizationSchema = {
         share: {
             title: string,
             error: string
-        }
+        },
+        holdersJettonWarning: string,
     },
     transfer: {
         title: string,
@@ -190,6 +191,7 @@ export type LocalizationSchema = {
             invalidTransaction: string,
             invalidTransactionMessage: string,
             memoRequired: string,
+            holdersMemoRequired: string,
             memoChange: string,
             gaslessFailed: string,
             gaslessFailedMessage: string,

@@ -48,7 +48,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         owner: selected!.address,
         master: metadata?.jettonWallet?.master,
         wallet: metadata?.jettonWallet?.address
-    }, true);
+    });
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;

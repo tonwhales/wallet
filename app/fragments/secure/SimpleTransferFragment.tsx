@@ -48,7 +48,7 @@ import { useHoldersAccountTrargets } from '../../engine/hooks/holders/useHolders
 import { AddressSearchItem } from '../../components/address/AddressSearch';
 import { Image } from 'expo-image';
 import { mapJettonToMasterState } from '../../utils/jettons/mapJettonToMasterState';
-import { JettonViewType } from '../wallet/AssetsFragment';
+import { AssetViewType } from '../wallet/AssetsFragment';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -939,9 +939,9 @@ const SimpleTransferComponent = () => {
                                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
                                 onPress={() => navigation.navigateAssets(
                                     {
-                                        callback: onAssetSelected,
-                                        selectedJetton: jetton?.master,
-                                        jettonViewType: JettonViewType.Transfer
+                                        jettonCallback: onAssetSelected,
+                                        selectedAsset: jetton?.master,
+                                        viewType: AssetViewType.Transfer
                                     },
                                     isLedger
                                 )}

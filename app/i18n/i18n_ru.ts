@@ -149,7 +149,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "share": {
             "title": "Мой Tonhub адрес",
             "error": "Не удалось поделиться адресом, попробуйте еще раз или обратитесь в службу поддержки"
-        }
+        },
+        "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
     },
     "transfer": {
         "title": "Отправить",
@@ -172,6 +173,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidTransaction": "Неверная транзакция",
             "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
             "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
+            "holdersMemoRequired": "Обязательно укажите мемо/тег в комментарии к транзакции",
             "memoChange": "Измените мемо/тег на \"{{memo}}\"",
             "gaslessFailed": "Не удалось отправить транзакцию",
             "gaslessFailedMessage": "Попробуйте снова или обратитесь в службу поддержки",

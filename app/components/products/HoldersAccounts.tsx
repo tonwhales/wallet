@@ -12,16 +12,19 @@ import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccou
 import { reduceHoldersBalances } from "../../utils/reduceHoldersBalances";
 import { usePrice } from "../../engine/PriceContext";
 import { Image } from "expo-image";
+import { Address } from "@ton/core";
 
 const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
 export const HoldersAccounts = memo(({
+    owner,
     accs,
     theme,
     markAccount,
     isTestnet,
     holdersAccStatus
 }: {
+    owner: Address,
     accs: GeneralHoldersAccount[],
     theme: ThemeType,
     markAccount: (cardId: string, hidden: boolean) => void,
@@ -59,6 +62,7 @@ export const HoldersAccounts = memo(({
                     {accs.map((item, index) => {
                         return (
                             <HoldersAccountItem
+                                owner={owner}
                                 key={`card-${index}`}
                                 account={item}
                                 rightActionIcon={hideIcon}
@@ -85,6 +89,7 @@ export const HoldersAccounts = memo(({
             renderItem={(item, index) => {
                 return (
                     <HoldersAccountItem
+                        owner={owner}
                         key={`card-${index}`}
                         account={item}
                         rightActionIcon={hideIcon}

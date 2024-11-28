@@ -108,7 +108,19 @@ export const WalletActionButton = memo(({
         case 'receive': {
             return (
                 <Pressable
-                    onPress={() => navigation.navigateReceive(action.jetton ? { jetton: action.jetton } : undefined)}
+                    onPress={() => navigation.navigateReceive(
+                        action.jetton
+                            ? {
+                                asset: {
+                                    address: action.jetton.master,
+                                    content: action.jetton.data ? {
+                                        icon: action.jetton.data?.originalImage ?? action.jetton.data?.image?.preview256,
+                                        name: action.jetton.data?.symbol
+                                    } : undefined
+                                }
+                            }
+                            : undefined
+                    )}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>

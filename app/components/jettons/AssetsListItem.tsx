@@ -3,7 +3,7 @@ import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { JettonProductItem } from "../products/JettonProductItem";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
-import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
+import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 
 export const AssetsListItem = memo(({
     hint,
@@ -18,11 +18,11 @@ export const AssetsListItem = memo(({
     hint: JettonFull,
     owner: Address,
     onSelect: (j: JettonFull) => void,
-    selected?: Address,
+    selected?: Address | null,
     hideSelection?: boolean,
     isTestnet: boolean,
     theme: ThemeType,
-    jettonViewType: JettonViewType
+    jettonViewType: AssetViewType
 }) => {
 
     const selectedFn = useCallback((h: JettonFull) => {

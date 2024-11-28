@@ -169,6 +169,7 @@ export type LocalizationSchema = {
             error: string
         },
         holdersJettonWarning: string,
+        assets: string,
     },
     transfer: {
         title: string,

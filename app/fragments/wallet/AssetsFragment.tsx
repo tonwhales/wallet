@@ -166,6 +166,10 @@ export const AssetsFragment = fragment(() => {
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const { target, jettonCallback, assetCallback, selectedAsset, viewType, includeHolders } = useParams<AssetsFragmentParams>();
+    
+    const title = viewType === AssetViewType.Receive
+        ? t('receive.assets')
+        : t('products.accounts');
 
     const route = useRoute();
     const isLedgerScreen = route.name === 'LedgerAssets';
@@ -368,7 +372,7 @@ export const AssetsFragment = fragment(() => {
             })} />
             <ScreenHeader
                 onBackPressed={navigation.goBack}
-                title={t('products.accounts')}
+                title={title}
                 style={[
                     { paddingHorizontal: 16 },
                     Platform.select({ android: { paddingTop: safeArea.top } })

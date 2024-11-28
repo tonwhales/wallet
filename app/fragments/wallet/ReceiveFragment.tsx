@@ -433,12 +433,14 @@ export const ReceiveFragment = fragment(() => {
                                     {comment}
                                 </Text>
                                 <Pressable
+                                    hitSlop={10}
                                     onPress={onCopyComment}
-                                    style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 }}
+                                    style={({ pressed }) => ({
+                                        flexDirection: 'row',
+                                        alignItems: 'center', justifyContent: 'center',
+                                        gap: 4, opacity: pressed ? 0.5 : 1
+                                    })}
                                 >
-                                    <Text style={[{ color: theme.textSecondary }, Typography.regular17_24]}>
-                                        {t('common.copy')}
-                                    </Text>
                                     <CopyIcon style={{ height: 12, width: 12 }} height={12} width={12} color={theme.iconPrimary} />
                                 </Pressable>
                             </View>

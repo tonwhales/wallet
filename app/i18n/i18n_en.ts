@@ -167,6 +167,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             error: 'Failed to share address, please try again or contact support'
         },
         holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
+        assets: 'Tokens and Accounts',
     },
     transfer: {
         title: 'Send',

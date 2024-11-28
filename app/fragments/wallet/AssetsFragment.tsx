@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from "react";
-import { View, Text, useWindowDimensions, Pressable } from "react-native";
+import { View, Text, useWindowDimensions, Pressable, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -166,7 +166,7 @@ export const AssetsFragment = fragment(() => {
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const { target, jettonCallback, assetCallback, selectedAsset, viewType, includeHolders } = useParams<AssetsFragmentParams>();
-    
+
     const title = viewType === AssetViewType.Receive
         ? t('receive.assets')
         : t('products.accounts');
@@ -186,18 +186,40 @@ export const AssetsFragment = fragment(() => {
     const account = useAccountLite(owner);
     const hints = useHintsFull(owner.toString({ testOnly: network.isTestnet })).data?.hints ?? [];
 
-    const visibleList = useMemo(() => {
-        const filtered = hints
+    const itemsList = useMemo(() => {
+        const filtered: ListItem[] = hints
             .filter((j) => !disabledState.disabled[j.jetton.address] || isLedgerScreen)
             .map((h) => ({
                 type: 'jetton',
                 hint: h
             }));
 
-        const holders = includeHolders ? holdersAccounts.map((h) => ({
+        const holders: ListItem[] = includeHolders ? holdersAccounts.map((h) => ({
             type: 'holders',
             target: h
         })) : [];
+
+        const items: ListItem[] = [{ type: 'ton' }, ...holders, ...filtered];
+        const sectioned = new Map<string, { type: string, data: ListItem[] }>();
+
+        if (includeHolders) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+
+                if (item.type === 'ton') {
+                    sectioned.set('ton', { type: 'ton', data: [item] });
+                    continue;
+                }
+
+                const key = item.type === 'holders' ? 'holders' : 'jetton';
+                if (!sectioned.has(key)) {
+                    sectioned.set(key, { type: key, data: [] });
+                }
+                sectioned.get(key)?.data.push(item);
+            }
+
+            return Array.from(sectioned.values())
+        }
 
         return [{ type: 'ton' }, ...holders, ...filtered] as ListItem[];
     }, [disabledState, network, isLedgerScreen, hints, holdersAccounts, includeHolders]);
@@ -364,6 +386,24 @@ export const AssetsFragment = fragment(() => {
         onJettonSelected, onTonSelected, onHoldersSelected
     ]);
 
+    const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {
+        if (section.type === 'ton') {
+            return (null);
+        } else if (section.type === 'holders') {
+            return (
+                <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
+                    {t('products.holders.accounts.title')}
+                </Text>
+            );
+        } else {
+            return (
+                <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
+                    {t('products.accounts')}
+                </Text>
+            );
+        }
+    }, [theme]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({
@@ -378,29 +418,56 @@ export const AssetsFragment = fragment(() => {
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
             />
-            <FlashList
-                data={visibleList}
-                renderItem={renderItem}
-                // to see less blank space
-                estimatedItemSize={80}
-                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
-                contentContainerStyle={{ paddingHorizontal: 16 }}
-                contentInset={{ bottom: safeArea.bottom + 16 }}
-                keyExtractor={(item, index) => `jetton-i-${index}`}
-                ListEmptyComponent={(
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        height: dimentions.height - (safeArea.bottom + safeArea.top + 44 + 32 + 32),
-                        width: '100%',
-                    }}>
-                        <Text style={[Typography.semiBold27_32, { color: theme.textSecondary }]}>
-                            {t('jetton.jettonsNotFound')}
-                        </Text>
-                    </View>
-                )}
-                ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
-            />
+            {includeHolders ? (
+                <SectionList
+                    sections={itemsList as { type: string, data: ListItem[] }[]}
+                    renderItem={renderItem}
+                    renderSectionHeader={renderSectionHeader}
+                    removeClippedSubviews={true}
+                    stickySectionHeadersEnabled={false}
+                    ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                    style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
+                    contentContainerStyle={{ paddingHorizontal: 16 }}
+                    contentInset={{ bottom: safeArea.bottom + 16 }}
+                    keyExtractor={(item, index) => `jetton-i-${index}`}
+                    ListEmptyComponent={(
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            height: dimentions.height - (safeArea.bottom + safeArea.top + 44 + 32 + 32),
+                            width: '100%',
+                        }}>
+                            <Text style={[Typography.semiBold27_32, { color: theme.textSecondary }]}>
+                                {t('jetton.jettonsNotFound')}
+                            </Text>
+                        </View>
+                    )}
+                    ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
+                />
+            ) : (
+                <FlashList
+                    data={itemsList as ListItem[]}
+                    renderItem={renderItem}
+                    // to see less blank space
+                    estimatedItemSize={80}
+                    ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                    style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
+                    contentContainerStyle={{ paddingHorizontal: 16 }}
+                    contentInset={{ bottom: safeArea.bottom + 16 }}
+                    keyExtractor={(item, index) => `jetton-i-${index}`}
+                    ListEmptyComponent={(
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            height: dimentions.height - (safeArea.bottom + safeArea.top + 44 + 32 + 32),
+                            width: '100%',
+                        }}>
+                            <Text style={[Typography.semiBold27_32, { color: theme.textSecondary }]}>
+                                {t('jetton.jettonsNotFound')}
+                            </Text>
+                        </View>
+                    )}
+                    ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
+                />
+            )}
         </View>
     );
 });

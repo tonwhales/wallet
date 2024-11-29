@@ -61,7 +61,18 @@ export const SpecialJettonProduct = memo(({
 
         if (isLedger) {
             if (!hasWallet || balance === 0n) {
-                navigation.navigate('LedgerReceive', { addr: ledgerAddressStr, ledger: true, jetton });
+                navigation.navigate(
+                    'LedgerReceive',
+                    {
+                        addr: ledgerAddressStr,
+                        ledger: true, asset: specialJetton ? {
+                            address: specialJetton.master,
+                            content: {
+                                icon: specialJetton.icon,
+                                name: specialJetton.name,
+                            }
+                        } : undefined
+                    });
                 return;
             }
 
@@ -90,7 +101,17 @@ export const SpecialJettonProduct = memo(({
             return;
         }
 
-        navigation.navigateReceive({ jetton });
+        if (balance)
+
+            navigation.navigateReceive({
+                asset: specialJetton ? {
+                    address: specialJetton.master,
+                    content: {
+                        icon: specialJetton.icon,
+                        name: specialJetton.name,
+                    }
+                } : undefined
+            });
     }, [specialJetton, isLedger, ledgerAddressStr, navigation]);
 
     return (

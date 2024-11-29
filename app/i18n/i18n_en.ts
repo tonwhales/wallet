@@ -165,7 +165,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         share: {
             title: 'My Tonhub Address',
             error: 'Failed to share address, please try again or contact support'
-        }
+        },
+        holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
+        assets: 'Tokens and Accounts',
     },
     transfer: {
         title: 'Send',
@@ -188,6 +190,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
+            holdersMemoRequired: 'A memo/tag comment is required',
             memoChange: 'Change memo/tag to \"{{memo}}\"',
             gaslessFailed: 'Failed to send transaction',
             gaslessFailedMessage: 'Please try again or contact support',

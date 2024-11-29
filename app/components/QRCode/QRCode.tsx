@@ -2,7 +2,6 @@ import { Canvas, RoundedRect, DiffRect, rrect, rect, Path } from '@shopify/react
 import * as React from 'react';
 import { View, Image } from 'react-native';
 import { QRMatrix, createQRMatrix } from './QRMatrix';
-import { ImagePreview } from '../../engine/api/fetchAppData';
 import { WImage } from '../WImage';
 import { memo, useEffect, useState } from 'react';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
@@ -157,7 +156,7 @@ export const QRCode = memo((props: {
     data: string,
     size: number,
     color?: string,
-    icon?: ImagePreview | null
+    icon?: string | null
 }) => {
     const [matrix, setMatrix] = useState<QRMatrix | null>(null);
     const matrixSize = matrix?.size ?? 0;
@@ -217,8 +216,7 @@ export const QRCode = memo((props: {
             }}>
                 {props.icon ? (
                     <WImage
-                        src={props.icon?.preview256}
-                        blurhash={props.icon?.blurhash}
+                        src={props.icon}
                         width={46}
                         height={46}
                         borderRadius={23}

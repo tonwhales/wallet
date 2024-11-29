@@ -21,12 +21,12 @@ import { mapJettonFullToMasterState } from '../../utils/jettons/mapJettonToMaste
 import { CurrencySymbols } from '../../utils/formatCurrency';
 import { calculateSwapAmount } from '../../utils/jettons/calculateSwapAmount';
 import { JettonFull } from '../../engine/api/fetchHintsFull';
-import { JettonViewType } from '../../fragments/wallet/AssetsFragment';
+import { AssetViewType } from '../../fragments/wallet/AssetsFragment';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
-
-import IcCheck from "@assets/ic-check.svg";
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { GaslessInfoButton } from '../jettons/GaslessInfoButton';
+
+import IcCheck from "@assets/ic-check.svg";
 
 type JettonProductItemProps = {
     hint: JettonFull,
@@ -46,7 +46,7 @@ type JettonProductItemProps = {
     }
     selected?: boolean,
     onReady?: (address: string) => void,
-    jettonViewType: JettonViewType
+    jettonViewType: AssetViewType
 };
 
 const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loading' | 'failed' }) => {
@@ -373,7 +373,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
 
     const subtitle = useMemo(() => {
         switch (jettonViewType) {
-            case JettonViewType.Default:
+            case AssetViewType.Default:
                 let showRate = !!rate && rate !== 0;
 
                 // Check if rate is valid 
@@ -395,7 +395,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         >
                             {'SCAM'}
                         </Text>
-                    )
+                    );
                 }
 
                 return (
@@ -420,9 +420,9 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         </Text>
                     </Text>
                 );
-            case JettonViewType.Receive:
+            case AssetViewType.Receive:
                 return null;
-            case JettonViewType.Transfer:
+            case AssetViewType.Transfer:
                 return (
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                         <ValueComponent

@@ -73,7 +73,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
     const safeArea = useSafeAreaInsets();
     const ownerAddress = Address.parse(owner);
 
-    const jetton = useJetton({ owner, master, wallet }, true);
+    const jetton = useJetton({ owner, master, wallet });
     const txs = useJettonTransactions(owner, master, { refetchOnMount: true });
     const transactions = txs.data ?? [];
 

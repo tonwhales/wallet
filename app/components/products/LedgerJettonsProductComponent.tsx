@@ -7,7 +7,7 @@ import { Address } from "@ton/core";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
-import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
+import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { address: Address, testOnly: boolean }) => {
@@ -22,7 +22,7 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                 card
                 ledger
                 owner={address}
-                jettonViewType={JettonViewType.Default}
+                jettonViewType={AssetViewType.Default}
             />
         );
     }, [address]);
@@ -57,7 +57,7 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                             single={hints.length === 1}
                             ledger
                             owner={address}
-                            jettonViewType={JettonViewType.Default}
+                            jettonViewType={AssetViewType.Default}
                         />
                     )
                 })}

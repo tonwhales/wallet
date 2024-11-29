@@ -61,6 +61,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                             onBeforeOpen={navigation.goBack}
                             hideCardsIfEmpty
+                            owner={Address.parse(addressStr)}
                         />
                     );
                 },

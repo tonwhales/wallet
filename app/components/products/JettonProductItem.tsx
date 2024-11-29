@@ -373,8 +373,17 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
 
     const subtitle = useMemo(() => {
         switch (jettonViewType) {
-            case AssetViewType.Default:
-                const showRate = !!rate && rate !== 0;
+            case JettonViewType.Default:
+                let showRate = !!rate && rate !== 0;
+
+                // Check if rate is valid 
+                if (showRate) {
+                    try {
+                        toNano(rate!);
+                    } catch {
+                        showRate = false;
+                    }
+                }
 
                 if (!showRate && !isSCAM) {
                     return null;
@@ -402,7 +411,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                             )}
                             {showRate && (
                                 <ValueComponent
-                                    value={toNano(rate)}
+                                    value={toNano(rate!)}
                                     precision={2}
                                     suffix={` ${CurrencySymbols[currency]?.symbol}`}
                                     forcePrecision

@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo } from "react";
 import { BrowserListingItem } from "./BrowserListings";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { View, Text, Platform } from "react-native";
+import { View, Text, useWindowDimensions, Platform } from "react-native";
 import { ProductButton } from "../../fragments/wallet/products/ProductButton";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { extractDomain } from "../../engine/utils/extractDomain";

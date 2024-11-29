@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
-import { FlatList, ListRenderItem, NativeScrollEvent, NativeSyntheticEvent, Platform, View } from "react-native";
-import { useDimensions } from "@react-native-community/hooks";
+import { FlatList, Platform, useWindowDimensions, View, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 import { BrowserBanner } from "./BrowserBanner";
 import { useSharedValue } from "react-native-reanimated";
 import { useTheme } from "../../engine/hooks";
@@ -107,9 +106,9 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
             contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
             snapToAlignment={'center'}
             keyExtractor={(item, index) => `banner-${index}-${item.id}`}
+            style={{ flexGrow: 1, width: dimensions.width }}
             onScroll={onScroll}
             renderItem={renderItem}
-            style={{ flexGrow: 1, width: dimensions.screen.width }}
             contentContainerStyle={{ paddingVertical: 16 }}
             contentInsetAdjustmentBehavior={'never'}
             decelerationRate={Platform.select({ ios: 0.9, android: 1 })}

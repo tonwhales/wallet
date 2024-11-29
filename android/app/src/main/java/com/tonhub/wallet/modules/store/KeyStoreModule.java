@@ -18,6 +18,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -208,7 +209,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     @SuppressWarnings("unused")
-    public void deleteValueWithKeyAsync(String key, expo.modules.core.arguments.ReadableArguments options, expo.modules.core.Promise promise) {
+    public void deleteValueWithKeyAsync(String key, ReadableMap options, Promise promise) {
         try {
             deleteItemImpl(key, promise);
         } catch (Exception e) {
@@ -217,7 +218,7 @@ public class KeyStoreModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private void deleteItemImpl(String key, expo.modules.core.Promise promise) {
+    private void deleteItemImpl(String key, Promise promise) {
         boolean success = true;
         SharedPreferences prefs = getSharedPreferences();
         if (prefs.contains(key)) {

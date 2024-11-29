@@ -1112,6 +1112,10 @@ export type LocalizationSchema = {
                 ddg: string,
                 google: string
             }
+        },
+        alertModal: {
+            message: string,
+            action: string
         }
     },
     swap: {

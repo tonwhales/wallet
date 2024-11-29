@@ -17,6 +17,7 @@ import { ThemeProvider } from './engine/ThemeContext';
 import { PriceLoader } from './engine/PriceContext';
 import { migrateDontShowComments } from './engine/state/spam';
 import { AppBlurContextProvider } from './components/AppBlurContext';
+import { ModalAlertProvider } from './components/ModalAlert';
 
 const PERSISTANCE_VERSION = '23';
 // set default value for spam comments
@@ -56,15 +57,17 @@ export const Root = memo(() => {
                     >
                         <RecoilRoot>
                             <ThemeProvider>
-                                <PriceLoader>
-                                    <AddressBookLoader>
-                                        <LedgerTransportProvider>
-                                            <AppBlurContextProvider>
-                                                <Navigation />
-                                            </AppBlurContextProvider>
-                                        </LedgerTransportProvider>
-                                    </AddressBookLoader>
-                                </PriceLoader>
+                                <ModalAlertProvider>
+                                    <PriceLoader>
+                                        <AddressBookLoader>
+                                            <LedgerTransportProvider>
+                                                <AppBlurContextProvider>
+                                                    <Navigation />
+                                                </AppBlurContextProvider>
+                                            </LedgerTransportProvider>
+                                        </AddressBookLoader>
+                                    </PriceLoader>
+                                </ModalAlertProvider>
                             </ThemeProvider>
                         </RecoilRoot>
                     </PersistQueryClientProvider>

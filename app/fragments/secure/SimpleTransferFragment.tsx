@@ -887,10 +887,18 @@ const SimpleTransferComponent = () => {
             <ScrollView
                 ref={scrollRef}
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
-                contentContainerStyle={{ marginHorizontal: 16, flexGrow: 1 }}
+                contentContainerStyle={[
+                    { marginHorizontal: 16, flexGrow: 1 },
+                    Platform.select({ android: { minHeight: addressInputHeight } }),
+                ]}
+                contentInset={{
+                    // bottom: 0.1,
+                    bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - 86 - 32 : 0.1 /* Some weird bug on iOS */, // + 56 + 32
+                    top: 0.1 /* Some weird bug on iOS */
+                }}
                 contentInsetAdjustmentBehavior={'never'}
                 keyboardShouldPersistTaps={'always'}
-                keyboardDismissMode={'none'}
+                keyboardDismissMode={'on-drag'}
                 automaticallyAdjustContentInsets={false}
                 scrollEnabled={!selectedInput}
                 nestedScrollEnabled={!selectedInput}
@@ -898,7 +906,7 @@ const SimpleTransferComponent = () => {
                 <Animated.View
                     layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                     style={seletectInputStyles.address}
-                    onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
+                    onLayout={(e) => { setAddressInputHeight(e.nativeEvent.layout.height) }}
                 >
                     <TransferAddressInput
                         ref={refs[0] as RefObject<AnimTextInputRef>}
@@ -921,6 +929,9 @@ const SimpleTransferComponent = () => {
                         autoFocus={selectedInput === 0}
                     />
                 </Animated.View>
+                {selected === 'address' && (
+                    <View style={{ height: addressInputHeight }} />
+                )}
                 <View style={{ marginTop: 16 }}>
                     <Animated.View
                         layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}

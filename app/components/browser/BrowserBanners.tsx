@@ -1,6 +1,6 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
-import { FlatList, Platform, View } from "react-native";
+import { FlatList, ListRenderItem, NativeScrollEvent, NativeSyntheticEvent, Platform, View } from "react-native";
 import { useDimensions } from "@react-native-community/hooks";
 import { BrowserBanner } from "./BrowserBanner";
 import { useSharedValue } from "react-native-reanimated";
@@ -49,6 +49,37 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
         return () => clearTimeout(timerId);
     }, [activeSlide, banners.length]);
 
+    const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const scrollOffset = event.nativeEvent.contentOffset.x + halfBoxDistance;
+        const activeSlide = 1 + Math.floor((scrollOffset - 64) / boxWidth);
+        pan.value = event.nativeEvent.contentOffset.x;
+        setActiveSlide(activeSlide);
+    }, [halfBoxDistance, activeSlide, boxWidth]);
+
+    const renderItem = useCallback(({ item, index }: { item: BrowserBannerItem, index: number }) => {
+        return (
+            <View
+                key={`${index}-${item.id}`}
+                style={Platform.select({
+                    android: {
+                        paddingLeft: index === 0 ? halfBoxDistance : 0,
+                        paddingRight: index === banners.length - 1 ? halfBoxDistance : 0,
+                    }
+                })}
+            >
+                <BrowserBanner
+                    banner={item}
+                    pan={pan}
+                    boxWidth={boxWidth}
+                    index={index}
+                    halfBoxDistance={halfBoxDistance}
+                    theme={theme}
+                    navigation={navigation}
+                />
+            </View>
+        );
+    }, [halfBoxDistance, boxWidth, theme, navigation, pan, banners.length]);
+
     return (
         <FlatList
             ref={scrollRef}
@@ -76,33 +107,8 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
             contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
             snapToAlignment={'center'}
             keyExtractor={(item, index) => `banner-${index}-${item.id}`}
-            onScroll={(e) => {
-                const scrollOffset = e.nativeEvent.contentOffset.x + halfBoxDistance;
-                const activeSlide = 1 + Math.floor((scrollOffset - 64) / boxWidth);
-                pan.value = e.nativeEvent.contentOffset.x;
-                setActiveSlide(activeSlide);
-            }}
-            renderItem={({ item, index }) => (
-                <View
-                    key={`${index}-${item.id}`}
-                    style={Platform.select({
-                        android: {
-                            paddingLeft: index === 0 ? halfBoxDistance : 0,
-                            paddingRight: index === banners.length - 1 ? halfBoxDistance : 0,
-                        }
-                    })}
-                >
-                    <BrowserBanner
-                        banner={item}
-                        pan={pan}
-                        boxWidth={boxWidth}
-                        index={index}
-                        halfBoxDistance={halfBoxDistance}
-                        theme={theme}
-                        navigation={navigation}
-                    />
-                </View>
-            )}
+            onScroll={onScroll}
+            renderItem={renderItem}
             style={{ flexGrow: 1, width: dimensions.screen.width }}
             contentContainerStyle={{ paddingVertical: 16 }}
             contentInsetAdjustmentBehavior={'never'}

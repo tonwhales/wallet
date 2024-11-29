@@ -22,6 +22,7 @@ import { Typography } from "../styles";
 import { Image } from "expo-image";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -155,6 +156,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     );
 
+    const query = addressDomainInputState.input;
     const isKnown: boolean = !!props.knownWallets[props.target];
     const addressBookContext = useAddressBookContext();
     const contact = addressBookContext.asContact(props.target);
@@ -263,6 +265,23 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         });
     }, [onAddressSearchItemSelected]);
 
+    const rightAction = useMemo(() => {
+        return (
+            <Pressable
+                style={({ pressed }) => ({
+                    opacity: pressed ? 0.5 : 1
+                })}
+                onPress={openAddressBook}
+                hitSlop={4}
+            >
+                <Image
+                    source={require('@assets/ic-address-book.png')}
+                    style={{ height: 24, width: 24, tintColor: theme.accent }}
+                />
+            </Pressable>
+        );
+    }, [openAddressBook]);
+
     return (
         <View>
             <View
@@ -355,20 +374,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         navigation={props.navigation}
                         theme={theme}
                         isTestnet={props.isTestnet}
-                        rightAction={(
-                            <Pressable
-                                style={({ pressed }) => ({
-                                    opacity: pressed ? 0.5 : 1
-                                })}
-                                onPress={openAddressBook}
-                                hitSlop={4}
-                            >
-                                <Image
-                                    source={require('@assets/ic-address-book.png')}
-                                    style={{ height: 24, width: 24, tintColor: theme.accent }}
-                                />
-                            </Pressable>
-                        )}
+                        rightAction={rightAction}
                         suffix={addressDomainInputState.suffix}
                     />
                 </View>
@@ -383,6 +389,13 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         </PerfText>
                     </Animated.View>
                 )}
+                <HoldersAccountsSearch
+                    theme={theme}
+                    onSelect={onAddressSearchItemSelected}
+                    query={query}
+                    transfer
+                    holdersAccounts={holdersAccounts}
+                />
             </View>
         </View>
     );

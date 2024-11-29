@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo } from "react";
 import { BrowserListingItem } from "./BrowserListings";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { View, Text, useWindowDimensions } from "react-native";
+import { View, Text, Platform } from "react-native";
 import { ProductButton } from "../../fragments/wallet/products/ProductButton";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { extractDomain } from "../../engine/utils/extractDomain";
@@ -10,6 +10,10 @@ import { ThemeType } from "../../engine/state/theme";
 import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount } from "../../engine/hooks";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
+import { useModalAlert } from "../ModalAlert";
+import { useAppConfig } from "../../engine/hooks/useAppConfig";
+import i18n from 'i18next';
+import { t } from "../../i18n/t";
 
 export const BrowserListItem = memo(({
     item,
@@ -26,9 +30,14 @@ export const BrowserListItem = memo(({
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const modal = useModalAlert();
+    const appConfig = useAppConfig();
+    const lang = i18n.language === 'ru' ? 'ru' : 'en';
+
     const needsEnrollment = useMemo(() => {
         return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     }, [holdersAccStatus?.state]);
+
     const onHoldersPress = useCallback(() => {
         if (needsEnrollment || !isHoldersReady) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
@@ -37,7 +46,7 @@ export const BrowserListItem = memo(({
         navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
     }, [needsEnrollment, isHoldersReady, isTestnet]);
 
-    const onPress = useCallback(() => {
+    const openProduct = useCallback(() => {
         trackEvent(MixpanelEvent.ProductBannerClick, {
             id: item.id,
             product_url: item.product_url,
@@ -95,6 +104,37 @@ export const BrowserListItem = memo(({
         })
     }, [item, onHoldersPress]);
 
+    const onBannerPress = useCallback(() => {
+        if (Platform.OS === 'android' || item.isHolders) {
+            openProduct();
+            return;
+        }
+
+        const configText = appConfig.browserAlerTexts?.[lang]?.message;
+        const message = configText ?? t('browser.alertModal.message');
+
+        modal.current?.showWithProps({
+            title: item.title,
+            message,
+            icon: item.icon_url,
+            buttons: [
+                {
+                    text: t('common.cancel'),
+                    display: 'text_secondary'
+                },
+                {
+                    text: t('browser.alertModal.action'),
+                    onPress: openProduct,
+                    display: 'text'
+                }
+            ]
+        });
+    }, [
+        modal, openProduct, appConfig.browserAlerTexts, lang, 
+        item.title, item.icon_url,
+        item.isHolders
+    ]);
+
     return (
         <View style={{
             flexGrow: 1,
@@ -107,7 +147,7 @@ export const BrowserListItem = memo(({
                 subtitle={item.description}
                 image={item.isHolders ? undefined : item.image_url}
                 requireSource={item.isHolders ? require('@assets/ic-holders-accounts.png') : undefined}
-                onPress={onPress}
+                onPress={onBannerPress}
                 style={{ marginHorizontal: 0 }}
             />
         </View>

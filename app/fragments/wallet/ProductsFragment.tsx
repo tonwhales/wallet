@@ -12,7 +12,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited";
 import { Typography } from "../../components/styles";
 import { HoldersAppParamsType } from "../holders/HoldersAppFragment";
-import { HoldersBannerType } from "../../components/products/ProductsComponent";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();

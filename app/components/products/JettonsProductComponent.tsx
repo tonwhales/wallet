@@ -9,7 +9,7 @@ import { t } from "../../i18n/t";
 import { Typography } from "../styles";
 import { Address } from "@ton/core";
 import { Image } from "expo-image";
-import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
+import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
@@ -36,7 +36,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
                     rightActionIcon={hideIcon}
                     card
                     owner={owner}
-                    jettonViewType={JettonViewType.Default}
+                    jettonViewType={AssetViewType.Default}
                 />
             )
         }, [hideIcon, owner, markJettonDisabled]);
@@ -72,7 +72,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
                             rightActionIcon={hideIcon}
                             single={visibleList.length === 1}
                             owner={owner}
-                            jettonViewType={JettonViewType.Default}
+                            jettonViewType={AssetViewType.Default}
                         />
                     )
                 })}

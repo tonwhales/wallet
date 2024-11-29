@@ -300,6 +300,9 @@ export const HoldersAppComponent = memo((
             case HoldersAppParamsType.Topup:
                 route = `/account/${props.variant.id}/deposit`;
                 break;
+            case HoldersAppParamsType.Accounts:
+                route = '/accounts';
+                break;
         }
 
         const uri = `${props.endpoint}${route}`;

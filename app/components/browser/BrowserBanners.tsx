@@ -1,6 +1,6 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
-import { FlatList, Platform, View } from "react-native";
+import { FlatList, ListRenderItem, NativeScrollEvent, NativeSyntheticEvent, Platform, View } from "react-native";
 import { useDimensions } from "@react-native-community/hooks";
 import { BrowserBanner } from "./BrowserBanner";
 import { useSharedValue } from "react-native-reanimated";
@@ -14,6 +14,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
 
     const scrollRef = useRef<FlatList>(null);
     const isPressed = useRef(false);
+    const isScrolling = useRef(false);
     const [activeSlide, setActiveSlide] = useState(0);
 
     const scrollViewWidth = dimensions.screen.width
@@ -28,6 +29,8 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
 
         const timerId = setTimeout(() => {
             if (banners.length === 0) return;
+            if (isScrolling.current) return
+
             if (activeSlide < banners.length - 1 && !isPressed.current) {
                 scrollRef.current?.scrollToIndex({
                     index: activeSlide + 1,
@@ -45,6 +48,37 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
 
         return () => clearTimeout(timerId);
     }, [activeSlide, banners.length]);
+
+    const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const scrollOffset = event.nativeEvent.contentOffset.x + halfBoxDistance;
+        const activeSlide = 1 + Math.floor((scrollOffset - 64) / boxWidth);
+        pan.value = event.nativeEvent.contentOffset.x;
+        setActiveSlide(activeSlide);
+    }, [halfBoxDistance, activeSlide, boxWidth]);
+
+    const renderItem = useCallback(({ item, index }: { item: BrowserBannerItem, index: number }) => {
+        return (
+            <View
+                key={`${index}-${item.id}`}
+                style={Platform.select({
+                    android: {
+                        paddingLeft: index === 0 ? halfBoxDistance : 0,
+                        paddingRight: index === banners.length - 1 ? halfBoxDistance : 0,
+                    }
+                })}
+            >
+                <BrowserBanner
+                    banner={item}
+                    pan={pan}
+                    boxWidth={boxWidth}
+                    index={index}
+                    halfBoxDistance={halfBoxDistance}
+                    theme={theme}
+                    navigation={navigation}
+                />
+            </View>
+        );
+    }, [halfBoxDistance, boxWidth, theme, navigation, pan, banners.length]);
 
     return (
         <FlatList
@@ -64,38 +98,17 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
                 left: halfBoxDistance,
                 right: halfBoxDistance,
             }}
-            onScrollBeginDrag={() => isPressed.current = true}
+            onScrollAnimationEnd={() => isScrolling.current = false}
+            onScrollBeginDrag={() => {
+                isPressed.current = true;
+                isScrolling.current = false;
+            }}
             onScrollEndDrag={() => isPressed.current = false}
             contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
             snapToAlignment={'center'}
             keyExtractor={(item, index) => `banner-${index}-${item.id}`}
-            onScroll={(e) => {
-                const scrollOffset = e.nativeEvent.contentOffset.x + halfBoxDistance;
-                const activeSlide = 1 + Math.floor((scrollOffset - 64) / boxWidth);
-                pan.value = e.nativeEvent.contentOffset.x;
-                setActiveSlide(activeSlide);
-            }}
-            renderItem={({ item, index }) => (
-                <View
-                    key={`${index}-${item.id}`}
-                    style={Platform.select({
-                        android: {
-                            paddingLeft: index === 0 ? halfBoxDistance : 0,
-                            paddingRight: index === banners.length - 1 ? halfBoxDistance : 0,
-                        }
-                    })}
-                >
-                    <BrowserBanner
-                        banner={item}
-                        pan={pan}
-                        boxWidth={boxWidth}
-                        index={index}
-                        halfBoxDistance={halfBoxDistance}
-                        theme={theme}
-                        navigation={navigation}
-                    />
-                </View>
-            )}
+            onScroll={onScroll}
+            renderItem={renderItem}
             style={{ flexGrow: 1, width: dimensions.screen.width }}
             contentContainerStyle={{ paddingVertical: 16 }}
             contentInsetAdjustmentBehavior={'never'}

@@ -22,7 +22,7 @@ import { ContactEdit } from "../../components/Contacts/ContactEdit";
 import { Avatar } from "../../components/avatar/Avatar";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { Typography } from "../../components/styles";
-import { JettonViewType } from "../wallet/AssetsFragment";
+import { AssetViewType } from "../wallet/AssetsFragment";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -173,7 +173,7 @@ export const ContactFragment = fragment(() => {
                                         <Pressable
                                             onPress={() => navigation.navigateAssets({
                                                 target: parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }),
-                                                jettonViewType: JettonViewType.Transfer
+                                                viewType: AssetViewType.Transfer
                                             })}
                                             style={({ pressed }) => ({
                                                 opacity: pressed ? 0.5 : 1,

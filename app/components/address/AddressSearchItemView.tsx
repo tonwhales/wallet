@@ -25,7 +25,7 @@ export const AddressSearchItemView = memo(({
     walletsSettings: { [key: string]: WalletSettings },
     testOnly: boolean,
     theme: ThemeType,
-    bounceableFormat: boolean,
+    bounceableFormat?: boolean,
     knownWallets: { [key: string]: KnownWallet }
 }) => {
     const addressString = item.addr.address.toString({ testOnly });
@@ -38,7 +38,7 @@ export const AddressSearchItemView = memo(({
     const avatarColor = avatarColors[avatarColorHash];
 
     const bounceable = (contractInfo?.kind === 'wallet')
-        ? bounceableFormat
+        ? bounceableFormat || false
         : item.addr.isBounceable
 
     const action = useCallback(() => {

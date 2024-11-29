@@ -14,6 +14,7 @@ import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHolde
 import { TonConnectBridgeType } from "../../tonconnect/types";
 import { extensionKey } from "../dapps/useAddExtension";
 import { useWalletVersion } from "../useWalletVersion";
+import { getInviteId } from "../../../useLinkNavigator";
 
 
 export type HoldersEnrollParams = {
@@ -63,7 +64,9 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
             const connections = app ? connectAppConnections(extensionKey(app.url)) : [];
             const isInjected = connections.find((item) => item.type === TonConnectBridgeType.Injected);
 
-            if (inviteId) {
+            const storedInviteId = getInviteId();
+
+            if (inviteId || storedInviteId) {
 
                 //
                 // Reset holders token with every invite attempt
@@ -176,7 +179,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                                 walletStateInit: stateInitStr
                             }
                         }
-                    }, isTestnet, inviteId);
+                    }, isTestnet, inviteId || storedInviteId);
 
                     setHoldersToken(acc.address.toString({ testOnly: isTestnet }), token);
                 } catch {

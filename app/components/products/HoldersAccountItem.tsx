@@ -4,7 +4,7 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useIsConnectAppReady, useJettonContent, usePrice, useTheme } from "../../engine/hooks";
+import { useIsConnectAppReady, useJetton, usePrice, useTheme } from "../../engine/hooks";
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -13,68 +13,14 @@ import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-ha
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
-import { WImage } from "../WImage";
 import { toBnWithDecimals } from "../../utils/withDecimals";
-import { toNano } from "@ton/core";
+import { Address, toNano } from "@ton/core";
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
-import { Image } from "expo-image";
-
-const usdtIcon = (
-    <Image
-        source={require('@assets/known/ic-usdt.png')}
-        style={{
-            borderRadius: 23,
-            height: 46,
-            width: 46
-        }}
-    />
-);
-
-const tonIcon = (
-    <Image
-        source={require('@assets/ic-ton-acc.png')}
-        style={{
-            borderRadius: 23,
-            height: 46,
-            width: 46
-        }}
-    />
-);
-
-const topUpIcon = (
-    <Image
-        source={require('@assets/ic-acc-topup.png')}
-        style={{
-            height: 24,
-            width: 24
-        }}
-    />
-);
-
-function resolveIcon(params: { image?: { blurhash: string, preview256: string } | null, ticker?: string }) {
-
-    if (params.ticker === 'USDT') {
-        return usdtIcon;
-    };
-
-    if (params.image) {
-        return (
-            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
-                <WImage
-                    src={params.image.preview256}
-                    width={46}
-                    height={46}
-                    borderRadius={46}
-                />
-            </View>
-        );
-    };
-
-    return tonIcon;
-}
+import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
 
 export const HoldersAccountItem = memo((props: {
+    owner: Address,
     account: GeneralHoldersAccount,
     last?: boolean,
     first?: boolean,
@@ -90,7 +36,9 @@ export const HoldersAccountItem = memo((props: {
     onBeforeOpen?: () => void
 }) => {
     const [price] = usePrice();
-    const jettonMasterContent = useJettonContent(props?.account?.cryptoCurrency?.tokenContract ?? null);
+    const master = props?.account?.cryptoCurrency?.tokenContract || undefined;
+    const owner = props.owner;
+    const jettonMasterContent = useJetton({ owner, master });
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -189,7 +137,10 @@ export const HoldersAccountItem = memo((props: {
                         activeOpacity={0.5}
                     >
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
-                            {resolveIcon({ image: jettonMasterContent?.image, ticker: props.account.cryptoCurrency?.ticker })}
+                            {resolveHoldersIcon(
+                                { image: jettonMasterContent?.icon, ticker: props.account.cryptoCurrency?.ticker },
+                                theme
+                            )}
                             <View style={{ marginLeft: 12, flexShrink: 1 }}>
                                 <PerfText
                                     style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
@@ -209,7 +160,7 @@ export const HoldersAccountItem = memo((props: {
                                 </PerfText>
                             </View>
                             {!!props.account.balance && (
-                                <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                                <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
                                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                         <ValueComponent
                                             value={props.account.balance}

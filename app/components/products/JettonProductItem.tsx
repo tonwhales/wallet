@@ -23,10 +23,10 @@ import { calculateSwapAmount } from '../../utils/jettons/calculateSwapAmount';
 import { JettonFull } from '../../engine/api/fetchHintsFull';
 import { AssetViewType } from '../../fragments/wallet/AssetsFragment';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
-
-import IcCheck from "@assets/ic-check.svg";
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { GaslessInfoButton } from '../jettons/GaslessInfoButton';
+
+import IcCheck from "@assets/ic-check.svg";
 
 type JettonProductItemProps = {
     hint: JettonFull,
@@ -373,7 +373,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
 
     const subtitle = useMemo(() => {
         switch (jettonViewType) {
-            case JettonViewType.Default:
+            case AssetViewType.Default:
                 let showRate = !!rate && rate !== 0;
 
                 // Check if rate is valid 
@@ -395,7 +395,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         >
                             {'SCAM'}
                         </Text>
-                    )
+                    );
                 }
 
                 return (

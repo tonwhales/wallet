@@ -60,8 +60,7 @@ function useIsFetchingHoldersAccounts(account: string) {
 
     const token = (
         !!status &&
-        status.state !== HoldersUserState.NoRef &&
-        status.state !== HoldersUserState.NeedEnrollment
+        status.state === HoldersUserState.Ok
     ) ? status.token : null;
 
     const holdersQueryKey = Queries.Holders(account).Cards(!!token ? 'private' : 'public');

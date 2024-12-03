@@ -199,8 +199,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
 
                 const token = (
                     !!holdersStatus &&
-                    holdersStatus.state !== HoldersUserState.NoRef &&
-                    holdersStatus.state !== HoldersUserState.NeedEnrollment
+                    holdersStatus.state === HoldersUserState.Ok
                 ) ? holdersStatus.token : null;
 
                 const holdersQueryKey = Queries.Holders(addressString).Cards(!!token ? 'private' : 'public');

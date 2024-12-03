@@ -28,8 +28,7 @@ export function useHoldersAccounts(address: string | Address) {
 
     const token = (
         !!status &&
-        status.state !== HoldersUserState.NoRef &&
-        status.state !== HoldersUserState.NeedEnrollment
+        status.state === HoldersUserState.Ok
     ) ? status.token : null;
 
     let query = useQuery({

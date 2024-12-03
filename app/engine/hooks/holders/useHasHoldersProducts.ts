@@ -24,8 +24,7 @@ export function getHasHoldersProducts(address: string) {
 
     const token = (
         !!status &&
-        status.state !== HoldersUserState.NoRef &&
-        status.state !== HoldersUserState.NeedEnrollment
+        status.state === HoldersUserState.Ok
     ) ? status.token : null;
 
     const accounts = getQueryData<HoldersAccounts>(queryCache, Queries.Holders(address).Cards(!!token ? 'private' : 'public'));

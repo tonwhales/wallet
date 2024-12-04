@@ -513,7 +513,7 @@ export const TransferSingleView = memo(({
                                             color: theme.textSecondary,
                                             flexShrink: 1
                                         }}
-                                        numberOfLines={1}
+                                        numberOfLines={2}
                                         ellipsizeMode={'tail'}
                                     >
                                         {t('transfer.addressNotActive')}

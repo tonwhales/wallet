@@ -855,7 +855,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                                         color: theme.textSecondary,
                                                         flexShrink: 1
                                                     }}
-                                                    numberOfLines={1}
+                                                    numberOfLines={2}
                                                     ellipsizeMode={'tail'}
                                                 >
                                                     {t('transfer.addressNotActive')}

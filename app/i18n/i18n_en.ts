@@ -236,7 +236,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         unusualJettonsGas: 'Gas is higher than usual',
         unusualJettonsGasTitle: 'The fee for sending jettons is {{amount}} TON',
         unusualJettonsGasMessage: 'Jetton transaction fee (Gas) is higher than usual',
-        addressNotActive: 'Not active',
+        addressNotActive: 'This wallet had no outgoing transactions',
         wrongJettonTitle: 'Wrong jetton',
         wrongJettonMessage: 'You are trying to send a jetton that that you don\'t have',
         notEnoughJettonsTitle: 'Not enough jettons',

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { memo, useCallback } from "react";
-import { ScrollView, View, Text, Pressable, Image, Alert } from "react-native";
+import { ScrollView, View, Text, Pressable, Alert } from "react-native";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -34,6 +34,7 @@ import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/Force
 import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
 import { TransferEstimate } from "../TransferFragment";
 import { ItemSwitch } from "../../../components/Item";
+import { Image } from 'expo-image';
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
@@ -497,7 +498,7 @@ export const TransferSingleView = memo(({
                             </View>
                             {!target.active && (
                                 <Pressable
-                                    style={({ pressed }) => ({ flexDirection: 'row', marginTop: 4, opacity: pressed ? 0.5 : 1 })}
+                                    style={({ pressed }) => ({ flexDirection: 'row', marginTop: 4, opacity: pressed ? 0.5 : 1, gap: 4 })}
                                     onPress={() => {
                                         navigation.navigateAlert({
                                             title: t('transfer.error.addressIsNotActive'),
@@ -505,6 +506,7 @@ export const TransferSingleView = memo(({
                                         })
                                     }}
                                 >
+                                    <Image style={{ height: 18, width: 18 }} source={require('@assets/ic-info-round.png')} />
                                     <Text
                                         style={{
                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
@@ -516,7 +518,6 @@ export const TransferSingleView = memo(({
                                     >
                                         {t('transfer.addressNotActive')}
                                     </Text>
-                                    <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
                                 </Pressable>
                             )}
                         </Pressable>

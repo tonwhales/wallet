@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import { Alert, View, Text, ScrollView, Pressable, Image, Linking } from "react-native";
+import { Alert, View, Text, ScrollView, Pressable, Linking } from "react-native";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { SupportedMessage, parseMessageBody } from "../../../engine/transactions/parseMessageBody";
@@ -42,6 +42,7 @@ import Minimizer from "../../../modules/Minimizer";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { PendingTransactionStatus } from "../../../engine/state/pending";
+import { Image } from 'expo-image';
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
@@ -838,7 +839,16 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                             </View>
                                         )}
                                         {(!i.message.addr.active) && (
-                                            <View style={{ flexDirection: 'row' }}>
+                                            <Pressable
+                                                style={({ pressed }) => ({ flexDirection: 'row', gap: 4, opacity: pressed ? 0.5 : 1 })}
+                                                onPress={() => {
+                                                    navigation.navigateAlert({
+                                                        title: t('transfer.error.addressIsNotActive'),
+                                                        message: t('transfer.error.addressIsNotActiveDescription')
+                                                    })
+                                                }}
+                                            >
+                                                <Image style={{ height: 18, width: 18 }} source={require('@assets/ic-info-round.png')} />
                                                 <Text
                                                     style={{
                                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
@@ -850,8 +860,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                                 >
                                                     {t('transfer.addressNotActive')}
                                                 </Text>
-                                                <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
-                                            </View>
+                                            </Pressable>
                                         )}
                                         {i.spam && (
                                             <View style={{ flexDirection: 'row' }}>

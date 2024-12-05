@@ -220,7 +220,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "unusualJettonsGas": "Необычно высокий Gas за отправку жетонов",
         "unusualJettonsGasTitle": "Gas за отправку жетонов {{amount}} TON",
         "unusualJettonsGasMessage": "Комиссия за отправку жетонов выше чем обычно",
-        "addressNotActive": "Не активен",
+        "addressNotActive": "С этого адреса не было исходящих транзакций",
         "wrongJettonTitle": "Неверный жетон",
         "wrongJettonMessage": "Вы пытаетесь отправить жетон, которого у вас нет",
         "notEnoughJettonsTitle": "Недостаточно жетонов",

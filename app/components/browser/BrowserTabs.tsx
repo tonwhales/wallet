@@ -115,7 +115,7 @@ export const BrowserTabs = memo(
           contentOffset={{ x: -24, y: 0 }}
           showsHorizontalScrollIndicator={false}
           style={{ marginBottom: 8 }}>
-          {!!listings && listings.length > 0 && (
+          {hasListings && (
             <PressableChip
               onPress={() => onSetTab(0)}
               style={[
@@ -144,7 +144,7 @@ export const BrowserTabs = memo(
           />
         </ScrollView>
         <Animated.View style={[styles.container, tabsAnimStyles]}>
-          {!!listings && listings.length > 0 && (
+          {hasListings && (
             <View style={styles.box}>
               <BrowserListings onScroll={onScroll} listings={listings} />
             </View>

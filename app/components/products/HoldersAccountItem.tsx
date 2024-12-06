@@ -76,10 +76,6 @@ export const HoldersAccountItem = memo((props: {
         return false;
     }, [holdersAccStatus, isHoldersReady]);
 
-    const isPro = useMemo(() => {
-        return props.account.cards.find((card) => card.personalizationCode === 'black-pro') !== undefined;
-    }, [props.account]);
-
     const onPress = useCallback(() => {
         // Close full list modal (holders navigations is below it in the other nav stack)
         props.onBeforeOpen?.();
@@ -93,9 +89,7 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: props.account.id }, props.isTestnet);
     }, [props.account, needsEnrollment, props.isTestnet]);
 
-    const subtitle = isPro
-        ? t('products.holders.accounts.proAccount')
-        : t('products.holders.accounts.basicAccount');
+    const subtitle = t('products.holders.accounts.basicAccount');
 
     const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
         ? () => {

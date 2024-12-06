@@ -9,6 +9,9 @@ export function protectNavigation(url: string, app: string) {
     if (pageDomain.endsWith('.sumsub.com')) {
         return true
     }
+    if (pageDomain.endsWith('.kauri.finance')) {
+        return true
+    }
     if (pageDomain.endsWith('.' + appDomain)) {
         return true;
     }

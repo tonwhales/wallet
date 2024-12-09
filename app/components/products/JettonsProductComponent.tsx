@@ -21,25 +21,71 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const hints = useHintsFull(owner.toString({ testOnly })).data?.hints ?? [];
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
+    const renderFace = useCallback(() => {
+        return (
+            <View style={[
+                {
+                    flexGrow: 1, flexDirection: 'row',
+                    padding: 20,
+                    marginHorizontal: 16,
+                    borderRadius: 20,
+                    alignItems: 'center',
+                    backgroundColor: theme.surfaceOnBg,
+                },
+                theme.style === 'dark' ? {
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 4,
+                } : {}
+            ]}>
+                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+                    <Image
+                        source={require('@assets/ic-coins.png')}
+                        style={{ width: 46, height: 46, borderRadius: 23 }}
+                    />
+                </View>
+                <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                    <PerfText
+                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                    >
+                        {t('jetton.productButtonTitle')}
+                    </PerfText>
+                    <PerfText
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                        style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
+                    >
+                        <PerfText style={{ flexShrink: 1 }}>
+                            {t('common.showMore')}
+                        </PerfText>
+                    </PerfText>
+                </View>
+            </View>
+        );
+    }, [theme.surfaceOnBg, theme.textPrimary, theme.textSecondary, theme.style]);
+
     const visibleList = hints
         .filter((s) => !disabledState.disabled[s.jetton.address]);
 
-        const renderItem = useCallback((hint: JettonFull) => {
-            if (!hint) {
-                return null;
-            }
-            return (
-                <JettonProductItem
-                    key={'jt' + hint.jetton.address}
-                    hint={hint}
-                    rightAction={() => markJettonDisabled(hint.jetton.address)}
-                    rightActionIcon={hideIcon}
-                    card
-                    owner={owner}
-                    jettonViewType={AssetViewType.Default}
-                />
-            )
-        }, [hideIcon, owner, markJettonDisabled]);
+    const renderItem = useCallback((hint: JettonFull) => {
+        if (!hint) {
+            return null;
+        }
+        return (
+            <JettonProductItem
+                key={'jt' + hint.jetton.address}
+                hint={hint}
+                rightAction={() => markJettonDisabled(hint.jetton.address)}
+                rightActionIcon={hideIcon}
+                card
+                owner={owner}
+                jettonViewType={AssetViewType.Default}
+            />
+        )
+    }, [hideIcon, owner, markJettonDisabled]);
 
     if (visibleList.length === 0) {
         return null;
@@ -86,51 +132,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
                 title={t('jetton.productButtonTitle')}
                 items={visibleList}
                 renderItem={renderItem}
-                renderFace={() => {
-                    return (
-                        <View style={[
-                            {
-                                flexGrow: 1, flexDirection: 'row',
-                                padding: 20,
-                                marginHorizontal: 16,
-                                borderRadius: 20,
-                                alignItems: 'center',
-                                backgroundColor: theme.surfaceOnBg,
-                            },
-                            theme.style === 'dark' ? {
-                                shadowColor: '#000',
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowOpacity: 0.15,
-                                shadowRadius: 4,
-                            } : {}
-                        ]}>
-                            <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                                <Image
-                                    source={require('@assets/ic-coins.png')}
-                                    style={{ width: 46, height: 46, borderRadius: 23 }}
-                                />
-                            </View>
-                            <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                                <PerfText
-                                    style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    ellipsizeMode="tail"
-                                    numberOfLines={1}
-                                >
-                                    {t('jetton.productButtonTitle')}
-                                </PerfText>
-                                <PerfText
-                                    numberOfLines={1}
-                                    ellipsizeMode={'tail'}
-                                    style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
-                                >
-                                    <PerfText style={{ flexShrink: 1 }}>
-                                        {t('common.showMore')}
-                                    </PerfText>
-                                </PerfText>
-                            </View>
-                        </View>
-                    )
-                }}
+                renderFace={renderFace}
                 itemHeight={86}
                 theme={theme}
                 limitConfig={{

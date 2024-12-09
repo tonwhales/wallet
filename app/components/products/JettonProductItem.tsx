@@ -511,9 +511,9 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 backgroundColor={theme.surfaceOnElevation}
                             />
                             <View style={{ marginLeft: 12, flex: 1, justifyContent: 'center' }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                                     <PerfText
-                                        style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
+                                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                         ellipsizeMode="tail"
                                         numberOfLines={1}
                                     >

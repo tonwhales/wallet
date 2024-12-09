@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Dimensions, NativeScrollEvent, Platform, StyleSheet, View } from 'react-native';
 import { PressableChip } from '../PressableChip';
 import { t } from '../../i18n/t';
@@ -74,8 +74,9 @@ export const BrowserTabs = memo(
     const chipsScrollRef = useRef<ScrollView>(null);
 
     const tabsAnimStyles = useAnimatedStyle(() => {
+      const tabIndex = hasListings ? tab : tab - 1;
       return {
-        right: withTiming(tab * SCREEN_WIDTH, { duration: 450 }),
+        right: withTiming(tabIndex * SCREEN_WIDTH, { duration: 450 }),
       };
     });
 
@@ -94,13 +95,15 @@ export const BrowserTabs = memo(
 
     useEffect(() => {
       if (chipsScrollRef.current) {
-        if (tab === 0) {
+        const isFirst = (hasListings ? 0 : 1) === tab;
+
+        if (isFirst) {
           chipsScrollRef.current.scrollTo({ x: -24, y: 0, animated: true });
         } else if (tab === 2) {
           chipsScrollRef.current.scrollToEnd({ animated: true });
         }
       }
-    }, [tab]);
+    }, [tab, hasListings]);
 
     return (
       <View>

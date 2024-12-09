@@ -131,6 +131,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             send: 'Send',
             buy: 'Buy',
             swap: 'Swap',
+            deposit: 'Deposit'
         },
         empty: {
             message: 'You have no transactions',
@@ -168,6 +169,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
         assets: 'Tokens and Accounts',
+        fromExchange: 'From an exchange'
     },
     transfer: {
         title: 'Send',

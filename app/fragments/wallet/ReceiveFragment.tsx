@@ -11,20 +11,22 @@ import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton, useJetton } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton, useJetton, useHoldersAccounts } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
 import { AssetViewType } from "./AssetsFragment";
-import { HoldersAccountTarget, useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
+import { mapHoldersAccountTarget, useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
 import { getAccountName } from "../../utils/holders/getAccountName";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
 import { copyText } from "../../utils/copyText";
+import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import WarningIcon from '@assets/ic-alert.svg';
+import FromExchangeIcon from '@assets/ic-from-exchange.svg';
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;
@@ -34,7 +36,7 @@ type ReceiveableAssetContent = {
 export type ReceiveableAsset = {
     address: Address;
     content?: ReceiveableAssetContent;
-    holders?: HoldersAccountTarget
+    holders?: GeneralHoldersAccount
 }
 
 export type ReceiveFragmentParams = {
@@ -68,19 +70,20 @@ export const ReceiveFragment = fragment(() => {
         return selected!.address;
     }, [selected, addr]);
 
-    const holdersAccounts = useHoldersAccountTrargets(address);
+    const holdersAccounts = useHoldersAccounts(address).data?.accounts;
     const defaultAccount = holdersAccounts?.[0];
-    const defaultAccountMaster = defaultAccount?.jettonMaster || undefined;
+    const holdersTarget = defaultAccount ? mapHoldersAccountTarget(defaultAccount) : undefined;
+    const defaultAccountMaster = holdersTarget?.jettonMaster || undefined;
     const defaultAssetJetton = useJetton({ owner: address, master: defaultAccountMaster });
 
     const initialAsset: ReceiveableAsset | null = useMemo(() => {
         if (initAsset) {
             return initAsset;
         }
-        if (!!defaultAccount) {
+        if (!!defaultAccount && !!defaultAccount.address) {
             const name = getAccountName(defaultAccount.accountIndex, defaultAccount.name);
             return {
-                address: defaultAccount.address,
+                address: Address.parse(defaultAccount.address),
                 content: {
                     icon: defaultAssetJetton?.icon,
                     name: name
@@ -89,12 +92,13 @@ export const ReceiveFragment = fragment(() => {
             };
         }
         return null;
-    }, [defaultAccount, initAsset, defaultAssetJetton?.icon]);
+    }, [defaultAccount, initAsset, holdersTarget, defaultAssetJetton]);
 
     const [asset, setAsset] = useState<ReceiveableAsset | null>(initialAsset);
 
-    const assetMaster = asset?.holders
-        ? asset.holders.jettonMaster
+    const holdersAssetTarget = asset?.holders ? mapHoldersAccountTarget(asset?.holders) : undefined;
+    const assetMaster = holdersAssetTarget
+        ? holdersAssetTarget.jettonMaster
         : asset?.address?.toString({ testOnly: network.isTestnet });
     const jetton = useJetton({ owner: address, master: assetMaster ?? undefined });
     const jettonAssetcontent: ReceiveableAssetContent | null = jetton ? {
@@ -138,7 +142,7 @@ export const ReceiveFragment = fragment(() => {
     }, [asset?.holders, asset?.address, selected?.addressString, bounceableFormat]);
 
     const assetFriendly = asset?.address?.toString({ testOnly: network.isTestnet });
-    const holdersJetton = asset?.holders?.jettonMaster;
+    const holdersJetton = holdersAssetTarget?.jettonMaster;
     const comment = (!!asset?.holders && !holdersJetton) ? 'Top Up' : undefined;
     const isHolders = !!asset?.holders;
 
@@ -189,22 +193,6 @@ export const ReceiveFragment = fragment(() => {
             }}>
                 <Image
                     source={require('@assets/ic-jetton-scam.png')}
-                    style={{ height: 20, width: 20 }}
-                />
-            </View>
-        );
-    }
-
-    if (isHolders) {
-        verifIcon = (
-            <View style={{
-                justifyContent: 'center', alignItems: 'center',
-                height: 20, width: 20, borderRadius: 10,
-                position: 'absolute', right: -2, bottom: -2,
-                backgroundColor: theme.surfaceOnElevation
-            }}>
-                <Image
-                    source={require('@assets/ic-holders-accounts.png')}
                     style={{ height: 20, width: 20 }}
                 />
             </View>
@@ -408,6 +396,49 @@ export const ReceiveFragment = fragment(() => {
                         }}
                     />
                 </View>
+                {!!asset?.holders && (
+                    <Animated.View
+                        style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 20, padding: 20, gap: 8,
+                            marginHorizontal: 43
+                        }}
+                        entering={FadeInUp}
+                        exiting={FadeOutDown}
+                    >
+                        <Pressable
+                            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            onPress={() => navigation.navigateExchanges({ holdersAccount: asset.holders! })}
+                        >
+                            <View style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                                        <FromExchangeIcon
+                                            style={{ height: 46, width: 46 }}
+                                            height={46}
+                                            width={46}
+                                        />
+                                    </View>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                        {t('receive.fromExchange')}
+                                    </Text>
+                                </View>
+                                <Image
+                                    source={require('@assets/ic-chevron-right.png')}
+                                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                                />
+                            </View>
+                        </Pressable>
+                    </Animated.View>
+                )}
                 {!!comment && (
                     <Animated.View
                         entering={FadeInUp}

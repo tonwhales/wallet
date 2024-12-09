@@ -131,6 +131,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "send": "Отправить",
             "buy": "Купить",
             "swap": "Обмен",
+            "deposit": "Пополнить"
         },
         "empty": {
             "message": "У вас нет транзакций",
@@ -152,6 +153,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
         "assets": "Жетоны и счета",
+        "fromExchange": "С биржи"
     },
     "transfer": {
         "title": "Отправить",

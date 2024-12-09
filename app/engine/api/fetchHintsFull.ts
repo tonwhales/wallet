@@ -21,7 +21,8 @@ const jettonPreviewCodec = z.object({
     symbol: z.string(),
     decimals: z.number(),
     image: z.string(),
-    verification: jettonVerificationTypeCodec
+    verification: jettonVerificationTypeCodec,
+    customPayloadApiUri: z.string().optional()
 })
 
 const walletAddressCodec = z.object({

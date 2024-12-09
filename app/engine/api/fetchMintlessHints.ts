@@ -1,5 +1,6 @@
 import axios from "axios";
 import { z } from "zod";
+import { whalesConnectEndpoint } from "../clients";
 
 const mintlessJettonScheme = z.object({
     balance: z.string(),
@@ -36,7 +37,8 @@ const mintlessJettonListScheme = z.array(mintlessJettonScheme);
 export type MintlessJetton = z.infer<typeof mintlessJettonScheme>;
 
 export async function fetchMintlessHints(address: string): Promise<MintlessJetton[]> {
-    let res = (await axios.get(`https://connect.tonhubapi.com/mintless/jettons/${address}`)).data;
+    const url = `${whalesConnectEndpoint}/mintless/jettons/${encodeURIComponent(address)}`;
+    const res = (await axios.get(url)).data;
 
     const parsed = mintlessJettonListScheme.safeParse(res);
 

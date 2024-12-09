@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useHints, useMintlessHints } from './useHints';
+import { useHints } from './useHints';
 import { useNetwork } from '../network/useNetwork';
 import { Queries } from '../../queries';
 import { fetchMetadata } from '../../metadata/fetchMetadata';
@@ -262,7 +262,6 @@ function invalidateJettonsDataIfVersionChanged(queryClient: QueryClient) {
 
 export function usePrefetchHints(queryClient: QueryClient, address?: string) {
     const hints = useHints(address);
-    const mintlessHints = useMintlessHints(address);
     const { isTestnet } = useNetwork();
 
     useEffect(() => {
@@ -325,23 +324,8 @@ export function usePrefetchHints(queryClient: QueryClient, address?: string) {
                     });
                 }
             }));
-
-            // Prefetch mintless jettons
-            await Promise.all(mintlessHints.map(async hint => {
-                let result = queryClient.getQueryData<JettonMasterState>(Queries.Jettons().MasterContent(hint.jetton.address));
-                if (!result) {
-                    await queryClient.prefetchQuery({
-                        queryKey: Queries.Jettons().MasterContent(hint.jetton.address),
-                        queryFn: jettonMasterContentQueryFn(hint.jetton.address, isTestnet),
-                    });
-                    await queryClient.prefetchQuery({
-                        queryKey: Queries.Jettons().Address(address).Wallet(hint.walletAddress.address),
-                        queryFn: jettonWalletAddressQueryFn(hint.walletAddress.address, address, isTestnet)
-                    });
-                }
-            }));
         })().catch((e) => {
             console.warn(e);
         });
-    }, [address, hints, mintlessHints]);
+    }, [address, hints]);
 }

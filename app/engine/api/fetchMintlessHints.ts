@@ -37,7 +37,7 @@ const mintlessJettonListScheme = z.array(mintlessJettonScheme);
 export type MintlessJetton = z.infer<typeof mintlessJettonScheme>;
 
 export async function fetchMintlessHints(address: string): Promise<MintlessJetton[]> {
-    const url = `${whalesConnectEndpoint}/mintless/jettons/${encodeURIComponent(address)}`;
+    const url = `${whalesConnectEndpoint}/mintless/jettons/${address}`;
     const res = (await axios.get(url)).data;
 
     const parsed = mintlessJettonListScheme.safeParse(res);

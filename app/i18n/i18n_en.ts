@@ -207,6 +207,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notEnoughJettons: 'Not enough {{symbol}}',
             jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency'
         },
+        changeJetton: 'Switch to {{symbol}}',
         sendAll: 'Max',
         scanQR: 'scan qr code',
         sendTo: 'Send to',

@@ -49,6 +49,11 @@ import { AddressSearchItem } from '../../components/address/AddressSearch';
 import { Image } from 'expo-image';
 import { mapJettonToMasterState } from '../../utils/jettons/mapJettonToMasterState';
 import { AssetViewType } from '../wallet/AssetsFragment';
+import { getQueryData } from '../../engine/utils/getQueryData';
+import { queryClient } from '../../engine/clients';
+import { Queries } from '../../engine/queries';
+import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
+import { PressableChip } from '../../components/PressableChip';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -700,6 +705,35 @@ const SimpleTransferComponent = () => {
         ? !jettonMaster?.equals(holdersTargetJetton)
         : holdersTarget && !!jetton && holdersTarget.symbol === 'TON';
 
+    const onChangeJetton = useCallback(() => {
+        if (holdersTarget?.symbol === 'TON') {
+            setJetton(null);
+            return;
+        }
+
+        if (!holdersTarget?.jettonMaster) {
+            return;
+        }
+
+        const queryCache = queryClient.getQueryCache();
+        const key = Queries.HintsFull(address?.toString({ testOnly: network.isTestnet }));
+        const hintsFull = getQueryData<HintsFull>(queryCache, key);
+
+        if (hintsFull) {
+            const index = hintsFull?.addressesIndex?.[holdersTarget?.jettonMaster];
+            const hint = hintsFull?.hints?.[index];
+
+            if (!hint) {
+                return;
+            }
+
+            try {
+                const wallet = Address.parse(hint.walletAddress.address)
+                setJetton(wallet);
+            } catch { }
+        }
+    }, [holdersTargetJetton, holdersTarget?.symbol, jetton?.wallet]);
+
     const amountError = useMemo(() => {
         if (shouldChangeJetton) {
             return t('transfer.error.jettonChange', { symbol: holdersTarget?.symbol });
@@ -1044,26 +1078,47 @@ const SimpleTransferComponent = () => {
                                 style={{
                                     backgroundColor: theme.elevation,
                                     paddingHorizontal: 16, paddingVertical: 14,
-                                    borderRadius: 16,
+                                    borderRadius: 16
                                 }}
-                                inputStyle={{
-                                    fontSize: 17, fontWeight: '400',
+                                inputStyle={[{
                                     color: amountError ? theme.accentRed : theme.textPrimary,
                                     width: 'auto',
                                     flexShrink: 1
-                                }}
+                                }, Typography.regular17_24]}
                                 suffix={priceText}
                                 hideClearButton
                                 prefix={jetton ? jetton.symbol : 'TON'}
                                 cursorColor={theme.accent}
                             />
-                            {amountError && (
-                                <Animated.View entering={FadeIn} exiting={FadeOut.duration(100)}>
-                                    <Text style={[{ color: theme.accentRed, marginTop: 8 }, Typography.regular13_18]}>
-                                        {amountError}
-                                    </Text>
-                                </Animated.View>
-                            )}
+                            <View style={{
+                                flexDirection: 'row',
+                                marginTop: 8, gap: 4
+                            }}>
+                                {amountError && (
+                                    <Animated.View
+                                        style={{ flexShrink: 1 }}
+                                        entering={FadeIn}
+                                        exiting={FadeOut.duration(100)}
+                                    >
+                                        <Text style={[{ color: theme.accentRed, flexShrink: 1 }, Typography.regular13_18]}>
+                                            {amountError}
+                                        </Text>
+                                    </Animated.View>
+                                )}
+                                {shouldChangeJetton && (
+                                    <Animated.View
+                                        entering={FadeInUp} exiting={FadeOutDown}
+                                        layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                                    >
+                                        <PressableChip
+                                            text={t('transfer.changeJetton', { symbol: holdersTarget?.symbol })}
+                                            style={{ backgroundColor: theme.accent }}
+                                            textStyle={{ color: theme.textUnchangeable }}
+                                            onPress={onChangeJetton}
+                                        />
+                                    </Animated.View>
+                                )}
+                            </View>
                         </View>
                     </Animated.View>
                 </View>
@@ -1110,19 +1165,13 @@ const SimpleTransferComponent = () => {
                                 entering={FadeInUp} exiting={FadeOutDown}
                                 layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                             >
-                                <Text style={{ color: theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                <Text style={[{ color: theme.accentRed }, Typography.regular13_18]}>
                                     {commentError}
                                 </Text>
                             </Animated.View>
                         ) : ((selected === 'comment' && !known) && (
                             <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
-                                <Text style={{
-                                    color: theme.textSecondary,
-                                    fontSize: 13, lineHeight: 18,
-                                    fontWeight: '400',
-                                    paddingHorizontal: 16,
-                                    marginTop: 2
-                                }}>
+                                <Text style={[{ color: theme.textSecondary, paddingHorizontal: 16, marginTop: 2 }, Typography.regular13_18]}>
                                     {t('transfer.commentDescription')}
                                 </Text>
                             </Animated.View>

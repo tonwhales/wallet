@@ -209,6 +209,7 @@ export type LocalizationSchema = {
             notEnoughJettons: string,
             jettonChange: string,
         },
+        changeJetton: string,
         sendAll: string,
         scanQR: string,
         sendTo: string,

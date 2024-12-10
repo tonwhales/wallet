@@ -191,6 +191,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "notEnoughJettons": "Недостаточно {{symbol}}",
             "jettonChange": "Получатель поддерживает только транзакции в {{symbol}}, пожалуйста, измените получателя или валюту транзакции",
         },
+        "changeJetton": "Сменить на {{symbol}}",
         "sendAll": "Max",
         "scanQR": "Считать QR код",
         "sendTo": "Получатель",

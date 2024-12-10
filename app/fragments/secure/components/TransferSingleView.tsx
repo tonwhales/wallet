@@ -218,8 +218,10 @@ export const TransferSingleView = memo(({
             return 'dedust';
         }
 
-        if (targetContract?.kind === 'jetton-card' && operation.op?.res === 'tx.tokenTransfer') {
-            operation.op.res = 'known.holders.accountJettonTopUp';
+        if (targetContract?.kind === 'jetton-card' || targetContract?.kind === 'card') {
+            if (operation.op?.res === 'tx.tokenTransfer') {
+                operation.op.res = 'known.holders.accountJettonTopUp';
+            }
             return 'holders';
         }
 

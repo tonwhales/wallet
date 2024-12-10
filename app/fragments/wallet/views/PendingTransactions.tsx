@@ -59,7 +59,10 @@ const PendingTransactionView = memo(({
         if (targetContract?.kind === 'dedust-vault') {
             return 'dedust';
         }
-        if (targetContract?.kind === 'jetton-card' && tx.body?.type === 'token') {
+        if (
+            targetContract?.kind === 'jetton-card' && tx.body?.type === 'token'
+            || targetContract?.kind === 'card'
+        ) {
             return 'holders';
         }
 
@@ -73,7 +76,7 @@ const PendingTransactionView = memo(({
             }
         }
 
-    }, [tx, targetContract?.kind]);
+    }, [tx.body, targetContract?.kind]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

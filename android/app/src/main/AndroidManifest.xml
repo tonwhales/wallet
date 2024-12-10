@@ -46,6 +46,7 @@
     <application
         android:name=".MainApplication"
         android:allowBackup="false"
+        tools:replace="android:allowBackup"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -109,6 +110,17 @@
 				<!-- REPLACE `android:host` with your `-alternate` domain (required for proper functioning of App Links and Deepviews) -->
 				<data android:scheme="https" android:host="tonhub-alternate.test-app.link" />
 			</intent-filter>
+
+            <!-- AppsFlyer App Links - Live App -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="tonhub.onelink.me"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
 
         <!-- Branch init -->

@@ -60,7 +60,7 @@ const PendingTransactionView = memo(({
             return 'dedust';
         }
         if (
-            targetContract?.kind === 'jetton-card' && tx.body?.type === 'token'
+            (targetContract?.kind === 'jetton-card' && tx.body?.type === 'token')
             || targetContract?.kind === 'card'
         ) {
             return 'holders';

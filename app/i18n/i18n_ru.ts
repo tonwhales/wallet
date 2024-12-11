@@ -176,7 +176,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidTransaction": "Неверная транзакция",
             "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
             "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
-            "holdersMemoRequired": "Обязательно укажите мемо/тег в комментарии к транзакции",
+            "holdersMemoRequired": "Tag/MEMO",
             "memoChange": "Измените мемо/тег на \"{{memo}}\"",
             "gaslessFailed": "Не удалось отправить транзакцию",
             "gaslessFailedMessage": "Попробуйте снова или обратитесь в службу поддержки",

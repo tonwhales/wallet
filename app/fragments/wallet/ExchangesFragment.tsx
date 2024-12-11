@@ -347,17 +347,22 @@ export const ExchangesFragment = fragment(() => {
                 flexGrow: 1,
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                gap: 16,
+                borderRadius: 20,
+                overflow: 'hidden'
             }, Platform.select({ android: { paddingTop: safeArea.top } })]}
             collapsable={false}
         >
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             <View
-                style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                style={{
+                    backgroundColor: theme.surfaceOnBg,
+                    flexGrow: 1, flexBasis: 0, alignSelf: 'stretch',
+                }}
                 key={`content-${renderKey}`}
             >
                 <DAppWebView
                     style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1 }}
+                    defaultSafeArea={Platform.OS === 'ios' ? { bottom: safeArea.bottom, top: 16 } : { top: 16, bottom: 0 }}
                     source={{ uri: url.toString() }}
                     {...webViewProps}
                     webviewDebuggingEnabled={isTestnet}

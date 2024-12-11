@@ -1084,7 +1084,7 @@ const SimpleTransferComponent = () => {
                                     color: amountError ? theme.accentRed : theme.textPrimary,
                                     width: 'auto',
                                     flexShrink: 1
-                                }, Typography.regular17_24]}
+                                }, Typography.regular17_24, { lineHeight: undefined }]}
                                 suffix={priceText}
                                 hideClearButton
                                 prefix={jetton ? jetton.symbol : 'TON'}

@@ -28,6 +28,7 @@ import CopyIcon from '@assets/ic-copy.svg';
 import FromExchangeIcon from '@assets/ic-from-exchange.svg';
 import ShareIcon from '@assets/ic-share.svg';
 import { ItemDivider } from "../../components/ItemDivider";
+import { AddressComponent } from "../../components/address/AddressComponent";
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;
@@ -399,11 +400,14 @@ export const ReceiveFragment = fragment(() => {
                                         selectable={false}
                                         ellipsizeMode={'middle'}
                                     >
-                                        {
-                                            friendly.slice(0, 6)
-                                            + '...'
-                                            + friendly.slice(friendly.length - 6)
-                                        }
+                                        <AddressComponent
+                                            address={friendly}
+                                            start={6}
+                                            end={6}
+                                            bounceable={bounceableFormat}
+                                            known={isHolders}
+                                            testOnly={network.isTestnet}
+                                        />
                                     </Text>
                                 </View>
                                 <View style={{ flexGrow: 1 }} />

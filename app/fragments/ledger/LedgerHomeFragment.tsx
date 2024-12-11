@@ -84,10 +84,7 @@ export const LedgerHomeFragment = fragment(() => {
         );
     }, [addressFriendly]);
 
-    if (
-        !ledgerContext?.tonTransport
-        || !ledgerContext.addr
-    ) {
+    if (!ledgerContext.addr?.address) {
         navigation.navigateAndReplaceAll('Home');
         return null;
     }

@@ -234,7 +234,7 @@ export const SettingsFragment = fragment(() => {
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
-                        {isLedger ? 'Ledger' : (walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`)}
+                        {isLedger ? ledgerContext.ledgerName : (walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`)}
                     </Text>
                     {syncState === 'updating' && (
                         <ReAnimatedCircularProgress
@@ -409,7 +409,7 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton
                             dangerZone
                             title={t('common.logout')}
-                            onPress={() => ledgerContext.reset()}
+                            onPress={() => ledgerContext.reset(true)}
                         />
                     </View>
                 ) : (

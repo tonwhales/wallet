@@ -24,6 +24,7 @@ export const AccountSelectorFragment = fragment(() => {
     const appState = useAppState();
 
     const ledgerContext = useLedgerTransport();
+
     const isLedgerConnected = useMemo(() => {
         if (!ledgerContext?.tonTransport || !ledgerContext.addr?.address) {
             return false;
@@ -36,7 +37,7 @@ export const AccountSelectorFragment = fragment(() => {
         }
     }, [ledgerContext]);
 
-    const addressesCount = appState.addresses.length + (isLedgerConnected ? 1 : 0);
+    const addressesCount = appState.addresses.length + ledgerContext.ledgerWallets.length;
 
     const heightMultiplier = useMemo(() => {
         const heightDependentMultiplier = dimentions.height > 800 ? 0 : .1;
@@ -51,11 +52,9 @@ export const AccountSelectorFragment = fragment(() => {
             multiplier = .8;
         }
         return multiplier;
-    }, [addressesCount, isLedgerConnected, dimentions.height]);
+    }, [addressesCount, dimentions.height]);
 
-    const isScrollMode = useMemo(() => {
-        return addressesCount + (isLedgerConnected ? 1 : 0) > 3;
-    }, [addressesCount, isLedgerConnected]);
+    const isScrollMode = useMemo(() => addressesCount > 3, [addressesCount]);
 
     const onAddNewAccount = useCallback(() => {
         const options = isLedgerConnected
@@ -88,7 +87,7 @@ export const AccountSelectorFragment = fragment(() => {
                     break;
             }
         });
-    }, [isLedgerConnected]);
+    }, []);
 
     return (
         <View style={[

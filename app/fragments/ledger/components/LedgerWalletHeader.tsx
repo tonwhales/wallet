@@ -3,11 +3,11 @@ import { Pressable, View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { resolveUrl } from "../../../utils/resolveUrl";
-import { t } from "../../../i18n/t";
-import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
+import { ReAnimatedCircularProgress } from '../../../components/CircularProgress/ReAnimatedCircularProgress';
+import { useNetwork, useSyncState, useTheme } from '../../../engine/hooks';
 
 import NoConnection from '@assets/ic-no-connection.svg';
+import {useLedgerTransport} from "./TransportContext";
 
 export const LedgerWalletHeader = memo(() => {
     const theme = useTheme();
@@ -15,6 +15,8 @@ export const LedgerWalletHeader = memo(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const syncState = useSyncState();
+
+    const ledgerContext = useLedgerTransport();
 
     const onQRCodeRead = useCallback((src: string) => {
         try {
@@ -66,7 +68,6 @@ export const LedgerWalletHeader = memo(() => {
         navigation.navigate('AccountSelector');
     }, []);
 
-
     return (
         <View
             style={{
@@ -115,7 +116,7 @@ export const LedgerWalletHeader = memo(() => {
                             ellipsizeMode='tail'
                             numberOfLines={1}
                         >
-                            {t('hardwareWallet.ledger')}
+                            {ledgerContext.ledgerName}
                         </Text>
                         {syncState === 'updating' && (
                             <ReAnimatedCircularProgress

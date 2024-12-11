@@ -1,4 +1,14 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect, useReducer, useRef, useState } from "react";
+import React, {
+    ReactNode,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useReducer,
+    useRef,
+    useState,
+    useMemo
+} from "react";
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/react-native-hid";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
@@ -9,9 +19,10 @@ import { TonTransport } from '@ton-community/ton-ledger';
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { navigationRef } from '../../../Navigation';
 import { delay } from "teslabot";
+import { useLedgerWallets } from "../../../engine/hooks";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
-export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
+export type LedgerWallet = { acc: number, address: string, publicKey: Buffer, deviceId?: string };
 
 export type BLESearchState =
     | { type: 'ongoing', devices: any[] }
@@ -70,12 +81,14 @@ export const TransportContext = createContext<
         ledgerConnection: TypedTransport | null,
         setLedgerConnection: (transport: TypedTransport | null) => void,
         tonTransport: TonTransport | null,
-        addr: LedgerAddress | null,
-        setAddr: (addr: LedgerAddress | null) => void,
+        addr: LedgerWallet | null,
+        setAddr: (addr: LedgerWallet | null) => void,
         bleSearchState: BLESearchState,
         startHIDSearch: () => Promise<void>,
         startBleSearch: () => void,
-        reset: () => void,
+        reset: (isLogout?: boolean) => void,
+        ledgerWallets: LedgerWallet[],
+        ledgerName: string,
     }
     | null
 >(null);
@@ -87,30 +100,50 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     // TON wrapper
     const [tonTransport, setTonTransport] = useState<TonTransport | null>(null);
 
+    // Wallets
+    const [ledgerWallets, setLedgerWallets] = useLedgerWallets();
+    
     // Selected address
-    const [addr, setAddr] = useState<LedgerAddress | null>(null);
+    const [addr, setAddr] = useState<LedgerWallet | null>(null);
 
     // BLE search state
     const [bleState, dispatchBleState] = useReducer(bleSearchStateReducer, null);
     const [bleSearch, setSearch] = useState<number>(0);
+    
+    // Selected Ledger name
+    const ledgerName = useMemo(() => {
+        const index = ledgerWallets.findIndex(wallet => wallet.address === addr?.address);
+        return `${t('hardwareWallet.ledger')} ${index + 1}`;
+    }, [ledgerWallets, addr])
 
     const reconnectAttempts = useRef<number>(0);
 
-    const reset = useCallback(() => {
+    const reset = useCallback((isLogout?: boolean) => {
         setLedgerConnection(null);
         setTonTransport(null);
+        if (isLogout) {
+          setLedgerWallets(ledgerWallets.filter(wallet => wallet.address !== addr?.address));
+        }
         setAddr(null);
         setSearch(0);
         dispatchBleState({ type: 'reset' });
         reconnectAttempts.current = 0;
-    }, []);
+    }, [addr, ledgerWallets]);
 
-    const onSetAddr = useCallback((addr: LedgerAddress | null) => {
+    const onSetAddr = useCallback((addr: LedgerWallet | null) => {
+        if (!addr) return;
+        
+        const isExisting = ledgerWallets.some((wallet) => wallet.address === addr.address);
+        if (!isExisting) {
+            setLedgerWallets([...ledgerWallets, addr]);
+        }
+        
         setAddr(addr);
+
         if (bleState?.type === 'ongoing') {
             dispatchBleState({ type: 'complete' });
         }
-    }, [bleState]);
+    }, [bleState, ledgerWallets]);
 
     const startHIDSearch = useCallback(async () => {
         let hid: Transport | undefined;
@@ -161,7 +194,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
             text: t('common.back'),
             onPress: () => {
                 navigationRef.reset({ index: 0, routes: [{ name: 'Home' }] });
-                reset();
             }
         }]);
     }, [ledgerConnection]);
@@ -317,6 +349,8 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 startBleSearch,
                 bleSearchState: bleState,
                 reset,
+                ledgerWallets,
+                ledgerName,
             }}
         >
             {children}

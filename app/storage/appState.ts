@@ -7,6 +7,8 @@ import { warn } from '../utils/log';
 import { loadWalletKeys } from './walletKeys';
 import { deriveUtilityKey } from './utilityKeys';
 import { SelectedAccount, WalletVersions } from '../engine/types';
+import { ledgerWalletsKey } from '../engine/state/ledger';
+import { LedgerWallet } from '../fragments/ledger/components/TransportContext';
 
 export type AppState = {
     addresses: SelectedAccount[],
@@ -366,4 +368,9 @@ export function getLedgerEnabled() {
 
 export function setLedgerEnabled(enabled: boolean) {
     storage.set('app_ledger_enabled', enabled);
+}
+
+export function getLedgerWallets(): LedgerWallet[] {
+    const ledgerWallets = storage.getString(ledgerWalletsKey);
+    return ledgerWallets ? JSON.parse(ledgerWallets) : [];
 }

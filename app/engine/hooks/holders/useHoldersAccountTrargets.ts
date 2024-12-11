@@ -1,6 +1,7 @@
 import { Address } from "@ton/core";
 import { useMemo } from "react";
 import { useHoldersAccounts } from "./useHoldersAccounts";
+import { GeneralHoldersAccount } from "../../api/holders/fetchAccounts";
 
 export type HoldersAccountTarget = {
     address: Address,
@@ -9,6 +10,23 @@ export type HoldersAccountTarget = {
     accountIndex: number,
     jettonMaster: string | null | undefined,
     symbol: string,
+}
+
+export function mapHoldersAccountTarget(account: GeneralHoldersAccount): HoldersAccountTarget {
+    let memo: string | undefined = undefined;
+
+    if (account.cryptoCurrency.ticker === 'TON') {
+        memo = 'Top Up';
+    }
+
+    return {
+        address: Address.parse(account.address!),
+        memo,
+        name: account.name,
+        accountIndex: account.accountIndex,
+        jettonMaster: account.cryptoCurrency.tokenContract,
+        symbol: account.cryptoCurrency.ticker
+    };
 }
 
 export function useHoldersAccountTrargets(address: string | Address): HoldersAccountTarget[] {

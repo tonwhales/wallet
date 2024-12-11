@@ -133,6 +133,7 @@ export type LocalizationSchema = {
             send: string,
             buy: string,
             swap: string,
+            deposit: string
         },
         empty: {
             message: string,
@@ -170,6 +171,7 @@ export type LocalizationSchema = {
         },
         holdersJettonWarning: string,
         assets: string,
+        fromExchange: string
     },
     transfer: {
         title: string,

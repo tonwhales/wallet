@@ -18,12 +18,12 @@ import { MandatoryAuthSetupParams } from '../fragments/secure/MandatoryAuthSetup
 import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
 import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
 import { getCurrentAddress } from '../storage/appState';
-import { Platform } from 'react-native';
 import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
 import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
 import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
 import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
 import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
+import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -270,6 +270,10 @@ export class TypedNavigation {
 
     navigateAddressBook(params: AddressBookParams) {
         this.navigate('AddressBook', params);
+    }
+
+    navigateExchanges(params: ExchangesFragmentParams) {
+        this.navigate('Exchanges', params);
     }
 }
 

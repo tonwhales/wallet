@@ -15,7 +15,7 @@ export type HoldersAccounts = {
     prepaidCards?: PrePaidHoldersCard[]
 }
 
-export function useHoldersAccounts(address: string | Address) {
+export function useHoldersAccounts(address: string | Address | undefined) {
     let { isTestnet } = useNetwork();
     let status = useHoldersAccountStatus(address).data;
 
@@ -32,7 +32,8 @@ export function useHoldersAccounts(address: string | Address) {
     ) ? status.token : null;
 
     let query = useQuery({
-        queryKey: Queries.Holders(addressString).Cards(!!token ? 'private' : 'public'),
+        queryKey: Queries.Holders(addressString!).Cards(!!token ? 'private' : 'public'),
+        enabled: !!addressString,
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         refetchInterval: 35000,
@@ -47,7 +48,7 @@ export function useHoldersAccounts(address: string | Address) {
                     const res = await fetchAccountsList(token, isTestnet);
 
                     if (!res) {
-                        deleteHoldersToken(addressString);
+                        deleteHoldersToken(addressString!);
                         throw new Error('Unauthorized');
                     }
 
@@ -56,9 +57,9 @@ export function useHoldersAccounts(address: string | Address) {
                     prepaidCards = res?.prepaidCards;
 
                     // fetch apple pay credentials and update provisioning credentials cache
-                    await updateProvisioningCredentials(addressString, isTestnet);
+                    await updateProvisioningCredentials(addressString!, isTestnet);
                 } else {
-                    accounts = await fetchAccountsPublic(addressString, isTestnet);
+                    accounts = await fetchAccountsPublic(addressString!, isTestnet);
                     type = 'public';
                 }
 
@@ -67,7 +68,7 @@ export function useHoldersAccounts(address: string | Address) {
                 return { accounts: filtered, type, prepaidCards } as HoldersAccounts;
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
-                    deleteHoldersToken(addressString);
+                    deleteHoldersToken(addressString!);
                     throw new Error('Unauthorized');
                 } else {
                     throw error;

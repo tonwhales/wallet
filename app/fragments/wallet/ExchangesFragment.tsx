@@ -277,7 +277,6 @@ export const ExchangesFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
     const { holdersAccount } = useParams<ExchangesFragmentParams>();
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -292,7 +291,7 @@ export const ExchangesFragment = fragment(() => {
         url.searchParams.append('tokenContract', holdersAccount.cryptoCurrency.tokenContract);
     }
 
-    url.searchParams.append('chain', holdersAccount.network);
+    url.searchParams.append('chain', 'ton');
     url.searchParams.append('ticker', holdersAccount.cryptoCurrency.ticker);
 
 

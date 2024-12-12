@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useAccountLite, useCloudValue, useHintsFull, useJetton, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAccountLite, useCloudValue, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -19,59 +19,22 @@ import { Image } from "expo-image";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { ValueComponent } from "../../components/ValueComponent";
 import { ReceiveableAsset } from "./ReceiveFragment";
-import { HoldersAccountTarget, useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
-import { ProductButton } from "./products/ProductButton";
 import { getAccountName } from "../../utils/holders/getAccountName";
-import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
+import { HoldersAccountItem } from "../../components/products/HoldersAccountItem";
+import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 
 import IcCheck from "@assets/ic-check.svg";
 
 type ListItem =
     { type: 'jetton', hint: JettonFull }
     | { type: 'ton' }
-    | { type: 'holders', target: HoldersAccountTarget };
+    | { type: 'holders', account: GeneralHoldersAccount };
 
 export enum AssetViewType {
     Transfer = 'transfer',
     Receive = 'receive',
     Default = 'default'
 }
-
-const HoldersItem = memo((params: {
-    owner: Address,
-    target: HoldersAccountTarget,
-    onSelect: (target: HoldersAccountTarget) => void,
-    isTestnet: boolean,
-    isSelected: boolean
-}) => {
-    const theme = useTheme();
-    const { target, onSelect, isTestnet, owner, isSelected } = params;
-    const name = getAccountName(target.accountIndex, target.name);
-    const addressString = target.address.toString({ testOnly: isTestnet });
-    const master = target.jettonMaster ? Address.parse(target.jettonMaster) : undefined;
-    const jetton = useJetton({ owner, master });
-    const icon = resolveHoldersIcon(
-        { image: jetton?.icon, ticker: jetton?.symbol, holdersIc: true },
-        theme
-    );
-
-    return (
-        <ProductButton
-            name={name}
-            onPress={() => onSelect(target)}
-            subtitle={`${addressString.slice(0, 6)}...${addressString.slice(-6)}`}
-            iconComponent={icon}
-            style={{
-                backgroundColor: theme.surfaceOnElevation,
-                marginHorizontal: 0, marginVertical: 0,
-                padding: 10,
-                borderRadius: 20, paddingRight: 20
-            }}
-            selectable
-            isSelected={isSelected}
-        />
-    );
-})
 
 const TonAssetItem = memo((params: {
     onTonSelected: () => void,
@@ -161,7 +124,7 @@ export const AssetsFragment = fragment(() => {
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const network = useNetwork();
+    const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
@@ -182,9 +145,10 @@ export const AssetsFragment = fragment(() => {
     }, [ledgerTransport, isLedgerScreen]);
 
     const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
-    const holdersAccounts = useHoldersAccountTrargets(owner);
+    const holdersAccStatus = useHoldersAccountStatus(owner).data;
+    const holdersAccounts = useHoldersAccounts(owner).data?.accounts ?? [];
     const account = useAccountLite(owner);
-    const hints = useHintsFull(owner.toString({ testOnly: network.isTestnet })).data?.hints ?? [];
+    const hints = useHintsFull(owner.toString({ testOnly: isTestnet })).data?.hints ?? [];
 
     const itemsList = useMemo(() => {
         const filtered: ListItem[] = hints
@@ -196,7 +160,7 @@ export const AssetsFragment = fragment(() => {
 
         const holders: ListItem[] = includeHolders ? holdersAccounts.map((h) => ({
             type: 'holders',
-            target: h
+            account: h
         })) : [];
 
         const items: ListItem[] = [{ type: 'ton' }, ...holders, ...filtered];
@@ -222,7 +186,7 @@ export const AssetsFragment = fragment(() => {
         }
 
         return [{ type: 'ton' }, ...holders, ...filtered] as ListItem[];
-    }, [disabledState, network, isLedgerScreen, hints, holdersAccounts, includeHolders]);
+    }, [disabledState, isTestnet, isLedgerScreen, hints, holdersAccounts, includeHolders]);
 
     const onJettonCallback = useCallback((selected?: { wallet?: Address, master: Address }) => {
         if (jettonCallback) {
@@ -311,11 +275,16 @@ export const AssetsFragment = fragment(() => {
         });
     }, [isLedgerScreen, onJettonCallback, onAssetCallback]);
 
-    const onHoldersSelected = useCallback((target: HoldersAccountTarget) => {
+    const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
+        if (!target.address) {
+            return;
+        }
         if (assetCallback) {
             const name = getAccountName(target.accountIndex, target.name);
+
+
             onAssetCallback({
-                address: target.address,
+                address: Address.parse(target.address),
                 content: { icon: null, name },
                 holders: target
             });
@@ -323,9 +292,13 @@ export const AssetsFragment = fragment(() => {
         }
 
         if (isLedgerScreen) {
+            if (!target.address) {
+                return;
+            }
+
             navigation.replace('LedgerSimpleTransfer', {
                 amount: null,
-                target: target.address.toString({ testOnly: network.isTestnet }),
+                target: target.address,
                 comment: null,
                 jetton: null,
                 stateInit: null,
@@ -337,24 +310,36 @@ export const AssetsFragment = fragment(() => {
 
         navigation.navigateSimpleTransfer({
             amount: null,
-            target: target.address.toString({ testOnly: network.isTestnet }),
+            target: target.address,
             comment: null,
             jetton: null,
             stateInit: null,
             callback: null
         });
-    }, [onJettonCallback, onAssetCallback, network.isTestnet]);
+    }, [onJettonCallback, onAssetCallback, isTestnet]);
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
             case 'holders':
+                let isSelected = false;
+
+                if (item.account.address) {
+                    try {
+                        isSelected = selectedAsset?.equals(Address.parse(item.account.address)) ?? false;
+                    } catch { }
+                }
+
                 return (
-                    <HoldersItem
+                    <HoldersAccountItem
                         owner={owner}
-                        target={item.target}
-                        onSelect={onHoldersSelected}
-                        isTestnet={network.isTestnet}
-                        isSelected={selectedAsset?.equals(item.target.address) ?? false}
+                        account={item.account}
+                        style={{ paddingVertical: 0 }}
+                        isTestnet={isTestnet}
+                        hideCardsIfEmpty
+                        holdersAccStatus={holdersAccStatus}
+                        onOpen={() => onHoldersSelected(item.account)}
+                        selectable
+                        isSelected={isSelected}
                     />
                 );
             case 'jetton':
@@ -365,7 +350,7 @@ export const AssetsFragment = fragment(() => {
                         onSelect={onJettonSelected}
                         hideSelection={!jettonCallback && !assetCallback}
                         selected={selectedAsset}
-                        isTestnet={network.isTestnet}
+                        isTestnet={isTestnet}
                         theme={theme}
                         jettonViewType={viewType}
                     />
@@ -382,7 +367,7 @@ export const AssetsFragment = fragment(() => {
                 );
         }
     }, [
-        selectedAsset, owner, network.isTestnet, theme, viewType, account?.balance, owner,
+        selectedAsset, owner, isTestnet, theme, viewType, account?.balance, owner, holdersAccStatus,
         onJettonSelected, onTonSelected, onHoldersSelected
     ]);
 

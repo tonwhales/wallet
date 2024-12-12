@@ -37,7 +37,7 @@ export const HoldersAccountsSearch = memo(({
                 return {
                     type: 'holders',
                     addr: {
-                        isBounceable: false,
+                        isBounceable: true,
                         isTestOnly: network.isTestnet,
                         address: acc.address
                     },

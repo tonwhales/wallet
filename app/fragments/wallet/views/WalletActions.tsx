@@ -7,10 +7,15 @@ import { isNeocryptoAvailable } from "../../../utils/isNeocryptoAvailable";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 import { Jetton } from "../../../engine/types";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
+import { Address } from "@ton/core";
+import { useHoldersAccounts } from "../../../engine/hooks";
 
-export const WalletActions = memo(({ theme, navigation, isTestnet, jetton }: { theme: ThemeType, navigation: TypedNavigation, isTestnet: boolean, jetton?: Jetton }) => {
+export const WalletActions = memo(({ theme, navigation, isTestnet, jetton, address }: { theme: ThemeType, navigation: TypedNavigation, isTestnet: boolean, jetton?: Jetton, address?: Address }) => {
     const showBuy = isNeocryptoAvailable();
     const appConfig = useAppConfig();
+    const holdersAccounts = useHoldersAccounts(address).data;
+    const holdersAccountsCount = holdersAccounts?.accounts?.length ?? 0;
+    const receiveType = holdersAccountsCount > 0 ? WalletActionType.Deposit : WalletActionType.Receive;
     // TODO: rm platfrom check after review
     // dont show swap on ios until the issue with review is resolved
     const showSwap = appConfig?.features?.swap && Platform.OS === 'android';
@@ -61,8 +66,8 @@ export const WalletActions = memo(({ theme, navigation, isTestnet, jetton }: { t
                 <WalletActionButton
                     action={
                         !!jetton
-                            ? { type: WalletActionType.Receive, jetton: { master: jetton.master, data: jettonData } }
-                            : { type: WalletActionType.Receive }
+                            ? { type: receiveType, jetton: { master: jetton.master, data: jettonData } }
+                            : { type: receiveType }
                     }
                     navigation={navigation}
                     theme={theme}

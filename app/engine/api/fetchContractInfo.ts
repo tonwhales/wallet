@@ -1,5 +1,6 @@
 import axios from "axios";
 import { z } from "zod";
+import { whalesConnectEndpoint } from "../clients";
 
 const contractKindCodec = z.enum([
     'wallet', 
@@ -22,7 +23,7 @@ const contractInfoCodec = z.object({
 export type ContractInfo = z.infer<typeof contractInfoCodec>;
 
 export async function fetchContractInfo(addressString: string): Promise<ContractInfo> {
-    const res = await axios.get(`https://connect.tonhubapi.com/contract/info/${addressString}`);
+    const res = await axios.get(`${whalesConnectEndpoint}/contract/info/${addressString}`);
 
     if (res.status !== 200) {
         throw new Error(`Invalid response status: ${res.status} for ${addressString}`);

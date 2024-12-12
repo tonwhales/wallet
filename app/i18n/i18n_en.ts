@@ -131,6 +131,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             send: 'Send',
             buy: 'Buy',
             swap: 'Swap',
+            deposit: 'Deposit'
         },
         empty: {
             message: 'You have no transactions',
@@ -168,6 +169,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
         assets: 'Tokens and Accounts',
+        fromExchange: 'From an exchange'
     },
     transfer: {
         title: 'Send',
@@ -190,7 +192,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
-            holdersMemoRequired: 'A memo/tag comment is required',
+            holdersMemoRequired: 'Tag/MEMO',
             memoChange: 'Change memo/tag to \"{{memo}}\"',
             gaslessFailed: 'Failed to send transaction',
             gaslessFailedMessage: 'Please try again or contact support',
@@ -207,6 +209,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notEnoughJettons: 'Not enough {{symbol}}',
             jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency'
         },
+        changeJetton: 'Switch to {{symbol}}',
         sendAll: 'Max',
         scanQR: 'scan qr code',
         sendTo: 'Send to',

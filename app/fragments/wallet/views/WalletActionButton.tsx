@@ -10,6 +10,7 @@ import { Address } from "@ton/core";
 export enum WalletActionType {
     Send = 'send',
     Receive = 'receive',
+    Deposit = 'deposit',
     Buy = 'buy',
     Swap = 'swap',
 };
@@ -21,6 +22,12 @@ export type WalletAction = {
     jetton?: Address
 } | {
     type: WalletActionType.Receive,
+    jetton?: {
+        master: Address,
+        data?: JettonMasterState
+    }
+} | {
+    type: WalletActionType.Deposit,
     jetton?: {
         master: Address,
         data?: JettonMasterState
@@ -50,7 +57,7 @@ export const WalletActionButton = memo(({
 }) => {
 
     switch (action.type) {
-        case 'buy': {
+        case WalletActionType.Buy: {
             return (
                 <Pressable
                     onPress={() => navigation.navigate('Buy')}
@@ -76,7 +83,7 @@ export const WalletActionButton = memo(({
                 </Pressable>
             );
         }
-        case 'send': {
+        case WalletActionType.Send: {
             return (
                 <Pressable
                     onPress={() => navigation.navigateSimpleTransfer({ ...nullTransfer, jetton: action.jetton })}
@@ -105,7 +112,7 @@ export const WalletActionButton = memo(({
                 </Pressable>
             );
         }
-        case 'receive': {
+        case WalletActionType.Receive: {
             return (
                 <Pressable
                     onPress={() => navigation.navigateReceive(
@@ -149,7 +156,51 @@ export const WalletActionButton = memo(({
                 </Pressable>
             );
         }
-        case 'swap': {
+        case WalletActionType.Deposit: {
+            return (
+                <Pressable
+                    onPress={() => navigation.navigateReceive(
+                        action.jetton
+                            ? {
+                                asset: {
+                                    address: action.jetton.master,
+                                    content: action.jetton.data ? {
+                                        icon: action.jetton.data?.originalImage ?? action.jetton.data?.image?.preview256,
+                                        name: action.jetton.data?.symbol
+                                    } : undefined
+                                }
+                            }
+                            : undefined
+                    )}
+                    style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
+                >
+                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{
+                            backgroundColor: theme.accent,
+                            width: 32, height: 32,
+                            borderRadius: 16,
+                            alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <Image source={require('@assets/ic_receive.png')} />
+                        </View>
+                        <Text
+                            style={{
+                                fontSize: 15, lineHeight: 20,
+                                color: theme.textPrimary,
+                                marginTop: 6,
+                                fontWeight: '500'
+                            }}
+                            minimumFontScale={0.7}
+                            adjustsFontSizeToFit
+                            numberOfLines={1}
+                        >
+                            {t('wallet.actions.deposit')}
+                        </Text>
+                    </View>
+                </Pressable>
+            );
+        }
+        case WalletActionType.Swap: {
             return (
                 <Pressable
                     onPress={() => navigation.navigate('Swap')}

@@ -105,7 +105,7 @@ export const AddressSearch = memo(({
                 return {
                     type: 'holders',
                     addr: {
-                        isBounceable: false,
+                        isBounceable: true,
                         isTestOnly: network.isTestnet,
                         address: acc.address
                     },

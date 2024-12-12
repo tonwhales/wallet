@@ -131,6 +131,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "send": "Отправить",
             "buy": "Купить",
             "swap": "Обмен",
+            "deposit": "Пополнить"
         },
         "empty": {
             "message": "У вас нет транзакций",
@@ -152,6 +153,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
         "assets": "Жетоны и счета",
+        "fromExchange": "С биржи"
     },
     "transfer": {
         "title": "Отправить",
@@ -174,7 +176,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidTransaction": "Неверная транзакция",
             "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
             "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
-            "holdersMemoRequired": "Обязательно укажите мемо/тег в комментарии к транзакции",
+            "holdersMemoRequired": "Tag/MEMO",
             "memoChange": "Измените мемо/тег на \"{{memo}}\"",
             "gaslessFailed": "Не удалось отправить транзакцию",
             "gaslessFailedMessage": "Попробуйте снова или обратитесь в службу поддержки",
@@ -191,6 +193,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "notEnoughJettons": "Недостаточно {{symbol}}",
             "jettonChange": "Получатель поддерживает только транзакции в {{symbol}}, пожалуйста, измените получателя или валюту транзакции",
         },
+        "changeJetton": "Сменить на {{symbol}}",
         "sendAll": "Max",
         "scanQR": "Считать QR код",
         "sendTo": "Получатель",

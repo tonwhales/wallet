@@ -47,7 +47,19 @@ export function storeCampaignId(campaignId: string) {
     sharedStoragePersistence.set(branchCampaignKey, campaignId);
 }
 
+// TODO: remove before going to production
+const lastAttributionKey = 'last-attribution';
+
+export function getLastAttribution(): string | undefined {
+    return sharedStoragePersistence.getString(lastAttributionKey);
+}
+
+export function storeLastAttribution(attribution: string) {
+    sharedStoragePersistence.set(lastAttributionKey, attribution);
+}
+
 function handleAttribution(deepLink: string, params?: TrimmedBranchParams) {
+    storeLastAttribution(deepLink);
     const uri = `https://tonhub.com/${deepLink}`;
     const url = new URL(uri);
 
@@ -106,21 +118,19 @@ branch.subscribe({
                 handleLinkReceived(uri);
             }
         }
-    },
-
+    }
 });
 
 appsFlyer.onDeepLink(res => {
-    console.log('AppsFlyer deepLink:', JSON.stringify(res));
     if (res.data && res.data.deep_link_value) {
         handleAttribution(res.data.deep_link_value);
     }
 });
 
 const appsFlyerConfig: InitSDKOptions = {
-    devKey: '',
+    devKey: 'appsflyer_key',
     isDebug: false,
-    appId: '',
+    appId: '1607656232',
     onInstallConversionDataListener: true, //Optional
     onDeepLinkListener: true, //Optional
     timeToWaitForATTUserAuthorization: 15 //for iOS 14.5

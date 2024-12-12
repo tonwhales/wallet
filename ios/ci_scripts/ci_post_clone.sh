@@ -19,6 +19,17 @@ plutil -replace branch_key.live -string "$BRANCH_KEY_LIVE" Info.plist
 
 plutil -p Info.plist
 
+# Ensure the AppsFlyer Key environment variable is set
+if [ -z "$APPSFLYER_KEY" ]; then
+    echo "Error: APPSFLYER_KEY environment variable is not set."
+    exit 1
+fi
+
+# replace the appsflyer_key in the CachedLinking.ts file
+line="appsflyer_key"
+rep="$APPSFLYER_KEY"
+sed -i.bak 's|${line}|${rep}|g' app/utils/CachedLinking.ts
+
 echo "===== Evn variables replaced ====="
 
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE

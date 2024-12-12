@@ -35,6 +35,7 @@ import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
+import { getLastAttribution } from '../../utils/CachedLinking';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -59,6 +60,10 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const [themeStyle, setThemeStyle] = useThemeStyle();
     const [lang, setLang] = useLanguage();
+
+    const initialAttribution = getLastAttribution();
+    const [lastAttribution, setLastAttribution] = useState<string | undefined>(initialAttribution);
+
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -300,6 +305,14 @@ export const DeveloperToolsFragment = fragment(() => {
                                 title={'Dev WebView'}
                                 onPress={() => {
                                     navigation.navigate('DevDAppWebView');
+                                }}
+                            />
+                            <ItemButton
+                                title={'Last attribution'}
+                                hint={lastAttribution}
+                                onPress={() => {
+                                    const attribution = getLastAttribution();
+                                    setLastAttribution(attribution);
                                 }}
                             />
                         </View>

@@ -3,12 +3,11 @@ import { Queries } from "../../queries";
 import { fetchJettonPayload } from "../../api/fetchJettonPayload";
 import { queryClient } from "../../clients";
 import { getQueryData } from "../../utils/getQueryData";
-import { MintlessJetton } from "../../api/fetchMintlessHints";
-import { Address } from "@ton/core";
+import { HintsFull } from "./useHintsFull";
 
 export function useJettonPayload(account?: string, masterAddress?: string) {
     const enabled = !!account && !!masterAddress;
-    
+
     const query = useQuery({
         queryKey: Queries.Jettons().Address(account || '').WalletPayload(masterAddress || ''),
         queryFn: async () => {
@@ -17,14 +16,24 @@ export function useJettonPayload(account?: string, masterAddress?: string) {
             }
 
             const queryCache = queryClient.getQueryCache();
-            const mintlessHints = getQueryData<MintlessJetton[]>(queryCache, Queries.Mintless(account!)) || [];
-            const mintlessJetton = mintlessHints.find(h => Address.parse(masterAddress).equals(Address.parse(h.jetton.address)))?.jetton;
+            const fullHints = getQueryData<HintsFull>(queryCache, Queries.HintsFull(account!));
+            const index = fullHints?.addressesIndex?.[masterAddress!];
 
-            if (!mintlessJetton) {
+            if (index === undefined) {
                 return null;
             }
 
-            const customPayloadApiUri = mintlessJetton.customPayloadApiUri;
+            const hint = fullHints?.hints[index];
+
+            if (!hint) {
+                return null;
+            }
+
+            if (!hint?.extensions?.includes('custom_payload')) {
+                return null;
+            }
+
+            const customPayloadApiUri = hint.jetton.customPayloadApiUri;
             const res = await fetchJettonPayload(account!, masterAddress!, customPayloadApiUri);
             return res;
         },

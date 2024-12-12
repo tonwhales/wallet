@@ -100,6 +100,7 @@ import { WebViewPreloader } from './components/WebViewPreloader';
 import { holdersUrl } from './engine/api/holders/fetchUserState';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
+import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -330,6 +331,7 @@ const navigation = (safeArea: EdgeInsets) => [
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),
     genericScreen('Holders', HoldersAppFragment, safeArea, true, 0),
+    modalScreen('Exchanges', ExchangesFragment, safeArea),
 
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea, true),

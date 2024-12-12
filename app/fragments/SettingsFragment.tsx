@@ -221,6 +221,7 @@ export const SettingsFragment = fragment(() => {
                         borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
                         alignItems: 'center',
                         opacity: pressed ? 0.8 : 1,
+                        maxWidth: '50%',
                     })}
                     onPress={onAccountPress}
                 >

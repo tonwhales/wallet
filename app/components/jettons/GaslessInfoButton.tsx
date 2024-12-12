@@ -21,7 +21,7 @@ export const GaslessInfoButton = memo(() => {
                 opacity: pressed ? 0.5 : 1,
                 flexDirection: 'row',
                 justifyContent: 'center', alignItems: 'center',
-                marginLeft: 4, gap: 4
+                gap: 4
             })}
             onPress={onPress}
         >

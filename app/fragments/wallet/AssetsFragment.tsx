@@ -22,6 +22,7 @@ import { ReceiveableAsset } from "./ReceiveFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
 import { HoldersAccountItem } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
+import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -146,7 +147,7 @@ export const AssetsFragment = fragment(() => {
 
     const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner).data?.accounts ?? [];
+    const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
     const account = useAccountLite(owner);
     const hints = useHintsFull(owner.toString({ testOnly: isTestnet })).data?.hints ?? [];
 
@@ -333,6 +334,7 @@ export const AssetsFragment = fragment(() => {
                     <HoldersAccountItem
                         owner={owner}
                         account={item.account}
+                        itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                         style={{ paddingVertical: 0 }}
                         isTestnet={isTestnet}
                         hideCardsIfEmpty

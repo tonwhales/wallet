@@ -25,6 +25,7 @@ import { getAppManifest } from '../../engine/getters/getAppManifest';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { queryClient } from '../../engine/clients';
 import { Queries } from '../../engine/queries';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -194,8 +195,9 @@ export const HoldersLandingFragment = fragment(() => {
     const [renderKey, setRenderKey] = useState(0);
 
     const onReload = useCallback(() => {
+        trackEvent(MixpanelEvent.HoldersReload, { route: source.url }, isTestnet);
         setRenderKey(renderKey + 1);
-    }, []);
+    }, [renderKey, isTestnet]);
 
     const onSupport = useCallback(() => {
         const tonhubOptions = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];

@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { ThemeType } from "../../engine/state/theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Pressable, View, Image, Text } from "react-native";
@@ -9,7 +9,7 @@ import { Address } from "@ton/core";
 import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
 import { ItemDivider } from "../ItemDivider";
-import { useBounceableWalletFormat } from "../../engine/hooks";
+import { useBounceableWalletFormat, useJettonContent } from "../../engine/hooks";
 import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
@@ -29,6 +29,7 @@ export const SpecialJettonProduct = memo(({
 }) => {
     const navigation = useTypedNavigation();
     const specialJetton = useSpecialJetton(address);
+    const masterContent = useJettonContent(specialJetton?.master.toString({ testOnly }));
     const balance = specialJetton?.balance ?? 0n;
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
@@ -54,13 +55,10 @@ export const SpecialJettonProduct = memo(({
     }, [gaslessConfig?.gas_jettons, walletVersion, specialJetton?.master]);
 
     const onPress = useCallback(() => {
-        const jetton = specialJetton
-            ? { master: specialJetton.master, data: specialJetton.masterContent }
-            : undefined;
         const hasWallet = !!specialJetton?.wallet;
 
         if (isLedger) {
-            if (!hasWallet || balance === 0n) {
+            if (!hasWallet) {
                 navigation.navigate(
                     'LedgerReceive',
                     {
@@ -68,8 +66,8 @@ export const SpecialJettonProduct = memo(({
                         ledger: true, asset: specialJetton ? {
                             address: specialJetton.master,
                             content: {
-                                icon: specialJetton.icon,
-                                name: specialJetton.name,
+                                icon: masterContent?.originalImage,
+                                name: masterContent?.name,
                             }
                         } : undefined
                     });
@@ -101,18 +99,16 @@ export const SpecialJettonProduct = memo(({
             return;
         }
 
-        if (balance)
-
-            navigation.navigateReceive({
-                asset: specialJetton ? {
-                    address: specialJetton.master,
-                    content: {
-                        icon: specialJetton.icon,
-                        name: specialJetton.name,
-                    }
-                } : undefined
-            });
-    }, [specialJetton, isLedger, ledgerAddressStr, navigation]);
+        navigation.navigateReceive({
+            asset: specialJetton ? {
+                address: specialJetton.master,
+                content: {
+                    icon: masterContent?.originalImage,
+                    name: masterContent?.name,
+                }
+            } : undefined
+        });
+    }, [specialJetton, isLedger, ledgerAddressStr, navigation, masterContent]);
 
     return (
         <Pressable

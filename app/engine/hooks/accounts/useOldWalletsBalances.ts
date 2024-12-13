@@ -7,7 +7,7 @@ export function useOldWalletsBalances() {
     const account = useSelectedAccount();
 
     const query = useQuery({
-        queryKey: Queries.Account(account!.addressString).OldWallets(),
+        queryKey: Queries.Account(account?.addressString!).OldWallets(),
         queryFn: async () => {
             return await fetchOldWalletBalances(account!.publicKey);
         },

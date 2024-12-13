@@ -58,6 +58,24 @@ export function storeLastAttribution(attribution: string) {
     sharedStoragePersistence.set(lastAttributionKey, attribution);
 }
 
+const AppsFlyerEventsKey = 'apps-flyer-events';
+
+export function getAppsFlyerEvents(): string[] {
+    const stored = sharedStoragePersistence.getString(AppsFlyerEventsKey);
+
+    if (!stored) {
+        return [];
+    }
+
+    return JSON.parse(stored);
+}
+
+export function storeAppsFlyerEvent(event: string) {
+    const events = getAppsFlyerEvents();
+    events.push(event);
+    sharedStoragePersistence.set(AppsFlyerEventsKey, JSON.stringify(events));
+}
+
 function handleAttribution(deepLink: string, params?: TrimmedBranchParams) {
     storeLastAttribution(deepLink);
     const uri = `https://tonhub.com/${deepLink}`;
@@ -122,6 +140,7 @@ branch.subscribe({
 });
 
 appsFlyer.onDeepLink(res => {
+    storeAppsFlyerEvent(JSON.stringify(res));
     if (res.data && res.data.deep_link_value) {
         handleAttribution(res.data.deep_link_value);
     }
@@ -138,8 +157,8 @@ const appsFlyerConfig: InitSDKOptions = {
 
 appsFlyer.initSdk(
     appsFlyerConfig,
-    (result) => console.log('AppsFlyer', result),
-    (error) => console.log('AppsFlyer', error)
+    (result) => storeAppsFlyerEvent(JSON.stringify(result)),
+    (error) => storeAppsFlyerEvent(JSON.stringify(error))
 );
 
 // Subscribe for links

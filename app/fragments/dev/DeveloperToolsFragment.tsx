@@ -35,7 +35,7 @@ import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
-import { getLastAttribution } from '../../utils/CachedLinking';
+import { getAppsFlyerEvents, getLastAttribution } from '../../utils/CachedLinking';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -61,8 +61,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const [themeStyle, setThemeStyle] = useThemeStyle();
     const [lang, setLang] = useLanguage();
 
-    const initialAttribution = getLastAttribution();
-    const [lastAttribution, setLastAttribution] = useState<string | undefined>(initialAttribution);
+    const appsFlyerEventData = getAppsFlyerEvents();
+    const [appsFlyerEvents, setAppsFlyerEvents] = useState<string[] | undefined>(appsFlyerEventData);
 
 
     const reboot = useReboot();
@@ -308,13 +308,19 @@ export const DeveloperToolsFragment = fragment(() => {
                                 }}
                             />
                             <ItemButton
-                                title={'Last attribution'}
-                                hint={lastAttribution}
+                                title={'reset AppsFlyer'}
                                 onPress={() => {
-                                    const attribution = getLastAttribution();
-                                    setLastAttribution(attribution);
+                                    const attribution = getAppsFlyerEvents();
+                                    setAppsFlyerEvents(attribution);
                                 }}
                             />
+                            {appsFlyerEvents && (
+                                appsFlyerEventData.map((event, index) => (
+                                    <View key={`apps-${index}`}>
+                                        <Item title={event} />
+                                    </View>
+                                ))
+                            )}
                         </View>
                     </View>
                 </ScrollView>

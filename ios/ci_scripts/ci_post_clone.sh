@@ -25,10 +25,13 @@ if [ -z "$APPSFLYER_KEY" ]; then
     exit 1
 fi
 
+
 # replace the appsflyer_key in the CachedLinking.ts file
+cd ../..
 line="appsflyer_key"
 rep="$APPSFLYER_KEY"
 sed -i.bak 's|${line}|${rep}|g' app/utils/CachedLinking.ts
+cd ios/ci_scripts
 
 echo "===== Evn variables replaced ====="
 

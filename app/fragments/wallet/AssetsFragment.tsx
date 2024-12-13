@@ -333,6 +333,7 @@ export const AssetsFragment = fragment(() => {
                     <HoldersAccountItem
                         owner={owner}
                         account={item.account}
+                        itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                         style={{ paddingVertical: 0 }}
                         isTestnet={isTestnet}
                         hideCardsIfEmpty

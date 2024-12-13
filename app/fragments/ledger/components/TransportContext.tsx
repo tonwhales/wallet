@@ -21,9 +21,16 @@ import { delay } from "teslabot";
 import { useLedgerWallets } from "../../../engine/hooks";
 import { navigationRef } from "../../../Navigation";
 import { useModalAlert } from "../../../components/ModalAlert";
+import {z} from "zod";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
-export type LedgerWallet = { acc: number, address: string, publicKey: Buffer, deviceId?: string };
+export const LedgerWalletSchema = z.object({
+    acc: z.number(),
+    address: z.string(),
+    publicKey: z.instanceof(Buffer),
+    deviceId: z.string().optional(),
+});
+export type LedgerWallet = z.infer<typeof LedgerWalletSchema>;
 
 export type BLESearchState =
     | { type: 'ongoing', devices: any[] }
@@ -91,6 +98,7 @@ export const TransportContext = createContext<
         ledgerWallets: LedgerWallet[],
         ledgerName: string,
         onShowLedgerConnectionError: () => void,
+        isReconnectLedger: boolean,
     }
     | null
 >(null);
@@ -112,6 +120,8 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const [bleState, dispatchBleState] = useReducer(bleSearchStateReducer, null);
     const [bleSearch, setSearch] = useState<number>(0);
 
+    const [isReconnectLedger, setIsReconnectLedger] = useState<boolean>(false);
+
     const modalAlert = useModalAlert();
     
     // Selected Ledger name
@@ -123,12 +133,14 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const reconnectAttempts = useRef<number>(0);
 
     const reset = useCallback((isLogout?: boolean) => {
-        setLedgerConnection(null);
-        setTonTransport(null);
         if (isLogout) {
           setLedgerWallets(ledgerWallets.filter(wallet => wallet.address !== addr?.address));
+          setAddr(null);
         }
-        setAddr(null);
+
+        setLedgerConnection(null);
+        setTonTransport(null);
+        setIsReconnectLedger(false);
         setSearch(0);
         dispatchBleState({ type: 'reset' });
         reconnectAttempts.current = 0;
@@ -175,6 +187,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
             (async () => {
                 try {
                     if (!ledgerConnection) return;
+                    setIsReconnectLedger(true);
                     console.warn('[ledger] reconnect #' + reconnectAttempts.current);
 
                     let timeoutAwaiter = new Promise<TransportBLE>((_, reject) => setTimeout(() => reject(new Error('Timeout of 10000 ms occured')), 10000));
@@ -372,6 +385,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 ledgerWallets,
                 ledgerName,
                 onShowLedgerConnectionError: handleShowLedgerConnectionError,
+                isReconnectLedger,
             }}
         >
             {children}

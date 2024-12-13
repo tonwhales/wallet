@@ -78,7 +78,7 @@ export const LedgerHomeFragment = fragment(() => {
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
     const navigateTransfer = useCallback(async () => {
-        if (ledgerContext.tonTransport) {
+        if (ledgerContext.tonTransport && !ledgerContext.isReconnectLedger) {
             navigation.navigate('LedgerSimpleTransfer', {
                 amount: null,
                 target: null,
@@ -153,11 +153,6 @@ export const LedgerHomeFragment = fragment(() => {
             }
         });
     }, [network, addressFriendly, holdersStatus, specialJettonWallet]);
-
-    if (!ledgerContext.addr?.address) {
-        navigation.navigateAndReplaceAll('Home');
-        return null;
-    }
 
     useFocusEffect(() => {
         setStatusBarStyle('light');

@@ -1,7 +1,7 @@
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import React, {memo, useCallback, useEffect, useMemo, useState} from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { t } from "../../i18n/t";
 import { Pressable, View, Image, Text, Platform, ScrollView, RefreshControl } from "react-native";
 import { PriceComponent } from "../../components/PriceComponent";

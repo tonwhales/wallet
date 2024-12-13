@@ -10,7 +10,7 @@ import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton, useJetton, useHoldersAccounts } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton, useJetton, useHoldersAccounts, useJettonContent } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
@@ -102,9 +102,9 @@ export const ReceiveFragment = fragment(() => {
     const assetMaster = holdersAssetTarget
         ? holdersAssetTarget.jettonMaster
         : asset?.address?.toString({ testOnly: network.isTestnet });
-    const jetton = useJetton({ owner: address, master: assetMaster ?? undefined });
+    const jetton = useJettonContent(assetMaster);
     const jettonAssetcontent: ReceiveableAssetContent | null = jetton ? {
-        icon: jetton.icon,
+        icon: jetton.originalImage,
         name: jetton.name
     } : null
     const icon = jettonAssetcontent?.icon;

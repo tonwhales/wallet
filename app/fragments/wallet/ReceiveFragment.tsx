@@ -5,7 +5,6 @@ import { View, Text, Pressable, ScrollView, Platform, Alert } from "react-native
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
-import { ShareButton } from "../../components/ShareButton";
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -23,12 +22,13 @@ import { ToastDuration, useToaster } from "../../components/toast/ToastProvider"
 import { copyText } from "../../utils/copyText";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import Share from 'react-native-share';
+import { ItemDivider } from "../../components/ItemDivider";
+import { AddressComponent } from "../../components/address/AddressComponent";
+import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import FromExchangeIcon from '@assets/ic-from-exchange.svg';
 import ShareIcon from '@assets/ic-share.svg';
-import { ItemDivider } from "../../components/ItemDivider";
-import { AddressComponent } from "../../components/address/AddressComponent";
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;
@@ -72,7 +72,7 @@ export const ReceiveFragment = fragment(() => {
         return selected!.address;
     }, [selected, addr]);
 
-    const holdersAccounts = useHoldersAccounts(address).data?.accounts;
+    const holdersAccounts = useHoldersAccounts(address).data?.accounts?.filter(acc => hasDirectDeposit(acc));
     const defaultAccount = holdersAccounts?.[0];
     const holdersTarget = defaultAccount ? mapHoldersAccountTarget(defaultAccount) : undefined;
     const defaultAccountMaster = holdersTarget?.jettonMaster || undefined;

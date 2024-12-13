@@ -1,13 +1,20 @@
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import React, { memo, useCallback, useMemo } from "react";
+import React, {memo, useCallback, useEffect, useMemo, useState} from "react";
 import { t } from "../../i18n/t";
-import { Pressable, View, Image, Text, Platform, ScrollView } from "react-native";
+import { Pressable, View, Image, Text, Platform, ScrollView, RefreshControl } from "react-native";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
-import { useAccountLite, useBounceableWalletFormat, useLiquidStakingBalance, useNetwork, useStaking, useTheme } from "../../engine/hooks";
+import {
+    useAccountLite,
+    useHoldersAccountStatus,
+    useLiquidStakingBalance,
+    useNetwork,
+    useStaking, useSyncState,
+    useTheme
+} from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
@@ -21,13 +28,15 @@ import { useFocusEffect } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { LiquidStakingFragment } from "../staking/LiquidStakingFragment";
+import { queryClient } from "../../engine/clients";
+import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
+import { Queries } from "../../engine/queries";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
     const bottomBarHeight = useBottomTabBarHeight();
-    const [bounceableFormat,] = useBounceableWalletFormat();
     const { isTestnet } = useNetwork();
 
     const address = useMemo(() => {
@@ -38,12 +47,18 @@ export const LedgerHomeFragment = fragment(() => {
             return Address.parse(ledgerContext.addr.address);
         } catch { }
     }, [ledgerContext?.addr?.address]);
-    const addressFriendly = address?.toString({ bounceable: bounceableFormat, testOnly: isTestnet });
-
+    const addressFriendly = address?.toString({ testOnly: isTestnet });
+    
+    const syncState = useSyncState(addressFriendly);
+    const holdersStatus = useHoldersAccountStatus(address!).data;
     const account = useAccountLite(address!, { refetchOnMount: true })!;
     const staking = useStaking(address!);
-    const specialJetton = useSpecialJetton(address!);
     const liquidBalance = useLiquidStakingBalance(address!);
+    const network = useNetwork();
+    const specialJetton = useSpecialJetton(address!);
+    const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
+    
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const stakingBalance = useMemo(() => {
         if (!staking) {
@@ -62,17 +77,22 @@ export const LedgerHomeFragment = fragment(() => {
     // Navigation
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
-    const navigateTransfer = useCallback(() => {
-        navigation.navigate('LedgerSimpleTransfer', {
-            amount: null,
-            target: null,
-            comment: null,
-            jetton: null,
-            stateInit: null,
-            job: null,
-            callback: null
-        });
-    }, []);
+    const navigateTransfer = useCallback(async () => {
+        if (ledgerContext.tonTransport) {
+            navigation.navigate('LedgerSimpleTransfer', {
+                amount: null,
+                target: null,
+                comment: null,
+                jetton: null,
+                stateInit: null,
+                job: null,
+                callback: null
+            });
+            return;
+        }
+
+        ledgerContext.onShowLedgerConnectionError();
+    }, [ledgerContext]);
 
     const navigateReceive = useCallback(() => {
         if (!addressFriendly) {
@@ -83,6 +103,56 @@ export const LedgerHomeFragment = fragment(() => {
             { addr: addressFriendly, ledger: true }
         );
     }, [addressFriendly]);
+    
+    useEffect(() => {
+        if (syncState !== 'updating') {
+            setIsRefreshing(false);
+        }
+    }, [syncState]);
+    
+    const onRefresh = useCallback(() => {
+        setIsRefreshing(true);
+        queryClient.refetchQueries({
+            predicate: query => {
+                if (
+                    query.queryKey[0] === 'account'
+                    && query.queryKey[1] === addressFriendly
+                    && query.queryKey[2] === 'lite'
+                ) {
+                    return true;
+                }
+                
+                if (
+                    query.queryKey[0] === 'hints'
+                    && query.queryKey[1] === 'full'
+                    && query.queryKey[2] === addressFriendly
+                ) {
+                    return true;
+                }
+                
+                if (
+                    query.queryKey[0] === 'account'
+                    && query.queryKey[1] === specialJettonWallet
+                    && query.queryKey[2] === 'jettonWallet'
+                ) {
+                    return true;
+                }
+                
+                const token = (
+                    !!holdersStatus &&
+                    holdersStatus.state === HoldersUserState.Ok
+                ) ? holdersStatus.token : null;
+                
+                const holdersQueryKey = Queries.Holders(addressFriendly!).Cards(!!token ? 'private' : 'public');
+                
+                if (query.queryKey.join(',') === holdersQueryKey.join(',')) {
+                    return true;
+                }
+                
+                return false;
+            }
+        });
+    }, [network, addressFriendly, holdersStatus, specialJettonWallet]);
 
     if (!ledgerContext.addr?.address) {
         navigation.navigateAndReplaceAll('Home');
@@ -105,6 +175,14 @@ export const LedgerHomeFragment = fragment(() => {
                 scrollEventThrottle={16}
                 decelerationRate={'normal'}
                 alwaysBounceVertical={true}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={onRefresh}
+                        tintColor={theme.textUnchangeable}
+                        style={{ zIndex: 2000 }}
+                    />
+                }
             >
                 {Platform.OS === 'ios' && (
                     <View

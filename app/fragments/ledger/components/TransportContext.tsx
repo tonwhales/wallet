@@ -17,9 +17,10 @@ import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
 import { TonTransport } from '@ton-community/ton-ledger';
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
-import { navigationRef } from '../../../Navigation';
 import { delay } from "teslabot";
 import { useLedgerWallets } from "../../../engine/hooks";
+import { navigationRef } from "../../../Navigation";
+import { useModalAlert } from "../../../components/ModalAlert";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 export type LedgerWallet = { acc: number, address: string, publicKey: Buffer, deviceId?: string };
@@ -89,6 +90,7 @@ export const TransportContext = createContext<
         reset: (isLogout?: boolean) => void,
         ledgerWallets: LedgerWallet[],
         ledgerName: string,
+        onShowLedgerConnectionError: () => void,
     }
     | null
 >(null);
@@ -109,6 +111,8 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     // BLE search state
     const [bleState, dispatchBleState] = useReducer(bleSearchStateReducer, null);
     const [bleSearch, setSearch] = useState<number>(0);
+
+    const modalAlert = useModalAlert();
     
     // Selected Ledger name
     const ledgerName = useMemo(() => {
@@ -193,7 +197,8 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
             text: t('common.back'),
             onPress: () => {
-                navigationRef.reset({ index: 0, routes: [{ name: 'Home' }] });
+                navigationRef.reset({ index: 0, routes: [{ name: 'LedgerHome' }] });
+                reset();
             }
         }]);
     }, [ledgerConnection]);
@@ -201,6 +206,21 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const startBleSearch = useCallback(() => {
         setSearch((prevSearch) => prevSearch + 1);
     }, []);
+
+    const handleShowLedgerConnectionError = useCallback(() => {
+        modalAlert.current?.showWithProps({
+            title: t('transfer.error.ledgerErrorConnection'),
+            buttons: [
+                {
+                    text: t('hardwareWallet.actions.connect'),
+                    display: 'text',
+                    onPress: () => {
+                        navigationRef.navigate('Ledger');
+                    }
+                },
+            ]
+        });
+    }, [modalAlert]);
 
     useEffect(() => {
         let powerSub: Subscription;
@@ -351,6 +371,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 reset,
                 ledgerWallets,
                 ledgerName,
+                onShowLedgerConnectionError: handleShowLedgerConnectionError,
             }}
         >
             {children}

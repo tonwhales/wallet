@@ -208,6 +208,7 @@ export type LocalizationSchema = {
             gaslessNotEnoughCoins: string,
             notEnoughJettons: string,
             jettonChange: string,
+            ledgerErrorConnection: string,
         },
         changeJetton: string,
         sendAll: string,

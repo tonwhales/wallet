@@ -56,6 +56,8 @@ import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
 import { PressableChip } from '../../components/PressableChip';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
+import { useModalAlert } from "../../components/ModalAlert";
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -88,6 +90,7 @@ const SimpleTransferComponent = () => {
     const client = useClient4(network.isTestnet);
     const [price, currency] = usePrice();
     const gaslessConfig = useGaslessConfig();
+    const modalAlert = useModalAlert();
     const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
 
     // Ledger
@@ -656,10 +659,26 @@ const SimpleTransferComponent = () => {
         }
 
         if (isLedger) {
-            navigation.replace('LedgerSignTransfer', {
-                text: null,
-                order: order as LedgerOrder,
+            modalAlert.current?.showWithProps({
+                title: t('hardwareWallet.actions.confirmOnLedger'),
+                buttons: [
+                    {
+                        text: t('common.cancel'),
+                        display: 'text_secondary'
+                    },
+                ]
             });
+            let path = pathFromAccountNumber(ledgerContext.addr?.acc!, network.isTestnet);
+            const isValidAddress = await ledgerContext.tonTransport?.validateAddress(path, { testOnly: network.isTestnet });
+            if (isValidAddress) {
+                modalAlert.current?.hide();
+                navigation.replace('LedgerSignTransfer', {
+                    text: null,
+                    order: order as LedgerOrder,
+                });
+                return;
+            }
+            modalAlert.current?.hide();
             return;
         }
 
@@ -672,6 +691,7 @@ const SimpleTransferComponent = () => {
             useGasless: supportsGaslessTransfer
         });
     }, [
+        modalAlert,
         amount, target, domain, commentString,
         accountLite,
         stateInit,
@@ -681,7 +701,9 @@ const SimpleTransferComponent = () => {
         ledgerAddress,
         isLedger,
         balance,
-        supportsGaslessTransfer
+        supportsGaslessTransfer,
+        ledgerContext,
+        network,
     ]);
 
     const onFocus = useCallback((index: number) => {

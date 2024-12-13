@@ -190,6 +190,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "gaslessNotEnoughCoins": "Необходимо {{fee}} для оплаты комиссии, не хватает {{missing}}",
             "notEnoughJettons": "Недостаточно {{symbol}}",
             "jettonChange": "Получатель поддерживает только транзакции в {{symbol}}, пожалуйста, измените получателя или валюту транзакции",
+            "ledgerErrorConnection": "Леджер не подключен",
         },
         "changeJetton": "Сменить на {{symbol}}",
         "sendAll": "Max",

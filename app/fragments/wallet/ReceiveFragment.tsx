@@ -20,11 +20,12 @@ import { getAccountName } from "../../utils/holders/getAccountName";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
 import { copyText } from "../../utils/copyText";
-import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
+import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import Share from 'react-native-share';
 import { ItemDivider } from "../../components/ItemDivider";
 import { AddressComponent } from "../../components/address/AddressComponent";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
+import { HoldersAccountCard } from "../../components/products/HoldersAccountCard";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import FromExchangeIcon from '@assets/ic-from-exchange.svg';
@@ -99,6 +100,7 @@ export const ReceiveFragment = fragment(() => {
     const [asset, setAsset] = useState<ReceiveableAsset | null>(initialAsset);
 
     const holdersAssetTarget = !!asset?.holders?.address ? mapHoldersAccountTarget(asset?.holders) : undefined;
+    const holdersCards = asset?.holders?.cards || [];
     const assetMaster = holdersAssetTarget
         ? holdersAssetTarget.jettonMaster
         : asset?.address?.toString({ testOnly: network.isTestnet });
@@ -349,72 +351,93 @@ export const ReceiveFragment = fragment(() => {
                                 style={({ pressed }) => ([
                                     { opacity: pressed ? 0.5 : 1 },
                                     {
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
                                         backgroundColor: theme.surfaceOnElevation,
                                         gap: 8
                                     }
                                 ])}
                                 onPress={navigateToAssets}
                             >
-                                <View style={{
-                                    height: 46, width: 46,
-                                    justifyContent: 'center', alignItems: 'center',
-                                }}>
-                                    {!!icon ? (
-                                        <WImage
-                                            src={icon}
-                                            width={46}
-                                            height={46}
-                                            borderRadius={23}
-                                            lockLoading
-                                        />
-                                    ) : (
-                                        <Image
-                                            source={require('@assets/ic-ton-acc.png')}
-                                            style={{ height: 46, width: 46 }}
-                                        />
-                                    )}
-                                    {verifIcon}
-                                </View>
-                                <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
-                                    <Text
-                                        style={[
-                                            { color: theme.textPrimary, flexShrink: 1 },
-                                            Typography.semiBold17_24
-                                        ]}
-                                        numberOfLines={1}
-                                    >
-                                        {`${name ?? `TON ${t('common.wallet')}`}`}
-                                        {isSCAM && (
-                                            <>
-                                                {' • '}
-                                                <Text style={{ color: theme.accentRed }}>
-                                                    {'SCAM'}
-                                                </Text>
-                                            </>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                    <View style={{
+                                        height: 46, width: 46,
+                                        justifyContent: 'center', alignItems: 'center',
+                                    }}>
+                                        {!!icon ? (
+                                            <WImage
+                                                src={icon}
+                                                width={46}
+                                                height={46}
+                                                borderRadius={23}
+                                                lockLoading
+                                            />
+                                        ) : (
+                                            <Image
+                                                source={require('@assets/ic-ton-acc.png')}
+                                                style={{ height: 46, width: 46 }}
+                                            />
                                         )}
-                                    </Text>
-                                    <Text
-                                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                        selectable={false}
-                                        ellipsizeMode={'middle'}
-                                    >
-                                        <AddressComponent
-                                            address={friendly}
-                                            start={6}
-                                            end={6}
-                                            bounceable={bounceableFormat}
-                                            known={isHolders}
-                                            testOnly={network.isTestnet}
-                                        />
-                                    </Text>
+                                        {verifIcon}
+                                    </View>
+                                    <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
+                                        <Text
+                                            style={[
+                                                { color: theme.textPrimary, flexShrink: 1 },
+                                                Typography.semiBold17_24
+                                            ]}
+                                            numberOfLines={1}
+                                        >
+                                            {`${name ?? `TON ${t('common.wallet')}`}`}
+                                            {isSCAM && (
+                                                <>
+                                                    {' • '}
+                                                    <Text style={{ color: theme.accentRed }}>
+                                                        {'SCAM'}
+                                                    </Text>
+                                                </>
+                                            )}
+                                        </Text>
+                                        <Text
+                                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                            selectable={false}
+                                            ellipsizeMode={'middle'}
+                                        >
+                                            <AddressComponent
+                                                address={friendly}
+                                                start={6}
+                                                end={6}
+                                                bounceable={bounceableFormat}
+                                                known={isHolders}
+                                                testOnly={network.isTestnet}
+                                            />
+                                        </Text>
+                                    </View>
+                                    <View style={{ flexGrow: 1 }} />
+                                    <Image
+                                        source={require('@assets/ic-chevron-right.png')}
+                                        style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                                    />
                                 </View>
-                                <View style={{ flexGrow: 1 }} />
-                                <Image
-                                    source={require('@assets/ic-chevron-right.png')}
-                                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
-                                />
+                                {holdersCards.length > 0 && (
+                                    <ScrollView
+                                        horizontal={true}
+                                        style={[{ height: 30, marginTop: 4 }, Platform.select({ android: { marginLeft: 78 } })]}
+                                        contentContainerStyle={{ gap: 8 }}
+                                        contentInset={Platform.select({ ios: { left: 52 } })}
+                                        contentOffset={Platform.select({ ios: { x: -52, y: 0 } })}
+                                        showsHorizontalScrollIndicator={false}
+                                        alwaysBounceHorizontal={true}
+                                    >
+                                        {holdersCards.map((card, index) => {
+                                            return (
+                                                <HoldersAccountCard
+                                                    key={`card-item-${index}`}
+                                                    card={card as GeneralHoldersCard}
+                                                    theme={theme}
+                                                />
+                                            )
+                                        })}
+                                    </ScrollView>
+                                )}
                             </Pressable>
                             <ItemDivider marginHorizontal={0} />
                             <View style={{ flexDirection: 'row', gap: 4, justifyContent: 'space-evenly' }}>

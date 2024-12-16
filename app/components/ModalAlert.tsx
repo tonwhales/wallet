@@ -1,4 +1,17 @@
-import { createContext, ForwardedRef, forwardRef, memo, PropsWithChildren, ReactNode, RefObject, useContext, useImperativeHandle, useRef, useState } from "react";
+import {
+    createContext,
+    ForwardedRef,
+    forwardRef,
+    memo,
+    PropsWithChildren,
+    ReactNode,
+    RefObject,
+    useCallback,
+    useContext,
+    useImperativeHandle,
+    useRef,
+    useState
+} from "react";
 import { View, Text } from "react-native";
 import Modal from "react-native-modal";
 import { RoundButton } from "./RoundButton";
@@ -9,7 +22,7 @@ import { RoundButtonDisplay } from "./roundButtonDisplays";
 
 export type ModalAlertRef = {
     show: () => void;
-    hide: () => void;
+    hide: () => Promise<void>;
     showWithProps: (props: ModalAlertProps) => void;
     clear: () => void;
 }
@@ -58,22 +71,37 @@ export const ModalAlert = memo(forwardRef((
     props: ModalAlertProps,
     ref: ForwardedRef<ModalAlertRef>
 ) => {
-    const [alertState, setAlertState] = useState<ModalState | null>(null);
     const theme = useTheme();
+
+    const [alertState, setAlertState] = useState<ModalState | null>(null);
     const { isOpen, icon, title, message, content, buttons, subtitle } = alertState || {};
+
+    const [hidePromise, setHidePromise] = useState<(() => void) | null>(null);
 
     useImperativeHandle(ref, () => ({
         show: () => setAlertState({ ...props, isOpen: true }),
-        hide: () => setAlertState({ ...props, isOpen: false }),
+        hide: () =>
+            new Promise<void>((resolve) => {
+                setAlertState((prev) => ({ ...prev, isOpen: false }));
+                setHidePromise(() => resolve);
+            }),
         showWithProps: (props: ModalAlertProps) => setAlertState({ ...props, isOpen: true }),
         clear: () => setAlertState(null)
     }), [setAlertState]);
+    
+    const handleModalHide = useCallback(() => {
+        if (hidePromise) {
+            hidePromise();
+            setHidePromise(null);
+        }
+    }, [hidePromise]);
 
     return (
         <Modal
             isVisible={isOpen}
             avoidKeyboard
             onBackdropPress={() => setAlertState({ ...alertState, isOpen: false })}
+            onModalHide={handleModalHide}
         >
             <View style={{
                 borderRadius: 20, padding: 20,

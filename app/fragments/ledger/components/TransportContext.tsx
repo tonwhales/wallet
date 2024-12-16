@@ -234,7 +234,8 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 {
                     text: t('hardwareWallet.actions.connect'),
                     display: 'text',
-                    onPress: () => {
+                    onPress: async () => {
+                        await modalAlert.current?.hide();
                         navigationRef.navigate('LedgerDeviceSelection');
                     }
                 },

@@ -304,7 +304,10 @@ export const ExchangesFragment = fragment(() => {
 
     const [renderKey, setRenderKey] = useState(0);
 
-    const onReload = () => setRenderKey(renderKey + 1);
+    const onReload = useCallback(() => {
+        trackEvent(MixpanelEvent.HoldersReload, { route: url.toString() }, isTestnet);
+        setRenderKey(renderKey + 1);
+    }, [renderKey, isTestnet]);
 
     const onSupport = useCallback(() => {
         const tonhubOptions = [

@@ -21,14 +21,20 @@ import { delay } from "teslabot";
 import { useLedgerWallets } from "../../../engine/hooks";
 import { navigationRef } from "../../../Navigation";
 import { useModalAlert } from "../../../components/ModalAlert";
-import {z} from "zod";
+import { z } from "zod";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
+const bufferSchema = z
+    .object({
+        type: z.literal("Buffer"),
+        data: z.array(z.number()),
+    })
+    .transform((obj) => Buffer.from(obj.data));
 export const LedgerWalletSchema = z.object({
     acc: z.number(),
     address: z.string(),
-    publicKey: z.instanceof(Buffer),
     deviceId: z.string().optional(),
+    publicKey: bufferSchema,
 });
 export type LedgerWallet = z.infer<typeof LedgerWalletSchema>;
 

@@ -206,7 +206,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessNotEnoughCoins: '{{fee}} in fees required to send, missing {{missing}}',
             notEnoughJettons: 'Not enough {{symbol}}',
             jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency',
-            ledgerErrorConnection: "Ledger is not connected"
+            ledgerErrorConnectionTitle: "Ledger is not connected",
+            ledgerErrorConnectionMessage: "Please, connect ledger and try again"
         },
         changeJetton: 'Switch to {{symbol}}',
         sendAll: 'Max',

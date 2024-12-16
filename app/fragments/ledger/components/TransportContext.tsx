@@ -222,13 +222,14 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     const handleShowLedgerConnectionError = useCallback(() => {
         modalAlert.current?.showWithProps({
-            title: t('transfer.error.ledgerErrorConnection'),
+            title: t('transfer.error.ledgerErrorConnectionTitle'),
+            message: t('transfer.error.ledgerErrorConnectionMessage'),
             buttons: [
                 {
                     text: t('hardwareWallet.actions.connect'),
                     display: 'text',
                     onPress: () => {
-                        navigationRef.navigate('Ledger');
+                        navigationRef.navigate('LedgerDeviceSelection');
                     }
                 },
             ]

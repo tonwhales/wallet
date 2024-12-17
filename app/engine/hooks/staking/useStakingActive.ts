@@ -18,7 +18,7 @@ const stakingActiveSchema = z.record(
 );
 
 async function fetchStakingActive(isTestnet: boolean, address: Address, pools: Address[]) {
-    const url = `${whalesConnectEndpoint}/member/staking/info`;
+    const url = `${whalesConnectEndpoint}/staking/member/info`;
 
     const res = await axios.post(url, {
         isTestnet,
@@ -26,13 +26,13 @@ async function fetchStakingActive(isTestnet: boolean, address: Address, pools: A
         pools: pools.map(p => p.toString({ testOnly: isTestnet }))
     });
 
-    const paresed = stakingActiveSchema.safeParse(res.data);
+    const parsed = stakingActiveSchema.safeParse(res.data);
 
-    if (!paresed.success) {
+    if (!parsed.success) {
         throw new Error('Invalid response');
     }
 
-    return paresed.data;
+    return parsed.data;
 }
 
 export function useStakingActive(address?: Address) {

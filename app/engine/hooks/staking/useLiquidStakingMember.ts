@@ -17,7 +17,7 @@ const liquidStakingMemberScheme = z.object({
 
 function fetchLiquidStakingMemberQueryFn(isTestnet: boolean, account: Address) {
     return async () => {
-        const url = `${whalesConnectEndpoint}/member/staking/liquid/info`;
+        const url = `${whalesConnectEndpoint}/staking/member/liquid/info`;
         const res = await axios.post(url, {
             isTestnet,
             address: account.toString({ testOnly: isTestnet })

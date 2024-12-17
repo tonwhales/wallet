@@ -81,6 +81,7 @@ export const AccountSelectorFragment = fragment(() => {
                     }, 50);
                     break;
                 case 3:
+                    ledgerContext.reset();
                     navigation.replace('Ledger');
                     break;
                 default:

@@ -235,17 +235,15 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                     text: t('hardwareWallet.actions.connect'),
                     display: 'text',
                     onPress: async () => {
-                        if (isReconnectLedger) {
-                            console.warn('[ledger] Stopping reconnect');
-                            reset();
-                        }
+                        console.warn('[ledger] Stop connecting');
+                        reset();
                         await modalAlert.current?.hide();
                         navigationRef.navigate('LedgerDeviceSelection');
                     }
                 },
             ]
         });
-    }, [modalAlert, isReconnectLedger, reset]);
+    }, [modalAlert, reset]);
 
     useEffect(() => {
         let powerSub: Subscription;

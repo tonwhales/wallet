@@ -91,6 +91,7 @@ export const LedgerHomeFragment = fragment(() => {
             return;
         }
 
+        ledgerContext.reset();
         ledgerContext.onShowLedgerConnectionError();
     }, [ledgerContext]);
 

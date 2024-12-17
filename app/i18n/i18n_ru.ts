@@ -328,6 +328,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             "successAuth": "Подключено"
         },
+        "savings": "Балансы",
         "accounts": "Жетоны",
         "services": "Расширения",
         "oldWallets": {
@@ -530,7 +531,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "loadingLongerTitle": "Проблемы c подключением",
             "loadingLonger": "Проверьте подключение к интернету и перезагрузите страницу. Если проблема сохраняется, обратитесь в службу поддержки",
             "accounts": {
-                "title": "Кошельки для расходов",
+                "title": "Счета для трат",
                 "prepaidTitle": "Карты",
                 "account": 'Счет',
                 "basicAccount": 'Базовый счет',

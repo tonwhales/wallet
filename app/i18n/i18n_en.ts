@@ -328,6 +328,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             successAuth: 'Connected',
         },
+        savings: 'Savings',
         accounts: 'Tokens',
         services: 'Extensions',
         oldWallets: {
@@ -530,7 +531,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLongerTitle: 'Connection problems',
             loadingLonger: 'Check your internet connection and reload page. If the issue persists please contact support',
             accounts: {
-                title: 'Spending wallets',
+                title: 'Spending',
                 prepaidTitle: 'Cards',
                 account: 'Account',
                 basicAccount: 'Basic account',

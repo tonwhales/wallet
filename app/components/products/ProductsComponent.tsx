@@ -146,7 +146,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
-                        {t('common.wallets')}
+                        {t('products.savings')}
                     </Text>
                     <View style={{
                         backgroundColor: theme.surfaceOnBg,

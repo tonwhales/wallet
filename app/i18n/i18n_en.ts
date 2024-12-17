@@ -530,8 +530,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLongerTitle: 'Connection problems',
             loadingLonger: 'Check your internet connection and reload page. If the issue persists please contact support',
             accounts: {
-                title: 'Accounts & Cards',
-                prepaidTitle: 'Prepaid cards',
+                title: 'Spending wallets',
+                prepaidTitle: 'Cards',
                 account: 'Account',
                 basicAccount: 'Basic account',
                 proAccount: 'Pro account',

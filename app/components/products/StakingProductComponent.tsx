@@ -16,6 +16,11 @@ import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidSta
 
 import StakingIcon from '@assets/ic-staking.svg';
 
+type ProductItem = 
+    { type: 'active', address: Address, balance: bigint } 
+    | { type: 'liquid' } 
+    | { type: 'banner' };
+
 const style: StyleProp<ViewStyle> = {
     height: 86,
     borderRadius: 20,
@@ -55,6 +60,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
         return Object.keys(active).filter((k) => active[k].balance > 0n).map((key) => {
             const state = active[key];
             return { 
+                type: "active" as const,
                 address: Address.parse(key), 
                 balance: state.balance
             };
@@ -75,7 +81,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
         }, 0n);
     }, [active, liquidBalance]);
 
-    const renderItem = useCallback((p: any) => {
+    const renderItem = useCallback((p: ProductItem) => {
         if (!p) {
             return null;
         }
@@ -130,6 +136,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 </Pressable>
             );
         }
+
         return (
             <StakingPool
                 member={address}
@@ -152,14 +159,19 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
     }
 
     if ((activeArray.length + (liquidBalance > 0n ? 1 : 0)) >= 2) {
+        const items: ProductItem[] = activeArray;
+
+        if (liquidBalance > 0n) {
+            items.push({ type: 'liquid' });
+        }
+
+        items.push({ type: 'banner' });
+
         return (
             <View style={{ marginBottom: 16 }}>
                 <CollapsibleCards
                     title={t('products.staking.title')}
-                    items={liquidBalance > 0n
-                        ? [...activeArray, { type: 'liquid' }, { type: 'banner' }]
-                        : [...activeArray, { type: 'banner' }]
-                    }
+                    items={items}
                     renderItem={renderItem}
                     theme={theme}
                     renderFace={() => {

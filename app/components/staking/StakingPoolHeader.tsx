@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, memo, useCallback } from "react";
-import { ScreenHeader } from "../ScreenHeader";
 import { Pressable, Image, Text, View } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { KnownPools } from "../../utils/KnownPools";
@@ -24,7 +23,8 @@ export const StakingPoolHeader = memo(({
     }>>
 }) => {
     const safeArea = useSafeAreaInsets();
-    const active = useStakingActive();
+    const active = useStakingActive() || {};
+    const activeLength = Object.keys(active).length;
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const network = useNetwork();
@@ -32,7 +32,7 @@ export const StakingPoolHeader = memo(({
     const currentPoolFriendly = currentPool.toString({ testOnly: network.isTestnet });
 
     const openPoolSelector = useCallback(() => {
-        if (active.length < 2) {
+        if (activeLength < 2) {
             return;
         }
         navigation.navigate(
@@ -44,7 +44,7 @@ export const StakingPoolHeader = memo(({
                 }
             },
         )
-    }, [isLedger, currentPool, setParams, active]);
+    }, [isLedger, currentPool, setParams, activeLength]);
 
     const openMoreInfo = useCallback(() => {
         openWithInApp(KnownPools(network.isTestnet)[currentPoolFriendly]?.webLink)
@@ -76,7 +76,7 @@ export const StakingPoolHeader = memo(({
                 <Pressable
                     style={({ pressed }) => ({
                         flex: 1, alignItems: 'center', justifyContent: 'center', minWidth: '30%',
-                        opacity: (pressed && active.length >= 2) ? 0.5 : 1
+                        opacity: (pressed && activeLength >= 2) ? 0.5 : 1
                     })}
                     onPress={openPoolSelector}
                 >

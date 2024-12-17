@@ -8,6 +8,8 @@ import { WImage } from '../../../components/WImage';
 import Verified from '../../../../assets/ic_verified.svg';
 import { useTheme } from '../../../engine/hooks';
 
+import IcCheck from "@assets/ic-check.svg";
+
 export type ProductButtonProps = {
     name: string,
     subtitle?: string | null,
@@ -25,7 +27,9 @@ export type ProductButtonProps = {
     style?: StyleProp<ViewStyle>,
     iconViewStyle?: StyleProp<ViewStyle>,
     iconProps?: SvgProps,
-    known?: boolean
+    known?: boolean,
+    selectable?: boolean,
+    isSelected?: boolean
 }
 
 export function ProductButton(props: ProductButtonProps) {
@@ -75,7 +79,11 @@ export function ProductButton(props: ProductButtonProps) {
             ]}
             underlayColor={theme.surfaceOnBg}
         >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', minHeight: fontScaleNormal ? undefined : 62 }}>
+            <View style={{
+                alignSelf: 'stretch', flexDirection: 'row',
+                minHeight: fontScaleNormal ? undefined : 62,
+                alignItems: 'center',
+            }}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     {icon}
                     {!!props.known && (
@@ -157,6 +165,18 @@ export function ProductButton(props: ProductButtonProps) {
                         )}
                     </View>
                 </View>
+                {!!props.selectable && (
+                    <View style={{
+                        justifyContent: 'center', alignItems: 'center',
+                        height: 24, width: 24,
+                        backgroundColor: props.isSelected ? theme.accent : theme.divider,
+                        borderRadius: 12
+                    }}>
+                        {props.isSelected && (
+                            <IcCheck color={theme.white} height={16} width={16} style={{ height: 16, width: 16 }} />
+                        )}
+                    </View>
+                )}
             </View>
         </TouchableHighlight>
     );

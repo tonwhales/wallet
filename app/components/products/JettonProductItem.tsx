@@ -21,7 +21,10 @@ import { mapJettonFullToMasterState } from '../../utils/jettons/mapJettonToMaste
 import { CurrencySymbols } from '../../utils/formatCurrency';
 import { calculateSwapAmount } from '../../utils/jettons/calculateSwapAmount';
 import { JettonFull } from '../../engine/api/fetchHintsFull';
-import { JettonViewType } from '../../fragments/wallet/AssetsFragment';
+import { AssetViewType } from '../../fragments/wallet/AssetsFragment';
+import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
+import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
+import { GaslessInfoButton } from '../jettons/GaslessInfoButton';
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -43,7 +46,7 @@ type JettonProductItemProps = {
     }
     selected?: boolean,
     onReady?: (address: string) => void,
-    jettonViewType: JettonViewType
+    jettonViewType: AssetViewType
 };
 
 const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loading' | 'failed' }) => {
@@ -288,7 +291,7 @@ export const JettonProductItem = memo((props: JettonProductItemProps) => {
 
 const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     const theme = useTheme();
-    const { hint, jettonViewType } = props;
+    const { hint, jettonViewType, owner } = props;
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const balance = BigInt(hint.balance) ?? 0n;
@@ -297,6 +300,26 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     const decimals = hint.jetton.decimals ?? 9;
     const swapAmount = rate ? calculateSwapAmount(balance, rate, decimals) : undefined;
     const swipableRef = useRef<Swipeable>(null);
+    const gaslessConfig = useGaslessConfig().data;
+    const walletVersion = useWalletVersion(owner);
+
+    const isGassless = useMemo(() => {
+        if (walletVersion !== 'v5R1') {
+            return false;
+        }
+
+        if (!gaslessConfig) {
+            return false;
+        }
+
+        return gaslessConfig.gas_jettons.find((j) => {
+            try {
+                return Address.parse(j.master_id).equals(Address.parse(hint.jetton.address));
+            } catch (error) {
+                return false;
+            }
+        }) !== undefined;
+    }, [gaslessConfig?.gas_jettons, walletVersion, hint.jetton.address]);
 
     const { isSCAM } = useVerifyJetton({
         ticker: hint.jetton.symbol,
@@ -331,8 +354,17 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
         return null;
     }
 
-    const name = hint.jetton.name;
-    const symbol = hint.jetton.symbol;
+    let name = hint.jetton.name;
+
+    if (name === 'Tether USD') {
+        name = 'USDT';
+    }
+
+    let symbol = hint.jetton.symbol;
+
+    if (symbol === 'USD₮') {
+        symbol = 'USDT';
+    }
     const isSelected = props.selectParams?.selectedFn
         ? props.selectParams.selectedFn(hint)
         : false;
@@ -341,8 +373,17 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
 
     const subtitle = useMemo(() => {
         switch (jettonViewType) {
-            case JettonViewType.Default:
-                const showRate = !!rate && rate !== 0;
+            case AssetViewType.Default:
+                let showRate = !!rate && rate !== 0;
+
+                // Check if rate is valid 
+                if (showRate) {
+                    try {
+                        toNano(rate!);
+                    } catch {
+                        showRate = false;
+                    }
+                }
 
                 if (!showRate && !isSCAM) {
                     return null;
@@ -354,7 +395,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         >
                             {'SCAM'}
                         </Text>
-                    )
+                    );
                 }
 
                 return (
@@ -370,7 +411,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                             )}
                             {showRate && (
                                 <ValueComponent
-                                    value={toNano(rate)}
+                                    value={toNano(rate!)}
                                     precision={2}
                                     suffix={` ${CurrencySymbols[currency]?.symbol}`}
                                     forcePrecision
@@ -379,9 +420,9 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         </Text>
                     </Text>
                 );
-            case JettonViewType.Receive:
+            case AssetViewType.Receive:
                 return null;
-            case JettonViewType.Transfer:
+            case AssetViewType.Transfer:
                 return (
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                         <ValueComponent
@@ -470,13 +511,16 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 backgroundColor={theme.surfaceOnElevation}
                             />
                             <View style={{ marginLeft: 12, flex: 1, justifyContent: 'center' }}>
-                                <PerfText
-                                    style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
-                                    ellipsizeMode="tail"
-                                    numberOfLines={1}
-                                >
-                                    {name}
-                                </PerfText>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+                                    <PerfText
+                                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                        ellipsizeMode="tail"
+                                        numberOfLines={1}
+                                    >
+                                        {name}
+                                    </PerfText>
+                                    {isGassless && (<GaslessInfoButton />)}
+                                </View>
                                 {subtitle}
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>

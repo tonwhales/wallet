@@ -80,6 +80,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         loading: 'Loading...',
         notFound: 'Not found',
         unverified: 'Unverified',
+        addressBook: 'Address book',
+        gasless: 'Gasless'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -129,6 +131,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             send: 'Send',
             buy: 'Buy',
             swap: 'Swap',
+            deposit: 'Deposit'
         },
         empty: {
             message: 'You have no transactions',
@@ -163,7 +166,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         share: {
             title: 'My Tonhub Address',
             error: 'Failed to share address, please try again or contact support'
-        }
+        },
+        holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
+        assets: 'Tokens and Accounts',
+        fromExchange: 'From an exchange'
     },
     transfer: {
         title: 'Send',
@@ -186,6 +192,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
+            holdersMemoRequired: 'Tag/MEMO',
             memoChange: 'Change memo/tag to \"{{memo}}\"',
             gaslessFailed: 'Failed to send transaction',
             gaslessFailedMessage: 'Please try again or contact support',
@@ -202,6 +209,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             notEnoughJettons: 'Not enough {{symbol}}',
             jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency'
         },
+        changeJetton: 'Switch to {{symbol}}',
         sendAll: 'Max',
         scanQR: 'scan qr code',
         sendTo: 'Send to',
@@ -231,7 +239,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         unusualJettonsGas: 'Gas is higher than usual',
         unusualJettonsGasTitle: 'The fee for sending jettons is {{amount}} TON',
         unusualJettonsGasMessage: 'Jetton transaction fee (Gas) is higher than usual',
-        addressNotActive: 'Not active',
+        addressNotActive: 'This wallet had no outgoing transactions',
         wrongJettonTitle: 'Wrong jetton',
         wrongJettonMessage: 'You are trying to send a jetton that that you don\'t have',
         notEnoughJettonsTitle: 'Not enough jettons',
@@ -522,8 +530,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLongerTitle: 'Connection problems',
             loadingLonger: 'Check your internet connection and reload page. If the issue persists please contact support',
             accounts: {
-                title: 'Accounts & Cards',
-                prepaidTitle: 'Prepaid cards',
+                title: 'Spending wallets',
+                prepaidTitle: 'Cards',
                 account: 'Account',
                 basicAccount: 'Basic account',
                 proAccount: 'Pro account',
@@ -1076,6 +1084,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             description_3: "V4 and W5 wallets have the same seed phrase. You can always switch versions by selecting the desired address at the top of the main screen.",
             switch_button: "Switch to W5",
         },
+        gaslessInfo: 'TON isn\'t required to pay gas fee when sending this token. The fee will be deducted directly from your token balance.'
     },
     browser: {
         listings: {
@@ -1104,6 +1113,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 ddg: 'DuckDuckGo',
                 google: 'Google',
             }
+        },
+        alertModal: {
+            message: 'You are about to open a third-party web application. We are not responsible for the content or security of third-party apps.',
+            action: 'Open'
         }
     },
     swap: {

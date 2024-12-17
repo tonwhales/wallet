@@ -62,12 +62,12 @@ export const SettingsFragment = fragment(() => {
     const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
-    
-    const showHoldersItem = inviteCheck?.allowed || hasHoldersProducts;
 
+    
     // Ledger
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
+    const showHoldersItem = !isLedger && (inviteCheck?.allowed || hasHoldersProducts);
     const ledgerContext = useLedgerTransport();
 
     const needsEnrollment = useMemo(() => {
@@ -76,10 +76,10 @@ export const SettingsFragment = fragment(() => {
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrollment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, network.isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Accounts } }, network.isTestnet);
             return;
         }
-        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, network.isTestnet);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Accounts }, network.isTestnet);
     }, [needsEnrollment, isHoldersReady, network.isTestnet]);
 
     const onVersionTap = useMemo(() => {
@@ -221,6 +221,7 @@ export const SettingsFragment = fragment(() => {
                         borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
                         alignItems: 'center',
                         opacity: pressed ? 0.8 : 1,
+                        maxWidth: '50%',
                     })}
                     onPress={onAccountPress}
                 >

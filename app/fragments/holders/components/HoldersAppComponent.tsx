@@ -300,6 +300,9 @@ export const HoldersAppComponent = memo((
             case HoldersAppParamsType.Topup:
                 route = `/account/${props.variant.id}/deposit`;
                 break;
+            case HoldersAppParamsType.Accounts:
+                route = '/accounts';
+                break;
         }
 
         const uri = `${props.endpoint}${route}`;
@@ -441,8 +444,9 @@ export const HoldersAppComponent = memo((
     const [renderKey, setRenderKey] = useState(0);
 
     const onReaload = useCallback(() => {
+        trackEvent(MixpanelEvent.HoldersReload, { route: source.url }, isTestnet);
         setRenderKey(renderKey + 1);
-    }, []);
+    }, [renderKey, isTestnet]);
 
     const onSupport = useCallback(() => {
         const tonhubOptions = [

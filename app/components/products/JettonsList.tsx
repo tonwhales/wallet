@@ -20,7 +20,7 @@ import { PerfView } from "../basic/PerfView";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { filterHint, getHintFull, HintsFilter } from "../../utils/jettons/hintSortFilter";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
-import { JettonViewType } from "../../fragments/wallet/AssetsFragment";
+import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 
 const EmptyListItem = memo(() => {
     const theme = useTheme();
@@ -128,7 +128,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                 itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
                 ledger={isLedger}
                 owner={selected!.address}
-                jettonViewType={JettonViewType.Default}
+                jettonViewType={AssetViewType.Default}
             />
         );
     }, [theme, isLedger, selected]);

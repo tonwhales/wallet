@@ -82,6 +82,8 @@ export type LocalizationSchema = {
         loading: string,
         notFound: string,
         unverified: string,
+        addressBook: string,
+        gasless: string
     },
     syncStatus: {
         connecting: string,
@@ -131,6 +133,7 @@ export type LocalizationSchema = {
             send: string,
             buy: string,
             swap: string,
+            deposit: string
         },
         empty: {
             message: string,
@@ -165,7 +168,10 @@ export type LocalizationSchema = {
         share: {
             title: string,
             error: string
-        }
+        },
+        holdersJettonWarning: string,
+        assets: string,
+        fromExchange: string
     },
     transfer: {
         title: string,
@@ -188,6 +194,7 @@ export type LocalizationSchema = {
             invalidTransaction: string,
             invalidTransactionMessage: string,
             memoRequired: string,
+            holdersMemoRequired: string,
             memoChange: string,
             gaslessFailed: string,
             gaslessFailedMessage: string,
@@ -204,6 +211,7 @@ export type LocalizationSchema = {
             notEnoughJettons: string,
             jettonChange: string,
         },
+        changeJetton: string,
         sendAll: string,
         scanQR: string,
         sendTo: string,
@@ -1078,6 +1086,7 @@ export type LocalizationSchema = {
             description_3: string,
             switch_button: string,
         },
+        gaslessInfo: string
     }
     browser: {
         listings: {
@@ -1106,6 +1115,10 @@ export type LocalizationSchema = {
                 ddg: string,
                 google: string
             }
+        },
+        alertModal: {
+            message: string,
+            action: string
         }
     },
     swap: {

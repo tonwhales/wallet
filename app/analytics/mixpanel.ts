@@ -10,6 +10,7 @@ export enum MixpanelEvent {
     AppOpen = 'app_open',
     AppClose = 'app_close',
     Holders = 'holders',
+    HoldersReload = 'holders_reload',
     HoldersEnrollment = 'holders_entrollment',
     HoldersInfo = 'holders_info',
     HoldersInfoClose = 'holders_info_close',

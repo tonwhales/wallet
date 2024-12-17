@@ -1,9 +1,10 @@
 import { memo } from "react"
-import { Pressable, StyleProp, ViewStyle, Text, TextStyle } from "react-native";
+import { Pressable, StyleProp, ViewStyle, TextStyle } from "react-native";
 import Animated from "react-native-reanimated";
 import React from "react";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
 import { PerfText } from "./basic/PerfText";
+import { Typography } from "./styles";
 
 export const PressableChip = memo(({
     onPress,
@@ -23,6 +24,8 @@ export const PressableChip = memo(({
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             onPress={onPress}
+            hitSlop={4}
+            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
         >
             <Animated.View style={[
                 {
@@ -34,11 +37,8 @@ export const PressableChip = memo(({
                 animatedStyle
             ]}>
                 <PerfText style={[
-                    {
-                        fontWeight: '500',
-                        fontSize: 15, lineHeight: 20,
-                        textAlign: 'center', textAlignVertical: 'center',
-                    },
+                    { textAlign: 'center', textAlignVertical: 'center' },
+                    Typography.medium15_20,
                     textStyle
                 ]}>
                     {text}

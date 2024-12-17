@@ -4,7 +4,7 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useIsConnectAppReady, useJettonContent, usePrice, useTheme } from "../../engine/hooks";
+import { useIsConnectAppReady, useJetton, usePrice, useTheme } from "../../engine/hooks";
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -13,68 +13,16 @@ import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-ha
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
-import { WImage } from "../WImage";
 import { toBnWithDecimals } from "../../utils/withDecimals";
-import { toNano } from "@ton/core";
+import { Address, toNano } from "@ton/core";
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
-import { Image } from "expo-image";
+import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
 
-const usdtIcon = (
-    <Image
-        source={require('@assets/known/ic-usdt.png')}
-        style={{
-            borderRadius: 23,
-            height: 46,
-            width: 46
-        }}
-    />
-);
-
-const tonIcon = (
-    <Image
-        source={require('@assets/ic-ton-acc.png')}
-        style={{
-            borderRadius: 23,
-            height: 46,
-            width: 46
-        }}
-    />
-);
-
-const topUpIcon = (
-    <Image
-        source={require('@assets/ic-acc-topup.png')}
-        style={{
-            height: 24,
-            width: 24
-        }}
-    />
-);
-
-function resolveIcon(params: { image?: { blurhash: string, preview256: string } | null, ticker?: string }) {
-
-    if (params.ticker === 'USDT') {
-        return usdtIcon;
-    };
-
-    if (params.image) {
-        return (
-            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
-                <WImage
-                    src={params.image.preview256}
-                    width={46}
-                    height={46}
-                    borderRadius={46}
-                />
-            </View>
-        );
-    };
-
-    return tonIcon;
-}
+import IcCheck from "@assets/ic-check.svg";
 
 export const HoldersAccountItem = memo((props: {
+    owner: Address,
     account: GeneralHoldersAccount,
     last?: boolean,
     first?: boolean,
@@ -88,9 +36,14 @@ export const HoldersAccountItem = memo((props: {
     hideCardsIfEmpty?: boolean,
     holdersAccStatus?: HoldersAccountStatus,
     onBeforeOpen?: () => void
+    onOpen?: () => void,
+    selectable?: boolean,
+    isSelected?: boolean
 }) => {
     const [price] = usePrice();
-    const jettonMasterContent = useJettonContent(props?.account?.cryptoCurrency?.tokenContract ?? null);
+    const master = props?.account?.cryptoCurrency?.tokenContract || undefined;
+    const owner = props.owner;
+    const jettonMasterContent = useJetton({ owner, master });
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -128,13 +81,14 @@ export const HoldersAccountItem = memo((props: {
         return false;
     }, [holdersAccStatus, isHoldersReady]);
 
-    const isPro = useMemo(() => {
-        return props.account.cards.find((card) => card.personalizationCode === 'black-pro') !== undefined;
-    }, [props.account]);
-
     const onPress = useCallback(() => {
         // Close full list modal (holders navigations is below it in the other nav stack)
         props.onBeforeOpen?.();
+
+        if (props.onOpen) {
+            props.onOpen();
+            return;
+        }
 
         if (needsEnrollment) {
             const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Account, id: props.account.id };
@@ -143,11 +97,9 @@ export const HoldersAccountItem = memo((props: {
         }
 
         navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: props.account.id }, props.isTestnet);
-    }, [props.account, needsEnrollment, props.isTestnet]);
+    }, [props.account, needsEnrollment, props.isTestnet, props.onOpen]);
 
-    const subtitle = isPro
-        ? t('products.holders.accounts.proAccount')
-        : t('products.holders.accounts.basicAccount');
+    const subtitle = t('products.holders.accounts.basicAccount');
 
     const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
         ? () => {
@@ -189,7 +141,10 @@ export const HoldersAccountItem = memo((props: {
                         activeOpacity={0.5}
                     >
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
-                            {resolveIcon({ image: jettonMasterContent?.image, ticker: props.account.cryptoCurrency?.ticker })}
+                            {resolveHoldersIcon(
+                                { image: jettonMasterContent?.icon, ticker: props.account.cryptoCurrency?.ticker },
+                                theme
+                            )}
                             <View style={{ marginLeft: 12, flexShrink: 1 }}>
                                 <PerfText
                                     style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
@@ -208,32 +163,47 @@ export const HoldersAccountItem = memo((props: {
                                     </PerfText>
                                 </PerfText>
                             </View>
-                            {!!props.account.balance && (
-                                <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                        <ValueComponent
-                                            value={props.account.balance}
-                                            precision={props.account.cryptoCurrency?.decimals === 9 ? 3 : 2}
-                                            centFontStyle={{ color: theme.textSecondary }}
-                                            decimals={props.account.cryptoCurrency?.decimals}
-                                            forcePrecision
-                                        />
-                                        <PerfText style={{ color: theme.textSecondary }}>
-                                            {` ${props.account.cryptoCurrency?.ticker}`}
-                                        </PerfText>
-                                    </Text>
-                                    <PriceComponent
-                                        amount={priceAmount}
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            paddingHorizontal: 0, paddingVertical: 0,
-                                            alignSelf: 'flex-end',
-                                            height: undefined
-                                        }}
-                                        textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                        theme={theme}
-                                    />
+                            {!!props.selectable ? (
+                                <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'flex-end' }}>
+                                    <View style={{
+                                        justifyContent: 'center', alignItems: 'center',
+                                        height: 24, width: 24,
+                                        backgroundColor: props.isSelected ? theme.accent : theme.divider,
+                                        borderRadius: 12,
+                                    }}>
+                                        {props.isSelected && (
+                                            <IcCheck color={theme.white} height={16} width={16} style={{ height: 16, width: 16 }} />
+                                        )}
+                                    </View>
                                 </View>
+                            ) : (
+                                !!props.account.balance && (
+                                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                            <ValueComponent
+                                                value={props.account.balance}
+                                                precision={props.account.cryptoCurrency?.decimals === 9 ? 3 : 2}
+                                                centFontStyle={{ color: theme.textSecondary }}
+                                                decimals={props.account.cryptoCurrency?.decimals}
+                                                forcePrecision
+                                            />
+                                            <PerfText style={{ color: theme.textSecondary }}>
+                                                {` ${props.account.cryptoCurrency?.ticker}`}
+                                            </PerfText>
+                                        </Text>
+                                        <PriceComponent
+                                            amount={priceAmount}
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                                paddingHorizontal: 0, paddingVertical: 0,
+                                                alignSelf: 'flex-end',
+                                                height: undefined
+                                            }}
+                                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                            theme={theme}
+                                        />
+                                    </View>
+                                )
                             )}
                         </View>
                         {!(props.hideCardsIfEmpty && props.account.cards.length === 0) ? (

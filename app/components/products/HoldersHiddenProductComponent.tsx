@@ -22,11 +22,12 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
-    const accounts = useHoldersAccounts(selected!.address).data?.accounts;
-    const prePaid = useHoldersAccounts(selected!.address).data?.prepaidCards;
+    const address = selected!.address;
+    const accounts = useHoldersAccounts(address).data?.accounts;
+    const prePaid = useHoldersAccounts(address).data?.prepaidCards;
 
-    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(selected!.address);
-    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(selected!.address);
+    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address);
+    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address);
 
     let hiddenAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {
@@ -98,6 +99,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     isTestnet={network.isTestnet}
                                     holdersAccStatus={holdersAccStatus}
                                     hideCardsIfEmpty
+                                    owner={address}
                                 />
                             )
                         }}

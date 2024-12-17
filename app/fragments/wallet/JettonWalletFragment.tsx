@@ -73,7 +73,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
     const safeArea = useSafeAreaInsets();
     const ownerAddress = Address.parse(owner);
 
-    const jetton = useJetton({ owner, master, wallet }, true);
+    const jetton = useJetton({ owner, master, wallet });
     const txs = useJettonTransactions(owner, master, { refetchOnMount: true });
     const transactions = txs.data ?? [];
 
@@ -146,7 +146,6 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                     </View>
                 )}
             />
-
             <JettonWalletTransactions
                 jetton={jetton}
                 theme={theme}
@@ -175,14 +174,14 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                     precision={2}
                                     fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
                                     centFontStyle={{ color: theme.textSecondary }}
-                                    suffix={jetton?.symbol ? `${jetton.symbol}` : ''}
+                                    suffix={jetton?.symbol ? ` ${jetton.symbol}` : ''}
                                 />
                                 <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                     <ValueComponent
                                         value={swapAmount ?? 0n}
                                         precision={2}
                                         decimals={decimals}
-                                        suffix={`${CurrencySymbols[currency]?.symbol}`}
+                                        suffix={` ${CurrencySymbols[currency]?.symbol}`}
                                     />
                                 </Text>
                             </View>

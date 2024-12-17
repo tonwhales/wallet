@@ -35,6 +35,14 @@ async function fetchStakingActive(isTestnet: boolean, address: Address, pools: A
     return parsed.data;
 }
 
+function safeParseBigInt(value: string) {
+    try {
+        return BigInt(value);
+    } catch {
+        return 0n;
+    }
+}
+
 export function useStakingActive(address?: Address) {
     const selected = useSelectedAccount();
     const { isTestnet } = useNetwork();
@@ -66,10 +74,10 @@ export function useStakingActive(address?: Address) {
 
     for (const key in query.data) {
         data[key] = {
-            balance: BigInt(query.data[key].balance),
-            pendingDeposit: BigInt(query.data[key].pendingDeposit),
-            pendingWithdraw: BigInt(query.data[key].pendingWithdraw),
-            withdraw: BigInt(query.data[key].withdraw)
+            balance: safeParseBigInt(query.data[key].balance),
+            pendingDeposit: safeParseBigInt(query.data[key].pendingDeposit),
+            pendingWithdraw: safeParseBigInt(query.data[key].pendingWithdraw),
+            withdraw: safeParseBigInt(query.data[key].withdraw),
         }
     }
 

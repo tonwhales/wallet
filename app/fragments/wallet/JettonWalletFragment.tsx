@@ -106,8 +106,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
     });
 
     if (!jetton) {
-        navigation.goBack();
-        return null;
+        return <JettonWalletSkeleton />;
     }
 
     const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);

@@ -554,7 +554,7 @@ const knownWalletsMainnet = {
         ic: Img_OKX,
         requireMemo: true
     },
-    
+
     [Address.parse('EQABMMdzRuntgt9nfRB61qd1wR-cGPagXA3ReQazVYUNrT7p').toString()]: {
         name: 'EXMO Deposit',
         ic: Img_EXMO_Deposit,
@@ -704,16 +704,23 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
 
 export const SpecialJettonTestnet: string | null = 'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD';
 export const SpecialJettonMainnet: string | null = 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs';
+export const getSpecialJetton = (isTestnet: boolean) => isTestnet ? SpecialJettonTestnet : SpecialJettonMainnet;
 
 export const KnownJettonMastersTestnet: { [key: string]: any } = {
     'EQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQlMJ': {}, // wsTON
     'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD': {} // wsTON
 }
 
+export const savingsMasters = {
+    'EQDNhy-nxYFgUqzfUzImBEP67JqsyMIcyk2S5_RwNNEYku0k': {}, // stTON
+    'EQC98_qAmNEptUtPc7W6xdHh_ZHrBUFpw5Ft_IzNU20QAJav': {}, // tsTON
+    'EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w': {}, // hTON
+    'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': {}, // wsTON
+}
+
 export const KnownJettonMastersMainnet: { [key: string]: any } = {
     'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': {}, // AMBR
     'EQB-ajMyi5-WKIgOHnbOGApfckUGbl6tDk3Qt8PKmb-xLAvp': {}, // TNX
-    'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': {}, // wsTON
     'EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA': {}, // jUSDT
     'EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728': {}, // jUSDC
     'EQDo_ZJyQ_YqBzBwbVpMmhbhIddKtRP99HugZJ14aFscxi7B': {}, // jDAI
@@ -732,7 +739,9 @@ export const KnownJettonMastersMainnet: { [key: string]: any } = {
 
     'EQCDkrpCu-FFVPQJnManjlf8XCN75wjX_AKrrEFFQ1mfJqZo': {}, // YO
     'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs': {}, // USD₮
-    'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT': {} // NOT
+    'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT': {}, // NOT
+
+    ...savingsMasters
 }
 
 export const KnownJettonTickers = [

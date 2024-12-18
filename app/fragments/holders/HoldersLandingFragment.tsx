@@ -15,7 +15,7 @@ import { useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { HoldersPlaceholder, HoldersLoader } from './components/HoldersAppComponent';
+import { HoldersLoader } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 import { openWithInApp } from '../../utils/openWithInApp';
 import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
@@ -26,6 +26,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { queryClient } from '../../engine/clients';
 import { Queries } from '../../engine/queries';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import { AnimatedCards } from './components/AnimatedCards';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -254,7 +255,7 @@ export const HoldersLandingFragment = fragment(() => {
                         onBackPressed={navigation.goBack}
                         style={{ paddingHorizontal: 16 }}
                     />
-                    <HoldersPlaceholder />
+                    <AnimatedCards />
                 </Animated.View>
             </View>
         </View>

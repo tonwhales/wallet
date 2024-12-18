@@ -330,6 +330,7 @@ export type LocalizationSchema = {
             },
             successAuth: string
         },
+        savings: string,
         accounts: string,
         services: string,
         oldWallets: {

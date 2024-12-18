@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View, Text, Pressable } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -35,7 +35,10 @@ import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
-import { getAppsFlyerEvents, getLastAttribution } from '../../utils/CachedLinking';
+import { getAppsFlyerEvents } from '../../utils/CachedLinking';
+import { copyText } from '../../utils/copyText';
+import { Typography } from '../../components/styles';
+import { ItemDivider } from '../../components/ItemDivider';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -308,18 +311,29 @@ export const DeveloperToolsFragment = fragment(() => {
                                 }}
                             />
                             <ItemButton
-                                title={'reset AppsFlyer'}
+                                title={'Refresh Appsflyer'}
                                 onPress={() => {
                                     const attribution = getAppsFlyerEvents();
                                     setAppsFlyerEvents(attribution);
                                 }}
                             />
                             {appsFlyerEvents && (
-                                appsFlyerEventData.map((event, index) => (
-                                    <View key={`apps-${index}`}>
-                                        <Item title={event} />
-                                    </View>
-                                ))
+                                <View style={{ gap: 8, padding: 16 }}>
+                                    {appsFlyerEventData.map((event, index) => (
+                                        <Pressable
+                                            key={`apps-${index}`}
+                                            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                            onPress={() => {
+                                                copyText(event);
+                                            }}
+                                        >
+                                            <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
+                                                {event}
+                                            </Text>
+                                            <ItemDivider marginVertical={2} marginHorizontal={0} />
+                                        </Pressable>
+                                    ))}
+                                </View>
                             )}
                         </View>
                     </View>

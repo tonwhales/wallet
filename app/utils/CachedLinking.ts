@@ -70,9 +70,10 @@ export function getAppsFlyerEvents(): string[] {
     return JSON.parse(stored);
 }
 
-export function storeAppsFlyerEvent(event: string) {
+export function storeAppsFlyerEvent(type: string, event: string) {
     const events = getAppsFlyerEvents();
-    events.push(event);
+    const eventWithType = `${type}: ${event}`;
+    events.push(eventWithType);
     sharedStoragePersistence.set(AppsFlyerEventsKey, JSON.stringify(events));
 }
 
@@ -140,7 +141,7 @@ branch.subscribe({
 });
 
 appsFlyer.onDeepLink(res => {
-    storeAppsFlyerEvent(JSON.stringify(res));
+    storeAppsFlyerEvent('onDeepLink', JSON.stringify(res));
     if (res.data && res.data.deep_link_value) {
         handleAttribution(res.data.deep_link_value);
     }
@@ -148,7 +149,7 @@ appsFlyer.onDeepLink(res => {
 
 const appsFlyerConfig: InitSDKOptions = {
     devKey: 'appsflyer_key',
-    isDebug: false,
+    isDebug: true,
     appId: '1607656232',
     onInstallConversionDataListener: true, //Optional
     onDeepLinkListener: true, //Optional
@@ -157,8 +158,8 @@ const appsFlyerConfig: InitSDKOptions = {
 
 appsFlyer.initSdk(
     appsFlyerConfig,
-    (result) => storeAppsFlyerEvent(JSON.stringify(result)),
-    (error) => storeAppsFlyerEvent(JSON.stringify(error))
+    (result) => storeAppsFlyerEvent('initSdk', JSON.stringify(result)),
+    (error) => storeAppsFlyerEvent('initSdk', JSON.stringify(error))
 );
 
 // Subscribe for links

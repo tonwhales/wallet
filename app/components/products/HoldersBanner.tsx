@@ -116,7 +116,9 @@ const ChipActionBanner = memo(({ onPress, content, gradient }: { onPress: () => 
     const action = content.action[lang] || content.action.en;
     const textColor = gradient ? theme.textUnchangeable : theme.textPrimary;
     const textSecondaryColor = gradient ? theme.textUnchangeable : theme.textSecondary;
-    const actionTextcolor = gradient ? theme.textPrimary : theme.textUnchangeable;
+    const actionTextcolor = gradient
+        ? (theme.style === 'dark' ? theme.textPrimaryInverted : theme.textPrimary)
+        : theme.textUnchangeable;
     const actionBackgroundColor = gradient ? theme.textUnchangeable : theme.accent;
 
     return (
@@ -139,8 +141,9 @@ const ChipActionBanner = memo(({ onPress, content, gradient }: { onPress: () => 
             )}
             <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center' }}>
                 <View style={{
+                    flex: 1,
                     flexGrow: 1, flexShrink: 1,
-                    gap: 7
+                    gap: 7,
                 }}>
                     <Text style={[{ color: textColor }, Typography.semiBold17_24]}
                         ellipsizeMode={'tail'}
@@ -151,24 +154,42 @@ const ChipActionBanner = memo(({ onPress, content, gradient }: { onPress: () => 
                     <Text
                         style={[{ flex: 1, flexShrink: 1, color: textSecondaryColor, opacity: 0.8, marginBottom: 8 }, Typography.regular15_20]}
                         ellipsizeMode={'tail'}
-                        numberOfLines={3}
+                        numberOfLines={2}
                         adjustsFontSizeToFit={true}
-                        minimumFontScale={0.95}
+                        minimumFontScale={0.75}
                     >
                         {subtitle}
                     </Text>
-                    <View style={{ flexDirection: 'row', flexShrink: 1, maxWidth: 108, alignItems: 'center', backgroundColor: actionBackgroundColor, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20 }}>
-                        <Text style={[{ color: actionTextcolor }, Typography.medium15_20]}>
-                            {action}
-                        </Text>
-                        <Image
-                            source={require('@assets/ic-chevron-right.png')}
-                            style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
-                        />
+                    <View style={{ flexDirection: 'row', flexShrink: 1 }}>
+                        <View style={{
+                            flexDirection: 'row', flexShrink: 1,
+                            alignItems: 'center',
+                            backgroundColor: actionBackgroundColor,
+                            paddingHorizontal: 16, paddingVertical: 6,
+                            borderRadius: 50,
+                            gap: 6
+                        }}>
+                            <Text
+                                style={[
+                                    { color: actionTextcolor, textAlign: 'center', flexShrink: 1 },
+                                    Typography.medium15_20
+                                ]}
+                                adjustsFontSizeToFit
+                                minimumFontScale={0.7}
+                                numberOfLines={1}
+                            >
+                                {action}
+                            </Text>
+                            <Image
+                                source={require('@assets/ic-chevron-right.png')}
+                                style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                            />
+                        </View>
                     </View>
                 </View>
                 <Image
-                    style={styles.img_chip}
+                    style={[styles.img_chip, { flex: 0.76}]}
+                    contentFit="contain"
                     source={require('@assets/banners/holders-banner-chip-action.png')}
                 />
             </View>

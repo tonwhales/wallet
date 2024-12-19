@@ -29,7 +29,7 @@ fi
 line="YOUR_APPSFLYER_KEY"
 rep="$APPSFLYER_KEY"
 
-cd ../../../wallet
+cd ../../../repository
 
 sed -i '' "s/$line/$rep/g" assets/keys.json
 

@@ -35,11 +35,6 @@ import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
-import { getAppsFlyerEvents } from '../../utils/CachedLinking';
-import { copyText } from '../../utils/copyText';
-import { Typography } from '../../components/styles';
-import { ItemDivider } from '../../components/ItemDivider';
-import { appsFlyerConfig } from '../../utils/CachedLinking';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -64,10 +59,6 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const [themeStyle, setThemeStyle] = useThemeStyle();
     const [lang, setLang] = useLanguage();
-
-    const appsFlyerEventData = getAppsFlyerEvents();
-    const [appsFlyerEvents, setAppsFlyerEvents] = useState<string[] | undefined>(appsFlyerEventData);
-
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -311,38 +302,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                     navigation.navigate('DevDAppWebView');
                                 }}
                             />
-                            <ItemButton
-                                title={'Refresh Appsflyer'}
-                                onPress={() => {
-                                    const attribution = getAppsFlyerEvents();
-                                    setAppsFlyerEvents(attribution);
-                                }}
-                            />
-                            {appsFlyerEvents && (
-                                <View style={{ gap: 8, padding: 16 }}>
-                                    {appsFlyerEventData.map((event, index) => (
-                                        <Pressable
-                                            key={`apps-${index}`}
-                                            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                                            onPress={() => {
-                                                copyText(event);
-                                            }}
-                                        >
-                                            <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
-                                                {event}
-                                            </Text>
-                                            <ItemDivider marginVertical={2} marginHorizontal={0} />
-                                        </Pressable>
-                                    ))}
-                                </View>
-                            )}
-                            <View style={{ padding: 16, width: '100%' }}>
-                                <Pressable>
-                                    <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
-                                        {JSON.stringify(appsFlyerConfig)}
-                                    </Text>
-                                </Pressable>
-                            </View>
                         </View>
                     </View>
                 </ScrollView>

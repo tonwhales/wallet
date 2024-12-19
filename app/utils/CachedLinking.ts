@@ -58,25 +58,6 @@ export function storeLastAttribution(attribution: string) {
     sharedStoragePersistence.set(lastAttributionKey, attribution);
 }
 
-const AppsFlyerEventsKey = 'apps-flyer-events';
-
-export function getAppsFlyerEvents(): string[] {
-    const stored = sharedStoragePersistence.getString(AppsFlyerEventsKey);
-
-    if (!stored) {
-        return [];
-    }
-
-    return JSON.parse(stored);
-}
-
-export function storeAppsFlyerEvent(type: string, event: string) {
-    const events = getAppsFlyerEvents();
-    const eventWithType = `${type}: ${event}`;
-    events.push(eventWithType);
-    sharedStoragePersistence.set(AppsFlyerEventsKey, JSON.stringify(events));
-}
-
 function handleAttribution(deepLink: string, params?: TrimmedBranchParams) {
     storeLastAttribution(deepLink);
     const uri = `https://tonhub.com/${deepLink}`;
@@ -141,7 +122,6 @@ branch.subscribe({
 });
 
 appsFlyer.onDeepLink(res => {
-    storeAppsFlyerEvent('onDeepLink', JSON.stringify(res));
     if (res.data && res.data.deep_link_value) {
         handleAttribution(res.data.deep_link_value);
     }
@@ -151,18 +131,14 @@ const keys = require('@assets/keys.json');
 
 export const appsFlyerConfig: InitSDKOptions = {
     devKey: keys.APPSFLYER_KEY,
-    isDebug: true,
+    isDebug: false,
     appId: '1607656232',
     onInstallConversionDataListener: true, //Optional
     onDeepLinkListener: true, //Optional
     timeToWaitForATTUserAuthorization: 15 //for iOS 14.5
 };
 
-appsFlyer.initSdk(
-    appsFlyerConfig,
-    (result) => storeAppsFlyerEvent('initSdk', JSON.stringify(result)),
-    (error) => storeAppsFlyerEvent('initSdk', JSON.stringify(error))
-);
+appsFlyer.initSdk(appsFlyerConfig);
 
 // Subscribe for links
 Linking.addEventListener('url', (e) => {

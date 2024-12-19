@@ -39,6 +39,7 @@ import { getAppsFlyerEvents } from '../../utils/CachedLinking';
 import { copyText } from '../../utils/copyText';
 import { Typography } from '../../components/styles';
 import { ItemDivider } from '../../components/ItemDivider';
+import { appsFlyerConfig } from '../../utils/CachedLinking';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();

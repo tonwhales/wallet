@@ -147,7 +147,7 @@ appsFlyer.onDeepLink(res => {
     }
 });
 
-const appsFlyerConfig: InitSDKOptions = {
+export const appsFlyerConfig: InitSDKOptions = {
     devKey: 'appsflyer_key',
     isDebug: true,
     appId: '1607656232',

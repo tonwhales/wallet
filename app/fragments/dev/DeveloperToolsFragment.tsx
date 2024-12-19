@@ -335,6 +335,13 @@ export const DeveloperToolsFragment = fragment(() => {
                                     ))}
                                 </View>
                             )}
+                            <View style={{ padding: 16, width: '100%' }}>
+                                <Pressable>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
+                                        {JSON.stringify(appsFlyerConfig)}
+                                    </Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
                 </ScrollView>

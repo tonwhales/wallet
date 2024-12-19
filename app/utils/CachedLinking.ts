@@ -147,8 +147,10 @@ appsFlyer.onDeepLink(res => {
     }
 });
 
+const keys = require('@assets/keys.json');
+
 export const appsFlyerConfig: InitSDKOptions = {
-    devKey: 'appsflyer_key',
+    devKey: keys.APPSFLYER_KEY,
     isDebug: true,
     appId: '1607656232',
     onInstallConversionDataListener: true, //Optional

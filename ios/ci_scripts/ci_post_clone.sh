@@ -25,13 +25,16 @@ if [ -z "$APPSFLYER_KEY" ]; then
     exit 1
 fi
 
-
-# replace the appsflyer_key in the CachedLinking.ts file
-cd ../..
-line="appsflyer_key"
+# Replace the AppsFlyer key in the keys.json file
+line="YOUR_APPSFLYER_KEY"
 rep="$APPSFLYER_KEY"
-sed -i.bak 's|${line}|${rep}|g' app/utils/CachedLinking.ts
-cd ios/ci_scripts
+
+cd ../../../wallet
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+# go back to the ios folder
+cd ios/wallet
 
 echo "===== Evn variables replaced ====="
 

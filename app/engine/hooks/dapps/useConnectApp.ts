@@ -4,18 +4,18 @@ import { useAppConnections } from "./useAppConnections";
 import { ConnectedAppConnectionRemote, TonConnectBridgeType } from '../../tonconnect/types';
 
 export function useConnectApp() {
-    const [extensions,] = useConnectExtensions();
+    const [extensions] = useConnectExtensions();
 
     const apps = Object.values(extensions);
 
     return (url: string) => {
-        const fixedUrl = url.replace(/\/$/, '');;
+        const fixedUrl = url.replace(/\/$/, '');
         return apps.find((app) => fixedUrl.startsWith(app.url.replace(/\/$/, ''))) ?? null;
     }
 }
 
 export function useConnectAppByClientSessionId() {
-    const [extensions,] = useConnectExtensions();
+    const [extensions] = useConnectExtensions();
     const connectAppConnections = useAppConnections();
     const connectedAppsList = Object.values(extensions);
 

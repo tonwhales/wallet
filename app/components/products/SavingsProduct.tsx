@@ -9,11 +9,13 @@ import { Address } from "@ton/ton";
 import { JettonProductItem } from "./JettonProductItem";
 import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { ItemDivider } from "../ItemDivider";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const SavingsProduct = memo(({ address }: { address: Address }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const savings = useDisplayableJettons(address.toString({ testOnly: isTestnet })).savings;
+    const navigation = useTypedNavigation();
 
     return (
         <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
@@ -48,6 +50,16 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                             last={true}
                             owner={address}
                             jettonViewType={AssetViewType.Default}
+                            selectParams={{
+                                onSelect: (h) => {
+                                    navigation.navigateJettonWallet({
+                                        owner: address.toString({ testOnly: isTestnet }),
+                                        master: h.jetton.address,
+                                        wallet: h.walletAddress.address
+                                    });
+                                },
+                                forceBalance: true
+                            }}
                         />
                     </View>
                 ))}

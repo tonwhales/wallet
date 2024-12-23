@@ -8,7 +8,6 @@ import { getAppState } from "../../../storage/appState";
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
 import { useLinkNavigator } from "../../../useLinkNavigator";
-import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { avatarHash } from "../../../utils/avatarHash";
@@ -16,8 +15,7 @@ import { Typography } from "../../../components/styles";
 import { KnownWallets } from "../../../secure/KnownWallets";
 import { Address } from "@ton/core";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-
-import NoConnection from '@assets/ic-no-connection.svg';
+import { HeaderSyncStatus } from "./HeaderSyncStatus";
 
 export const WalletHeader = memo(({ address }: { address: Address }) => {
     const network = useNetwork();
@@ -25,7 +23,6 @@ export const WalletHeader = memo(({ address }: { address: Address }) => {
     const theme = useTheme();
     const bottomBarHeight = useBottomTabBarHeight();
     const linkNavigator = useLinkNavigator(network.isTestnet, { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) });
-    const syncState = useSyncState();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -114,27 +111,7 @@ export const WalletHeader = memo(({ address }: { address: Address }) => {
                         >
                             {walletSettings?.name || `${network.isTestnet ? '[test]' : ''} ${t('common.wallet')} ${currentWalletIndex + 1}`}
                         </Text>
-                        {syncState === 'updating' && (
-                            <ReAnimatedCircularProgress
-                                size={14}
-                                color={theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary}
-                                reverse
-                                infinitRotate
-                                progress={0.8}
-                            />
-                        )}
-                        {syncState === 'connecting' && (
-                            <NoConnection
-                                height={16}
-                                width={16}
-                                style={{ height: 16, width: 16 }}
-                            />
-                        )}
-                        {syncState === 'online' && (
-                            <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
-                            </View>
-                        )}
+                        <HeaderSyncStatus />
                     </View>
                 </Pressable>
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>

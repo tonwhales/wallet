@@ -9,10 +9,9 @@ import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
-import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
@@ -38,9 +37,9 @@ import IcPrivacy from '@assets/settings/ic-privacy.svg';
 import IcSupport from '@assets/settings/ic-support.svg';
 import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
-import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
+import { HeaderSyncStatus } from './wallet/views/HeaderSyncStatus';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -54,7 +53,6 @@ export const SettingsFragment = fragment(() => {
     const [walletSettings] = useWalletSettings(selected?.address);
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-    const syncState = useSyncState();
     const [, currency] = usePrice();
     const [bounceableFormat] = useBounceableWalletFormat();
     const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '');
@@ -63,7 +61,6 @@ export const SettingsFragment = fragment(() => {
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
 
-    
     // Ledger
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
@@ -237,27 +234,7 @@ export const SettingsFragment = fragment(() => {
                     >
                         {isLedger ? 'Ledger' : (walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`)}
                     </Text>
-                    {syncState === 'updating' && (
-                        <ReAnimatedCircularProgress
-                            size={14}
-                            color={theme.textThird}
-                            reverse
-                            infinitRotate
-                            progress={0.8}
-                        />
-                    )}
-                    {syncState === 'connecting' && (
-                        <IcNoConnection
-                            height={16}
-                            width={16}
-                            style={{ height: 16, width: 16 }}
-                        />
-                    )}
-                    {syncState === 'online' && (
-                        <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
-                        </View>
-                    )}
+                    <HeaderSyncStatus />
                 </Pressable>
             </View>
             <ScrollView

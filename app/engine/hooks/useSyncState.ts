@@ -55,6 +55,9 @@ function useIsFetchingSpecialJetton(account: string) {
     return isFetchingMasterContent + isFetchingWalletContent + isFetchingWalletAddress;
 }
 
+const lastHoldersFetch = 0;
+const lastStale = 10 * 60 * 1000;
+
 function useIsFetchingHoldersAccounts(account: string) {
     const status = useHoldersAccountStatus(account).data;
 
@@ -65,7 +68,13 @@ function useIsFetchingHoldersAccounts(account: string) {
 
     const holdersQueryKey = Queries.Holders(account).Cards(!!token ? 'private' : 'public');
 
-    return useIsFetching(holdersQueryKey);
+    let isFetching = useIsFetching(holdersQueryKey);
+
+    if (isFetching > 0 && (Date.now() - lastHoldersFetch > lastStale)) { 
+        isFetching = 0;
+    }
+
+    return isFetching;
 }
 
 export function useSyncState(address?: string): 'online' | 'connecting' | 'updating' {
@@ -84,7 +93,7 @@ export function useSyncState(address?: string): 'online' | 'connecting' | 'updat
                 return false;
             }
 
-            if (query.queryKey[2] === 'lite' ||  query.queryKey[2] !== 'wallet-v4') {
+            if (query.queryKey[2] === 'lite' || query.queryKey[2] !== 'wallet-v4') {
                 return true;
             }
 
@@ -93,7 +102,7 @@ export function useSyncState(address?: string): 'online' | 'connecting' | 'updat
     });
 
     const isFetchingHoldersAccounts = useIsFetchingHoldersAccounts(acc);
-    const isFetchingHints = useIsFetchingHints(acc)
+    const isFetchingHints = useIsFetchingHints(acc);
 
     if (isFetchingHints > 0) {
         return 'updating';

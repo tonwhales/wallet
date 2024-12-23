@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { useConnectApp } from './useConnectApp';
 import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
@@ -27,9 +27,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
     const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
     const [requestId, setRequestId] = useState(0);
 
-    const app = useMemo(() => {
-        return getConnectApp(endpoint);
-    }, [endpoint, getConnectApp]);
+    const app = getConnectApp(endpoint);
 
     const isConnected = useMemo(() => {
         if (!app) {

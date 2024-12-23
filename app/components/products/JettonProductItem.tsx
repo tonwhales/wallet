@@ -43,6 +43,7 @@ type JettonProductItemProps = {
         onSelect: (j: JettonFull) => void,
         selectedFn?: (j: JettonFull) => boolean
         hideSelection?: boolean,
+        forceBalance?: boolean
     }
     selected?: boolean,
     onReady?: (address: string) => void,
@@ -591,7 +592,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         </PerfText>
                         {subtitle}
                     </View>
-                    {!props.selectParams ? (
+                    {(!props.selectParams || props.selectParams.forceBalance) ? (
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.semiBold17_24]}>
                                 <ValueComponent

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { View, Text, Pressable, ScrollView, Platform, Alert } from "react-native";
+import { View, Text, Pressable, ScrollView, Platform, Alert, useWindowDimensions } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -60,6 +60,7 @@ export const ReceiveFragment = fragment(() => {
     const selected = useSelectedAccount();
     const [bounceableFormat] = useBounceableWalletFormat();
     const toaster = useToaster();
+    const dimensions = useWindowDimensions();
 
     const address = useMemo(() => {
         if (addr) {
@@ -266,7 +267,16 @@ export const ReceiveFragment = fragment(() => {
         }
     }, [link]);
 
-    const qrCodeSize = !!comment ? qrSize - 32 : qrSize;
+    const screenWidth = dimensions.width;
+    let qrCodeSize = qrSize
+
+    if (!!comment) {
+        qrCodeSize -= 32;
+    }
+
+    if (screenWidth < 360) {
+        qrCodeSize = qrCodeSize * 0.8;
+    }
 
     return (
         <View
@@ -333,7 +343,10 @@ export const ReceiveFragment = fragment(() => {
                             padding: 24,
                             overflow: 'hidden',
                         }}>
-                            <View style={{ height: qrCodeSize, justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={{
+                                height: qrCodeSize,
+                                justifyContent: 'center', alignItems: 'center'
+                            }}>
                                 <QRCode
                                     data={link}
                                     size={qrCodeSize}

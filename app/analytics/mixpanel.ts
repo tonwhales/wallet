@@ -85,3 +85,7 @@ export function mixpanelReset(isTestnet?: boolean) {
 export function mixpanelIdentify(id: string, isTestnet?: boolean) {
     mixpanelInst(isTestnet).identify(id);
 }
+
+export function mixpanelAddReferrer(referrer: string, isTestnet?: boolean) {
+    mixpanelInst(isTestnet).getPeople().set({ referrer: referrer });
+}

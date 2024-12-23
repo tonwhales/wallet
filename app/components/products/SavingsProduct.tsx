@@ -27,14 +27,12 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                 borderRadius: 20, marginTop: 8
             }}>
                 <TonProductComponent
-                    key={'ton-native'}
                     theme={theme}
                     address={address}
                     testOnly={isTestnet}
                 />
 
                 <SpecialJettonProduct
-                    key={'special-jettton'}
                     theme={theme}
                     address={address}
                     testOnly={isTestnet}

@@ -37,7 +37,7 @@ export const LiquidStakingPendingComponent = memo((
         if (!!pending && !!liquidStaking) {
             for (const key of Object.keys(pending)) {
                 const numKey = parseInt(key);
-                const amount = pending[numKey] ?? 0n;
+                const amount = pending[numKey] ?? '0';
 
                 if (numKey + 3 <= liquidStaking.roundId) {
                     readyTemp.push(BigInt(amount));

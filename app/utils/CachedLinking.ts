@@ -47,19 +47,7 @@ export function storeCampaignId(campaignId: string) {
     sharedStoragePersistence.set(branchCampaignKey, campaignId);
 }
 
-// TODO: remove before going to production
-const lastAttributionKey = 'last-attribution';
-
-export function getLastAttribution(): string | undefined {
-    return sharedStoragePersistence.getString(lastAttributionKey);
-}
-
-export function storeLastAttribution(attribution: string) {
-    sharedStoragePersistence.set(lastAttributionKey, attribution);
-}
-
 function handleAttribution(deepLink: string, params?: TrimmedBranchParams) {
-    storeLastAttribution(deepLink);
     const uri = `https://tonhub.com/${deepLink}`;
     const url = new URL(uri);
 

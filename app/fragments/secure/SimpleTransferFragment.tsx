@@ -54,6 +54,8 @@ import { queryClient } from '../../engine/clients';
 import { Queries } from '../../engine/queries';
 import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
 import { PressableChip } from '../../components/PressableChip';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { useAppFocusEffect } from '../../utils/useAppFocusEffect';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -900,6 +902,53 @@ const SimpleTransferComponent = () => {
         }));
     });
 
+    useAppFocusEffect(async () => {
+        const clipboardText = await Clipboard.getString();
+        if (!clipboardText) {
+            return;
+        }
+
+        console.log('Clipboard text:', clipboardText, selectedInput);
+
+        switch (selectedInput) {
+            case 0:
+                try {
+                    const parsed = Address.parse(clipboardText);
+                    if (parsed) {
+                        setAddressDomainInputState({
+                            input: clipboardText,
+                            target: clipboardText,
+                            domain: undefined,
+                            suffix: undefined
+                        });
+                    }
+                } catch { }
+                break;
+            case 1:
+                try {
+                    const valid = amount.replace(',', '.').replaceAll(' ', '');
+                    let value: bigint | null;
+                    // Manage jettons with decimals
+                    if (jetton) {
+                        value = toBnWithDecimals(valid, jetton?.decimals ?? 9);
+                    } else {
+                        value = toNano(valid);
+                    }
+
+                    if (value) {
+                        refs[1].current?.setText?.(valid);
+                        // setAmount(formatInputAmount(fromBnWithDecimals(value, jetton?.decimals ?? 9), jetton?.decimals ?? 9));
+                    }
+                } catch {
+                    console.log('Invalid amount:', clipboardText);
+                }
+                break;
+            case 2:
+                setComment(clipboardText);
+                break;
+        }
+    });
+
     const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
 
@@ -1087,7 +1136,7 @@ const SimpleTransferComponent = () => {
                                 }, Typography.regular17_24, { lineHeight: undefined }]}
                                 suffix={priceText}
                                 hideClearButton
-                                prefix={jetton ? jetton.symbol : 'TON'}
+                                inputSuffix={jetton ? jetton.symbol : 'TON'}
                                 cursorColor={theme.accent}
                             />
                             <View style={{

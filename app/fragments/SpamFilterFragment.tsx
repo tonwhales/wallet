@@ -161,7 +161,7 @@ export const SpamFilterFragment = fragment(() => {
                                     flexShrink: 1
                                 }}
                                 hideClearButton
-                                prefix={'TON'}
+                                inputSuffix={'TON'}
                             />
                             <Text style={{
                                 fontWeight: '500',

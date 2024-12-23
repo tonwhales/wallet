@@ -8,13 +8,15 @@ import { getCampaignId } from "../../../utils/CachedLinking";
 
 const textWithTranslations = z.object({ en: z.string(), ru: z.string() });
 
-const holdersCustomBanner = z.object({
-  imageUrl: z.string(),
+const holdersBannerContent = z.object({
+  action: textWithTranslations,
   title: textWithTranslations,
   subtitle: textWithTranslations,
-  id: z.string(),
-  closeable: z.boolean().optional(),
-  gradient: z.tuple([z.string(), z.string()]).optional().nullable()
+});
+
+const holdersCustomBanner = z.object({
+  id: z.number(),
+  content: holdersBannerContent,
 });
 
 const inviteCheckCodec = z.object({
@@ -22,6 +24,7 @@ const inviteCheckCodec = z.object({
   banner: holdersCustomBanner.optional()
 });
 
+export type HoldersBannerContent = z.infer<typeof holdersBannerContent>;
 export type HoldersCustomBanner = z.infer<typeof holdersCustomBanner>;
 export type InviteCheck = z.infer<typeof inviteCheckCodec>;
 
@@ -33,45 +36,22 @@ export async function fetchAddressInviteCheck(address: string, isTestnet: boolea
   const region = { countryCode, storeFrontCode };
   const campaignId = getCampaignId();
 
-  try {
-    let res = await axios.post(
-      `https://${endpoint}/v2/invite/wallet/check`,
-      {
-        wallet: formattedAddress,
-        network: isTestnet ? "ton-testnet" : "ton-mainnet",
-        region: region,
-        campaignId
-      }
-    );
-
-    if (res.status >= 400) {
-      res = await axios.post(`https://${endpoint}/v2/whitelist/wallet/check`, { wallet: formattedAddress });
+  let res = await axios.post(
+    `https://${endpoint}/v2/invite/wallet/check/v2`,
+    {
+      wallet: formattedAddress,
+      network: isTestnet ? "ton-testnet" : "ton-mainnet",
+      region: region,
+      campaignId
     }
+  );
 
-    const parsed = inviteCheckCodec.safeParse(res.data);
+  const parsed = inviteCheckCodec.safeParse(res.data);
 
-    if (!parsed.success) {
-      console.warn("Failed to parse invite check response", parsed.error);
-      return { allowed: false };
-    }
-
-    return parsed.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response!.status >= 400) {
-        const res = await axios.post(`https://${endpoint}/v2/whitelist/wallet/check`, { wallet: formattedAddress });
-
-        const parsed = inviteCheckCodec.safeParse(res.data);
-
-        if (!parsed.success) {
-          console.warn("Failed to parse invite check response", parsed.error);
-          return { allowed: false };
-        }
-
-        return parsed.data;
-      }
-    }
-
-    throw error;
+  if (!parsed.success) {
+    console.warn("Failed to parse invite check response", parsed.error);
+    return { allowed: false };
   }
+
+  return parsed.data;
 }

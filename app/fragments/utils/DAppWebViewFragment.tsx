@@ -1,11 +1,11 @@
-import React, { RefObject, useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Linking, View, Platform, Share, Pressable, BackHandler } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useDAppBridge, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { extractDomain } from "../../engine/utils/extractDomain";
-import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
+import { ShouldStartLoadRequest, WebViewNavigation } from "react-native-webview/lib/WebViewTypes";
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { resolveUrl } from "../../utils/resolveUrl";
 import { protectNavigation } from "../apps/components/protect/protectNavigation";
@@ -25,7 +25,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { CloseButton } from "../../components/navigation/CloseButton";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../i18n/t";
-import WebView from "react-native-webview";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
 
@@ -95,6 +94,8 @@ export const DAppWebViewFragment = fragment(() => {
         }
     }, [url, pushPemissions, currency, theme.style]);
 
+    const [currentUrl, setCurrentUrl] = useState(endpoint);
+
     const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
 
@@ -148,7 +149,7 @@ export const DAppWebViewFragment = fragment(() => {
     const [hasDomainKey, setHasDomainKey] = useState(!!getDomainKey(domain));
 
     // ton-connect
-    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(endpoint, navigation);
+    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(currentUrl, navigation);
     // ton-x
     const injectionEngine = useInjectEngine(domain, title ?? '', isTestnet, endpoint);
 
@@ -350,6 +351,12 @@ export const DAppWebViewFragment = fragment(() => {
         return () => BackHandler.removeEventListener('hardwareBackPress', onAndroidBackPressed);
     }, [onAndroidBackPressed, lockNativeBack]);
 
+    const onNavigationStateChange = useCallback((event: WebViewNavigation) => {
+        webViewProps?.onNavigationStateChange?.(event);
+        setCurrentUrl(event.url);
+
+    }, [webViewProps.onNavigationStateChange]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
@@ -367,6 +374,7 @@ export const DAppWebViewFragment = fragment(() => {
                 ref={webViewRef}
                 source={{ uri: endpoint }}
                 {...webViewProps}
+                onNavigationStateChange={onNavigationStateChange}
                 webviewDebuggingEnabled={isTestnet}
                 allowsBackForwardNavigationGestures={lockNativeBack}
                 refId={refId}

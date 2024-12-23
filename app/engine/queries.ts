@@ -18,6 +18,7 @@ export const Queries = {
     StakingStatus: (network: 'mainnet' | 'testnet') => ['staking', 'status', network],
     StakingLiquid: (pool: string) => ['staking', 'liquid', pool],
     StakingLiquidMember: (pool: string, member: string) => ['staking', 'member', 'liquid', pool, member],
+    StakingAccountInfo: (address: string) => ['staking', 'accountInfo', address], 
 
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({
@@ -25,7 +26,7 @@ export const Queries = {
         Status: () => ['holders', address, 'status'],
         Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
         Notifications: (id: string) => ['holders', address, 'events', id],
-        Invite: () => ['holders', address, 'invite'],
+        Invite: () => ['holders', address, 'invite', 'v2'],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

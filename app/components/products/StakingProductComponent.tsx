@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
@@ -15,6 +15,11 @@ import { LiquidStakingPool } from "../staking/LiquidStakingPool";
 import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 
 import StakingIcon from '@assets/ic-staking.svg';
+
+type ProductItem = 
+    { type: 'active', address: Address, balance: bigint } 
+    | { type: 'liquid' } 
+    | { type: 'banner' };
 
 const style: StyleProp<ViewStyle> = {
     height: 86,
@@ -47,6 +52,20 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const active = useStakingActive(address);
+    const activeArray = useMemo(() => {
+        if (!active) {
+            return [];
+        }
+
+        return Object.keys(active).filter((k) => active[k].balance > 0n).map((key) => {
+            const state = active[key];
+            return { 
+                type: "active" as const,
+                address: Address.parse(key), 
+                balance: state.balance
+            };
+        });
+    }, [active]);
     const liquidBalance = useLiquidStakingBalance(address);
 
     const apy = useStakingApy()?.apy;
@@ -57,92 +76,103 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
     }, [apy]);
 
     const totalBalance = useMemo(() => {
-        return liquidBalance + active.reduce((acc, item) => {
+        return liquidBalance + activeArray.reduce((acc, item) => {
             return acc + item.balance;
         }, 0n);
     }, [active, liquidBalance]);
+
+    const renderItem = useCallback((p: ProductItem) => {
+        if (!p) {
+            return null;
+        }
+
+        if (p.type === 'liquid') {
+            return (
+                <LiquidStakingPool
+                    member={address}
+                    style={[style, { padding: 0, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
+                    hideCycle
+                    hideHeader
+                    iconBackgroundColor={theme.backgroundPrimary}
+                    isLedger={isLedger}
+                />
+            )
+        }
+
+        if (p.type === 'banner') {
+            return (
+                <Pressable
+                    onPress={() => navigation.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools')}
+                    style={({ pressed }) => {
+                        return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
+                    }}
+                >
+                    <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
+                        <View style={icStyle}>
+                            <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
+                                <StakingIcon width={32} height={32} color={'white'} />
+                            </View>
+                        </View>
+                        <View style={{
+                            flexDirection: 'row',
+                            flexGrow: 1, flexShrink: 1, alignItems: 'center',
+                            justifyContent: 'space-between',
+                            overflow: 'hidden'
+                        }}>
+                            <View style={{ flexGrow: 1, flexShrink: 1 }}>
+                                <Text
+                                    style={{ color: theme.textPrimary, ...titleStyle }}
+                                    ellipsizeMode={'tail'}
+                                    numberOfLines={1}
+                                >
+                                    {t('products.staking.title')}
+                                </Text>
+                                <Text style={{ color: theme.textSecondary, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
+                                    {t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                </Pressable>
+            );
+        }
+
+        return (
+            <StakingPool
+                member={address}
+                key={`active-${p.address.toString()}`}
+                pool={p.address}
+                balance={p.balance}
+                style={{
+                    backgroundColor: theme.surfaceOnBg,
+                    paddingHorizontal: 20
+                }}
+                iconBackgroundColor={theme.backgroundPrimary}
+                hideCycle
+                isLedger={isLedger}
+            />
+        )
+    }, [theme, address, isLedger, apyWithFee]);
 
     if (!address) {
         return null;
     }
 
-    if ((active.length + (liquidBalance > 0n ? 1 : 0)) >= 2) {
+    if ((activeArray.length + (liquidBalance > 0n ? 1 : 0)) >= 2) {
+        const items: ProductItem[] = activeArray;
+
+        if (liquidBalance > 0n) {
+            items.push({ type: 'liquid' });
+        }
+
+        items.push({ type: 'banner' });
+
         return (
             <View style={{ marginBottom: 16 }}>
                 <CollapsibleCards
                     title={t('products.staking.title')}
-                    items={[...active, liquidBalance > 0n ? { type: 'liquid' } : null, { type: 'banner' }]}
-                    renderItem={(p: any) => {
-                        if (!p) {
-                            return null
-                        }
-
-                        if (p.type === 'liquid') {
-                            return (
-                                <LiquidStakingPool
-                                    member={address}
-                                    style={[style, { padding: 0, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
-                                    hideCycle
-                                    hideHeader
-                                    iconBackgroundColor={theme.backgroundPrimary}
-                                    isLedger={isLedger}
-                                />
-                            )
-                        }
-
-                        if (p.type === 'banner') {
-                            return (
-                                <Pressable
-                                    onPress={() => navigation.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools')}
-                                    style={({ pressed }) => {
-                                        return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
-                                    }}
-                                >
-                                    <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
-                                        <View style={icStyle}>
-                                            <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
-                                                <StakingIcon width={32} height={32} color={'white'} />
-                                            </View>
-                                        </View>
-                                        <View style={{
-                                            flexDirection: 'row',
-                                            flexGrow: 1, flexShrink: 1, alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <View style={{ flexGrow: 1, flexShrink: 1 }}>
-                                                <Text
-                                                    style={{ color: theme.textPrimary, ...titleStyle }}
-                                                    ellipsizeMode={'tail'}
-                                                    numberOfLines={1}
-                                                >
-                                                    {t('products.staking.title')}
-                                                </Text>
-                                                <Text style={{ color: theme.textSecondary, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
-                                                    {t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </Pressable>
-                            );
-                        }
-                        return (
-                            <StakingPool
-                                member={address}
-                                key={`active-${p.address.toString()}`}
-                                pool={p.address}
-                                balance={p.balance}
-                                style={{
-                                    backgroundColor: theme.surfaceOnBg,
-                                    paddingHorizontal: 20
-                                }}
-                                iconBackgroundColor={theme.backgroundPrimary}
-                                hideCycle
-                                isLedger={isLedger}
-                            />
-                        )
-                    }}
+                    items={items}
+                    renderItem={renderItem}
                     theme={theme}
                     renderFace={() => {
                         return (
@@ -223,7 +253,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 marginHorizontal: 16,
                 marginBottom: 16
             }}>
-                {!!active && active.map((p, i) => (
+                {activeArray.map((p, i) => (
                     <View key={`active-${p.address.toString()}`}>
                         <StakingPool
                             member={address}

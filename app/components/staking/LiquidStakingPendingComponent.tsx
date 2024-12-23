@@ -34,17 +34,20 @@ export const LiquidStakingPendingComponent = memo((
 
         const pending = nominator?.pendingWithdrawals;
 
-        if (!!pending && !!pending.keys && !!liquidStaking) {
-            for (const key of pending.keys()) {
-                if (key + 3 <= liquidStaking.roundId) {
-                    readyTemp.push(pending.get(key) ?? 0n);
+        if (!!pending && !!liquidStaking) {
+            for (const key of Object.keys(pending)) {
+                const numKey = parseInt(key);
+                const amount = pending[numKey] ?? '0';
+
+                if (numKey + 3 <= liquidStaking.roundId) {
+                    readyTemp.push(BigInt(amount));
                 } else {
-                    let readyRound = key + 2;
+                    let readyRound = numKey + 2;
                     let timeForCurrentRoundEnd = liquidStaking.extras.roundEnd;
                     const roundDuration = network.isTestnet ? 2 * 60 * 60 : 18.6 * 60 * 60;
 
                     pendingTemp.push({
-                        amount: pending.get(key) ?? 0n,
+                        amount: BigInt(amount),
                         pendingUntil: (readyRound - liquidStaking.roundId) * roundDuration + timeForCurrentRoundEnd
                     });
                 }
@@ -52,7 +55,7 @@ export const LiquidStakingPendingComponent = memo((
         }
 
         return { pending: pendingTemp, ready: readyTemp };
-    }, [nominator, network.isTestnet, liquidStaking]);
+    }, [nominator, network.isTestnet, liquidStaking?.extras.roundEnd, liquidStaking?.roundId]);
 
     if (pending.length === 0 && ready.length === 0) {
         return null;
@@ -77,7 +80,7 @@ export const LiquidStakingPendingComponent = memo((
                                 key={`liquid-pending-withdraw-${index}`}
                                 theme={theme}
                                 pendingUntil={item.pendingUntil}
-                                amount={item.amount}
+                                amount={BigInt(item.amount)}
                                 last={index === pending.length - 1}
                             />
                         );

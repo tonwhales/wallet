@@ -2,7 +2,7 @@ import React, { memo, useCallback } from "react";
 import { View, Text } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { useMarkJettonDisabled } from "../../engine/hooks/jettons/useMarkJettonDisabled";
-import { useCloudValue, useHintsFull, useNetwork, useTheme } from "../../engine/hooks";
+import { useCloudValue, useDisplayableJettons, useNetwork, useTheme } from "../../engine/hooks";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { t } from "../../i18n/t";
@@ -18,7 +18,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
     const theme = useTheme();
     const { isTestnet: testOnly } = useNetwork();
     const markJettonDisabled = useMarkJettonDisabled();
-    const hints = useHintsFull(owner.toString({ testOnly })).data?.hints ?? [];
+    const hints = useDisplayableJettons(owner.toString({ testOnly })).jettonsList;
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const renderFace = useCallback(() => {

@@ -29,6 +29,7 @@ import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInvite
 import { HoldersBanner } from "./HoldersBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
+import { SavingsProduct } from "./SavingsProduct"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
@@ -144,30 +145,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
-                <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
-                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
-                        {t('common.balances')}
-                    </Text>
-                    <View style={{
-                        backgroundColor: theme.surfaceOnBg,
-                        borderRadius: 20, marginTop: 8
-                    }}>
-                        <TonProductComponent
-                            key={'ton-native'}
-                            theme={theme}
-                            address={selected.address}
-                            testOnly={isTestnet}
-                        />
-
-                        <SpecialJettonProduct
-                            key={'special-jettton'}
-                            theme={theme}
-                            address={selected.address}
-                            testOnly={isTestnet}
-                            divider={'top'}
-                        />
-                    </View>
-                </View>
+                <SavingsProduct address={selected.address} />
 
                 <Pressable
                     style={({ pressed }) => (

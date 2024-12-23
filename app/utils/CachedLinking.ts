@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
 import branch, { BranchParams } from 'react-native-branch'
 import { sharedStoragePersistence } from "../storage/storage";
+import appsFlyer, { InitSDKOptions } from 'react-native-appsflyer';
 
 let lastLink: string | null = null;
 let listener: (((link: string) => void) | null) = null;
@@ -46,27 +47,45 @@ export function storeCampaignId(campaignId: string) {
     sharedStoragePersistence.set(branchCampaignKey, campaignId);
 }
 
-function handleBranchLink(params: TrimmedBranchParams) {
-    const deepLink = params.$deeplink_path as string;
+// TODO: remove before going to production
+const lastAttributionKey = 'last-attribution';
 
-    if (deepLink) {
-        const uri = `https://tonhub.com/${deepLink}`;
-        const url = new URL(uri);
+export function getLastAttribution(): string | undefined {
+    return sharedStoragePersistence.getString(lastAttributionKey);
+}
 
-        const campaignId = url.searchParams.get('campaignId');
+export function storeLastAttribution(attribution: string) {
+    sharedStoragePersistence.set(lastAttributionKey, attribution);
+}
 
-        if (campaignId) {
-            storeCampaignId(campaignId);
-        }
+function handleAttribution(deepLink: string, params?: TrimmedBranchParams) {
+    storeLastAttribution(deepLink);
+    const uri = `https://tonhub.com/${deepLink}`;
+    const url = new URL(uri);
 
-        // append params as query
+    const campaignId = url.searchParams.get('campaignId');
+
+    if (campaignId) {
+        storeCampaignId(campaignId);
+    }
+
+    if (params) {
         for (const [key, value] of Object.entries(params)) {
             if (key === '$deeplink_path') {
                 continue;
             }
             url.searchParams.append(key, value as string);
         }
-        handleLinkReceived(url.toString());
+    }
+
+    handleLinkReceived(url.toString());
+}
+
+function handleBranchLink(params: TrimmedBranchParams) {
+    const deepLink = params.$deeplink_path as string;
+
+    if (deepLink) {
+        handleAttribution(deepLink, params);
     }
 }
 
@@ -99,9 +118,27 @@ branch.subscribe({
                 handleLinkReceived(uri);
             }
         }
-    },
-
+    }
 });
+
+appsFlyer.onDeepLink(res => {
+    if (res.data && res.data.deep_link_value) {
+        handleAttribution(res.data.deep_link_value);
+    }
+});
+
+const keys = require('@assets/keys.json');
+
+export const appsFlyerConfig: InitSDKOptions = {
+    devKey: keys.APPSFLYER_KEY,
+    isDebug: false,
+    appId: '1607656232',
+    onInstallConversionDataListener: true, //Optional
+    onDeepLinkListener: true, //Optional
+    timeToWaitForATTUserAuthorization: 15 //for iOS 14.5
+};
+
+appsFlyer.initSdk(appsFlyerConfig);
 
 // Subscribe for links
 Linking.addEventListener('url', (e) => {

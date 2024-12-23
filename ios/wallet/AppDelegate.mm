@@ -4,6 +4,7 @@
 #import <React/RCTLinkingManager.h>
 #import <ReactNativePerformance/ReactNativePerformance.h>
 #import <RNBranch/RNBranch.h>
+#import <RNAppsFlyer.h>
 
 
 @implementation AppDelegate
@@ -62,12 +63,14 @@
 // Linking API
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
   [RNBranch application:application openURL:url options:options];
+  [[AppsFlyerAttribution shared] handleOpenUrl:url options:options];
   return YES;
 }
 
 // Universal Links
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
   [RNBranch continueUserActivity:userActivity];
+  [[AppsFlyerAttribution shared] continueUserActivity:userActivity restorationHandler:restorationHandler];
   return YES;
 }
 

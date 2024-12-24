@@ -23,8 +23,6 @@ import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebV
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
 import { useActionSheet } from '@expo/react-native-action-sheet';
-import { queryClient } from '../../engine/clients';
-import { Queries } from '../../engine/queries';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { AnimatedCards } from './components/AnimatedCards';
 
@@ -37,7 +35,7 @@ export const HoldersLandingFragment = fragment(() => {
     const { showActionSheetWithOptions } = useActionSheet();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const [currency,] = usePrimaryCurrency();
+    const [currency] = usePrimaryCurrency();
 
     const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 

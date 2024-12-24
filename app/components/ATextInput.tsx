@@ -153,6 +153,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
     }, [props.index, props.onBlur]);
 
     const tref = useRef<TextInput>(null);
+
     useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
@@ -160,7 +161,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         blur: () => {
             tref.current!.blur();
         },
-        setValue: (value: string) => {
+        setText: (value: string) => {
             if (props.onValueChange) {
                 props.onValueChange(value);
             }

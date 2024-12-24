@@ -3,7 +3,7 @@ import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { avatarColors } from "../avatar/Avatar";
-import { AddressDomainInput, AnimTextInputRef } from "./AddressDomainInput";
+import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { useAppState, useBounceableWalletFormat, useWalletSettings } from "../../engine/hooks";
@@ -20,9 +20,11 @@ import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
 import { Typography } from "../styles";
 import { Image } from "expo-image";
+import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
+import Clipboard from '@react-native-clipboard/clipboard';
+import { useAppFocusEffect } from "../../utils/useAppFocusEffect";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -81,7 +83,7 @@ export type AddressInputAction = {
     suffix: string,
 } | { type: InputActionType.Clear }
 
-export function addressInputReducer(ref: ForwardedRef<AnimTextInputRef>) {
+export function addressInputReducer(ref: ForwardedRef<ATextInputRef>) {
     return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
         switch (action.type) {
             case InputActionType.Input:
@@ -132,7 +134,7 @@ export function addressInputReducer(ref: ForwardedRef<AnimTextInputRef>) {
                     suffix: action.suffix
                 };
             case InputActionType.Clear:
-                (ref as RefObject<AnimTextInputRef>)?.current?.setText('');
+                (ref as RefObject<ATextInputRef>)?.current?.setText('');
                 return {
                     input: '',
                     target: '',
@@ -145,7 +147,7 @@ export function addressInputReducer(ref: ForwardedRef<AnimTextInputRef>) {
     }
 }
 
-export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AnimTextInputRef>) => {
+export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
         addressInputReducer(ref),
         {
@@ -227,7 +229,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
     // set input value on mount
     useEffect(() => {
-        (ref as RefObject<AnimTextInputRef>)?.current?.setText(addressDomainInputState.input);
+        (ref as RefObject<ATextInputRef>)?.current?.setText(addressDomainInputState.input);
     }, []);
 
     const onAddressSearchItemSelected = useCallback((item: AddressSearchItem) => {
@@ -251,7 +253,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             suffix: suff
         });
 
-        (ref as RefObject<AnimTextInputRef>)?.current?.setText(name.trim());
+        (ref as RefObject<ATextInputRef>)?.current?.setText(name.trim());
 
         if (props.onSearchItemSelected) {
             props.onSearchItemSelected(item);
@@ -281,6 +283,27 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             </Pressable>
         );
     }, [openAddressBook]);
+
+    const appFocusCallback = useCallback(async () => {
+        const clipboardText = (await Clipboard.getString()).trim();
+
+        if (!clipboardText) {
+            return;
+        }
+
+        try {
+            Address.parse(clipboardText);
+            dispatchAddressDomainInput({
+                type: InputActionType.InputTarget,
+                target: clipboardText,
+                input: clipboardText,
+                suffix: ''
+            });
+            (ref as RefObject<ATextInputRef>)?.current?.setText(clipboardText);
+        } catch {}
+    }, []);
+
+    useAppFocusEffect(appFocusCallback);
 
     return (
         <View>

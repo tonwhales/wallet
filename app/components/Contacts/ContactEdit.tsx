@@ -1,6 +1,6 @@
 import { Address } from "@ton/core";
 import { RefObject, createRef, memo, useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, Keyboard, Platform, TextInput, View, Text, KeyboardAvoidingView } from "react-native";
+import { Alert, Keyboard, Platform, View, Text, KeyboardAvoidingView } from "react-native";
 import { useBounceableWalletFormat, useContact, useRemoveContact, useSetContact } from "../../engine/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
@@ -10,7 +10,7 @@ import { confirmAlert } from "../../utils/confirmAlert";
 import Animated, { measure, useAnimatedRef, scrollTo, runOnUI, useSharedValue } from "react-native-reanimated";
 import { useKeyboard } from "@react-native-community/hooks";
 import { ThemeType } from "../../engine/state/theme";
-import { ATextInput } from "../ATextInput";
+import { ATextInput, ATextInputRef } from "../ATextInput";
 import { ContactField } from "./ContactField";
 import { ItemDivider } from "../ItemDivider";
 import { RoundButton } from "../RoundButton";
@@ -116,10 +116,10 @@ export const ContactEdit = memo(({
     // Scroll with Keyboard
     const [selectedInput, setSelectedInput] = useState(0);
     const refs = useMemo(() => {
-        let r: RefObject<TextInput>[] = [];
-        r.push(createRef<TextInput>()); // name input ref
+        let r: RefObject<ATextInputRef>[] = [];
+        r.push(createRef<ATextInputRef>()); // name input ref
         for (let i = 0; i < fields.length; i++) {
-            r.push(createRef<TextInput>());
+            r.push(createRef<ATextInputRef>());
         }
         return r;
     }, [fields]);

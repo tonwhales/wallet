@@ -197,7 +197,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             }}
                             suffix={priceText}
                             hideClearButton
-                            prefix={'TON'}
+                            inputSuffix={'TON'}
                         />
                     </View>
                     {(isLiquid ? !!liquidStaking : !!pool) && (validAmount !== null) && (

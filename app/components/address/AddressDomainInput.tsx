@@ -15,14 +15,9 @@ import { AddressInputAction, InputActionType } from "./TransferAddressInput";
 import { resolveBounceableTag } from "../../utils/resolveBounceableTag";
 import { Typography } from "../styles";
 import { ThemeType } from "../../engine/state/theme";
+import { ATextInputRef } from "../ATextInput";
 
 const AnimatedInput = Animated.createAnimatedComponent(TextInput);
-
-export type AnimTextInputRef = {
-    focus: () => void;
-    blur?: () => void;
-    setText: (text: string) => void;
-}
 
 export const AddressDomainInput = memo(forwardRef(({
     onFocus,
@@ -66,7 +61,7 @@ export const AddressDomainInput = memo(forwardRef(({
     navigation: TypedNavigation,
     rightAction?: React.ReactNode,
     suffix?: string
-}, ref: ForwardedRef<AnimTextInputRef>) => {
+}, ref: ForwardedRef<ATextInputRef>) => {
     const client = useClient4(isTestnet);
     const netConfig = useConfig();
     const [resolving, setResolving] = useState<boolean>();

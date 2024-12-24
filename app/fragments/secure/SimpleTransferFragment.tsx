@@ -37,7 +37,6 @@ import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TransferHeader } from '../../components/transfer/TransferHeader';
 import { JettonIcon } from '../../components/products/JettonIcon';
-import { AnimTextInputRef } from '../../components/address/AddressDomainInput';
 import { Typography } from '../../components/styles';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
@@ -54,6 +53,9 @@ import { queryClient } from '../../engine/clients';
 import { Queries } from '../../engine/queries';
 import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
 import { PressableChip } from '../../components/PressableChip';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { useAppFocusEffect } from '../../utils/useAppFocusEffect';
+import { AmountInput } from '../../components/input/AmountInput';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -544,14 +546,9 @@ const SimpleTransferComponent = () => {
     const hasParamsFilled = !!params.target && !!params.amount;
     const [selectedInput, setSelectedInput] = useState<number | null>(hasParamsFilled ? null : 0);
 
-    const refs = useMemo(() => {
-        let r: RefObject<ATextInputRef>[] = [];
-        for (let i = 0; i < 3; i++) {
-            r.push(createRef());
-        }
-        return r;
-    }, []);
-
+    const addressRef = useRef<ATextInputRef>(null);
+    const amountRef = useRef<ATextInputRef>(null);
+    const commentRef = useRef<ATextInputRef>(null);
     const scrollRef = useRef<ScrollView>(null);
 
     const keyboard = useKeyboard();
@@ -684,18 +681,12 @@ const SimpleTransferComponent = () => {
         supportsGaslessTransfer
     ]);
 
-    const onFocus = useCallback((index: number) => {
-        setSelectedInput(index);
-    }, []);
-
-    const onSubmit = useCallback((index: number) => {
-        setSelectedInput(null);
-    }, []);
-
-    const resetInput = useCallback(() => {
+    const onFocus = (index: number) => setSelectedInput(index);
+    const onSubmit = () => setSelectedInput(null);
+    const resetInput = () => {
         Keyboard.dismiss();
         setSelectedInput(null);
-    }, []);
+    };
 
     const holdersTarget = holdersAccounts?.find((a) => targetAddressValid?.address.equals(a.address));
     const holdersTargetJetton = holdersTarget?.jettonMaster ? Address.parse(holdersTarget.jettonMaster) : null;
@@ -845,7 +836,7 @@ const SimpleTransferComponent = () => {
 
         // Default
         return { selected: null, onNext: null, header: { ...headertitle } };
-    }, [selectedInput, targetAddressValid, validAmount, refs, doSend, amountError]);
+    }, [selectedInput, targetAddressValid, validAmount, doSend, amountError]);
 
     const [addressInputHeight, setAddressInputHeight] = useState(0);
     const [amountInputHeight, setAmountInputHeight] = useState(0);
@@ -900,6 +891,41 @@ const SimpleTransferComponent = () => {
         }));
     });
 
+    const appFocusCallback = useCallback(async () => {
+        const clipboardText = (await Clipboard.getString()).trim();
+        
+        if (!clipboardText) {
+            return;
+        }
+
+        switch (selectedInput) {
+            case 1:
+                try {
+                    const valid = clipboardText.replace(',', '.').replaceAll(' ', '');
+                    let value: bigint | null;
+
+                    // Manage jettons with decimals
+                    const decimals = jetton?.decimals ?? 9;
+                    if (jetton) {
+                        value = toBnWithDecimals(valid, decimals);
+                    } else {
+                        value = toNano(valid);
+                    }
+
+                    if (value) {
+                        const newAmount = formatInputAmount(fromBnWithDecimals(value, decimals), decimals);
+                        amountRef.current?.setText(newAmount);
+                    }
+                } catch { }
+                break;
+            case 2:
+                commentRef.current?.setText(clipboardText);
+                break;
+        }
+    }, [!!jetton, jetton?.decimals, selectedInput]);
+
+    useAppFocusEffect(appFocusCallback);
+
     const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
 
@@ -943,7 +969,7 @@ const SimpleTransferComponent = () => {
                     onLayout={(e) => { setAddressInputHeight(e.nativeEvent.layout.height) }}
                 >
                     <TransferAddressInput
-                        ref={refs[0] as RefObject<AnimTextInputRef>}
+                        ref={addressRef}
                         acc={ledgerAddress ?? acc!.address}
                         theme={theme}
                         target={target}
@@ -1065,16 +1091,15 @@ const SimpleTransferComponent = () => {
                                     </Text>
                                 </Pressable>
                             </View>
-                            <ATextInput
+                            <AmountInput
                                 index={1}
-                                ref={refs[1]}
-                                onFocus={onFocus}
+                                ref={amountRef}
+                                onFocus={() => onFocus(1)}
                                 value={amount}
                                 onValueChange={(newVal) => {
                                     const formatted = formatInputAmount(newVal, jetton?.decimals ?? 9, { skipFormattingDecimals: true }, amount);
                                     setAmount(formatted);
                                 }}
-                                keyboardType={'numeric'}
                                 style={{
                                     backgroundColor: theme.elevation,
                                     paddingHorizontal: 16, paddingVertical: 14,
@@ -1082,12 +1107,10 @@ const SimpleTransferComponent = () => {
                                 }}
                                 inputStyle={[{
                                     color: amountError ? theme.accentRed : theme.textPrimary,
-                                    width: 'auto',
-                                    flexShrink: 1
+                                    flexGrow: 1
                                 }, Typography.regular17_24, { lineHeight: undefined }]}
                                 suffix={priceText}
-                                hideClearButton
-                                prefix={jetton ? jetton.symbol : 'TON'}
+                                ticker={jetton ? jetton.symbol : 'TON'}
                                 cursorColor={theme.accent}
                             />
                             <View style={{
@@ -1145,7 +1168,7 @@ const SimpleTransferComponent = () => {
                                 <ATextInput
                                     value={commentString}
                                     index={2}
-                                    ref={refs[2]}
+                                    ref={commentRef}
                                     onFocus={onFocus}
                                     onValueChange={setComment}
                                     placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}

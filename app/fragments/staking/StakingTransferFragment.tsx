@@ -415,7 +415,7 @@ export const StakingTransferFragment = fragment(() => {
                             }}
                             suffix={priceText}
                             hideClearButton
-                            prefix={'TON'}
+                            inputSuffix={'TON'}
                         />
                     </View>
                     {!!minAmountWarn && (

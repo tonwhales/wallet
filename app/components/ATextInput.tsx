@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import Animated, { Easing, FadeIn, FadeInUp, FadeOut, FadeOutDown, LinearTransition, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, FadeInUp, FadeOutDown, LinearTransition, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTheme } from '../engine/hooks';
 import { useDimensions } from '@react-native-community/hooks';
@@ -12,6 +12,7 @@ import Clear from '@assets/ic-clear.svg';
 export type ATextInputRef = {
     focus: () => void;
     blur?: () => void;
+    setText: (value: string) => void;
 }
 
 export interface ATextInputProps {
@@ -97,7 +98,7 @@ export interface ATextInputProps {
     | 'newPassword'
     | 'oneTimeCode';
 
-    prefix?: string;
+    inputSuffix?: string;
     textAlign?: 'left' | 'center' | 'right' | undefined,
     fontWeight?: 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | undefined;
     fontSize?: number | undefined;
@@ -152,12 +153,18 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
     }, [props.index, props.onBlur]);
 
     const tref = useRef<TextInput>(null);
+
     useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
         },
         blur: () => {
             tref.current!.blur();
+        },
+        setText: (value: string) => {
+            if (props.onValueChange) {
+                props.onValueChange(value);
+            }
         }
     }), [ref, tref]);
 
@@ -266,7 +273,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                             marginHorizontal: 0, marginVertical: 0,
                                             paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
                                             paddingLeft: 0, paddingRight: 0,
-                                            flexGrow: props.prefix ? 0 : 1
+                                            flexGrow: props.inputSuffix ? 0 : 1
                                         },
                                         props.inputStyle
                                     ]}
@@ -297,7 +304,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                     maxLength={props.maxLength}
                                     inputMode={props.inputMode}
                                 />
-                                {props.prefix && (
+                                {props.inputSuffix && (
                                     <Text
                                         numberOfLines={1}
                                         style={{
@@ -308,7 +315,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                             color: theme.textSecondary,
                                         }}
                                     >
-                                        {props.prefix}
+                                        {props.inputSuffix}
                                     </Text>
                                 )}
                                 {props.suffix && (

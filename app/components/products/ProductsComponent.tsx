@@ -20,16 +20,14 @@ import { useBanners } from "../../engine/hooks/banners"
 import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import { AddressFormatUpdate } from "./AddressFormatUpdate"
-import { TonProductComponent } from "./TonProductComponent"
-import { SpecialJettonProduct } from "./SpecialJettonProduct"
 import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited"
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment"
 import { W5Banner } from "./W5Banner"
 import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck"
 import { HoldersBanner } from "./HoldersBanner"
+import { SavingsProduct } from "./SavingsProduct"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
-import { SavingsProduct } from "./SavingsProduct"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 

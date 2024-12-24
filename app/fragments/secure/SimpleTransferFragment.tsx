@@ -922,7 +922,7 @@ const SimpleTransferComponent = () => {
                 commentRef.current?.setText(clipboardText);
                 break;
         }
-    }, [amount, !!jetton, jetton?.decimals]);
+    }, [!!jetton, jetton?.decimals, selectedInput]);
 
     useAppFocusEffect(appFocusCallback);
 

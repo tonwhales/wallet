@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Alert, Keyboard, TextInput, KeyboardAvoidingView, ScrollView } from "react-native";
+import { Platform, View, Text, Alert, Keyboard, KeyboardAvoidingView, ScrollView } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ContactField } from "../../components/Contacts/ContactField";
@@ -10,7 +10,7 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemDivider } from "../../components/ItemDivider";
-import { ATextInput } from "../../components/ATextInput";
+import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { useNetwork, useSetContact, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -93,11 +93,11 @@ export const ContactNewFragment = fragment(() => {
     // Scroll with Keyboard
     const [selectedInput, setSelectedInput] = useState(0);
     const refs = useMemo(() => {
-        let r: RefObject<TextInput>[] = [];
-        r.push(createRef<TextInput>()); // address input ref
-        r.push(createRef<TextInput>()); // name input ref
+        let r: RefObject<ATextInputRef>[] = [];
+        r.push(createRef<ATextInputRef>()); // address input ref
+        r.push(createRef<ATextInputRef>()); // name input ref
         for (let i = 0; i < fields.length; i++) {
-            r.push(createRef<TextInput>());
+            r.push(createRef<ATextInputRef>());
         }
         return r;
     }, [fields]);

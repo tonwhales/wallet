@@ -1,4 +1,4 @@
-import { ForwardedRef, forwardRef, memo, useImperativeHandle, useRef, useState } from "react";
+import { ForwardedRef, forwardRef, memo, useImperativeHandle, useRef } from "react";
 import { ATextInputProps, ATextInputRef } from "../ATextInput";
 import { TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
@@ -39,18 +39,6 @@ export const AmountInput = memo(forwardRef((props: AmountInputProps, ref: Forwar
             }
         }
     }), [ref, tref]);
-
-    const onFocusHandler = () => {
-        if (onFocus) {
-            onFocus();
-        }
-    }
-
-    const onBlurHandler = () => {
-        if (onBlur) {
-            onBlur();
-        }
-    }
 
     return (
         <TouchableWithoutFeedback
@@ -104,8 +92,8 @@ export const AmountInput = memo(forwardRef((props: AmountInputProps, ref: Forwar
                                 editable={editable}
                                 value={value}
                                 onChangeText={onValueChange}
-                                onFocus={onFocusHandler}
-                                onBlur={onBlurHandler}
+                                onFocus={onFocus}
+                                onBlur={onBlur}
                                 onSubmitEditing={onSubmit}
                                 maxLength={maxLength}
                             />

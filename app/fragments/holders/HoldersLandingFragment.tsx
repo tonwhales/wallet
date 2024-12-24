@@ -87,9 +87,6 @@ export const HoldersLandingFragment = fragment(() => {
                 return;
             }
 
-            const addressString = acc.address.toString({ testOnly: isTestnet });
-            await queryClient.refetchQueries({ queryKey: Queries.Holders(addressString).Invite() })
-
             const res = await enroll();
 
             if (res.type === 'success') {

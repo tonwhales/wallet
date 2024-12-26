@@ -28,7 +28,7 @@ export type OtpAnswerResult = z.infer<typeof otpAnswerResultCodec>;
 
 export async function fetchOtpAnswer(params: { token: string, id: string, accept: boolean, isTestnet: boolean }): Promise<OtpAnswerResult> {
     const { token, id, accept, isTestnet } = params;
-    const url = `${holdersEndpoint(isTestnet)}/user/otp/requests/${id}/confirm`;
+    const url = `https://${holdersEndpoint(isTestnet)}/v2/user/otp/requests/confirm`;
 
     const res = await axios.post(url, {
         token,

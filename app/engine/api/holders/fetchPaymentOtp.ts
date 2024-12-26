@@ -17,7 +17,7 @@ export const merchantInfoCodec = z.object({
 
 const otpObjectInfoCodec = z.object({
     txnId: z.string(),
-    expiresAt: z.date().optional(),
+    expiresAt: z.string().optional(),
     merchant: merchantInfoCodec.optional(),
 });
 
@@ -64,7 +64,7 @@ export const inappOtpResultCodec = z.object({
 export type InappOtp = z.infer<typeof inappOtpCodec>;
 
 export async function fetchPaymentOtp(token: string, isTestnet: boolean): Promise<InappOtp | null> {
-    const url = `${holdersEndpoint(isTestnet)}/user/otp/requests`;
+    const url = `https://${holdersEndpoint(isTestnet)}/v2/user/otp/requests`;
 
     const res = await axios.post(url, { token });
 
@@ -75,7 +75,7 @@ export async function fetchPaymentOtp(token: string, isTestnet: boolean): Promis
     const parsed = inappOtpResultCodec.safeParse(res.data);
 
     if (!parsed.success) {
-        throw new Error(`Failed to parse response: ${parsed.error.errors}`);
+        throw new Error(`Failed to parse response: ${JSON.stringify(parsed.error.errors)}`);
     }
 
     return parsed.data.data;

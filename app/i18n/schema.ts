@@ -627,6 +627,11 @@ export type LocalizationSchema = {
                     fetchToken: string,
                     createSignature: string,
                 },
+            },
+            otpBanner: {
+                title: string,
+                accept: string,
+                decline: string,
             }
         }
     }

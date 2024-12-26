@@ -5,14 +5,18 @@ import { HoldersUserState } from "./api/holders/fetchUserState";
 import { useNetwork } from "./hooks/network/useNetwork";
 import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
 import { useHoldersAccounts } from "./hooks";
+import { Queries } from "./queries";
+import { queryClient } from "./clients";
 
 export function useHoldersWatcher() {
     const account = useSelectedAccount();
     const { isTestnet } = useNetwork();
-    const status = useHoldersAccountStatus(account?.address.toString({ testOnly: isTestnet }) ?? '');
-    const cards = useHoldersAccounts(account?.address.toString({ testOnly: isTestnet }) ?? '');
+    const accAddressString = account?.address.toString({ testOnly: isTestnet }) ?? '';
+    const status = useHoldersAccountStatus(accAddressString);
+    const cards = useHoldersAccounts(accAddressString);
+    const otpKey = Queries.Holders(accAddressString).OPT();
 
-    useEffect(() => {        
+    useEffect(() => {
         if (status?.data?.state !== HoldersUserState.Ok) {
             return;
         }
@@ -20,28 +24,30 @@ export function useHoldersWatcher() {
         cards.refetch();
 
         return watchHoldersAccountUpdates(status.data.token, (event) => {
-            if (
-                event.message === 'state_change'
-                || (event.type === 'error' && event.message === 'invalid_token')
-            ) {
-                status.refetch();
-                return;
-            }
-            if (event.type === 'connected') {
-                cards.refetch();
-                return;
-            }
-            if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
-                cards.refetch();
-
-                return;
-            }
-
-            // Refetch cards if prepaid transaction 
-            if (event.type === 'prepaid_transaction') {
-                cards.refetch();
-                return;
+            switch (event.type) {
+                case 'connected':
+                    cards.refetch();
+                    break;
+                case 'accounts_changed':
+                case 'balance_change':
+                case 'limits_change':
+                    cards.refetch();
+                    break;
+                case 'prepaid_transaction':
+                    cards.refetch();
+                    break;
+                case 'state_change':
+                    status.refetch();
+                    break;
+                case 'error':
+                    if (event.message === 'invalid_token') {
+                        status.refetch();
+                    }
+                    break;
+                case 'inapp_otp':
+                    queryClient.refetchQueries(otpKey);
+                    break;
             }
         }, isTestnet);
-    }, [status.data, cards]);
+    }, [status.data, cards, otpKey]);
 }

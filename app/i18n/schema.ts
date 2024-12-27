@@ -83,7 +83,8 @@ export type LocalizationSchema = {
         notFound: string,
         unverified: string,
         addressBook: string,
-        gasless: string
+        gasless: string,
+        address: string
     },
     syncStatus: {
         connecting: string,
@@ -171,7 +172,8 @@ export type LocalizationSchema = {
         },
         holdersJettonWarning: string,
         assets: string,
-        fromExchange: string
+        fromExchange: string,
+        otherCoins: string
     },
     transfer: {
         title: string,

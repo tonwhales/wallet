@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from "react";
-import { View, Text, useWindowDimensions, Pressable, SectionList } from "react-native";
+import { View, Text, Pressable, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -14,10 +14,9 @@ import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
-import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { ReceiveableAsset } from "./ReceiveFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
-import { HoldersAccountItem } from "../../components/products/HoldersAccountItem";
+import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
 import { SpecialJettonProduct } from "../../components/products/SpecialJettonProduct";
@@ -71,6 +70,9 @@ const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
                 </View>
                 <View style={{ justifyContent: 'center', flexGrow: 1, flex: 1, marginLeft: 12 }}>
                     <Text style={[{ flexShrink: 1, color: theme.textPrimary }, Typography.semiBold17_24]}>
+                        {'Toncoin'}
+                    </Text>
+                    <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
                         {'TON'}
                     </Text>
                 </View>
@@ -80,177 +82,64 @@ const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
 });
 
 export type ReceiveAssetsFragment = {
-    target?: string,
-    jettonCallback?: (selected?: { wallet?: Address, master: Address }) => void,
     assetCallback?: (selected: ReceiveableAsset | null) => void,
-    selectedAsset?: Address | null
+    title: string
 }
 
 export const ReceiveAssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
-    const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
-
-    const { target, jettonCallback, assetCallback, selectedAsset } = useParams<ReceiveAssetsFragment>();
-
     const route = useRoute();
-    const isLedgerScreen = route.name === 'LedgerAssets';
-
+    const isLedger = route.name === 'LedgerReceiveAssets';
+    const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerTransport = useLedgerTransport();
+
     const ledgerAddress = useMemo(() => {
-        if (isLedgerScreen && !!ledgerTransport?.addr) {
+        if (isLedger && !!ledgerTransport?.addr) {
             return Address.parse(ledgerTransport.addr.address);
         }
-    }, [ledgerTransport, isLedgerScreen]);
+    }, [ledgerTransport, isLedger]);
 
-    const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
+    const owner = isLedger ? ledgerAddress! : selected!.address;
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
     const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
     const hints = useDisplayableJettons(owner.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
 
-    const onJettonCallback = useCallback((selected?: { wallet?: Address, master: Address }) => {
-        if (jettonCallback) {
-            setTimeout(() => {
-                navigation.goBack();
-                jettonCallback(selected);
-            }, 10);
-        }
-    }, [jettonCallback]);
-
-    const onAssetCallback = useCallback((selected: ReceiveableAsset | null) => {
+    const onAssetCallback = useCallback((asset: ReceiveableAsset | null) => {
         if (assetCallback) {
             setTimeout(() => {
                 navigation.goBack();
-                assetCallback(selected);
+                assetCallback(asset);
             }, 10);
+        } else {
+            navigation.navigateReceive({ asset: asset || undefined, ledger: isLedger });
         }
-    }, [assetCallback]);
-
-    const onJettonSelected = useCallback((hint: JettonFull) => {
-        if (jettonCallback) {
-            onJettonCallback({
-                wallet: Address.parse(hint.walletAddress.address),
-                master: Address.parse(hint.jetton.address)
-            });
-            return;
-        } else if (assetCallback) {
-            onAssetCallback({
-                address: Address.parse(hint.jetton.address),
-                content: { icon: hint.jetton.image, name: hint.jetton.name }
-            });
-            return;
-        }
-
-        if (isLedgerScreen) {
-            navigation.replace('LedgerSimpleTransfer', {
-                amount: null,
-                target: target,
-                comment: null,
-                jetton: Address.parse(hint.walletAddress.address),
-                stateInit: null,
-                job: null,
-                callback: null
-            });
-            return;
-        }
-
-        navigation.navigateSimpleTransfer({
-            amount: null,
-            target: target,
-            comment: null,
-            jetton: Address.parse(hint.walletAddress.address),
-            stateInit: null,
-            callback: null
-        });
-    }, [onJettonCallback, onAssetCallback]);
-
-    const onTonSelected = useCallback(() => {
-        if (jettonCallback) {
-            onJettonCallback();
-            return;
-        } else if (assetCallback) {
-            onAssetCallback(null);
-            return;
-        }
-
-        if (isLedgerScreen) {
-            navigation.replace('LedgerSimpleTransfer', {
-                amount: null,
-                target: target,
-                stateInit: null,
-                comment: null,
-                jetton: null,
-                callback: null
-            });
-            return;
-        }
-
-        navigation.navigateSimpleTransfer({
-            amount: null,
-            target: target,
-            stateInit: null,
-            comment: null,
-            jetton: null,
-            callback: null
-        });
-    }, [isLedgerScreen, onJettonCallback, onAssetCallback]);
+    }, [assetCallback, isLedger]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
+        console.log('onAssetCallback', target);
         if (!target.address) {
             return;
         }
-        if (assetCallback) {
-            const name = getAccountName(target.accountIndex, target.name);
 
-            onAssetCallback({
-                address: Address.parse(target.address),
-                content: { icon: null, name },
-                holders: target
-            });
-            return;
-        }
+        const name = getAccountName(target.accountIndex, target.name);
 
-        if (isLedgerScreen) {
-            if (!target.address) {
-                return;
-            }
+        console.log('onAssetCallback', target.address, target.address, name);
 
-            navigation.replace('LedgerSimpleTransfer', {
-                amount: null,
-                target: target.address,
-                comment: null,
-                jetton: null,
-                stateInit: null,
-                job: null,
-                callback: null
-            });
-            return;
-        }
-
-        navigation.navigateSimpleTransfer({
-            amount: null,
-            target: target.address,
-            comment: null,
-            jetton: null,
-            stateInit: null,
-            callback: null
+        onAssetCallback({
+            address: Address.parse(target.address),
+            content: { icon: null, name },
+            holders: target
         });
-    }, [onJettonCallback, onAssetCallback, isTestnet]);
+    }, [onAssetCallback, isTestnet]);
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
             case AssetType.HOLDERS:
-                let isSelected = false;
-
-                if (item.account.address) {
-                    try {
-                        isSelected = selectedAsset?.equals(Address.parse(item.account.address)) ?? false;
-                    } catch { }
-                }
 
                 return (
                     <HoldersAccountItem
@@ -262,33 +151,72 @@ export const ReceiveAssetsFragment = fragment(() => {
                         hideCardsIfEmpty
                         holdersAccStatus={holdersAccStatus}
                         onOpen={() => onHoldersSelected(item.account)}
-                        selectable
-                        isSelected={isSelected}
+                        content={{ type: HoldersItemContentType.NAVIGATION }}
                     />
                 );
             case AssetType.SPECIAL:
                 return (
                     <SpecialJettonProduct
                         theme={theme}
-                        address={address}
+                        address={owner}
                         testOnly={isTestnet}
-                        divider={'top'}
                     />
                 );
             case AssetType.OTHERCOINS:
-                return (
-                    <Pressable>
+                // TODO: implement
+                // navigation.navigateAssets(
+                //             {
+                //                 assetCallback: setAsset,
+                //                 selectedAsset: asset?.address,
+                //                 viewType: AssetViewType.Receive,
+                //                 includeHolders: true
+                //             },
+                //             ledger
+                //         );
 
-                    </Pressable>
-                )
-            default:
+                const navigate = () => navigation.navigateAssets({
+                    hideTon: true,
+                });
                 return (
-                    <TonAssetItem onSelect={onTonSelected} />
+                    <Pressable
+                        onPress={navigate}
+                        style={({ pressed }) => ([{ opacity: pressed ? 0.8 : 1 }])}
+                    >
+                        <View style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            padding: 20,
+                            marginBottom: 16,
+                            borderRadius: 20,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
+                            <View style={{
+                                width: 46, height: 46,
+                                justifyContent: 'center', alignItems: 'center',
+                                borderRadius: 23,
+                                backgroundColor: theme.accent
+                            }}>
+                                <Image
+                                    source={require('@assets/ic-dots.png')}
+                                    style={{ height: 24, width: 24 }}
+                                />
+                            </View>
+                            <View style={{ justifyContent: 'center', flexGrow: 1, flex: 1, marginLeft: 12 }}>
+                                <Text style={[{ flexShrink: 1, color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                    {t('receive.otherCoins')}
+                                </Text>
+                            </View>
+                        </View>
+                    </Pressable>
                 );
+            default:
+                const tonCallback = () => onAssetCallback(null);
+                return (<TonAssetItem onSelect={tonCallback} />);
         }
     }, [
-        selectedAsset, owner, isTestnet, theme, owner, holdersAccStatus,
-        onJettonSelected, onTonSelected, onHoldersSelected
+        owner, isTestnet, theme, owner, holdersAccStatus,
+        onHoldersSelected
     ]);
 
     const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {
@@ -309,11 +237,11 @@ export const ReceiveAssetsFragment = fragment(() => {
         }
     }, [theme]);
 
-    // showOtherCoins
     const defaultSection: { type: 'default' | 'holders', data: ListItem[] } = {
         type: 'default',
         data: [{ type: AssetType.TON }, { type: AssetType.SPECIAL }]
     };
+
     if (showOtherCoins) {
         defaultSection.data.push({ type: AssetType.OTHERCOINS });
     }
@@ -324,7 +252,7 @@ export const ReceiveAssetsFragment = fragment(() => {
             type: 'holders',
             data: [...holdersAccounts.map((account) => ({ account, type: AssetType.HOLDERS }))]
         }
-    ]
+    ];
 
     return (
         <View style={{ flexGrow: 1 }}>

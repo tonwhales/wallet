@@ -81,7 +81,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         notFound: 'Not found',
         unverified: 'Unverified',
         addressBook: 'Address book',
-        gasless: 'Gasless'
+        gasless: 'Gasless',
+        address: 'Address'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -169,7 +170,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
         assets: 'Tokens and Accounts',
-        fromExchange: 'From an exchange'
+        fromExchange: 'From an exchange',
+        otherCoins: 'Other tokens'
     },
     transfer: {
         title: 'Send',
@@ -192,7 +194,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
-            holdersMemoRequired: 'Tag/MEMO',
+            holdersMemoRequired: 'Comment/MEMO',
             memoChange: 'Change memo/tag to \"{{memo}}\"',
             gaslessFailed: 'Failed to send transaction',
             gaslessFailedMessage: 'Please try again or contact support',

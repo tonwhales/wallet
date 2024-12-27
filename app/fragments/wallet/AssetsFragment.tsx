@@ -20,7 +20,7 @@ import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { ValueComponent } from "../../components/ValueComponent";
 import { ReceiveableAsset } from "./ReceiveFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
-import { HoldersAccountItem } from "../../components/products/HoldersAccountItem";
+import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
 
@@ -114,6 +114,7 @@ const TonAssetItem = memo((params: {
 export type AssetsFragmentParams = {
     target?: string,
     includeHolders?: boolean,
+    hideTon?: boolean,
     jettonCallback?: (selected?: { wallet?: Address, master: Address }) => void,
     assetCallback?: (selected: ReceiveableAsset | null) => void,
     selectedAsset?: Address | null,
@@ -129,7 +130,7 @@ export const AssetsFragment = fragment(() => {
     const selected = useSelectedAccount();
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
-    const { target, jettonCallback, assetCallback, selectedAsset, viewType, includeHolders } = useParams<AssetsFragmentParams>();
+    const { target, jettonCallback, assetCallback, selectedAsset, viewType, includeHolders, hideTon } = useParams<AssetsFragmentParams>();
 
     const title = viewType === AssetViewType.Receive
         ? t('receive.assets')
@@ -340,8 +341,7 @@ export const AssetsFragment = fragment(() => {
                         hideCardsIfEmpty
                         holdersAccStatus={holdersAccStatus}
                         onOpen={() => onHoldersSelected(item.account)}
-                        selectable
-                        isSelected={isSelected}
+                        content={{ type: HoldersItemContentType.SELECT, isSelected }}
                     />
                 );
             case 'jetton':
@@ -358,6 +358,10 @@ export const AssetsFragment = fragment(() => {
                     />
                 );
             default:
+                if (hideTon) {
+                    return null;
+                }
+
                 return (
                     <TonAssetItem
                         balance={account?.balance ?? 0n}
@@ -370,7 +374,8 @@ export const AssetsFragment = fragment(() => {
         }
     }, [
         selectedAsset, owner, isTestnet, theme, viewType, account?.balance, owner, holdersAccStatus,
-        onJettonSelected, onTonSelected, onHoldersSelected
+        onJettonSelected, onTonSelected, onHoldersSelected,
+        hideTon
     ]);
 
     const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {

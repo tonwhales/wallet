@@ -24,6 +24,7 @@ import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransa
 import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
 import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
+import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -258,6 +259,10 @@ export class TypedNavigation {
 
     navigateReceive(params?: ReceiveFragmentParams) {
         this.navigate('Receive', params);
+    }
+
+    navigateReceiveAssets(params: ReceiveAssetsFragment) {
+        this.navigate('ReceiveAssets', params);
     }
 
     navigateAssets(params: AssetsFragmentParams, isLedger?: boolean) {

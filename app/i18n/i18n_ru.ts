@@ -81,7 +81,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "notFound": "Не найден",
         "unverified": "Неверифицированные",
         "addressBook": "Адресная книга",
-        "gasless": "Gasless"
+        "gasless": "Gasless",
+        "address": "Адрес"
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -153,7 +154,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
         "assets": "Жетоны и счета",
-        "fromExchange": "С биржи"
+        "fromExchange": "С биржи",
+        "otherCoins": "Другие токены"
     },
     "transfer": {
         "title": "Отправить",

@@ -18,7 +18,7 @@ import { fetchOtpAnswer } from "../../engine/api/holders/fetchOtpAnswer";
 
 const gradientColors = ['#478CF3', '#372DC8'];
 
-const OtpTimeOut = memo(({ expireAt }: { expireAt: Date }) => {
+const OtpTimer = memo(({ expireAt, onExpired }: { expireAt: Date, onExpired: () => void }) => {
     const theme = useTheme();
 
     const [timeLeft, setTimeLeft] = useState(expireAt.getTime() - Date.now());
@@ -139,6 +139,10 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
     const addressString = address.toString({ testOnly: isTestnet });
     const [actionDisabled, setActionDisabled] = useState(false);
 
+    const onExpired = () => {
+        queryClient.invalidateQueries(Queries.Holders(addressString).OPT());
+    }
+
     let expiresAt = null;
 
     if (otp && otp.expiresAt) {
@@ -184,7 +188,7 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
                         {message}
                     </Text>
                 </View>
-                {expiresAt && <OtpTimeOut expireAt={expiresAt} />}
+                {expiresAt && <OtpTimer expireAt={expiresAt} onExpired={onExpired} />}
             </View>
             <View style={styles.actions}>
                 <OtpAction

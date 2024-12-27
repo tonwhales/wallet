@@ -45,7 +45,7 @@ export function useHoldersWatcher() {
                     }
                     break;
                 case 'inapp_otp':
-                    queryClient.refetchQueries(otpKey);
+                    queryClient.invalidateQueries(otpKey);
                     break;
             }
         }, isTestnet);

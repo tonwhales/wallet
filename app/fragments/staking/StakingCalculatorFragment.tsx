@@ -50,15 +50,6 @@ export const StakingCalculatorFragment = fragment(() => {
 
     const nominator = useLiquidStakingMember(account)?.data;
 
-    const balance = useMemo(() => {
-        if (!isLiquid) {
-            return pool?.member?.balance ?? 0n;
-        }
-        const bal = fromNano(nominator?.balance || 0n);
-        const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
-        return toNano((parseFloat(bal) * parseFloat(rate)).toFixed(9));
-    }, [nominator?.balance, liquidStaking?.rateWithdraw, isLiquid]);
-
     const config = useStakingWalletConfig(account!.toString({ testOnly: network.isTestnet }));
 
     const available = useMemo(() => {
@@ -72,7 +63,24 @@ export const StakingCalculatorFragment = fragment(() => {
 
     const pool = useStakingPool(target, ledgerAddress);
 
-    const [amount, setAmount] = useState(balance ? fromNano(balance) : '');
+    const balance = useMemo(() => {
+        if (!isLiquid) {
+            return pool?.member?.balance ?? 0n;
+        }
+        const bal = fromNano(nominator?.balance || 0n);
+        const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
+        return toNano((parseFloat(bal) * parseFloat(rate)).toFixed(9));
+    }, [nominator?.balance, liquidStaking?.rateWithdraw, isLiquid]);
+
+    let initialAmount = balance ? fromNano(balance) : '';
+    if (initialAmount) {
+        const parts = initialAmount.split('.');
+        if (parts.length > 1) {
+            initialAmount = `${parts[0]}.${parts[1].slice(0, 2)}`;
+        }
+    }
+
+    const [amount, setAmount] = useState(initialAmount);
     const validAmount = useValidAmount(amount);
 
     const priceText = useMemo(() => {
@@ -81,7 +89,6 @@ export const StakingCalculatorFragment = fragment(() => {
         }
 
         const isNeg = validAmount < 0n;
-        const abs = isNeg ? -validAmount : validAmount;
 
         return formatCurrency(
             (parseFloat(fromNano(validAmount)) * (price ? price?.price.usd * price.price.rates[currency] : 0)).toFixed(2),

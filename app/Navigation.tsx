@@ -101,6 +101,7 @@ import { holdersUrl } from './engine/api/holders/fetchUserState';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
+import { LanguageFragment } from './fragments/LanguageFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -326,6 +327,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('W5Update', W5UpdateFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
     modalScreen('SearchEngine', SearchEngineFragment, safeArea),
+    modalScreen('Language', LanguageFragment, safeArea),
     lockedModalScreen('MandatoryAuthSetup', MandatoryAuthSetupFragment, safeArea),
 
     // Holders

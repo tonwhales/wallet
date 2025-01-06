@@ -116,6 +116,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "deleteAccount": "Удалить аккаунт",
         "theme": "Тема",
         "searchEngine": "Поисковая система",
+        "language": "Язык"
     },
     "theme": {
         "title": "Тема",

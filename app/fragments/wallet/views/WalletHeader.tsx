@@ -8,7 +8,7 @@ import { getAppState } from "../../../storage/appState";
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
 import { useLinkNavigator } from "../../../useLinkNavigator";
-import { useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
+import { useNetwork, useTheme } from "../../../engine/hooks";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { avatarHash } from "../../../utils/avatarHash";
 import { Typography } from "../../../components/styles";
@@ -26,7 +26,7 @@ export const WalletHeader = memo(({ address }: { address: Address }) => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
-    const currentWalletIndex = getAppState().selected;
+    const currentWalletIndex = getAppState().addresses.findIndex((w) => w.address.equals(address));
     const [walletSettings] = useWalletSettings(address);
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);

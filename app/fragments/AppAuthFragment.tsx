@@ -16,6 +16,7 @@ import { useLogoutAndReset } from "../engine/hooks/accounts/useLogoutAndReset";
 import { useRoute } from "@react-navigation/native";
 import { updateLastAuthTimestamp } from "../components/secure/AuthWalletKeys";
 import { useAppBlur } from "../components/AppBlurContext";
+import { CachedLinking } from "../utils/CachedLinking";
 
 export const AppAuthFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -64,6 +65,7 @@ export const AppAuthFragment = fragment(() => {
 
         if (!isAppStart) {
             navigation.goBack();
+            CachedLinking.openLastLink();
             return;
         }
         const route = resolveOnboarding(network.isTestnet, false);
@@ -76,8 +78,6 @@ export const AppAuthFragment = fragment(() => {
         }
 
         // lock native android navigation
-
-
         const subscription: NativeEventSubscription = AppState.addEventListener('change', (newState) => {
             if (newState === 'active') {
                 setBlur(false);

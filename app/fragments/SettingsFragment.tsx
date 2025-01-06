@@ -11,7 +11,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady, useLanguage } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
@@ -27,6 +27,8 @@ import { getHoldersToken, HoldersAccountStatus, useHoldersAccountStatus } from '
 import { HoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
 import { useIsHoldersInvited } from '../engine/hooks/holders/useIsHoldersInvited';
 import { HoldersAppParamsType } from './holders/HoldersAppFragment';
+import { HeaderSyncStatus } from './wallet/views/HeaderSyncStatus';
+import { lagnTitles } from '../i18n/i18n';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -39,7 +41,6 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
-import { HeaderSyncStatus } from './wallet/views/HeaderSyncStatus';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -54,6 +55,7 @@ export const SettingsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const [, currency] = usePrice();
+    const [lang] = useLanguage();
     const [bounceableFormat] = useBounceableWalletFormat();
     const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '');
     const inviteCheck = useIsHoldersInvited(selected?.address, network.isTestnet);
@@ -313,6 +315,12 @@ export const SettingsFragment = fragment(() => {
                     />
                     <ItemButton
                         leftIcon={require('@assets/ic-explorer.png')}
+                        title={t('settings.language')}
+                        onPress={() => navigation.navigate('Language')}
+                        hint={lagnTitles[lang] || lang}
+                    />
+                    <ItemButton
+                        leftIcon={require('@assets/ic-search.png')}
                         title={t('settings.searchEngine')}
                         onPress={() => navigation.navigate('SearchEngine')}
                     />

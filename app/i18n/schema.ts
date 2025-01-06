@@ -117,7 +117,8 @@ export type LocalizationSchema = {
         rateApp: string,
         deleteAccount: string,
         theme: string,
-        searchEngine: string
+        searchEngine: string,
+        language: string
     },
     theme: {
         title: string,

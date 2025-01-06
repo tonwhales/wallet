@@ -3,4 +3,5 @@ export const SupportedDomains = [
     'test.tonhub.com',
     'www.tonhub.com',
     'www.test.tonhub.com',
+    'app.tonkeeper.com',
 ];

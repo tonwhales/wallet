@@ -23,6 +23,7 @@ export enum ResolveUrlError {
 export type ResolvedUrl = {
     type: 'transaction',
     address: Address,
+    isBounceable?: boolean,
     comment: string | null,
     amount: bigint | null,
     payload: Cell | null,
@@ -30,6 +31,7 @@ export type ResolvedUrl = {
 } | {
     type: 'jetton-transaction',
     address: Address,
+    isBounceable?: boolean,
     jettonMaster: Address,
     comment: string | null,
     amount: bigint | null,
@@ -134,11 +136,19 @@ function resolveTransferUrl(url: Url<Record<string, string | undefined>>): Resol
     }
 
     let address: Address;
+    let isBounceable = true;
     try {
-        address = Address.parseFriendly(rawAddress).address;
-    } catch (e) {
-        return { type: 'error', error: ResolveUrlError.InvalidAddress };
+        const addr = Address.parseFriendly(rawAddress);
+        address = addr.address;
+        isBounceable = addr.isBounceable;
+    } catch {
+        try {
+            address = Address.parse(rawAddress);
+        } catch (error) {
+            return { type: 'error', error: ResolveUrlError.InvalidAddress };
+        }
     }
+
     let comment: string | null = null;
     let amount: bigint | null = null;
     let payload: Cell | null = null;
@@ -210,6 +220,7 @@ function resolveTransferUrl(url: Url<Record<string, string | undefined>>): Resol
         return {
             type: 'jetton-transaction',
             address,
+            isBounceable,
             jettonMaster,
             comment,
             amount,
@@ -222,6 +233,7 @@ function resolveTransferUrl(url: Url<Record<string, string | undefined>>): Resol
     return {
         type: 'transaction',
         address,
+        isBounceable,
         comment,
         amount,
         payload,

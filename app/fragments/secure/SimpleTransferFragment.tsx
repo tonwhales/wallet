@@ -493,7 +493,8 @@ const SimpleTransferComponent = () => {
                 }
 
                 if (res.address) {
-                    mTarget = res.address.toString({ testOnly: network.isTestnet });
+                    const bounceable = res.isBounceable ?? true;
+                    mTarget = res.address.toString({ testOnly: network.isTestnet, bounceable });
                 }
 
                 if (res.amount) {

@@ -4,7 +4,7 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useIsConnectAppReady, useJetton, usePrice, useTheme } from "../../engine/hooks";
+import { useIsConnectAppReady, useJetton, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -18,6 +18,7 @@ import { Address, toNano } from "@ton/core";
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
 import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
+import { AddressComponent } from "../address/AddressComponent";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -38,9 +39,11 @@ export const HoldersAccountItem = memo((props: {
     onBeforeOpen?: () => void
     onOpen?: () => void,
     selectable?: boolean,
-    isSelected?: boolean
+    isSelected?: boolean,
+    addressDescription?: boolean
 }) => {
     const [price] = usePrice();
+    const { isTestnet } = useNetwork();
     const master = props?.account?.cryptoCurrency?.tokenContract || undefined;
     const owner = props.owner;
     const jettonMasterContent = useJetton({ owner, master });
@@ -159,7 +162,13 @@ export const HoldersAccountItem = memo((props: {
                                     ellipsizeMode={'tail'}
                                 >
                                     <PerfText style={{ flexShrink: 1 }}>
-                                        {subtitle}
+                                        {props.addressDescription && !!props.account.address ? (
+                                            <AddressComponent
+                                                bounceable={true}
+                                                address={props.account.address}
+                                                testOnly={isTestnet}
+                                            />
+                                        ) : (subtitle)}
                                     </PerfText>
                                 </PerfText>
                             </View>

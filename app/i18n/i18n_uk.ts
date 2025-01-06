@@ -626,6 +626,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     fetchToken: 'Під час отримання токена',
                     createSignature: 'Під час створення підпису',
                 },
+            },
+            otpBanner: {
+                title: 'Новий запит на оплату',
+                accept: 'Прийняти',
+                decline: 'Відхилити'
             }
         }
     },

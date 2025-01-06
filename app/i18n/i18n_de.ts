@@ -626,6 +626,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     fetchToken: 'Fehler beim Token-Abruf',
                     createSignature: 'Fehler bei der Signaturerstellung'
                 }
+            },
+            otpBanner: {
+                title: 'Neue Zahlungsanfrage',
+                accept: 'Akzeptieren',
+                decline: 'Ablehnen'
             }
         }
     },

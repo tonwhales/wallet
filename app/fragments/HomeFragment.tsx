@@ -25,6 +25,7 @@ import { useParams } from '../utils/useParams';
 import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from './secure/TransferFragment';
 import { HoldersAppParams } from './holders/HoldersAppFragment';
+import { shouldLockApp } from '../components/SessionWatcher';
 
 const Tab = createBottomTabNavigator();
 
@@ -63,6 +64,11 @@ export const HomeFragment = fragment(() => {
     // Subscribe for links
     useEffect(() => {
         return CachedLinking.setListener((link: string) => {
+            // persist link in memory to reuse after app auth
+            if (shouldLockApp()) {
+                return link;
+            }
+
             let resolved = resolveUrl(link, network.isTestnet);
             if (resolved) {
                 try {
@@ -72,6 +78,7 @@ export const HomeFragment = fragment(() => {
                 }
                 linkNavigator(resolved);
             }
+            return null;
         });
     }, []);
 

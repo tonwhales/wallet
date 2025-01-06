@@ -4,11 +4,20 @@ import { AppState, Platform } from "react-native";
 import { useLockAppWithAuthState } from "../engine/hooks/settings";
 import { getLastAuthTimestamp } from "./secure/AuthWalletKeys";
 import { useAppBlur } from "./AppBlurContext";
+import { getLockAppWithAuthState } from "../engine/state/lockAppWithAuthState";
 
 const appLockTimeout = 1000 * 60 * 15; // 15 minutes
 
+export function shouldLockApp() {
+    const lastAuthAt = getLastAuthTimestamp() ?? 0;
+    const lockAppWithAuth = getLockAppWithAuthState();
+
+    const timedOut = lastAuthAt + appLockTimeout < Date.now();
+    return lockAppWithAuth && timedOut;
+}
+
 export const SessionWatcher = (({ navRef }: { navRef: NavigationContainerRefWithCurrent<any> }) => {
-    const [locked,] = useLockAppWithAuthState();
+    const [locked] = useLockAppWithAuthState();
     const lastStateRef = useRef<string | null>(null);
     const { setBlur } = useAppBlur();
     useEffect(() => {
@@ -18,9 +27,7 @@ export const SessionWatcher = (({ navRef }: { navRef: NavigationContainerRefWith
         }
 
         const checkAndNavigate = () => {
-            const lastAuthAt = getLastAuthTimestamp() ?? 0;
-
-            if (lastAuthAt + appLockTimeout < Date.now()) {
+            if (shouldLockApp()) {
                 navRef.navigate('AppAuth');
             } else {
                 setBlur(false);

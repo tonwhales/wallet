@@ -73,7 +73,7 @@ export async function fetchPaymentOtp(token: string, isTestnet: boolean): Promis
     }
 
     const parsed = inappOtpResultCodec.safeParse(res.data);
-
+    
     if (!parsed.success) {
         throw new Error(`Failed to parse response: ${JSON.stringify(parsed.error.errors)}`);
     }

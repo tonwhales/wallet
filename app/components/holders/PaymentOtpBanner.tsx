@@ -16,6 +16,9 @@ import { Queries } from "../../engine/queries";
 import { Address } from "@ton/core";
 import { fetchOtpAnswer } from "../../engine/api/holders/fetchOtpAnswer";
 
+const AcceptIcon = <Image style={{ height: 16, width: 16 }} source={require('@assets/ic-accept-otp.png')} />;
+const DeclineIcon = <Image style={{ height: 16, width: 16 }} source={require('@assets/ic-decline-otp.png')} />;
+
 const gradientColors = ['#478CF3', '#372DC8'];
 
 const OtpTimer = memo(({ expireAt, onExpired }: { expireAt: Date, onExpired: () => void }) => {
@@ -25,11 +28,15 @@ const OtpTimer = memo(({ expireAt, onExpired }: { expireAt: Date, onExpired: () 
 
     useEffect(() => {
         const interval = setInterval(() => {
+            if (timeLeft <= 0) {
+                onExpired();
+                return;
+            }
             setTimeLeft(expireAt.getTime() - Date.now());
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [expireAt]);
+    }, [expireAt, onExpired]);
 
     const minutes = Math.floor(timeLeft / 60000);
     const seconds = Math.floor(timeLeft / 1000) % 60;
@@ -55,13 +62,10 @@ const OtpTimer = memo(({ expireAt, onExpired }: { expireAt: Date, onExpired: () 
     );
 });
 
-const AcceptIcon = <Image style={{ height: 16, width: 16 }} source={require('@assets/ic-accept-otp.png')} />;
-const DeclineIcon = <Image style={{ height: 16, width: 16 }} source={require('@assets/ic-decline-otp.png')} />;
-
-const fetchOtpAnswerFn = ({ id, accept, token, isTestnet, address }: { id: string, accept: boolean, token: string, isTestnet: boolean, address: string }) => (async () => {
+const onOtpAnswer = ({ id, accept, token, isTestnet, address }: { id: string, accept: boolean, token: string, isTestnet: boolean, address: string }) => (async () => {
     try {
         await fetchOtpAnswer({ id, accept, token, isTestnet });
-        queryClient.refetchQueries(Queries.Holders(address).Invite());
+        queryClient.refetchQueries(Queries.Holders(address).OPT());
     } catch {}
 });
 
@@ -93,10 +97,10 @@ const OtpAction = memo((
                 return;
             }
 
-            const answer = fetchOtpAnswerFn({ id, accept, token, isTestnet, address });
+            const callback = onOtpAnswer({ id, accept, token, isTestnet, address });
 
             if (!lockAppWithAuth) {
-                navigation.navigateMandatoryAuthSetup({ callback: answer });
+                navigation.navigateMandatoryAuthSetup({ callback });
                 return;
             }
 
@@ -132,16 +136,19 @@ const OtpAction = memo((
     );
 });
 
+function expired(expireAt: Date | null) {
+    if (!expireAt) {
+        return true;
+    }
+    return expireAt.getTime() < Date.now();
+}
+
 export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const otp = useHoldersOtp(address, isTestnet);
     const addressString = address.toString({ testOnly: isTestnet });
     const [actionDisabled, setActionDisabled] = useState(false);
-
-    const onExpired = () => {
-        queryClient.invalidateQueries(Queries.Holders(addressString).OPT());
-    }
 
     let expiresAt = null;
 
@@ -151,13 +158,26 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
         } catch (error) { }
     }
 
-    const hasExpired = expiresAt && expiresAt.getTime() < Date.now();
+    const [hasExpired, setHasExpired] = useState(expired(expiresAt));
 
-    if (!otp || hasExpired) {
-        return null;
+    const onExpired = () => {
+        queryClient.invalidateQueries(Queries.Holders(addressString).OPT());
+        setHasExpired(true);
     }
 
-    if (otp.type !== 'confirmation_request') {
+    useEffect(() => {
+        const isOtpExpired = expired(expiresAt);
+        if (isOtpExpired) {
+            onExpired();
+        } else {
+            setHasExpired(false);
+        }
+    }, [expiresAt]);
+
+    const isUsed = otp?.status !== 'PENDING';
+    const isValid = !!otp && otp.type === 'confirmation_request'
+
+    if (!isValid || hasExpired || isUsed) {
         return null;
     }
 

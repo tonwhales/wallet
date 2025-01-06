@@ -65,7 +65,7 @@ const OtpTimer = memo(({ expireAt, onExpired }: { expireAt: Date, onExpired: () 
 const onOtpAnswer = ({ id, accept, token, isTestnet, address }: { id: string, accept: boolean, token: string, isTestnet: boolean, address: string }) => (async () => {
     try {
         await fetchOtpAnswer({ id, accept, token, isTestnet });
-        queryClient.refetchQueries(Queries.Holders(address).OPT());
+        queryClient.refetchQueries(Queries.Holders(address).OTP());
     } catch {}
 });
 
@@ -161,7 +161,7 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
     const [hasExpired, setHasExpired] = useState(expired(expiresAt));
 
     const onExpired = () => {
-        queryClient.invalidateQueries(Queries.Holders(addressString).OPT());
+        queryClient.invalidateQueries(Queries.Holders(addressString).OTP());
         setHasExpired(true);
     }
 

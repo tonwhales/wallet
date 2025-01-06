@@ -22,7 +22,7 @@ export function useHoldersOtp(address: string | Address | undefined, isTestnet: 
     ) ? status.token : null;
 
     const query = useQuery({
-        queryKey: Queries.Holders(addressString!).OPT(),
+        queryKey: Queries.Holders(addressString!).OTP(),
         refetchOnMount: true,
         enabled: !!addressString,
         queryFn: async () => {

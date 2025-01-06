@@ -27,7 +27,7 @@ export const Queries = {
         Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
         Notifications: (id: string) => ['holders', address, 'events', id],
         Invite: () => ['holders', address, 'invite', 'v2'],
-        OPT: () => ['holders-opt', address],
+        OTP: () => ['holders-otp', address],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

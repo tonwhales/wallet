@@ -14,7 +14,7 @@ export function useHoldersWatcher() {
     const accAddressString = account?.address.toString({ testOnly: isTestnet }) ?? '';
     const status = useHoldersAccountStatus(accAddressString);
     const cards = useHoldersAccounts(accAddressString);
-    const otpKey = Queries.Holders(accAddressString).OPT();
+    const otpKey = Queries.Holders(accAddressString).OTP();
 
     useEffect(() => {
         if (status?.data?.state !== HoldersUserState.Ok) {

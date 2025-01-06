@@ -20,6 +20,7 @@ export const LedgerWalletHeader = memo(() => {
         try {
             let res = resolveUrl(src, isTestnet);
             if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
+                const bounceable = res.isBounceable ?? true;
                 if (res.type === 'transaction') {
                     if (res.payload) {
                         // TODO: implement
@@ -38,7 +39,7 @@ export const LedgerWalletHeader = memo(() => {
                         // });
                     } else {
                         navigation.navigateLedgerTransfer({
-                            target: res.address.toString({ testOnly: isTestnet }),
+                            target: res.address.toString({ testOnly: isTestnet, bounceable }),
                             comment: res.comment,
                             amount: res.amount,
                             stateInit: res.stateInit,
@@ -48,8 +49,9 @@ export const LedgerWalletHeader = memo(() => {
                     }
                     return;
                 }
+
                 navigation.navigateLedgerTransfer({
-                    target: res.address.toString({ testOnly: isTestnet }),
+                    target: res.address.toString({ testOnly: isTestnet, bounceable }),
                     comment: res.comment,
                     amount: res.amount,
                     stateInit: null,

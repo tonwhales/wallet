@@ -24,7 +24,7 @@ export function useHoldersOtp(address: string | Address | undefined, isTestnet: 
     const query = useQuery({
         queryKey: Queries.Holders(addressString!).OTP(),
         refetchOnMount: true,
-        enabled: !!addressString,
+        enabled: !!addressString && !!token,
         queryFn: async () => {
             if (!token) {
                 return null;

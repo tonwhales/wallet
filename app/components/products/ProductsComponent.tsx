@@ -28,6 +28,7 @@ import { HoldersBanner } from "./HoldersBanner"
 import { SavingsProduct } from "./SavingsProduct"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
+import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
@@ -101,9 +102,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     return (
         <View>
-            <View style={{
-                backgroundColor: theme.backgroundPrimary,
-            }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary }}>
+                <PaymentOtpBanner address={selected.address} />
                 <AddressFormatUpdate />
                 <W5Banner />
                 <DappsRequests />

@@ -6,14 +6,16 @@ import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { storage } from "../../storage/storage";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useNetwork, useTheme } from "../../engine/hooks";
+import { Typography } from "../styles";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 import IcClose from '@assets/ic-close.svg';
-import { Typography } from "../styles";
 
 const wasHiddenKey = 'pool-banner-hidden';
 
 export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) => {
     const theme = useTheme();
+    const navigation = useTypedNavigation();
     const network = useNetwork();
     const dimentions = useWindowDimensions();
 
@@ -22,11 +24,27 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
 
     const onLearMore = useCallback(() => {
         if (type === 'club') {
-            openWithInApp(network.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club');
+            const url = network.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club';
+
+            navigation.navigateDAppWebViewModal({
+                lockNativeBack: true,
+                safeMode: true,
+                url,
+                header: { title: { type: 'params', params: { domain: 'tonwhales.com', title: t('products.staking.pools.club') } } },
+                useStatusBar: true,
+                engine: 'ton-connect',
+                controlls: {
+                    refresh: true,
+                    share: true,
+                    back: true,
+                    forward: true
+                },
+            });
             return;
         }
+
         openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
-    }, [type]);
+    }, [type, network.isTestnet]);
 
     const onDismiss = useCallback(() => {
         storage.set(`${wasHiddenKey}-${type}`, true);

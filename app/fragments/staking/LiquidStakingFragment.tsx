@@ -24,6 +24,7 @@ import { LiquidStakingMember } from "../../components/staking/LiquidStakingBalan
 import { TransferAction } from "./StakingTransferFragment";
 import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
+import { extractDomain } from "../../engine/utils/extractDomain";
 
 export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
@@ -104,10 +105,29 @@ export const LiquidStakingFragment = fragment(() => {
         navigation.navigateLiquidWithdrawAction(isLedger);
     }, [isLedger]);
 
-    const openMoreInfo = useCallback(() => {
-        openWithInApp(KnownPools(network.isTestnet)[targetPoolFriendly]?.webLink)
-    }, [network.isTestnet]);
-    const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
+    const openMoreInfo = () => {
+        const url = KnownPools(network.isTestnet)[targetPoolFriendly]?.webLink;
+
+        if (!!url) {
+            const domain = extractDomain(url);
+            navigation.navigateDAppWebViewModal({
+                lockNativeBack: true,
+                safeMode: true,
+                url,
+                header: { title: { type: 'params', params: { domain } } },
+                useStatusBar: true,
+                engine: 'ton-connect',
+                controlls: {
+                    refresh: true,
+                    share: true,
+                    back: true,
+                    forward: true
+                }
+            });
+        }
+    };
+
+    const navigateToCurrencySettings = () => navigation.navigate('Currency');
 
     const stakeInfo = useMemo(() => {
         const amount = nominator?.balance || 0n;

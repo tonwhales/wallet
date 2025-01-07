@@ -25,7 +25,22 @@ function clubAlert(navigation: TypedNavigation, pool: string) {
             },
             {
                 text: t('products.staking.pools.viewClub'),
-                onPress: () => { openWithInApp('https://tonwhales.com/club'); },
+                onPress: () => {
+                    navigation.navigateDAppWebViewModal({
+                        lockNativeBack: true,
+                        safeMode: true,
+                        url: 'https://tonwhales.com/club',
+                        header: { title: { type: 'params', params: { domain: 'tonwhales.com', title: t('products.staking.pools.club') } } },
+                        useStatusBar: true,
+                        engine: 'ton-connect',
+                        controlls: {
+                            refresh: true,
+                            share: true,
+                            back: true,
+                            forward: true
+                        },
+                    });
+                },
             },
             { text: t('common.cancel'), onPress: () => { }, style: "cancel" }
         ]
@@ -43,7 +58,22 @@ function restrictedAlert(navigation: TypedNavigation, pool: string) {
             },
             {
                 text: t('products.staking.moreInfo'),
-                onPress: () => { openWithInApp('https://tonwhales.com/staking'); },
+                onPress: () => {
+                    navigation.navigateDAppWebViewModal({
+                        lockNativeBack: true,
+                        safeMode: true,
+                        url: 'https://tonwhales.com/staking',
+                        header: { title: { type: 'params', params: { domain: 'tonwhales.com', title: t('products.staking.pools.club') } } },
+                        useStatusBar: true,
+                        engine: 'ton-connect',
+                        controlls: {
+                            refresh: true,
+                            share: true,
+                            back: true,
+                            forward: true
+                        },
+                    });
+                },
             },
             { text: t('common.cancel'), onPress: () => { }, style: "cancel" }
         ]

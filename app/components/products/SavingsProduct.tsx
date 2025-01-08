@@ -118,9 +118,22 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
         }
     }, [isTestnet, theme, selectParams]);
 
-    const items: SavingsItem[] = [{ type: AssetType.Ton }, { type: AssetType.Special }, ...(savings.map((s) => ({ type: AssetType.Jetton, ...s })))];
+    const savingsItems = savings
+        .filter((s) => { // filter out zero balances
+            try {
+                return BigInt(s.balance) > 0n;
+            } catch { }
+            return false;
+        })
+        .map((s) => ({ type: AssetType.Jetton, ...s }));
 
-    if (savings.length === 0) {
+    const items: SavingsItem[] = [
+        { type: AssetType.Ton },
+        { type: AssetType.Special },
+        ...savingsItems
+    ];
+
+    if (savingsItems.length === 0) {
         return (
             <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>

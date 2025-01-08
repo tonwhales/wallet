@@ -711,11 +711,11 @@ export const KnownJettonMastersTestnet: { [key: string]: any } = {
     'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD': {} // wsTON
 }
 
-export const savingsMasters = {
-    'EQDNhy-nxYFgUqzfUzImBEP67JqsyMIcyk2S5_RwNNEYku0k': {}, // stTON
-    'EQC98_qAmNEptUtPc7W6xdHh_ZHrBUFpw5Ft_IzNU20QAJav': {}, // tsTON
-    'EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w': {}, // hTON
-    'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': {}, // wsTON
+export const savingsMasters: { [key: string]: { description: string } } = {
+    'EQDNhy-nxYFgUqzfUzImBEP67JqsyMIcyk2S5_RwNNEYku0k': { description: 'Bemo liquid token' }, // stTON
+    'EQC98_qAmNEptUtPc7W6xdHh_ZHrBUFpw5Ft_IzNU20QAJav': { description: 'Tonstakers liquid token' }, // tsTON
+    'EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w': { description: 'Hipo liquid token' }, // hTON
+    'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': { description: 'Whales liquid token' }, // wsTON
 }
 
 export const KnownJettonMastersMainnet: { [key: string]: any } = {

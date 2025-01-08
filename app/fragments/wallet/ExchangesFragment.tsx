@@ -4,7 +4,7 @@ import { fragment } from "../../fragment";
 import { View, Platform, Pressable, Text } from "react-native";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
+import { useLanguage, useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { DAppWebView, DAppWebViewProps } from "../../components/webview/DAppWebView";
@@ -20,7 +20,6 @@ import { Typography } from "../../components/styles";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { holdersSupportUrl, holdersSupportWebUrl, supportFormUrl } from "../holders/components/HoldersAppComponent";
-import { getLocales } from "react-native-localize";
 
 export type ExchangesFragmentParams = {
     holdersAccount: GeneralHoldersAccount
@@ -280,7 +279,7 @@ export const ExchangesFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const { holdersAccount } = useParams<ExchangesFragmentParams>();
     const { showActionSheetWithOptions } = useActionSheet();
-    const lang = getLocales()[0].languageCode;
+    const [lang] = useLanguage();
     const [currency] = usePrimaryCurrency();
 
     const uri = `${holdersUrl(isTestnet)}/deposit-direct-exchanges`;

@@ -47,7 +47,8 @@ type JettonProductItemProps = {
     }
     selected?: boolean,
     onReady?: (address: string) => void,
-    jettonViewType: AssetViewType
+    jettonViewType: AssetViewType,
+    description?: string
 };
 
 const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loading' | 'failed' }) => {
@@ -292,7 +293,7 @@ export const JettonProductItem = memo((props: JettonProductItemProps) => {
 
 const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     const theme = useTheme();
-    const { hint, jettonViewType, owner } = props;
+    const { hint, jettonViewType, owner, description } = props;
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const balance = BigInt(hint.balance) ?? 0n;
@@ -375,6 +376,16 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     const subtitle = useMemo(() => {
         switch (jettonViewType) {
             case AssetViewType.Default:
+                if (!!description) {
+                    return (
+                        <Text
+                            numberOfLines={1} ellipsizeMode={'tail'}
+                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                        >
+                            {description}
+                        </Text>
+                    );
+                }
                 let showRate = !!rate && rate !== 0;
 
                 // Check if rate is valid 
@@ -440,7 +451,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                 return null;
         }
 
-    }, [rate, balance, symbol, jettonViewType, currency, isSCAM, theme, hint.jetton.decimals]);
+    }, [rate, balance, symbol, jettonViewType, currency, isSCAM, theme, hint.jetton.decimals, description]);
 
     return (
         (props.rightAction) ? (

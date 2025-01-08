@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Linking, View, Platform, Share, Pressable, BackHandler } from "react-native";
+import { ActivityIndicator, Linking, View, Platform, Share, Pressable, BackHandler, Text } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -19,23 +19,56 @@ import { useInjectEngine } from "../apps/components/inject/useInjectEngine";
 import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomain";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getDomainKey } from "../../engine/state/domainKeys";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { QueryParamsState } from "../../components/webview/utils/extractWebViewQueryAPIParams";
 import { Ionicons } from '@expo/vector-icons';
 import { CloseButton } from "../../components/navigation/CloseButton";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../i18n/t";
+import { ThemeType } from "../../engine/state/theme";
+import { Typography } from "../../components/styles";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
+
+type TitleParams = { domain: string, title?: string | null }
+
+function DAppWebViewTitle(params: TitleParams, theme: ThemeType) {
+    const { domain, title } = params;
+    return (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ marginRight: 8 }}>
+                <View style={{
+                    width: 24, height: 24,
+                    borderRadius: 12,
+                    backgroundColor: theme.accent,
+                    justifyContent: 'center', alignItems: 'center'
+                }}>
+                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
+                        {domain.charAt(0).toUpperCase()}
+                    </Text>
+                </View>
+            </View>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                {title && (
+                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
+                        {title}
+                    </Text>
+                )}
+                <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
+                    {domain}
+                </Text>
+            </View>
+        </View>
+    );
+}
 
 export type DAppWebViewFragmentParams = {
     url: string;
     title?: string;
     header?: {
-        title?: string;
         onBack?: () => void;
         onClose?: () => void;
-        titleComponent?: React.ReactNode;
+        title?: { type: 'component', component: React.ReactNode } | { type: 'params', params: TitleParams };
     };
     useMainButton?: boolean;
     useStatusBar?: boolean;
@@ -62,8 +95,10 @@ export const DAppWebViewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
-    const [pushPemissions,] = usePermissions();
+    const [pushPemissions] = usePermissions();
     const [, currency] = usePrice();
+    const routeName = useRoute().name;
+    const isModal = routeName === 'DAppWebViewModal';
     const { showActionSheetWithOptions } = useActionSheet();
 
     const endpoint = useMemo(() => {
@@ -228,7 +263,6 @@ export const DAppWebViewFragment = fragment(() => {
                         style={{ paddingTop: 32, paddingHorizontal: 16 }}
                         onBackPressed={header.onBack}
                         onClosePressed={headerOnClose}
-                        title={header.title}
                     />
                 )}
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -357,17 +391,28 @@ export const DAppWebViewFragment = fragment(() => {
 
     }, [webViewProps.onNavigationStateChange]);
 
+    const titleComponent: React.ReactNode = useMemo(() => {
+        if (!header?.title) {
+            return undefined;
+        }
+
+        if (header.title.type === 'component') {
+            return header.title.component;
+        }
+
+        return DAppWebViewTitle(header.title.params, theme);
+    }, [theme, header]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {!!header && (
                 <ScreenHeader
-                    style={{ paddingTop: 32 }}
+                    style={Platform.select({ android: { paddingTop: 32 }, ios: { paddingTop: isModal ? 0 : 32 } })}
                     onBackPressed={header.onBack}
                     onClosePressed={!!controllsComponent ? undefined : headerOnClose}
                     rightButton={controllsComponent}
-                    title={header.title}
-                    titleComponent={header.titleComponent}
+                    titleComponent={titleComponent}
                 />
             )}
             <DAppWebView

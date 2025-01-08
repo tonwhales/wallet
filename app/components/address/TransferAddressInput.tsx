@@ -6,7 +6,7 @@ import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useHoldersAccounts, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -17,7 +17,6 @@ import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
-import { useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
 import { Typography } from "../styles";
 import { Image } from "expo-image";
 import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
@@ -172,8 +171,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
 
-    const holdersAccounts = useHoldersAccountTrargets(appState.addresses[appState.selected].address);
-    const isTargetHolders = holdersAccounts.find((acc) => validAddress?.equals(acc.address));
+    const holdersAccounts = useHoldersAccounts(appState.addresses[appState.selected].address).data?.accounts ?? [];
+    const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -425,8 +424,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     theme={theme}
                     onSelect={onAddressSearchItemSelected}
                     query={query}
-                    transfer
                     holdersAccounts={holdersAccounts}
+                    owner={account}
                 />
             </View>
         </View>

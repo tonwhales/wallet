@@ -117,6 +117,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         deleteAccount: 'Delete account',
         theme: 'Theme',
         searchEngine: 'Search engine',
+        language: 'Language'
     },
     theme: {
         title: 'Theme',
@@ -627,6 +628,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     fetchToken: 'During token fetching',
                     createSignature: 'During signature creation',
                 },
+            },
+            otpBanner: {
+                title: 'New payment request',
+                accept: 'Accept',
+                decline: 'Decline'
             }
         }
     },

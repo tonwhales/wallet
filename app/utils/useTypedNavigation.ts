@@ -233,6 +233,10 @@ export class TypedNavigation {
         this.navigate('DAppWebView', params);
     }
 
+    navigateDAppWebViewModal(params: DAppWebViewFragmentParams) {
+        this.navigate('DAppWebViewModal', params);
+    }
+
     navigateAndReplaceHome(params?: HomeFragmentProps) {
         this.navigateAndReplaceAll('Home', params);
     }

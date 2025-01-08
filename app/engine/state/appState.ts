@@ -7,6 +7,12 @@ import { getCampaignId } from '../../utils/CachedLinking';
 export const appStateAtom = atom({
     key: 'wallet/appstate',
     default: getAppState(),
+    effects: [({ setSelf }) => {
+        const stored = getAppState();
+        if (stored) {
+            setSelf(stored);
+        }
+    }]
 });
 
 export const selectedAccountSelector = selector({

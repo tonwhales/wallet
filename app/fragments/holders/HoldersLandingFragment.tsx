@@ -7,11 +7,10 @@ import { t } from '../../i18n/t';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
-import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
+import { useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -41,7 +40,7 @@ export const HoldersLandingFragment = fragment(() => {
 
     const domain = extractDomain(endpoint);
     const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
-    const lang = getLocales()[0].languageCode;
+    const [lang] = useLanguage();
 
     // Anim
     const isAuthenticating = useRef(false);
@@ -157,7 +156,7 @@ export const HoldersLandingFragment = fragment(() => {
         queryParams.append('initial-route', 'about');
 
         return { url, initialRoute, queryParams: queryParams.toString() };
-    }, [theme]);
+    }, [theme, lang, currency, endpoint]);
 
     const onContentProcessDidTerminate = useCallback(() => {
         webRef.current?.reload();

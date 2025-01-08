@@ -86,39 +86,13 @@ export const BrowserBanner = memo(({
         }
 
         const domain = extractDomain(banner.product_url);
-        const titleComponent = (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ marginRight: 8 }}>
-                    <View style={{
-                        width: 24, height: 24,
-                        borderRadius: 12,
-                        backgroundColor: theme.accent,
-                        justifyContent: 'center', alignItems: 'center'
-                    }}>
-                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
-                            {domain.charAt(0).toUpperCase()}
-                        </Text>
-                    </View>
-                </View>
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    {banner.title && (
-                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
-                            {banner.title}
-                        </Text>
-                    )}
-                    <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
-                        {domain}
-                    </Text>
-                </View>
-            </View>
-        );
 
         navigation.navigateDAppWebView({
             lockNativeBack: true,
             safeMode: true,
             url: banner.product_url,
             title: banner.title ?? undefined,
-            header: { titleComponent: titleComponent },
+            header: { title: { type: 'params', params: { title: banner.title, domain } } },
             useStatusBar: true,
             engine: 'ton-connect',
             refId: `browser-banner-${banner.id}`,

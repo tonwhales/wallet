@@ -377,6 +377,7 @@ async function resolveAndNavigateToJettonTransfer(
         resolved: {
             type: 'jetton-transaction',
             address: Address,
+            isBounceable?: boolean,
             jettonMaster: Address,
             comment: string | null,
             amount: bigint | null,
@@ -603,12 +604,13 @@ export function useLinkNavigator(
     const handler = useCallback(async (resolved: ResolvedUrl) => {
         switch (resolved.type) {
             case 'transaction': {
+                const bounceable = resolved.isBounceable ?? true;
                 if (resolved.payload) {
                     navigation.navigateTransfer({
                         order: {
                             type: 'order',
                             messages: [{
-                                target: resolved.address.toString({ testOnly: isTestnet }),
+                                target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
                                 amount: resolved.amount || BigInt(0),
                                 amountAll: false,
                                 stateInit: resolved.stateInit,
@@ -620,7 +622,7 @@ export function useLinkNavigator(
                     });
                 } else {
                     navigation.navigateSimpleTransfer({
-                        target: resolved.address.toString({ testOnly: isTestnet }),
+                        target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
                         comment: resolved.comment,
                         amount: resolved.amount,
                         stateInit: resolved.stateInit,

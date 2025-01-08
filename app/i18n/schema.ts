@@ -118,7 +118,8 @@ export type LocalizationSchema = {
         rateApp: string,
         deleteAccount: string,
         theme: string,
-        searchEngine: string
+        searchEngine: string,
+        language: string
     },
     theme: {
         title: string,
@@ -629,6 +630,11 @@ export type LocalizationSchema = {
                     fetchToken: string,
                     createSignature: string,
                 },
+            },
+            otpBanner: {
+                title: string,
+                accept: string,
+                decline: string,
             }
         }
     }

@@ -160,7 +160,7 @@ export const ReceiveAssetsFragment = fragment(() => {
             case AssetType.SPECIAL:
                 return (
                     <SpecialJettonProduct
-                        theme={{...theme, surfaceOnBg: theme.surfaceOnElevation}}
+                        theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
                         address={owner}
                         testOnly={isTestnet}
                         assetCallback={onAssetCallback}
@@ -224,8 +224,10 @@ export const ReceiveAssetsFragment = fragment(() => {
 
     const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {
         if (section.type === 'ton') {
-            return (null);
-        } else if (section.type === 'holders') {
+            return null;
+        }
+
+        if (section.type === 'holders') {
             if (!holdersAccounts.length) {
                 return null;
             }
@@ -234,13 +236,13 @@ export const ReceiveAssetsFragment = fragment(() => {
                     {t('products.holders.accounts.title')}
                 </Text>
             );
-        } else {
-            return (
-                <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
-                    {t('products.accounts')}
-                </Text>
-            );
         }
+
+        return (
+            <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
+                {t('products.accounts')}
+            </Text>
+        );
     }, [theme, holdersAccounts.length]);
 
     const defaultSection: { type: 'default' | 'holders', data: ListItem[] } = {
@@ -256,7 +258,7 @@ export const ReceiveAssetsFragment = fragment(() => {
         defaultSection,
         {
             type: 'holders',
-            data: [...holdersAccounts.map((account) => ({ account, type: AssetType.HOLDERS }))]
+            data: holdersAccounts.map((account) => ({ account, type: AssetType.HOLDERS }))
         }
     ];
 

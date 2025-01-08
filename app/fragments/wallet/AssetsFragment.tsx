@@ -381,7 +381,7 @@ export const AssetsFragment = fragment(() => {
 
     const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {
         if (section.type === 'ton') {
-            return (null);
+            return null;
         } else if (section.type === 'holders') {
             return (
                 <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>

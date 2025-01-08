@@ -101,6 +101,7 @@ import { holdersUrl } from './engine/api/holders/fetchUserState';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
+import { ReceiveAssetsFragment } from './fragments/wallet/ReceiveAssetsFragment';
 import { LanguageFragment } from './fragments/LanguageFragment';
 
 const Stack = createNativeStackNavigator();

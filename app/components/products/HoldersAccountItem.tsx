@@ -18,6 +18,7 @@ import { Address, toNano } from "@ton/core";
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
 import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
+import { Image } from "expo-image";
 import { AddressComponent } from "../address/AddressComponent";
 
 import IcCheck from "@assets/ic-check.svg";
@@ -44,8 +45,7 @@ export const HoldersAccountItem = memo((props: {
     holdersAccStatus?: HoldersAccountStatus,
     onBeforeOpen?: () => void
     onOpen?: () => void,
-    selectable?: boolean,
-    isSelected?: boolean,
+    content?: { type: HoldersItemContentType.SELECT, isSelected: boolean } | { type: HoldersItemContentType.BALANCE } | { type: HoldersItemContentType.NAVIGATION },
     addressDescription?: boolean
 }) => {
     const {
@@ -57,9 +57,7 @@ export const HoldersAccountItem = memo((props: {
         isTestnet
     } = props;
     const [price] = usePrice();
-    const { isTestnet } = useNetwork();
-    const master = props?.account?.cryptoCurrency?.tokenContract || undefined;
-    const owner = props.owner;
+    const master = account?.cryptoCurrency?.tokenContract || undefined;
     const jettonMasterContent = useJetton({ owner, master });
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();

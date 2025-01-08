@@ -208,7 +208,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessTryLaterMessage: 'Puoi riprovare più tardi o contattare il supporto',
             gaslessNotEnoughCoins: '{{fee}} in commissioni richieste per inviare, mancano {{missing}}',
             notEnoughJettons: 'Non abbastanza {{symbol}}',
-            jettonChange: 'Il destinatario supporta solo trasferimenti {{symbol}}, cambia il destinatario o la valuta del trasferimento'
+            jettonChange: 'Il destinatario supporta solo trasferimenti {{symbol}}, cambia il destinatario o la valuta del trasferimento',
+            notEnoughGasTitle: 'TON insufficienti per coprire la commissione del gas',
+            notEnoughGasMessage: 'Ricarica il tuo portafoglio con TON (almeno {{diff}} TON in più è necessario) e riprova',
         },
         changeJetton: 'Passa a {{symbol}}',
         sendAll: 'Max',

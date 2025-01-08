@@ -345,6 +345,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('AppStartAuth', AppAuthFragment),
     fullScreenModal('AppAuth', AppAuthFragment, safeArea),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
+    modalScreen('DAppWebViewModal', DAppWebViewFragment, safeArea),
     genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
     fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea),
     modalScreen('AddressBook', AddressBookFragment, safeArea)

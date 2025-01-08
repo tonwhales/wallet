@@ -3,12 +3,12 @@ import { Pressable, Image, Text, View } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { KnownPools } from "../../utils/KnownPools";
 import { useNetwork, useStakingActive, useTheme } from "../../engine/hooks";
-import { openWithInApp } from "../../utils/openWithInApp";
 import { Address } from "@ton/core";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform } from "react-native";
 import { BackButton } from "../navigation/BackButton";
 import { Typography } from "../styles";
+import { extractDomain } from "../../engine/utils/extractDomain";
 
 export const StakingPoolHeader = memo(({
     isLedger,
@@ -46,9 +46,27 @@ export const StakingPoolHeader = memo(({
         )
     }, [isLedger, currentPool, setParams, activeLength]);
 
-    const openMoreInfo = useCallback(() => {
-        openWithInApp(KnownPools(network.isTestnet)[currentPoolFriendly]?.webLink)
-    }, [network.isTestnet]);
+    const openMoreInfo = () => {
+        const url = KnownPools(network.isTestnet)[currentPoolFriendly]?.webLink;
+
+        if (!!url) {
+            const domain = extractDomain(url);
+            navigation.navigateDAppWebViewModal({
+                lockNativeBack: true,
+                safeMode: true,
+                url,
+                header: { title: { type: 'params', params: { domain } } },
+                useStatusBar: true,
+                engine: 'ton-connect',
+                controlls: {
+                    refresh: true,
+                    share: true,
+                    back: true,
+                    forward: true
+                }
+            });
+        }
+    };
 
     return (
         <View

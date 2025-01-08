@@ -19,7 +19,6 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useDimensions } from '@react-native-community/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchUserState';
-import { Typography } from '../styles';
 import { ConnectedApp } from '../../engine/hooks/dapps/useTonConnectExtenstions';
 
 export const EmptyIllustrations = {
@@ -66,40 +65,13 @@ export const BrowserExtensions = memo(
 
     const openTonconnectApp = useCallback((item: ConnectedApp) => {
       const domain = extractDomain(item.url);
-      const titleComponent = (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ marginRight: 8 }}>
-            <View
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: 12,
-                backgroundColor: theme.accent,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
-                {domain.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          </View>
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            {item.name && (
-              <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
-                {item.name}
-              </Text>
-            )}
-            <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>{domain}</Text>
-          </View>
-        </View>
-      );
 
       navigation.navigateDAppWebView({
         lockNativeBack: true,
         safeMode: true,
         url: item.url,
         title: item.name ?? undefined,
-        header: { titleComponent },
+        header: { title: { type: 'params', params: { title: item.name, domain } } },
         useStatusBar: true,
         engine: 'ton-connect',
         controlls: {

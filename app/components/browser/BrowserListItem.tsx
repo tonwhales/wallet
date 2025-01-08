@@ -60,39 +60,13 @@ export const BrowserListItem = memo(({
         }
 
         const domain = extractDomain(item.product_url);
-        const titleComponent = (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ marginRight: 8 }}>
-                    <View style={{
-                        width: 24, height: 24,
-                        borderRadius: 12,
-                        backgroundColor: theme.accent,
-                        justifyContent: 'center', alignItems: 'center'
-                    }}>
-                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
-                            {domain.charAt(0).toUpperCase()}
-                        </Text>
-                    </View>
-                </View>
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    {item.title && (
-                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
-                            {item.title}
-                        </Text>
-                    )}
-                    <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
-                        {domain}
-                    </Text>
-                </View>
-            </View>
-        );
 
         navigation.navigateDAppWebView({
             lockNativeBack: true,
             safeMode: true,
             url: item.product_url,
             title: item.title ?? undefined,
-            header: { titleComponent },
+            header: { title: { type: 'params', params: { domain, title: item.title } } },
             useStatusBar: true,
             engine: 'ton-connect',
             refId: `browser-banner-${item.id}`,
@@ -131,7 +105,7 @@ export const BrowserListItem = memo(({
             ]
         });
     }, [
-        modal, openProduct, appConfig.browserAlerTexts, lang, 
+        modal, openProduct, appConfig.browserAlerTexts, lang,
         item.title, item.icon_url,
         item.isHolders
     ]);

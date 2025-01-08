@@ -174,7 +174,8 @@ export type LocalizationSchema = {
         holdersJettonWarning: string,
         assets: string,
         fromExchange: string,
-        otherCoins: string
+        otherCoins: string,
+        deposit: string
     },
     transfer: {
         title: string,

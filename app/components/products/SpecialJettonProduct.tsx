@@ -13,19 +13,22 @@ import { useBounceableWalletFormat, useJettonContent } from "../../engine/hooks"
 import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
+import { ReceiveableAsset } from "../../fragments/wallet/ReceiveFragment";
 
 export const SpecialJettonProduct = memo(({
     theme,
     isLedger,
     address,
     testOnly,
-    divider
+    divider,
+    assetCallback
 }: {
     theme: ThemeType,
     isLedger?: boolean,
     address: Address,
     testOnly: boolean,
-    divider?: 'top' | 'bottom'
+    divider?: 'top' | 'bottom',
+    assetCallback?: (asset: ReceiveableAsset | null) => void
 }) => {
     const navigation = useTypedNavigation();
     const specialJetton = useSpecialJetton(address);
@@ -55,6 +58,18 @@ export const SpecialJettonProduct = memo(({
     }, [gaslessConfig?.gas_jettons, walletVersion, specialJetton?.master]);
 
     const onPress = useCallback(() => {
+
+        if (!!assetCallback && specialJetton?.master) {
+            assetCallback({
+                address: specialJetton?.master,
+                content: {
+                    icon: masterContent?.originalImage,
+                    name: masterContent?.name,
+                }
+            });
+            return;
+        }
+
         const hasWallet = !!specialJetton?.wallet;
 
         if (isLedger) {
@@ -108,7 +123,7 @@ export const SpecialJettonProduct = memo(({
                 }
             } : undefined
         });
-    }, [specialJetton, isLedger, ledgerAddressStr, navigation, masterContent]);
+    }, [assetCallback, specialJetton, isLedger, ledgerAddressStr, navigation, masterContent]);
 
     return (
         <Pressable
@@ -160,7 +175,7 @@ export const SpecialJettonProduct = memo(({
                         >
                             {'USDT'}
                         </Text>
-                        {isGassless && (<GaslessInfoButton />)}
+                        {(isGassless && !assetCallback) && (<GaslessInfoButton />)}
                     </View>
                     <Text
                         numberOfLines={1}
@@ -170,33 +185,42 @@ export const SpecialJettonProduct = memo(({
                         {specialJetton?.description ?? 'Tether Token for Tether USD'}
                     </Text>
                 </View>
-                <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                        <ValueComponent
-                            value={balance}
-                            precision={2}
-                            decimals={specialJetton?.decimals ?? 6}
-                            centFontStyle={{ color: theme.textSecondary }}
+                {!!assetCallback ? (
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                        <Image
+                            source={require('@assets/ic-chevron-right.png')}
+                            style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
                         />
-                        <Text
-                            style={{ color: theme.textSecondary, fontSize: 15 }}>
-                            {` ${specialJetton?.symbol ?? 'USDT'}`}
+                    </View>
+                ) : (
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                            <ValueComponent
+                                value={balance}
+                                precision={2}
+                                decimals={specialJetton?.decimals ?? 6}
+                                centFontStyle={{ color: theme.textSecondary }}
+                            />
+                            <Text
+                                style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                {` ${specialJetton?.symbol ?? 'USDT'}`}
+                            </Text>
                         </Text>
-                    </Text>
-                    <PriceComponent
-                        amount={specialJetton?.nano ?? 0n}
-                        style={{
-                            backgroundColor: 'transparent',
-                            paddingHorizontal: 0, paddingVertical: 0,
-                            alignSelf: 'flex-end',
-                            height: undefined,
-                        }}
-                        textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                        theme={theme}
-                        priceUSD={1}
-                        hideCentsIfNull
-                    />
-                </View>
+                        <PriceComponent
+                            amount={specialJetton?.nano ?? 0n}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0, paddingVertical: 0,
+                                alignSelf: 'flex-end',
+                                height: undefined,
+                            }}
+                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                            theme={theme}
+                            priceUSD={1}
+                            hideCentsIfNull
+                        />
+                    </View>
+                )}
             </View>
             {divider === 'bottom' && <ItemDivider marginVertical={0} />}
         </Pressable>

@@ -172,7 +172,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
         assets: 'Tokens and Accounts',
         fromExchange: 'From an exchange',
-        otherCoins: 'Other tokens'
+        otherCoins: 'Other tokens',
+        deposit: 'Deposit to',
     },
     transfer: {
         title: 'Send',
@@ -777,7 +778,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     jetton: {
         token: 'token',
-        productButtonTitle: 'Jettons',
+        productButtonTitle: 'Tokens',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
         hidden: 'Hidden jettons',
         liquidPoolDescriptionDedust: 'Liquidity for {{name0}}/{{name1}} on DeDust DEX',

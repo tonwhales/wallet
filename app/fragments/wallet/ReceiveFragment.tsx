@@ -5,31 +5,23 @@ import { View, Text, Pressable, ScrollView, Platform, Alert, useWindowDimensions
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
-import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useVerifyJetton, useJetton, useHoldersAccounts, useJettonContent } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useJetton } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
-import { AssetViewType } from "./AssetsFragment";
 import { mapHoldersAccountTarget } from "../../engine/hooks/holders/useHoldersAccountTrargets";
-import { getAccountName } from "../../utils/holders/getAccountName";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
 import { copyText } from "../../utils/copyText";
-import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
+import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import Share from 'react-native-share';
-import { ItemDivider } from "../../components/ItemDivider";
-import { AddressComponent } from "../../components/address/AddressComponent";
-import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
-import { HoldersAccountCard } from "../../components/products/HoldersAccountCard";
+import { ExchangesFragmentParams } from "./ExchangesFragment";
 
 import CopyIcon from '@assets/ic-copy.svg';
-import FromExchangeIcon from '@assets/ic-from-exchange.svg';
-import ShareIcon from '@assets/ic-share.svg';
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;
@@ -56,7 +48,7 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
-    const { addr, ledger, asset: initAsset } = useParams<ReceiveFragmentParams>();
+    const { addr, asset: asset } = useParams<ReceiveFragmentParams>();
     const selected = useSelectedAccount();
     const [bounceableFormat] = useBounceableWalletFormat();
     const toaster = useToaster();
@@ -74,61 +66,17 @@ export const ReceiveFragment = fragment(() => {
         return selected!.address;
     }, [selected, addr]);
 
-    const holdersAccounts = useHoldersAccounts(address).data?.accounts?.filter(acc => hasDirectDeposit(acc));
-    const defaultAccount = holdersAccounts?.[0];
-    const holdersTarget = defaultAccount ? mapHoldersAccountTarget(defaultAccount) : undefined;
-    const defaultAccountMaster = holdersTarget?.jettonMaster || undefined;
-    const defaultAssetJetton = useJetton({ owner: address, master: defaultAccountMaster });
-
-    const initialAsset: ReceiveableAsset | null = useMemo(() => {
-        if (initAsset) {
-            return initAsset;
-        }
-        if (!!defaultAccount && !!defaultAccount.address) {
-            const name = getAccountName(defaultAccount.accountIndex, defaultAccount.name);
-            return {
-                address: Address.parse(defaultAccount.address),
-                content: {
-                    icon: defaultAssetJetton?.icon,
-                    name: name
-                },
-                holders: defaultAccount
-            };
-        }
-        return null;
-    }, [defaultAccount, initAsset, holdersTarget, defaultAssetJetton]);
-
-    const [asset, setAsset] = useState<ReceiveableAsset | null>(initialAsset);
-
-    const holdersAssetTarget = !!asset?.holders?.address ? mapHoldersAccountTarget(asset?.holders) : undefined;
-    const holdersCards = asset?.holders?.cards || [];
-    const assetMaster = holdersAssetTarget
-        ? holdersAssetTarget.jettonMaster
-        : asset?.address?.toString({ testOnly: network.isTestnet });
-    const jetton = useJettonContent(assetMaster);
+    const holdersAssetTarget = !!asset?.holders?.address
+        ? mapHoldersAccountTarget(asset?.holders)
+        : undefined;
+    const assetMaster = holdersAssetTarget?.jettonMaster || asset?.address?.toString({ testOnly: network.isTestnet });
+    const jetton = useJetton({ owner: address, master: assetMaster });
     const jettonAssetcontent: ReceiveableAssetContent | null = jetton ? {
-        icon: jetton.originalImage,
+        icon: jetton.icon,
         name: jetton.name
     } : null
     const icon = jettonAssetcontent?.icon;
     const name = asset?.content?.name;
-
-    const { isSCAM, verified: isVerified } = useVerifyJetton({
-        ticker: name,
-        master: asset?.address?.toString({ testOnly: network.isTestnet })
-    });
-
-    const navigateToAssets = useCallback(() => {
-        navigation.navigateAssets(
-            {
-                assetCallback: setAsset,
-                selectedAsset: asset?.address,
-                viewType: AssetViewType.Receive,
-                includeHolders: true
-            },
-            ledger
-        );
-    }, [ledger, asset, setAsset, navigation]);
 
     const friendly = useMemo(() => {
         if (asset?.holders) {
@@ -170,40 +118,6 @@ export const ReceiveFragment = fragment(() => {
         return base + friendly;
     }, [friendly, holdersJetton, comment, assetFriendly]);
 
-    let verifIcon = null;
-
-    if (isVerified) {
-        verifIcon = (
-            <View style={{
-                justifyContent: 'center', alignItems: 'center',
-                height: 20, width: 20, borderRadius: 10,
-                position: 'absolute', right: -2, bottom: -2,
-                backgroundColor: theme.surfaceOnElevation
-            }}>
-                <Image
-                    source={require('@assets/ic-verified.png')}
-                    style={{ height: 20, width: 20 }}
-                />
-            </View>
-        );
-    }
-
-    if (isSCAM) {
-        verifIcon = (
-            <View style={{
-                justifyContent: 'center', alignItems: 'center',
-                height: 20, width: 20, borderRadius: 10,
-                position: 'absolute', right: -2, bottom: -2,
-                backgroundColor: theme.surfaceOnBg
-            }}>
-                <Image
-                    source={require('@assets/ic-jetton-scam.png')}
-                    style={{ height: 20, width: 20 }}
-                />
-            </View>
-        );
-    }
-
     const onCopyAddress = useCallback(() => {
         copyText(friendly);
 
@@ -231,11 +145,15 @@ export const ReceiveFragment = fragment(() => {
         );
     }, [comment, toaster]);
 
+    const [capturing, setCapturing] = useState(false);
+
     const onScreenCapture = async () => {
+        setCapturing(true);
         const localUri = await captureRef(imageRef, {
             height: 440,
             quality: 1,
         });
+        setCapturing(false);
         return { uri: localUri };
     }
 
@@ -278,6 +196,20 @@ export const ReceiveFragment = fragment(() => {
         qrCodeSize = qrCodeSize * 0.8;
     }
 
+    const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? 'TON'}`;
+
+    const navigateToExchanges = () => {
+        const params: ExchangesFragmentParams = asset?.holders
+            ? { type: 'holders', holdersAccount: asset.holders }
+            : {
+                type: 'wallet',
+                address: friendly,
+                ticker: jetton?.symbol ?? 'TON',
+                tokenContract: jetton?.master?.toString({ testOnly: network.isTestnet }),
+            };
+        navigation.navigateExchanges(params);
+    }
+
     return (
         <View
             style={{
@@ -289,9 +221,10 @@ export const ReceiveFragment = fragment(() => {
         >
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             <ScreenHeader
-                style={Platform.select({ android: { paddingTop: safeArea.top } })}
-                title={isHolders ? t('wallet.actions.deposit') : t('receive.title')}
-                onClosePressed={navigation.goBack}
+                style={[Platform.select({ android: { paddingTop: safeArea.top } }), { paddingLeft: 16 }]}
+                title={title}
+                onBackPressed={navigation.goBack}
+                onClosePressed={navigation.popToTop}
             />
             <ScrollView style={{ flexGrow: 1, width: '100%' }}>
                 <View
@@ -301,7 +234,8 @@ export const ReceiveFragment = fragment(() => {
                         android: { backgroundColor: theme.backgroundPrimary }
                     }), {
                         alignItems: 'center',
-                        gap: 16
+                        gap: 16,
+                        paddingVertical: capturing ? 16 : 0
                     }]}
                 >
                     {isHolders ? (
@@ -338,7 +272,7 @@ export const ReceiveFragment = fragment(() => {
                     ) : (
                         <Text style={[{
                             color: theme.textSecondary,
-                            textAlign: 'center',
+                            textAlign: 'center', marginHorizontal: 16
                         }, Typography.regular17_24]}>
                             {t('receive.subtitle')}
                         </Text>
@@ -364,40 +298,7 @@ export const ReceiveFragment = fragment(() => {
                             />
                         </View>
                     </View>
-                    <Animated.View
-                        entering={FadeInUp}
-                        exiting={FadeOutDown}
-                        style={{ marginHorizontal: 32 }}
-                    >
-                        <Pressable
-                            hitSlop={10}
-                            onPress={onCopyAddress}
-                            style={({ pressed }) => ({
-                                backgroundColor: theme.surfaceOnElevation,
-                                borderRadius: 20, paddingHorizontal: 20, paddingVertical: 10,
-                                opacity: pressed ? 0.8 : 1
-                            })}
-                        >
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-                                <View style={{ flexShrink: 1 }}>
-                                    <Text style={[
-                                        { color: theme.textSecondary },
-                                        Typography.regular15_20
-                                    ]}>
-                                        {t('common.address')}
-                                    </Text>
-                                    <Text style={[
-                                        { color: theme.textPrimary, flexShrink: 1 },
-                                        Typography.regular17_24
-                                    ]}>
-                                        {friendly}
-                                    </Text>
-                                </View>
-                                <CopyIcon style={{ height: 24, width: 24 }} height={24} width={24} color={theme.iconPrimary} />
-                            </View>
-                        </Pressable>
-                    </Animated.View>
-                    {!!comment && (
+                    <View style={{ gap: 16 }}>
                         <Animated.View
                             entering={FadeInUp}
                             exiting={FadeOutDown}
@@ -405,22 +306,20 @@ export const ReceiveFragment = fragment(() => {
                         >
                             <Pressable
                                 hitSlop={10}
-                                onPress={onCopyComment}
+                                onPress={onCopyAddress}
                                 style={({ pressed }) => ({
                                     backgroundColor: theme.surfaceOnElevation,
                                     borderRadius: 20, paddingHorizontal: 20, paddingVertical: 10,
-                                    opacity: pressed ? 0.8 : 1,
-                                    borderWidth: 1,
-                                    borderColor: theme.warning
+                                    opacity: pressed ? 0.8 : 1
                                 })}
                             >
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
                                     <View style={{ flexShrink: 1 }}>
                                         <Text style={[
                                             { color: theme.textSecondary },
                                             Typography.regular15_20
                                         ]}>
-                                            {t('transfer.error.holdersMemoRequired')}
+                                            {t('common.address')}
                                         </Text>
                                         <Text style={[
                                             { color: theme.textPrimary, flexShrink: 1 },
@@ -433,7 +332,44 @@ export const ReceiveFragment = fragment(() => {
                                 </View>
                             </Pressable>
                         </Animated.View>
-                    )}
+                        {!!comment && (
+                            <Animated.View
+                                entering={FadeInUp}
+                                exiting={FadeOutDown}
+                                style={{ marginHorizontal: 32 }}
+                            >
+                                <Pressable
+                                    hitSlop={10}
+                                    onPress={onCopyComment}
+                                    style={({ pressed }) => ({
+                                        backgroundColor: theme.surfaceOnElevation,
+                                        borderRadius: 20, paddingHorizontal: 20, paddingVertical: 10,
+                                        opacity: pressed ? 0.8 : 1,
+                                        borderWidth: 1,
+                                        borderColor: theme.warning
+                                    })}
+                                >
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+                                        <View style={{ flexShrink: 1 }}>
+                                            <Text style={[
+                                                { color: theme.textSecondary },
+                                                Typography.regular15_20
+                                            ]}>
+                                                {t('transfer.error.holdersMemoRequired')}
+                                            </Text>
+                                            <Text style={[
+                                                { color: theme.textPrimary, flexShrink: 1 },
+                                                Typography.regular17_24
+                                            ]}>
+                                                {comment}
+                                            </Text>
+                                        </View>
+                                        <CopyIcon style={{ height: 24, width: 24 }} height={24} width={24} color={theme.iconPrimary} />
+                                    </View>
+                                </Pressable>
+                            </Animated.View>
+                        )}
+                    </View>
                 </View>
                 <Animated.View
                     style={{
@@ -467,40 +403,38 @@ export const ReceiveFragment = fragment(() => {
                         </View>
                     </Pressable>
                 </Animated.View>
-                {!!asset?.holders && (
-                    <Animated.View
-                        style={{
-                            backgroundColor: theme.surfaceOnElevation,
-                            borderRadius: 40, paddingHorizontal: 16,
-                            flexShrink: 1, maxWidth: 224, marginTop: 16, alignSelf: 'center',
-                            paddingVertical: 8
-                        }}
-                        entering={FadeInUp}
-                        exiting={FadeOutDown}
+                <Animated.View
+                    style={{
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderRadius: 40, paddingHorizontal: 16,
+                        flexShrink: 1, maxWidth: 224, marginTop: 16, alignSelf: 'center',
+                        paddingVertical: 8
+                    }}
+                    entering={FadeInUp}
+                    exiting={FadeOutDown}
+                >
+                    <Pressable
+                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                        onPress={navigateToExchanges}
                     >
-                        <Pressable
-                            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                            onPress={() => navigation.navigateExchanges({ holdersAccount: asset.holders! })}
-                        >
-                            <View style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: 8
-                            }}>
-                                <View style={{ height: 20, width: 20, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Image
-                                        source={require('@assets/ic-from-exchange.png')}
-                                        style={{ height: 20, width: 20 }}
-                                    />
-                                </View>
-                                <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                    {t('receive.fromExchange')}
-                                </Text>
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8
+                        }}>
+                            <View style={{ height: 20, width: 20, justifyContent: 'center', alignItems: 'center' }}>
+                                <Image
+                                    source={require('@assets/ic-from-exchange.png')}
+                                    style={{ height: 20, width: 20 }}
+                                />
                             </View>
-                        </Pressable>
-                    </Animated.View>
-                )}
+                            <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                {t('receive.fromExchange')}
+                            </Text>
+                        </View>
+                    </Pressable>
+                </Animated.View>
             </ScrollView>
         </View>
     );

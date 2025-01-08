@@ -156,7 +156,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
         "assets": "Жетоны и счета",
         "fromExchange": "С биржи",
-        "otherCoins": "Другие токены"
+        "otherCoins": "Другие токены",
+        "deposit": "Пополнить"
     },
     "transfer": {
         "title": "Отправить",

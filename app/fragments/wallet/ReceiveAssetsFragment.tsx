@@ -20,6 +20,7 @@ import { HoldersAccountItem, HoldersItemContentType } from "../../components/pro
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
 import { SpecialJettonProduct } from "../../components/products/SpecialJettonProduct";
+import { AssetViewType } from "./AssetsFragment";
 
 enum AssetType {
     TON = 'ton',
@@ -76,6 +77,12 @@ const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
                         {'TON'}
                     </Text>
                 </View>
+                <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                    <Image
+                        source={require('@assets/ic-chevron-right.png')}
+                        style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                    />
+                </View>
             </Pressable>
         </View>
     );
@@ -121,14 +128,11 @@ export const ReceiveAssetsFragment = fragment(() => {
     }, [assetCallback, isLedger]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
-        console.log('onAssetCallback', target);
         if (!target.address) {
             return;
         }
 
         const name = getAccountName(target.accountIndex, target.name);
-
-        console.log('onAssetCallback', target.address, target.address, name);
 
         onAssetCallback({
             address: Address.parse(target.address),
@@ -140,7 +144,6 @@ export const ReceiveAssetsFragment = fragment(() => {
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
             case AssetType.HOLDERS:
-
                 return (
                     <HoldersAccountItem
                         owner={owner}
@@ -157,26 +160,20 @@ export const ReceiveAssetsFragment = fragment(() => {
             case AssetType.SPECIAL:
                 return (
                     <SpecialJettonProduct
-                        theme={theme}
+                        theme={{...theme, surfaceOnBg: theme.surfaceOnElevation}}
                         address={owner}
                         testOnly={isTestnet}
+                        assetCallback={onAssetCallback}
                     />
                 );
             case AssetType.OTHERCOINS:
-                // TODO: implement
-                // navigation.navigateAssets(
-                //             {
-                //                 assetCallback: setAsset,
-                //                 selectedAsset: asset?.address,
-                //                 viewType: AssetViewType.Receive,
-                //                 includeHolders: true
-                //             },
-                //             ledger
-                //         );
-
-                const navigate = () => navigation.navigateAssets({
-                    hideTon: true,
+                const navigate = () => navigation.navigateReceiveAssetsJettons({
+                    assetCallback: onAssetCallback,
+                    viewType: AssetViewType.Receive,
+                    includeHolders: false,
+                    isLedger
                 });
+
                 return (
                     <Pressable
                         onPress={navigate}
@@ -207,6 +204,12 @@ export const ReceiveAssetsFragment = fragment(() => {
                                     {t('receive.otherCoins')}
                                 </Text>
                             </View>
+                            <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                                <Image
+                                    source={require('@assets/ic-chevron-right.png')}
+                                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                                />
+                            </View>
                         </View>
                     </Pressable>
                 );
@@ -215,14 +218,17 @@ export const ReceiveAssetsFragment = fragment(() => {
                 return (<TonAssetItem onSelect={tonCallback} />);
         }
     }, [
-        owner, isTestnet, theme, owner, holdersAccStatus,
-        onHoldersSelected
+        owner, isTestnet, theme, owner, holdersAccStatus, isLedger,
+        onHoldersSelected, onAssetCallback
     ]);
 
     const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {
         if (section.type === 'ton') {
             return (null);
         } else if (section.type === 'holders') {
+            if (!holdersAccounts.length) {
+                return null;
+            }
             return (
                 <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
                     {t('products.holders.accounts.title')}
@@ -235,7 +241,7 @@ export const ReceiveAssetsFragment = fragment(() => {
                 </Text>
             );
         }
-    }, [theme]);
+    }, [theme, holdersAccounts.length]);
 
     const defaultSection: { type: 'default' | 'holders', data: ListItem[] } = {
         type: 'default',
@@ -261,12 +267,12 @@ export const ReceiveAssetsFragment = fragment(() => {
                 ios: 'light'
             })} />
             <ScreenHeader
-                onBackPressed={navigation.goBack}
                 title={title}
                 style={[
-                    { paddingHorizontal: 16 },
+                    { paddingLeft: 16 },
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
+                onClosePressed={navigation.goBack}
             />
             <SectionList
                 sections={itemsList as { type: 'default' | 'holders', data: ListItem[] }[]}

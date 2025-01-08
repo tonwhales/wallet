@@ -269,12 +269,12 @@ export class TypedNavigation {
         this.navigate('ReceiveAssets', params);
     }
 
-    navigateAssets(params: AssetsFragmentParams, isLedger?: boolean) {
-        if (isLedger) {
-            this.navigate('LedgerAssets', params);
-            return;
-        }
+    navigateAssets(params: AssetsFragmentParams) {
         this.navigate('Assets', params);
+    }
+
+    navigateReceiveAssetsJettons(params: AssetsFragmentParams) {
+        this.navigate('ReceiveAssetsJettons', params);
     }
 
     navigateAddressBook(params: AddressBookParams) {

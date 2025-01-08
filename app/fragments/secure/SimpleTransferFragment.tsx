@@ -18,7 +18,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -1016,14 +1016,12 @@ const SimpleTransferComponent = () => {
                         >
                             <Pressable
                                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                                onPress={() => navigation.navigateAssets(
-                                    {
-                                        jettonCallback: onAssetSelected,
-                                        selectedAsset: jetton?.master,
-                                        viewType: AssetViewType.Transfer
-                                    },
+                                onPress={() => navigation.navigateAssets({
+                                    jettonCallback: onAssetSelected,
+                                    selectedAsset: jetton?.master,
+                                    viewType: AssetViewType.Transfer,
                                     isLedger
-                                )}
+                                })}
                             >
                                 <View style={{
                                     flexDirection: 'row',

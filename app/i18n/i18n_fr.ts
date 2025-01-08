@@ -81,7 +81,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         notFound: 'Introuvable',
         unverified: 'Non vérifié',
         addressBook: 'Carnet d’adresses',
-        gasless: 'Sans gaz'
+        gasless: 'Sans gaz',
+        address: 'Adresse'
     },
     syncStatus: {
         connecting: 'Connexion',
@@ -170,7 +171,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holdersJettonWarning: 'Transférez uniquement {{symbol}} à cette adresse, si vous envoyez un autre jeton, vous le perdrez.',
         assets: 'Jetons et comptes',
-        fromExchange: 'Depuis un échange'
+        fromExchange: 'Depuis un échange',
+        otherCoins: 'Autres jetons',
+        deposit: 'Déposer sur'
     },
     transfer: {
         title: 'Envoyer',
@@ -775,7 +778,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     jetton: {
         token: 'jeton',
-        productButtonTitle: 'Jettons',
+        productButtonTitle: 'Jetons',
         productButtonSubtitle: '{{jettonName}} et {{count}} autres',
         hidden: 'Jetons masqués',
         liquidPoolDescriptionDedust: 'Liquidité pour {{name0}}/{{name1}} sur DeDust DEX',

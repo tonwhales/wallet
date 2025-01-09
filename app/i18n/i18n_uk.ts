@@ -568,8 +568,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 card: 'Картка',
                 cards: 'Картки власників',
                 title: 'Tonhub картка {{cardNumber}}',
-                defaultSubtitle: 'Платіть TON та USDT всюди',
-                defaultTitle: 'Tonhub картки',
+                defaultSubtitle: 'Платіть USDT або TON скрізь за допомогою картки',
+                defaultTitle: 'Tonhub картка',
                 eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Фізична картка',

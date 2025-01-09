@@ -633,6 +633,7 @@ export type LocalizationSchema = {
                 title: string,
                 accept: string,
                 decline: string,
+                expired: string
             }
         }
     }

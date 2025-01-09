@@ -630,7 +630,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "otpBanner": {
                 "title": "Новый запрос на оплату",
                 "accept": "Принять",
-                "decline": "Отклонить"
+                "decline": "Отклонить",
+                "expired": "Истек"
             }
         }
     },

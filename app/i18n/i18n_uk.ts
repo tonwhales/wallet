@@ -635,7 +635,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             otpBanner: {
                 title: 'Новий запит на оплату',
                 accept: 'Прийняти',
-                decline: 'Відхилити'
+                decline: 'Відхилити',
+                expired: 'Закінчився'
             }
         }
     },

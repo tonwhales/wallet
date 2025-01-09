@@ -173,6 +173,13 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
         setIsRefreshing(true);
         queryClient.refetchQueries({
             predicate: query => {
+
+                const otpKey = Queries.Holders(addressString).OTP();
+
+                if (query.queryKey.join(',') === otpKey.join(',')) {
+                    return true;
+                }
+
                 if (
                     query.queryKey[0] === 'account'
                     && query.queryKey[1] === addressString

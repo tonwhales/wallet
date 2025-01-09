@@ -28,18 +28,34 @@ const OtpTimer = memo(({ expireAt, onExpired }: { expireAt: Date, onExpired: () 
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (timeLeft <= 0) {
+            const diff = expireAt.getTime() - Date.now();
+            if (diff <= 0 || timeLeft <= 0) {
                 onExpired();
                 return;
             }
-            setTimeLeft(expireAt.getTime() - Date.now());
+            setTimeLeft(diff);
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [expireAt, onExpired]);
+    }, [expireAt, onExpired, timeLeft]);
 
     const minutes = Math.floor(timeLeft / 60000);
     const seconds = Math.floor(timeLeft / 1000) % 60;
+
+    const expired = timeLeft <= 0;
+
+    if (expired) {
+        return (
+            <View style={styles.timer}>
+                <View style={styles.timerItem}>
+                    <View style={[styles.timerItemBack, { backgroundColor: theme.warning, opacity: 0.2 }]} />
+                    <Text style={[{ color: theme.textUnchangeable, opacity: 0.8 }, Typography.regular15_20]}>
+                        {t('products.holders.otpBanner.expired')}
+                    </Text>
+                </View>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.timer}>
@@ -65,8 +81,8 @@ const OtpTimer = memo(({ expireAt, onExpired }: { expireAt: Date, onExpired: () 
 const onOtpAnswer = ({ id, accept, token, isTestnet, address }: { id: string, accept: boolean, token: string, isTestnet: boolean, address: string }) => (async () => {
     try {
         await fetchOtpAnswer({ id, accept, token, isTestnet });
-        queryClient.refetchQueries(Queries.Holders(address).OTP());
-    } catch {}
+        queryClient.invalidateQueries(Queries.Holders(address).OTP());
+    } catch { }
 });
 
 const OtpAction = memo((
@@ -104,7 +120,7 @@ const OtpAction = memo((
                 return;
             }
 
-            await answer();
+            await onOtpAnswer({ id, accept, token, isTestnet, address })();
         } catch { } finally {
             setLoading(false);
         }
@@ -167,17 +183,15 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
 
     useEffect(() => {
         const isOtpExpired = expired(expiresAt);
-        if (isOtpExpired) {
-            onExpired();
-        } else {
+        if (!isOtpExpired) {
             setHasExpired(false);
         }
     }, [expiresAt]);
 
     const isUsed = otp?.status !== 'PENDING';
-    const isValid = !!otp && otp.type === 'confirmation_request'
+    const isValid = !!otp && otp.type === 'confirmation_request';
 
-    if (!isValid || hasExpired || isUsed) {
+    if (!isValid || isUsed || hasExpired) {
         return null;
     }
 

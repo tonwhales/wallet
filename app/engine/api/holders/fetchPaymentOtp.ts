@@ -58,7 +58,7 @@ const otpResultCodecBase = z.object({
 export const inappOtpCodec = inappOtpObjectCodec.and(otpResultCodecBase);
 export const inappOtpResultCodec = z.object({
     ok: z.boolean(),
-    data: inappOtpCodec,
+    data: inappOtpCodec.optional(),
 });
 
 export type InappOtp = z.infer<typeof inappOtpCodec>;
@@ -73,10 +73,10 @@ export async function fetchPaymentOtp(token: string, isTestnet: boolean): Promis
     }
 
     const parsed = inappOtpResultCodec.safeParse(res.data);
-    
+
     if (!parsed.success) {
         throw new Error(`Failed to parse response: ${JSON.stringify(parsed.error.errors)}`);
     }
 
-    return parsed.data.data;
+    return parsed.data.data ?? null;
 }

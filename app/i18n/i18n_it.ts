@@ -635,7 +635,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             otpBanner: {
                 title: 'Nuova richiesta di pagamento',
                 accept: 'Accetta',
-                decline: 'Rifiuta'
+                decline: 'Rifiuta',
+                expired: 'Scaduto'
             }
         }
     },

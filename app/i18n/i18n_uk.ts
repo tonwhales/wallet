@@ -211,7 +211,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessTryLaterMessage: 'Ви можете спробувати пізніше або звернутися до підтримки',
             gaslessNotEnoughCoins: '{{fee}} комісії необхідно для надсилання, не вистачає {{missing}}',
             notEnoughJettons: 'Недостатньо {{symbol}}',
-            jettonChange: 'Отримувач підтримує лише перекази {{symbol}}, будь ласка, змініть отримувача або валюту переказу'
+            jettonChange: 'Отримувач підтримує лише перекази {{symbol}}, будь ласка, змініть отримувача або валюту переказу',
+            notEnoughGasTitle: 'Недостатньо TON для оплати комісії за газ',
+            notEnoughGasMessage: 'Будь ласка, поповніть гаманець TON (потрібно щонайменше {{diff}} TON) і спробуйте ще раз'
         },
         changeJetton: 'Переключитися на {{symbol}}',
         sendAll: 'Макс',

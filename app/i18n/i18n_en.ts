@@ -211,7 +211,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessTryLaterMessage: 'You can try again later or contact support',
             gaslessNotEnoughCoins: '{{fee}} in fees required to send, missing {{missing}}',
             notEnoughJettons: 'Not enough {{symbol}}',
-            jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency'
+            jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency',
+            notEnoughGasTitle: 'Insufficient TON to cover the gas fee',
+            notEnoughGasMessage: 'Please top up your wallet with TON (at least {{diff}} TON more is needed) and try again'
         },
         changeJetton: 'Switch to {{symbol}}',
         sendAll: 'Max',

@@ -211,7 +211,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessTryLaterMessage: 'Sie können es später erneut versuchen oder den Support kontaktieren',
             gaslessNotEnoughCoins: '{{fee}} an Gebühren erforderlich, um zu senden, es fehlen {{missing}}',
             notEnoughJettons: 'Nicht genug {{symbol}}',
-            jettonChange: 'Der Empfänger unterstützt nur {{symbol}}-Überweisungen, bitte ändern Sie den Empfänger oder die Überweisungswährung'
+            jettonChange: 'Der Empfänger unterstützt nur {{symbol}}-Überweisungen, bitte ändern Sie den Empfänger oder die Überweisungswährung',
+            notEnoughGasTitle: 'Nicht genug TON, um die Gasgebühr zu decken',
+            notEnoughGasMessage: 'Bitte füllen Sie Ihr Wallet mit TON auf (mindestens {{diff}} TON mehr erforderlich) und versuchen Sie es erneut',
         },
         changeJetton: 'Wechseln zu {{symbol}}',
         sendAll: 'Max',

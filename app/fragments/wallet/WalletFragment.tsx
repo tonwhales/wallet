@@ -32,6 +32,7 @@ import { JettonWalletFragment } from './JettonWalletFragment';
 import { queryClient } from '../../engine/clients';
 import { HoldersUserState } from '../../engine/api/holders/fetchUserState';
 import { Queries } from '../../engine/queries';
+import { TonWalletFragment } from './TonWalletFragment';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -173,7 +174,6 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
         setIsRefreshing(true);
         queryClient.refetchQueries({
             predicate: query => {
-
                 const otpKey = Queries.Holders(addressString).OTP();
 
                 if (query.queryKey.join(',') === otpKey.join(',')) {
@@ -311,7 +311,8 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     fullScreen('LiquidStaking', LiquidStakingFragment),
-    fullScreen('JettonWalletFragment', JettonWalletFragment)
+    fullScreen('JettonWalletFragment', JettonWalletFragment),
+    fullScreen('TonWallet', TonWalletFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

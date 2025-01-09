@@ -257,6 +257,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
     modalScreen('ReceiveAssets', ReceiveAssetsFragment, safeArea),
+    modalScreen('LedgerReceiveAssets', ReceiveAssetsFragment, safeArea),
     modalScreen('ReceiveAssetsJettons', AssetsFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),

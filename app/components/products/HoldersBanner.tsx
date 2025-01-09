@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import i18n from 'i18next';
@@ -10,6 +10,7 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { ItemDivider } from "../ItemDivider";
 import { BlurView } from "expo-blur";
+import { useAppConfig } from "../../engine/hooks/useAppConfig";
 
 const gradientColors = ['#3F33CC', '#B341D9'];
 
@@ -188,7 +189,7 @@ const ChipActionBanner = memo(({ onPress, content, gradient }: { onPress: () => 
                     </View>
                 </View>
                 <Image
-                    style={[styles.img_chip, { flex: 0.76}]}
+                    style={[styles.img_chip, { flex: 0.76 }]}
                     contentFit="contain"
                     source={require('@assets/banners/holders-banner-chip-action.png')}
                 />
@@ -308,11 +309,24 @@ const GradientBanner = memo(({ onPress, content }: { onPress: () => void, conten
 export const HoldersBanner = memo((props: { onPress?: () => void } & HoldersCustomBanner) => {
     const { isTestnet } = useNetwork();
     const selectedAccount = useSelectedAccount();
+    const appConfig = useAppConfig();
+
+    const trackViews = appConfig?.features?.trackViews;
+    const wallet = selectedAccount?.addressString;
+
+    useEffect(() => {
+        if (trackViews) {
+            trackEvent(
+                MixpanelEvent.HoldersBannerView,
+                { id: props.id, wallet, isTestnet, screen: 'Home' }
+            );
+        }
+    }, [trackViews, isTestnet, props.id, wallet]);
 
     const onPress = () => {
         trackEvent(
             MixpanelEvent.HoldersBanner,
-            { id: props.id, wallet: selectedAccount?.addressString, isTestnet }
+            { id: props.id, wallet, isTestnet, screen: 'Home' }
         );
         props.onPress?.();
     }

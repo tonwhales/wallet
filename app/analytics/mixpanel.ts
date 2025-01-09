@@ -18,12 +18,18 @@ export enum MixpanelEvent {
     holdersLongLoadingTime = 'holders_long_loading_time',
     HoldersEnrollmentClose = 'holders_entrollment_close',
     HoldersBanner = 'holders_banner',
+    HoldersBannerView = 'holders_banner_view',
     HoldersClose = 'holders_close',
     Connect = 'connect',
     Transfer = 'transfer',
     TransferCancel = 'transfer_cancel',
     ProductBannerClick = 'product_banner_click',
     BrowserSearch = 'browser_search',
+    AppStart = 'app_start',
+    WalletCreate = 'wallet_create',
+    WalletImport = 'wallet_import',
+    WalletNewSeedCreated = 'wallet_new_seed_created',
+    WalletSeedImported = 'wallet_seed_imported',
 }
 
 let mixpanel = __DEV__

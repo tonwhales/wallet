@@ -5,28 +5,33 @@ import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { useTheme } from '../../engine/hooks';
+import { useNetwork, useTheme } from '../../engine/hooks';
 import { isTermsAccepted } from '../../storage/terms';
 import { useCallback } from 'react';
 import { WelcomeSlider } from '../../components/slider/WelcomeSlider';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 
 export const WelcomeFragment = systemFragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const { isTestnet } = useNetwork();
 
     const onImportPressed = useCallback(() => {
+        trackEvent(MixpanelEvent.WalletImport, undefined, isTestnet);
         if (isTermsAccepted()) {
             navigation.navigate('WalletImport');
         } else {
             navigation.navigate('LegalImport');
         }
     }, []);
-    const onCreatePressed = useCallback(() => {
+
+    const onCreatePressed = () => {
+        trackEvent(MixpanelEvent.WalletCreate, undefined, isTestnet);
         navigation.navigate('LegalCreate');
-    }, []);
+    };
 
     return (
         <View style={{

@@ -22,7 +22,13 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { holdersSupportUrl, holdersSupportWebUrl, supportFormUrl } from "../holders/components/HoldersAppComponent";
 
 export type ExchangesFragmentParams = {
+    type: 'holders'
     holdersAccount: GeneralHoldersAccount
+} | {
+    type: 'wallet',
+    address: string,
+    ticker: string,
+    tokenContract?: string
 }
 
 const Placeholder = memo(({
@@ -277,7 +283,7 @@ export const ExchangesFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const { holdersAccount } = useParams<ExchangesFragmentParams>();
+    const asset = useParams<ExchangesFragmentParams>();
     const { showActionSheetWithOptions } = useActionSheet();
     const [lang] = useLanguage();
     const [currency] = usePrimaryCurrency();
@@ -288,15 +294,23 @@ export const ExchangesFragment = fragment(() => {
         const url = new URL(uri);
 
         // add query params
-        if (holdersAccount.address) {
-            url.searchParams.append('address', holdersAccount.address);
-        }
-        if (holdersAccount.cryptoCurrency.tokenContract) {
-            url.searchParams.append('tokenContract', holdersAccount.cryptoCurrency.tokenContract);
+        if (asset.type === 'wallet') {
+            url.searchParams.append('address', asset.address);
+            url.searchParams.append('ticker', asset.ticker);
+            if (asset.tokenContract) {
+                url.searchParams.append('tokenContract', asset.tokenContract);
+            }
+        } else {
+            if (asset.holdersAccount.address) {
+                url.searchParams.append('address', asset.holdersAccount.address);
+            }
+            if (asset.holdersAccount.cryptoCurrency.tokenContract) {
+                url.searchParams.append('tokenContract', asset.holdersAccount.cryptoCurrency.tokenContract);
+            }
+            url.searchParams.append('ticker', asset.holdersAccount.cryptoCurrency.ticker);
         }
 
         url.searchParams.append('chain', 'ton');
-        url.searchParams.append('ticker', holdersAccount.cryptoCurrency.ticker);
 
         url.searchParams.append('lang', lang);
         url.searchParams.append('currency', currency);
@@ -305,7 +319,7 @@ export const ExchangesFragment = fragment(() => {
 
         return url;
 
-    }, [uri, lang, currency, theme]);
+    }, [uri, lang, currency, theme, asset]);
 
 
     const webViewProps: DAppWebViewProps = {

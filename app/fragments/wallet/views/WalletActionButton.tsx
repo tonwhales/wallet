@@ -6,6 +6,7 @@ import { t } from "../../../i18n/t";
 import { Typography } from "../../../components/styles";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { Address } from "@ton/core";
+import { AssetViewType } from "../AssetsFragment";
 
 export enum WalletActionType {
     Send = 'send',
@@ -113,21 +114,27 @@ export const WalletActionButton = memo(({
             );
         }
         case WalletActionType.Receive: {
+            const navigate = () => {
+                if (action.jetton) {
+                    navigation.navigateReceive({
+                        asset: {
+                            address: action.jetton.master,
+                            content: action.jetton.data ? {
+                                icon: action.jetton.data?.originalImage ?? action.jetton.data?.image?.preview256,
+                                name: action.jetton.data?.symbol
+                            } : undefined
+                        }
+                    });
+
+                    return;
+                }
+
+                navigation.navigateReceiveAssets({ title: t('wallet.actions.receive') });
+            }
+
             return (
                 <Pressable
-                    onPress={() => navigation.navigateReceive(
-                        action.jetton
-                            ? {
-                                asset: {
-                                    address: action.jetton.master,
-                                    content: action.jetton.data ? {
-                                        icon: action.jetton.data?.originalImage ?? action.jetton.data?.image?.preview256,
-                                        name: action.jetton.data?.symbol
-                                    } : undefined
-                                }
-                            }
-                            : undefined
-                    )}
+                    onPress={navigate}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -157,21 +164,27 @@ export const WalletActionButton = memo(({
             );
         }
         case WalletActionType.Deposit: {
+            const navigate = () => {
+                if (action.jetton) {
+                    navigation.navigateReceive({
+                        asset: {
+                            address: action.jetton.master,
+                            content: action.jetton.data ? {
+                                icon: action.jetton.data?.originalImage ?? action.jetton.data?.image?.preview256,
+                                name: action.jetton.data?.symbol
+                            } : undefined
+                        }
+                    });
+
+                    return;
+                }
+
+                navigation.navigateReceiveAssets({ title: t('wallet.actions.deposit') });
+            }
+
             return (
                 <Pressable
-                    onPress={() => navigation.navigateReceive(
-                        action.jetton
-                            ? {
-                                asset: {
-                                    address: action.jetton.master,
-                                    content: action.jetton.data ? {
-                                        icon: action.jetton.data?.originalImage ?? action.jetton.data?.image?.preview256,
-                                        name: action.jetton.data?.symbol
-                                    } : undefined
-                                }
-                            }
-                            : undefined
-                    )}
+                    onPress={navigate}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>

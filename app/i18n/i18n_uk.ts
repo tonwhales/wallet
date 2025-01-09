@@ -81,7 +81,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         notFound: 'Не знайдено',
         unverified: 'Неперевірено',
         addressBook: 'Адресна книга',
-        gasless: 'Без газу'
+        gasless: 'Без газу',
+        address: 'Адреса',
     },
     syncStatus: {
         connecting: 'Підключення',
@@ -170,7 +171,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holdersJettonWarning: 'Надсилайте на цю адресу тільки {{symbol}}, якщо ви надішлете інший токен, ви його втратите.',
         assets: 'Токени та рахунки',
-        fromExchange: 'З біржі'
+        fromExchange: 'З біржі',
+        otherCoins: 'Інші токени',
+        deposit: 'Поповнити на'
     },
     transfer: {
         title: 'Надіслати',
@@ -775,7 +778,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     jetton: {
         token: 'токен',
-        productButtonTitle: 'Джетони',
+        productButtonTitle: 'Токени',
         productButtonSubtitle: '{{jettonName}} та {{count}} інших',
         hidden: 'Приховані джетони',
         liquidPoolDescriptionDedust: 'Ліквідність для {{name0}}/{{name1}} на DeDust DEX',

@@ -21,9 +21,6 @@ import { useFocusEffect } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { LiquidStakingFragment } from "../staking/LiquidStakingFragment";
-import { queryClient } from "../../engine/clients";
-import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
-import { Queries } from "../../engine/queries";
 import { TonWalletFragment } from "../wallet/TonWalletFragment";
 
 export const LedgerHomeFragment = fragment(() => {

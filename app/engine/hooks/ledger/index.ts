@@ -1,3 +1,3 @@
 export { useLedgerAccount } from './useLedgerAccount';
 export { useLedgerEnabled } from './useLedgerEnabled';
-export { useLedgerWallet } from './useLedgerWallet';
+export { useLedgerWallets } from './useLedgerWallets';

@@ -1,82 +1,24 @@
 import React, { memo, useCallback, useMemo } from "react";
-import { View, Text, Pressable, Image, Alert, FlatList } from "react-native";
-import { ellipsiseAddress } from "../address/WalletAddress";
+import { Alert, FlatList } from "react-native";
 import { WalletItem } from "./WalletItem";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppState, useBounceableWalletFormat, useNetwork, useTheme } from "../../engine/hooks";
-import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { useAppState, useBounceableWalletFormat, useNetwork } from "../../engine/hooks";
+import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { Address } from "@ton/core";
-import { t } from "../../i18n/t";
 import { useNavigationState } from "@react-navigation/native";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { SelectedAccount, WalletVersions } from "../../engine/types";
-import { Typography } from "../styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import IcCheck from "@assets/ic-check.svg";
+import { LedgerWalletItem } from "./LedgerWalletItem";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { t } from "../../i18n/t";
 
 type Item = {
     type: 'ledger';
-    address: string;
+    address: LedgerWallet;
 } | {
     type: 'wallet';
     account: SelectedAccount
 }
-
-const LedgerItem = memo(({ address, onSelect }: { address: string, onSelect: () => void }) => {
-    const theme = useTheme();
-
-    return (
-        <Pressable
-            style={{
-                backgroundColor: theme.surfaceOnElevation,
-                padding: 20,
-                marginBottom: 16,
-                borderRadius: 20,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-            }}
-            onPress={onSelect}
-        >
-            <View style={{
-                height: 46, width: 46,
-                borderRadius: 23,
-                marginRight: 12,
-                justifyContent: 'center',
-                alignItems: 'center', overflow: 'hidden'
-            }}>
-                <Image
-                    style={{ width: 46, height: 46 }}
-                    source={require('@assets/ledger_device.png')}
-                />
-            </View>
-            <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>
-                <Text
-                    style={[{
-                        color: theme.textPrimary,
-                        marginBottom: 2,
-                        maxWidth: '90%',
-                    }, Typography.semiBold17_24]}
-                    numberOfLines={1}
-                >
-                    {'Ledger'}
-                </Text>
-                <Text style={[{ color: '#838D99' }, Typography.regular15_20]}>
-                    {ellipsiseAddress(address)}
-                </Text>
-            </View>
-            <View style={{
-                justifyContent: 'center', alignItems: 'center',
-                height: 24, width: 24,
-                backgroundColor: theme.divider,
-                borderRadius: 12
-            }}>
-                <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
-            </View>
-        </Pressable>
-    );
-});
 
 export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address) => void }) => {
     const safeArea = useSafeAreaInsets();
@@ -93,7 +35,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
     const ledgerContext = useLedgerTransport();
 
     const connectedLedgerAddress = useMemo(() => {
-        if (!ledgerContext?.tonTransport || !ledgerContext.addr?.address) {
+        if (!ledgerContext.addr) {
             return null;
         }
         try {
@@ -126,10 +68,15 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
 
     const renderItem = useCallback(({ item, index }: { item: Item, index: number }) => {
         if (item.type === 'ledger') {
+            const selected = (item.address.address === connectedLedgerAddress) && isPrevScreenLedger;
+
             return (
-                <LedgerItem
-                    address={item.address}
-                    onSelect={onLedgerSelect}
+                <LedgerWalletItem
+                    key={`ledger-${index}`}
+                    ledgerWallet={item.address}
+                    selected={selected}
+                    onSelect={onSelect}
+                    index={index}
                 />
             );
         }
@@ -161,16 +108,12 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
             account
         }));
 
-        if (!connectedLedgerAddress) {
-            return walletItems;
-        }
+        const ledgerItems: Item[] = ledgerContext.ledgerWallets.map((address, index) => ({
+            type: 'ledger' as const,
+            address,
+        }));
 
-        const ledgerItem: Item = {
-            type: 'ledger',
-            address: connectedLedgerAddress
-        };
-
-        return [ledgerItem, ...walletItems];
+        return [...ledgerItems, ...walletItems];
 
     }, [appState, connectedLedgerAddress]);
 

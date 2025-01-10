@@ -3,18 +3,17 @@ import { Pressable, View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { resolveUrl } from "../../../utils/resolveUrl";
-import { t } from "../../../i18n/t";
-import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
+import { useNetwork, useTheme } from '../../../engine/hooks';
+import { useLedgerTransport } from "./TransportContext";
+import { Address } from "@ton/core";
+import { HeaderSyncStatus } from "../../wallet/views/HeaderSyncStatus";
 
-import NoConnection from '@assets/ic-no-connection.svg';
-
-export const LedgerWalletHeader = memo(() => {
+export const LedgerWalletHeader = memo(({ address }: { address: Address }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const syncState = useSyncState();
+    const ledgerContext = useLedgerTransport();
 
     const onQRCodeRead = useCallback((src: string) => {
         try {
@@ -68,7 +67,6 @@ export const LedgerWalletHeader = memo(() => {
         navigation.navigate('AccountSelector');
     }, []);
 
-
     return (
         <View
             style={{
@@ -117,29 +115,9 @@ export const LedgerWalletHeader = memo(() => {
                             ellipsizeMode='tail'
                             numberOfLines={1}
                         >
-                            {t('hardwareWallet.ledger')}
+                            {ledgerContext.ledgerName}
                         </Text>
-                        {syncState === 'updating' && (
-                            <ReAnimatedCircularProgress
-                                size={14}
-                                color={theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary}
-                                reverse
-                                infinitRotate
-                                progress={0.8}
-                            />
-                        )}
-                        {syncState === 'connecting' && (
-                            <NoConnection
-                                height={16}
-                                width={16}
-                                style={{ height: 16, width: 16 }}
-                            />
-                        )}
-                        {syncState === 'online' && (
-                            <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
-                            </View>
-                        )}
+                        <HeaderSyncStatus address={address.toString({ testOnly: isTestnet })} />
                     </View>
                 </Pressable>
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>

@@ -212,6 +212,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessNotEnoughCoins: '{{fee}} en tarifas requeridas para enviar, faltan {{missing}}',
             notEnoughJettons: 'No hay suficientes {{symbol}}',
             jettonChange: 'El destinatario solo admite transferencias de {{symbol}}, por favor cambia el destinatario o la moneda de transferencia',
+            ledgerErrorConnectionTitle: "Ledger no está conectado",
+            ledgerErrorConnectionMessage: 'Por favor, conecte el Ledger y vuelva a intentarlo',
             notEnoughGasTitle: 'No tienes suficientes TON para cubrir la tarifa de gas',
             notEnoughGasMessage: 'Por favor recarga tu billetera con TON (se necesita al menos {{diff}} TON más) e intenta de nuevo',
         },

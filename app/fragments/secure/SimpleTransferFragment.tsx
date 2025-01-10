@@ -56,6 +56,8 @@ import { PressableChip } from '../../components/PressableChip';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useAppFocusEffect } from '../../utils/useAppFocusEffect';
 import { AmountInput } from '../../components/input/AmountInput';
+import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
+import { useModalAlert } from "../../components/ModalAlert";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -90,6 +92,7 @@ const SimpleTransferComponent = () => {
     const client = useClient4(network.isTestnet);
     const [price, currency] = usePrice();
     const gaslessConfig = useGaslessConfig();
+    const modalAlert = useModalAlert();
     const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
 
     // Ledger
@@ -661,10 +664,26 @@ const SimpleTransferComponent = () => {
         }
 
         if (isLedger) {
-            navigation.replace('LedgerSignTransfer', {
-                text: null,
-                order: order as LedgerOrder,
+            modalAlert.current?.showWithProps({
+                title: t('hardwareWallet.actions.confirmOnLedger'),
+                buttons: [
+                    {
+                        text: t('common.cancel'),
+                        display: 'text_secondary'
+                    },
+                ]
             });
+            let path = pathFromAccountNumber(ledgerContext.addr?.acc!, network.isTestnet);
+            const isValidAddress = await ledgerContext.tonTransport?.validateAddress(path, { testOnly: network.isTestnet });
+            if (isValidAddress) {
+                modalAlert.current?.hide();
+                navigation.replace('LedgerSignTransfer', {
+                    text: null,
+                    order: order as LedgerOrder,
+                });
+                return;
+            }
+            modalAlert.current?.hide();
             return;
         }
 
@@ -677,6 +696,7 @@ const SimpleTransferComponent = () => {
             useGasless: supportsGaslessTransfer
         });
     }, [
+        modalAlert,
         amount, target, domain, commentString,
         accountLite,
         stateInit,
@@ -686,7 +706,9 @@ const SimpleTransferComponent = () => {
         ledgerAddress,
         isLedger,
         balance,
-        supportsGaslessTransfer
+        supportsGaslessTransfer,
+        ledgerContext,
+        network,
     ]);
 
     const onFocus = (index: number) => setSelectedInput(index);

@@ -212,6 +212,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessNotEnoughCoins: '{{fee}} комісії необхідно для надсилання, не вистачає {{missing}}',
             notEnoughJettons: 'Недостатньо {{symbol}}',
             jettonChange: 'Отримувач підтримує лише перекази {{symbol}}, будь ласка, змініть отримувача або валюту переказу',
+            ledgerErrorConnectionTitle: 'Ledger не підключено',
+            ledgerErrorConnectionMessage: 'Будь ласка, підключіть Ledger і спробуйте ще раз',
             notEnoughGasTitle: 'Недостатньо TON для оплати комісії за газ',
             notEnoughGasMessage: 'Будь ласка, поповніть гаманець TON (потрібно щонайменше {{diff}} TON) і спробуйте ще раз'
         },
@@ -530,7 +532,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     year: '1Р',
                     allTime: 'Всі',
                 }
-            }   
+            }
         },
         holders: {
             title: 'Банківський рахунок',

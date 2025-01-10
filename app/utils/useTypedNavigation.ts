@@ -25,6 +25,7 @@ import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
 import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
+import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -257,15 +258,31 @@ export class TypedNavigation {
         this.navigate('JettonWalletFragment', param);
     }
 
+    navigateTonWallet(params: TonWalletFragmentParams, isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerTonWallet', params);
+            return;
+        }
+        this.navigate('TonWallet', params);
+    }
+
     navigateJettonTransaction(param: JettonTransactionPreviewParams) {
         this.navigate('JettonTransaction', param);
     }
 
-    navigateReceive(params?: ReceiveFragmentParams) {
+    navigateReceive(params?: ReceiveFragmentParams, isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerReceive', params);
+            return;
+        }
         this.navigate('Receive', params);
     }
 
-    navigateReceiveAssets(params: ReceiveAssetsFragment) {
+    navigateReceiveAssets(params: ReceiveAssetsFragment, isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerReceiveAssets', params);
+            return;
+        }
         this.navigate('ReceiveAssets', params);
     }
 

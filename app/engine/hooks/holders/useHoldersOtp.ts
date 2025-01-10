@@ -25,7 +25,8 @@ export function useHoldersOtp(address: string | Address | undefined, isTestnet: 
         queryKey: Queries.Holders(addressString!).OTP(),
         refetchOnMount: true,
         enabled: !!addressString && !!token,
-        queryFn: () => fetchPaymentOtp(token!, isTestnet)
+        queryFn: () => fetchPaymentOtp(token!, isTestnet),
+        staleTime: 5 * 1000
     });
 
     return query.data;

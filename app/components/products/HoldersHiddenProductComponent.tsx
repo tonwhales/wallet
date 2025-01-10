@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState } from "react"
 import { View, Pressable, Text } from "react-native";
 import { t } from "../../i18n/t";
-import { HoldersAccountItem } from "./HoldersAccountItem";
+import { HoldersAccountItem, HoldersItemContentType } from "./HoldersAccountItem";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
@@ -100,6 +100,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     holdersAccStatus={holdersAccStatus}
                                     hideCardsIfEmpty
                                     owner={address}
+                                    content={{ type: HoldersItemContentType.BALANCE }}
                                 />
                             )
                         }}

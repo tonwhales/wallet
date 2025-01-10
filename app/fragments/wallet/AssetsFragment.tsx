@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useAccountLite, useCloudValue, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAccountLite, useCloudValue, useDisplayableJettons, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -148,6 +148,7 @@ export const AssetsFragment = fragment(() => {
     }, [ledgerTransport, isLedger]);
 
     const owner = isLedger ? ledgerAddress! : selected!.address;
+    const savings = useDisplayableJettons(owner.toString({ testOnly: isTestnet })).savings || [];
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
     const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
     const account = useAccountLite(owner);
@@ -155,7 +156,17 @@ export const AssetsFragment = fragment(() => {
 
     const itemsList = useMemo(() => {
         const filtered: ListItem[] = hints
-            .filter((j) => !disabledState.disabled[j.jetton.address] || isLedger)
+            .filter((j) => {
+                if (isLedger) {
+                    return true;
+                }
+
+                if (savings.some((s) => s.jetton.address === j.jetton.address)) {
+                    return true;
+                }
+
+                return !disabledState.disabled[j.jetton.address];
+            })
             .map((h) => ({
                 type: 'jetton',
                 hint: h
@@ -194,7 +205,7 @@ export const AssetsFragment = fragment(() => {
         }
 
         return items;
-    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders]);
+    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders, savings]);
 
     const onJettonCallback = useCallback((selected?: { wallet?: Address, master: Address }) => {
         if (jettonCallback) {

@@ -4,6 +4,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTim
 import { View } from 'react-native';
 
 import NoConnection from '@assets/ic-no-connection.svg';
+import { useLedgerTransport } from '../../ledger/components/TransportContext';
 
 const BlinkingDot = memo(() => {
     const theme = useTheme();
@@ -25,12 +26,23 @@ const BlinkingDot = memo(() => {
     )
 });
 
-export const HeaderSyncStatus = memo(({ address }: { address?: string }) => {
+export const HeaderSyncStatus = memo(({ address, isLedger }: { address?: string, isLedger?: boolean }) => {
     const theme = useTheme();
     const syncState = useSyncState(address);
+    const ledgerContext = useLedgerTransport();
+
+    const isLedgerConnected = !!ledgerContext.tonTransport;
 
     if (syncState === 'updating') {
         return <BlinkingDot />;
+    }
+
+    if (isLedger && !isLedgerConnected) {
+        return (
+            <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ backgroundColor: theme.iconNav, width: 8, height: 8, borderRadius: 4 }} />
+            </View>
+        );
     }
 
     if (syncState === 'connecting') {

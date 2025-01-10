@@ -33,12 +33,11 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
 
     if (hints.length < 3) {
         return (
-            <View style={{ marginBottom: hints.length > 0 ? 16 : 0 }}>
+            <View style={{ marginBottom: hints.length > 0 ? 16 : 0, paddingHorizontal: 16 }}>
                 <View
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between', alignItems: 'center',
-                        paddingHorizontal: 16,
                         paddingVertical: 12,
                         marginBottom: 4
                     }}

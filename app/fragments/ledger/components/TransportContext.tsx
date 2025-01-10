@@ -130,8 +130,8 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     const reset = useCallback((isLogout?: boolean) => {
         if (isLogout) {
-          setLedgerWallets(ledgerWallets.filter(wallet => wallet.address !== addr?.address));
-          setAddr(null);
+            setLedgerWallets(ledgerWallets.filter(wallet => wallet.address !== addr?.address));
+            setAddr(null);
         }
 
         setLedgerConnection(null);
@@ -203,11 +203,13 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
             return;
         }
 
+        dispatchBleState({ type: 'error' });
+        reset();
+
         Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
             text: t('common.back'),
             onPress: () => {
                 navigationRef.reset({ index: 0, routes: [{ name: 'LedgerHome' }] });
-                reset();
             }
         }]);
     }, [ledgerConnection]);

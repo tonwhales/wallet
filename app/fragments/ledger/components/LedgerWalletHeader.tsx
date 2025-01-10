@@ -62,10 +62,8 @@ export const LedgerWalletHeader = memo(({ address }: { address: Address }) => {
             // Ignore
         }
     }, []);
-    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
-    const onAccountPress = useCallback(() => {
-        navigation.navigate('AccountSelector');
-    }, []);
+    const openScanner = () => navigation.navigateScanner({ callback: onQRCodeRead });
+    const onAccountPress = () => navigation.navigate('AccountSelector');
 
     return (
         <View
@@ -117,7 +115,10 @@ export const LedgerWalletHeader = memo(({ address }: { address: Address }) => {
                         >
                             {ledgerContext.ledgerName}
                         </Text>
-                        <HeaderSyncStatus address={address.toString({ testOnly: isTestnet })} />
+                        <HeaderSyncStatus
+                            address={address.toString({ testOnly: isTestnet })}
+                            isLedger={true}
+                        />
                     </View>
                 </Pressable>
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>

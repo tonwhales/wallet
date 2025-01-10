@@ -25,17 +25,7 @@ export const AccountSelectorFragment = fragment(() => {
     const appState = useAppState();
 
     const ledgerContext = useLedgerTransport();
-    const isLedgerConnected = useMemo(() => {
-        if (!ledgerContext?.tonTransport || !ledgerContext.addr?.address) {
-            return false;
-        }
-        try {
-            Address.parse(ledgerContext.addr?.address);
-            return true;
-        } catch {
-            return false;
-        }
-    }, [ledgerContext]);
+    const isLedgerConnected = !!ledgerContext.tonTransport;
 
     const addressesCount = appState.addresses.length + ledgerContext.ledgerWallets.length;
 
@@ -57,9 +47,13 @@ export const AccountSelectorFragment = fragment(() => {
     const isScrollMode = useMemo(() => addressesCount > 3, [addressesCount]);
 
     const onAddNewAccount = useCallback(() => {
-        const options = isLedgerConnected
-            ? [t('common.cancel'), t('create.addNew'), t('welcome.importWallet')]
-            : [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
+        const options = [
+            t('common.cancel'),
+            t('create.addNew'),
+            t('welcome.importWallet'),
+            t('hardwareWallet.actions.connect')
+        ];
+
         const cancelButtonIndex = 0;
 
         showActionSheetWithOptions({
@@ -81,6 +75,10 @@ export const AccountSelectorFragment = fragment(() => {
                     }, 50);
                     break;
                 case 3:
+                    if (isLedgerConnected) {
+                        navigation.replace('LedgerSelectAccount');
+                        return;
+                    }
                     ledgerContext.reset();
                     navigation.replace('Ledger');
                     break;
@@ -88,7 +86,7 @@ export const AccountSelectorFragment = fragment(() => {
                     break;
             }
         });
-    }, []);
+    }, [isLedgerConnected]);
 
     return (
         <View style={[
@@ -124,9 +122,9 @@ export const AccountSelectorFragment = fragment(() => {
                 }}>
                     {Platform.OS === 'ios' && (
                         <Text style={[{
-                            fontWeight: '600',
                             color: theme.textPrimary,
                             marginTop: Platform.OS === 'ios' ? 32 : 0,
+                            marginLeft: 16,
                         }, Typography.semiBold17_24]}>
                             {t('common.wallets')}
                         </Text>

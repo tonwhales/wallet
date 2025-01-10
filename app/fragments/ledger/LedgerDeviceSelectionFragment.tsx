@@ -29,8 +29,12 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
     ) ? ledgerContext.bleSearchState.devices : [];
 
     const onDeviceSelect = useCallback(async (device: any) => {
-        const transport = await TransportBLE.open(device.id);
-        ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });
+        try {
+            const transport = await TransportBLE.open(device.id);
+            ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });
+        } catch (error) {
+            console.warn('Error connecting to device', error);
+        }
     }, [ledgerContext]);
 
     const newScan = useCallback(() => {
@@ -172,7 +176,13 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                 flexGrow: 1
             }}>
                 {devices.map((device: any) => {
-                    return (<BleDevice key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />);
+                    return (
+                        <BleDevice
+                            key={`ledger-${device.id}`}
+                            device={device}
+                            onSelect={onDeviceSelect}
+                        />
+                    );
                 })}
                 <View style={{ height: 16 }} />
             </ScrollView>

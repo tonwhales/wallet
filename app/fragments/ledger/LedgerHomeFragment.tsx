@@ -24,6 +24,7 @@ import { LiquidStakingFragment } from "../staking/LiquidStakingFragment";
 import { queryClient } from "../../engine/clients";
 import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { Queries } from "../../engine/queries";
+import { TonWalletFragment } from "../wallet/TonWalletFragment";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -394,6 +395,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('LedgerStaking', StakingFragment),
     fullScreen('LedgerStakingPools', StakingPoolsFragment),
     fullScreen('LedgerLiquidStaking', LiquidStakingFragment),
+    fullScreen('LedgerTonWallet', TonWalletFragment)
 ]
 
 export const LedgerNavigationStack = memo(() => {

@@ -26,9 +26,9 @@ import { W5Banner } from "./W5Banner"
 import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck"
 import { HoldersBanner } from "./HoldersBanner"
 import { SavingsProduct } from "./SavingsProduct"
+import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
-import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 

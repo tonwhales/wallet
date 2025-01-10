@@ -207,5 +207,6 @@ export const CachedLinking = {
         if (lastLink && listener) {
             lastLink = listener(lastLink);
         }
-    }
+    },
+    getLastLink: () => lastLink
 };

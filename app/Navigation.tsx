@@ -103,6 +103,8 @@ import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from './fragments/wallet/ReceiveAssetsFragment';
 import { LanguageFragment } from './fragments/LanguageFragment';
+import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
+import { CachedLinking } from './utils/CachedLinking';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -362,6 +364,8 @@ export const Navigation = memo(() => {
     const { isTestnet } = useNetwork();
 
     const initial = useMemo(() => {
+        const lastLink = CachedLinking.getLastLink();
+        trackEvent(MixpanelEvent.AppStart, { isTestnet, source: lastLink || 'none' }, isTestnet);
         return resolveOnboarding(isTestnet, true);
     }, []);
 

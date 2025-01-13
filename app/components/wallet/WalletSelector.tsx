@@ -23,7 +23,7 @@ type Item = {
     account: SelectedAccount
 }
 
-const LedgerItem = memo(({ address, onSelect }: { address: string, onSelect: () => void }) => {
+const LedgerItem = memo(({ address, onSelect, isSelected }: { address: string, onSelect: () => void, isSelected: boolean }) => {
     const theme = useTheme();
 
     return (
@@ -69,10 +69,10 @@ const LedgerItem = memo(({ address, onSelect }: { address: string, onSelect: () 
             <View style={{
                 justifyContent: 'center', alignItems: 'center',
                 height: 24, width: 24,
-                backgroundColor: theme.divider,
+                backgroundColor: isSelected ? theme.accent : theme.divider,
                 borderRadius: 12
             }}>
-                <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
+                {isSelected && <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />}
             </View>
         </Pressable>
     );
@@ -130,6 +130,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                 <LedgerItem
                     address={item.address}
                     onSelect={onLedgerSelect}
+                    isSelected={isPrevScreenLedger}
                 />
             );
         }
@@ -140,12 +141,15 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
             return null;
         }
 
+        const i = index - (connectedLedgerAddress ? 1 : 0);
+        const isSelected = i === appState.selected && !isPrevScreenLedger;
+
         return (
             <WalletItem
                 key={`wallet-${index}`}
-                index={index}
+                index={i}
                 address={wallet.address}
-                selected={index === appState.selected && !isPrevScreenLedger}
+                selected={isSelected}
                 onSelect={onSelect}
                 bounceableFormat={bounceableFormat}
                 isW5={wallet.version === WalletVersions.v5R1}
@@ -153,7 +157,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                 knownWallets={knownWallets}
             />
         )
-    }, [isPrevScreenLedger, onLedgerSelect, onSelect, appState.selected, bounceableFormat, isTestnet, knownWallets]);
+    }, [isPrevScreenLedger, onLedgerSelect, onSelect, appState.selected, bounceableFormat, isTestnet, knownWallets, connectedLedgerAddress]);
 
     const items: Item[] = useMemo(() => {
         const walletItems: Item[] = appState.addresses.map(account => ({

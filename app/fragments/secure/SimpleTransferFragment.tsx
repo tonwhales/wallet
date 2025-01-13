@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, BackHandler } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
@@ -941,6 +941,19 @@ const SimpleTransferComponent = () => {
         scrollRef.current?.scrollTo({ y: 0 });
         setComment(item.memo || '');
     }, []);
+
+    const backHandler = useCallback(() => {
+        if (selectedInput !== null) {
+            setSelectedInput(null);
+            return true;
+        }
+        return false;
+    }, [selectedInput]);
+
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', backHandler);
+        return () => BackHandler.removeEventListener('hardwareBackPress', backHandler);
+    }, [selectedInput]);
 
     return (
         <View style={{ flexGrow: 1 }}>

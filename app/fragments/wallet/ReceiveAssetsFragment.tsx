@@ -240,7 +240,7 @@ export const ReceiveAssetsFragment = fragment(() => {
 
         return (
             <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
-                {t('products.accounts')}
+                {t('products.savings')}
             </Text>
         );
     }, [theme, holdersAccounts.length]);

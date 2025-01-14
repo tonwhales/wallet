@@ -17,7 +17,7 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/avatar/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useBounceableWalletFormat, usePendingActions, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
+import { useAccountTransactions, useBounceableWalletFormat, usePendingActions, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
@@ -303,10 +303,20 @@ export const PendingTransactions = memo(({
 }) => {
     const account = useSelectedAccount();
     const network = useNetwork();
-    const { state: pending, removePending } = usePendingActions(address ?? account?.addressString ?? '', network.isTestnet);
+    const addr = address ?? account?.addressString ?? '';
+    const { state: pending, removePending } = usePendingActions(addr, network.isTestnet);
+    const txs = useAccountTransactions(addr).data;
+    const lastTxs = txs?.flat()?.slice(-1)?.[0];
+    const lastTxsSeqno = lastTxs?.base.parsed.seqno;
     const theme = useTheme();
 
-    const txs = useMemo(() => {
+    useEffect(() => {
+        if (!!lastTxsSeqno) {
+            removePending(pending.filter((tx) => tx.seqno < lastTxsSeqno).map((tx) => tx.id));
+        }
+    }, [lastTxsSeqno]);
+
+    const pendingTxs = useMemo(() => {
         // Show only pending on history tab
         if (viewType !== 'main') {
             return pending
@@ -332,13 +342,13 @@ export const PendingTransactions = memo(({
         }
     }, [pending]);
 
-    if (txs.length <= 0) {
+    if (pendingTxs.length <= 0) {
         return null;
     }
 
     return (
         <View style={{ paddingHorizontal: 16 }}>
-            {txs.length > 0 && (
+            {pendingTxs.length > 0 && (
                 <Animated.View
                     entering={FadeInDown}
                     exiting={FadeOutUp}
@@ -356,7 +366,7 @@ export const PendingTransactions = memo(({
             )}
             <PendingTransactionsList
                 theme={theme}
-                txs={txs}
+                txs={pendingTxs}
                 viewType={viewType}
                 style={listStyle}
             />

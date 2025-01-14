@@ -22,6 +22,7 @@ import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
 import { PendingTransactions } from "./views/PendingTransactions";
 import { useFocusEffect } from "@react-navigation/native";
 import { PendingTransaction } from "../../engine/state/pending";
+import { JettonPendingTransactions } from "./views/JettonPendingTransactions";
 
 export type JettonWalletFragmentProps = {
     owner: string;
@@ -185,15 +186,18 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                 </Text>
                             </View>
                             <WalletActions
-                                jetton={jetton}
+                                actionAsset={{
+                                    type: 'jetton',
+                                    jetton: jetton
+                                }}
                                 theme={theme}
                                 navigation={navigation}
                                 isTestnet={isTestnet}
                             />
-                            <PendingTransactions
-                                address={ownerAddress.toString({ testOnly: isTestnet })}
+                            <JettonPendingTransactions
+                                owner={ownerAddress.toString({ testOnly: isTestnet })}
+                                master={master}
                                 onChange={onRefresh}
-                                viewType={'jetton-history'}
                                 filter={pendingFilter}
                             />
                         </View>

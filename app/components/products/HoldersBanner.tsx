@@ -205,7 +205,7 @@ const IconBanner = memo(({ onPress, content, noAction }: { onPress: () => void, 
     const subtitle = content.subtitle[lang] || content.subtitle.en;
     const action = content.action[lang] || content.action.en;
 
-    const icStyle = noAction? styles.iconNoAction : [styles.icon, { backgroundColor: theme.accent }];
+    const icStyle = noAction ? styles.iconNoAction : [styles.icon, { backgroundColor: theme.accent }];
     const ic = noAction ? require('@assets/ic-holders-card.png') : require('@assets/ic-banner-card.png');
 
     return (
@@ -330,7 +330,9 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
         if (trackViews) {
             trackEvent(
                 MixpanelEvent.HoldersBannerView,
-                { id, wallet, isTestnet, screen }
+                { id, wallet, isTestnet, screen },
+                isTestnet,
+                true
             );
         }
     }, [trackViews, isTestnet, id, wallet, screen]);
@@ -338,7 +340,9 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     const onPress = () => {
         trackEvent(
             MixpanelEvent.HoldersBanner,
-            { id, wallet, isTestnet, screen }
+            { id, wallet, isTestnet, screen },
+            isTestnet,
+            true
         );
         onClick?.();
     }

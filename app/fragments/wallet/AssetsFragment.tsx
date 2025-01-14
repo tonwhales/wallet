@@ -23,6 +23,7 @@ import { getAccountName } from "../../utils/holders/getAccountName";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
+import { getSpecialJetton } from "../../secure/KnownWallets";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -161,7 +162,9 @@ export const AssetsFragment = fragment(() => {
                     return true;
                 }
 
-                if (savings.some((s) => s.jetton.address === j.jetton.address)) {
+                const isSavings = savings.some((s) => s.jetton.address === j.jetton.address)
+                    || getSpecialJetton(isTestnet) === j.jetton.address;
+                if (isSavings) {
                     return true;
                 }
 

@@ -366,7 +366,7 @@ export const Navigation = memo(() => {
 
     const initial = useMemo(() => {
         const lastLink = CachedLinking.getLastLink();
-        trackEvent(MixpanelEvent.AppStart, { isTestnet, source: lastLink || 'none' }, isTestnet);
+        trackEvent(MixpanelEvent.AppStart, { isTestnet, source: lastLink || 'none' }, isTestnet, true);
         return resolveOnboarding(isTestnet, true);
     }, []);
 

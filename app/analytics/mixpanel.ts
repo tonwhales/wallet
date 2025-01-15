@@ -34,9 +34,9 @@ export enum MixpanelEvent {
     WalletSeedImported = 'wallet_seed_imported',
 }
 
-const devKey = keys.MIXPANEL_DEV_KEY;
-const sandboxKey = keys.MIXPANEL_SANDBOX_KEY;
-const prodKey = keys.MIXPANEL_PROD_KEY;
+const devKey = keys.MIXPANEL_DEV;
+const sandboxKey = keys.MIXPANEL_SANDBOX;
+const prodKey = keys.MIXPANEL_PROD;
 
 const holdersStage = keys.MIXPANEL_HOLDERS_STAGE;
 const holdersProd = keys.MIXPANEL_HOLDERS_PROD;
@@ -114,8 +114,9 @@ export function mixpanelReset(isTestnet?: boolean) {
     mixpanelInst(isTestnet).reset();
 }
 
-export function mixpanelIdentify(id: string, isTestnet?: boolean) {
-    mixpanelInst(isTestnet).identify(id);
+export function mixpanelIdentify(wallet: string, isTestnet?: boolean) {
+    mixpanelInst(isTestnet).identify(wallet);
+    holdersMixpanelInst(isTestnet).getPeople().union('wallets', [wallet]);
 }
 
 export function mixpanelAddReferrer(referrer: string, isTestnet?: boolean) {

@@ -119,5 +119,6 @@ export function mixpanelIdentify(id: string, isTestnet?: boolean) {
 }
 
 export function mixpanelAddReferrer(referrer: string, isTestnet?: boolean) {
-    mixpanelInst(isTestnet).getPeople().set({ referrer: referrer });
+    mixpanelInst(isTestnet).getPeople().set({ referrer });
+    holdersMixpanelInst(isTestnet).getPeople().set({ referrer });
 }

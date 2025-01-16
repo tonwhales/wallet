@@ -21,7 +21,8 @@ const holdersCustomBanner = z.object({
 
 const inviteCheckCodec = z.object({
   allowed: z.boolean(),
-  banner: holdersCustomBanner.optional()
+  banner: holdersCustomBanner.nullish(),
+  settingsBanner: holdersCustomBanner.nullish()
 });
 
 export type HoldersBannerContent = z.infer<typeof holdersBannerContent>;

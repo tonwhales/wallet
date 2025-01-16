@@ -4,7 +4,7 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useIsConnectAppReady, useJetton, usePrice, useTheme } from "../../engine/hooks";
+import { useIsConnectAppReady, useJetton, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -18,8 +18,16 @@ import { Address, toNano } from "@ton/core";
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
 import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
+import { Image } from "expo-image";
+import { AddressComponent } from "../address/AddressComponent";
 
 import IcCheck from "@assets/ic-check.svg";
+
+export enum HoldersItemContentType {
+    BALANCE = 'balance',
+    SELECT = 'select',
+    NAVIGATION = 'navigation'
+}
 
 export const HoldersAccountItem = memo((props: {
     owner: Address,
@@ -37,33 +45,39 @@ export const HoldersAccountItem = memo((props: {
     holdersAccStatus?: HoldersAccountStatus,
     onBeforeOpen?: () => void
     onOpen?: () => void,
-    selectable?: boolean,
-    isSelected?: boolean
+    content?: { type: HoldersItemContentType.SELECT, isSelected: boolean } | { type: HoldersItemContentType.BALANCE } | { type: HoldersItemContentType.NAVIGATION },
+    addressDescription?: boolean
 }) => {
+    const {
+        owner, account, holdersAccStatus,
+        rightAction, rightActionIcon, content,
+        style, itemStyle,
+        onBeforeOpen, onOpen,
+        hideCardsIfEmpty,
+        isTestnet
+    } = props;
     const [price] = usePrice();
-    const master = props?.account?.cryptoCurrency?.tokenContract || undefined;
-    const owner = props.owner;
+    const master = account?.cryptoCurrency?.tokenContract || undefined;
     const jettonMasterContent = useJetton({ owner, master });
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const holdersAccStatus = props.holdersAccStatus;
-    const url = holdersUrl(props.isTestnet);
+    const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
-    const name = getAccountName(props.account.accountIndex, props.account.name);
+    const name = getAccountName(account.accountIndex, account.name);
 
     const priceAmount = useMemo(() => {
-        const cryptoCurrency = props.account.cryptoCurrency;
+        const cryptoCurrency = account.cryptoCurrency;
 
-        if (!props.account || !props.account.cryptoCurrency || !props.account.balance) return 0n;
+        if (!account || !account.cryptoCurrency || !account.balance) return 0n;
 
         if (cryptoCurrency.ticker === 'TON') {
-            return BigInt(props.account.balance);
+            return BigInt(account.balance);
         }
 
-        const amount = toBnWithDecimals(props.account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd || 1n);
+        const amount = toBnWithDecimals(account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd || 1n);
         return toBnWithDecimals(amount, cryptoCurrency.decimals);
-    }, [props.account.balance, props.account.cryptoCurrency, price?.price?.usd]);
+    }, [account.balance, account.cryptoCurrency, price?.price?.usd]);
 
     const needsEnrollment = useMemo(() => {
         if (!isHoldersReady) {
@@ -83,25 +97,25 @@ export const HoldersAccountItem = memo((props: {
 
     const onPress = useCallback(() => {
         // Close full list modal (holders navigations is below it in the other nav stack)
-        props.onBeforeOpen?.();
+        onBeforeOpen?.();
 
-        if (props.onOpen) {
-            props.onOpen();
+        if (onOpen) {
+            onOpen();
             return;
         }
 
         if (needsEnrollment) {
-            const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Account, id: props.account.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
+            const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Account, id: account.id };
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: props.account.id }, props.isTestnet);
-    }, [props.account, needsEnrollment, props.isTestnet, props.onOpen]);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: account.id }, isTestnet);
+    }, [account, needsEnrollment, isTestnet, onOpen]);
 
     const subtitle = t('products.holders.accounts.basicAccount');
 
-    const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
+    const renderRightAction = (!!rightActionIcon && !!rightAction)
         ? () => {
             return (
                 <Pressable
@@ -116,33 +130,92 @@ export const HoldersAccountItem = memo((props: {
                     ]}
                     onPress={() => {
                         swipableRef.current?.close();
-                        if (props.rightAction) {
-                            props.rightAction(props.account);
+                        if (rightAction) {
+                            rightAction(account);
                         }
                     }}
                 >
-                    {props.rightActionIcon}
+                    {rightActionIcon}
                 </Pressable>
             )
         }
         : undefined;
 
+    const contentView = useMemo(() => {
+        switch (content?.type) {
+            case HoldersItemContentType.SELECT:
+                return (
+                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'flex-end' }}>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            height: 24, width: 24,
+                            backgroundColor: content.isSelected ? theme.accent : theme.divider,
+                            borderRadius: 12,
+                        }}>
+                            {content.isSelected && (
+                                <IcCheck color={theme.white} height={16} width={16} style={{ height: 16, width: 16 }} />
+                            )}
+                        </View>
+                    </View>
+                );
+            case HoldersItemContentType.BALANCE:
+                return (
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                            <ValueComponent
+                                value={account.balance}
+                                precision={account.cryptoCurrency?.decimals === 9 ? 3 : 2}
+                                centFontStyle={{ color: theme.textSecondary }}
+                                decimals={account.cryptoCurrency?.decimals}
+                                forcePrecision
+                            />
+                            <PerfText style={{ color: theme.textSecondary }}>
+                                {` ${account.cryptoCurrency?.ticker}`}
+                            </PerfText>
+                        </Text>
+                        <PriceComponent
+                            amount={priceAmount}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0, paddingVertical: 0,
+                                alignSelf: 'flex-end',
+                                height: undefined
+                            }}
+                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                            theme={theme}
+                        />
+                    </View>
+                );
+            case HoldersItemContentType.NAVIGATION:
+                return (
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                        <Image
+                            source={require('@assets/ic-chevron-right.png')}
+                            style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                        />
+                    </View>
+                );
+            default:
+                return null;
+        }
+    }, [content, account.balance, account.cryptoCurrency, priceAmount, theme]);
+
     return (
         <Swipeable
             ref={swipableRef}
-            containerStyle={[{ flex: 1 }, props.style]}
+            containerStyle={[{ flex: 1 }, style]}
             useNativeAnimations={true}
             renderRightActions={renderRightAction}
         >
             <View>
-                <View style={[{ borderRadius: 20, overflow: 'hidden', flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
+                <View style={[{ borderRadius: 20, overflow: 'hidden', flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }, itemStyle]}>
                     <TouchableOpacity
                         onPress={onPress}
                         activeOpacity={0.5}
                     >
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                             {resolveHoldersIcon(
-                                { image: jettonMasterContent?.icon, ticker: props.account.cryptoCurrency?.ticker },
+                                { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker },
                                 theme
                             )}
                             <View style={{ marginLeft: 12, flexShrink: 1 }}>
@@ -159,54 +232,19 @@ export const HoldersAccountItem = memo((props: {
                                     ellipsizeMode={'tail'}
                                 >
                                     <PerfText style={{ flexShrink: 1 }}>
-                                        {subtitle}
+                                        {props.addressDescription && !!props.account.address ? (
+                                            <AddressComponent
+                                                bounceable={true}
+                                                address={props.account.address}
+                                                testOnly={isTestnet}
+                                            />
+                                        ) : (subtitle)}
                                     </PerfText>
                                 </PerfText>
                             </View>
-                            {!!props.selectable ? (
-                                <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'flex-end' }}>
-                                    <View style={{
-                                        justifyContent: 'center', alignItems: 'center',
-                                        height: 24, width: 24,
-                                        backgroundColor: props.isSelected ? theme.accent : theme.divider,
-                                        borderRadius: 12,
-                                    }}>
-                                        {props.isSelected && (
-                                            <IcCheck color={theme.white} height={16} width={16} style={{ height: 16, width: 16 }} />
-                                        )}
-                                    </View>
-                                </View>
-                            ) : (
-                                !!props.account.balance && (
-                                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
-                                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                            <ValueComponent
-                                                value={props.account.balance}
-                                                precision={props.account.cryptoCurrency?.decimals === 9 ? 3 : 2}
-                                                centFontStyle={{ color: theme.textSecondary }}
-                                                decimals={props.account.cryptoCurrency?.decimals}
-                                                forcePrecision
-                                            />
-                                            <PerfText style={{ color: theme.textSecondary }}>
-                                                {` ${props.account.cryptoCurrency?.ticker}`}
-                                            </PerfText>
-                                        </Text>
-                                        <PriceComponent
-                                            amount={priceAmount}
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                paddingHorizontal: 0, paddingVertical: 0,
-                                                alignSelf: 'flex-end',
-                                                height: undefined
-                                            }}
-                                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                            theme={theme}
-                                        />
-                                    </View>
-                                )
-                            )}
+                            {contentView}
                         </View>
-                        {!(props.hideCardsIfEmpty && props.account.cards.length === 0) ? (
+                        {!(hideCardsIfEmpty && account.cards.length === 0) ? (
                             <ScrollView
                                 horizontal={true}
                                 style={[{ height: 46, marginTop: 10 }, Platform.select({ android: { marginLeft: 78 } })]}
@@ -214,9 +252,9 @@ export const HoldersAccountItem = memo((props: {
                                 contentInset={Platform.select({ ios: { left: 78 } })}
                                 contentOffset={Platform.select({ ios: { x: -78, y: 0 } })}
                                 showsHorizontalScrollIndicator={false}
-                                alwaysBounceHorizontal={props.account.cards.length > 0}
+                                alwaysBounceHorizontal={account.cards.length > 0}
                             >
-                                {props.account.cards.map((card, index) => {
+                                {account.cards.map((card, index) => {
                                     return (
                                         <HoldersAccountCard
                                             key={`card-item-${index}`}

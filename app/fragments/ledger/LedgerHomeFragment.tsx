@@ -21,6 +21,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { LiquidStakingFragment } from "../staking/LiquidStakingFragment";
+import { TonWalletFragment } from "../wallet/TonWalletFragment";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -330,6 +331,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('LedgerStaking', StakingFragment),
     fullScreen('LedgerStakingPools', StakingPoolsFragment),
     fullScreen('LedgerLiquidStaking', LiquidStakingFragment),
+    fullScreen('LedgerTonWallet', TonWalletFragment)
 ]
 
 export const LedgerNavigationStack = memo(() => {

@@ -18,6 +18,7 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Transactions(account),
         refetchOnMount: options.refetchOnMount,
+        refetchOnWindowFocus: true,
         getNextPageParam: (last) => {
             if (!last || !last[TRANSACTIONS_LENGTH - 2]) {
                 return undefined;
@@ -130,6 +131,7 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
 
             return { pages, pageParams };
         },
+        staleTime: 5 * 1000
     });
 
     return query;

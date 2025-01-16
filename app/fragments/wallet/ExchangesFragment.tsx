@@ -4,7 +4,7 @@ import { fragment } from "../../fragment";
 import { View, Platform, Pressable, Text } from "react-native";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useLanguage, useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { DAppWebView, DAppWebViewProps } from "../../components/webview/DAppWebView";
@@ -22,7 +22,13 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { holdersSupportUrl, holdersSupportWebUrl, supportFormUrl } from "../holders/components/HoldersAppComponent";
 
 export type ExchangesFragmentParams = {
+    type: 'holders'
     holdersAccount: GeneralHoldersAccount
+} | {
+    type: 'wallet',
+    address: string,
+    ticker: string,
+    tokenContract?: string
 }
 
 const Placeholder = memo(({
@@ -277,22 +283,43 @@ export const ExchangesFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const { holdersAccount } = useParams<ExchangesFragmentParams>();
+    const asset = useParams<ExchangesFragmentParams>();
     const { showActionSheetWithOptions } = useActionSheet();
+    const [lang] = useLanguage();
+    const [currency] = usePrimaryCurrency();
 
     const uri = `${holdersUrl(isTestnet)}/deposit-direct-exchanges`;
-    const url = new URL(uri);
 
-    // add query params
-    if (holdersAccount.address) {
-        url.searchParams.append('address', holdersAccount.address);
-    }
-    if (holdersAccount.cryptoCurrency.tokenContract) {
-        url.searchParams.append('tokenContract', holdersAccount.cryptoCurrency.tokenContract);
-    }
+    const source = useMemo(() => {
+        const url = new URL(uri);
 
-    url.searchParams.append('chain', 'ton');
-    url.searchParams.append('ticker', holdersAccount.cryptoCurrency.ticker);
+        // add query params
+        if (asset.type === 'wallet') {
+            url.searchParams.append('address', asset.address);
+            url.searchParams.append('ticker', asset.ticker);
+            if (asset.tokenContract) {
+                url.searchParams.append('tokenContract', asset.tokenContract);
+            }
+        } else {
+            if (asset.holdersAccount.address) {
+                url.searchParams.append('address', asset.holdersAccount.address);
+            }
+            if (asset.holdersAccount.cryptoCurrency.tokenContract) {
+                url.searchParams.append('tokenContract', asset.holdersAccount.cryptoCurrency.tokenContract);
+            }
+            url.searchParams.append('ticker', asset.holdersAccount.cryptoCurrency.ticker);
+        }
+
+        url.searchParams.append('chain', 'ton');
+
+        url.searchParams.append('lang', lang);
+        url.searchParams.append('currency', currency);
+        url.searchParams.append('theme', 'holders');
+        url.searchParams.append('theme-style', theme.style === 'dark' ? 'dark' : 'light');
+
+        return url;
+
+    }, [uri, lang, currency, theme, asset]);
 
 
     const webViewProps: DAppWebViewProps = {
@@ -305,7 +332,7 @@ export const ExchangesFragment = fragment(() => {
     const [renderKey, setRenderKey] = useState(0);
 
     const onReload = useCallback(() => {
-        trackEvent(MixpanelEvent.HoldersReload, { route: url.toString() }, isTestnet);
+        trackEvent(MixpanelEvent.HoldersReload, { route: source.toString() }, isTestnet);
         setRenderKey(renderKey + 1);
     }, [renderKey, isTestnet]);
 
@@ -365,7 +392,7 @@ export const ExchangesFragment = fragment(() => {
                 <DAppWebView
                     style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1 }}
                     defaultSafeArea={Platform.OS === 'ios' ? { bottom: safeArea.bottom, top: 16 } : { top: 16, bottom: 0 }}
-                    source={{ uri: url.toString() }}
+                    source={{ uri: source.toString() }}
                     {...webViewProps}
                     webviewDebuggingEnabled={isTestnet}
                     allowsBackForwardNavigationGestures={true}

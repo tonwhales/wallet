@@ -83,7 +83,8 @@ export type LocalizationSchema = {
         notFound: string,
         unverified: string,
         addressBook: string,
-        gasless: string
+        gasless: string,
+        address: string
     },
     syncStatus: {
         connecting: string,
@@ -117,7 +118,8 @@ export type LocalizationSchema = {
         rateApp: string,
         deleteAccount: string,
         theme: string,
-        searchEngine: string
+        searchEngine: string,
+        language: string
     },
     theme: {
         title: string,
@@ -171,7 +173,9 @@ export type LocalizationSchema = {
         },
         holdersJettonWarning: string,
         assets: string,
-        fromExchange: string
+        fromExchange: string,
+        otherCoins: string,
+        deposit: string
     },
     transfer: {
         title: string,
@@ -210,6 +214,8 @@ export type LocalizationSchema = {
             gaslessNotEnoughCoins: string,
             notEnoughJettons: string,
             jettonChange: string,
+            notEnoughGasTitle: string,
+            notEnoughGasMessage: string,
         },
         changeJetton: string,
         sendAll: string,
@@ -627,6 +633,12 @@ export type LocalizationSchema = {
                     fetchToken: string,
                     createSignature: string,
                 },
+            },
+            otpBanner: {
+                title: string,
+                accept: string,
+                decline: string,
+                expired: string
             }
         }
     }

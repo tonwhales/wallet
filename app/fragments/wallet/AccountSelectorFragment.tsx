@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, Pressable, ScrollView, View, useWindowDimensions, Text } from "react-native";
+import { Platform, Pressable, View, useWindowDimensions, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { WalletSelector } from "../../components/wallet/WalletSelector";
@@ -13,6 +13,7 @@ import { useParams } from "../../utils/useParams";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../components/ScreenHeader";
+import { Typography } from "../../components/styles";
 
 export const AccountSelectorFragment = fragment(() => {
     const theme = useTheme();
@@ -102,14 +103,13 @@ export const AccountSelectorFragment = fragment(() => {
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'
             })} />
-            {Platform.OS === 'android' && (
+            {Platform.OS === 'android' ? (
                 <ScreenHeader
                     title={t('common.wallets')}
                     onBackPressed={navigation.goBack}
                     style={{ paddingHorizontal: 16 }}
                 />
-            )}
-            {Platform.OS === 'ios' && (
+            ) : (
                 <Pressable
                     onPress={navigation.goBack}
                     style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
@@ -123,32 +123,24 @@ export const AccountSelectorFragment = fragment(() => {
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     paddingBottom: safeArea.bottom + 16
                 }}>
-                    {Platform.OS === 'ios' && <Text style={{
-                        marginHorizontal: 16,
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '600',
-                        color: theme.textPrimary,
-                        marginTop: Platform.OS === 'ios' ? 32 : 0,
-                    }}>
-                        {t('common.wallets')}
-                    </Text>}
-                    <ScrollView
-                        contentContainerStyle={{
-                            paddingHorizontal: 16
-                        }}
-                        contentInset={{
-                            bottom: safeArea.bottom + 16,
-                            top: 16
-                        }}
-                        contentOffset={{ y: -16, x: 0 }}
-                    >
-                        <WalletSelector onSelect={callback} />
-                    </ScrollView>
-                    {!callback && (<RoundButton
-                        style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}
-                        onPress={onAddNewAccount}
-                        title={t('wallets.addNewTitle')}
-                    />)}
+                    {Platform.OS === 'ios' && (
+                        <Text style={[{
+                            fontWeight: '600',
+                            color: theme.textPrimary,
+                            marginTop: Platform.OS === 'ios' ? 32 : 0,
+                            marginLeft: 16
+                        }, Typography.semiBold17_24]}>
+                            {t('common.wallets')}
+                        </Text>
+                    )}
+                    <WalletSelector onSelect={callback} />
+                    {!callback && (
+                        <RoundButton
+                            style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}
+                            onPress={onAddNewAccount}
+                            title={t('wallets.addNewTitle')}
+                        />
+                    )}
                 </View>
             ) : (
                 <View style={{
@@ -157,25 +149,28 @@ export const AccountSelectorFragment = fragment(() => {
                     backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
-                    padding: 16,
                     paddingBottom: safeArea.bottom + 16
                 }}>
-                    {Platform.OS === 'ios' && <Text style={{
-                        marginHorizontal: 16,
-                        fontSize: 17, lineHeight: 24,
-                        marginBottom: 16,
-                        fontWeight: '600',
-                        color: theme.textPrimary,
-                        marginTop: Platform.OS === 'ios' ? 32 : 0,
-                    }}>
-                        {t('common.wallets')}
-                    </Text>}
+                    {Platform.OS === 'ios' && (
+                        <Text style={[{
+                            marginHorizontal: 16,
+                            marginBottom: 16,
+                            color: theme.textPrimary,
+                            marginTop: Platform.OS === 'ios' ? 32 : 0,
+                        }, Typography.semiBold17_24]}>
+                            {t('common.wallets')}
+                        </Text>
+                    )}
                     <WalletSelector onSelect={callback} />
-                    {!callback && (<RoundButton
-                        style={{ marginVertical: 16 }}
-                        onPress={onAddNewAccount}
-                        title={t('wallets.addNewTitle')}
-                    />)}
+                    {!callback && (
+                        <View style={{ paddingHorizontal: 16 }}>
+                            <RoundButton
+                                style={{ marginVertical: 16 }}
+                                onPress={onAddNewAccount}
+                                title={t('wallets.addNewTitle')}
+                            />
+                        </View>
+                    )}
                 </View>
             )}
         </View>

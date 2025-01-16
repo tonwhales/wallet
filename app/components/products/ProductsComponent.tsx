@@ -26,6 +26,7 @@ import { W5Banner } from "./W5Banner"
 import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck"
 import { HoldersBanner } from "./HoldersBanner"
 import { SavingsProduct } from "./SavingsProduct"
+import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -101,9 +102,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     return (
         <View>
-            <View style={{
-                backgroundColor: theme.backgroundPrimary,
-            }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary }}>
+                <PaymentOtpBanner address={selected.address} />
                 <AddressFormatUpdate />
                 <W5Banner />
                 <DappsRequests />

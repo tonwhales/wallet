@@ -81,7 +81,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "notFound": "Не найден",
         "unverified": "Неверифицированные",
         "addressBook": "Адресная книга",
-        "gasless": "Gasless"
+        "gasless": "Gasless",
+        "address": "Адрес"
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -116,6 +117,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "deleteAccount": "Удалить аккаунт",
         "theme": "Тема",
         "searchEngine": "Поисковая система",
+        "language": "Язык"
     },
     "theme": {
         "title": "Тема",
@@ -153,7 +155,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
         "assets": "Жетоны и счета",
-        "fromExchange": "С биржи"
+        "fromExchange": "С биржи",
+        "otherCoins": "Другие токены",
+        "deposit": "Пополнить"
     },
     "transfer": {
         "title": "Отправить",
@@ -192,6 +196,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "gaslessNotEnoughCoins": "Необходимо {{fee}} для оплаты комиссии, не хватает {{missing}}",
             "notEnoughJettons": "Недостаточно {{symbol}}",
             "jettonChange": "Получатель поддерживает только транзакции в {{symbol}}, пожалуйста, измените получателя или валюту транзакции",
+            "notEnoughGasTitle": "Недостаточно TON для оплаты комиссии",
+            "notEnoughGasMessage": "Пожалуйста, пополните кошелек TON (необходимо еще как минимум {{diff}} TON) и попробуйте снова",
         },
         "changeJetton": "Сменить на {{symbol}}",
         "sendAll": "Max",
@@ -328,7 +334,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             "successAuth": "Подключено"
         },
-        "savings": "Балансы",
+        "savings": "Сберегательные счета",
         "accounts": "Жетоны",
         "services": "Расширения",
         "oldWallets": {
@@ -562,8 +568,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "card": "Карта",
                 "cards": "Карты Holders",
                 "title": "Tonhub card {{cardNumber}}",
-                "defaultSubtitle": "Платите TON и USDT где угодно",
-                "defaultTitle": "Карты Tonhub",
+                "defaultSubtitle": "Платите USDT и TON везде с картой Tonhub",
+                "defaultTitle": "Tonhub карта",
                 "eurSubtitle": "Tonhub EUR",
                 "type": {
                     "physical": "Физическая карта",
@@ -625,6 +631,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                     "fetchToken": "Во время получения токена",
                     "createSignature": "Во время создания подписи"
                 }
+            },
+            "otpBanner": {
+                "title": "Новый запрос на оплату",
+                "accept": "Принять",
+                "decline": "Отклонить",
+                "expired": "Истек"
             }
         }
     },

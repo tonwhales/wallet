@@ -6,3 +6,4 @@ export { useHoldersEnroll } from './useHoldersEnroll';
 export { useOfflineApp } from './useOfflineApp';
 export { useHoldersHiddenAccounts } from './useHoldersHiddenAccounts';
 export { useHasHoldersProducts } from './useHasHoldersProducts';
+export { useHoldersOtp } from './useHoldersOtp';

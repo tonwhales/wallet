@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useAccountLite, useCloudValue, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAccountLite, useCloudValue, useDisplayableJettons, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -20,9 +20,10 @@ import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { ValueComponent } from "../../components/ValueComponent";
 import { ReceiveableAsset } from "./ReceiveFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
-import { HoldersAccountItem } from "../../components/products/HoldersAccountItem";
+import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
+import { getSpecialJetton } from "../../secure/KnownWallets";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -117,7 +118,8 @@ export type AssetsFragmentParams = {
     jettonCallback?: (selected?: { wallet?: Address, master: Address }) => void,
     assetCallback?: (selected: ReceiveableAsset | null) => void,
     selectedAsset?: Address | null,
-    viewType: AssetViewType
+    viewType: AssetViewType,
+    isLedger?: boolean
 }
 
 export const AssetsFragment = fragment(() => {
@@ -129,23 +131,25 @@ export const AssetsFragment = fragment(() => {
     const selected = useSelectedAccount();
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
-    const { target, jettonCallback, assetCallback, selectedAsset, viewType, includeHolders } = useParams<AssetsFragmentParams>();
+    const { target, jettonCallback, assetCallback, selectedAsset, viewType, includeHolders, isLedger } = useParams<AssetsFragmentParams>();
 
     const title = viewType === AssetViewType.Receive
         ? t('receive.assets')
         : t('products.accounts');
 
     const route = useRoute();
-    const isLedgerScreen = route.name === 'LedgerAssets';
+    const routeName = route.name;
+    const isJettonsReceiveRoute = routeName === 'ReceiveAssetsJettons';
 
     const ledgerTransport = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
-        if (isLedgerScreen && !!ledgerTransport?.addr) {
+        if (isLedger && !!ledgerTransport?.addr) {
             return Address.parse(ledgerTransport.addr.address);
         }
-    }, [ledgerTransport, isLedgerScreen]);
+    }, [ledgerTransport, isLedger]);
 
-    const owner = isLedgerScreen ? ledgerAddress! : selected!.address;
+    const owner = isLedger ? ledgerAddress! : selected!.address;
+    const savings = useDisplayableJettons(owner.toString({ testOnly: isTestnet })).savings || [];
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
     const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
     const account = useAccountLite(owner);
@@ -153,7 +157,19 @@ export const AssetsFragment = fragment(() => {
 
     const itemsList = useMemo(() => {
         const filtered: ListItem[] = hints
-            .filter((j) => !disabledState.disabled[j.jetton.address] || isLedgerScreen)
+            .filter((j) => {
+                if (isLedger) {
+                    return true;
+                }
+
+                const isSavings = savings.some((s) => s.jetton.address === j.jetton.address)
+                    || getSpecialJetton(isTestnet) === j.jetton.address;
+                if (isSavings) {
+                    return true;
+                }
+
+                return !disabledState.disabled[j.jetton.address];
+            })
             .map((h) => ({
                 type: 'jetton',
                 hint: h
@@ -164,7 +180,12 @@ export const AssetsFragment = fragment(() => {
             account: h
         })) : [];
 
-        const items: ListItem[] = [{ type: 'ton' }, ...holders, ...filtered];
+        let items: ListItem[] = [...holders, ...filtered];
+
+        if (!isJettonsReceiveRoute) {
+            items = [{ type: 'ton' }, ...items];
+        }
+
         const sectioned = new Map<string, { type: string, data: ListItem[] }>();
 
         if (includeHolders) {
@@ -186,8 +207,8 @@ export const AssetsFragment = fragment(() => {
             return Array.from(sectioned.values())
         }
 
-        return [{ type: 'ton' }, ...holders, ...filtered] as ListItem[];
-    }, [disabledState, isTestnet, isLedgerScreen, hints, holdersAccounts, includeHolders]);
+        return items;
+    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders, savings]);
 
     const onJettonCallback = useCallback((selected?: { wallet?: Address, master: Address }) => {
         if (jettonCallback) {
@@ -222,7 +243,7 @@ export const AssetsFragment = fragment(() => {
             return;
         }
 
-        if (isLedgerScreen) {
+        if (isLedger) {
             navigation.replace('LedgerSimpleTransfer', {
                 amount: null,
                 target: target,
@@ -254,7 +275,7 @@ export const AssetsFragment = fragment(() => {
             return;
         }
 
-        if (isLedgerScreen) {
+        if (isLedger) {
             navigation.replace('LedgerSimpleTransfer', {
                 amount: null,
                 target: target,
@@ -274,7 +295,7 @@ export const AssetsFragment = fragment(() => {
             jetton: null,
             callback: null
         });
-    }, [isLedgerScreen, onJettonCallback, onAssetCallback]);
+    }, [isLedger, onJettonCallback, onAssetCallback]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         if (!target.address) {
@@ -292,7 +313,7 @@ export const AssetsFragment = fragment(() => {
             return;
         }
 
-        if (isLedgerScreen) {
+        if (isLedger) {
             if (!target.address) {
                 return;
             }
@@ -340,8 +361,7 @@ export const AssetsFragment = fragment(() => {
                         hideCardsIfEmpty
                         holdersAccStatus={holdersAccStatus}
                         onOpen={() => onHoldersSelected(item.account)}
-                        selectable
-                        isSelected={isSelected}
+                        content={{ type: HoldersItemContentType.SELECT, isSelected }}
                     />
                 );
             case 'jetton':
@@ -370,12 +390,12 @@ export const AssetsFragment = fragment(() => {
         }
     }, [
         selectedAsset, owner, isTestnet, theme, viewType, account?.balance, owner, holdersAccStatus,
-        onJettonSelected, onTonSelected, onHoldersSelected
+        onJettonSelected, onTonSelected, onHoldersSelected,
     ]);
 
     const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {
         if (section.type === 'ton') {
-            return (null);
+            return null;
         } else if (section.type === 'holders') {
             return (
                 <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
@@ -401,9 +421,10 @@ export const AssetsFragment = fragment(() => {
                 onBackPressed={navigation.goBack}
                 title={title}
                 style={[
-                    { paddingHorizontal: 16 },
+                    { paddingLeft: 16 },
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
+                onClosePressed={assetCallback ? navigation.popToTop : undefined}
             />
             {includeHolders ? (
                 <SectionList

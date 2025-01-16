@@ -101,6 +101,10 @@ import { holdersUrl } from './engine/api/holders/fetchUserState';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
+import { ReceiveAssetsFragment } from './fragments/wallet/ReceiveAssetsFragment';
+import { LanguageFragment } from './fragments/LanguageFragment';
+import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
+import { CachedLinking } from './utils/CachedLinking';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -254,6 +258,9 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
+    modalScreen('ReceiveAssets', ReceiveAssetsFragment, safeArea),
+    modalScreen('LedgerReceiveAssets', ReceiveAssetsFragment, safeArea),
+    modalScreen('ReceiveAssetsJettons', AssetsFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     transparentModalScreen('Products', ProductsFragment, safeArea),
@@ -302,7 +309,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerReceive', ReceiveFragment, safeArea),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
     modalScreen('LedgerTransactionPreview', TransactionPreviewFragment, safeArea),
-    modalScreen('LedgerAssets', AssetsFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
@@ -326,6 +332,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('W5Update', W5UpdateFragment, safeArea),
     modalScreen('BounceableFormatAbout', BounceableFormatAboutFragment, safeArea),
     modalScreen('SearchEngine', SearchEngineFragment, safeArea),
+    modalScreen('Language', LanguageFragment, safeArea),
     lockedModalScreen('MandatoryAuthSetup', MandatoryAuthSetupFragment, safeArea),
 
     // Holders
@@ -343,6 +350,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('AppStartAuth', AppAuthFragment),
     fullScreenModal('AppAuth', AppAuthFragment, safeArea),
     genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
+    modalScreen('DAppWebViewModal', DAppWebViewFragment, safeArea),
     genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
     fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea),
     modalScreen('AddressBook', AddressBookFragment, safeArea)
@@ -357,6 +365,8 @@ export const Navigation = memo(() => {
     const { isTestnet } = useNetwork();
 
     const initial = useMemo(() => {
+        const lastLink = CachedLinking.getLastLink();
+        trackEvent(MixpanelEvent.AppStart, { isTestnet, source: lastLink || 'none' }, isTestnet, true);
         return resolveOnboarding(isTestnet, true);
     }, []);
 

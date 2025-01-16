@@ -6,11 +6,11 @@ import { sharedStoragePersistence } from "../storage/storage";
 import appsFlyer, { InitSDKOptions } from 'react-native-appsflyer';
 
 let lastLink: string | null = null;
-let listener: (((link: string) => void) | null) = null;
+let listener: (((link: string) => string | null) | null) = null;
 
 function handleLinkReceived(link: string) {
     if (listener) {
-        listener(link);
+        lastLink = listener(link);
     } else {
         lastLink = link;
     }
@@ -187,15 +187,14 @@ if (Platform.OS === 'android') {
 }
 
 export const CachedLinking = {
-    setListener: (handler: (link: string) => void) => {
+    setListener: (handler: (link: string) => string | null) => {
         if (listener) {
             throw Error('Listener already set');
         }
         listener = handler;
         if (lastLink) {
             let l = lastLink;
-            lastLink = null;
-            handler(l);
+            lastLink = handler(l);
         }
         return () => {
             if (listener !== handler) {
@@ -203,5 +202,11 @@ export const CachedLinking = {
             }
             listener = null;
         };
-    }
+    },
+    openLastLink: () => {
+        if (lastLink && listener) {
+            lastLink = listener(lastLink);
+        }
+    },
+    getLastLink: () => lastLink
 };

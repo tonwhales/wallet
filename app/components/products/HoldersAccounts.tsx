@@ -3,7 +3,7 @@ import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { View, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { ThemeType } from "../../engine/state/theme";
-import { HoldersAccountItem } from "./HoldersAccountItem";
+import { HoldersAccountItem, HoldersItemContentType } from "./HoldersAccountItem";
 import { Typography } from "../styles";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -71,6 +71,7 @@ export const HoldersAccounts = memo(({
                                 isTestnet={isTestnet}
                                 hideCardsIfEmpty
                                 holdersAccStatus={holdersAccStatus}
+                                content={{ type: HoldersItemContentType.BALANCE }}
                             />
                         )
                     })}
@@ -97,6 +98,7 @@ export const HoldersAccounts = memo(({
                         isTestnet={isTestnet}
                         holdersAccStatus={holdersAccStatus}
                         hideCardsIfEmpty
+                        content={{ type: HoldersItemContentType.BALANCE }}
                     />
                 )
             }}

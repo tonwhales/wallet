@@ -81,7 +81,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         notFound: 'Not found',
         unverified: 'Unverified',
         addressBook: 'Address book',
-        gasless: 'Gasless'
+        gasless: 'Gasless',
+        address: 'Address'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -116,6 +117,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         deleteAccount: 'Delete account',
         theme: 'Theme',
         searchEngine: 'Search engine',
+        language: 'Language'
     },
     theme: {
         title: 'Theme',
@@ -169,7 +171,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
         assets: 'Tokens and Accounts',
-        fromExchange: 'From an exchange'
+        fromExchange: 'From an exchange',
+        otherCoins: 'Other tokens',
+        deposit: 'Deposit to',
     },
     transfer: {
         title: 'Send',
@@ -192,7 +196,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
-            holdersMemoRequired: 'Tag/MEMO',
+            holdersMemoRequired: 'Comment/MEMO',
             memoChange: 'Change memo/tag to \"{{memo}}\"',
             gaslessFailed: 'Failed to send transaction',
             gaslessFailedMessage: 'Please try again or contact support',
@@ -207,7 +211,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessTryLaterMessage: 'You can try again later or contact support',
             gaslessNotEnoughCoins: '{{fee}} in fees required to send, missing {{missing}}',
             notEnoughJettons: 'Not enough {{symbol}}',
-            jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency'
+            jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency',
+            notEnoughGasTitle: 'Insufficient TON to cover the gas fee',
+            notEnoughGasMessage: 'Please top up your wallet with TON (at least {{diff}} TON more is needed) and try again'
         },
         changeJetton: 'Switch to {{symbol}}',
         sendAll: 'Max',
@@ -562,8 +568,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 card: 'Card',
                 cards: 'Holders cards',
                 title: 'Tonhub card {{cardNumber}}',
-                defaultSubtitle: 'Pay with TON and USDT everywhere',
-                defaultTitle: 'Tonhub cards',
+                defaultSubtitle: 'Pay with USDT or TON everywhere by card',
+                defaultTitle: 'Tonhub card',
                 eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Physical Card',
@@ -625,6 +631,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     fetchToken: 'During token fetching',
                     createSignature: 'During signature creation',
                 },
+            },
+            otpBanner: {
+                title: 'New payment request',
+                accept: 'Accept',
+                decline: 'Decline',
+                expired: 'Expired'
             }
         }
     },
@@ -769,7 +781,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     jetton: {
         token: 'token',
-        productButtonTitle: 'Jettons',
+        productButtonTitle: 'Tokens',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
         hidden: 'Hidden jettons',
         liquidPoolDescriptionDedust: 'Liquidity for {{name0}}/{{name1}} on DeDust DEX',

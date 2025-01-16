@@ -4,8 +4,9 @@ import { iOSUIKit } from 'react-native-typography';
 import * as t from "io-ts";
 import { warn } from '../utils/log';
 import WebView from "react-native-webview";
-import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../engine/hooks';
+import { useEffect } from 'react';
 
 export function processMainButtonMessage(
     parsed: any,
@@ -137,13 +138,16 @@ export const DappMainButton = React.memo((
 ) => {
     const theme = useTheme();
 
-    const bgColor = useDerivedValue(() => {
-        return withTiming(props.isProgressVisible ? theme.surfaceOnElevation : (props.isActive ? props.color : (props.disabledColor ?? theme.surfaceOnElevation)));
-    }, [props.color, props.disabledColor, props.isActive]);
+    const textColor = useSharedValue(props.textColor);
+    const bgColor = useSharedValue(props.color);
 
-    const textColor = useDerivedValue(() => {
-        return withTiming(props.isProgressVisible ? theme.surfaceOnElevation : props.textColor);
+    useEffect(() => {
+        textColor.value = withTiming(props.textColor);
     }, [props.textColor]);
+
+    useEffect(() => {
+        bgColor.value = withTiming(props.isProgressVisible ? theme.surfaceOnElevation : (props.isActive ? props.color : (props.disabledColor ?? theme.surfaceOnElevation)));
+    }, [props.color, props.disabledColor, props.isActive, props.isProgressVisible]);
 
     const animatedBgStyle = useAnimatedStyle(() => {
         return { backgroundColor: bgColor.value, }

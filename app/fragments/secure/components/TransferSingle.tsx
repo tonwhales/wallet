@@ -14,7 +14,7 @@ import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { TransferSingleView } from "./TransferSingleView";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode } from "@ton/core";
+import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode, fromNano } from "@ton/core";
 import { useAccountLite, useClient4, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
@@ -211,7 +211,12 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         // Check amount
         const isGasless = fees.type === 'gasless' && fees.params.ok;
         if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount && !isGasless) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
+            const diff = order.messages[0].amount - account!.balance;
+            const diffString = fromNano(diff);
+            Alert.alert(
+                t('transfer.error.notEnoughGasTitle'),
+                t('transfer.error.notEnoughGasMessage', { diff: diffString }),
+            );
             return;
         } else if (isGasless && (jetton?.balance || 0n) < fees.value) {
             const feeAmount = valueText({ value: fees.value, decimals: jetton?.decimals ?? 9, precision: 2 });

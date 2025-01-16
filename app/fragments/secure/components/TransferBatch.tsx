@@ -308,7 +308,12 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
 
         // Check amount
         if (account!.balance < totalAmount) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
+            const diff = totalAmount - account!.balance;
+            const diffString = fromNano(diff);
+            Alert.alert(
+                t('transfer.error.notEnoughGasTitle'),
+                t('transfer.error.notEnoughGasMessage', { diff: diffString }),
+            );
             return;
         }
         if (totalAmount === 0n) {

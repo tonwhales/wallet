@@ -15,6 +15,16 @@ export enum WalletActionType {
     Swap = 'swap',
 };
 
+export type ReceiveAsset = {
+    type: 'jetton',
+    jetton?: {
+        master: Address,
+        data?: JettonMasterState
+    }
+} | {
+    type: 'ton'
+}
+
 export type WalletAction = {
     type: WalletActionType.Buy
 } | {
@@ -22,16 +32,10 @@ export type WalletAction = {
     jetton?: Address
 } | {
     type: WalletActionType.Receive,
-    jetton?: {
-        master: Address,
-        data?: JettonMasterState
-    }
+    asset?: ReceiveAsset
 } | {
     type: WalletActionType.Deposit,
-    jetton?: {
-        master: Address,
-        data?: JettonMasterState
-    }
+    asset?: ReceiveAsset
 } | {
     type: WalletActionType.Swap
 }
@@ -49,11 +53,13 @@ const nullTransfer = {
 export const WalletActionButton = memo(({
     action,
     navigation,
-    theme
+    theme,
+    isLedger
 }: {
     action: WalletAction,
     navigation: TypedNavigation,
     theme: ThemeType,
+    isLedger?: boolean
 }) => {
 
     switch (action.type) {
@@ -84,9 +90,17 @@ export const WalletActionButton = memo(({
             );
         }
         case WalletActionType.Send: {
+            const navigate = () => {
+                if (isLedger) {
+                    navigation.navigateLedgerTransfer({ ...nullTransfer, jetton: action.jetton });
+                    return;
+                }
+                navigation.navigateSimpleTransfer({ ...nullTransfer, jetton: action.jetton });
+            }
+
             return (
                 <Pressable
-                    onPress={() => navigation.navigateSimpleTransfer({ ...nullTransfer, jetton: action.jetton })}
+                    onPress={navigate}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -113,21 +127,27 @@ export const WalletActionButton = memo(({
             );
         }
         case WalletActionType.Receive: {
+            const navigate = () => {
+                if (!!action.asset) {
+
+                    const asset = action.asset.type === 'jetton' && !!action.asset.jetton ? {
+                        address: action.asset.jetton.master,
+                        content: action.asset.jetton.data ? {
+                            icon: action.asset.jetton.data?.originalImage ?? action.asset.jetton.data?.image?.preview256,
+                            name: action.asset.jetton.data?.symbol
+                        } : undefined
+                    } : undefined;
+                    navigation.navigateReceive({ asset }, isLedger);
+
+                    return;
+                }
+
+                navigation.navigateReceiveAssets({ title: t('wallet.actions.receive') }, isLedger);
+            }
+
             return (
                 <Pressable
-                    onPress={() => navigation.navigateReceive(
-                        action.jetton
-                            ? {
-                                asset: {
-                                    address: action.jetton.master,
-                                    content: action.jetton.data ? {
-                                        icon: action.jetton.data?.originalImage ?? action.jetton.data?.image?.preview256,
-                                        name: action.jetton.data?.symbol
-                                    } : undefined
-                                }
-                            }
-                            : undefined
-                    )}
+                    onPress={navigate}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -157,21 +177,26 @@ export const WalletActionButton = memo(({
             );
         }
         case WalletActionType.Deposit: {
+            const navigate = () => {
+                if (!!action.asset) {
+                    const asset = action.asset.type === 'jetton' && !!action.asset.jetton ? {
+                        address: action.asset.jetton.master,
+                        content: action.asset.jetton.data ? {
+                            icon: action.asset.jetton.data?.originalImage ?? action.asset.jetton.data?.image?.preview256,
+                            name: action.asset.jetton.data?.symbol
+                        } : undefined
+                    } : undefined;
+                    navigation.navigateReceive({ asset }, isLedger);
+
+                    return;
+                }
+
+                navigation.navigateReceiveAssets({ title: t('wallet.actions.deposit') }, isLedger);
+            }
+
             return (
                 <Pressable
-                    onPress={() => navigation.navigateReceive(
-                        action.jetton
-                            ? {
-                                asset: {
-                                    address: action.jetton.master,
-                                    content: action.jetton.data ? {
-                                        icon: action.jetton.data?.originalImage ?? action.jetton.data?.image?.preview256,
-                                        name: action.jetton.data?.symbol
-                                    } : undefined
-                                }
-                            }
-                            : undefined
-                    )}
+                    onPress={navigate}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>

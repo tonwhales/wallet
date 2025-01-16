@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, BackHandler } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
@@ -18,7 +18,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -476,8 +476,10 @@ const SimpleTransferComponent = () => {
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
         let res = resolveUrl(src, network.isTestnet);
-        if (res && res.type === 'transaction') {
+        const validTransfer = res && (res.type === 'transaction' || res.type === 'jetton-transaction');
+        if (validTransfer) {
             if (res.payload) {
+                navigation.goBack();
                 linkNavigator(res);
             } else {
                 let mComment = commentString;
@@ -493,7 +495,8 @@ const SimpleTransferComponent = () => {
                 }
 
                 if (res.address) {
-                    mTarget = res.address.toString({ testOnly: network.isTestnet });
+                    const bounceable = res.isBounceable ?? true;
+                    mTarget = res.address.toString({ testOnly: network.isTestnet, bounceable });
                 }
 
                 if (res.amount) {
@@ -503,7 +506,8 @@ const SimpleTransferComponent = () => {
                 if (res.comment) {
                     mComment = res.comment;
                 }
-                if (res.stateInit) {
+
+                if (res.type === 'transaction' && res.stateInit) {
                     mStateInit = res.stateInit;
                 } else {
                     mStateInit = null;
@@ -518,6 +522,10 @@ const SimpleTransferComponent = () => {
                         jetton: mJetton,
                     });
                     return;
+                }
+
+                if (res.type === 'jetton-transaction' && res.jettonMaster) {
+                    mJetton = res.jettonMaster
                 }
 
                 navigation.navigateSimpleTransfer({
@@ -893,7 +901,7 @@ const SimpleTransferComponent = () => {
 
     const appFocusCallback = useCallback(async () => {
         const clipboardText = (await Clipboard.getString()).trim();
-        
+
         if (!clipboardText) {
             return;
         }
@@ -933,6 +941,19 @@ const SimpleTransferComponent = () => {
         scrollRef.current?.scrollTo({ y: 0 });
         setComment(item.memo || '');
     }, []);
+
+    const backHandler = useCallback(() => {
+        if (selectedInput !== null) {
+            setSelectedInput(null);
+            return true;
+        }
+        return false;
+    }, [selectedInput]);
+
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', backHandler);
+        return () => BackHandler.removeEventListener('hardwareBackPress', backHandler);
+    }, [selectedInput]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -1008,14 +1029,12 @@ const SimpleTransferComponent = () => {
                         >
                             <Pressable
                                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                                onPress={() => navigation.navigateAssets(
-                                    {
-                                        jettonCallback: onAssetSelected,
-                                        selectedAsset: jetton?.master,
-                                        viewType: AssetViewType.Transfer
-                                    },
+                                onPress={() => navigation.navigateAssets({
+                                    jettonCallback: onAssetSelected,
+                                    selectedAsset: jetton?.master,
+                                    viewType: AssetViewType.Transfer,
                                     isLedger
-                                )}
+                                })}
                             >
                                 <View style={{
                                     flexDirection: 'row',

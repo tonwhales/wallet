@@ -22,6 +22,7 @@ import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset
 import { openSettings } from 'react-native-permissions';
 import { ScreenHeader } from '../ScreenHeader';
 import { WalletVersions } from '../../engine/types';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -30,6 +31,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     additionalWallet?: boolean,
     versions?: WalletVersions[];
 }) => {
+    const { import: isImport, additionalWallet, versions: initVersions } = props;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -38,7 +40,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const logOutAndReset = useLogoutAndReset();
     const setPascodeState = useSetPasscodeState();
     const [, setBounceable] = useBounceableWalletFormat();
-    const [versions] = useState(props.versions ?? [WalletVersions.v5R1]);
+    const [versions] = useState(initVersions ?? [WalletVersions.v5R1]);
 
     const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = useState(false);
@@ -50,8 +52,11 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             throw Error('Invalid state');
         }
         markAddressSecured(address.address);
+
+        const event = isImport ? MixpanelEvent.WalletSeedImported : MixpanelEvent.WalletNewSeedCreated;
+        trackEvent(event, { isTestnet, additionalWallet }, isTestnet, true);
         navigation.navigateAndReplaceAll('Home');
-    }, []);
+    }, [additionalWallet, isImport, isTestnet]);
 
     // Create new wallet on launch if no wallets exist
     useEffect(() => {
@@ -306,11 +311,11 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 || (deviceEncryption === 'device-biometrics')
                 || (deviceEncryption === 'device-passcode')
                 || (Platform.OS === 'android' && Platform.Version < 30);
-            
+
 
             // Skip biometrics setup if encryption is disabled
             if (disableEncryption) {
-                if (props.import) {
+                if (isImport) {
                     let state = getAppState();
                     if (!state) {
                         throw Error('Invalid state');
@@ -376,7 +381,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         ]}
                     >
                         <PasscodeSetup
-                            style={props.import ? { backgroundColor: theme.backgroundPrimary } : undefined}
+                            style={isImport ? { backgroundColor: theme.backgroundPrimary } : undefined}
                             onReady={onConfirmed}
                             onBack={() => {
                                 if (props.onBack) {
@@ -387,7 +392,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                 }
                             }}
                             description={t('secure.passcodeSetupDescription')}
-                            screenHeaderStyle={props.import ? { paddingHorizontal: 16 } : undefined}
+                            screenHeaderStyle={isImport ? { paddingHorizontal: 16 } : undefined}
                         />
                     </Animated.View>
                 ) : (
@@ -399,7 +404,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         <WalletSecureComponent
                             deviceEncryption={state.deviceEncryption}
                             passcode={state.passcode}
-                            import={props.import}
+                            import={isImport}
                             callback={(res: boolean) => {
                                 if (res) {
                                     onComplete();

@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import { Pressable, View, Text } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { ValueComponent } from "../ValueComponent";
@@ -24,27 +24,18 @@ export const TonProductComponent = memo(({
     const accountLite = useAccountLite(address);
     const balance = accountLite?.balance ?? 0n;
     const [bounceableFormat] = useBounceableWalletFormat();
-    const ledgerAddressStr = address?.toString({ bounceable: bounceableFormat, testOnly });
+    const addr = address?.toString({ bounceable: bounceableFormat, testOnly });
 
-    const onTonPress = useCallback(() => {
-        if (balance === 0n) {
-            if (isLedger) {
-                navigation.navigate('LedgerReceive', { addr: ledgerAddressStr, ledger: true });
-            } else {
-                navigation.navigate('Receive');
-            }
-            return;
-        }
-
-        navigation.navigate(isLedger ? 'LedgerSimpleTransfer' : 'SimpleTransfer');
-    }, [ledgerAddressStr, balance]);
+    const onPress = () => {
+        navigation.navigateTonWallet({ owner: addr }, isLedger);
+    };
 
     return (
         <Pressable
             style={({ pressed }) => {
                 return { flex: 1, opacity: pressed ? 0.8 : 1 }
             }}
-            onPress={onTonPress}
+            onPress={onPress}
         >
             <View style={{
                 flexDirection: 'row', flexGrow: 1,

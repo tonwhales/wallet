@@ -530,7 +530,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     year: '1Р',
                     allTime: 'Всі',
                 }
-            }   
+            }
         },
         holders: {
             title: 'Банківський рахунок',
@@ -637,6 +637,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 accept: 'Прийняти',
                 decline: 'Відхилити',
                 expired: 'Закінчився'
+            },
+            banner: {
+                fewMore: 'Залишилося всього кілька кроків',
+                ready: 'Верифікація завершена! Ваша картка готова!',
+                readyAction: 'Отримати зараз',
+                emailAction: 'Підтвердіть пошту',
+                kycAction: 'Пройдіть верифікацію',
+                failedAction: 'Верифікація не вдалася',
             }
         }
     },

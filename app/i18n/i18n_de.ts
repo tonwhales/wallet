@@ -637,6 +637,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 accept: 'Akzeptieren',
                 decline: 'Ablehnen',
                 expired: 'Abgelaufen'
+            },
+            banner: {
+                fewMore: 'Nur noch ein paar Schritte',
+                ready: 'Verifizierung abgeschlossen! Ihre Karte ist bereit!',
+                readyAction: 'Jetzt holen',
+                emailAction: 'Bestätigen Sie Ihre E-Mail',
+                kycAction: 'Verifizieren Sie sich',
+                failedAction: 'Verifizierung fehlgeschlagen',
             }
         }
     },

@@ -233,7 +233,11 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                         console.warn('[ledger] Stop connecting');
                         reset();
                         await modalAlert.current?.hide();
-                        navigationRef.navigate('LedgerDeviceSelection');
+                        if (Platform.OS === 'ios') {
+                            navigationRef.navigate('LedgerDeviceSelection', { selectedAddress: addr });
+                        } else {
+                            navigationRef.navigate('Ledger');
+                        }
                     }
                 },
             ]
@@ -256,7 +260,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         return await new Promise<{ address: string; publicKey: Buffer } | undefined>((resolve, reject) => {
             modalAlert.current?.showWithProps({
                 title: t('hardwareWallet.verifyAddress.title'),
-                message: t('hardwareWallet.verifyAddress.message', { address: addr?.address }),
+                message: addr?.address,
                 buttons: [
                     {
                         text: t('hardwareWallet.verifyAddress.action'),

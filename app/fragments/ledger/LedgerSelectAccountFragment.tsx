@@ -9,13 +9,14 @@ import { AccountButton } from "./components/AccountButton";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useAccountsLite, useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
-import { useLedgerTransport } from "./components/TransportContext";
+import { LedgerWallet, useLedgerTransport } from "./components/TransportContext";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { delay } from 'teslabot';
 import { ThemeType } from '../../engine/state/theme';
 import { Typography } from '../../components/styles';
 import { useFocusEffect } from "@react-navigation/native";
+import { useParams } from "../../utils/useParams";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 type AccountsLite = ReturnType<typeof useAccountsLite>;
@@ -34,6 +35,8 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
     onLoadAccount: (acc: LedgerAccount) => Promise<void>,
     bounceable?: boolean
 }) => {
+    const ledgerContext = useLedgerTransport();
+
     return (
         <ScrollView
             contentInset={{ top: 0, bottom: safeArea.bottom + 16 }}
@@ -96,6 +99,9 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
                 </>
             ) : (
                 accountsLite.map((acc) => {
+                    if (ledgerContext?.ledgerWallets?.some((a) => Address.parse(a.address).equals(acc.address))) {
+                        return null;
+                    }
                     const item = accs.find((a) => a.address.equals(acc.address));
                     return (
                         <AccountButton
@@ -160,6 +166,10 @@ const LedgerHint = ({ state, theme }: { state: 'locked-device' | 'closed-app' | 
     );
 }
 
+export type LedgerSelectAccountParams = {
+    selectedAddress?: LedgerWallet | null
+};
+
 export const LedgerSelectAccountFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
@@ -167,6 +177,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
+    const { selectedAddress } = useParams<LedgerSelectAccountParams>();
 
     const [selected, setSelected] = useState<number>();
     const [accs, setAccounts] = useState<{
@@ -238,6 +249,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
         try {
             await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
             ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
+            navigation.navigateLedgerApp();
             setSelected(undefined);
         } catch (e) {
             setSelected(undefined);
@@ -255,12 +267,6 @@ export const LedgerSelectAccountFragment = fragment(() => {
             }
         }
     }), [ledgerContext?.tonTransport]);
-
-    useEffect(() => {
-        if (!!ledgerContext?.addr && ledgerContext.tonTransport) {
-            navigation.navigateLedgerApp();
-        }
-    }, [ledgerContext?.addr, ledgerContext.tonTransport]);
 
     // Reseting ledger context on back navigation if no address selected
     useFocusEffect(

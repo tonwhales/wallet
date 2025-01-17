@@ -76,9 +76,10 @@ export const AccountSelectorFragment = fragment(() => {
                     break;
                 case 3:
                     if (isLedgerConnected) {
-                        navigation.replace('LedgerSelectAccount');
+                        navigation.navigateLedgerSelectAccount({ selectedAddress: ledgerContext.addr });
                         return;
                     }
+
                     ledgerContext.reset();
                     navigation.replace('Ledger');
                     break;
@@ -86,7 +87,7 @@ export const AccountSelectorFragment = fragment(() => {
                     break;
             }
         });
-    }, [isLedgerConnected]);
+    }, [isLedgerConnected, ledgerContext.addr]);
 
     return (
         <View style={[

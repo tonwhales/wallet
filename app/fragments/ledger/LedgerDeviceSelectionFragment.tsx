@@ -12,17 +12,23 @@ import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from "../../engine/hooks";
-import { useLedgerTransport } from "./components/TransportContext";
+import { LedgerWallet, useLedgerTransport } from "./components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Typography } from "../../components/styles";
+import { useParams } from "../../utils/useParams";
+
+export type LedgerDeviceSelectionParams = {
+    selectedAddress?: LedgerWallet | null
+}
 
 export const LedgerDeviceSelectionFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
+    const { selectedAddress } = useParams<LedgerDeviceSelectionParams>();
 
     const devices = (
         (ledgerContext?.bleSearchState?.type === 'completed' && ledgerContext?.bleSearchState?.success)
@@ -48,9 +54,13 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
 
     useEffect(() => {
         if (ledgerContext?.ledgerConnection?.type === 'ble') {
-            navigation.navigate('LedgerSelectAccount');
+            if (!selectedAddress) {
+                navigation.navigate('LedgerSelectAccount');
+                return;
+            }
+            navigation.goBack();
         }
-    }, [ledgerContext?.ledgerConnection]);
+    }, [ledgerContext?.ledgerConnection, selectedAddress]);
 
     // Reseting ledger context on back navigation & stoping all searches
     useFocusEffect(

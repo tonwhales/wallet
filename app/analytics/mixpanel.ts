@@ -4,6 +4,8 @@ import { useCallback, useEffect } from "react";
 import { warn } from "../utils/log";
 import { IS_SANDBOX } from '../engine/state/network';
 
+const keys = require('@assets/keys.json');
+
 export enum MixpanelEvent {
     Reset = 'reset',
     Screen = 'screen',
@@ -32,12 +34,26 @@ export enum MixpanelEvent {
     WalletSeedImported = 'wallet_seed_imported',
 }
 
-let mixpanel = __DEV__
-    ? new Mixpanel("b4b856b618ade30de503c189af079566") // Dev mode
-    : IS_SANDBOX
-        ? new Mixpanel("3f9efc81525f5bc5e5d047595d4d8ac9") // Sandbox
-        : new Mixpanel("67a554fa4f2b98ae8785878bb4de73dc"); // Production
-mixpanel.init();
+const devKey = keys.MIXPANEL_DEV;
+const sandboxKey = keys.MIXPANEL_SANDBOX;
+const prodKey = keys.MIXPANEL_PROD;
+
+const holdersStage = keys.MIXPANEL_HOLDERS_STAGE;
+const holdersProd = keys.MIXPANEL_HOLDERS_PROD;
+
+function getMixpanelKey(isTestnet?: boolean) {
+    return __DEV__ ? devKey : isTestnet ? sandboxKey : prodKey;
+}
+
+function getHoldersMixpanelKey(isTestnet?: boolean) {
+    return (isTestnet || __DEV__) ? holdersStage : holdersProd;
+}
+
+let mixpanelClient = new Mixpanel(getMixpanelKey(IS_SANDBOX));    
+mixpanelClient.init();
+
+let holdersMixpanelClient = new Mixpanel(getHoldersMixpanelKey(IS_SANDBOX));
+holdersMixpanelClient.init();
 
 export function useTrackScreen(screen: string, isTestnet: boolean, properties?: MixpanelProperties) {
     useFocusEffect(
@@ -53,22 +69,32 @@ export function trackScreen(screen: string, properties?: MixpanelProperties, isT
 
 export function mixpanelInst(isTestnet?: boolean) {
     if (isTestnet !== IS_SANDBOX) {
-        mixpanel = __DEV__
-            ? new Mixpanel("b4b856b618ade30de503c189af079566") // Dev mode
-            : isTestnet
-                ? new Mixpanel("3f9efc81525f5bc5e5d047595d4d8ac9") // Sandbox
-                : new Mixpanel("67a554fa4f2b98ae8785878bb4de73dc"); // Production
-        mixpanel.init();
+        mixpanelClient = new Mixpanel(getMixpanelKey(isTestnet));
+        mixpanelClient.init();
         if (__DEV__) {
-            mixpanel.setLoggingEnabled(true);
+            mixpanelClient.setLoggingEnabled(true);
         }
     }
-    return mixpanel;
+    return mixpanelClient;
 }
 
-export function trackEvent(eventName: MixpanelEvent, properties?: MixpanelProperties, isTestnet?: boolean) {
+export function holdersMixpanelInst(isTestnet?: boolean) {
+    if (isTestnet !== IS_SANDBOX) {
+        holdersMixpanelClient = new Mixpanel(getHoldersMixpanelKey(isTestnet));
+        holdersMixpanelClient.init();
+        if (__DEV__) {
+            holdersMixpanelClient.setLoggingEnabled(true);
+        }
+    }
+    return holdersMixpanelClient;
+}
+
+export function trackEvent(eventName: MixpanelEvent, properties?: MixpanelProperties, isTestnet?: boolean, repeatHolders?: boolean) {
     try {
         mixpanelInst(isTestnet).track(eventName, properties);
+        if (repeatHolders) {
+            holdersMixpanelInst(isTestnet).track(eventName, properties);
+        }
     } catch (error) {
         warn(error);
     }
@@ -88,10 +114,12 @@ export function mixpanelReset(isTestnet?: boolean) {
     mixpanelInst(isTestnet).reset();
 }
 
-export function mixpanelIdentify(id: string, isTestnet?: boolean) {
-    mixpanelInst(isTestnet).identify(id);
+export function mixpanelIdentify(wallet: string, isTestnet?: boolean) {
+    mixpanelInst(isTestnet).identify(wallet);
+    holdersMixpanelInst(isTestnet).getPeople().union('wallets', [wallet]);
 }
 
 export function mixpanelAddReferrer(referrer: string, isTestnet?: boolean) {
-    mixpanelInst(isTestnet).getPeople().set({ referrer: referrer });
+    mixpanelInst(isTestnet).getPeople().set({ referrer });
+    holdersMixpanelInst(isTestnet).getPeople().set({ referrer });
 }

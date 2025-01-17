@@ -20,7 +20,7 @@ export const WelcomeFragment = systemFragment(() => {
     const { isTestnet } = useNetwork();
 
     const onImportPressed = useCallback(() => {
-        trackEvent(MixpanelEvent.WalletImport, undefined, isTestnet);
+        trackEvent(MixpanelEvent.WalletImport, undefined, isTestnet, true);
         if (isTermsAccepted()) {
             navigation.navigate('WalletImport');
         } else {
@@ -29,7 +29,7 @@ export const WelcomeFragment = systemFragment(() => {
     }, []);
 
     const onCreatePressed = () => {
-        trackEvent(MixpanelEvent.WalletCreate, undefined, isTestnet);
+        trackEvent(MixpanelEvent.WalletCreate, undefined, isTestnet, true);
         navigation.navigate('LegalCreate');
     };
 

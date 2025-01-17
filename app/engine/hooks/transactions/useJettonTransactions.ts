@@ -31,6 +31,7 @@ export function useJettonTransactions(owner: string, master: string, options: { 
     const query = useInfiniteQuery<JettonTransfer[]>({
         queryKey: Queries.Jettons().Address(owner).Transactions(master),
         refetchOnMount: options.refetchOnMount,
+        refetchOnWindowFocus: true,
         getNextPageParam: (last) => {
             if (!last || !last[TRANSACTIONS_LENGTH - 2]) {
                 return undefined;
@@ -112,6 +113,7 @@ export function useJettonTransactions(owner: string, master: string, options: { 
 
             return { pages, pageParams };
         },
+        staleTime: 5 * 1000
     });
 
     return {

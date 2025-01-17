@@ -336,7 +336,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             "successAuth": "Подключено"
         },
-        "savings": "Балансы",
+        "savings": "Сберегательные счета",
         "accounts": "Жетоны",
         "services": "Расширения",
         "oldWallets": {

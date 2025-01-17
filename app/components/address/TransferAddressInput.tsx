@@ -211,9 +211,19 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     });
 
-    const select = useCallback(() => {
+    const onFocusCallback = () => {
+        setIsFocused(true);
+        onFocus(index);
+    }
+
+    const onBlurCallback = () => {
+        setIsFocused(false);
+    }
+
+    const select = () => {
         (ref as RefObject<ATextInputRef>)?.current?.focus();
-    }, []);
+        onFocusCallback();
+    };
 
     useEffect(() => {
         if (isSelected) {
@@ -298,19 +308,10 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 suffix: ''
             });
             (ref as RefObject<ATextInputRef>)?.current?.setText(clipboardText);
-        } catch {}
+        } catch { }
     }, [isFocused]);
 
     useAppFocusEffect(appFocusCallback);
-
-    const onFocusCallback = () => {
-        setIsFocused(true);
-        onFocus(index);
-    }
-
-    const onBlurCallback = () => {
-        setIsFocused(false);
-    }
 
     return (
         <View>

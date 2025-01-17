@@ -54,9 +54,9 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         markAddressSecured(address.address);
 
         const event = isImport ? MixpanelEvent.WalletSeedImported : MixpanelEvent.WalletNewSeedCreated;
-        trackEvent(event, { isTestnet, additionalWallet });
+        trackEvent(event, { isTestnet, additionalWallet }, isTestnet, true);
         navigation.navigateAndReplaceAll('Home');
-    }, [additionalWallet, isImport]);
+    }, [additionalWallet, isImport, isTestnet]);
 
     // Create new wallet on launch if no wallets exist
     useEffect(() => {

@@ -3,7 +3,7 @@ import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { t } from "../../i18n/t";
-import { Pressable, View, Image, Text, Platform, ScrollView, RefreshControl } from "react-native";
+import { Pressable, View, Image, Text, Platform, ScrollView, RefreshControl, Alert } from "react-native";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
@@ -89,15 +89,29 @@ export const LedgerHomeFragment = fragment(() => {
         ledgerContext.onShowLedgerConnectionError();
     }, [ledgerContext]);
 
-    const navigateReceive = useCallback(() => {
-        if (!addressFriendly) {
+    const navigateReceive = useCallback(async () => {
+        if (!addressFriendly || !address) {
             return;
         }
-        navigation.navigate(
-            'LedgerReceive',
-            { addr: addressFriendly, ledger: true }
-        );
-    }, [addressFriendly]);
+
+        if (ledgerContext.tonTransport && !ledgerContext.isReconnectLedger) {
+            const verificationResult = await ledgerContext.verifyAddressWithAlert(isTestnet);
+            const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
+
+            if (!isValid) {
+                Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
+                return;
+            }
+
+            navigation.navigate(
+                'LedgerReceive',
+                { addr: addressFriendly, ledger: true }
+            );
+        }
+
+        ledgerContext.reset();
+        ledgerContext.onShowLedgerConnectionError();
+    }, [addressFriendly, ledgerContext, isTestnet, address]);
 
     useEffect(() => {
         if (syncState !== 'updating') {

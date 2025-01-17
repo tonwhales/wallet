@@ -97,18 +97,21 @@ export const WalletActions = memo(({
                         action={{ type: WalletActionType.Buy }}
                         navigation={navigation}
                         theme={theme}
+                        isLedger={isLedger}
                     />
                 )}
                 <WalletActionButton
                     action={{ type: receiveType, asset }}
                     navigation={navigation}
                     theme={theme}
+                    isLedger={isLedger}
                 />
                 {!isTestnet && showSwap && (
                     <WalletActionButton
                         action={{ type: WalletActionType.Swap }}
                         navigation={navigation}
                         theme={theme}
+                        isLedger={isLedger}
                     />
                 )}
                 <WalletActionButton
@@ -119,6 +122,7 @@ export const WalletActions = memo(({
                     }
                     navigation={navigation}
                     theme={theme}
+                    isLedger={isLedger}
                 />
             </View>
         </View>

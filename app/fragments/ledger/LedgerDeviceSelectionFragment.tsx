@@ -16,6 +16,7 @@ import { useLedgerTransport } from "./components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { Typography } from "../../components/styles";
 
 export const LedgerDeviceSelectionFragment = fragment(() => {
     const theme = useTheme();
@@ -83,13 +84,11 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                         Platform.select({ android: { paddingTop: safeArea.top } })
                     ]}
                 />
-                <Text style={{
-                    fontSize: 18,
-                    fontWeight: '600',
+                <Text style={[{
                     marginHorizontal: 16,
                     marginVertical: 16,
                     textAlign: 'center'
-                }}>
+                }, Typography.semiBold17_24]}>
                     {t('hardwareWallet.errors.permissions')}
                 </Text>
                 <RoundButton
@@ -164,17 +163,10 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
             />
-            <Text style={{
-                color: theme.textPrimary,
-                fontWeight: '600',
-                fontSize: 32, lineHeight: 38,
-                marginVertical: 16, marginHorizontal: 16
-            }}>
+            <Text style={[{ color: theme.textPrimary, marginVertical: 16, marginHorizontal: 16 }, Typography.semiBold32_38]}>
                 {t('hardwareWallet.devices')}
             </Text>
-            <ScrollView style={{
-                flexGrow: 1
-            }}>
+            <ScrollView style={{ flexGrow: 1 }}>
                 {devices.map((device: any) => {
                     return (
                         <BleDevice

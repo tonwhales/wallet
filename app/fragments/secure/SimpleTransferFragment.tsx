@@ -18,7 +18,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -56,8 +56,7 @@ import { PressableChip } from '../../components/PressableChip';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useAppFocusEffect } from '../../utils/useAppFocusEffect';
 import { AmountInput } from '../../components/input/AmountInput';
-import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
-import { useModalAlert } from "../../components/ModalAlert";
+import { TransportStatusError } from '@ledgerhq/hw-transport';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -92,7 +91,6 @@ const SimpleTransferComponent = () => {
     const client = useClient4(network.isTestnet);
     const [price, currency] = usePrice();
     const gaslessConfig = useGaslessConfig();
-    const modalAlert = useModalAlert();
     const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
 
     // Ledger
@@ -572,12 +570,14 @@ const SimpleTransferComponent = () => {
         setJetton(null);
     }, []);
 
+    const [isVerifyingLedger, setVerifyingLedger] = useState(false);
+
     const doSend = useCallback(async () => {
-        let address: Address;
+        let targetAddress: Address;
 
         try {
             let parsed = Address.parseFriendly(target);
-            address = parsed.address;
+            targetAddress = parsed.address;
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
@@ -606,7 +606,7 @@ const SimpleTransferComponent = () => {
             return;
         }
 
-        if (address.equals(isLedger ? ledgerAddress! : contract.address)) {
+        if (targetAddress.equals(isLedger ? ledgerAddress! : contract.address)) {
             let allowSendingToYourself = await new Promise((resolve) => {
                 Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
                     {
@@ -664,26 +664,30 @@ const SimpleTransferComponent = () => {
         }
 
         if (isLedger) {
-            modalAlert.current?.showWithProps({
-                title: t('hardwareWallet.actions.confirmOnLedger'),
-                buttons: [
-                    {
-                        text: t('common.cancel'),
-                        display: 'text_secondary'
-                    },
-                ]
-            });
-            let path = pathFromAccountNumber(ledgerContext.addr?.acc!, network.isTestnet);
-            const isValidAddress = await ledgerContext.tonTransport?.validateAddress(path, { testOnly: network.isTestnet });
-            if (isValidAddress) {
-                modalAlert.current?.hide();
+            setVerifyingLedger(true);
+            try {
+                const verificationResult = await ledgerContext.verifySelectedAddress(network.isTestnet);
+                const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
+    
+                if (!isValid) {
+                    Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
+                    return;
+                }
+    
                 navigation.replace('LedgerSignTransfer', {
                     text: null,
                     order: order as LedgerOrder,
                 });
-                return;
+            } catch (e) {
+                const isCanceled = e instanceof TransportStatusError && (e as any).statusCode === 0x6985;
+                if (isCanceled) {
+                    setVerifyingLedger(false);
+                    return;
+                }
+                Alert.alert(t('hardwareWallet.verifyAddress.failed'), t('hardwareWallet.verifyAddress.failedMessage'));
+            } finally {
+                setVerifyingLedger(false);
             }
-            modalAlert.current?.hide();
             return;
         }
 
@@ -696,7 +700,6 @@ const SimpleTransferComponent = () => {
             useGasless: supportsGaslessTransfer
         });
     }, [
-        modalAlert,
         amount, target, domain, commentString,
         accountLite,
         stateInit,
@@ -709,6 +712,7 @@ const SimpleTransferComponent = () => {
         supportsGaslessTransfer,
         ledgerContext,
         network,
+        address
     ]);
 
     const onFocus = (index: number) => setSelectedInput(index);
@@ -956,8 +960,8 @@ const SimpleTransferComponent = () => {
 
     useAppFocusEffect(appFocusCallback);
 
-    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
-    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
+    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo || isVerifyingLedger;
+    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading || isVerifyingLedger;
 
     const onSearchItemSelected = useCallback((item: AddressSearchItem) => {
         scrollRef.current?.scrollTo({ y: 0 });
@@ -1313,6 +1317,7 @@ const SimpleTransferComponent = () => {
                     : <RoundButton
                         disabled={continueDisabled}
                         loading={continueLoading}
+                        loadingStatus={isVerifyingLedger? t('hardwareWallet.verifyAddress.verifying') : undefined}
                         title={t('common.continue')}
                         action={doSend}
                     />

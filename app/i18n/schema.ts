@@ -1017,7 +1017,17 @@ export type LocalizationSchema = {
             locationServicesUnauthorized: string,
             bluetoothScanFailed: string
         },
-        moreAbout: string
+        moreAbout: string,
+        verifyAddress: {
+            title: string,
+            message: string,
+            action: string,
+            invalidAddressTitle: string,
+            invalidAddressMessage: string,
+            failed: string,
+            failedMessage: string,
+            verifying: string,
+        }
     },
     devTools: {
         switchNetwork: string,

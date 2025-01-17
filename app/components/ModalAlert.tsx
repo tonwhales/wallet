@@ -30,6 +30,7 @@ export type ModalAlertRef = {
 export type ModalAlertButton = {
     text: string;
     onPress?: () => void;
+    action?: () => Promise<void>;
     display?: RoundButtonDisplay
 }
 
@@ -85,10 +86,12 @@ export const ModalAlert = memo(forwardRef((
                 setAlertState((prev) => ({ ...prev, isOpen: false }));
                 setHidePromise(() => resolve);
             }),
-        showWithProps: (props: ModalAlertProps) => setAlertState({ ...props, isOpen: true }),
+        showWithProps: (props: ModalAlertProps) => {
+            setAlertState({ ...props, isOpen: true })
+        },
         clear: () => setAlertState(null)
     }), [setAlertState]);
-    
+
     const handleModalHide = useCallback(() => {
         if (hidePromise) {
             hidePromise();
@@ -166,10 +169,14 @@ export const ModalAlert = memo(forwardRef((
                             title={button.text}
                             style={{ flex: 1 }}
                             display={button.display}
-                            onPress={() => {
+                            action={button.action ? async () => {
+                                await button.action?.();
+                                setAlertState({ ...alertState, isOpen: false });
+                            }: undefined}
+                            onPress={!!button.onPress ? () => {
                                 button.onPress?.();
                                 setAlertState({ ...alertState, isOpen: false });
-                            }}
+                            } : undefined}
                         />
                     ))}
                 </View>

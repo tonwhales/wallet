@@ -166,7 +166,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
 
     const [selected, setSelected] = useState<number>();
     const [accs, setAccounts] = useState<{
@@ -257,10 +257,10 @@ export const LedgerSelectAccountFragment = fragment(() => {
     }), [ledgerContext?.tonTransport]);
 
     useEffect(() => {
-        if (!!ledgerContext?.addr) {
+        if (!!ledgerContext?.addr && ledgerContext.tonTransport) {
             navigation.navigateLedgerApp();
         }
-    }, [ledgerContext?.addr]);
+    }, [ledgerContext?.addr, ledgerContext.tonTransport]);
 
     // Reseting ledger context on back navigation if no address selected
     useFocusEffect(

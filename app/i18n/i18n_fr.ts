@@ -1015,7 +1015,17 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             locationServicesUnauthorized: 'Services de localisation non autorisés',
             bluetoothScanFailed: 'Échec de la recherche Bluetooth'
         },
-        moreAbout: 'En savoir plus sur Ledger'
+        moreAbout: 'En savoir plus sur Ledger',
+        verifyAddress: {
+            title: 'Confirmer l\'adresse sur Ledger',
+            message: 'Veuillez vérifier l\'adresse : {{address}} sur votre appareil Ledger',
+            action: 'Vérifier',
+            invalidAddressTitle: 'Adresse invalide',
+            invalidAddressMessage: 'Cette adresse n\'est pas valide. Veuillez vérifier l\'adresse et réessayer',
+            failed: 'Échec de la vérification de l\'adresse',
+            failedMessage: 'Une erreur s\'est produite lors de la vérification de l\'adresse. Veuillez reconnecter Ledger et réessayer',
+            verifying: 'Confirmez sur Ledger'
+        }
     },
     devTools: {
         switchNetwork: 'Réseau',

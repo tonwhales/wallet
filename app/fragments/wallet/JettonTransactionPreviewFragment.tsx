@@ -77,7 +77,7 @@ const JettonTransactionPreview = () => {
     const displayAddressBounceable = displayAddress.toString({ testOnly: isTestnet });
     const comment = parseForwardPayloadComment(tx.forward_payload);
 
-    const ownWalletSettings = walletsSettings[displayAddressBounceable];
+    const ownWalletSettings = walletsSettings[address.toString({ testOnly: isTestnet })];
     const opAddressWalletSettings = walletsSettings[displayAddressBounceable];
 
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(displayAddressBounceable, avatarColors.length);

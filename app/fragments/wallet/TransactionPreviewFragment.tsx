@@ -90,7 +90,7 @@ const TransactionPreview = () => {
 
     const preparedMessages = usePeparedMessages(messages, isTestnet);
     const [walletsSettings] = useWalletsSettings();
-    const ownWalletSettings = walletsSettings[opAddressBounceable];
+    const ownWalletSettings = walletsSettings[address?.toString({ testOnly: isTestnet }) ?? ''];
     const opAddressWalletSettings = walletsSettings[opAddressBounceable];
 
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddress, avatarColors.length);

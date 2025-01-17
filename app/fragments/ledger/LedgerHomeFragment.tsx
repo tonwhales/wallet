@@ -99,7 +99,10 @@ export const LedgerHomeFragment = fragment(() => {
             const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
 
             if (!isValid) {
-                Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
+                Alert.alert(
+                    t('hardwareWallet.verifyAddress.invalidAddressTitle'),
+                    t('hardwareWallet.verifyAddress.invalidAddressMessage')
+                );
                 return;
             }
 
@@ -107,6 +110,7 @@ export const LedgerHomeFragment = fragment(() => {
                 'LedgerReceive',
                 { addr: addressFriendly, ledger: true }
             );
+            return;
         }
 
         ledgerContext.reset();

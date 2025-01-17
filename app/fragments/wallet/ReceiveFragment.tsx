@@ -48,7 +48,7 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
-    const { addr, asset: asset } = useParams<ReceiveFragmentParams>();
+    const { addr, asset } = useParams<ReceiveFragmentParams>();
     const selected = useSelectedAccount();
     const [bounceableFormat] = useBounceableWalletFormat();
     const toaster = useToaster();
@@ -75,7 +75,7 @@ export const ReceiveFragment = fragment(() => {
         icon: jetton.icon,
         name: jetton.name
     } : null
-    const icon = jettonAssetcontent?.icon;
+    const icon = asset?.content?.icon || jettonAssetcontent?.icon;
     const name = asset?.content?.name;
 
     const friendly = useMemo(() => {

@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo } from "react";
 import { ThemeType } from "../../engine/state/theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Pressable, View, Image, Text } from "react-native";
+import { Pressable, View, Image, Text, Alert } from "react-native";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
@@ -9,11 +9,13 @@ import { Address } from "@ton/core";
 import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
 import { ItemDivider } from "../ItemDivider";
-import { useBounceableWalletFormat, useJettonContent } from "../../engine/hooks";
+import { useBounceableWalletFormat, useJettonContent, useNetwork } from "../../engine/hooks";
 import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
 import { ReceiveableAsset } from "../../fragments/wallet/ReceiveFragment";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { t } from "../../i18n/t";
 
 export const SpecialJettonProduct = memo(({
     theme,
@@ -38,6 +40,8 @@ export const SpecialJettonProduct = memo(({
     const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
     const gaslessConfig = useGaslessConfig().data;
     const walletVersion = useWalletVersion(address);
+    const ledgerContext = useLedgerTransport();
+    const { isTestnet } = useNetwork();
 
     const isGassless = useMemo(() => {
         if (walletVersion !== 'v5R1') {
@@ -57,7 +61,7 @@ export const SpecialJettonProduct = memo(({
         }) !== undefined;
     }, [gaslessConfig?.gas_jettons, walletVersion, specialJetton?.master]);
 
-    const onPress = useCallback(() => {
+    const onPress = useCallback(async () => {
 
         if (!!assetCallback && specialJetton?.master) {
             assetCallback({
@@ -74,18 +78,36 @@ export const SpecialJettonProduct = memo(({
 
         if (isLedger) {
             if (!hasWallet) {
-                navigation.navigate(
-                    'LedgerReceive',
-                    {
-                        addr: ledgerAddressStr,
-                        ledger: true, asset: specialJetton ? {
-                            address: specialJetton.master,
-                            content: {
-                                icon: masterContent?.originalImage,
-                                name: masterContent?.name,
-                            }
-                        } : undefined
-                    });
+
+                if (ledgerContext.tonTransport && !ledgerContext.isReconnectLedger) {
+                    const verificationResult = await ledgerContext.verifyAddressWithAlert(isTestnet);
+                    const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
+
+                    if (!isValid) {
+                        Alert.alert(
+                            t('hardwareWallet.verifyAddress.invalidAddressTitle'),
+                            t('hardwareWallet.verifyAddress.invalidAddressMessage')
+                        );
+                        return;
+                    }
+
+                    navigation.navigate(
+                        'LedgerReceive',
+                        {
+                            addr: ledgerAddressStr,
+                            ledger: true, asset: specialJetton ? {
+                                address: specialJetton.master,
+                                content: {
+                                    icon: masterContent?.originalImage,
+                                    name: masterContent?.name,
+                                }
+                            } : undefined
+                        });
+                    return;
+                }
+
+                ledgerContext.reset();
+                ledgerContext.onShowLedgerConnectionError();
                 return;
             }
 

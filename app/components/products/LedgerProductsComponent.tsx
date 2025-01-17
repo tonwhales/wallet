@@ -25,7 +25,7 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
                     paddingVertical: 12,
                     paddingHorizontal: 16
                 }}>
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                         {t('common.products')}
                     </Text>
                 </View>

@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import i18n from 'i18next';
@@ -14,6 +14,7 @@ import { useAppConfig } from "../../engine/hooks/useAppConfig";
 import { Address } from "@ton/core";
 import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { t } from "../../i18n/t";
+import { getFailedBannerClicked, setFailedBannerClicked } from "../../utils/holders/holdersBanner";
 
 const gradientColors = ['#3F33CC', '#B341D9'];
 
@@ -139,6 +140,34 @@ const ChipActionBanner = memo(({ address, onPress, content, gradient }: { addres
             break;
     }
 
+    const [failedClicked, setFailedClicked] = useState(getFailedBannerClicked());
+
+    const setClicked = (clicked: boolean) => {
+        setFailedClicked(clicked);
+        setFailedBannerClicked(clicked);
+    }
+
+    const onClick = () => {
+        onPress();
+        if (bannerStatus === 'error') {
+            setClicked(true);
+        }
+    }
+
+    useEffect(() => {
+        const failed = holdersAccStatus?.state === HoldersUserState.NeedKyc
+            && holdersAccStatus.kycStatus?.completed === true
+            && holdersAccStatus.kycStatus?.result !== 'GREEN';
+
+        if (!failed) {
+            setClicked(false);
+        }
+    }, [holdersAccStatus?.state]);
+
+    if (bannerStatus === 'error' && failedClicked) {
+        bannerStatus = 'not-active';
+    }
+
     const lang = i18n.language === 'ru' ? 'ru' : 'en';
     const title = content.title[lang] || content.title.en;
     let subtitle = content.subtitle[lang] || content.subtitle.en;
@@ -182,7 +211,7 @@ const ChipActionBanner = memo(({ address, onPress, content, gradient }: { addres
 
     return (
         <Pressable
-            onPress={onPress}
+            onPress={onClick}
             style={({ pressed }) => {
                 return [
                     styles.pressable,

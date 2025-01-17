@@ -124,7 +124,7 @@ export const AccountSelectorFragment = fragment(() => {
                         <Text style={[{
                             color: theme.textPrimary,
                             marginTop: Platform.OS === 'ios' ? 32 : 0,
-                            marginLeft: 16,
+                            marginLeft: 16
                         }, Typography.semiBold17_24]}>
                             {t('common.wallets')}
                         </Text>

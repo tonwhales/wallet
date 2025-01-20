@@ -98,7 +98,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     }, [selected, isTestnet]);
 
-    const showAddNewProduct = showHoldersBanner || !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
+    const showAddNewProduct = totalStaked === 0n;
 
     return (
         <View>
@@ -145,28 +145,6 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
                 <SavingsProduct address={selected.address} />
-
-                <Pressable
-                    style={({ pressed }) => (
-                        {
-                            flexDirection: 'row',
-                            justifyContent: 'space-between', alignItems: 'center',
-                            padding: 16,
-                            opacity: showAddNewProduct && pressed ? 0.5 : 1
-                        }
-                    )}
-                    disabled={!showAddNewProduct}
-                    onPress={() => navigation.navigate('Products')}
-                >
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('common.products')}
-                    </Text>
-                    {showAddNewProduct && (
-                        <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                            {t('products.addNew')}
-                        </Text>
-                    )}
-                </Pressable>
 
                 <StakingProductComponent
                     key={'pool'}

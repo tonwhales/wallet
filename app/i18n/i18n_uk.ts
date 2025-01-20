@@ -241,15 +241,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsSummary: 'Загалом',
         txsTotal: 'Загальна сума',
         gasDetails: 'Деталі газу',
-        jettonGas: 'Газ для надсилання жетонів',
-        unusualJettonsGas: 'Газ вищий за звичайний',
-        unusualJettonsGasTitle: 'Комісія за надсилання жетонів становить {{amount}} TON',
-        unusualJettonsGasMessage: 'Комісія за транзакцію жетонів (Газ) вища за звичайну',
+        jettonGas: 'Газ для відправки токенів',
+        unusualJettonsGas: 'Газ вище звичайного',
+        unusualJettonsGasTitle: 'Комісія за відправку токенів становить {{amount}} TON',
+        unusualJettonsGasMessage: 'Комісія за транзакцію токенів (Газ) вище звичайного',
         addressNotActive: 'Цей гаманець не мав вихідних транзакцій',
-        wrongJettonTitle: 'Неправильний жетон',
-        wrongJettonMessage: 'Ви намагаєтеся надіслати жетон, якого у вас немає',
-        notEnoughJettonsTitle: 'Недостатньо жетонів',
-        notEnoughJettonsMessage: 'Ви намагаєтеся надіслати більше жетонів, ніж у вас є',
+        wrongJettonTitle: 'Неправильний токен',
+        wrongJettonMessage: 'Ви намагаєтеся відправити токен, якого у вас немає',
+        notEnoughJettonsTitle: 'Недостатньо токенів',
+        notEnoughJettonsMessage: 'Ви намагаєтеся відправити більше токенів, ніж у вас є',
         aboutFees: 'Про комісії',
         aboutFeesDescription: 'Комісії за транзакції в блокчейні залежать від кількох факторів, таких як завантаженість мережі, розмір транзакції, ціна газу та параметри конфігурації блокчейну. Чим вищий попит на обробку транзакцій у блокчейні або чим більший розмір транзакції (повідомлення/коментар), тим вищі будуть комісії.',
         gaslessTransferSwitch: 'Сплатити комісію за газ у {{symbol}}'
@@ -359,7 +359,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subtitle: 'Натисніть, щоб переглянути запит'
         },
         staking: {
-            title: 'Стейкінг',
+            earnings: 'Доходи',
+            title: 'TON Стейкінг',
             balance: 'Баланс стейкінгу',
             subtitle: {
                 join: 'Заробляйте до {{apy}}% на ваших TONs',
@@ -550,6 +551,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 primaryName: 'Основний рахунок',
                 paymentName: 'Платіжний рахунок {{accountIndex}}',
                 topUp: 'Поповнити рахунок',
+                addNew: 'Додати рахунок'
             },
             pageTitles: {
                 general: 'Tonhub Карти',
@@ -791,11 +793,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         token: 'токен',
         productButtonTitle: 'Токени',
         productButtonSubtitle: '{{jettonName}} та {{count}} інших',
-        hidden: 'Приховані джетони',
+        hidden: 'Приховані токени',
         liquidPoolDescriptionDedust: 'Ліквідність для {{name0}}/{{name1}} на DeDust DEX',
         liquidPoolDescriptionStonFi: 'Ліквідність для {{name0}}/{{name1}} на STON.fi DEX',
         emptyBalance: 'Порожній баланс',
-        jettonsNotFound: 'Джетони не знайдено'
+        jettonsNotFound: 'Токени не знайдено'
     },
     connections: {
         extensions: 'Розширення',

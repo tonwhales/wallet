@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import i18n from 'i18next';
@@ -11,9 +11,9 @@ import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { ItemDivider } from "../ItemDivider";
 import { BlurView } from "expo-blur";
 import { useAppConfig } from "../../engine/hooks/useAppConfig";
+import { t } from "../../i18n/t";
 import { Address } from "@ton/core";
 import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
-import { t } from "../../i18n/t";
 import { getFailedBannerClicked, setFailedBannerClicked } from "../../utils/holders/holdersBanner";
 
 const gradientColors = ['#3F33CC', '#B341D9'];
@@ -364,6 +364,7 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     const { content, onPress: onClick, id, isSettings, address } = props;
     const selectedAccount = useSelectedAccount();
     const appConfig = useAppConfig();
+    const theme = useTheme();
 
     const trackViews = appConfig?.features?.trackViews;
     const wallet = selectedAccount?.addressString;
@@ -402,13 +403,20 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     }
 
     return (
-        <Animated.View
-            entering={FadeInUp}
-            exiting={FadeOutDown}
-            style={isSettings ? { marginTop: 16 } : { paddingHorizontal: 16, marginVertical: 16 }}
-        >
-            {banner}
-        </Animated.View>
+        <View>
+            <View style={{ paddingHorizontal: 16, marginTop: 16, marginBottom: 14 }}>
+                <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                    {t('products.holders.accounts.title')}
+                </Text>
+            </View>
+            <Animated.View
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                style={{ paddingHorizontal: isSettings ? 0 : 16 }}
+            >
+                {banner}
+            </Animated.View>
+        </View>
     );
 });
 

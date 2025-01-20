@@ -141,19 +141,23 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                 </Text>
                 <View style={{
                     backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20, marginTop: 8
+                    borderRadius: 20, marginTop: 14,
                 }}>
                     <TonProductComponent
                         theme={theme}
                         address={address}
                         testOnly={isTestnet}
                     />
+                </View>
 
+                <View style={{
+                    backgroundColor: theme.surfaceOnBg,
+                    borderRadius: 20, marginTop: 14,
+                }}>
                     <SpecialJettonProduct
                         theme={theme}
                         address={address}
                         testOnly={isTestnet}
-                        divider="top"
                     />
                 </View>
             </View>

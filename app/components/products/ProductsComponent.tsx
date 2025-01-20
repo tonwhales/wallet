@@ -136,6 +136,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         ) : (
                             <HoldersBanner
                                 onPress={onHoldersPress}
+                                address={selected.address}
                                 {...holderBannerContent.banner}
                             />
                         )

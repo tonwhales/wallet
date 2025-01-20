@@ -254,10 +254,11 @@ export const SettingsFragment = fragment(() => {
                 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             >
-                {!!holderBannerContent && holderBannerContent.type === 'custom' && (
+                {!!holderBannerContent && selected && holderBannerContent.type === 'custom' && (
                     <HoldersBanner
                         onPress={onHoldersPress}
                         isSettings={true}
+                        address={selected.address}
                         {...holderBannerContent.banner}
                     />
                 )}

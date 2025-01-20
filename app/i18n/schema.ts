@@ -639,6 +639,14 @@ export type LocalizationSchema = {
                 accept: string,
                 decline: string,
                 expired: string
+            },
+            banner: {
+                fewMore: string,
+                ready: string,
+                readyAction: string,
+                kycAction: string
+                emailAction: string,
+                failedAction: string
             }
         }
     }

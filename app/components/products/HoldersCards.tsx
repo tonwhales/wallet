@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { ThemeType } from "../../engine/state/theme";
 import { View, Text } from "react-native";
@@ -76,6 +76,69 @@ export const HoldersCards = memo(({
         );
     }
 
+    const renderFace = useCallback(() => {
+        return (
+            <View style={[
+                {
+                    flexGrow: 1, flexDirection: 'row',
+                    padding: 20,
+                    marginHorizontal: 16,
+                    borderRadius: 20,
+                    alignItems: 'center',
+                    backgroundColor: theme.surfaceOnBg,
+                },
+                theme.style === 'dark' ? {
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 4,
+                } : {}
+            ]}>
+                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+                    <Image
+                        source={require('@assets/ic-holders-accounts.png')}
+                        style={{ width: 46, height: 46, borderRadius: 23 }}
+                    />
+                </View>
+                <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                    <PerfText
+                        style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                    >
+                        {t('products.holders.accounts.prepaidTitle')}
+                    </PerfText>
+                    <PerfText
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                        style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
+                    >
+                        <PerfText style={{ flexShrink: 1 }}>
+                            {t('common.showMore')}
+                        </PerfText>
+                    </PerfText>
+                </View>
+                {(!!totalBalance) && (
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                        <PriceComponent
+                            amount={totalBalance}
+                            priceUSD={1}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0, paddingVertical: 0,
+                                alignSelf: 'flex-end',
+                                height: undefined
+                            }}
+                            textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                            currencyCode={cards[0].fiatCurrency}
+                            theme={theme}
+                        />
+                    </View>
+                )}
+            </View>
+        )
+    }, [totalBalance, theme]);
+
     return (
         <CollapsibleCards
             title={t('products.holders.accounts.prepaidTitle')}
@@ -93,68 +156,7 @@ export const HoldersCards = memo(({
                     />
                 );
             }}
-            renderFace={() => {
-                return (
-                    <View style={[
-                        {
-                            flexGrow: 1, flexDirection: 'row',
-                            padding: 20,
-                            marginHorizontal: 16,
-                            borderRadius: 20,
-                            alignItems: 'center',
-                            backgroundColor: theme.surfaceOnBg,
-                        },
-                        theme.style === 'dark' ? {
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.15,
-                            shadowRadius: 4,
-                        } : {}
-                    ]}>
-                        <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                            <Image
-                                source={require('@assets/ic-holders-accounts.png')}
-                                style={{ width: 46, height: 46, borderRadius: 23 }}
-                            />
-                        </View>
-                        <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                            <PerfText
-                                style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
-                                ellipsizeMode="tail"
-                                numberOfLines={1}
-                            >
-                                {t('products.holders.accounts.prepaidTitle')}
-                            </PerfText>
-                            <PerfText
-                                numberOfLines={1}
-                                ellipsizeMode={'tail'}
-                                style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
-                            >
-                                <PerfText style={{ flexShrink: 1 }}>
-                                    {t('common.showMore')}
-                                </PerfText>
-                            </PerfText>
-                        </View>
-                        {(!!totalBalance) && (
-                            <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                <PriceComponent
-                                    amount={totalBalance}
-                                    priceUSD={1}
-                                    style={{
-                                        backgroundColor: 'transparent',
-                                        paddingHorizontal: 0, paddingVertical: 0,
-                                        alignSelf: 'flex-end',
-                                        height: undefined
-                                    }}
-                                    textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    currencyCode={cards[0].fiatCurrency}
-                                    theme={theme}
-                                />
-                            </View>
-                        )}
-                    </View>
-                )
-            }}
+            renderFace={renderFace}
             itemHeight={84}
             theme={theme}
             limitConfig={{

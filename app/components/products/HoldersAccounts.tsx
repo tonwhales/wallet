@@ -62,6 +62,68 @@ export const HoldersAccounts = memo(({
 
     const rightAction = (item: GeneralHoldersAccount) => markAccount(item.id, true);
 
+    const renderFace = useCallback(() => {() => {
+            return (
+                <View style={[
+                    {
+                        flexGrow: 1, flexDirection: 'row',
+                        padding: 20,
+                        marginHorizontal: 16,
+                        borderRadius: 20,
+                        alignItems: 'center',
+                        backgroundColor: theme.surfaceOnBg,
+                    },
+                    theme.style === 'dark' ? {
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 4,
+                    } : {}
+                ]}>
+                    <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+                        <Image
+                            source={require('@assets/ic-holders-accounts.png')}
+                            style={{ width: 46, height: 46, borderRadius: 23 }}
+                        />
+                    </View>
+                    <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                        <PerfText
+                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {t('products.holders.accounts.title')}
+                        </PerfText>
+                        <PerfText
+                            numberOfLines={1}
+                            ellipsizeMode={'tail'}
+                            style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
+                        >
+                            <PerfText style={{ flexShrink: 1 }}>
+                                {t('common.showMore')}
+                            </PerfText>
+                        </PerfText>
+                    </View>
+                    {(!!totalBalance) && (
+                        <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                            <PriceComponent
+                                amount={totalBalance}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                    height: undefined
+                                }}
+                                textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                theme={theme}
+                            />
+                        </View>
+                    )}
+                </View>
+            )
+        }
+    }, [totalBalance, theme]);
+
     if (accs.length === 0) {
         return null;
     }
@@ -88,66 +150,7 @@ export const HoldersAccounts = memo(({
                     />
                 )
             }}
-            renderFace={() => {
-                return (
-                    <View style={[
-                        {
-                            flexGrow: 1, flexDirection: 'row',
-                            padding: 20,
-                            marginHorizontal: 16,
-                            borderRadius: 20,
-                            alignItems: 'center',
-                            backgroundColor: theme.surfaceOnBg,
-                        },
-                        theme.style === 'dark' ? {
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.15,
-                            shadowRadius: 4,
-                        } : {}
-                    ]}>
-                        <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                            <Image
-                                source={require('@assets/ic-holders-accounts.png')}
-                                style={{ width: 46, height: 46, borderRadius: 23 }}
-                            />
-                        </View>
-                        <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                            <PerfText
-                                style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                ellipsizeMode="tail"
-                                numberOfLines={1}
-                            >
-                                {t('products.holders.accounts.title')}
-                            </PerfText>
-                            <PerfText
-                                numberOfLines={1}
-                                ellipsizeMode={'tail'}
-                                style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
-                            >
-                                <PerfText style={{ flexShrink: 1 }}>
-                                    {t('common.showMore')}
-                                </PerfText>
-                            </PerfText>
-                        </View>
-                        {(!!totalBalance) && (
-                            <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                <PriceComponent
-                                    amount={totalBalance}
-                                    style={{
-                                        backgroundColor: 'transparent',
-                                        paddingHorizontal: 0, paddingVertical: 0,
-                                        alignSelf: 'flex-end',
-                                        height: undefined
-                                    }}
-                                    textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    theme={theme}
-                                />
-                            </View>
-                        )}
-                    </View>
-                )
-            }}
+            renderFace={renderFace}
             itemHeight={122}
             theme={theme}
             limitConfig={{

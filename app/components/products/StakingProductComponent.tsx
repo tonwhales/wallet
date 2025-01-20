@@ -4,7 +4,6 @@ import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-na
 import { t } from "../../i18n/t";
 import { useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
-import { ItemDivider } from "../ItemDivider";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
@@ -187,6 +186,72 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
         );
     }
 
+    const renderFace = useCallback(() => {
+        return (
+            <View style={[
+                {
+                    flexGrow: 1, flexDirection: 'row',
+                    padding: 20,
+                    marginHorizontal: 16,
+                    borderRadius: 20,
+                    alignItems: 'center',
+                    backgroundColor: theme.surfaceOnBg,
+                },
+                theme.style === 'dark' ? {
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 4,
+                } : {}
+            ]}>
+                <View style={icStyle}>
+                    <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
+                        <StakingIcon width={32} height={32} color={'white'} />
+                    </View>
+                </View>
+                <View style={{ flexShrink: 1 }}>
+                    <PerfText
+                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                    >
+                        {t('products.staking.title')}
+                    </PerfText>
+                    <PerfText
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                        style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
+                    >
+                        <PerfText style={{ flexShrink: 1 }}>
+                            {t('common.showMore')}
+                        </PerfText>
+                    </PerfText>
+                </View>
+                {(!!totalBalance) && (
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                            <ValueComponent value={totalBalance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
+                            <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                {' TON'}
+                            </Text>
+                        </Text>
+                        <PriceComponent
+                            amount={totalBalance}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0, paddingVertical: 0,
+                                alignSelf: 'flex-end',
+                                height: undefined
+                            }}
+                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                            theme={theme}
+                        />
+                    </View>
+                )}
+            </View>
+        )
+    }, [totalBalance, theme]);
+
     return (
         <View style={{ marginBottom: 16 }}>
             <CollapsibleCards
@@ -194,71 +259,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 items={items}
                 renderItem={renderItem}
                 theme={theme}
-                renderFace={() => {
-                    return (
-                        <View style={[
-                            {
-                                flexGrow: 1, flexDirection: 'row',
-                                padding: 20,
-                                marginHorizontal: 16,
-                                borderRadius: 20,
-                                alignItems: 'center',
-                                backgroundColor: theme.surfaceOnBg,
-                            },
-                            theme.style === 'dark' ? {
-                                shadowColor: '#000',
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowOpacity: 0.15,
-                                shadowRadius: 4,
-                            } : {}
-                        ]}>
-                            <View style={icStyle}>
-                                <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
-                                    <StakingIcon width={32} height={32} color={'white'} />
-                                </View>
-                            </View>
-                            <View style={{ flexShrink: 1 }}>
-                                <PerfText
-                                    style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    ellipsizeMode="tail"
-                                    numberOfLines={1}
-                                >
-                                    {t('products.staking.title')}
-                                </PerfText>
-                                <PerfText
-                                    numberOfLines={1}
-                                    ellipsizeMode={'tail'}
-                                    style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
-                                >
-                                    <PerfText style={{ flexShrink: 1 }}>
-                                        {t('common.showMore')}
-                                    </PerfText>
-                                </PerfText>
-                            </View>
-                            {(!!totalBalance) && (
-                                <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                        <ValueComponent value={totalBalance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
-                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                            {' TON'}
-                                        </Text>
-                                    </Text>
-                                    <PriceComponent
-                                        amount={totalBalance}
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            paddingHorizontal: 0, paddingVertical: 0,
-                                            alignSelf: 'flex-end',
-                                            height: undefined
-                                        }}
-                                        textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                        theme={theme}
-                                    />
-                                </View>
-                            )}
-                        </View>
-                    )
-                }}
+                renderFace={renderFace}
                 action={action}
                 itemHeight={86}
             />

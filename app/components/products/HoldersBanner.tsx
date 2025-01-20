@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import i18n from 'i18next';
@@ -11,9 +11,9 @@ import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { ItemDivider } from "../ItemDivider";
 import { BlurView } from "expo-blur";
 import { useAppConfig } from "../../engine/hooks/useAppConfig";
+import { t } from "../../i18n/t";
 import { Address } from "@ton/core";
 import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
-import { t } from "../../i18n/t";
 import { getFailedBannerClicked, setFailedBannerClicked } from "../../utils/holders/holdersBanner";
 
 const gradientColors = ['#3F33CC', '#B341D9'];

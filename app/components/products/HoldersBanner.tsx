@@ -1,8 +1,8 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import i18n from 'i18next';
-import { Image } from 'expo-image';
+import { Image, ImageSource } from 'expo-image';
 import { HoldersBannerContent, HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck";
 import { Typography } from "../styles";
 import { LinearGradient } from "expo-linear-gradient";
@@ -11,7 +11,10 @@ import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { ItemDivider } from "../ItemDivider";
 import { BlurView } from "expo-blur";
 import { useAppConfig } from "../../engine/hooks/useAppConfig";
+import { Address } from "@ton/core";
+import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { t } from "../../i18n/t";
+import { getFailedBannerClicked, setFailedBannerClicked } from "../../utils/holders/holdersBanner";
 
 const gradientColors = ['#3F33CC', '#B341D9'];
 
@@ -110,22 +113,105 @@ const CardActionBanner = memo(({ onPress, content, gradient }: { onPress: () => 
     );
 });
 
-const ChipActionBanner = memo(({ onPress, content, gradient }: { onPress: () => void, content: HoldersBannerContent, gradient?: boolean }) => {
+type BannerStatus = 'not-active' | 'email' | 'kyc' | 'ready' | 'error';
+
+const ChipActionBanner = memo(({ address, onPress, content, gradient }: { address: Address, onPress: () => void, content: HoldersBannerContent, gradient?: boolean }) => {
     const theme = useTheme();
+    const holdersAccStatus = useHoldersAccountStatus(address).data;
+
+    let bannerStatus: BannerStatus = 'not-active';
+
+    switch (holdersAccStatus?.state) {
+        case HoldersUserState.NeedEmail:
+            bannerStatus = 'email';
+            break;
+        case HoldersUserState.NeedKyc:
+            const kyc = holdersAccStatus.kycStatus;
+            if (kyc?.completed) {
+                bannerStatus = kyc.result === 'GREEN' ? 'ready' : 'error';
+                break;
+            }
+            bannerStatus = 'kyc';
+            break;
+        case HoldersUserState.Ok:
+            bannerStatus = 'ready';
+            break;
+        default:
+            break;
+    }
+
+    const [failedClicked, setFailedClicked] = useState(getFailedBannerClicked());
+
+    const setClicked = (clicked: boolean) => {
+        setFailedClicked(clicked);
+        setFailedBannerClicked(clicked);
+    }
+
+    const onClick = () => {
+        onPress();
+        if (bannerStatus === 'error') {
+            setClicked(true);
+        }
+    }
+
+    useEffect(() => {
+        const failed = holdersAccStatus?.state === HoldersUserState.NeedKyc
+            && holdersAccStatus.kycStatus?.completed === true
+            && holdersAccStatus.kycStatus?.result !== 'GREEN';
+
+        if (!failed) {
+            setClicked(false);
+        }
+    }, [holdersAccStatus?.state]);
+
+    if (bannerStatus === 'error' && failedClicked) {
+        bannerStatus = 'not-active';
+    }
+
     const lang = i18n.language === 'ru' ? 'ru' : 'en';
     const title = content.title[lang] || content.title.en;
-    const subtitle = content.subtitle[lang] || content.subtitle.en;
-    const action = content.action[lang] || content.action.en;
+    let subtitle = content.subtitle[lang] || content.subtitle.en;
+    let action = content.action[lang] || content.action.en;
+    let actionIc: ImageSource | undefined = undefined;
     const textColor = gradient ? theme.textUnchangeable : theme.textPrimary;
     const textSecondaryColor = gradient ? theme.textUnchangeable : theme.textSecondary;
-    const actionTextcolor = gradient
+    let actionTextcolor = gradient
         ? (theme.style === 'dark' ? theme.textPrimaryInverted : theme.textPrimary)
         : theme.textUnchangeable;
-    const actionBackgroundColor = gradient ? theme.textUnchangeable : theme.accent;
+    let actionBackgroundColor = gradient ? theme.textUnchangeable : theme.accent;
+
+    switch (bannerStatus) {
+        case 'email':
+            subtitle = t('products.holders.banner.fewMore');
+            action = t('products.holders.banner.emailAction');
+            actionIc = require('@assets/ic-banner-more-steps.png');
+            break;
+        case 'kyc':
+            subtitle = t('products.holders.banner.fewMore');
+            action = t('products.holders.banner.kycAction');
+            actionIc = require('@assets/ic-banner-more-steps.png');
+            break;
+        case 'ready':
+            subtitle = t('products.holders.banner.ready');
+            action = t('products.holders.banner.readyAction');
+            actionIc = require('@assets/ic-banner-ready.png');
+            break;
+        case 'error':
+            action = t('products.holders.banner.failedAction');
+            actionIc = require('@assets/ic-banner-failed.png');
+            break;
+        default:
+            break;
+    }
+
+    if (!!actionIc) {
+        actionBackgroundColor = theme.divider;
+        actionTextcolor = theme.textPrimary;
+    }
 
     return (
         <Pressable
-            onPress={onPress}
+            onPress={onClick}
             style={({ pressed }) => {
                 return [
                     styles.pressable,
@@ -169,16 +255,25 @@ const ChipActionBanner = memo(({ onPress, content, gradient }: { onPress: () => 
                             backgroundColor: actionBackgroundColor,
                             paddingHorizontal: 16, paddingVertical: 6,
                             borderRadius: 50,
+                            minHeight: 32,
                             gap: 6
                         }}>
+                            {actionIc && (
+                                <Image
+                                    source={actionIc}
+                                    style={{ height: 16, width: 16 }}
+                                />
+                            )}
                             <Text
                                 style={[
-                                    { color: actionTextcolor, textAlign: 'center', flexShrink: 1 },
-                                    Typography.medium15_20
+                                    { color: actionTextcolor, flexShrink: 1 },
+                                    Typography.medium15_20,
+                                    { lineHeight: undefined }
                                 ]}
                                 adjustsFontSizeToFit
-                                minimumFontScale={0.7}
-                                numberOfLines={1}
+                                minimumFontScale={0.85}
+                                numberOfLines={2}
+                                lineBreakMode="tail"
                             >
                                 {action}
                             </Text>
@@ -264,62 +359,9 @@ const IconBanner = memo(({ onPress, content, noAction }: { onPress: () => void, 
     );
 });
 
-const GradientBanner = memo(({ onPress, content }: { onPress: () => void, content: HoldersBannerContent }) => {
-    const theme = useTheme();
-    const lang = i18n.language === 'ru' ? 'ru' : 'en';
-    const title = content.title[lang] || content.title.en;
-    const subtitle = content.subtitle[lang] || content.subtitle.en;
-
-    return (
-        <Pressable
-            onPress={onPress}
-            style={({ pressed }) => {
-                return [
-                    styles.pressable,
-                    { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg, }
-                ]
-            }}
-        >
-            <LinearGradient
-                style={styles.gradient}
-                colors={gradientColors}
-                start={[0, 1]}
-                end={[1, 0]}
-            />
-            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center' }}>
-                <View style={{
-                    justifyContent: 'space-between', padding: 20,
-                    flexGrow: 1, flexShrink: 1,
-                }}>
-                    <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold17_24]}
-                        ellipsizeMode={'tail'}
-                        numberOfLines={2}
-                    >
-                        {title}
-                    </Text>
-                    <Text
-                        style={[{ flex: 1, flexShrink: 1, color: theme.textUnchangeable, opacity: 0.8, }, Typography.regular15_20]}
-                        ellipsizeMode={'tail'}
-                        numberOfLines={3}
-                        adjustsFontSizeToFit={true}
-                        minimumFontScale={0.95}
-                    >
-                        {subtitle}
-                    </Text>
-                </View>
-                <Image
-                    style={styles.img}
-                    source={require('@assets/banners/holders-banner-img.png')}
-                    contentFit={'contain'}
-                />
-            </View>
-        </Pressable>
-    );
-});
-
-export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: boolean } & HoldersCustomBanner) => {
+export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: boolean, address: Address } & HoldersCustomBanner) => {
     const { isTestnet } = useNetwork();
-    const { content, onPress: onClick, id, isSettings } = props;
+    const { content, onPress: onClick, id, isSettings, address } = props;
     const selectedAccount = useSelectedAccount();
     const appConfig = useAppConfig();
     const theme = useTheme();
@@ -349,9 +391,7 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
         onClick?.();
     }
 
-    let banner = <GradientBanner onPress={onPress} content={content} />;
-
-    console.log({ id })
+    let banner = <ChipActionBanner address={address} onPress={onPress} content={content} />;
 
     if (isSettings) {
         switch (id) {
@@ -359,15 +399,6 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
             case 2: banner = <CardActionBanner onPress={onPress} content={content} />; break;
             case 3: banner = <IconBanner onPress={onPress} content={content} noAction />; break;
             default: banner = <IconBanner onPress={onPress} content={content} noAction />; break;
-        }
-    } else {
-        switch (id) {
-            case 1: banner = <IconBanner onPress={onPress} content={content} />; break;
-            case 2: banner = <CardActionBanner onPress={onPress} content={content} />; break;
-            case 3: banner = <CardActionBanner onPress={onPress} content={content} gradient={true} />; break;
-            case 4: banner = <ChipActionBanner onPress={onPress} content={content} />; break;
-            case 5: banner = <ChipActionBanner onPress={onPress} content={content} gradient={true} />; break;
-            default: break;
         }
     }
 

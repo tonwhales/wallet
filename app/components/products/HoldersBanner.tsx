@@ -11,6 +11,7 @@ import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { ItemDivider } from "../ItemDivider";
 import { BlurView } from "expo-blur";
 import { useAppConfig } from "../../engine/hooks/useAppConfig";
+import { t } from "../../i18n/t";
 
 const gradientColors = ['#3F33CC', '#B341D9'];
 
@@ -321,6 +322,7 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     const { content, onPress: onClick, id, isSettings } = props;
     const selectedAccount = useSelectedAccount();
     const appConfig = useAppConfig();
+    const theme = useTheme();
 
     const trackViews = appConfig?.features?.trackViews;
     const wallet = selectedAccount?.addressString;
@@ -370,13 +372,20 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     }
 
     return (
-        <Animated.View
-            entering={FadeInUp}
-            exiting={FadeOutDown}
-            style={isSettings ? { marginTop: 16 } : { paddingHorizontal: 16, marginVertical: 16 }}
-        >
-            {banner}
-        </Animated.View>
+        <View>
+            <View style={{ paddingHorizontal: 16, marginTop: 16, marginBottom: 14 }}>
+                <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                    {t('products.holders.accounts.title')}
+                </Text>
+            </View>
+            <Animated.View
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+                style={{ paddingHorizontal: isSettings ? 0 : 16 }}
+            >
+                {banner}
+            </Animated.View>
+        </View>
     );
 });
 

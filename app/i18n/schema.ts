@@ -361,6 +361,7 @@ export type LocalizationSchema = {
             subtitle: string
         },
         staking: {
+            earnings: string,
             title: string,
             balance: string,
             subtitle: {
@@ -552,6 +553,7 @@ export type LocalizationSchema = {
                 primaryName: string,
                 paymentName: string,
                 topUp: string,
+                addNew: string
             },
             pageTitles: {
                 general: string,

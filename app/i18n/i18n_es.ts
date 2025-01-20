@@ -241,15 +241,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsSummary: 'Total',
         txsTotal: 'Cantidad total',
         gasDetails: 'Detalles del gas',
-        jettonGas: 'Gas para enviar jettons',
-        unusualJettonsGas: 'El gas es más alto de lo usual',
-        unusualJettonsGasTitle: 'La tarifa para enviar jettons es {{amount}} TON',
-        unusualJettonsGasMessage: 'La tarifa de transacción de jetton (Gas) es más alta de lo usual',
-        addressNotActive: 'Esta billetera no tenía transacciones salientes',
-        wrongJettonTitle: 'Jetton incorrecto',
-        wrongJettonMessage: 'Estás intentando enviar un jetton que no tienes',
-        notEnoughJettonsTitle: 'No hay suficientes jettons',
-        notEnoughJettonsMessage: 'Estás intentando enviar más jettons de los que tienes',
+        jettonGas: 'Gas para enviar tokens',
+        unusualJettonsGas: 'El gas es más alto de lo habitual',
+        unusualJettonsGasTitle: 'La tarifa por enviar tokens es de {{amount}} TON',
+        unusualJettonsGasMessage: 'La tarifa de transacción de tokens (Gas) es más alta de lo habitual',
+        addressNotActive: 'Esta billetera no tuvo transacciones salientes',
+        wrongJettonTitle: 'Token incorrecto',
+        wrongJettonMessage: 'Estás intentando enviar un token que no tienes',
+        notEnoughJettonsTitle: 'No hay suficientes tokens',
+        notEnoughJettonsMessage: 'Estás intentando enviar más tokens de los que tienes',
         aboutFees: 'Sobre las tarifas',
         aboutFeesDescription: 'Las tarifas para transacciones en la blockchain dependen de varios factores, como la congestión de la red, el tamaño de la transacción, el precio del gas y los parámetros de configuración de la blockchain. Cuanto mayor sea la demanda de procesamiento de transacciones en la blockchain o mayor sea el tamaño de la transacción (mensaje/comentario), mayores serán las tarifas.',
         gaslessTransferSwitch: 'Pagar tarifa de gas en {{symbol}}'
@@ -359,7 +359,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subtitle: 'Presiona para ver la solicitud'
         },
         staking: {
-            title: 'Staking',
+            earnings: 'Ganancias',
+            title: 'TON Staking',
             balance: 'Saldo de staking',
             subtitle: {
                 join: 'Gana hasta {{apy}}% en tus TONs',
@@ -550,6 +551,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 primaryName: 'Cuenta principal',
                 paymentName: 'Cuenta de pago {{accountIndex}}',
                 topUp: 'Recargar cuenta',
+                addNew: 'Agregar cuenta'
             },
             pageTitles: {
                 general: 'Tarjetas Tonhub',
@@ -783,11 +785,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         token: 'token',
         productButtonTitle: 'Tokens',
         productButtonSubtitle: '{{jettonName}} y {{count}} otros',
-        hidden: 'Jettons ocultos',
+        hidden: 'Tokens ocultos',
         liquidPoolDescriptionDedust: 'Liquidez para {{name0}}/{{name1}} en DeDust DEX',
         liquidPoolDescriptionStonFi: 'Liquidez para {{name0}}/{{name1}} en STON.fi DEX',
         emptyBalance: 'Saldo vacío',
-        jettonsNotFound: 'No se encontraron jettons'
+        jettonsNotFound: 'No se encontraron tokens'
     },
     connections: {
         extensions: 'Extensiones',

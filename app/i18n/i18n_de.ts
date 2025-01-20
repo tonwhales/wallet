@@ -241,15 +241,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsSummary: 'Gesamt',
         txsTotal: 'Gesamtbetrag',
         gasDetails: 'Gasdetails',
-        jettonGas: 'Gas für das Senden von Jettons',
-        unusualJettonsGas: 'Gas ist höher als üblich',
-        unusualJettonsGasTitle: 'Die Gebühr für das Senden von Jettons beträgt {{amount}} TON',
-        unusualJettonsGasMessage: 'Die Gebühr für Jetton-Transaktionen (Gas) ist höher als üblich',
-        addressNotActive: 'Dieses Wallet hatte keine ausgehenden Transaktionen',
-        wrongJettonTitle: 'Falscher Jetton',
-        wrongJettonMessage: 'Sie versuchen, einen Jetton zu senden, den Sie nicht haben',
-        notEnoughJettonsTitle: 'Nicht genug Jettons',
-        notEnoughJettonsMessage: 'Sie versuchen, mehr Jettons zu senden, als Sie haben',
+        jettonGas: 'Gas zum Senden von Token',
+        unusualJettonsGas: 'Gas ist höher als gewöhnlich',
+        unusualJettonsGasTitle: 'Die Gebühr für das Senden von Token beträgt {{amount}} TON',
+        unusualJettonsGasMessage: 'Die Transaktionsgebühr für Token (Gas) ist höher als gewöhnlich',
+        addressNotActive: 'Diese Wallet hatte keine ausgehenden Transaktionen',
+        wrongJettonTitle: 'Falscher Token',
+        wrongJettonMessage: 'Sie versuchen, einen Token zu senden, den Sie nicht haben',
+        notEnoughJettonsTitle: 'Nicht genügend Token',
+        notEnoughJettonsMessage: 'Sie versuchen, mehr Token zu senden, als Sie haben',
         aboutFees: 'Über Gebühren',
         aboutFeesDescription: 'Die Gebühren für Transaktionen auf der Blockchain hängen von mehreren Faktoren ab, wie z. B. Netzwerkauslastung, Transaktionsgröße, Gaspreis und Blockchain-Konfigurationsparametern. Je höher die Nachfrage nach Transaktionsverarbeitung auf der Blockchain oder je größer die Transaktionsgröße (Nachricht/Kommentar), desto höher sind die Gebühren.',
         gaslessTransferSwitch: 'Gasgebühr in {{symbol}} bezahlen'
@@ -359,7 +359,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subtitle: 'Zum Anzeigen der Anfrage drücken'
         },
         staking: {
-            title: 'Staking',
+            earnings: 'Einnahmen',
+            title: 'TON Staking',
             balance: 'Staking-Guthaben',
             subtitle: {
                 join: 'Verdiene bis zu {{apy}}% auf deine TONs',
@@ -549,7 +550,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 hiddenAccounts: 'Versteckte Konten',
                 primaryName: 'Hauptkonto',
                 paymentName: 'Zahlungskonto {{accountIndex}}',
-                topUp: 'Konto aufladen'
+                topUp: 'Konto aufladen',
+                addNew: 'Konto hinzufügen'
             },
             pageTitles: {
                 general: 'Tonhub-Karten',
@@ -783,11 +785,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         token: 'token',
         productButtonTitle: 'Token',
         productButtonSubtitle: '{{jettonName}} und {{count}} weitere',
-        hidden: 'Versteckte Jettons',
+        hidden: 'Versteckte Token',
         liquidPoolDescriptionDedust: 'Liquidität für {{name0}}/{{name1}} auf DeDust DEX',
         liquidPoolDescriptionStonFi: 'Liquidität für {{name0}}/{{name1}} auf STON.fi DEX',
         emptyBalance: 'Kein Guthaben',
-        jettonsNotFound: 'Keine Jettons gefunden'
+        jettonsNotFound: 'Keine Token gefunden'
     },
     connections: {
         extensions: 'Erweiterungen',

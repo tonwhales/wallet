@@ -241,15 +241,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsSummary: 'Total',
         txsTotal: 'Total amount',
         gasDetails: 'Gas details',
-        jettonGas: 'Gas for sending jettons',
+        jettonGas: 'Gas for sending tokens',
         unusualJettonsGas: 'Gas is higher than usual',
-        unusualJettonsGasTitle: 'The fee for sending jettons is {{amount}} TON',
-        unusualJettonsGasMessage: 'Jetton transaction fee (Gas) is higher than usual',
+        unusualJettonsGasTitle: 'The fee for sending tokens is {{amount}} TON',
+        unusualJettonsGasMessage: 'Tokens transaction fee (Gas) is higher than usual',
         addressNotActive: 'This wallet had no outgoing transactions',
-        wrongJettonTitle: 'Wrong jetton',
-        wrongJettonMessage: 'You are trying to send a jetton that that you don\'t have',
-        notEnoughJettonsTitle: 'Not enough jettons',
-        notEnoughJettonsMessage: 'You are trying to send more jettons than you have',
+        wrongJettonTitle: 'Wrong token',
+        wrongJettonMessage: 'You are trying to send a token that that you don\'t have',
+        notEnoughJettonsTitle: 'Not enough tokens',
+        notEnoughJettonsMessage: 'You are trying to send more tokens than you have',
         aboutFees: 'About fees',
         aboutFeesDescription: 'The fees for transactions on the blockchain depend on several factors, such as network congestion, transaction size, gas price, and blockchain configuration parameters. The higher the demand for transaction processing on the blockchain or the larger the transaction size (message/comment), the higher the fees will be.',
         gaslessTransferSwitch: 'Pay gas fee in {{symbol}}'
@@ -359,7 +359,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subtitle: 'Press to view request'
         },
         staking: {
-            title: 'Staking',
+            earnings: 'Earnings',
+            title: 'TON Staking',
             balance: 'Staking balance',
             subtitle: {
                 join: 'Earn up to {{apy}}% on your TONs',
@@ -548,8 +549,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 hiddenCards: 'Hidden cards',
                 hiddenAccounts: 'Hidden accounts',
                 primaryName: 'Main account',
-                paymentName: 'Payment account {{accountIndex}}',
+                paymentName: 'Spending account {{accountIndex}}',
                 topUp: 'Top up account',
+                addNew: 'Add new account'
             },
             pageTitles: {
                 general: 'Tonhub Cards',
@@ -783,11 +785,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         token: 'token',
         productButtonTitle: 'Tokens',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
-        hidden: 'Hidden jettons',
+        hidden: 'Hidden tokens',
         liquidPoolDescriptionDedust: 'Liquidity for {{name0}}/{{name1}} on DeDust DEX',
         liquidPoolDescriptionStonFi: 'Liquidity for {{name0}}/{{name1}} on STON.fi DEX',
         emptyBalance: 'Empty balance',
-        jettonsNotFound: 'No jettons found'
+        jettonsNotFound: 'No tokens found'
     },
     connections: {
         extensions: 'Extensions',

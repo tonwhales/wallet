@@ -639,6 +639,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "accept": "Принять",
                 "decline": "Отклонить",
                 "expired": "Истек"
+            },
+            "banner": {
+                "fewMore": "Осталось всего несколько шагов",
+                "ready": "Верификация завершена! Ваша карта готова!",
+                "readyAction": "Получить сейчас",
+                "emailAction": "Подтвердите почту",
+                "kycAction": "Пройдите верификацию",
+                "failedAction": "Верификация не удалась",
             }
         }
     },

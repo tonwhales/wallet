@@ -64,7 +64,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                     {t('jetton.hidden')}
                 </Text>
-                <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                <Text style={[{ color: theme.accent }, Typography.medium17_24]}>
                     {collapsed ? t('common.show') : t('common.hide')}
                 </Text>
             </Pressable>

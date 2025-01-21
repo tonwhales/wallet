@@ -541,7 +541,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 title: 'Dépenses',
                 prepaidTitle: 'Cartes',
                 account: 'Compte',
-                basicAccount: 'Compte de base',
+                basicAccount: 'Compte de dépenses',
                 proAccount: 'Compte pro',
                 noCards: 'Pas de cartes',
                 prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
@@ -1158,6 +1158,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     update: {
         callToAction: 'Mettez à jour Tonhub'
+    },
+    savings: {
+        ton: 'Compte d\'épargne TON',
+        usdt: 'Compte d\'épargne USDT',
+    },
+    spending: {
+        ton: 'Compte de dépenses TON',
+        usdt: 'Compte de dépenses USDT'
     }
 };
 

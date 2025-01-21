@@ -8,6 +8,7 @@ import { Address } from "@ton/core";
 import { useAccountLite, useBounceableWalletFormat } from "../../engine/hooks";
 import { Image } from "expo-image";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { t } from "../../i18n/t";
 
 export const TonProductComponent = memo(({
     theme,
@@ -79,7 +80,7 @@ export const TonProductComponent = memo(({
                         ellipsizeMode={'tail'}
                         style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                     >
-                        {'The Open Network'}
+                        {t('savings.ton')}
                     </Text>
                 </View>
                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>

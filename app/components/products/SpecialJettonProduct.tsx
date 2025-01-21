@@ -14,6 +14,7 @@ import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
 import { ReceiveableAsset } from "../../fragments/wallet/ReceiveFragment";
+import { t } from "../../i18n/t";
 
 export const SpecialJettonProduct = memo(({
     theme,
@@ -182,7 +183,7 @@ export const SpecialJettonProduct = memo(({
                         ellipsizeMode={'tail'}
                         style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                     >
-                        {specialJetton?.description ?? 'Tether Token for Tether USD'}
+                        {t('savings.usdt')}
                     </Text>
                 </View>
                 {!!assetCallback ? (

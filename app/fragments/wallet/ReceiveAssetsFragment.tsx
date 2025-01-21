@@ -73,11 +73,13 @@ const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
                     <Text style={[{ flexShrink: 1, color: theme.textPrimary }, Typography.semiBold17_24]}>
                         {'Toncoin'}
                     </Text>
-                    <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
-                        {'TON'}
+                    <Text
+                        style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
+                    >
+                        {t('savings.ton')}
                     </Text>
                 </View>
-                <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                <View style={{ alignItems: 'flex-end', marginLeft: 8 }}>
                     <Image
                         source={require('@assets/ic-chevron-right.png')}
                         style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
@@ -255,11 +257,11 @@ export const ReceiveAssetsFragment = fragment(() => {
     }
 
     const itemsList: { type: 'default' | 'holders', data: ListItem[] }[] = [
-        defaultSection,
         {
             type: 'holders',
             data: holdersAccounts.map((account) => ({ account, type: AssetType.HOLDERS }))
-        }
+        },
+        defaultSection
     ];
 
     return (

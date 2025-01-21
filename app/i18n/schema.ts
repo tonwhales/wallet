@@ -1160,6 +1160,14 @@ export type LocalizationSchema = {
     },
     update: {
         callToAction: string,
+    },
+    savings: {
+        ton: string,
+        usdt: string,
+    },
+    spending: {
+        ton: string,
+        usdt: string
     }
 };
 

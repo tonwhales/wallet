@@ -1092,6 +1092,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bannerTitle: 'Aktualisieren Sie Ihre Adresse',
         bannerDescription: 'Von EQ zu UQ',
     },
+    changely: {
+        bannerTitle: 'USDT- und USDC-Einzahlungen',
+        bannerDescription: 'Tron, Solana, Ethereum, Polygon verfügbar!'
+    },
     w5: {
         banner: {
             title: 'Wallet W5 hinzufügen',

@@ -1,5 +1,5 @@
 import React, { ReactElement, memo, useCallback, useMemo } from "react"
-import { Pressable, Text, View } from "react-native"
+import { View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
@@ -15,7 +15,6 @@ import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
 import { ProductBanner } from "./ProductBanner"
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState"
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
-import { Typography } from "../styles"
 import { useBanners } from "../../engine/hooks/banners"
 import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
@@ -27,6 +26,7 @@ import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInvite
 import { HoldersBanner } from "./HoldersBanner"
 import { SavingsProduct } from "./SavingsProduct"
 import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
+import { HoldersChangelyBanner } from "./HoldersChangelyBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -141,6 +141,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                             />
                         )
                 )}
+
+                <HoldersChangelyBanner address={selected.address} />
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 

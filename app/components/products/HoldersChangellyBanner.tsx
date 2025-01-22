@@ -13,9 +13,9 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 
-const bannerId = 'holders-changely-banner';
+const bannerId = 'holders-changelly-banner';
 
-export const HoldersChangelyBanner = memo(({ address }: { address: Address }) => {
+export const HoldersChangellyBanner = memo(({ address }: { address: Address }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -60,7 +60,7 @@ export const HoldersChangelyBanner = memo(({ address }: { address: Address }) =>
         }
 
         trackEvent(
-            MixpanelEvent.HoldersChangelyBanner,
+            MixpanelEvent.HoldersChangellyBanner,
             { address: address.toString({ testOnly: isTestnet }) },
             true
         );
@@ -82,7 +82,7 @@ export const HoldersChangelyBanner = memo(({ address }: { address: Address }) =>
     const markHidden = () => {
         markBannerHidden(bannerId);
         trackEvent(
-            MixpanelEvent.HoldersChangelyBannerClose,
+            MixpanelEvent.HoldersChangellyBannerClose,
             { address: address.toString({ testOnly: isTestnet }) },
             true
         );
@@ -134,10 +134,10 @@ export const HoldersChangelyBanner = memo(({ address }: { address: Address }) =>
                 }}>
                     <View style={{ flex: 1 }}>
                         <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold15_20]}>
-                            {t('changely.bannerTitle')}
+                            {t('changelly.bannerTitle')}
                         </Text>
                         <Text style={[{ color: theme.textUnchangeable, opacity: 0.8 }, Typography.regular15_20]}>
-                            {t('changely.bannerDescription')}
+                            {t('changelly.bannerDescription')}
                         </Text>
                     </View>
                     <Image
@@ -145,7 +145,7 @@ export const HoldersChangelyBanner = memo(({ address }: { address: Address }) =>
                             height: 96, width: 120,
                             alignSelf: 'flex-end'
                         }}
-                        source={require('@assets/holders-changely-banner.png')}
+                        source={require('@assets/holders-changelly-banner.png')}
                     />
                 </View>
                 <Pressable

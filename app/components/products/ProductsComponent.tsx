@@ -26,7 +26,7 @@ import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInvite
 import { HoldersBanner } from "./HoldersBanner"
 import { SavingsProduct } from "./SavingsProduct"
 import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
-import { HoldersChangelyBanner } from "./HoldersChangelyBanner"
+import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -142,7 +142,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         )
                 )}
 
-                <HoldersChangelyBanner address={selected.address} />
+                <HoldersChangellyBanner address={selected.address} />
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 

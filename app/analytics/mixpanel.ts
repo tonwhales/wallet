@@ -22,6 +22,8 @@ export enum MixpanelEvent {
     HoldersBanner = 'holders_banner',
     HoldersBannerView = 'holders_banner_view',
     HoldersClose = 'holders_close',
+    HoldersChangellyBanner = 'holders_changelly_banner',
+    HoldersChangellyBannerClose = 'holders_changelly_banner_close',
     Connect = 'connect',
     Transfer = 'transfer',
     TransferCancel = 'transfer_cancel',

@@ -1092,6 +1092,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "bannerTitle": 'Обновите ваш адрес',
         "bannerDescription": 'С EQ на UQ',
     },
+    "changelly": {
+        "bannerTitle": "Депозиты USDT и USDC",
+        "bannerDescription": "Доступны Tron, Solana, Ethereum, Polygon!"
+    },
     "w5": {
         "banner": {
             "title": 'Добавить кошелек W5',

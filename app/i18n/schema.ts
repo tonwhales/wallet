@@ -1094,6 +1094,10 @@ export type LocalizationSchema = {
         bannerTitle: string,
         bannerDescription: string,
     },
+    changelly: {
+        bannerTitle: string,
+        bannerDescription: string
+    }
     w5: {
         banner: {
             title: string,

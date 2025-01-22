@@ -49,11 +49,19 @@ function getHoldersMixpanelKey(isTestnet?: boolean) {
     return (isTestnet || __DEV__) ? holdersStage : holdersProd;
 }
 
-let mixpanelClient = new Mixpanel(getMixpanelKey(IS_SANDBOX));    
+let mixpanelClient = new Mixpanel(getMixpanelKey(IS_SANDBOX));
 mixpanelClient.init();
+let clientNet = IS_SANDBOX;
+if (__DEV__) {
+    mixpanelClient.setLoggingEnabled(true);
+}
 
 let holdersMixpanelClient = new Mixpanel(getHoldersMixpanelKey(IS_SANDBOX));
 holdersMixpanelClient.init();
+let holdersClientNet = IS_SANDBOX;
+if (__DEV__) {
+    holdersMixpanelClient.setLoggingEnabled(true);
+}
 
 export function useTrackScreen(screen: string, isTestnet: boolean, properties?: MixpanelProperties) {
     useFocusEffect(
@@ -68,7 +76,7 @@ export function trackScreen(screen: string, properties?: MixpanelProperties, isT
 }
 
 export function mixpanelInst(isTestnet?: boolean) {
-    if (isTestnet !== IS_SANDBOX) {
+    if (isTestnet !== clientNet) {
         mixpanelClient = new Mixpanel(getMixpanelKey(isTestnet));
         mixpanelClient.init();
         if (__DEV__) {
@@ -79,7 +87,7 @@ export function mixpanelInst(isTestnet?: boolean) {
 }
 
 export function holdersMixpanelInst(isTestnet?: boolean) {
-    if (isTestnet !== IS_SANDBOX) {
+    if (isTestnet !== holdersClientNet) {
         holdersMixpanelClient = new Mixpanel(getHoldersMixpanelKey(isTestnet));
         holdersMixpanelClient.init();
         if (__DEV__) {
@@ -108,10 +116,12 @@ export function useTrackEvent(event: MixpanelEvent, properties?: MixpanelPropert
 
 export function mixpanelFlush(isTestnet?: boolean) {
     mixpanelInst(isTestnet).flush();
+    holdersMixpanelInst(isTestnet).flush();
 }
 
 export function mixpanelReset(isTestnet?: boolean) {
     mixpanelInst(isTestnet).reset();
+    holdersMixpanelInst(isTestnet).reset();
 }
 
 export function mixpanelIdentify(wallet: string, isTestnet?: boolean) {
@@ -119,7 +129,12 @@ export function mixpanelIdentify(wallet: string, isTestnet?: boolean) {
     holdersMixpanelInst(isTestnet).getPeople().union('wallets', [wallet]);
 }
 
-export function mixpanelAddReferrer(referrer: string, isTestnet?: boolean) {
-    mixpanelInst(isTestnet).getPeople().set({ referrer });
-    holdersMixpanelInst(isTestnet).getPeople().set({ referrer });
+export function mixpanelAddWallet(wallet: string, isTestnet?: boolean) {
+    mixpanelInst(isTestnet).getPeople().union('wallets', [wallet]);
+    holdersMixpanelInst(isTestnet).getPeople().union('wallets', [wallet]);
+}
+
+export function mixpanelAddReferrer(campaignId: string, isTestnet?: boolean) {
+    holdersMixpanelInst(isTestnet).getPeople().set({ campaignId });
+    mixpanelInst(isTestnet).getPeople().set({ campaignId });
 }

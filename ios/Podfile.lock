@@ -114,15 +114,15 @@ PODS:
   - lottie-react-native (6.4.1):
     - lottie-ios (~> 4.3.3)
     - React-Core
-  - Mixpanel-swift (3.3.0):
-    - Mixpanel-swift/Complete (= 3.3.0)
-  - Mixpanel-swift/Complete (3.3.0)
-  - MixpanelReactNative (1.5.0):
-    - Mixpanel-swift (= 3.3.0)
-    - React
-  - MMKV (2.0.0):
-    - MMKVCore (~> 2.0.0)
-  - MMKVCore (2.0.0)
+  - Mixpanel-swift (4.3.0):
+    - Mixpanel-swift/Complete (= 4.3.0)
+  - Mixpanel-swift/Complete (4.3.0)
+  - MixpanelReactNative (3.0.8):
+    - Mixpanel-swift (= 4.3.0)
+    - React-Core
+  - MMKV (2.0.2):
+    - MMKVCore (~> 2.0.2)
+  - MMKVCore (2.0.2)
   - MultiplatformBleAdapter (0.1.9)
   - OpenSSL-Universal (3.3.2000)
   - Permission-Camera (3.10.1):
@@ -1009,10 +1009,10 @@ SPEC CHECKSUMS:
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
   lottie-ios: 3d98679b41fa6fd6aff2352b3953dbd3df8a397e
   lottie-react-native: a2ae9c27c273b060b2affff2957bc0ff7fdca353
-  Mixpanel-swift: 6ffe368bcfc3b538f540f31372bc798afd90c1ad
-  MixpanelReactNative: 53b80c245f89ea602fbdda0568900e2b69fa632a
-  MMKV: f7d1d5945c8765f97f39c3d121f353d46735d801
-  MMKVCore: c04b296010fcb1d1638f2c69405096aac12f6390
+  Mixpanel-swift: 2192b9a24cf41b870749e4e0e10fbc9822bb2b4a
+  MixpanelReactNative: cd3d7129cfc77d796d07e117846f1f2a9d2fe02d
+  MMKV: 3eacda84cd1c4fc95cf848d3ecb69d85ed56006c
+  MMKVCore: 508b4d3a8ce031f1b5c8bd235f0517fb3f4c73a9
   MultiplatformBleAdapter: 5a6a897b006764392f9cef785e4360f54fb9477d
   OpenSSL-Universal: b60a3702c9fea8b3145549d421fdb018e53ab7b4
   Permission-Camera: 9b70902f34a83c10e198d2d01f0e453e58842776

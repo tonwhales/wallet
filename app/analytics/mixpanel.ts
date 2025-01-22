@@ -138,7 +138,7 @@ export async function mixpanelAddWallet(wallet: string, isTestnet?: boolean) {
     (await holdersMixpanelInst(isTestnet)).getPeople().union('wallets', [wallet]);
 }
 
-export function mixpanelAddReferrer(referrer: string, isTestnet?: boolean) {
-    mixpanelInst(isTestnet).getPeople().set({ referrer });
-    holdersMixpanelInst(isTestnet).getPeople().set({ referrer });
+export async function mixpanelAddReferrer(campaignId: string, isTestnet?: boolean) {
+    (await holdersMixpanelInst(isTestnet)).getPeople().set({ campaignId });
+    (await mixpanelInst(isTestnet)).getPeople().set({ campaignId });
 }

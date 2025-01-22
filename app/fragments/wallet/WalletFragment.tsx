@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Alert, Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
@@ -33,6 +33,8 @@ import { queryClient } from '../../engine/clients';
 import { HoldersUserState } from '../../engine/api/holders/fetchUserState';
 import { Queries } from '../../engine/queries';
 import { TonWalletFragment } from './TonWalletFragment';
+import { getCampaignId } from '../../utils/CachedLinking';
+import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -283,7 +285,26 @@ const skeleton = (
 )
 
 export const WalletFragment = fragment(() => {
+    const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
+
+    useEffect(() => {
+        if (!selectedAcc) {
+            return;
+        }
+
+        try {
+            const id = getCampaignId();
+            if (!!id) {
+                mixpanelAddReferrer(id);
+            }
+
+            mixpanelIdentify(selectedAcc?.address.toString({ testOnly: isTestnet }), isTestnet);
+        } catch (error) {
+            Alert.alert('Error', JSON.stringify(error));
+        }
+
+    }, [selectedAcc?.addressString, isTestnet]);
 
     return (
         <>

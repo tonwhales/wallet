@@ -1,8 +1,7 @@
 import { atom, selector } from 'recoil';
 import { getAppState } from '../../storage/appState';
 import { networkSelector } from './network';
-import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
-import { getCampaignId } from '../../utils/CachedLinking';
+import { mixpanelAddWallet, mixpanelIdentify } from '../../analytics/mixpanel';
 
 export const appStateAtom = atom({
     key: 'wallet/appstate',
@@ -24,14 +23,6 @@ export const selectedAccountSelector = selector({
         let selected = (state.selected === -1 || state.selected >= state.addresses.length)
             ? null
             : state.addresses[state.selected];
-
-        if (selected) {
-            mixpanelIdentify(selected.address.toString({ testOnly: isTestnet }), isTestnet);
-            const campaignIdentifier = getCampaignId();
-            if (campaignIdentifier) {
-                mixpanelAddReferrer(campaignIdentifier)
-            }
-        }
 
         if (selected) {
             return {

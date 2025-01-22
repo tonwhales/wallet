@@ -22,6 +22,8 @@ export enum MixpanelEvent {
     HoldersBanner = 'holders_banner',
     HoldersBannerView = 'holders_banner_view',
     HoldersClose = 'holders_close',
+    HoldersChangellyBanner = 'holders_changelly_banner',
+    HoldersChangellyBannerClose = 'holders_changelly_banner_close',
     Connect = 'connect',
     Transfer = 'transfer',
     TransferCancel = 'transfer_cancel',
@@ -136,7 +138,7 @@ export async function mixpanelAddWallet(wallet: string, isTestnet?: boolean) {
     (await holdersMixpanelInst(isTestnet)).getPeople().union('wallets', [wallet]);
 }
 
-export async function mixpanelAddReferrer(campaignId: string, isTestnet?: boolean) {
-    (await holdersMixpanelInst(isTestnet)).getPeople().set({ campaignId });
-    (await mixpanelInst(isTestnet)).getPeople().set({ campaignId });
+export function mixpanelAddReferrer(referrer: string, isTestnet?: boolean) {
+    mixpanelInst(isTestnet).getPeople().set({ referrer });
+    holdersMixpanelInst(isTestnet).getPeople().set({ referrer });
 }

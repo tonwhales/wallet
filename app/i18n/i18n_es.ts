@@ -541,7 +541,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 title: 'Gastos',
                 prepaidTitle: 'Tarjetas',
                 account: 'Cuenta',
-                basicAccount: 'Cuenta básica',
+                basicAccount: 'Cuenta de gastos',
                 proAccount: 'Cuenta pro',
                 noCards: 'No hay tarjetas',
                 prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
@@ -1164,8 +1164,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             switch_button: "Cambiar a W5",
         },
         gaslessInfo: 'No se requiere TON para pagar la tarifa de gas al enviar este token. La tarifa se deducirá directamente de tu saldo de tokens.'
+    },
+    savings: {
+        ton: 'Cuenta de ahorro TON',
+        usdt: 'Cuenta de ahorro USDT',
+    },
+    spending: {
+        ton: 'Cuenta de gastos TON',
+        usdt: 'Cuenta de gastos USDT'
     }
-
 };
 
 export default schema;

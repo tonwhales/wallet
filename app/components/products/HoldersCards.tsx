@@ -40,42 +40,6 @@ export const HoldersCards = memo(({
         return toNano((float ?? 0).toFixed(2));
     }, [cards]);
 
-    if (!cards || cards.length === 0) {
-        return null;
-    }
-
-    if (cards.length < 3) {
-        return (
-            <View style={{ paddingHorizontal: 16 }}>
-                <View
-                    style={[{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between', alignItems: 'center',
-                    }]}
-                >
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('products.holders.accounts.prepaidTitle')}
-                    </Text>
-                </View>
-                <View style={{ gap: 16, marginTop: 8 }}>
-                    {cards.map((item, index) => {
-                        return (
-                            <HoldersPrepaidCard
-                                key={`card-${index}`}
-                                card={item}
-                                rightActionIcon={hideIcon}
-                                rightAction={() => markPrepaidCard(item.id, true)}
-                                style={{ paddingVertical: 0 }}
-                                isTestnet={isTestnet}
-                                holdersAccStatus={holdersAccStatus}
-                            />
-                        )
-                    })}
-                </View>
-            </View>
-        );
-    }
-
     const renderFace = useCallback(() => {
         return (
             <View style={[
@@ -130,7 +94,7 @@ export const HoldersCards = memo(({
                                 height: undefined
                             }}
                             textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                            currencyCode={cards[0].fiatCurrency}
+                            currencyCode={cards?.[0].fiatCurrency}
                             theme={theme}
                         />
                     </View>
@@ -138,6 +102,42 @@ export const HoldersCards = memo(({
             </View>
         )
     }, [totalBalance, theme]);
+
+    if (!cards || cards.length === 0) {
+        return null;
+    }
+
+    if (cards.length < 3) {
+        return (
+            <View style={{ paddingHorizontal: 16 }}>
+                <View
+                    style={[{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between', alignItems: 'center',
+                    }]}
+                >
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('products.holders.accounts.prepaidTitle')}
+                    </Text>
+                </View>
+                <View style={{ gap: 16, marginTop: 8 }}>
+                    {cards.map((item, index) => {
+                        return (
+                            <HoldersPrepaidCard
+                                key={`card-${index}`}
+                                card={item}
+                                rightActionIcon={hideIcon}
+                                rightAction={() => markPrepaidCard(item.id, true)}
+                                style={{ paddingVertical: 0 }}
+                                isTestnet={isTestnet}
+                                holdersAccStatus={holdersAccStatus}
+                            />
+                        )
+                    })}
+                </View>
+            </View>
+        );
+    }
 
     return (
         <CollapsibleCards

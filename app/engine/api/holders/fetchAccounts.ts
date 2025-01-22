@@ -32,6 +32,7 @@ const accountPublicSchema = z.object({
   cards: z.array(cardPublicSchema),
   contract: z.string(),
   network: networksSchema,
+  createdAt: z.string().nullish()
 });
 
 export const accountsListPublicSchema = z.union([
@@ -195,6 +196,7 @@ const accountSchema = z.object({
 
   limits: accountLimitsSchema,
   cards: z.array(cardDebit),
+  createdAt: z.string().nullish()
 });
 
 export const accountsListResCodec = z.discriminatedUnion('ok', [

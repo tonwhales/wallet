@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
-import { jettonMasterContentQueryFn } from './usePrefetchHints';
+import { jettonMasterContentQueryFn } from './jettonsBatcher';
 import { useNetwork } from '../network/useNetwork';
 import { JettonMasterState } from '../../metadata/fetchJettonMasterContent';
 

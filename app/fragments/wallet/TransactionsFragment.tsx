@@ -18,6 +18,7 @@ import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSke
 import { setStatusBarStyle } from "expo-status-bar";
 import { ThemeType } from "../../engine/state/theme";
 import { PendingTransactions } from "./views/PendingTransactions";
+import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean, theme: ThemeType }) {
     const safeArea = useSafeAreaInsets();
@@ -25,7 +26,8 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
     const { isTestnet } = useNetwork();
     const address = props.account;
     const theme = props.theme;
-    const txs = useAccountTransactions(address.toString({ testOnly: isTestnet }), { refetchOnMount: true });
+    const txs = useAccountTransactionsV2(address.toString({ testOnly: isTestnet }), { refetchOnMount: true });
+    // const txs = useAccountTransactions(address.toString({ testOnly: isTestnet }), { refetchOnMount: true });
     const transactions = txs.data;
 
     const onReachedEnd = useCallback(() => {

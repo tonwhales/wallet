@@ -146,3 +146,347 @@ export type TransactionDescription = {
     title: string | null;
     verified: boolean | null;
 };
+
+export type ChargeAction = 'purchase' | 'refund' | 'cash_withdraw' | 'other';
+
+export type Limits = {
+    monthly: string;
+    daily: string;
+    onetime: string;
+};
+
+export type LimitsKeyT = keyof Limits;
+
+export type FiatCurrencyCoin =
+    | 'USD'
+    | 'EUR'
+    | 'RUB'
+    | 'GBP'
+    | 'CHF'
+    | 'CNY'
+    | 'KRW'
+    | 'IDR'
+    | 'INR'
+    | 'JPY';
+
+export type CryptoCurrencyCoin = 'USDT' | 'USDC' | 'EURT' | 'TON';
+
+export type CurrencyCoin = FiatCurrencyCoin | CryptoCurrencyCoin;
+
+export type CryptoCurrency = {
+    decimals: number;
+    ticker: CryptoCurrencyCoin;
+    tokenContract: string | undefined;
+};
+
+export type ChainContract = {
+    network: 'ton-testnet' | 'ton-mainnet';
+    address: string;
+};
+
+export type ChainTx =
+    | {
+        network: 'ton-testnet' | 'ton-mainnet';
+        address: string;
+        hash: string;
+        lt: string;
+        transactionKey: string;
+        error?: string;
+    }
+    | {
+        network: 'tron' | 'polygon' | 'solana' | 'ether';
+        hash: string;
+        transactionKey: string;
+        error?: string;
+    };
+
+export type ChainNetwork = ChainTx['network'];
+
+export type MerchantInfo = {
+    cleanName: string;
+    dirtyName: string;
+    country: string;
+    logo: string;
+    logoUrl: string;
+    merchantId: string;
+    placeId: string;
+};
+
+export type NotificationCommitted = {
+    type: 'contract_committed';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        chainTx?: ChainTx;
+    };
+};
+
+export type NotificationAccountReady = {
+    type: 'crypto_account_ready';
+    id: string;
+    time: number;
+    data: {
+        accountId: string;
+        contract?: ChainContract;
+    };
+};
+
+export type NotificationCardReady = {
+    type: 'card_ready';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        accountId: string;
+        contract?: ChainContract;
+    };
+};
+
+export type NotificationDeposit = {
+    type: 'deposit';
+    id: string;
+    key: string;
+    time: number;
+    data: {
+        accountId: string;
+        cryptoCurrency: CryptoCurrency;
+        amount: string;
+        pending?: boolean;
+        chainTx?: ChainTx;
+    };
+};
+
+export type NotificationCardPaid = {
+    type: 'card_paid';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        amount: string;
+    };
+};
+
+export type NotificationCloseAccount = {
+    type: 'contract_closed';
+    id: string;
+    cardId: string;
+    time: number;
+};
+
+export type NotificationDecline = {
+    type: 'decline';
+    id: string;
+    key: string;
+    accountId: string;
+    time: number;
+    data: {
+        amount?: string;
+        currency: string;
+        currencyAmount: string;
+        txnCurrency: string;
+        txnCurrencyAmount: string;
+        rejectReason: string;
+        merchantInfo?: MerchantInfo;
+    };
+};
+
+export type NotificationCharge = {
+    type: 'charge';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        accountId: string;
+        cryptoCurrency: CryptoCurrency;
+        amount: string;
+        currency: string;
+        currencyAmount: string;
+        txnCurrency: string;
+        txnCurrencyAmount: string;
+        ref: string;
+        merchantInfo?: MerchantInfo;
+    };
+};
+
+export type NotificationChargeFailed = {
+    type: 'charge_failed';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        accountId: string;
+        amount: string;
+        currency: string;
+        currencyAmount: string;
+        txnCurrency: string;
+        txnCurrencyAmount: string;
+        cryptoCurrency: CryptoCurrency;
+        ref: string;
+        reason: {
+            limit?: LimitsKeyT;
+            type: string;
+        };
+        merchantInfo: MerchantInfo;
+    };
+};
+
+export type NotificationChargeBack = {
+    type: 'charge_back';
+    id: string;
+    key: string;
+    time: number;
+    data: {
+        action: 'purchase' | 'refund' | 'cash_withdraw' | 'other';
+        accountId: string;
+        amount: string;
+        currency: string;
+        currencyAmount: string;
+        txnCurrency: string;
+        txnCurrencyAmount: string;
+        cryptoCurrency: CryptoCurrency;
+        merchantInfo: MerchantInfo;
+    };
+};
+
+export type NotificationLimitChange = {
+    type: 'limits_change';
+    id: string;
+    key: string;
+    time: number;
+    data: {
+        accountId: string;
+        limits: Limits;
+        chainTx?: ChainTx;
+        pending?: boolean;
+    };
+};
+
+export type NotificationCardWithdrawal = {
+    type: 'card_withdraw';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        amount: string;
+        accountId: string;
+    };
+};
+
+export type NotificationAccountCharge = {
+    type: 'account_charge';
+    id: string;
+    accountId: string;
+    time: number;
+    data: {
+        amount: string;
+        cryptoCurrency: CryptoCurrency;
+        currency: string;
+        currencyAmount: string;
+        rate: string;
+        merchantInfo?: MerchantInfo;
+    };
+};
+
+export type NotificationAccountWithdrawal = {
+    type: 'crypto_account_withdraw';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        amount: string;
+        accountId: string;
+    };
+};
+
+export type NotificationCardFreeze = {
+    type: 'card_freeze';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        reason: string;
+    };
+};
+
+export type NotificationCardBlock = {
+    type: 'card_block';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        reason: string;
+    };
+};
+
+export type NotificationCardUnfreeze = {
+    type: 'card_unfreeze';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        byUser: boolean;
+    };
+};
+
+export type NotificationPrepaidTopup = {
+    id: string;
+    type: 'prepaid_topup';
+    key: string;
+    time: number;
+    data: {
+        amount: string;
+        currency: string;
+        cryptoCurrency: CryptoCurrency;
+        cryptoAmount: string;
+    };
+};
+
+export type NotificationPrepaidCharge = {
+    id: string;
+    type: 'prepaid_charge';
+    key: string;
+    time: number;
+    data: {
+        action: ChargeAction;
+        currency: string;
+        amount: string;
+        transactionAmount: string;
+        transactionCurrency: string;
+        merchantInfo?: MerchantInfo;
+    };
+};
+
+export type HoldersTransaction =
+    | NotificationCardBlock
+    | NotificationCardReady
+    | NotificationAccountReady
+    | NotificationDeposit
+    | NotificationDecline
+    | NotificationCharge
+    | NotificationChargeFailed
+    | NotificationChargeBack
+    | NotificationLimitChange
+    | NotificationCardPaid
+    | NotificationAccountCharge
+    | NotificationAccountWithdrawal
+    | NotificationCardWithdrawal
+    | NotificationCloseAccount
+    | NotificationCardFreeze
+    | NotificationCardUnfreeze
+    | NotificationCommitted
+    | NotificationPrepaidTopup
+    | NotificationPrepaidCharge;
+
+export enum TransactionType {
+    TON = 'ton',
+    HOLDERS = 'holders'
+}
+
+export type GeneralTransaction = {
+    type: TransactionType.HOLDERS,
+    data: HoldersTransaction
+} | {
+    type: TransactionType.TON,
+    data: StoredTransaction
+};

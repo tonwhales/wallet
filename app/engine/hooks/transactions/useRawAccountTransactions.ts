@@ -6,7 +6,6 @@ import { fetchAccountTransactions } from '../../api/fetchAccountTransactions';
 import { useClient4, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
 import { log } from '../../../utils/log';
-import { addTxHints } from '../jettons/useHints';
 import { queryClient } from '../../clients';
 
 const TRANSACTIONS_LENGTH = 16;
@@ -55,23 +54,16 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
             let shouldRefetchJttons = false;
 
             // Add jetton wallets to hints (in case of hits worker lag being to high)
-            const txHints = txs
-                .filter(tx => {
-                    const isIn = tx.parsed.kind === 'in';
-                    const isJetton = tx.operation.items.length > 0
-                        ? tx.operation.items[0].kind === 'token'
-                        : false;
+            txs.forEach(tx => {
+                const isJetton = tx.operation.items.length > 0
+                    ? tx.operation.items[0].kind === 'token'
+                    : false;
 
-                        if (!shouldRefetchJttons && isJetton) {
-                            shouldRefetchJttons = true;
-                        }
-
-                    return isIn && isJetton;
-                })
-                .map(tx => tx.parsed.mentioned)
-                .flat();
-
-            addTxHints(account, txHints);
+                if (!shouldRefetchJttons && isJetton) {
+                    shouldRefetchJttons = true;
+                    return false;
+                }
+            });
 
             if (sliceFirst) {
                 txs = txs.slice(1);
@@ -80,7 +72,7 @@ export function useRawAccountTransactions(account: string, options: { refetchOnM
             log(`[txns-query] fetched ${txs.length} txs`);
 
             if (shouldRefetchJttons) {
-                queryClient.refetchQueries({ queryKey: Queries.HintsFull(account) });
+                queryClient.invalidateQueries({ queryKey: Queries.HintsFull(account) });
             }
 
             return txs;

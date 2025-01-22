@@ -6,7 +6,7 @@ import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, St
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
-import { TransactionDescription } from '../../../engine/types';
+import { HoldersTransaction, TransactionDescription, TransactionType } from '../../../engine/types';
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
@@ -26,7 +26,8 @@ import { queryClient } from "../../../engine/clients";
 import { getQueryData } from "../../../engine/utils/getQueryData";
 import { Queries } from "../../../engine/queries";
 import { StoredJettonWallet } from "../../../engine/metadata/StoredMetadata";
-import { jettonWalletQueryFn } from "../../../engine/hooks/jettons/usePrefetchHints";
+import { jettonWalletQueryFn } from "../../../engine/hooks/jettons/jettonsBatcher";
+import { AccountTonTransaction, AccountTransaction } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
 
 export const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -59,7 +60,7 @@ type TransactionListItemProps = {
     knownWallets: { [key: string]: KnownWallet }
 }
 
-const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
+const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<AccountTonTransaction, { title: string }> & TransactionListItemProps) => {
     return (
         <TransactionView
             own={props.address}
@@ -92,7 +93,7 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
 TransactionListItem.displayName = 'TransactionListItem';
 
 export const WalletTransactions = memo((props: {
-    txs: TransactionDescription[],
+    txs: AccountTransaction[],
     hasNext: boolean,
     address: Address,
     navigation: TypedNavigation,
@@ -125,22 +126,23 @@ export const WalletTransactions = memo((props: {
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
     const [pending] = usePendingTransactions(props.address, isTestnet);
-    const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
+    const ref = useRef<SectionList<any, { title: string }>>(null);
     const [bounceableFormat] = useBounceableWalletFormat();
     const [walletsSettings] = useWalletsSettings();
 
     const { showActionSheetWithOptions } = useActionSheet();
 
     const { transactionsSectioned } = useMemo(() => {
-        const sectioned = new Map<string, { title: string, data: TransactionDescription[] }>();
+        const sectioned = new Map<string, { title: string, data: AccountTransaction[] }>();
         for (let i = 0; i < props.txs.length; i++) {
-            const t = props.txs[i];
-            const time = getDateKey(t.base.time);
-            const section = sectioned.get(time);
+            const tx = props.txs[i];
+            const time = (tx.type === TransactionType.TON ? tx.data.base.time : tx.data.time) / 1000;
+            const timeKey = getDateKey(time);
+            const section = sectioned.get(timeKey);
             if (section) {
-                section.data.push(t);
+                section.data.push(tx);
             } else {
-                sectioned.set(time, { title: formatDate(t.base.time), data: [t] });
+                sectioned.set(timeKey, { title: formatDate(time), data: [tx] });
             }
         }
         return { transactionsSectioned: Array.from(sectioned.values()) };
@@ -153,7 +155,7 @@ export const WalletTransactions = memo((props: {
         );
     }, [props.ledger, props.navigation]);
 
-    const renderSectionHeader = useCallback((section: { section: SectionListData<TransactionDescription, { title: string }> }) => (
+    const renderSectionHeader = useCallback((section: { section: SectionListData<any, { title: string }> }) => (
         <SectionHeader theme={theme} title={section.section.title} />
     ), [theme]);
 
@@ -314,9 +316,19 @@ export const WalletTransactions = memo((props: {
         }
     }, [pending.length]);
 
-    const renderItem = useCallback((item: SectionListRenderItemInfo<TransactionDescription, { title: string }>) => (
-        <TransactionListItem
-            {...item}
+    const renderItem = useCallback((tx: SectionListRenderItemInfo<AccountTransaction, { title: string }>) => {
+
+        if (tx.item.type === TransactionType.HOLDERS) {
+            return (
+                <View style={{ flexDirection: 'row' }}>
+                    <Text>{'Holders'}</Text>
+                    <Text>{getDateKey(tx.item.data.time)}</Text>
+                </View>
+            )
+        }
+
+        return <TransactionListItem
+            {...tx as any}
             address={props.address}
             theme={theme}
             onPress={navigateToPreview}
@@ -335,7 +347,7 @@ export const WalletTransactions = memo((props: {
             knownWallets={knownWallets}
             addToDenyList={addToDenyList}
         />
-    ), [props.address, theme, navigateToPreview, onLongPress, props.ledger, spamMinAmount, dontShowComments, addressBook.denyList, addressBook.contacts, isTestnet, spamWallets, appState, bounceableFormat, walletsSettings, knownWallets]);
+    }, [props.address, theme, navigateToPreview, onLongPress, props.ledger, spamMinAmount, dontShowComments, addressBook.denyList, addressBook.contacts, isTestnet, spamWallets, appState, bounceableFormat, walletsSettings, knownWallets]);
 
     return (
         <SectionList
@@ -371,7 +383,7 @@ export const WalletTransactions = memo((props: {
             initialNumToRender={16}
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={0.2}
-            keyExtractor={(item) => 'tx-' + item.id}
+            keyExtractor={(item) => 'tx-' + item.data.id}
             onRefresh={props.refresh?.onRefresh}
             refreshing={props.refresh?.refreshing}
         />

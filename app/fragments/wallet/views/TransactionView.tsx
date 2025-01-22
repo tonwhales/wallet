@@ -27,10 +27,11 @@ import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo'
 import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
+import { AccountTonTransaction } from '../../../engine/hooks/transactions/useAccountTransactionsV2';
 
 export function TransactionView(props: {
     own: Address,
-    tx: TransactionDescription,
+    tx: AccountTonTransaction,
     separator: boolean,
     theme: ThemeType,
     navigation: TypedNavigation,
@@ -77,7 +78,8 @@ export function TransactionView(props: {
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
     const contact = contacts[parsedAddressFriendly];
-    const verified = !!tx.verified;
+    // const verified = !!tx.verified;
+    const verified = false;
 
     // Operation
     const op = useMemo(() => {
@@ -126,9 +128,9 @@ export function TransactionView(props: {
     if (knownWallets[parsedAddressFriendly]) {
         known = knownWallets[parsedAddressFriendly];
     }
-    if (tx.title) {
-        known = { name: tx.title };
-    }
+    // if (tx.title) {
+    //     known = { name: tx.title };
+    // }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }

@@ -21,7 +21,7 @@ export const Queries = {
     StakingAccountInfo: (address: string) => ['staking', 'accountInfo', address],
 
     Transactions: (address: string) => ['transactions', address],
-    TransactionsV2: (address: string) => ['transactions', 'v2', address],
+    TransactionsV2: (address: string, token: boolean) => token? ['transactions', 'v2', 'holders', address]: ['transactions', 'v2', address],
     Holders: (address: string) => ({
         All: () => ['holders', address],
         Status: () => ['holders', address, 'status'],

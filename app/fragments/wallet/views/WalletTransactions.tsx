@@ -2,95 +2,30 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
-import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
+import { SectionList, SectionListData, SectionListRenderItemInfo, View, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
-import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
-import { HoldersTransaction, TransactionDescription, TransactionType } from '../../../engine/types';
-import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
+import { HoldersTransaction, TransactionType } from '../../../engine/types';
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { AppState } from "../../../storage/appState";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../../i18n/t";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
-import { Typography } from "../../../components/styles";
+import { KnownWallets } from "../../../secure/KnownWallets";
 import { warn } from "../../../utils/log";
-import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { queryClient } from "../../../engine/clients";
 import { getQueryData } from "../../../engine/utils/getQueryData";
 import { Queries } from "../../../engine/queries";
 import { StoredJettonWallet } from "../../../engine/metadata/StoredMetadata";
 import { jettonWalletQueryFn } from "../../../engine/hooks/jettons/jettonsBatcher";
-import { AccountTonTransaction, AccountTransaction } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
-
-export const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
-    return (
-        <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
-            <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
-                {title}
-            </Text>
-        </View>
-    )
-});
-SectionHeader.displayName = 'SectionHeader';
-
-type TransactionListItemProps = {
-    address: Address,
-    theme: ThemeType,
-    onPress: (tx: TransactionDescription) => void,
-    onLongPress?: (tx: TransactionDescription) => void,
-    ledger?: boolean,
-    navigation: TypedNavigation,
-    addToDenyList: (address: string | Address, reason: string) => void,
-    spamMinAmount: bigint,
-    dontShowComments: boolean,
-    denyList: { [key: string]: { reason: string | null } },
-    contacts: { [key: string]: AddressContact },
-    isTestnet: boolean,
-    spamWallets: string[],
-    appState: AppState,
-    bounceableFormat: boolean,
-    walletsSettings: { [key: string]: WalletSettings }
-    knownWallets: { [key: string]: KnownWallet }
-}
-
-const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<AccountTonTransaction, { title: string }> & TransactionListItemProps) => {
-    return (
-        <TransactionView
-            own={props.address}
-            tx={item}
-            separator={section.data[index + 1] !== undefined}
-            theme={theme}
-            ledger={props.ledger}
-            {...props}
-        />
-    );
-}, (prev, next) => {
-    return prev.item.id === next.item.id
-        && prev.isTestnet === next.isTestnet
-        && prev.dontShowComments === next.dontShowComments
-        && prev.spamMinAmount === next.spamMinAmount
-        && prev.address === next.address
-        && prev.theme === next.theme
-        && prev.section === next.section
-        && prev.index === next.index
-        && prev.addToDenyList === next.addToDenyList
-        && prev.denyList === next.denyList
-        && prev.contacts === next.contacts
-        && prev.spamWallets === next.spamWallets
-        && prev.appState === next.appState
-        && prev.onLongPress === next.onLongPress
-        && prev.bounceableFormat === next.bounceableFormat
-        && prev.walletsSettings === next.walletsSettings
-        && prev.knownWallets === next.knownWallets
-});
-TransactionListItem.displayName = 'TransactionListItem';
+import { TonTransaction, AccountTransaction } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
+import { HoldersTransactionView } from "./HoldersTransactionView";
+import { TransactionListItem } from "./TransactionListItem";
+import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 
 export const WalletTransactions = memo((props: {
     txs: AccountTransaction[],
@@ -136,7 +71,7 @@ export const WalletTransactions = memo((props: {
         const sectioned = new Map<string, { title: string, data: AccountTransaction[] }>();
         for (let i = 0; i < props.txs.length; i++) {
             const tx = props.txs[i];
-            const time = (tx.type === TransactionType.TON ? tx.data.base.time : tx.data.time) / 1000;
+            const time = (tx.type === TransactionType.TON ? tx.data.base.time : tx.data.time);
             const timeKey = getDateKey(time);
             const section = sectioned.get(timeKey);
             if (section) {
@@ -148,16 +83,13 @@ export const WalletTransactions = memo((props: {
         return { transactionsSectioned: Array.from(sectioned.values()) };
     }, [props.txs]);
 
-    const navigateToPreview = useCallback((transaction: TransactionDescription) => {
-        props.navigation.navigate(
-            props.ledger ? 'LedgerTransactionPreview' : 'Transaction',
-            { transaction }
-        );
-    }, [props.ledger, props.navigation]);
+    const navigateToPreview = (transaction: TonTransaction) => {
+        props.navigation.navigateTonTransaction(transaction, props.ledger);
+    };
 
-    const renderSectionHeader = useCallback((section: { section: SectionListData<any, { title: string }> }) => (
-        <SectionHeader theme={theme} title={section.section.title} />
-    ), [theme]);
+    const renderSectionHeader = (section: { section: SectionListData<any, { title: string }> }) => (
+        <TransactionsSectionHeader theme={theme} title={section.section.title} />
+    );
 
     const onShare = useCallback((link: string, title: string) => {
         if (Platform.OS === 'ios') {
@@ -178,7 +110,7 @@ export const WalletTransactions = memo((props: {
         navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
     }, []);
 
-    const onRepeatTx = useCallback(async (tx: TransactionDescription) => {
+    const onRepeatTx = useCallback(async (tx: TonTransaction) => {
         const amount = BigInt(tx.base.parsed.amount);
         const operation = tx.base.operation;
         const item = operation.items[0];
@@ -225,7 +157,7 @@ export const WalletTransactions = memo((props: {
         });
     }, [navigation, isTestnet, bounceableFormat]);
 
-    const onLongPress = (tx: TransactionDescription) => {
+    const onLongPress = (tx: TonTransaction) => {
         const operation = tx.base.operation;
         const item = operation.items[0];
         const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
@@ -317,36 +249,42 @@ export const WalletTransactions = memo((props: {
     }, [pending.length]);
 
     const renderItem = useCallback((tx: SectionListRenderItemInfo<AccountTransaction, { title: string }>) => {
-
         if (tx.item.type === TransactionType.HOLDERS) {
+            const hTx = tx.item.data as HoldersTransaction;
+
             return (
-                <View style={{ flexDirection: 'row' }}>
-                    <Text>{'Holders'}</Text>
-                    <Text>{getDateKey(tx.item.data.time)}</Text>
-                </View>
-            )
+                <HoldersTransactionView
+                    tx={hTx}
+                    theme={theme}
+                    navigation={navigation}
+                />
+            );
         }
 
-        return <TransactionListItem
-            {...tx as any}
-            address={props.address}
-            theme={theme}
-            onPress={navigateToPreview}
-            onLongPress={onLongPress}
-            ledger={props.ledger}
-            navigation={navigation}
-            spamMinAmount={spamMinAmount}
-            dontShowComments={dontShowComments}
-            denyList={addressBook.denyList}
-            contacts={addressBook.contacts}
-            isTestnet={isTestnet}
-            spamWallets={spamWallets}
-            appState={appState}
-            bounceableFormat={bounceableFormat}
-            walletsSettings={walletsSettings}
-            knownWallets={knownWallets}
-            addToDenyList={addToDenyList}
-        />
+        const item = { ...tx, item: tx.item.data as TonTransaction } as unknown as SectionListRenderItemInfo<TonTransaction, { title: string }>;
+
+        return (
+            <TransactionListItem
+                {...item}
+                address={props.address}
+                theme={theme}
+                onPress={navigateToPreview}
+                onLongPress={onLongPress}
+                ledger={props.ledger}
+                navigation={navigation}
+                spamMinAmount={spamMinAmount}
+                dontShowComments={dontShowComments}
+                denyList={addressBook.denyList}
+                contacts={addressBook.contacts}
+                isTestnet={isTestnet}
+                spamWallets={spamWallets}
+                appState={appState}
+                bounceableFormat={bounceableFormat}
+                walletsSettings={walletsSettings}
+                knownWallets={knownWallets}
+                addToDenyList={addToDenyList}
+            />
+        );
     }, [props.address, theme, navigateToPreview, onLongPress, props.ledger, spamMinAmount, dontShowComments, addressBook.denyList, addressBook.contacts, isTestnet, spamWallets, appState, bounceableFormat, walletsSettings, knownWallets]);
 
     return (

@@ -1,6 +1,6 @@
 import { Address } from "@ton/core";
 import axios from "axios";
-import { GeneralTransaction } from "../types";
+import { GeneralTransaction, TransactionType } from "../types";
 import { whalesConnectEndpoint } from "../clients";
 
 export type TonCursor = {
@@ -41,6 +41,7 @@ export async function fetchAccountTransactionsV2(
     const res = await axios.post(url, params);
 
     if (res.status === 200) {
+        console.log((res.data as AccountTransactionsV2).data.map(tx => tx.type === TransactionType.TON ? `ton_${tx.data.lt}` : tx.data.id));
         return res.data as AccountTransactionsV2;
     }
 

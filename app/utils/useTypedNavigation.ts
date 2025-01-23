@@ -26,6 +26,7 @@ import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
 import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
+import { TonTransaction } from '../engine/hooks/transactions/useAccountTransactionsV2';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -264,6 +265,10 @@ export class TypedNavigation {
             return;
         }
         this.navigate('TonWallet', params);
+    }
+
+    navigateTonTransaction(transaction: TonTransaction, isLedger?: boolean) {
+        this.navigate(isLedger ? 'LedgerTransaction' : 'Transaction', { transaction });
     }
 
     navigateJettonTransaction(param: JettonTransactionPreviewParams) {

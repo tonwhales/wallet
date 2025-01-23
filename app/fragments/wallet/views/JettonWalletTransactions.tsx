@@ -21,11 +21,11 @@ import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { JettonTransfer } from "../../../engine/hooks/transactions/useJettonTransactions";
 import { JettonTransactionView } from "./JettonTransactionView";
-import { SectionHeader } from "./WalletTransactions";
 import { parseForwardPayloadComment } from "../../../utils/spam/isTxSPAM";
 import { t } from "../../../i18n/t";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
+import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 
 type TransactionListItemProps = {
     address: Address,
@@ -156,9 +156,9 @@ export const JettonWalletTransactions = memo((props: {
         });
     }, [props.ledger, props.navigation]);
 
-    const renderSectionHeader = useCallback((section: { section: SectionListData<JettonTransfer, { title: string }> }) => (
-        <SectionHeader theme={theme} title={section.section.title} />
-    ), [theme]);
+    const renderSectionHeader = (section: { section: SectionListData<JettonTransfer, { title: string }> }) => (
+        <TransactionsSectionHeader theme={theme} title={section.section.title} />
+    );
 
     const onShare = useCallback((link: string, title: string) => {
         if (Platform.OS === 'ios') {

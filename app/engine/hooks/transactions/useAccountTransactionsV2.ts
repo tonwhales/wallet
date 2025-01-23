@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { Address } from '@ton/core';
-import { GeneralTransaction, HoldersTransaction, StoredMessage, StoredTransaction, TransactionType } from '../../types';
+import { HoldersTransaction, StoredMessage, StoredTransaction, TransactionType } from '../../types';
 import { useClient4, useHoldersAccountStatus, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
 import { log } from '../../../utils/log';
@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const TRANSACTIONS_LENGTH = 16;
 
-export type AccountTonTransaction = {
+export type TonTransaction = {
     id: string,
     base: StoredTransaction,
     outMessagesCount: number,
@@ -26,7 +26,7 @@ export type AccountTransaction = {
     data: HoldersTransaction
 } | {
     type: TransactionType.TON,
-    data: AccountTonTransaction
+    data: TonTransaction
 }
 
 export function useAccountTransactionsV2(account: string, options: { refetchOnMount: boolean } = { refetchOnMount: false }): {
@@ -47,7 +47,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
     ) ? status.token : undefined;
 
     let raw = useInfiniteQuery<AccountTransaction[]>({
-        queryKey: Queries.TransactionsV2(account),
+        queryKey: Queries.TransactionsV2(account, !!token),
         refetchOnMount: options.refetchOnMount,
         refetchOnWindowFocus: true,
         getNextPageParam: (last) => {
@@ -55,8 +55,28 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
                 return undefined;
             }
 
-            const lastTon = last.find(t => t.type === TransactionType.TON) as StoredTransaction | undefined;
-            const lastHolders = last.find(t => t.type === TransactionType.HOLDERS) as HoldersTransaction | undefined;
+            let lastTon: TonTransaction | undefined;
+            let lastHolders: HoldersTransaction | undefined;
+
+            for (let i = last.length - 1; i >= 0; i--) {
+                if (last[i].type === TransactionType.TON) {
+                    if (lastTon && lastHolders) {
+                        break;
+                    } else if (lastTon) {
+                        continue;
+                    }
+                    lastTon = last[i].data as TonTransaction;
+                    continue;
+                }
+
+                if (lastTon && lastHolders) {
+                    break;
+                } else if (lastHolders) {
+                    continue;
+                }
+                lastHolders = last[i].data as HoldersTransaction;
+
+            }
 
             if (!lastTon && !lastHolders) {
                 return undefined;
@@ -64,7 +84,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
 
             return {
                 ton: lastTon ? { lt: lastTon.lt, hash: lastTon.hash } : undefined,
-                holders: lastHolders ? { fromCursor: lastHolders.time.toString() } : undefined
+                holders: !!lastHolders?.id ? { fromCursor: lastHolders.id } : undefined
             };
         },
         queryFn: async (ctx) => {
@@ -119,7 +139,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
                         outMessages: base.outMessages,
                         lt: base.lt,
                         hash: base.hash
-                    }
+                    } as TonTransaction
                 };
             });
 
@@ -136,9 +156,8 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
             return txs;
         },
         structuralSharing: (old, next) => {
-
-            const firstOld = old?.pages[0];
-            const firstNext = next?.pages[0];
+            const firstOld = old?.pages?.[0];
+            const firstNext = next?.pages?.[0];
 
             // If something absent
             if (!firstOld || !firstNext) {
@@ -153,7 +172,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
             if (firstOld[0].type === firstNext[0].type) {
                 if (firstOld[0].type === TransactionType.TON) {
                     const firstOldTon = firstOld[0].data;
-                    const firstNextTon = firstNext[0].data as AccountTonTransaction;
+                    const firstNextTon = firstNext[0].data as TonTransaction;
 
                     if (firstOldTon.lt === firstNextTon.lt && firstOldTon.hash === firstNextTon.hash) {
                         return next;
@@ -171,7 +190,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
             // Something changed, rebuild the list
             let offset = firstNext.findIndex(a => {
                 if (a.type === TransactionType.TON) {
-                    const aTon = a.data as AccountTonTransaction;
+                    const aTon = a.data as TonTransaction;
 
                     if (firstOld[0].type !== TransactionType.TON) {
                         return false;
@@ -203,7 +222,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
             let tail = old!.pages[0].slice(TRANSACTIONS_LENGTH - offset);
             let nextPageParams = {
                 ton: next.pages[0][next.pages[0].length - 1].type === TransactionType.TON
-                    ? { lt: (next.pages[0][next.pages[0].length - 1].data as AccountTonTransaction).lt, hash: (next.pages[0][next.pages[0].length - 1].data as AccountTonTransaction).hash }
+                    ? { lt: (next.pages[0][next.pages[0].length - 1].data as TonTransaction).lt, hash: (next.pages[0][next.pages[0].length - 1].data as TonTransaction).hash }
                     : undefined,
                 holders: next.pages[0][next.pages[0].length - 1].type === TransactionType.HOLDERS
                     ? { fromCursor: (next.pages[0][next.pages[0].length - 1].data as HoldersTransaction).time.toString() }
@@ -218,7 +237,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
                 tail = page.slice(TRANSACTIONS_LENGTH - 1 - offset);
                 nextPageParams = {
                     ton: newPage[newPage.length - 1].type === TransactionType.TON
-                        ? { lt: (newPage[newPage.length - 1].data as AccountTonTransaction).lt, hash: (newPage[newPage.length - 1].data as AccountTonTransaction).hash }
+                        ? { lt: (newPage[newPage.length - 1].data as TonTransaction).lt, hash: (newPage[newPage.length - 1].data as TonTransaction).hash }
                         : undefined,
                     holders: newPage[newPage.length - 1].type === TransactionType.HOLDERS
                         ? { fromCursor: (newPage[newPage.length - 1].data as HoldersTransaction).time.toString() }

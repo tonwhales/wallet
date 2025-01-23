@@ -8,7 +8,6 @@ import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
-import { TransactionDescription } from '../../../engine/types';
 import { useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
@@ -27,16 +26,15 @@ import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo'
 import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
-import { AccountTonTransaction } from '../../../engine/hooks/transactions/useAccountTransactionsV2';
+import { TonTransaction } from '../../../engine/hooks/transactions/useAccountTransactionsV2';
 
 export function TransactionView(props: {
     own: Address,
-    tx: AccountTonTransaction,
-    separator: boolean,
+    tx: TonTransaction,
     theme: ThemeType,
     navigation: TypedNavigation,
-    onPress: (src: TransactionDescription) => void,
-    onLongPress?: (src: TransactionDescription) => void,
+    onPress: (src: TonTransaction) => void,
+    onLongPress?: (src: TonTransaction) => void,
     ledger?: boolean,
     spamMinAmount: bigint,
     dontShowComments: boolean,

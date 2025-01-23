@@ -91,41 +91,6 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
         return null;
     }
 
-    if (visibleList.length < 3) {
-        return (
-            <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between', alignItems: 'center',
-                        paddingHorizontal: 16,
-                        paddingVertical: 12,
-                        marginBottom: 4
-                    }}
-                >
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('jetton.productButtonTitle')}
-                    </Text>
-                </View>
-                {visibleList.map((hint, index) => {
-                    return (
-                        <JettonProductItem
-                            key={'jt' + hint.jetton.address}
-                            hint={hint}
-                            first={index === 0}
-                            last={index === visibleList.length - 1}
-                            rightAction={() => markJettonDisabled(hint.jetton.address)}
-                            rightActionIcon={hideIcon}
-                            single={visibleList.length === 1}
-                            owner={owner}
-                            jettonViewType={AssetViewType.Default}
-                        />
-                    )
-                })}
-            </View>
-        )
-    }
-
     return (
         <View style={{ marginBottom: 16 }}>
             <CollapsibleCards

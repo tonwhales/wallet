@@ -186,28 +186,10 @@ export const HoldersAccountItem = memo((props: {
                         />
                     </View>
                 );
-            case HoldersItemContentType.NAVIGATION:
-                return (
-                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
-                        <Image
-                            source={require('@assets/ic-chevron-right.png')}
-                            style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
-                        />
-                    </View>
-                );
             default:
                 return null;
         }
     }, [content, account.balance, account.cryptoCurrency, priceAmount, theme]);
-
-    const renderCard = (item: any) => {
-        return (
-            <HoldersAccountCard
-                card={item}
-                theme={theme}
-            />
-        );
-    };
 
     return (
         <Swipeable
@@ -221,65 +203,81 @@ export const HoldersAccountItem = memo((props: {
                     <TouchableOpacity
                         onPress={onPress}
                         activeOpacity={0.5}
+                        style={{ flexDirection: 'row', flex: 1 }}
                     >
-                        <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
-                            {resolveHoldersIcon(
-                                { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker },
-                                theme
-                            )}
-                            <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                                <PerfText
-                                    style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                    ellipsizeMode="tail"
-                                    numberOfLines={1}
-                                >
-                                    {name}
-                                </PerfText>
-                                <PerfText
-                                    style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                    numberOfLines={1}
-                                    ellipsizeMode={'tail'}
-                                >
-                                    <PerfText style={{ flexShrink: 1 }}>
-                                        {props.addressDescription && !!props.account.address ? (
-                                            <AddressComponent
-                                                bounceable={true}
-                                                address={props.account.address}
-                                                testOnly={isTestnet}
-                                            />
-                                        ) : (subtitle)}
-                                    </PerfText>
-                                </PerfText>
-                            </View>
-                            {contentView}
-                        </View>
-                        {!(hideCardsIfEmpty && account.cards.length === 0) ? (
-                            <View
-                                style={{
-                                    height: 46, marginTop: 10, gap: 8, flexDirection: 'row',
-                                    marginLeft: 78
-                                }}
-                            >
-                                {account.cards.slice(0, 5).map((card, index) => {
-                                    return (
-                                        <HoldersAccountCard
-                                            key={`card-item-${index}`}
-                                            card={card as GeneralHoldersCard}
-                                            theme={theme}
-                                        />
-                                    )
-                                })}
-                                {account.cards.length > 4 && (
-                                    <LinearGradient
-                                        style={{ height: 30, width: 20 + 8 + 46, position: 'absolute', right: 0, top: 0 }}
-                                        colors={['rgba(255, 255, 255, 0)', theme.surfaceOnBg]}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 0.5, y: 0 }}
-                                    />
+                        <View style={{ flexGrow: 1 }}>
+                            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
+                                {resolveHoldersIcon(
+                                    { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker },
+                                    theme
                                 )}
+                                <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                                    <PerfText
+                                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                        ellipsizeMode="tail"
+                                        numberOfLines={1}
+                                    >
+                                        {name}
+                                    </PerfText>
+                                    <PerfText
+                                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                        numberOfLines={1}
+                                        ellipsizeMode={'tail'}
+                                    >
+                                        <PerfText style={{ flexShrink: 1 }}>
+                                            {props.addressDescription && !!props.account.address ? (
+                                                <AddressComponent
+                                                    bounceable={true}
+                                                    address={props.account.address}
+                                                    testOnly={isTestnet}
+                                                />
+                                            ) : (subtitle)}
+                                        </PerfText>
+                                    </PerfText>
+                                </View>
+                                {contentView}
                             </View>
-                        ) : (
-                            <View style={{ height: 20 }} />
+                            {!(hideCardsIfEmpty && account.cards.length === 0) ? (
+                                <View
+                                    style={{
+                                        height: 46, marginTop: 10, gap: 8, flexDirection: 'row',
+                                        marginLeft: 78
+                                    }}
+                                >
+                                    {account.cards.slice(0, 5).map((card, index) => {
+                                        return (
+                                            <HoldersAccountCard
+                                                key={`card-item-${index}`}
+                                                card={card as GeneralHoldersCard}
+                                                theme={theme}
+                                            />
+                                        )
+                                    })}
+                                    {account.cards.length > 4 && (
+                                        <LinearGradient
+                                            style={{ height: 30, width: 20 + 8 + 46, position: 'absolute', right: 0, top: 0 }}
+                                            colors={['rgba(255, 255, 255, 0)', theme.surfaceOnBg]}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 0.5, y: 0 }}
+                                        />
+                                    )}
+                                </View>
+                            ) : (
+                                <View style={{ height: 20 }} />
+                            )}
+                        </View>
+                        {content?.type === HoldersItemContentType.NAVIGATION && (
+                            <View style={{
+                                justifyContent: 'center', alignItems: 'flex-end',
+                                paddingBottom: 20,
+                                position: 'absolute', right: 20,
+                                top: 0, bottom: 0
+                            }}>
+                                <Image
+                                    source={require('@assets/ic-chevron-right.png')}
+                                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                                />
+                            </View>
                         )}
                     </TouchableOpacity>
                 </View>

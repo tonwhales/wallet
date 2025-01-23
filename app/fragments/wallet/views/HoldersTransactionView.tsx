@@ -16,6 +16,7 @@ import { useIsConnectAppReady, useNetwork } from "../../../engine/hooks";
 import { holdersUrl, HoldersUserState } from "../../../engine/api/holders/fetchUserState";
 import { HoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
 import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
+import { humanizeFiat } from "../../../utils/holders/humanize";
 
 const styles = StyleSheet.create({
     ic: { height: 32, width: 32 },
@@ -163,7 +164,7 @@ const RightContent = ({ tx }: { tx: HoldersTransaction }) => {
         };
 
         return (
-            <View>
+            <View style={{ justifyContent: 'center' }}>
                 {(!isPrepaid && cryptoCurrency && data.amount) && (
                     <Text
                         style={[
@@ -179,7 +180,7 @@ const RightContent = ({ tx }: { tx: HoldersTransaction }) => {
                     >
                         {isDeposit ? '+' : '-'}
                         <ValueComponent
-                            value={data.amount || '0'}
+                            value={amount || '0'}
                             decimals={cryptoCurrency.decimals}
                             precision={3}
                             suffix={` ${cryptoCurrency.ticker}`}
@@ -191,34 +192,26 @@ const RightContent = ({ tx }: { tx: HoldersTransaction }) => {
                 {(isCurrencyEvent && currencyAmount && currency) && (
                     <Text
                         style={[
-                            { color: type === 'charge_failed' || type === 'decline' ? theme.accentRed : theme.textPrimary, marginRight: 2 },
+                            { color: type === 'charge_failed' || type === 'decline' ? theme.accentRed : theme.textPrimary, marginRight: 2, alignSelf: 'flex-end' },
                             Typography.semiBold17_24
                         ]}
                         numberOfLines={1}
                     >
-                        {isDeposit ? '+' : '-'}
-                        <PriceComponent
-                            amount={toNano(data.amount || '0')}
-                            currencyCode={currency}
-                            theme={theme}
-                        />
+                        {`${isDeposit ? '+' : '-'}${humanizeFiat(currencyAmount, currency)}`}
                     </Text>
                 )}
 
                 {(isTxnEvent && txnCurrency && txnCurrencyAmount) && (
                     <Text
                         style={[
-                            { color: isDecline ? theme.accentRed : theme.textPrimary, marginRight: 2 },
-                            Typography.semiBold17_24
+                            { color: isDecline ? theme.accentRed : theme.textSecondary, marginRight: 2, alignSelf: 'flex-end' },
+                            Typography.regular15_20
                         ]}
                         numberOfLines={1}
                     >
-                        {isDecline ? (isDeposit ? '+' : '-') : null}
-                        <PriceComponent
-                            amount={toNano(data.amount || '0')}
-                            currencyCode={currency}
-                            theme={theme}
-                        />
+                        {isDecline
+                            ? humanizeFiat(txnCurrencyAmount, txnCurrency)
+                            : `${isDeposit ? '+' : '-'}${humanizeFiat(txnCurrencyAmount, txnCurrency)}`}
                     </Text>
                 )}
 
@@ -230,12 +223,7 @@ const RightContent = ({ tx }: { tx: HoldersTransaction }) => {
                         ]}
                         numberOfLines={1}
                     >
-                        {'-'}
-                        <PriceComponent
-                            amount={toNano(amount || '0')}
-                            currencyCode={currency}
-                            theme={theme}
-                        />
+                        {`-${humanizeFiat(amount, currency)}`}
                     </Text>
                 )}
 
@@ -250,16 +238,11 @@ const RightContent = ({ tx }: { tx: HoldersTransaction }) => {
                             ]}
                             numberOfLines={1}
                         >
-                            {'-'}
-                            <PriceComponent
-                                amount={toNano(transactionAmount || '0')}
-                                currencyCode={transactionCurrency}
-                                theme={theme}
-                            />
+                            {`-${humanizeFiat(transactionAmount, transactionCurrency)}`}
                         </Text>
                     )}
 
-                {isPrepaidTopUp && (
+                {(isPrepaidTopUp && amount) && (
                     <Text
                         style={[
                             { color: theme.accentGreen, marginRight: 2 },
@@ -267,12 +250,7 @@ const RightContent = ({ tx }: { tx: HoldersTransaction }) => {
                         ]}
                         numberOfLines={1}
                     >
-                        {'+'}
-                        <PriceComponent
-                            amount={toNano(amount || '0')}
-                            currencyCode={currency}
-                            theme={theme}
-                        />
+                        {`+${humanizeFiat(amount, currency)}`}
                     </Text>
                 )}
 
@@ -325,7 +303,7 @@ const TransactionIcon = ({ type, logoUrl }: { type: string, logoUrl?: string }) 
                 <Image
                     alt="Merchant"
                     source={{ uri: logoUrl }}
-                    style={styles.ic}
+                    style={{ width: 50, height: 50, borderRadius: 25 }}
                     placeholder={require('@assets/holders/ic-pay.png')}
                 />
             );
@@ -370,8 +348,28 @@ const LeftContent = ({ tx }: { tx: HoldersTransaction }) => {
         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center' }}>
             <View style={[styles.icContainer, { backgroundColor: theme.surfaceOnElevation }]}>
                 <TransactionIcon type={type} logoUrl={merchantInfo?.logoUrl} />
-                {isPending && <IcTime style={{ position: 'absolute', bottom: -2, right: -2 }} />}
-                {(type === 'charge_failed' || type === 'decline') && (<IcFailed style={{ position: 'absolute', bottom: -2, right: -2 }} />)}
+                {isPending && (
+                    <View style={{
+                        height: 18, width: 18,
+                        position: 'absolute',
+                        bottom: -1, right: -1,
+                        borderRadius: 16, borderWidth: 2, borderColor: theme.backgroundPrimary,
+                        justifyContent: 'center', alignItems: 'center'
+                    }}>
+                        <IcTime style={{ height: 14, width: 14 }} />
+                    </View>
+                )}
+                {(type === 'charge_failed' || type === 'decline') && (
+                    <View style={{
+                        height: 18, width: 18,
+                        position: 'absolute',
+                        bottom: -1, right: -1,
+                        borderRadius: 16, borderWidth: 2, borderColor: theme.backgroundPrimary,
+                        justifyContent: 'center', alignItems: 'center'
+                    }}>
+                        <IcFailed style={{ height: 14, width: 14 }} />
+                    </View>
+                )}
             </View>
             <View>
                 <Text style={[Typography.semiBold17_24, { color: theme.textPrimary }]}>

@@ -164,7 +164,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     receive: {
         title: 'Recibir',
-        subtitle: 'Solo envía activos de la Blockchain TON a esta dirección. Otros activos se perderán para siempre',
+        subtitle: 'Envía solo Toncoin y tokens en la red TON a esta dirección, o podrías perder tus fondos.',
         share: {
             title: 'Mi dirección de Tonhub',
             error: 'No se pudo compartir la dirección, por favor intente de nuevo o contacte al soporte'

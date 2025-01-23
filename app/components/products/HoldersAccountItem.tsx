@@ -203,7 +203,6 @@ export const HoldersAccountItem = memo((props: {
                     <TouchableOpacity
                         onPress={onPress}
                         activeOpacity={0.5}
-                        style={{ flexDirection: 'row', flex: 1 }}
                     >
                         <View style={{ flexGrow: 1 }}>
                             <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>

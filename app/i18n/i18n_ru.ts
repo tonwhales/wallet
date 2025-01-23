@@ -82,7 +82,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "unverified": "Неверифицированные",
         "addressBook": "Адресная книга",
         "gasless": "Gasless",
-        "address": "Адрес"
+        "address": "Адрес",
+        "required": 'обязательно'
     },
     "syncStatus": {
         "connecting": "Идет подключение",

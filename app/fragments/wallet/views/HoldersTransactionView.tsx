@@ -406,7 +406,7 @@ export const HoldersTransactionView = memo(({
     }, [holdersAccStatus]);
 
     const onPress = () => {
-        const params: HoldersAppParams = { type: HoldersAppParamsType.Path, path: '/transactions', query: {} };
+        const params: HoldersAppParams = { type: HoldersAppParamsType.Path, path: `/transactions?transactionId=${tx.id}`, query: {} };
         if (needsEnrolment || !isHoldersReady) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: params }, isTestnet);
             return;

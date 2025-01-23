@@ -403,12 +403,14 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     }
 
     return (
-        <View>
-            <View style={{ paddingHorizontal: 16, marginTop: 16, marginBottom: 14 }}>
-                <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                    {t('products.holders.accounts.title')}
-                </Text>
-            </View>
+        <View style={{ marginTop: 16 }}>
+            {!isSettings && (
+                <View style={{ paddingHorizontal: 16, marginBottom: 14 }}>
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('products.holders.accounts.title')}
+                    </Text>
+                </View>
+            )}
             <Animated.View
                 entering={FadeInUp}
                 exiting={FadeOutDown}

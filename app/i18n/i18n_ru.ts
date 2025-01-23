@@ -83,7 +83,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "addressBook": "Адресная книга",
         "gasless": "Gasless",
         "address": "Адрес",
-        "currencyChanged": "Валюта изменена"
+        "currencyChanged": "Валюта изменена",
+        "required": 'обязательно'
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -99,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "settings": {
         "title": "Ещё",
         "backupKeys": "Сохранить seed-фразу",
+        "holdersAccounts": "Платежные счета",
         "migrateOldWallets": "Перенос со старых адресов",
         "termsOfService": "Условия использования",
         "privacyPolicy": "Политика конфиденциальности",
@@ -540,7 +542,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "loadingLonger": "Проверьте подключение к интернету и перезагрузите страницу. Если проблема сохраняется, обратитесь в службу поддержки",
             "accounts": {
                 "title": "Платежные счета",
-                "prepaidTitle": "Карты",
+                "prepaidTitle": "Предоплаченные карты",
                 "account": 'Счет',
                 "basicAccount": 'Платежный счет',
                 "proAccount": 'Pro счет',

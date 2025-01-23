@@ -83,7 +83,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressBook: 'Адресна книга',
         gasless: 'Без газу',
         address: 'Адреса',
-        currencyChanged: 'Валюта змінена'
+        currencyChanged: 'Валюта змінена',
+        required: 'обов’язково'
     },
     syncStatus: {
         connecting: 'Підключення',
@@ -99,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Більше',
         backupKeys: 'Резервні ключі',
+        holdersAccounts: 'Рахунки для витрат',
         migrateOldWallets: 'Міграція старих гаманців',
         termsOfService: 'Умови обслуговування',
         privacyPolicy: 'Політика конфіденційності',
@@ -540,7 +542,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Перевірте підключення до інтернету та перезавантажте сторінку. Якщо проблема не зникає, зверніться до служби підтримки',
             accounts: {
                 title: 'Витрати',
-                prepaidTitle: 'Карти',
+                prepaidTitle: 'Передплачені картки',
                 account: 'Рахунок',
                 basicAccount: 'Рахунок для витрат',
                 proAccount: 'Про рахунок',

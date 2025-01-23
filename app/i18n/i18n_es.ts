@@ -83,7 +83,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressBook: 'Libreta de direcciones',
         gasless: 'Sin gas',
         address: 'Dirección',
-        currencyChanged: 'Moneda cambiada'
+        currencyChanged: 'Moneda cambiada',
+        required: 'requerido'
     },
     syncStatus: {
         connecting: 'Conectando',
@@ -99,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Más',
         backupKeys: 'Respaldar claves',
+        holdersAccounts: 'Cuentas de gastos',
         migrateOldWallets: 'Migrar billeteras antiguas',
         termsOfService: 'Términos de Servicio',
         privacyPolicy: 'Política de privacidad',
@@ -540,7 +542,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Verifica tu conexión a internet y recarga la página. Si el problema persiste, por favor contacta al soporte',
             accounts: {
                 title: 'Gastos',
-                prepaidTitle: 'Tarjetas',
+                prepaidTitle: 'Tarjetas prepago',
                 account: 'Cuenta',
                 basicAccount: 'Cuenta de gastos',
                 proAccount: 'Cuenta pro',

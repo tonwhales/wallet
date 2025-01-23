@@ -26,6 +26,7 @@ import { TonTransaction, AccountTransaction } from "../../../engine/hooks/transa
 import { HoldersTransactionView } from "./HoldersTransactionView";
 import { TransactionListItem } from "./TransactionListItem";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
+import { HoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
 
 export const WalletTransactions = memo((props: {
     txs: AccountTransaction[],
@@ -47,10 +48,10 @@ export const WalletTransactions = memo((props: {
     },
     ledger?: boolean,
     theme: ThemeType,
+    holdersAccStatus?: HoldersAccountStatus
 }) => {
     const bottomBarHeight = useBottomTabBarHeight();
-    const theme = props.theme;
-    const navigation = props.navigation;
+    const { theme, navigation, holdersAccStatus } = props;
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
     const [spamMinAmount] = useSpamMinAmount();
@@ -257,6 +258,7 @@ export const WalletTransactions = memo((props: {
                     tx={hTx}
                     theme={theme}
                     navigation={navigation}
+                    holdersAccStatus={holdersAccStatus}
                 />
             );
         }
@@ -285,7 +287,7 @@ export const WalletTransactions = memo((props: {
                 addToDenyList={addToDenyList}
             />
         );
-    }, [props.address, theme, navigateToPreview, onLongPress, props.ledger, spamMinAmount, dontShowComments, addressBook.denyList, addressBook.contacts, isTestnet, spamWallets, appState, bounceableFormat, walletsSettings, knownWallets]);
+    }, [props.address, theme, navigateToPreview, onLongPress, props.ledger, spamMinAmount, dontShowComments, addressBook.denyList, addressBook.contacts, isTestnet, spamWallets, appState, bounceableFormat, walletsSettings, knownWallets, holdersAccStatus]);
 
     return (
         <SectionList

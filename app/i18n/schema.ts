@@ -723,7 +723,6 @@ export type LocalizationSchema = {
                     advice_acknowledged_no_financial_liability_accepted: string,
                     merchant_without_3ds: string,
                 },
-                merchant_without_3ds: string,
                 to: {
                     single: string,
                     prepaidCard: string,

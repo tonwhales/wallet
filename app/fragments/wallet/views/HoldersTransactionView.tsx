@@ -1,8 +1,8 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { ThemeType } from "../../../engine/state/theme";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { CryptoCurrency, HoldersTransaction } from "../../../engine/types";
-import { View, Text, StyleSheet, StyleProp } from "react-native";
+import { View, Text, StyleSheet, StyleProp, Pressable } from "react-native";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { Typography } from "../../../components/styles";
 import { useTheme } from "../../../engine/hooks/theme";
@@ -11,9 +11,14 @@ import { toNano } from "@ton/core";
 import { Image, ImageStyle } from "expo-image";
 import { t } from "../../../i18n/t";
 import { transactionTypeFormatter } from "../../../utils/holders/transactionTypeFormatter";
+import { formatTime } from "../../../utils/dates";
+import { useIsConnectAppReady, useNetwork } from "../../../engine/hooks";
+import { holdersUrl, HoldersUserState } from "../../../engine/api/holders/fetchUserState";
+import { HoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
+import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
 
 const styles = StyleSheet.create({
-    ic: { height: 26, width: 26 },
+    ic: { height: 32, width: 32 },
     icContainer: {
         width: 50,
         height: 50,
@@ -359,19 +364,23 @@ const LeftContent = ({ tx }: { tx: HoldersTransaction }) => {
 
     const merchantInfo = (tx as any)?.data?.merchantInfo;
     const eventPurposeType = (tx as any).data?.purpose?.kind;
+    const eventName = t(transactionTypeFormatter(eventPurposeType || type, isPending));
 
     return (
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center' }}>
             <View style={[styles.icContainer, { backgroundColor: theme.surfaceOnElevation }]}>
                 <TransactionIcon type={type} logoUrl={merchantInfo?.logoUrl} />
                 {isPending && <IcTime style={{ position: 'absolute', bottom: -2, right: -2 }} />}
                 {(type === 'charge_failed' || type === 'decline') && (<IcFailed style={{ position: 'absolute', bottom: -2, right: -2 }} />)}
             </View>
-            <Text>
-                {merchantInfo?.cleanName ||
-                    merchantInfo?.dirtyName ||
-                    t(transactionTypeFormatter(eventPurposeType || type, isPending))}
-            </Text>
+            <View>
+                <Text style={[Typography.semiBold17_24, { color: theme.textPrimary }]}>
+                    {merchantInfo?.cleanName || merchantInfo?.dirtyName || eventName}
+                </Text>
+                <Text style={[Typography.regular13_18, { color: theme.textSecondary }]}>
+                    {formatTime(tx.time)}
+                </Text>
+            </View>
         </View>
     );
 }
@@ -379,17 +388,42 @@ const LeftContent = ({ tx }: { tx: HoldersTransaction }) => {
 export const HoldersTransactionView = memo(({
     tx,
     theme,
-    navigation
+    navigation,
+    holdersAccStatus
 }: {
     tx: HoldersTransaction,
     theme: ThemeType,
     navigation: TypedNavigation,
+    holdersAccStatus?: HoldersAccountStatus
 }) => {
+    const { isTestnet } = useNetwork();
+    const url = holdersUrl(isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
+
+    const needsEnrolment = useMemo(() => {
+        if (holdersAccStatus?.state === HoldersUserState.NeedEnrollment) {
+            return true;
+        }
+        return false;
+    }, [holdersAccStatus]);
+
+    const onPress = () => {
+        const params: HoldersAppParams = { type: HoldersAppParamsType.Path, path: '/transactions', query: {} };
+        if (needsEnrolment || !isHoldersReady) {
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: params }, isTestnet);
+            return;
+        }
+
+        navigation.navigateHolders(params, isTestnet);
+    };
 
     return (
-        <View style={{ flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 16 }}>
+        <Pressable
+            style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', paddingVertical: 16, paddingHorizontal: 12 }}
+            onPress={onPress}
+        >
             <LeftContent tx={tx} />
             <RightContent tx={tx} />
-        </View>
+        </Pressable>
     );
 });

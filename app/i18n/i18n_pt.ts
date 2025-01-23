@@ -647,7 +647,124 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 emailAction: 'Verifique seu e-mail',
                 kycAction: 'Complete a verificação',
                 failedAction: 'Verificação falhou',
-            }
+            },
+            "transaction": {
+                "type": {
+                    "cardReady": "Cartão ativado",
+                    "accountReady": "Conta ativada",
+                    "deposit": "Recarga de Conta",
+                    "prepaidTopUp": "Recarga Pré-paga",
+                    "payment": "Pagamento",
+                    "decline": "Recusar",
+                    "refund": "Reembolso",
+                    "limitsChanging": "Alteração de limites",
+                    "limitsChanged": "Limites alterados",
+                    "cardWithdraw": "Transferir para carteira",
+                    "contractClosed": "Contrato fechado",
+                    "cardBlock": "Cartão bloqueado",
+                    "cardFreeze": "Cartão congelado",
+                    "cardUnfreeze": "Cartão descongelado",
+                    "cardPaid": "Emissão de cartão bancário",
+                    "unknown": "Desconhecido"
+                },
+                "rejectReason": {
+                    "approve": "n/a",
+                    "generic": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "fraud_or_ban": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "not_able_to_trace_back_to_original_transaction": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "do_not_honour": "Não podemos realizar a operação para este comerciante",
+                    "card_not_effective": "A transação foi recusada porque seu cartão está atualmente bloqueado. Para prosseguir, desbloqueie seu cartão através do aplicativo móvel ou entre em contato com o suporte ao cliente para obter ajuda",
+                    "expired_card": "Seu cartão atingiu a data de validade. Por favor, solicite um novo através do aplicativo móvel",
+                    "incorrect_pin": "Parece haver um problema com seu PIN. Por favor, verifique os detalhes e tente novamente. Se o problema persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "cvc2_or_cvv2_incorrect": "O CVV não está correto. Por favor, verifique o código de três dígitos na parte de trás do seu cartão e tente novamente",
+                    "incorrect_expiry_date": "A data de validade que você inseriu não está correta. Por favor, verifique a data de validade no seu cartão ou no aplicativo móvel e tente novamente",
+                    "invalid_card_number": "O número do cartão que você inseriu não está correto. Por favor, verifique o número no seu cartão ou no aplicativo móvel e tente novamente",
+                    "blocked_merchant_country_code": "Seu cartão não pode ser usado para transações neste país",
+                    "insufficient_funds": "Você não tem fundos suficientes em sua conta para concluir esta transação. Por favor, recarregue sua conta e tente novamente",
+                    "exceeds_contactless_payments_daily_limit": "A transação foi recusada porque excede seu limite diário de gastos. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente amanhã",
+                    "exceeds_contactless_payments_monthly_limit": "A transação foi recusada porque excede seu limite mensal de gastos. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente mais tarde",
+                    "exceeds_contactless_payments_transaction_limit": "A transação foi recusada porque excede o valor máximo da transação. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "exceeds_contactless_payments_weekly_limit": "A transação foi recusada porque excede seu limite semanal de gastos. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente mais tarde",
+                    "exceeds_daily_overall_limit": "A transação foi recusada porque excede seu limite diário de gastos no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente amanhã",
+                    "exceeds_internet_purchase_payments_daily_limit": "A transação foi recusada porque excede seu limite diário para transações na internet. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente amanhã",
+                    "exceeds_internet_purchase_payments_monthly_limit": "A transação foi recusada porque excede seu limite mensal para transações na internet. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente mais tarde",
+                    "exceeds_internet_purchase_payments_transaction_limit": "A transação foi recusada porque excede o valor máximo da transação. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "exceeds_internet_purchase_payments_weekly_limit": "A transação foi recusada porque excede seu limite semanal para transações na internet. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente mais tarde",
+                    "exceeds_monthly_overall_limit": "A transação foi recusada porque excede seu limite mensal de gastos no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente mais tarde",
+                    "exceeds_purchases_daily_limit": "A transação foi recusada porque excede seu limite diário de gastos no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente amanhã",
+                    "exceeds_purchases_monthly_limit": "A transação foi recusada porque excede seu limite mensal de gastos no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente mais tarde",
+                    "exceeds_purchases_transaction_limit": "A transação foi recusada porque excede o valor máximo da transação. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "exceeds_purchases_weekly_limit": "A transação foi recusada porque excede seu limite semanal de gastos no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente mais tarde",
+                    "exceeds_settlement_risk_limit": "A transação foi recusada porque excede o valor máximo da transação. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "exceeds_weekly_overall_limit": "A transação foi recusada porque excede seu limite semanal de gastos no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente novamente mais tarde",
+                    "exceeds_withdrawal_amount_limit": "A transação foi recusada porque excede o limite de saque em dinheiro no cartão. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "exceeds_withdrawal_maximum_limit": "A transação foi recusada porque excede o limite de saque em dinheiro no cartão. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "exceeds_withdrawal_minimum_limit": "O valor da transação está incorreto",
+                    "exceeds_withdrawals_daily_limit": "A transação foi recusada porque excede o limite diário de saque em dinheiro no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente amanhã",
+                    "exceeds_withdrawals_monthly_limit": "A transação foi recusada porque excede o limite mensal de saque em dinheiro no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente mais tarde",
+                    "exceeds_withdrawals_transaction_limit": "A transação foi recusada porque excede o limite de saque em dinheiro no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente amanhã",
+                    "exceeds_withdrawals_weekly_limit": "A transação foi recusada porque excede o limite semanal de saque em dinheiro no cartão. Por favor, entre em contato com o suporte ao cliente para obter assistência ou tente mais tarde",
+                    "transaction_not_permitted_to_card_holder": "Tipo de transação não suportado. Por favor, entre em contato com o comerciante",
+                    "blocked_merchant_category_code": "Não podemos realizar a operação para este comerciante",
+                    "blocked_merchant_id": "Não podemos realizar a operação para este comerciante",
+                    "blocked_merchant_name": "Não podemos realizar a operação para este comerciante",
+                    "blocked_terminal_id": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "no_card_record": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "suspected_fraud": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "token_not_effective": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "client_system_malfunction": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "system_malfunction": "Parece haver um problema. Por favor, tente novamente. Se o erro persistir, entre em contato com o suporte ao cliente para obter ajuda",
+                    "contactless_payments_switched_off": "A transação foi recusada porque os pagamentos por aproximação estão atualmente desativados no seu cartão. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "internet_purchase_payments_switched_off": "A transação foi recusada porque as compras na internet estão atualmente desativadas no seu cartão. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "withdrawals_switched_off": "A transação foi recusada porque os saques em dinheiro estão atualmente desativados no seu cartão. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "purchases_switched_off": "A transação foi recusada porque as compras estão atualmente desativadas no seu cartão. Por favor, entre em contato com o suporte ao cliente para obter ajuda",
+                    "advice_acknowledged_no_financial_liability_accepted": "Não podemos realizar a operação para este comerciante",
+                    "merchant_without_3ds": "Não podemos realizar a operação para este comerciante"
+                },
+                "to": {
+                    "single": "Para",
+                    "prepaidCard": "Para cartão pré-pago",
+                    "wallet": "Para carteira",
+                    "account": "Para conta"
+                },
+                "from": {
+                    "single": "De",
+                    "prepaidCard": "De cartão pré-pago",
+                    "wallet": "De carteira",
+                    "account": "De conta"
+                },
+                "category": {
+                    "transfers": "Saques",
+                    "purchase": "Compra",
+                    "cash": "Saques em dinheiro",
+                    "other": "Outro",
+                    "deposit": "Recargas"
+                },
+                "status": {
+                    "failed": "Falhou",
+                    "overOnetimeFailed": "Falhou (acima do limite por transação)",
+                    "overDailyFailed": "Falhou (acima do limite diário)",
+                    "overMonthlyFailed": "Falhou (acima do limite mensal)",
+                    "complete": "Concluído"
+                },
+                "statsBlock": {
+                    "title": "Transações",
+                    "description": "Gastos em {{month}}",
+                    "spent": "Gasto",
+                    "in": "em {{month}}"
+                },
+                "list": {
+                    "emptyText": "Ainda não há transações"
+                },
+                "single": {
+                    "report": "Relatar um problema"
+                },
+                "pendingPopover": {
+                    "title": "Transação pendente",
+                    "cancelButtonText": "Mostrar detalhes da transação",
+                    "text": "A validação da blockchain está em andamento. Isso pode levar alguns minutos"
+                }
+            },
         }
     },
     welcome: {

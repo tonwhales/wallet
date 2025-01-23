@@ -5,7 +5,7 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useAccountTransactions } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
@@ -28,6 +28,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
     const theme = props.theme;
     const txs = useAccountTransactionsV2(address.toString({ testOnly: isTestnet }), { refetchOnMount: true });
     // const txs = useAccountTransactions(address.toString({ testOnly: isTestnet }), { refetchOnMount: true });
+    const holdersAccStatus = useHoldersAccountStatus(address).data;
     const transactions = txs.data;
 
     const onReachedEnd = useCallback(() => {
@@ -63,6 +64,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                     onRefresh,
                     refreshing: txs.refreshing
                 }}
+                holdersAccStatus={holdersAccStatus}
             />
         </View>
     );

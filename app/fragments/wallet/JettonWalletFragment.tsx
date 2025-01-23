@@ -19,7 +19,6 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
-import { PendingTransactions } from "./views/PendingTransactions";
 import { useFocusEffect } from "@react-navigation/native";
 import { PendingTransaction } from "../../engine/state/pending";
 import { JettonPendingTransactions } from "./views/JettonPendingTransactions";

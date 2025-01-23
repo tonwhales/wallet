@@ -99,6 +99,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Más',
         backupKeys: 'Respaldar claves',
+        holdersAccounts: 'Cuentas de gastos',
         migrateOldWallets: 'Migrar billeteras antiguas',
         termsOfService: 'Términos de Servicio',
         privacyPolicy: 'Política de privacidad',

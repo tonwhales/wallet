@@ -78,7 +78,7 @@ export const SettingsFragment = fragment(() => {
     // Ledger
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
-    const showHoldersItem = !isLedger && (inviteCheck?.allowed || hasHoldersProducts);
+    const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
 
     const onHoldersPress = useCallback(() => {

@@ -101,6 +101,7 @@ export type LocalizationSchema = {
     settings: {
         title: string,
         backupKeys: string,
+        holdersAccounts: string,
         migrateOldWallets: string,
         termsOfService: string,
         privacyPolicy: string,

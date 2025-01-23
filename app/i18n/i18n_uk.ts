@@ -98,6 +98,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Більше',
         backupKeys: 'Резервні ключі',
+        holdersAccounts: 'Рахунки для витрат',
         migrateOldWallets: 'Міграція старих гаманців',
         termsOfService: 'Умови обслуговування',
         privacyPolicy: 'Політика конфіденційності',

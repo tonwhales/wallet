@@ -98,6 +98,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "settings": {
         "title": "Ещё",
         "backupKeys": "Сохранить seed-фразу",
+        "holdersAccounts": "Платежные счета",
         "migrateOldWallets": "Перенос со старых адресов",
         "termsOfService": "Условия использования",
         "privacyPolicy": "Политика конфиденциальности",

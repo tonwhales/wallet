@@ -83,6 +83,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressBook: 'Catálogo de endereços',
         gasless: 'Sem gas',
         address: 'Endereço',
+        currencyChanged: 'Moeda alterada',
+        required: 'obrigatório',
     },
     syncStatus: {
         connecting: 'Conectando',
@@ -98,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Mais',
         backupKeys: 'Backup das chaves',
+        holdersAccounts: 'Contas de despesas',
         migrateOldWallets: 'Migrar carteiras antigas',
         termsOfService: 'Termos de Serviço',
         privacyPolicy: 'Política de Privacidade',

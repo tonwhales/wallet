@@ -257,12 +257,10 @@ export const SettingsFragment = fragment(() => {
                     onPress={onAccountPress}
                 >
                     <Text
-                        style={{
-                            fontWeight: '500',
-                            fontSize: 17, lineHeight: 24,
+                        style={[{
                             color: theme.textPrimary, flexShrink: 1,
                             marginRight: 8
-                        }}
+                        }, Typography.medium17_24]}
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
@@ -306,7 +304,7 @@ export const SettingsFragment = fragment(() => {
                     {showHoldersItem && (
                         <ItemButton
                             leftIcon={require('@assets/ic-card.png')}
-                            title={t('products.holders.accounts.title')}
+                            title={t('settings.holdersAccounts')}
                             onPress={onHoldersPress}
                         />
                     )}

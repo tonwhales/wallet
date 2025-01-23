@@ -538,7 +538,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLongerTitle: 'Connection problems',
             loadingLonger: 'Check your internet connection and reload page. If the issue persists please contact support',
             accounts: {
-                title: 'Spending',
+                title: 'Spendings',
                 prepaidTitle: 'Cards',
                 account: 'Account',
                 basicAccount: 'Spending account',

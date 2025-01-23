@@ -255,7 +255,10 @@ export const HoldersAccountItem = memo((props: {
                                     {account.cards.length > 4 && (
                                         <LinearGradient
                                             style={{ height: 30, width: 20 + 8 + 46, position: 'absolute', right: 0, top: 0 }}
-                                            colors={['rgba(255, 255, 255, 0)', theme.surfaceOnBg]}
+                                            colors={[
+                                                theme.style === 'light' ? 'rgba(255, 255, 255, 0)' : 'rgba(0, 0, 0, 0)',
+                                                (itemStyle as any)?.backgroundColor || theme.surfaceOnBg
+                                            ]}
                                             start={{ x: 0, y: 0 }}
                                             end={{ x: 0.5, y: 0 }}
                                         />

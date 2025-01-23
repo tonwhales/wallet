@@ -540,7 +540,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Verifica tu conexión a internet y recarga la página. Si el problema persiste, por favor contacta al soporte',
             accounts: {
                 title: 'Gastos',
-                prepaidTitle: 'Tarjetas',
+                prepaidTitle: 'Tarjetas prepago',
                 account: 'Cuenta',
                 basicAccount: 'Cuenta de gastos',
                 proAccount: 'Cuenta pro',

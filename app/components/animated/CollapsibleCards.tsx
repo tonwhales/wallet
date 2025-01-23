@@ -76,6 +76,8 @@ const CollapsibleCardsComponent = <T,>({
     const dimentions = useWindowDimensions();
     const [collapsed, setCollapsed] = useState(initialCollapsed);
 
+    const toggle = () => setCollapsed((prev) => !prev);
+
     const progress = useSharedValue(initialCollapsed ? 0 : 1);
 
     useEffect(() => {
@@ -229,7 +231,7 @@ const CollapsibleCardsComponent = <T,>({
                                 paddingHorizontal: 16
                             }
                         }}
-                        onPress={() => setCollapsed(!collapsed)}
+                        onPress={toggle}
                     >
                         <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                             {title}
@@ -259,10 +261,11 @@ const CollapsibleCardsComponent = <T,>({
                             paddingHorizontal: 16,
                             gap: 8,
                             justifyContent: 'space-between',
-                            marginBottom: 8
+                            marginBottom: 8,
+                            height: 34
                         }
                     }}
-                    onPress={() => setCollapsed(!collapsed)}
+                    onPress={toggle}
                 >
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>

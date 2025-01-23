@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
-import { Suspense, memo, useCallback, useMemo, useRef } from 'react';
-import { Swipeable } from 'react-native-gesture-handler';
+import { Suspense, memo, useCallback, useMemo, useRef, useState } from 'react';
+import { Swipeable, Pressable as GHPressable } from 'react-native-gesture-handler';
 import { useNetwork, usePrimaryCurrency, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { PerfText } from '../basic/PerfText';
 import { Address, toNano } from '@ton/core';
@@ -461,6 +461,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                     overshootRight={false}
                     containerStyle={{ flex: 1 }}
                     useNativeAnimations={true}
+
                     childrenContainerStyle={[
                         {
                             flex: 1,
@@ -505,7 +506,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         )
                     }}
                 >
-                    <Pressable
+                    <GHPressable
                         style={({ pressed }) => ({ flexGrow: 1, opacity: pressed ? 0.5 : 1 })}
                         onPress={onPress}
                     >
@@ -559,7 +560,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 )}
                             </View>
                         </View>
-                    </Pressable>
+                    </GHPressable>
                 </Swipeable>
                 {!props.last && !props.card && (
                     <PerfView

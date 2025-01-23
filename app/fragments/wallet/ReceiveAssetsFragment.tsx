@@ -299,7 +299,7 @@ export const ReceiveAssetsFragment = fragment(() => {
                 renderSectionHeader={renderSectionHeader}
                 removeClippedSubviews={true}
                 stickySectionHeadersEnabled={false}
-                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
                 style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 contentInset={{ bottom: safeArea.bottom + 16 }}

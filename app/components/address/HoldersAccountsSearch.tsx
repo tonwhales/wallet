@@ -86,7 +86,7 @@ export const HoldersAccountsSearch = memo(({
                 </Text>
                 <View style={{
                     borderRadius: 18,
-                    gap: 4
+                    gap: 16
                 }}>
                     {filtered.map((item, index) => {
                         const onOpen = () => onSelect?.(item);

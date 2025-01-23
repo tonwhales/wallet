@@ -83,7 +83,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressBook: 'Carnet d’adresses',
         gasless: 'Sans gaz',
         address: 'Adresse',
-        currencyChanged: 'Devise changée'
+        required: 'requis'
     },
     syncStatus: {
         connecting: 'Connexion',
@@ -99,6 +99,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Plus',
         backupKeys: 'Sauvegarder les clés',
+        holdersAccounts: 'Comptes de dépenses',
         migrateOldWallets: 'Migrer les anciens portefeuilles',
         termsOfService: 'Conditions d’utilisation',
         privacyPolicy: 'Politique de confidentialité',
@@ -540,7 +541,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Vérifiez votre connexion Internet et rechargez la page. Si le problème persiste, veuillez contacter le support',
             accounts: {
                 title: 'Dépenses',
-                prepaidTitle: 'Cartes',
+                prepaidTitle: 'Cartes prépayées',
                 account: 'Compte',
                 basicAccount: 'Compte de dépenses',
                 proAccount: 'Compte pro',

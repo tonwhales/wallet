@@ -83,7 +83,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressBook: 'Rubrica',
         gasless: 'Senza gas',
         address: 'Indirizzo',
-        currencyChanged: 'Valuta cambiata'
+        required: 'richiesto'
     },
     syncStatus: {
         connecting: 'Connessione in corso',
@@ -99,6 +99,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Altro',
         backupKeys: 'Backup chiavi',
+        holdersAccounts: 'Conti di spesa',
         migrateOldWallets: 'Migra vecchi portafogli',
         termsOfService: 'Termini di Servizio',
         privacyPolicy: 'Politica sulla privacy',
@@ -540,7 +541,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Controlla la tua connessione internet e ricarica la pagina. Se il problema persiste, contatta il supporto',
             accounts: {
                 title: 'Spese',
-                prepaidTitle: 'Carte',
+                prepaidTitle: 'Carte prepagate',
                 account: 'Conto',
                 basicAccount: 'Conto di spesa',
                 proAccount: 'Conto pro',

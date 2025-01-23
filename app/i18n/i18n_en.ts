@@ -83,7 +83,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressBook: 'Address book',
         gasless: 'Gasless',
         address: 'Address',
-        currencyChanged: 'Currency changed',
         required: 'required'
     },
     syncStatus: {

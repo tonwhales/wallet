@@ -539,7 +539,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Перевірте підключення до інтернету та перезавантажте сторінку. Якщо проблема не зникає, зверніться до служби підтримки',
             accounts: {
                 title: 'Витрати',
-                prepaidTitle: 'Карти',
+                prepaidTitle: 'Передплачені картки',
                 account: 'Рахунок',
                 basicAccount: 'Рахунок для витрат',
                 proAccount: 'Про рахунок',

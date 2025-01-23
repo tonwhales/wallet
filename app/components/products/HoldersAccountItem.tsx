@@ -4,14 +4,13 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useIsConnectAppReady, useJetton, useNetwork, usePrice, useTheme } from "../../engine/hooks";
+import { useIsConnectAppReady, useJetton, usePrice, useTheme } from "../../engine/hooks";
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
-import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-handler";
+import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import { HoldersAccountCard } from "./HoldersAccountCard";
-import { Platform } from "react-native";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { toBnWithDecimals } from "../../utils/withDecimals";
 import { Address, toNano } from "@ton/core";
@@ -20,6 +19,7 @@ import { getAccountName } from "../../utils/holders/getAccountName";
 import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
 import { Image } from "expo-image";
 import { AddressComponent } from "../address/AddressComponent";
+import { LinearGradient } from "expo-linear-gradient";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -200,6 +200,15 @@ export const HoldersAccountItem = memo((props: {
         }
     }, [content, account.balance, account.cryptoCurrency, priceAmount, theme]);
 
+    const renderCard = (item: any) => {
+        return (
+            <HoldersAccountCard
+                card={item}
+                theme={theme}
+            />
+        );
+    };
+
     return (
         <Swipeable
             ref={swipableRef}
@@ -245,16 +254,13 @@ export const HoldersAccountItem = memo((props: {
                             {contentView}
                         </View>
                         {!(hideCardsIfEmpty && account.cards.length === 0) ? (
-                            <ScrollView
-                                horizontal={true}
-                                style={[{ height: 46, marginTop: 10 }, Platform.select({ android: { marginLeft: 78 } })]}
-                                contentContainerStyle={{ gap: 8 }}
-                                contentInset={Platform.select({ ios: { left: 78 } })}
-                                contentOffset={Platform.select({ ios: { x: -78, y: 0 } })}
-                                showsHorizontalScrollIndicator={false}
-                                alwaysBounceHorizontal={account.cards.length > 0}
+                            <View
+                                style={{
+                                    height: 46, marginTop: 10, gap: 8, flexDirection: 'row',
+                                    marginLeft: 78
+                                }}
                             >
-                                {account.cards.map((card, index) => {
+                                {account.cards.slice(0, 5).map((card, index) => {
                                     return (
                                         <HoldersAccountCard
                                             key={`card-item-${index}`}
@@ -263,7 +269,15 @@ export const HoldersAccountItem = memo((props: {
                                         />
                                     )
                                 })}
-                            </ScrollView>
+                                {account.cards.length > 4 && (
+                                    <LinearGradient
+                                        style={{ height: 30, width: 20 + 8 + 46, position: 'absolute', right: 0, top: 0 }}
+                                        colors={['rgba(255, 255, 255, 0)', theme.surfaceOnBg]}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 0.5, y: 0 }}
+                                    />
+                                )}
+                            </View>
                         ) : (
                             <View style={{ height: 20 }} />
                         )}

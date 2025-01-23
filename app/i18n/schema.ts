@@ -84,7 +84,8 @@ export type LocalizationSchema = {
         unverified: string,
         addressBook: string,
         gasless: string,
-        address: string
+        address: string,
+        required: string,
     },
     syncStatus: {
         connecting: string,

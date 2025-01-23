@@ -240,6 +240,14 @@ export const ReceiveAssetsFragment = fragment(() => {
             );
         }
 
+        if (section.type === 'otherCoins') {
+            return (
+                <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
+                    {t('jetton.productButtonTitle')}
+                </Text>
+            );
+        }
+
         return (
             <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
                 {t('products.savings')}
@@ -252,17 +260,17 @@ export const ReceiveAssetsFragment = fragment(() => {
         data: [{ type: AssetType.TON }, { type: AssetType.SPECIAL }]
     };
 
-    if (showOtherCoins) {
-        defaultSection.data.push({ type: AssetType.OTHERCOINS });
-    }
-
-    const itemsList: { type: 'default' | 'holders', data: ListItem[] }[] = [
+    
+    const itemsList: { type: 'default' | 'holders' | 'otherCoins', data: ListItem[] }[] = [
         {
             type: 'holders',
             data: holdersAccounts.map((account) => ({ account, type: AssetType.HOLDERS }))
         },
         defaultSection
     ];
+    if (showOtherCoins) {
+        itemsList.push({ type: 'otherCoins', data: [{ type: AssetType.OTHERCOINS }] }); 
+    }
 
     return (
         <View style={{ flexGrow: 1 }}>

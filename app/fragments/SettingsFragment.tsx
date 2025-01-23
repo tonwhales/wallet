@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, Pressable, Image, Platform } from 'react-native';
+import { View, Text, Pressable, Image, Platform, Linking } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
@@ -43,6 +43,9 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
+
+const iosStoreUrl = 'https://apps.apple.com/app/apple-store/id1607656232?action=write-review';
+const androidStoreUrl = 'https://play.google.com/store/apps/details?id=com.tonhub.wallet&showAllReviews=true';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -106,11 +109,35 @@ export const SettingsFragment = fragment(() => {
         };
     }, []);
 
-    const onRateApp = useCallback(async () => {
-        if (await StoreReview.hasAction()) {
-            StoreReview.requestReview();
+    const redirectToStore = () => {
+        const storeUrl = Platform.OS === 'android' ? androidStoreUrl : iosStoreUrl;
+        Linking.openURL(storeUrl);
+    }
+
+    const onRateApp = async () => {
+        if (Platform.OS === 'android') {
+            redirectToStore();
+            return;
         }
-    }, []);
+
+        try {
+            const isStoreReviewAvailable = await StoreReview.isAvailableAsync();
+
+            if (!isStoreReviewAvailable) {
+                redirectToStore();
+                return;
+            }
+            const hasAction = await StoreReview.hasAction();
+
+            if (!hasAction) {
+                redirectToStore();
+                return;
+            }
+            await StoreReview.requestReview();
+        } catch (error) {
+            redirectToStore();
+        }
+    };
 
     const onSupport = useCallback(() => {
         const tonhubOptions = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];

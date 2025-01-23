@@ -109,7 +109,7 @@
     "react-native-device-info": "^10.11.0",
     "react-native-fast-pbkdf2": "^0.3.1",
     "react-native-figma-squircle": "^0.2.0",
-    "react-native-gesture-handler": "~2.14.0",
+    "react-native-gesture-handler": "2.20.0",
     "react-native-graph": "1.0.2",
     "react-native-image-colors": "^2.3.0",
     "react-native-inappbrowser-reborn": "^3.6.3",

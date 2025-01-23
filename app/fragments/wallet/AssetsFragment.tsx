@@ -162,9 +162,13 @@ export const AssetsFragment = fragment(() => {
                     return true;
                 }
 
-                const isSavings = savings.some((s) => s.jetton.address === j.jetton.address)
-                    || getSpecialJetton(isTestnet) === j.jetton.address;
-                if (isSavings) {
+                const isSpecial = getSpecialJetton(isTestnet) === j.jetton.address
+                const isSavings = savings.some((s) => s.jetton.address === j.jetton.address);
+
+                if (isJettonsReceiveRoute && isSpecial) {
+                    return false;
+                }
+                if (isSavings || isSpecial) {
                     return true;
                 }
 
@@ -208,7 +212,7 @@ export const AssetsFragment = fragment(() => {
         }
 
         return items;
-    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders, savings]);
+    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute]);
 
     const onJettonCallback = useCallback((selected?: { wallet?: Address, master: Address }) => {
         if (jettonCallback) {

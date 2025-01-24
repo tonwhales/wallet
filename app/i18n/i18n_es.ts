@@ -1,90 +1,90 @@
 import { LocalizationSchema, PrepareSchema } from "./schema";
 
-const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
-    lang: 'es',
-    common: {
-        and: 'y',
-        accept: 'Aceptar',
-        start: 'Comenzar',
-        continue: 'Continuar',
-        continueAnyway: 'Continuar de todos modos',
-        back: 'Atrás',
-        logout: 'Cerrar sesión',
-        logoutFrom: 'Cerrar sesión de {{name}}',
-        cancel: 'Cancelar',
-        balance: 'Saldo',
-        totalBalance: 'Saldo total',
-        walletAddress: 'Dirección de la billetera',
-        recipientAddress: 'Dirección del destinatario',
-        recipient: 'Destinatario',
-        copy: 'Copiar',
-        copiedAlert: 'Copiado al portapapeles',
-        copied: 'Copiado',
-        share: 'Compartir',
-        send: 'Enviar',
-        yes: 'Sí',
-        no: 'No',
-        amount: 'Cantidad',
-        today: 'Hoy',
-        yesterday: 'Ayer',
-        comment: 'Comentario',
-        products: 'Productos',
-        confirm: 'Confirmar',
-        soon: 'pronto',
-        in: 'en',
-        max: 'Máximo',
-        close: 'Cerrar',
-        delete: 'Eliminar',
-        apply: 'Aplicar',
-        domainOrAddress: 'Dirección de billetera o dominio',
-        domainOrAddressOrContact: 'Dirección, dominio o nombre',
-        domain: 'Dominio',
-        search: 'Buscar',
-        termsOfService: 'Términos\u00A0De\u00A0Servicio',
-        privacyPolicy: 'Política\u00A0De\u00A0Privacidad',
-        apy: 'APY',
-        tx: 'Transacción',
-        add: 'Agregar',
-        connect: 'Conectar',
-        gotIt: 'Entendido',
-        error: 'Error',
-        wallet: 'Billetera',
-        wallets: 'Billeteras',
-        later: 'Más tarde',
-        select: 'Seleccionar',
-        show: 'Mostrar',
-        hide: 'Ocultar',
-        showAll: 'Mostrar todo',
-        hideAll: 'Ocultar todo',
-        done: 'Hecho',
-        mainWallet: 'Billetera principal',
-        walletName: 'Nombre de la billetera',
-        from: 'De',
-        to: 'A',
-        transaction: 'Transacción',
-        somethingWentWrong: 'Algo salió mal',
-        checkInternetConnection: 'Verifique su conexión a internet',
-        reload: 'Recargar',
-        errorOccurred: 'Ocurrió un error: {{error}}',
-        recent: 'Reciente',
-        ok: 'OK',
-        attention: 'Atención',
-        save: 'Guardar',
-        assets: 'Activos',
-        message: 'Mensaje',
-        messages: 'Mensajes',
-        airdrop: 'Airdrop',
-        myWallets: 'Mis billeteras',
-        showMore: 'Mostrar más',
-        balances: 'Saldos',
-        loading: 'Cargando...',
-        notFound: 'No encontrado',
-        unverified: 'No verificado',
-        addressBook: 'Libreta de direcciones',
-        gasless: 'Sin gas',
-        address: 'Dirección',
-        currencyChanged: 'Moneda cambiada',
-        required: 'requerido'
+const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
+    "lang": "es",
+    "common": {
+        "and": "y",
+        "accept": "Aceptar",
+        "start": "Comenzar",
+        "continue": "Continuar",
+        "continueAnyway": "Continuar de todos modos",
+        "back": "Atrás",
+        "logout": "Cerrar sesión",
+        "logoutFrom": "Cerrar sesión de {{name}}",
+        "cancel": "Cancelar",
+        "balance": "Saldo",
+        "totalBalance": "Saldo total",
+        "walletAddress": "Dirección de la billetera",
+        "recipientAddress": "Dirección del destinatario",
+        "recipient": "Destinatario",
+        "copy": "Copiar",
+        "copiedAlert": "Copiado al portapapeles",
+        "copied": "Copiado",
+        "share": "Compartir",
+        "send": "Enviar",
+        "yes": "Sí",
+        "no": "No",
+        "amount": "Cantidad",
+        "today": "Hoy",
+        "yesterday": "Ayer",
+        "comment": "Comentario",
+        "products": "Productos",
+        "confirm": "Confirmar",
+        "soon": "pronto",
+        "in": "en",
+        "max": "Máximo",
+        "close": "Cerrar",
+        "delete": "Eliminar",
+        "apply": "Aplicar",
+        "domainOrAddress": "Dirección de billetera o dominio",
+        "domainOrAddressOrContact": "Dirección, dominio o nombre",
+        "domain": "Dominio",
+        "search": "Buscar",
+        "termsOfService": "Términos\u00A0De\u00A0Servicio",
+        "privacyPolicy": "Política\u00A0De\u00A0Privacidad",
+        "apy": "APY",
+        "tx": "Transacción",
+        "add": "Agregar",
+        "connect": "Conectar",
+        "gotIt": "Entendido",
+        "error": "Error",
+        "wallet": "Billetera",
+        "wallets": "Billeteras",
+        "later": "Más tarde",
+        "select": "Seleccionar",
+        "show": "Mostrar",
+        "hide": "Ocultar",
+        "showAll": "Mostrar todo",
+        "hideAll": "Ocultar todo",
+        "done": "Hecho",
+        "mainWallet": "Billetera principal",
+        "walletName": "Nombre de la billetera",
+        "from": "De",
+        "to": "A",
+        "transaction": "Transacción",
+        "somethingWentWrong": "Algo salió mal",
+        "checkInternetConnection": "Verifique su conexión a internet",
+        "reload": "Recargar",
+        "errorOccurred": "Ocurrió un error: {{error}}",
+        "recent": "Reciente",
+        "ok": "OK",
+        "attention": "Atención",
+        "save": "Guardar",
+        "assets": "Activos",
+        "message": "Mensaje",
+        "messages": "Mensajes",
+        "airdrop": "Airdrop",
+        "myWallets": "Mis billeteras",
+        "showMore": "Mostrar más",
+        "balances": "Saldos",
+        "loading": "Cargando...",
+        "notFound": "No encontrado",
+        "unverified": "No verificado",
+        "addressBook": "Libreta de direcciones",
+        "gasless": "Sin gas",
+        "address": "Dirección",
+        "currencyChanged": "Moneda cambiada",
+        "required": "requerido"
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -95,38 +95,38 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "home": "Inicio",
         "history": "Historial",
         "browser": "Navegador",
-        "more": "Más",
+        "more": "Más"
     },
-    settings: {
-        title: 'Más',
-        backupKeys: 'Respaldar claves',
-        holdersAccounts: 'Cuentas de gastos',
-        migrateOldWallets: 'Migrar billeteras antiguas',
-        termsOfService: 'Términos de Servicio',
-        privacyPolicy: 'Política de privacidad',
-        developerTools: 'Herramientas de desarrollador',
-        spamFilter: 'Filtro de SPAM',
-        primaryCurrency: 'Moneda principal',
-        experimental: 'Experimental',
-        support: {
-            title: 'Soporte',
-            telegram: 'Telegram',
-            form: 'Formulario de soporte',
-            holders: 'Tarjeta bancaria y cuentas',
-            tonhub: 'Tonhub',
+    "settings": {
+        "title": "Más",
+        "backupKeys": "Respaldar claves",
+        "holdersAccounts": "Cuentas de gastos",
+        "migrateOldWallets": "Migrar billeteras antiguas",
+        "termsOfService": "Términos de Servicio",
+        "privacyPolicy": "Política de privacidad",
+        "developerTools": "Herramientas de desarrollador",
+        "spamFilter": "Filtro de SPAM",
+        "primaryCurrency": "Moneda principal",
+        "experimental": "Experimental",
+        "support": {
+            "title": "Soporte",
+            "telegram": "Telegram",
+            "form": "Formulario de soporte",
+            "holders": "Tarjeta bancaria y cuentas",
+            "tonhub": "Tonhub"
         },
         "telegram": "Telegram",
         "rateApp": "Calificar aplicación",
         "deleteAccount": "Eliminar cuenta",
         "theme": "Tema",
         "searchEngine": "Motor de búsqueda",
-        "language": "Idioma",
+        "language": "Idioma"
     },
     "theme": {
         "title": "Tema",
         "light": "Claro",
         "dark": "Oscuro",
-        "system": "Sistema",
+        "system": "Sistema"
     },
     "wallet": {
         "sync": "Descargando datos de la billetera",
@@ -147,7 +147,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     "transactions": {
         "title": "Transacciones",
-        "history": "Historial",
+        "history": "Historial"
     },
     "tx": {
         "sending": "Enviando",
@@ -163,14 +163,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     "txPreview": {
         "sendAgain": "Enviar de nuevo",
         "blockchainFee": "Tarifa de red",
-        "blockchainFeeDescription": "Esta tarifa también se conoce como GAS. Es necesaria para que una transacción se procese con éxito en la blockchain. El tamaño del GAS depende de la cantidad de trabajo que los validadores necesitan hacer para incluir una transacción en el bloque.",
+        "blockchainFeeDescription": "Esta tarifa también se conoce como GAS. Es necesaria para que una transacción se procese con éxito en la blockchain. El tamaño del GAS depende de la cantidad de trabajo que los validadores necesitan hacer para incluir una transacción en el bloque."
     },
-    receive: {
-        title: 'Recibir',
-        subtitle: 'Envía solo Toncoin y tokens en la red TON a esta dirección, o podrías perder tus fondos.',
-        share: {
-            title: 'Mi dirección de Tonhub',
-            error: 'No se pudo compartir la dirección, por favor intente de nuevo o contacte al soporte'
+    "receive": {
+        "title": "Recibir",
+        "subtitle": "Envía solo Toncoin y tokens en la red TON a esta dirección, o podrías perder tus fondos.",
+        "share": {
+            "title": "Mi dirección de Tonhub",
+            "error": "No se pudo compartir la dirección, por favor intente de nuevo o contacte al soporte"
         },
         "holdersJettonWarning": "Transfiera a esta dirección solo {{symbol}}, si envía otro token, lo perderá.",
         "assets": "Tokens y Cuentas",
@@ -216,7 +216,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "notEnoughJettons": "No hay suficientes {{symbol}}",
             "jettonChange": "El destinatario solo admite transferencias de {{symbol}}, por favor cambia el destinatario o la moneda de transferencia",
             "notEnoughGasTitle": "No tienes suficientes TON para cubrir la tarifa de gas",
-            "notEnoughGasMessage": "Por favor recarga tu billetera con TON (se necesita al menos {{diff}} TON más) e intenta de nuevo",
+            "notEnoughGasMessage": "Por favor recarga tu billetera con TON (se necesita al menos {{diff}} TON más) e intenta de nuevo"
         },
         "changeJetton": "Cambiar a {{symbol}}",
         "sendAll": "Máximo",
@@ -287,14 +287,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "title": "Aplicaciones de confianza",
             "delete": {
                 "title": "¿Eliminar esta extensión?",
-                "message": "Esto destruirá el enlace entre tu billetera y la extensión, pero siempre puedes intentar conectarte de nuevo.",
+                "message": "Esto destruirá el enlace entre tu billetera y la extensión, pero siempre puedes intentar conectarte de nuevo."
             },
             "description": "Las aplicaciones o extensiones que has autorizado se mostrarán aquí. Puedes revocar el acceso de cualquier aplicación o extensión en cualquier momento.",
             "installExtension": "Instalar y abrir extensión para esta aplicación",
             "moreWallets": "Más billeteras ({{count}})",
             "connectionSecureDescription": "No se transferirán fondos a la aplicación y no se otorgará acceso a tus monedas"
         },
-        "consent": "Al hacer clic en continuar aceptas nuestros",
+        "consent": "Al hacer clic en continuar aceptas nuestros"
     },
     "install": {
         "title": "Solicitud de conexión",
@@ -305,7 +305,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "title": "Solicitud de firma",
         "message": "Solicitado para firmar un mensaje",
         "hint": "No se transferirán fondos a la aplicación y no se otorgará acceso a tus monedas.",
-        "action": "Firmar",
+        "action": "Firmar"
     },
     "migrate": {
         "title": "Migrar billeteras antiguas",
@@ -315,14 +315,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "check": "Verificando dirección {{address}}",
         "keyStoreTitle": "Transición a un nuevo método de seguridad",
         "keyStoreSubtitle": "Queremos que tus claves siempre estén seguras, por lo que hemos actualizado la forma en que las protegemos. Necesitamos tu permiso para transferir tus claves a un nuevo almacenamiento seguro.",
-        "failed": "Migración fallida",
+        "failed": "Migración fallida"
     },
     "qr": {
         "title": "Apunta la cámara al código QR",
         "requestingPermission": "Solicitando permisos de cámara...",
         "noPermission": "Permitir acceso a la cámara para escanear códigos QR",
         "requestPermission": "Abrir configuración",
-        "failedToReadFromImage": "No se pudo leer el código QR de la imagen",
+        "failedToReadFromImage": "No se pudo leer el código QR de la imagen"
     },
     "products": {
         "addNew": "Agregar nuevo producto",
@@ -335,7 +335,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "alreadyCompleted": "Solicitud ya completada",
                 "unknown": "Error desconocido, por favor intente de nuevo o contacte al soporte"
             },
-            "successAuth": "Conectado",
+            "successAuth": "Conectado"
         },
         "savings": "Ahorros",
         "accounts": "Tokens",
@@ -421,7 +421,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "restrictedMessage": "Tus fondos no participarán en el staking si la dirección de tu billetera no está en la lista de permisos, pero estarán en el saldo del pool y esperando un retiro",
                 "notEnoughCoinsFee": "No hay suficientes TON en el saldo de tu billetera para pagar la tarifa. Ten en cuenta que la tarifa de {{amount}} TON debe estar en el saldo principal, no en el saldo de staking",
                 "notEnoughCoins": "No hay suficientes fondos en el saldo de tu billetera para recargar el saldo de staking",
-                "ledgerSignText": "Staking: {{action}}",
+                "ledgerSignText": "Staking: {{action}}"
             },
             "nextCycle": "Próximo ciclo",
             "cycleNote": "Todas las transacciones entran en vigor una vez que finaliza el ciclo",
@@ -476,7 +476,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             "unstakeLiquid": {
                 "title": "Retira tus wsTON",
-                "message": "Puedes retirar fondos directamente después de que finalice el ciclo o intercambiar instantáneamente wsTON por TON en ",
+                "message": "Puedes retirar fondos directamente después de que finalice el ciclo o intercambiar instantáneamente wsTON por TON en "
             },
             "learnMore": "Info",
             "moreInfo": "Más info",
@@ -490,7 +490,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "yearlyTotal": "Recompensas totales en un año",
                 "yearlyCurrent": "Actual",
                 "topUpTitle": "Tus recompensas anuales",
-                "goToTopUp": "Ir a recargar",
+                "goToTopUp": "Ir a recargar"
             },
             "info": {
                 "rate": "hasta 13.3%",
@@ -532,29 +532,29 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     "week": "1S",
                     "month": "1M",
                     "year": "1A",
-                    "allTime": "Todo",
+                    "allTime": "Todo"
                 }
             }
         },
-        holders: {
-            title: 'Cuenta bancaria',
-            loadingLongerTitle: 'Problemas de conexión',
-            loadingLonger: 'Verifica tu conexión a internet y recarga la página. Si el problema persiste, por favor contacta al soporte',
-            accounts: {
-                title: 'Gastos',
-                prepaidTitle: 'Tarjetas prepago',
-                account: 'Cuenta',
-                basicAccount: 'Cuenta de gastos',
-                proAccount: 'Cuenta pro',
-                noCards: 'No hay tarjetas',
-                prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
-                prepaidCardDescription: 'Tarjeta recargable para uso diario',
-                hiddenCards: 'Tarjetas ocultas',
-                hiddenAccounts: 'Cuentas ocultas',
-                primaryName: 'Cuenta principal',
-                paymentName: 'Cuenta de pago {{accountIndex}}',
-                topUp: 'Recargar cuenta',
-                addNew: 'Agregar cuenta'
+        "holders": {
+            "title": "Cuenta bancaria",
+            "loadingLongerTitle": "Problemas de conexión",
+            "loadingLonger": "Verifica tu conexión a internet y recarga la página. Si el problema persiste, por favor contacta al soporte",
+            "accounts": {
+                "title": "Gastos",
+                "prepaidTitle": "Tarjetas prepago",
+                "account": "Cuenta",
+                "basicAccount": "Cuenta de gastos",
+                "proAccount": "Cuenta pro",
+                "noCards": "No hay tarjetas",
+                "prepaidCard": "Tonhub Prepaid *{{lastFourDigits}}",
+                "prepaidCardDescription": "Tarjeta recargable para uso diario",
+                "hiddenCards": "Tarjetas ocultas",
+                "hiddenAccounts": "Cuentas ocultas",
+                "primaryName": "Cuenta principal",
+                "paymentName": "Cuenta de pago {{accountIndex}}",
+                "topUp": "Recargar cuenta",
+                "addNew": "Agregar cuenta"
             },
             "pageTitles": {
                 "general": "Tarjetas Tonhub",
@@ -567,7 +567,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "transfer": "Transferir",
                 "cardSmartContract": "Contrato inteligente de la tarjeta",
                 "setUpCard": "Configurar la tarjeta",
-                "pin": "Cambiar PIN",
+                "pin": "Cambiar PIN"
             },
             "card": {
                 "card": "Tarjeta",
@@ -578,7 +578,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "eurSubtitle": "Tonhub EUR",
                 "type": {
                     "physical": "Tarjeta física",
-                    "virtual": "Virtual",
+                    "virtual": "Virtual"
                 },
                 "notifications": {
                     "type": {
@@ -588,32 +588,32 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                         "charge_failed": "Pago",
                         "limits_change": {
                             "pending": "Cambiando límites",
-                            "completed": "Límites cambiados",
+                            "completed": "Límites cambiados"
                         },
                         "card_withdraw": "Transferencia a billetera",
                         "contract_closed": "Contrato cerrado",
                         "card_block": "Tarjeta bloqueada",
                         "card_freeze": "Tarjeta congelada",
                         "card_unfreeze": "Tarjeta descongelada",
-                        "card_paid": "Emisión de tarjeta bancaria",
+                        "card_paid": "Emisión de tarjeta bancaria"
                     },
                     "category": {
                         "deposit": "Recargar",
                         "card_withdraw": "Transferir",
                         "charge": "Compras",
                         "charge_failed": "Compras",
-                        "other": "Otro",
+                        "other": "Otro"
                     },
                     "status": {
                         "charge_failed": {
                             "limit": {
                                 "onetime": "Fallido (sobre el límite de una vez)",
                                 "daily": "Fallido (sobre el límite diario)",
-                                "monthly": "Fallido (sobre el límite mensual)",
+                                "monthly": "Fallido (sobre el límite mensual)"
                             },
-                            "failed": "Fallido",
+                            "failed": "Fallido"
                         },
-                        "completed": "Completado",
+                        "completed": "Completado"
                     }
                 }
             },
@@ -634,8 +634,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     "noDomainKey": "No hay clave de dominio",
                     "createDomainKey": "Durante la creación de la clave de dominio",
                     "fetchToken": "Durante la obtención del token",
-                    "createSignature": "Durante la creación de la firma",
-                },
+                    "createSignature": "Durante la creación de la firma"
+                }
             },
             "otpBanner": {
                 "title": "Nueva solicitud de pago",
@@ -649,7 +649,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "readyAction": "Consíguela ahora",
                 "emailAction": "Verifica tu correo electrónico",
                 "kycAction": "Completa la verificación",
-                "failedAction": "La verificación falló",
+                "failedAction": "La verificación falló"
             },
             "transaction": {
                 "type": {
@@ -767,7 +767,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     "cancelButtonText": "Show transaction details",
                     "text": "Blockchain validation is currently underway. This may take a few minutes"
                 }
-            },
+            }
         }
     },
     "welcome": {
@@ -781,16 +781,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "sloganDev": "Este es Ton Sandbox",
         "slide_1": {
             "title": "Protegido",
-            "subtitle": "Contrato inteligente confiable, Touch/Face ID con código de acceso y todas las transacciones en una blockchain descentralizada",
+            "subtitle": "Contrato inteligente confiable, Touch/Face ID con código de acceso y todas las transacciones en una blockchain descentralizada"
         },
         "slide_2": {
             "title": "Con una tarjeta criptográfica genial",
-            "subtitle": "Ordena una tarjeta ahora. Transferencias internas y compras en minutos.\nTodo esto es una tarjeta única de Tonhub",
+            "subtitle": "Ordena una tarjeta ahora. Transferencias internas y compras en minutos.\nTodo esto es una tarjeta única de Tonhub"
         },
         "slide_3": {
             "title": "Rápido",
-            "subtitle": "Gracias a la arquitectura única de TON, las transacciones se realizan en segundos",
-        },
+            "subtitle": "Gracias a la arquitectura única de TON, las transacciones se realizan en segundos"
+        }
     },
     "legal": {
         "title": "Legal",
@@ -806,13 +806,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "backupTitle": "Tu clave de respaldo",
         "backupSubtitle": "Escribe estas 24 palabras en el mismo orden y guárdalas en un lugar secreto",
         "okSaved": "OK, las guardé",
-        "copy": "Copiar al portapapeles",
+        "copy": "Copiar al portapapeles"
     },
     "import": {
         "title": "Ingresar clave de respaldo",
         "subtitle": "Por favor, restaura el acceso a tu billetera ingresando las 24 palabras secretas que anotaste al crear la billetera",
         "fullSeedPlaceholder": "Ingresa las 24 palabras secretas",
-        "fullSeedPaste": "O puedes pegar la frase completa donde cada palabra está separada por un espacio",
+        "fullSeedPaste": "O puedes pegar la frase completa donde cada palabra está separada por un espacio"
     },
     "secure": {
         "title": "Protege tu billetera",
@@ -845,7 +845,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "title": "Respalda tu billetera",
         "subtitle": "¿Estás seguro de que has guardado tus 24 palabras secretas?",
         "saved": "Sí, las guardé",
-        "goToBackup": "No, ir al respaldo",
+        "goToBackup": "No, ir al respaldo"
     },
     "errors": {
         "incorrectWords": {
@@ -860,7 +860,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "invalidNumber": "No, este no es un número real. Por favor, verifica tu entrada y vuelve a intentarlo.",
         "codeTooManyAttempts": "Has intentado demasiado, por favor intenta de nuevo en 15 minutos.",
         "codeInvalid": "No, el código ingresado es inválido. Verifica el código y vuelve a intentarlo.",
-        "unknown": "Vaya, es un error desconocido. Literalmente no tengo idea de lo que está pasando. ¿Puedes intentar apagarlo y encenderlo de nuevo?",
+        "unknown": "Vaya, es un error desconocido. Literalmente no tengo idea de lo que está pasando. ¿Puedes intentar apagarlo y encenderlo de nuevo?"
     },
     "confirm": {
         "logout": {
@@ -882,7 +882,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "confirm": {
             "title": "¿Estás seguro de que quieres cerrar este formulario?",
             "message": "Esta acción descartará todos tus cambios"
-        },
+        }
     },
     "known": {
         "deposit": "Depósito",
@@ -930,7 +930,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "alertActive": "Marcar {{symbol}} como activo",
         "alertDisabled": "Marcar {{symbol}} como oculto",
         "description": "Para cambiar el estado de una cuenta, mantén presionado el botón de la cuenta en la pantalla de inicio o presiona en este menú. La cuenta se agregará a la pantalla de inicio o se ocultará.",
-        "noAccounts": "Aún no tienes cuentas",
+        "noAccounts": "Aún no tienes cuentas"
     },
     "spamFilter": {
         "minAmount": "Cantidad mínima de TON",
@@ -962,35 +962,35 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "enterNewDescription": "Configurar una contraseña proporciona una capa adicional de seguridad al usar la aplicación",
             "changeLength": "Usar código PIN de {{length}} dígitos",
             "forgotPasscode": "¿Olvidaste el código PIN?",
-            "logoutAndReset": "Cerrar sesión y restablecer código PIN",
+            "logoutAndReset": "Cerrar sesión y restablecer código PIN"
         },
         "auth": {
             "biometricsPermissionCheck": {
                 "title": "Permiso requerido",
                 "message": "Por favor, permite que la aplicación acceda a la biometría para la autenticación",
                 "openSettings": "Abrir configuración",
-                "authenticate": "Autenticar con código de acceso",
+                "authenticate": "Autenticar con código de acceso"
             },
             "biometricsSetupAgain": {
                 "title": "Nueva biometría detectada",
                 "message": "Por favor, configura la biometría nuevamente en la configuración de seguridad",
                 "setup": "Configurar",
-                "authenticate": "Continuar con código de acceso",
+                "authenticate": "Continuar con código de acceso"
             },
             "biometricsCooldown": {
                 "title": "Enfriamiento de biometría",
-                "message": "Por favor, intenta de nuevo más tarde, o bloquea tu dispositivo y desbloquéalo nuevamente con el código de acceso del dispositivo para habilitar la biometría",
+                "message": "Por favor, intenta de nuevo más tarde, o bloquea tu dispositivo y desbloquéalo nuevamente con el código de acceso del dispositivo para habilitar la biometría"
             },
             "biometricsCorrupted": {
                 "title": "Biometría corrupta y no se ha configurado el código PIN",
                 "message": "Desafortunadamente, tu billetera ya no está disponible, para restaurar tu billetera, toca \"Restaurar\" (se cerrará la sesión de tu billetera actual) e ingresa tus 24 palabras secretas",
                 "messageLogout": "Desafortunadamente, tu billetera ya no está disponible, para restaurar tu billetera, toca \"Cerrar sesión\" (se cerrará la sesión de tu billetera actual) y agrega tu billetera nuevamente",
                 "logout": "Cerrar sesión",
-                "restore": "Restaurar",
+                "restore": "Restaurar"
             },
             "canceled": {
                 "title": "Cancelado",
-                "message": "La autenticación fue cancelada, por favor intenta de nuevo",
+                "message": "La autenticación fue cancelada, por favor intenta de nuevo"
             }
         }
     },
@@ -1012,7 +1012,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "heading": "Título",
         "error": "Error al publicar la revisión",
         "posted": "¡Gracias por tus comentarios!",
-        "postedDescription": "Tu revisión será publicada después de la moderación",
+        "postedDescription": "Tu revisión será publicada después de la moderación"
     },
     "deleteAccount": {
         "title": "¿Estás seguro de que quieres eliminar la cuenta?",
@@ -1028,10 +1028,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         "confirm": {
             "title": "¿Estás seguro de que quieres eliminar tu cuenta y todos los datos de esta aplicación?",
-            "message": "Esta acción eliminará tu cuenta y todos los datos de esta aplicación y transferirá todas tus monedas TON a la dirección de la billetera que especificaste.\nPor favor, verifica cuidadosamente la dirección del destinatario antes de continuar. Se cobrará una tarifa estándar de blockchain por esta transacción.",
+            "message": "Esta acción eliminará tu cuenta y todos los datos de esta aplicación y transferirá todas tus monedas TON a la dirección de la billetera que especificaste.\nPor favor, verifica cuidadosamente la dirección del destinatario antes de continuar. Se cobrará una tarifa estándar de blockchain por esta transacción."
         },
         "checkRecipient": "Verificar destinatario",
-        "checkRecipientDescription": "Para hacer que tu cuenta sea inactiva, debes transferir todos los fondos a otra billetera (dirección del destinatario). Por favor, verifica cuidadosamente la dirección antes de continuar",
+        "checkRecipientDescription": "Para hacer que tu cuenta sea inactiva, debes transferir todos los fondos a otra billetera (dirección del destinatario). Por favor, verifica cuidadosamente la dirección antes de continuar"
     },
     "browser": {
         "listings": {
@@ -1058,7 +1058,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "suggestions": {
                 "web": "Buscar en {{engine}}",
                 "ddg": "DuckDuckGo",
-                "google": "Google",
+                "google": "Google"
             }
         },
         "alertModal": {
@@ -1070,7 +1070,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "title": "DeDust.io — AMM DEX en The Open Network",
         "description": "Estás a punto de usar un servicio de Dedust.io operado por una parte independiente no afiliada a Tonhub\nDebes aceptar los Términos de Uso y la Política de Privacidad para continuar",
         "termsAndPrivacy": "He leído y acepto los ",
-        "dontShowTitle": "No mostrar de nuevo para DeDust.io",
+        "dontShowTitle": "No mostrar de nuevo para DeDust.io"
     },
     "mandatoryAuth": {
         "title": "Verifica tu respaldo",
@@ -1078,15 +1078,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "alert": "Escribe las 24 palabras secretas en la sección de Seguridad de la configuración de tu billetera. Esto te ayudará a recuperar el acceso si pierdes tu teléfono o olvidas tu código PIN.",
         "confirmDescription": "Escribí las 24 palabras secretas de mi billetera y las guardé en un lugar seguro",
         "action": "Habilitar",
-        "settingsDescription": "Se requiere solicitud de autenticación ya que la aplicación muestra productos bancarios. Los datos sensibles estarán ocultos hasta que actives la autenticación",
+        "settingsDescription": "Se requiere solicitud de autenticación ya que la aplicación muestra productos bancarios. Los datos sensibles estarán ocultos hasta que actives la autenticación"
     },
     "update": {
         "callToAction": "Actualizar Tonhub"
     },
-
     "logout": {
         "title": "¿Estás seguro de que quieres cerrar sesión de {{name}}?",
-        "logoutDescription": "El acceso a la billetera será deshabilitado. ¿Has guardado tu clave privada?",
+        "logoutDescription": "El acceso a la billetera será deshabilitado. ¿Has guardado tu clave privada?"
     },
     "contacts": {
         "title": "Contactos",
@@ -1104,14 +1103,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "name": "Nombre incorrecto",
             "nameDescription": "El nombre del contacto no puede estar vacío o tener más de 126 caracteres",
             "notes": "Campo incorrecto",
-            "notesDescription": "Los campos del contacto no pueden tener más de 280 caracteres",
+            "notesDescription": "Los campos del contacto no pueden tener más de 280 caracteres"
         },
         "delete": "Eliminar contacto",
         "empty": "No hay contactos aún",
         "description": "Puedes agregar una dirección a tus contactos manteniendo presionada cualquier transacción o dirección o usando el botón \"Agregar\" o desde la lista de contactos recientes a continuación",
         "contactAddress": "Dirección de contactos",
         "search": "Nombre o dirección de billetera",
-        "new": "Nuevo contacto",
+        "new": "Nuevo contacto"
     },
     "currency": {
         "USD": "Dólar estadounidense",
@@ -1123,7 +1122,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "KRW": "Won surcoreano",
         "IDR": "Rupia indonesia",
         "INR": "Rupia india",
-        "JPY": "Yen japonés",
+        "JPY": "Yen japonés"
     },
     "txActions": {
         "addressShare": "Compartir dirección",
@@ -1135,10 +1134,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "view": "Ver en el explorador",
         "share": {
             "address": "Dirección TON",
-            "transaction": "Transacción TON",
+            "transaction": "Transacción TON"
         }
     },
-
     "hardwareWallet": {
         "ledger": "Ledger",
         "title": "Conectar Ledger",
@@ -1173,7 +1171,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "sending": "Esperando transacción",
             "sent": "Transacción enviada",
             "mainAddress": "Dirección principal",
-            "givePermissions": "Dar permisos",
+            "givePermissions": "Dar permisos"
         },
         "confirm": {
             "add": "¿Estás seguro de que quieres agregar esta aplicación?",
@@ -1206,7 +1204,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "copySeedAlertTitle": "Copiando frase semilla de 24 palabras al portapapeles",
         "copySeedAlertMessage": "¡ADVERTENCIA! Copiar la frase semilla de 24 palabras al portapapeles no es seguro. Procede bajo tu propio riesgo.",
         "copySeedAlertAction": "Copiar",
-        "holdersOfflineApp": "Aplicación Offline de Holders",
+        "holdersOfflineApp": "Aplicación Offline de Holders"
     },
     "wallets": {
         "choose_versions": "Elige billeteras para agregar",
@@ -1222,26 +1220,26 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "settings": {
             "changeAvatar": "Cambiar avatar",
             "selectAvatarTitle": "Imagen",
-            "selectColorTitle": "Color de fondo",
+            "selectColorTitle": "Color de fondo"
         }
     },
     "webView": {
         "checkInternetAndReload": "Por favor, verifica la conexión a internet y vuelve a cargar la página",
         "contactSupportOrTryToReload": "Contacta al soporte o intenta recargar la página",
-        "contactSupport": "Contactar soporte",
+        "contactSupport": "Contactar soporte"
     },
     "appAuth": {
-        "description": "Para continuar iniciando sesión en la aplicación",
+        "description": "Para continuar iniciando sesión en la aplicación"
     },
     "screenCapture": {
         "title": "Wow, captura de pantalla genial, pero no es seguro",
         "description": "No se recomiendan copias digitales no cifradas de tu frase secreta. Ejemplos incluyen guardar copias en la computadora, en cuentas en línea o tomar capturas de pantalla",
-        "action": "OK, estoy asumiendo el riesgo",
+        "action": "OK, estoy asumiendo el riesgo"
     },
     "onboarding": {
         "avatar": "Aquí es donde puedes cambiar el avatar y el nombre de tus billeteras",
         "wallet": "Aquí es donde puedes agregar nuevas o cambiar entre tus billeteras",
-        "price": "Aquí es donde puedes cambiar tu moneda principal",
+        "price": "Aquí es donde puedes cambiar tu moneda principal"
     },
     "newAddressFormat": {
         "title": "Formato de dirección",
@@ -1262,7 +1260,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "oldAddress": "Dirección antigua",
         "newAddress": "Nueva dirección",
         "bannerTitle": "Actualiza tu dirección",
-        "bannerDescription": "De EQ a UQ",
+        "bannerDescription": "De EQ a UQ"
     },
     "changelly": {
         "bannerTitle": "Depósitos de USDT y USDC",
@@ -1271,7 +1269,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     "w5": {
         "banner": {
             "title": "Agregar billetera W5",
-            "description": "Transferir USDT sin gas",
+            "description": "Transferir USDT sin gas"
         },
         "update": {
             "title": "Actualizar billetera a W5",
@@ -1281,13 +1279,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "description_2": "W5 permite aumentar el número de operaciones en una sola transacción en un 60% y ahorrar significativamente en tarifas.",
             "subtitle_3": "Tu frase semilla no cambia",
             "description_3": "Las billeteras V4 y W5 tienen la misma frase semilla. Siempre puedes cambiar de versión seleccionando la dirección deseada en la parte superior de la pantalla principal.",
-            "switch_button": "Cambiar a W5",
+            "switch_button": "Cambiar a W5"
         },
         "gaslessInfo": "No se requiere TON para pagar la tarifa de gas al enviar este token. La tarifa se deducirá directamente de tu saldo de tokens."
     },
     "savings": {
         "ton": "Cuenta de ahorro TON",
-        "usdt": "Cuenta de ahorro USDT",
+        "usdt": "Cuenta de ahorro USDT"
     },
     "spending": {
         "ton": "Cuenta de gastos TON",

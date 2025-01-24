@@ -1,90 +1,90 @@
 import { LocalizationSchema, PrepareSchema } from "./schema";
 
-const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
-    lang: 'en',
-    common: {
-        and: 'and',
-        accept: 'Accept',
-        start: 'Start',
-        continue: 'Continue',
-        continueAnyway: 'Continue anyway',
-        back: 'Back',
-        logout: 'Log Out',
-        logoutFrom: 'Log Out from {{name}}',
-        cancel: 'Cancel',
-        balance: 'Balance',
-        totalBalance: 'Total balance',
-        walletAddress: 'Wallet address',
-        recipientAddress: 'Recipient address',
-        recipient: 'Recipient',
-        copy: 'Copy',
-        copiedAlert: 'Copied to clipboard',
-        copied: 'Copied',
-        share: 'Share',
-        send: 'Send',
-        yes: 'Yes',
-        no: 'No',
-        amount: 'Amount',
-        today: 'Today',
-        yesterday: 'Yesterday',
-        comment: 'Comment',
-        products: 'Products',
-        confirm: 'Confirm',
-        soon: 'soon',
-        in: 'in',
-        max: 'Max',
-        close: 'Close',
-        delete: 'Delete',
-        apply: 'Apply',
-        domainOrAddress: 'Wallet address or domain',
-        domainOrAddressOrContact: 'Address, domain or name',
-        domain: 'Domain',
-        search: 'Search',
-        termsOfService: 'Terms\u00A0Of\u00A0Service',
-        privacyPolicy: 'Privacy\u00A0Policy',
-        apy: 'APY',
-        tx: 'Transaction',
-        add: 'Add',
-        connect: 'Connect',
-        gotIt: 'Got it',
-        error: 'Error',
-        wallet: 'Wallet',
-        wallets: 'Wallets',
-        later: 'Later',
-        select: 'Select',
-        show: 'Show',
-        hide: 'Hide',
-        showAll: 'Show all',
-        hideAll: 'Hide all',
-        done: 'Done',
-        mainWallet: 'Main wallet',
-        walletName: 'Wallet name',
-        from: 'From',
-        to: 'To',
-        transaction: 'Transaction',
-        somethingWentWrong: 'Something went wrong',
-        checkInternetConnection: 'Check your internet connection',
-        reload: 'Reload',
-        errorOccurred: 'Error occurred: {{error}}',
-        recent: 'Recent',
-        ok: 'OK',
-        attention: 'Attention',
-        save: 'Save',
-        assets: 'Assets',
-        message: 'Message',
-        messages: 'Messages',
-        airdrop: 'Airdrop',
-        myWallets: 'My wallets',
-        showMore: 'Show more',
-        balances: 'Balances',
-        loading: 'Loading...',
-        notFound: 'Not found',
-        unverified: 'Unverified',
-        addressBook: 'Address book',
-        gasless: 'Gasless',
-        address: 'Address',
-        currencyChanged: 'Currency changed',
-        required: 'required'
+const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
+    "lang": "en",
+    "common": {
+        "and": "and",
+        "accept": "Accept",
+        "start": "Start",
+        "continue": "Continue",
+        "continueAnyway": "Continue anyway",
+        "back": "Back",
+        "logout": "Log Out",
+        "logoutFrom": "Log Out from {{name}}",
+        "cancel": "Cancel",
+        "balance": "Balance",
+        "totalBalance": "Total balance",
+        "walletAddress": "Wallet address",
+        "recipientAddress": "Recipient address",
+        "recipient": "Recipient",
+        "copy": "Copy",
+        "copiedAlert": "Copied to clipboard",
+        "copied": "Copied",
+        "share": "Share",
+        "send": "Send",
+        "yes": "Yes",
+        "no": "No",
+        "amount": "Amount",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "comment": "Comment",
+        "products": "Products",
+        "confirm": "Confirm",
+        "soon": "soon",
+        "in": "in",
+        "max": "Max",
+        "close": "Close",
+        "delete": "Delete",
+        "apply": "Apply",
+        "domainOrAddress": "Wallet address or domain",
+        "domainOrAddressOrContact": "Address, domain or name",
+        "domain": "Domain",
+        "search": "Search",
+        "termsOfService": "Terms\u00A0Of\u00A0Service",
+        "privacyPolicy": "Privacy\u00A0Policy",
+        "apy": "APY",
+        "tx": "Transaction",
+        "add": "Add",
+        "connect": "Connect",
+        "gotIt": "Got it",
+        "error": "Error",
+        "wallet": "Wallet",
+        "wallets": "Wallets",
+        "later": "Later",
+        "select": "Select",
+        "show": "Show",
+        "hide": "Hide",
+        "showAll": "Show all",
+        "hideAll": "Hide all",
+        "done": "Done",
+        "mainWallet": "Main wallet",
+        "walletName": "Wallet name",
+        "from": "From",
+        "to": "To",
+        "transaction": "Transaction",
+        "somethingWentWrong": "Something went wrong",
+        "checkInternetConnection": "Check your internet connection",
+        "reload": "Reload",
+        "errorOccurred": "Error occurred: {{error}}",
+        "recent": "Recent",
+        "ok": "OK",
+        "attention": "Attention",
+        "save": "Save",
+        "assets": "Assets",
+        "message": "Message",
+        "messages": "Messages",
+        "airdrop": "Airdrop",
+        "myWallets": "My wallets",
+        "showMore": "Show more",
+        "balances": "Balances",
+        "loading": "Loading...",
+        "notFound": "Not found",
+        "unverified": "Unverified",
+        "addressBook": "Address book",
+        "gasless": "Gasless",
+        "address": "Address",
+        "currencyChanged": "Currency changed",
+        "required": "required"
     },
     "syncStatus": {
         "connecting": "Connecting",
@@ -95,25 +95,25 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "home": "Home",
         "history": "History",
         "browser": "Browser",
-        "more": "More",
+        "more": "More"
     },
-    settings: {
-        title: 'More',
-        backupKeys: 'Backup keys',
-        holdersAccounts: 'Spending accounts',
-        migrateOldWallets: 'Migrate old wallets',
-        termsOfService: 'Terms of Service',
-        privacyPolicy: 'Privacy policy',
-        developerTools: 'Developer Tools',
-        spamFilter: 'SPAM filter',
-        primaryCurrency: 'Primary currency',
-        experimental: 'Experimental',
-        support: {
-            title: 'Support',
-            telegram: 'Telegram',
-            form: 'Support form',
-            holders: 'Bank card & accounts',
-            tonhub: 'Tonhub',
+    "settings": {
+        "title": "More",
+        "backupKeys": "Backup keys",
+        "holdersAccounts": "Spending accounts",
+        "migrateOldWallets": "Migrate old wallets",
+        "termsOfService": "Terms of Service",
+        "privacyPolicy": "Privacy policy",
+        "developerTools": "Developer Tools",
+        "spamFilter": "SPAM filter",
+        "primaryCurrency": "Primary currency",
+        "experimental": "Experimental",
+        "support": {
+            "title": "Support",
+            "telegram": "Telegram",
+            "form": "Support form",
+            "holders": "Bank card & accounts",
+            "tonhub": "Tonhub"
         },
         "telegram": "Telegram",
         "rateApp": "Rate app",
@@ -126,7 +126,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "title": "Theme",
         "light": "Light",
         "dark": "Dark",
-        "system": "System",
+        "system": "System"
     },
     "wallet": {
         "sync": "Downloading wallet data",
@@ -147,7 +147,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     "transactions": {
         "title": "Transactions",
-        "history": "History",
+        "history": "History"
     },
     "tx": {
         "sending": "Sending",
@@ -163,20 +163,20 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     "txPreview": {
         "sendAgain": "Send again",
         "blockchainFee": "Network fee",
-        "blockchainFeeDescription": "This fee is also referred to as GAS. It is required for a transaction to be successfully processed in blockchain. The size of the GAS depends on the amount of work that validators need to do to include a transaction in the block.",
+        "blockchainFeeDescription": "This fee is also referred to as GAS. It is required for a transaction to be successfully processed in blockchain. The size of the GAS depends on the amount of work that validators need to do to include a transaction in the block."
     },
-    receive: {
-        title: 'Receive',
-        subtitle: 'Send only Toncoin and tokens in TON network to this address, or you might lose your funds.',
-        share: {
-            title: 'My Tonhub Address',
-            error: 'Failed to share address, please try again or contact support'
+    "receive": {
+        "title": "Receive",
+        "subtitle": "Send only Toncoin and tokens in TON network to this address, or you might lose your funds.",
+        "share": {
+            "title": "My Tonhub Address",
+            "error": "Failed to share address, please try again or contact support"
         },
         "holdersJettonWarning": "Transfer to this address only {{symbol}}, if you send another token, you will lose it.",
         "assets": "Tokens and Accounts",
         "fromExchange": "From an exchange",
         "otherCoins": "Other tokens",
-        "deposit": "Deposit to",
+        "deposit": "Deposit to"
     },
     "transfer": {
         "title": "Send",
@@ -287,14 +287,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "title": "Trusted Apps",
             "delete": {
                 "title": "Delete this extension?",
-                "message": "This will destroy link between your wallet and the extension, but you can always try to connect again.",
+                "message": "This will destroy link between your wallet and the extension, but you can always try to connect again."
             },
             "description": "Applications or extensions you have authorized will be displayed here. You can revoke access from any app or extension at any time.",
             "installExtension": "Install and open extension for this application",
             "moreWallets": "More wallets ({{count}})",
             "connectionSecureDescription": "No funds would be transfered to the app and no access to your coins would be granted"
         },
-        "consent": "By clicking continue you accepting our",
+        "consent": "By clicking continue you accepting our"
     },
     "install": {
         "title": "Connection request",
@@ -305,7 +305,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "title": "Signature request",
         "message": "Requested to sign a message",
         "hint": "No funds would be transfered to the app and no access to your coins would be granted.",
-        "action": "Sign",
+        "action": "Sign"
     },
     "migrate": {
         "title": "Migrate old wallets",
@@ -315,14 +315,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "check": "Checking address {{address}}",
         "keyStoreTitle": "Transition to a new security method",
         "keyStoreSubtitle": "We want your keys to always be secure, so we have updated the way we protect them. We need your permission to transfer your keys to a new secure storage.",
-        "failed": "Migration failed",
+        "failed": "Migration failed"
     },
     "qr": {
         "title": "Point camera at QR code",
         "requestingPermission": "Requesting camera permissions...",
         "noPermission": "Allow camera access to scan QR codes",
         "requestPermission": "Open settings",
-        "failedToReadFromImage": "Failed to read QR code from image",
+        "failedToReadFromImage": "Failed to read QR code from image"
     },
     "products": {
         "addNew": "Add new product",
@@ -335,7 +335,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "alreadyCompleted": "Request already completed",
                 "unknown": "Unknown error, please try again, or contact support"
             },
-            "successAuth": "Connected",
+            "successAuth": "Connected"
         },
         "savings": "Savings",
         "accounts": "Tokens",
@@ -421,7 +421,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "restrictedMessage": "Your funds will not participate in staking if your wallet address is not on the permit list, but will be on the pool balance and awaiting a withdrawal",
                 "notEnoughCoinsFee": "There are not enough TON on your wallet balance to pay the fee. Please note that the {{amount}} TON fee must be on the main balance, not on the staking balance",
                 "notEnoughCoins": "There are not enough funds on your wallet balance to top up the staking balance",
-                "ledgerSignText": "Staking: {{action}}",
+                "ledgerSignText": "Staking: {{action}}"
             },
             "nextCycle": "Next cycle",
             "cycleNote": "All transactions take effect once the cycle ends",
@@ -476,7 +476,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             "unstakeLiquid": {
                 "title": "Withdraw your wsTON",
-                "message": "You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on ",
+                "message": "You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on "
             },
             "learnMore": "Info",
             "moreInfo": "More info",
@@ -490,7 +490,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "yearlyTotal": "Total rewards in a year",
                 "yearlyCurrent": "Current",
                 "topUpTitle": "Your yearly rewards",
-                "goToTopUp": "Go to Top Up",
+                "goToTopUp": "Go to Top Up"
             },
             "info": {
                 "rate": "up to 13.3%",
@@ -532,29 +532,29 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     "week": "1W",
                     "month": "1M",
                     "year": "1Y",
-                    "allTime": "All",
+                    "allTime": "All"
                 }
             }
         },
-        holders: {
-            title: 'Bank account',
-            loadingLongerTitle: 'Connection problems',
-            loadingLonger: 'Check your internet connection and reload page. If the issue persists please contact support',
-            accounts: {
-                title: 'Spendings',
-                prepaidTitle: 'Prepaid cards',
-                account: 'Account',
-                basicAccount: 'Spending account',
-                proAccount: 'Pro account',
-                noCards: 'No cards',
-                prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
-                prepaidCardDescription: 'Reloadable card for everyday use',
-                hiddenCards: 'Hidden cards',
-                hiddenAccounts: 'Hidden accounts',
-                primaryName: 'Main account',
-                paymentName: 'Spending account {{accountIndex}}',
-                topUp: 'Top up account',
-                addNew: 'Add new account'
+        "holders": {
+            "title": "Bank account",
+            "loadingLongerTitle": "Connection problems",
+            "loadingLonger": "Check your internet connection and reload page. If the issue persists please contact support",
+            "accounts": {
+                "title": "Spendings",
+                "prepaidTitle": "Prepaid cards",
+                "account": "Account",
+                "basicAccount": "Spending account",
+                "proAccount": "Pro account",
+                "noCards": "No cards",
+                "prepaidCard": "Tonhub Prepaid *{{lastFourDigits}}",
+                "prepaidCardDescription": "Reloadable card for everyday use",
+                "hiddenCards": "Hidden cards",
+                "hiddenAccounts": "Hidden accounts",
+                "primaryName": "Main account",
+                "paymentName": "Spending account {{accountIndex}}",
+                "topUp": "Top up account",
+                "addNew": "Add new account"
             },
             "pageTitles": {
                 "general": "Tonhub Cards",
@@ -567,7 +567,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "transfer": "Transfer",
                 "cardSmartContract": "Card Smart Contract",
                 "setUpCard": "Set up the card",
-                "pin": "Change PIN",
+                "pin": "Change PIN"
             },
             "card": {
                 "card": "Card",
@@ -578,7 +578,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "eurSubtitle": "Tonhub EUR",
                 "type": {
                     "physical": "Physical Card",
-                    "virtual": "Virtual",
+                    "virtual": "Virtual"
                 },
                 "notifications": {
                     "type": {
@@ -588,32 +588,32 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                         "charge_failed": "Payment",
                         "limits_change": {
                             "pending": "Limits changing",
-                            "completed": "Limits changed",
+                            "completed": "Limits changed"
                         },
                         "card_withdraw": "Transfer to wallet",
                         "contract_closed": "Contract closed",
                         "card_block": "Card blocked",
                         "card_freeze": "Card frozen",
                         "card_unfreeze": "Card unfrozen",
-                        "card_paid": "Bank card issue",
+                        "card_paid": "Bank card issue"
                     },
                     "category": {
                         "deposit": "Top Up",
                         "card_withdraw": "Transfer",
                         "charge": "Purchases",
                         "charge_failed": "Purchases",
-                        "other": "Other",
+                        "other": "Other"
                     },
                     "status": {
                         "charge_failed": {
                             "limit": {
                                 "onetime": "Failed (over onetime limit)",
                                 "daily": "Failed (over daily limit)",
-                                "monthly": "Failed (over monthly limit)",
+                                "monthly": "Failed (over monthly limit)"
                             },
-                            "failed": "Failed",
+                            "failed": "Failed"
                         },
-                        "completed": "Completed",
+                        "completed": "Completed"
                     }
                 }
             },
@@ -634,8 +634,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     "noDomainKey": "No domain key",
                     "createDomainKey": "During domain key creation",
                     "fetchToken": "During token fetching",
-                    "createSignature": "During signature creation",
-                },
+                    "createSignature": "During signature creation"
+                }
             },
             "otpBanner": {
                 "title": "New payment request",
@@ -649,7 +649,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 "readyAction": "Get it now",
                 "emailAction": "Verify your email",
                 "kycAction": "Verify your identity",
-                "failedAction": "Verification failed",
+                "failedAction": "Verification failed"
             },
             "transaction": {
                 "type": {
@@ -767,7 +767,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     "cancelButtonText": "Show transaction details",
                     "text": "Blockchain validation is currently underway. This may take a few minutes"
                 }
-            },
+            }
         }
     },
     "welcome": {
@@ -781,16 +781,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "sloganDev": "This is Ton Sandbox",
         "slide_1": {
             "title": "Protected",
-            "subtitle": "Reliable smart contract, Touch/Face ID with Passcode and all transactions on a decentralized blockchain",
+            "subtitle": "Reliable smart contract, Touch/Face ID with Passcode and all transactions on a decentralized blockchain"
         },
         "slide_2": {
             "title": "With a cool cryptocard",
-            "subtitle": "Order a card now. Internal transfers and purchases in minutes.\nAll this is a unique Tonhub card",
+            "subtitle": "Order a card now. Internal transfers and purchases in minutes.\nAll this is a unique Tonhub card"
         },
         "slide_3": {
             "title": "Fast",
-            "subtitle": "Thanks to the unique TON architecture, transactions take place in seconds",
-        },
+            "subtitle": "Thanks to the unique TON architecture, transactions take place in seconds"
+        }
     },
     "legal": {
         "title": "Legal",
@@ -806,13 +806,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "backupTitle": "Your Backup Key",
         "backupSubtitle": "Write down these 24 words in exactly the same order and save them in a secret place",
         "okSaved": "OK, I saved it",
-        "copy": "Copy to clipboard",
+        "copy": "Copy to clipboard"
     },
     "import": {
         "title": "Enter backup key",
         "subtitle": "Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet",
         "fullSeedPlaceholder": "Enter 24 secret words",
-        "fullSeedPaste": "Or you can paste full seed phrase where each word is separated by a space",
+        "fullSeedPaste": "Or you can paste full seed phrase where each word is separated by a space"
     },
     "secure": {
         "title": "Protect your wallet",
@@ -845,7 +845,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "title": "Back up your wallet",
         "subtitle": "Are you sure that you have saved your 24 secret words?",
         "saved": "Yes, I saved them",
-        "goToBackup": "No, Go to backup",
+        "goToBackup": "No, Go to backup"
     },
     "errors": {
         "incorrectWords": {
@@ -860,7 +860,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "invalidNumber": "Nope, this is not a real number. Please, check your input and try again.",
         "codeTooManyAttempts": "You tried too much, please try again in 15 minutes.",
         "codeInvalid": "Nope, entered code is invalid. Check code and try again.",
-        "unknown": "Woof, it is an unknown error. I literally have no idea what's going on. Can you try to turn it on and off?",
+        "unknown": "Woof, it is an unknown error. I literally have no idea what's going on. Can you try to turn it on and off?"
     },
     "confirm": {
         "logout": {
@@ -882,7 +882,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "confirm": {
             "title": "Are you sure you want to close this form?",
             "message": "This action will discard all of your changes"
-        },
+        }
     },
     "known": {
         "deposit": "Deposit",
@@ -930,7 +930,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "alertActive": "Mark {{symbol}} active",
         "alertDisabled": "Mark {{symbol}} hidden",
         "description": "To change the status of an account, long press the account button on the home screen or press in this menu. The account will be added to the home screen or hidden.",
-        "noAccounts": "You have no accounts yet",
+        "noAccounts": "You have no accounts yet"
     },
     "spamFilter": {
         "minAmount": "Min TON amount",
@@ -962,35 +962,35 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "enterNewDescription": "Setting a password provides an additional layer of security when using the application",
             "changeLength": "Use {{length}}-digit PIN code",
             "forgotPasscode": "Forgot PIN code?",
-            "logoutAndReset": "Log out and reset PIN code",
+            "logoutAndReset": "Log out and reset PIN code"
         },
         "auth": {
             "biometricsPermissionCheck": {
                 "title": "Permission required",
                 "message": "Please, allow the app access to biometrics for authentication",
                 "openSettings": "Open settings",
-                "authenticate": "Authenticate with Passcode",
+                "authenticate": "Authenticate with Passcode"
             },
             "biometricsSetupAgain": {
                 "title": "New biometrics detected",
                 "message": "Please, setup biometrics again in security settings",
                 "setup": "Setup",
-                "authenticate": "Continue with Passcode",
+                "authenticate": "Continue with Passcode"
             },
             "biometricsCooldown": {
                 "title": "Biometrics cooldown",
-                "message": "Please, try again in later, or lock your device and unlock it again with devices passcode to enable biometrics",
+                "message": "Please, try again in later, or lock your device and unlock it again with devices passcode to enable biometrics"
             },
             "biometricsCorrupted": {
                 "title": "Biometrics corrupted and no PIN code set",
                 "message": "Unfortunately, your wallet is no longer available, to restore your wallet, tap \"Restore\" (you will be logged out of you current wallet) and enter your 24 secret words",
                 "messageLogout": "Unfortunately, your wallet is no longer available, to restore your wallet, tap \"Logout\" (you will be logged out of you current wallet) and add your wallet again",
                 "logout": "Logout",
-                "restore": "Restore",
+                "restore": "Restore"
             },
             "canceled": {
                 "title": "Canceled",
-                "message": "Authentication was canceled, please try again",
+                "message": "Authentication was canceled, please try again"
             }
         }
     },
@@ -1012,7 +1012,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "heading": "Title",
         "error": "Error posing review",
         "posted": "Thanks for your feedback!",
-        "postedDescription": "Your review will be published after moderation",
+        "postedDescription": "Your review will be published after moderation"
     },
     "deleteAccount": {
         "title": "Are you sure you want to Delete Account?",
@@ -1028,14 +1028,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         "confirm": {
             "title": "Are you sure you want to delete your account and all data from this application?",
-            "message": "This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding. Standard blockchain fee is charged for this transaction.",
+            "message": "This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding. Standard blockchain fee is charged for this transaction."
         },
         "checkRecipient": "Check recipient",
-        "checkRecipientDescription": "To make you account inactive you have to transfer all funds to another wallet (recipient address). Please, check the address carefully before proceeding",
+        "checkRecipientDescription": "To make you account inactive you have to transfer all funds to another wallet (recipient address). Please, check the address carefully before proceeding"
     },
     "logout": {
         "title": "Are you sure you want to Log Out of {{name}}?",
-        "logoutDescription": "Access to the wallet will be disabled. Have you saved your private key?",
+        "logoutDescription": "Access to the wallet will be disabled. Have you saved your private key?"
     },
     "contacts": {
         "title": "Contacts",
@@ -1053,14 +1053,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "name": "Incorrect name",
             "nameDescription": "Contact name can't be empty or longer than 126 characters",
             "notes": "Incorrect field",
-            "notesDescription": "Contact fields can't be longer than 280 characters",
+            "notesDescription": "Contact fields can't be longer than 280 characters"
         },
         "delete": "Delete contact",
         "empty": "No contacts yet",
         "description": "You can add an address to your contacts long pressing on any transaction or address or using the \"Add\" button or from the list of recent contacts below",
         "contactAddress": "Contacts address",
         "search": "Name or wallet address",
-        "new": "New contact",
+        "new": "New contact"
     },
     "currency": {
         "USD": "United States dollar",
@@ -1072,7 +1072,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "KRW": "South Korean won",
         "IDR": "Indonesian rupiah",
         "INR": "Indian rupee",
-        "JPY": "Japanese yen",
+        "JPY": "Japanese yen"
     },
     "txActions": {
         "addressShare": "Share address",
@@ -1084,7 +1084,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "view": "View in explorer",
         "share": {
             "address": "TON address",
-            "transaction": "TON transaction",
+            "transaction": "TON transaction"
         }
     },
     "hardwareWallet": {
@@ -1121,7 +1121,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "sending": "Awaiting transaction",
             "sent": "Transaction sent",
             "mainAddress": "Main address",
-            "givePermissions": "Give permissions",
+            "givePermissions": "Give permissions"
         },
         "confirm": {
             "add": "Are you sure want to add this app?",
@@ -1154,7 +1154,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "copySeedAlertTitle": "Coping 24 words seed phrase to clipboard",
         "copySeedAlertMessage": "WARNING! Coping 24 words seed phrase to clipboard is not secure. Proceed at your own risk.",
         "copySeedAlertAction": "Copy",
-        "holdersOfflineApp": "Holders Offline App",
+        "holdersOfflineApp": "Holders Offline App"
     },
     "wallets": {
         "choose_versions": "Choose wallets to add",
@@ -1170,26 +1170,26 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "settings": {
             "changeAvatar": "Change avatar",
             "selectAvatarTitle": "Picture",
-            "selectColorTitle": "Background color",
+            "selectColorTitle": "Background color"
         }
     },
     "webView": {
         "checkInternetAndReload": "Please, check internet connection and try to reload the page",
         "contactSupportOrTryToReload": "Contact support or try to reload the page",
-        "contactSupport": "Contact support",
+        "contactSupport": "Contact support"
     },
     "appAuth": {
-        "description": "To continue logging in to the app",
+        "description": "To continue logging in to the app"
     },
     "screenCapture": {
         "title": "Wow, cool screenshot, but it's not safe",
         "description": "Unencrypted digital copies of your secret phrase are NOT recommended. Examples include saving copies on computer, on online accounts or by taking screenshots",
-        "action": "OK, I'm taking the risk",
+        "action": "OK, I'm taking the risk"
     },
     "onboarding": {
         "avatar": "This is where you can change your wallets avatar and name",
         "wallet": "This is where you can add new or switch between your wallets",
-        "price": "This is where you can change your primary currency",
+        "price": "This is where you can change your primary currency"
     },
     "newAddressFormat": {
         "title": "Address format",
@@ -1210,7 +1210,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "oldAddress": "Old address",
         "newAddress": "New address",
         "bannerTitle": "Update your address",
-        "bannerDescription": "From EQ to UQ",
+        "bannerDescription": "From EQ to UQ"
     },
     "changelly": {
         "bannerTitle": "USDT & USDC deposits",
@@ -1219,7 +1219,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     "w5": {
         "banner": {
             "title": "Add wallet W5",
-            "description": "Transfer USDT without gas",
+            "description": "Transfer USDT without gas"
         },
         "update": {
             "title": "Update wallet to W5",
@@ -1229,7 +1229,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "description_2": "W5 allows to increase the number of operations in a single transaction by 60 times and significantly save on fees.",
             "subtitle_3": "Your seed phrase is unchanged",
             "description_3": "V4 and W5 wallets have the same seed phrase. You can always switch versions by selecting the desired address at the top of the main screen.",
-            "switch_button": "Switch to W5",
+            "switch_button": "Switch to W5"
         },
         "gaslessInfo": "TON isn't required to pay gas fee when sending this token. The fee will be deducted directly from your token balance."
     },
@@ -1258,7 +1258,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             "suggestions": {
                 "web": "Search in {{engine}}",
                 "ddg": "DuckDuckGo",
-                "google": "Google",
+                "google": "Google"
             }
         },
         "alertModal": {
@@ -1270,7 +1270,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "title": "DeDust.io — AMM DEX on The Open Network",
         "description": "You are about to use a Dedust.io service operated by an independent party not affiliated with Tonhub\nYou must agree to the Terms of Use and Privacy Policy to continue",
         "termsAndPrivacy": "I have read and agree to the ",
-        "dontShowTitle": "Don't show it again for DeDust.io",
+        "dontShowTitle": "Don't show it again for DeDust.io"
     },
     "mandatoryAuth": {
         "title": "Check your backup",
@@ -1278,14 +1278,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "alert": "Write down 24 secret words in the Security section of your wallet settings. This will help you regain access if you lose your phone or forget your pin code.",
         "confirmDescription": "I wrote down my wallet 24 secret words and saved them in a safe place",
         "action": "Enable",
-        "settingsDescription": "Authentication request is required as the app displays banking products. Sensitive data will be hidden until you turn the authentication on",
+        "settingsDescription": "Authentication request is required as the app displays banking products. Sensitive data will be hidden until you turn the authentication on"
     },
     "update": {
         "callToAction": "Update Tonhub"
     },
     "savings": {
         "ton": "TON saving account",
-        "usdt": "USDT saving account",
+        "usdt": "USDT saving account"
     },
     "spending": {
         "ton": "TON spending account",

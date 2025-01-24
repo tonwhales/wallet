@@ -2,6 +2,8 @@ import { Address } from '@ton/core';
 import { queryClient } from '../clients';
 import { Queries } from '../queries';
 import { getQueryData } from '../utils/getQueryData';
+import { HoldersAccountStatus } from '../hooks/holders/useHoldersAccountStatus';
+import { HoldersUserState } from '../api/holders/fetchUserState';
 
 export async function onAccountsTouched(accounts: Set<string>) {
     const cache = queryClient.getQueryCache();
@@ -49,10 +51,19 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
     // If account touched - transactions and state changed
     let address = Address.parse(account).toString({ testOnly: isTestnet });
 
+    const cache = queryClient.getQueryCache();
+    const holdersStatusKey = Queries.Holders(address).Status();
+    const holdersStatusData = getQueryData<HoldersAccountStatus>(cache, holdersStatusKey);
+
+    const token = (
+        !!holdersStatusData &&
+        holdersStatusData.state === HoldersUserState.Ok
+    ) ? holdersStatusData.token : null;
+
     queryClient.invalidateQueries(Queries.Account(address).All());
     queryClient.invalidateQueries(Queries.HintsFull(address));
     queryClient.invalidateQueries({
-        queryKey: Queries.Transactions(address),
+        queryKey: Queries.TransactionsV2(address, !!token),
         refetchPage: (last, index, allPages) => index == 0,
     });
     queryClient.invalidateQueries({

@@ -3,56 +3,12 @@ import { useSelectedAccount } from './appstate/useSelectedAccount';
 import { useRecoilValue } from 'recoil';
 import { blockWatcherAtom } from '../state/blockWatcherState';
 import { useIsFetching } from '@tanstack/react-query';
-import { useHoldersAccountStatus, useJettonWalletAddress, useKnownJettons, useNetwork } from '.';
+import { useHoldersAccountStatus } from '.';
 import { HoldersUserState } from '../api/holders/fetchUserState';
-
-function useIsFetchingTxs(account: string) {
-    return useIsFetching(Queries.Transactions(account));
-}
 
 function useIsFetchingHints(account: string) {
     const hintsQueryKey = Queries.HintsFull(account);
     return useIsFetching(hintsQueryKey);
-}
-
-function useIsFetchingSpecialJettonAddress(account: string) {
-    const { isTestnet } = useNetwork();
-    const knownJettons = useKnownJettons(isTestnet);
-    const specialJettonMaster = knownJettons?.specialJetton || 'default-null';
-
-    const walletAddressQueryKey = Queries.Jettons().Address(account).Wallet(specialJettonMaster);
-
-    return useIsFetching(walletAddressQueryKey);
-}
-
-function useIsFetchingMasterContent() {
-    const { isTestnet } = useNetwork();
-    const knownJettons = useKnownJettons(isTestnet);
-    const specialJettonMaster = knownJettons?.specialJetton || 'default-null';
-
-    const masterContentQueryKey = Queries.Jettons().MasterContent(specialJettonMaster);
-
-    return useIsFetching(masterContentQueryKey);
-}
-
-function useIsFetchingWalletContent(account: string) {
-    const { isTestnet } = useNetwork();
-    const knownJettons = useKnownJettons(isTestnet);
-    const specialJettonMaster = knownJettons?.specialJetton || 'default-null';
-    const walletAddress = useJettonWalletAddress(specialJettonMaster, account).data;
-    const walletAddressStr = walletAddress || 'default-null';
-
-    const walletContentQueryKey = Queries.Account(walletAddressStr).JettonWallet();
-
-    return useIsFetching(walletContentQueryKey);
-}
-
-function useIsFetchingSpecialJetton(account: string) {
-    const isFetchingMasterContent = useIsFetchingMasterContent();
-    const isFetchingWalletContent = useIsFetchingWalletContent(account);
-    const isFetchingWalletAddress = useIsFetchingSpecialJettonAddress(account);
-
-    return isFetchingMasterContent + isFetchingWalletContent + isFetchingWalletAddress;
 }
 
 const lastHoldersFetch = 0;

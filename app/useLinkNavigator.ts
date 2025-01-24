@@ -284,17 +284,26 @@ async function resolveAndNavigateToTransaction(
         if (!!selected.addressString) {
             const isSelectedAddress = selected.address.equals(Address.parse(resolved.address));
             const queryCache = queryClient.getQueryCache();
-            let txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
+            const holdersStatusKey = Queries.Holders(resolved.address).Status();
+            const holdersStatusData = getQueryData<HoldersAccountStatus>(queryCache, holdersStatusKey);
+
+            const token = (
+                !!holdersStatusData &&
+                holdersStatusData.state === HoldersUserState.Ok
+            ) ? holdersStatusData.token : null;
+
+            let txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.TransactionsV2(resolved.address, !!token));
             let tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
+
 
             if (!tx) {
                 // If transaction is not found in the list, invalidate the cache and try to fetch it again
                 await queryClient.invalidateQueries({
-                    queryKey: Queries.Transactions(resolved.address),
+                    queryKey: Queries.TransactionsV2(resolved.address, !!token),
                     refetchPage: (last, index, allPages) => index == 0,
                 });
 
-                txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
+                txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.TransactionsV2(resolved.address, !!token));
                 tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
             }
 

@@ -8,6 +8,9 @@ import { useAppConfig } from "../useAppConfig";
 import { useLastWatchedBlock } from "../useLastWatchedBlock";
 import { queryClient } from "../../clients";
 import { Queries } from "../../queries";
+import { HoldersUserState } from "../../api/holders/fetchUserState";
+import { HoldersAccountStatus } from "../holders/useHoldersAccountStatus";
+import { getQueryData } from "../../utils/getQueryData";
 
 function checkIfTxTimedout(tx: PendingTransaction, txTimeout: number = 60, lastWatchedBlock: { seqno: number, lastUtime: number } | null) {
     const currentBlock = lastWatchedBlock?.seqno ?? 0;
@@ -49,10 +52,19 @@ export function usePendingWatcher(address?: string) {
             return;
         }
 
+        const cache = queryClient.getQueryCache();
+        const holdersStatusKey = Queries.Holders(acc).Status();
+        const holdersStatusData = getQueryData<HoldersAccountStatus>(cache, holdersStatusKey);
+
+        const token = (
+            !!holdersStatusData &&
+            holdersStatusData.state === HoldersUserState.Ok
+        ) ? holdersStatusData.token : null;
+
         // refetch transactions
-        if (!queryClient.isFetching(Queries.Transactions(acc))) {
+        if (!queryClient.isFetching(Queries.TransactionsV2(acc, !!token))) {
             queryClient.invalidateQueries({
-                queryKey: Queries.Transactions(acc),
+                queryKey: Queries.TransactionsV2(acc, !!token),
                 refetchPage: (last, index, allPages) => index == 0,
             });
         }

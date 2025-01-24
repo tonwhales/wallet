@@ -979,7 +979,6 @@ const SimpleTransferComponent = () => {
                 }}
                 contentInsetAdjustmentBehavior={'never'}
                 keyboardShouldPersistTaps={'always'}
-                keyboardDismissMode={'on-drag'}
                 automaticallyAdjustContentInsets={false}
                 scrollEnabled={!selectedInput}
                 nestedScrollEnabled={!selectedInput}

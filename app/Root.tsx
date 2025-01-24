@@ -18,6 +18,7 @@ import { PriceLoader } from './engine/PriceContext';
 import { migrateDontShowComments } from './engine/state/spam';
 import { AppBlurContextProvider } from './components/AppBlurContext';
 import { ModalAlertProvider } from './components/ModalAlert';
+import { devKey } from './analytics/mixpanel';
 
 const PERSISTANCE_VERSION = '23';
 // set default value for spam comments
@@ -35,7 +36,7 @@ export const Root = memo(() => {
         // send report to analytics
         if (__DEV__) {
             console.log('Render pass report', report);
-            new Mixpanel("b4b856b618ade30de503c189af079566").track('react_native_performance', report);
+            new Mixpanel(devKey, true).track('react_native_performance', report);
         }
     }, []);
 

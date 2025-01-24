@@ -82,7 +82,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         unverified: 'Non vérifié',
         addressBook: 'Carnet d’adresses',
         gasless: 'Sans gaz',
-        address: 'Adresse'
+        address: 'Adresse',
+        currencyChanged: 'Devise changée',
+        required: 'requis'
     },
     syncStatus: {
         connecting: 'Connexion',
@@ -98,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Plus',
         backupKeys: 'Sauvegarder les clés',
+        holdersAccounts: 'Comptes de dépenses',
         migrateOldWallets: 'Migrer les anciens portefeuilles',
         termsOfService: 'Conditions d’utilisation',
         privacyPolicy: 'Politique de confidentialité',
@@ -164,7 +167,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     receive: {
         title: 'Recevoir',
-        subtitle: 'Envoyez uniquement des actifs de la blockchain TON à cette adresse. Les autres actifs seraient perdus.',
+        subtitle: 'Envoyez uniquement des Toncoin et des jetons sur le réseau TON à cette adresse, sinon vous risquez de perdre vos fonds.',
         share: {
             title: 'Mon adresse Tonhub',
             error: 'Échec du partage de l’adresse, veuillez réessayer ou contacter le support'
@@ -241,15 +244,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsSummary: 'Total',
         txsTotal: 'Montant total',
         gasDetails: 'Détails des frais de gaz',
-        jettonGas: 'Gaz pour l’envoi de jetons',
-        unusualJettonsGas: 'Frais plus élevés que d’habitude',
-        unusualJettonsGasTitle: 'Les frais pour envoyer des jetons sont de {{amount}} TON',
-        unusualJettonsGasMessage: 'Les frais de transaction (Gaz) sont plus élevés que d’habitude',
-        addressNotActive: 'Ce portefeuille n’a pas de transactions sortantes',
-        wrongJettonTitle: 'Mauvais jeton',
-        wrongJettonMessage: 'Vous essayez d’envoyer un jeton que vous ne possédez pas',
+        jettonGas: 'Gaz pour l\'envoi de jetons',
+        unusualJettonsGas: 'Le gaz est plus élevé que d\'habitude',
+        unusualJettonsGasTitle: 'Les frais d\'envoi de jetons sont de {{amount}} TON',
+        unusualJettonsGasMessage: 'Les frais de transaction des jetons (Gaz) sont plus élevés que d\'habitude',
+        addressNotActive: 'Ce portefeuille n\'a eu aucune transaction sortante',
+        wrongJettonTitle: 'Jeton incorrect',
+        wrongJettonMessage: 'Vous essayez d\'envoyer un jeton que vous n\'avez pas',
         notEnoughJettonsTitle: 'Pas assez de jetons',
-        notEnoughJettonsMessage: 'Vous essayez d’envoyer plus de jetons que vous n’en possédez',
+        notEnoughJettonsMessage: 'Vous essayez d\'envoyer plus de jetons que vous n\'en avez',
         aboutFees: 'À propos des frais',
         aboutFeesDescription: 'Les frais pour les transactions dépendent de plusieurs facteurs, tels que la congestion du réseau, la taille de la transaction, le prix du gaz et les paramètres de configuration de la blockchain. Plus la demande est élevée ou plus la taille de la transaction est grande (message/commentaire), plus les frais seront élevés.',
         gaslessTransferSwitch: 'Payer les frais de gaz en {{symbol}}'
@@ -359,7 +362,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subtitle: 'Appuyez pour voir la demande'
         },
         staking: {
-            title: 'Staking',
+            earnings: 'Revenus',
+            title: 'TON Staking',
             balance: 'Solde staking',
             subtitle: {
                 join: 'Gagnez jusqu’à {{apy}}% sur vos TON',
@@ -538,9 +542,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Vérifiez votre connexion Internet et rechargez la page. Si le problème persiste, veuillez contacter le support',
             accounts: {
                 title: 'Dépenses',
-                prepaidTitle: 'Cartes',
+                prepaidTitle: 'Cartes prépayées',
                 account: 'Compte',
-                basicAccount: 'Compte de base',
+                basicAccount: 'Compte de dépenses',
                 proAccount: 'Compte pro',
                 noCards: 'Pas de cartes',
                 prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
@@ -550,6 +554,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 primaryName: 'Compte principal',
                 paymentName: 'Compte de paiement {{accountIndex}}',
                 topUp: 'Recharger le compte',
+                addNew: 'Ajouter un compte'
             },
             pageTitles: {
                 general: 'Cartes Tonhub',
@@ -637,6 +642,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 accept: 'Accepter',
                 decline: 'Refuser',
                 expired: 'Expiré'
+            },
+            banner: {
+                fewMore: 'Plus que quelques étapes',
+                ready: 'Vérification terminée ! Votre carte est prête !',
+                readyAction: 'Obtenez-la maintenant',
+                emailAction: 'Vérifiez votre e-mail',
+                kycAction: 'Complétez la vérification',
+                failedAction: 'Échec de la vérification',
             }
         }
     },
@@ -783,7 +796,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         token: 'jeton',
         productButtonTitle: 'Jetons',
         productButtonSubtitle: '{{jettonName}} et {{count}} autres',
-        hidden: 'Jetons masqués',
+        hidden: 'Jetons cachés',
         liquidPoolDescriptionDedust: 'Liquidité pour {{name0}}/{{name1}} sur DeDust DEX',
         liquidPoolDescriptionStonFi: 'Liquidité pour {{name0}}/{{name1}} sur STON.fi DEX',
         emptyBalance: 'Solde vide',
@@ -1082,6 +1095,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bannerTitle: 'Mettez à jour votre adresse',
         bannerDescription: 'De EQ à UQ',
     },
+    changelly: {
+        bannerTitle: 'Dépôts USDT et USDC',
+        bannerDescription: 'Tron, Solana, Ethereum, Polygon disponibles!'
+    },
     w5: {
         banner: {
             title: 'Ajouter le portefeuille W5',
@@ -1148,6 +1165,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     update: {
         callToAction: 'Mettez à jour Tonhub'
+    },
+    savings: {
+        ton: 'Compte d\'épargne TON',
+        usdt: 'Compte d\'épargne USDT',
+    },
+    spending: {
+        ton: 'Compte de dépenses TON',
+        usdt: 'Compte de dépenses USDT'
     }
 };
 

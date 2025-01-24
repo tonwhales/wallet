@@ -1,5 +1,5 @@
 import React, { ReactElement, memo, useCallback, useMemo } from "react"
-import { Pressable, Text, View } from "react-native"
+import { View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
@@ -15,7 +15,6 @@ import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
 import { ProductBanner } from "./ProductBanner"
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState"
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
-import { Typography } from "../styles"
 import { useBanners } from "../../engine/hooks/banners"
 import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
@@ -27,6 +26,7 @@ import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInvite
 import { HoldersBanner } from "./HoldersBanner"
 import { SavingsProduct } from "./SavingsProduct"
 import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
+import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -98,7 +98,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     }, [selected, isTestnet]);
 
-    const showAddNewProduct = showHoldersBanner || !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
+    const showAddNewProduct = totalStaked === 0n;
 
     return (
         <View>
@@ -136,36 +136,17 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         ) : (
                             <HoldersBanner
                                 onPress={onHoldersPress}
+                                address={selected.address}
                                 {...holderBannerContent.banner}
                             />
                         )
                 )}
 
+                <HoldersChangellyBanner address={selected.address} />
+
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
                 <SavingsProduct address={selected.address} />
-
-                <Pressable
-                    style={({ pressed }) => (
-                        {
-                            flexDirection: 'row',
-                            justifyContent: 'space-between', alignItems: 'center',
-                            padding: 16,
-                            opacity: showAddNewProduct && pressed ? 0.5 : 1
-                        }
-                    )}
-                    disabled={!showAddNewProduct}
-                    onPress={() => navigation.navigate('Products')}
-                >
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('common.products')}
-                    </Text>
-                    {showAddNewProduct && (
-                        <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                            {t('products.addNew')}
-                        </Text>
-                    )}
-                </Pressable>
 
                 <StakingProductComponent
                     key={'pool'}

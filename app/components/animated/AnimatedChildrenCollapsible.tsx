@@ -38,9 +38,10 @@ const AnimatedChildrenCollapsibleComponent = <T,>({
 }: AnimatedChildrenCollapsibleProps<T>) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const itemsHeight = items.map((item) => item.height || itemHeight).reduce((a, b) => a + b, 0);
+    const itemsLen = limitConfig?.maxItems ?? items.length;
+    const itemsHeight = (items.slice(0, itemsLen)).map((item) => item.height || itemHeight).reduce((a, b) => a + b, 0);
     const gap = (style as any)?.gap || 0;
-    const height = itemsHeight + ((items.length - 1) * gap);
+    const height = itemsHeight + ((itemsLen - 1) * gap) + 20 + 32;
     const sharedHeight = useSharedValue(collapsed ? 0 : height);
     const animStyle = useAnimatedStyle(() => {
         return { height: withTiming(sharedHeight.value, { duration: 250 }) };

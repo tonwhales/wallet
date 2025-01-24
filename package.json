@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "2.4.13",
+  "version": "2.4.14",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -85,7 +85,7 @@
     "jest": "^29.2.1",
     "libphonenumber-js": "^1.10.13",
     "lottie-react-native": "^6.4.0",
-    "mixpanel-react-native": "^1.4.2",
+    "mixpanel-react-native": "^3.0.8",
     "murmurhash": "^2.0.0",
     "number-to-bn": "^1.7.0",
     "patch-package": "^6.4.7",
@@ -109,7 +109,7 @@
     "react-native-device-info": "^10.11.0",
     "react-native-fast-pbkdf2": "^0.3.1",
     "react-native-figma-squircle": "^0.2.0",
-    "react-native-gesture-handler": "~2.14.0",
+    "react-native-gesture-handler": "2.20.0",
     "react-native-graph": "1.0.2",
     "react-native-image-colors": "^2.3.0",
     "react-native-inappbrowser-reborn": "^3.6.3",

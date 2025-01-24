@@ -83,6 +83,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressBook: 'Libreta de direcciones',
         gasless: 'Sin gas',
         address: 'Dirección',
+        currencyChanged: 'Moneda cambiada',
+        required: 'requerido'
     },
     syncStatus: {
         connecting: 'Conectando',
@@ -98,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Más',
         backupKeys: 'Respaldar claves',
+        holdersAccounts: 'Cuentas de gastos',
         migrateOldWallets: 'Migrar billeteras antiguas',
         termsOfService: 'Términos de Servicio',
         privacyPolicy: 'Política de privacidad',
@@ -164,7 +167,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     receive: {
         title: 'Recibir',
-        subtitle: 'Solo envía activos de la Blockchain TON a esta dirección. Otros activos se perderán para siempre',
+        subtitle: 'Envía solo Toncoin y tokens en la red TON a esta dirección, o podrías perder tus fondos.',
         share: {
             title: 'Mi dirección de Tonhub',
             error: 'No se pudo compartir la dirección, por favor intente de nuevo o contacte al soporte'
@@ -241,15 +244,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsSummary: 'Total',
         txsTotal: 'Cantidad total',
         gasDetails: 'Detalles del gas',
-        jettonGas: 'Gas para enviar jettons',
-        unusualJettonsGas: 'El gas es más alto de lo usual',
-        unusualJettonsGasTitle: 'La tarifa para enviar jettons es {{amount}} TON',
-        unusualJettonsGasMessage: 'La tarifa de transacción de jetton (Gas) es más alta de lo usual',
-        addressNotActive: 'Esta billetera no tenía transacciones salientes',
-        wrongJettonTitle: 'Jetton incorrecto',
-        wrongJettonMessage: 'Estás intentando enviar un jetton que no tienes',
-        notEnoughJettonsTitle: 'No hay suficientes jettons',
-        notEnoughJettonsMessage: 'Estás intentando enviar más jettons de los que tienes',
+        jettonGas: 'Gas para enviar tokens',
+        unusualJettonsGas: 'El gas es más alto de lo habitual',
+        unusualJettonsGasTitle: 'La tarifa por enviar tokens es de {{amount}} TON',
+        unusualJettonsGasMessage: 'La tarifa de transacción de tokens (Gas) es más alta de lo habitual',
+        addressNotActive: 'Esta billetera no tuvo transacciones salientes',
+        wrongJettonTitle: 'Token incorrecto',
+        wrongJettonMessage: 'Estás intentando enviar un token que no tienes',
+        notEnoughJettonsTitle: 'No hay suficientes tokens',
+        notEnoughJettonsMessage: 'Estás intentando enviar más tokens de los que tienes',
         aboutFees: 'Sobre las tarifas',
         aboutFeesDescription: 'Las tarifas para transacciones en la blockchain dependen de varios factores, como la congestión de la red, el tamaño de la transacción, el precio del gas y los parámetros de configuración de la blockchain. Cuanto mayor sea la demanda de procesamiento de transacciones en la blockchain o mayor sea el tamaño de la transacción (mensaje/comentario), mayores serán las tarifas.',
         gaslessTransferSwitch: 'Pagar tarifa de gas en {{symbol}}'
@@ -359,7 +362,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subtitle: 'Presiona para ver la solicitud'
         },
         staking: {
-            title: 'Staking',
+            earnings: 'Ganancias',
+            title: 'TON Staking',
             balance: 'Saldo de staking',
             subtitle: {
                 join: 'Gana hasta {{apy}}% en tus TONs',
@@ -538,9 +542,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Verifica tu conexión a internet y recarga la página. Si el problema persiste, por favor contacta al soporte',
             accounts: {
                 title: 'Gastos',
-                prepaidTitle: 'Tarjetas',
+                prepaidTitle: 'Tarjetas prepago',
                 account: 'Cuenta',
-                basicAccount: 'Cuenta básica',
+                basicAccount: 'Cuenta de gastos',
                 proAccount: 'Cuenta pro',
                 noCards: 'No hay tarjetas',
                 prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
@@ -550,6 +554,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 primaryName: 'Cuenta principal',
                 paymentName: 'Cuenta de pago {{accountIndex}}',
                 topUp: 'Recargar cuenta',
+                addNew: 'Agregar cuenta'
             },
             pageTitles: {
                 general: 'Tarjetas Tonhub',
@@ -637,6 +642,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 accept: 'Aceptar',
                 decline: 'Rechazar',
                 expired: 'Caducado'
+            },
+            banner: {
+                fewMore: 'Solo unos pocos pasos más',
+                ready: '¡Verificación completada! ¡Tu tarjeta está lista!',
+                readyAction: 'Consíguela ahora',
+                emailAction: 'Verifica tu correo electrónico',
+                kycAction: 'Completa la verificación',
+                failedAction: 'La verificación falló',
             }
         }
     },
@@ -783,11 +796,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         token: 'token',
         productButtonTitle: 'Tokens',
         productButtonSubtitle: '{{jettonName}} y {{count}} otros',
-        hidden: 'Jettons ocultos',
+        hidden: 'Tokens ocultos',
         liquidPoolDescriptionDedust: 'Liquidez para {{name0}}/{{name1}} en DeDust DEX',
         liquidPoolDescriptionStonFi: 'Liquidez para {{name0}}/{{name1}} en STON.fi DEX',
         emptyBalance: 'Saldo vacío',
-        jettonsNotFound: 'No se encontraron jettons'
+        jettonsNotFound: 'No se encontraron tokens'
     },
     connections: {
         extensions: 'Extensiones',
@@ -1134,6 +1147,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bannerTitle: 'Actualiza tu dirección',
         bannerDescription: 'De EQ a UQ',
     },
+    changelly: {
+        bannerTitle: 'Depósitos de USDT y USDC',
+        bannerDescription: '¡Disponibles Tron, Solana, Ethereum, Polygon!'
+    },
     w5: {
         banner: {
             title: 'Agregar billetera W5',
@@ -1150,8 +1167,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             switch_button: "Cambiar a W5",
         },
         gaslessInfo: 'No se requiere TON para pagar la tarifa de gas al enviar este token. La tarifa se deducirá directamente de tu saldo de tokens.'
+    },
+    savings: {
+        ton: 'Cuenta de ahorro TON',
+        usdt: 'Cuenta de ahorro USDT',
+    },
+    spending: {
+        ton: 'Cuenta de gastos TON',
+        usdt: 'Cuenta de gastos USDT'
     }
-
 };
 
 export default schema;

@@ -25,6 +25,8 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
 
     const [collapsed, setCollapsed] = useState(true);
 
+    const toggle = () => setCollapsed((prev) => !prev);
+
     const renderItem = useCallback((h: JettonFull, index: number) => {
         const length = hiddenList.length >= 4 ? 4 : hiddenList.length;
         const isLast = index === length - 1;
@@ -51,20 +53,21 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
 
     return (
         <View style={{ marginBottom: 16 }}>
-            <Pressable style={({ pressed }) => ({
-                flexDirection: 'row',
-                justifyContent: 'space-between', alignItems: 'center',
-                paddingVertical: 12,
-                marginBottom: 4,
-                paddingHorizontal: 16,
-                opacity: pressed ? 0.5 : 1
-            })}
-                onPress={() => setCollapsed(!collapsed)}
+            <Pressable
+                style={({ pressed }) => ({
+                    flexDirection: 'row',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    paddingVertical: 12,
+                    marginBottom: 4,
+                    paddingHorizontal: 16,
+                    opacity: pressed ? 0.5 : 1
+                })}
+                onPress={toggle}
             >
                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                     {t('jetton.hidden')}
                 </Text>
-                <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                <Text style={[{ color: theme.accent }, Typography.medium17_24]}>
                     {collapsed ? t('common.show') : t('common.hide')}
                 </Text>
             </Pressable>

@@ -299,6 +299,10 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             return;
         }
 
+        if (addressDomainInputState.input.length > 0) {
+            return;
+        }
+
         try {
             Address.parse(clipboardText);
             dispatchAddressDomainInput({
@@ -309,7 +313,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             });
             (ref as RefObject<ATextInputRef>)?.current?.setText(clipboardText);
         } catch { }
-    }, [isFocused]);
+    }, [isFocused, addressDomainInputState.input]);
 
     useAppFocusEffect(appFocusCallback);
 

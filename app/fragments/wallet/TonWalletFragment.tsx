@@ -109,14 +109,30 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                 ledger={isLedger}
                 header={
                     <View style={styles.content}>
-                        <Image
-                            source={require('@assets/ic-ton-acc.png')}
-                            style={{
-                                borderRadius: 36,
-                                height: 72,
-                                width: 72
-                            }}
-                        />
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            width: 72, height: 72, borderRadius: 36,
+                        }}>
+                            <Image
+                                source={require('@assets/ic-ton-acc.png')}
+                                style={{
+                                    borderRadius: 36,
+                                    height: 72,
+                                    width: 72
+                                }}
+                            />
+                            <View style={{
+                                justifyContent: 'center', alignItems: 'center',
+                                height: 32, width: 32, borderRadius: 32,
+                                position: 'absolute', right: -7, bottom: -7,
+                                backgroundColor: theme.surfaceOnBg
+                            }}>
+                                <Image
+                                    source={require('@assets/ic-verified.png')}
+                                    style={{ height: 32, width: 32 }}
+                                />
+                            </View>
+                        </View>
                         <View style={{ marginTop: 16, width: '100%' }}>
                             <View style={{ gap: 8, alignItems: 'center' }}>
                                 <ValueComponent

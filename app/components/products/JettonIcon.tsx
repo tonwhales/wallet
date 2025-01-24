@@ -99,6 +99,10 @@ export const JettonIcon = memo(({
     }
 
     const isKnown = !!knownJettonMasters[jetton.address];
+    const icScale = 0.45;
+    const knownSize = Math.floor(size * icScale);
+    const icMarginScale = 0.1;
+    const icMargin = Math.floor(size * icMarginScale);
 
     return (
         <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 0 }}>
@@ -111,26 +115,26 @@ export const JettonIcon = memo(({
             {isKnown ? (
                 <View style={{
                     justifyContent: 'center', alignItems: 'center',
-                    height: 20, width: 20, borderRadius: 10,
-                    position: 'absolute', right: -2, bottom: -2,
+                    height: knownSize, width: knownSize, borderRadius: knownSize,
+                    position: 'absolute', right: -icMargin, bottom: -icMargin,
                     backgroundColor: theme.surfaceOnBg
                 }}>
                     <Image
                         source={require('@assets/ic-verified.png')}
-                        style={{ height: 20, width: 20 }}
+                        style={{ height: knownSize, width: knownSize }}
                     />
                 </View>
             ) : (
                 isSCAM && (
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
-                        height: 20, width: 20, borderRadius: 10,
-                        position: 'absolute', right: -2, bottom: -2,
+                        height: knownSize, width: knownSize, borderRadius: knownSize,
+                        position: 'absolute', right: -icMargin, bottom: -icMargin,
                         backgroundColor: theme.surfaceOnBg
                     }}>
                         <Image
                             source={require('@assets/ic-jetton-scam.png')}
-                            style={{ height: 20, width: 20 }}
+                            style={{ height: knownSize, width: knownSize }}
                         />
                     </View>
                 )

@@ -84,7 +84,9 @@ export type LocalizationSchema = {
         unverified: string,
         addressBook: string,
         gasless: string,
-        address: string
+        address: string,
+        currencyChanged: string,
+        required: string,
     },
     syncStatus: {
         connecting: string,
@@ -100,6 +102,7 @@ export type LocalizationSchema = {
     settings: {
         title: string,
         backupKeys: string,
+        holdersAccounts: string,
         migrateOldWallets: string,
         termsOfService: string,
         privacyPolicy: string,
@@ -361,6 +364,7 @@ export type LocalizationSchema = {
             subtitle: string
         },
         staking: {
+            earnings: string,
             title: string,
             balance: string,
             subtitle: {
@@ -552,6 +556,7 @@ export type LocalizationSchema = {
                 primaryName: string,
                 paymentName: string,
                 topUp: string,
+                addNew: string
             },
             pageTitles: {
                 general: string,
@@ -639,6 +644,14 @@ export type LocalizationSchema = {
                 accept: string,
                 decline: string,
                 expired: string
+            },
+            banner: {
+                fewMore: string,
+                ready: string,
+                readyAction: string,
+                kycAction: string
+                emailAction: string,
+                failedAction: string
             }
         }
     }
@@ -1084,6 +1097,10 @@ export type LocalizationSchema = {
         bannerTitle: string,
         bannerDescription: string,
     },
+    changelly: {
+        bannerTitle: string,
+        bannerDescription: string
+    }
     w5: {
         banner: {
             title: string,
@@ -1150,6 +1167,14 @@ export type LocalizationSchema = {
     },
     update: {
         callToAction: string,
+    },
+    savings: {
+        ton: string,
+        usdt: string,
+    },
+    spending: {
+        ton: string,
+        usdt: string
     }
 };
 

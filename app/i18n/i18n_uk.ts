@@ -83,6 +83,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressBook: 'Адресна книга',
         gasless: 'Без газу',
         address: 'Адреса',
+        currencyChanged: 'Валюта змінена',
+        required: 'обов’язково'
     },
     syncStatus: {
         connecting: 'Підключення',
@@ -98,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'Більше',
         backupKeys: 'Резервні ключі',
+        holdersAccounts: 'Рахунки для витрат',
         migrateOldWallets: 'Міграція старих гаманців',
         termsOfService: 'Умови обслуговування',
         privacyPolicy: 'Політика конфіденційності',
@@ -127,7 +130,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     wallet: {
         sync: 'Завантаження даних гаманця',
-        balanceTitle: 'Баланс Ton',
+        balanceTitle: 'Баланс TON',
         actions: {
             receive: 'Отримати',
             send: 'Надіслати',
@@ -164,7 +167,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     receive: {
         title: 'Отримати',
-        subtitle: 'Надсилайте на цю адресу тільки активи блокчейну TON. Інші активи будуть втрачені назавжди',
+        subtitle: 'Надсилайте лише Toncoin та токени в мережі TON на цю адресу, інакше ви можете втратити свої кошти.',
         share: {
             title: 'Моя адреса Tonhub',
             error: 'Не вдалося поділитися адресою, спробуйте ще раз або зверніться до підтримки'
@@ -186,12 +189,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidDomain: 'Неправильний домен',
             invalidDomainString: 'Мінімум 4 символи, максимум 126 символів. Допускаються латинські літери (a-z), цифри (0-9) та дефіс (-). Дефіс не може бути на початку або в кінці.',
             sendingToYourself: 'Ви не можете надіслати монети самому собі',
-            zeroCoins: 'На жаль, ви не можете надіслати нуль монет',
-            zeroCoinsAlert: 'Ви намагаєтеся надіслати нуль монет',
+            zeroCoins: 'На жаль, ви не можете надіслати 0',
+            zeroCoinsAlert: 'Ви намагаєтеся надіслати 0',
             notEnoughCoins: 'У вас недостатньо коштів на балансі',
             addressIsForTestnet: 'Ця адреса для тестової мережі',
             addressCantReceive: 'Ця адреса не може отримувати монети',
-            addressIsNotActive: 'Цей гаманець не має історії',
+            addressIsNotActive: 'Історія гаманця відсутня',
             addressIsNotActiveDescription: 'Це означає, що з цієї адреси гаманця не було здійснено жодних транзакцій',
             invalidTransaction: 'Неправильна транзакція',
             invalidTransactionMessage: 'Будь ласка, перевірте деталі транзакції',
@@ -200,7 +203,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             memoChange: 'Змініть мему/тег на \"{{memo}}\"',
             gaslessFailed: 'Не вдалося надіслати транзакцію',
             gaslessFailedMessage: 'Будь ласка, спробуйте ще раз або зверніться до підтримки',
-            gaslessFailedEstimate: 'Не вдалося оцінити комісії, спробуйте пізніше або зверніться до підтримки',
+            gaslessFailedEstimate: 'Не вдалося оцінити комісію, спробуйте пізніше або зверніться до підтримки',
             gaslessCooldown: 'Ви можете сплачувати комісію за газ у валюті токена лише раз на кілька хвилин. Будь ласка, зачекайте або сплатіть комісію за транзакцію в TON.',
             gaslessCooldownTitle: 'Зачекайте кілька хвилин перед наступною транзакцією',
             gaslessCooldownWait: 'Я зачекаю',
@@ -241,15 +244,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsSummary: 'Загалом',
         txsTotal: 'Загальна сума',
         gasDetails: 'Деталі газу',
-        jettonGas: 'Газ для надсилання жетонів',
+        jettonGas: 'Газ для надсилання токенів',
         unusualJettonsGas: 'Газ вищий за звичайний',
-        unusualJettonsGasTitle: 'Комісія за надсилання жетонів становить {{amount}} TON',
-        unusualJettonsGasMessage: 'Комісія за транзакцію жетонів (Газ) вища за звичайну',
+        unusualJettonsGasTitle: 'Комісія за надсилання токенів становить {{amount}} TON',
+        unusualJettonsGasMessage: 'Комісія за транзакцію токенів (Газ) вища за звичайну',
         addressNotActive: 'Цей гаманець не мав вихідних транзакцій',
-        wrongJettonTitle: 'Неправильний жетон',
-        wrongJettonMessage: 'Ви намагаєтеся надіслати жетон, якого у вас немає',
-        notEnoughJettonsTitle: 'Недостатньо жетонів',
-        notEnoughJettonsMessage: 'Ви намагаєтеся надіслати більше жетонів, ніж у вас є',
+        wrongJettonTitle: 'Неправильний токен',
+        wrongJettonMessage: 'Ви намагаєтеся надіслати токен, якого у вас немає',
+        notEnoughJettonsTitle: 'Недостатньо токенів',
+        notEnoughJettonsMessage: 'Ви намагаєтеся надіслати більше токенів, ніж у вас є',
         aboutFees: 'Про комісії',
         aboutFeesDescription: 'Комісії за транзакції в блокчейні залежать від кількох факторів, таких як завантаженість мережі, розмір транзакції, ціна газу та параметри конфігурації блокчейну. Чим вищий попит на обробку транзакцій у блокчейні або чим більший розмір транзакції (повідомлення/коментар), тим вищі будуть комісії.',
         gaslessTransferSwitch: 'Сплатити комісію за газ у {{symbol}}'
@@ -264,7 +267,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         codeHint: 'Код',
         title: 'Увійти в {{name}}',
         message: 'запитує підключення до вашого гаманця {{wallet}}',
-        hint: 'Жодні кошти не будуть передані до додатку і доступ до ваших монет не буде надано.',
+        hint: 'Жодні кошти не будуть передані до додатку та доступ до ваших монет не буде надано.',
         action: 'Дозволити',
         expired: 'Цей запит на аутентифікацію вже закінчився',
         failed: 'Аутентифікація не вдалася',
@@ -359,7 +362,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subtitle: 'Натисніть, щоб переглянути запит'
         },
         staking: {
-            title: 'Стейкінг',
+            earnings: 'Доходи',
+            title: 'TON Стейкінг',
             balance: 'Баланс стейкінгу',
             subtitle: {
                 join: 'Заробляйте до {{apy}}% на ваших TONs',
@@ -530,7 +534,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     year: '1Р',
                     allTime: 'Всі',
                 }
-            }   
+            }
         },
         holders: {
             title: 'Банківський рахунок',
@@ -538,9 +542,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLonger: 'Перевірте підключення до інтернету та перезавантажте сторінку. Якщо проблема не зникає, зверніться до служби підтримки',
             accounts: {
                 title: 'Витрати',
-                prepaidTitle: 'Карти',
+                prepaidTitle: 'Передплачені картки',
                 account: 'Рахунок',
-                basicAccount: 'Базовий рахунок',
+                basicAccount: 'Рахунок для витрат',
                 proAccount: 'Про рахунок',
                 noCards: 'Немає карток',
                 prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
@@ -550,6 +554,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 primaryName: 'Основний рахунок',
                 paymentName: 'Платіжний рахунок {{accountIndex}}',
                 topUp: 'Поповнити рахунок',
+                addNew: 'Додати рахунок'
             },
             pageTitles: {
                 general: 'Tonhub Карти',
@@ -637,6 +642,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 accept: 'Прийняти',
                 decline: 'Відхилити',
                 expired: 'Закінчився'
+            },
+            banner: {
+                fewMore: 'Залишилося всього кілька кроків',
+                ready: 'Верифікація завершена! Ваша картка готова!',
+                readyAction: 'Отримати зараз',
+                emailAction: 'Підтвердіть пошту',
+                kycAction: 'Пройдіть верифікацію',
+                failedAction: 'Верифікація не вдалася',
             }
         }
     },
@@ -688,9 +701,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         title: 'Захистіть свій гаманець',
         titleUnprotected: 'Ваш пристрій не захищений',
         subtitle: 'Ми використовуємо біометрію для аутентифікації транзакцій, щоб переконатися, що ніхто, крім вас, не може перевести ваші монети.',
-        subtitleUnprotected: 'Настійно рекомендується увімкнути пароль на вашому пристрої для захисту ваших активів.',
-        subtitleNoBiometrics: 'Настійно рекомендується увімкнути біометрію на вашому пристрої для захисту ваших активів. Ми використовуємо біометрію для аутентифікації транзакцій, щоб переконатися, що ніхто, крім вас, не може перевести ваші монети.',
-        messageNoBiometrics: 'Настійно рекомендується увімкнути біометрію на вашому пристрої для захисту ваших активів.',
+        subtitleUnprotected: 'Наполегливо рекомендується увімкнути пароль на вашому пристрої для захисту ваших активів.',
+        subtitleNoBiometrics: 'Наполегливо рекомендується увімкнути біометрію на вашому пристрої для захисту ваших активів. Ми використовуємо біометрію для аутентифікації транзакцій, щоб переконатися, що ніхто, крім вас, не може перевести ваші монети.',
+        messageNoBiometrics: 'Наполегливо рекомендується увімкнути біометрію на вашому пристрої для захисту ваших активів.',
         protectFaceID: 'Увімкнути Face ID',
         protectTouchID: 'Увімкнути Touch ID',
         protectBiometrics: 'Увімкнути біометрію',
@@ -700,7 +713,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         allowUpgrade: 'Дозволити оновлення',
         backup: 'Резервні секретні слова',
         onLaterTitle: 'Налаштувати пізніше',
-        onLaterMessage: 'Ви можете налаштувати захист пізніше в налаштуваннях',
+        onLaterMessage: 'Ви можете налаштувати захист пізніше.',
         onLaterButton: 'Налаштувати пізніше',
         onBiometricsError: 'Помилка аутентифікації за допомогою біометрії',
         lockAppWithAuth: 'Аутентифікуватися при вході в додаток',
@@ -783,11 +796,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         token: 'токен',
         productButtonTitle: 'Токени',
         productButtonSubtitle: '{{jettonName}} та {{count}} інших',
-        hidden: 'Приховані джетони',
+        hidden: 'Приховані токени',
         liquidPoolDescriptionDedust: 'Ліквідність для {{name0}}/{{name1}} на DeDust DEX',
         liquidPoolDescriptionStonFi: 'Ліквідність для {{name0}}/{{name1}} на STON.fi DEX',
         emptyBalance: 'Порожній баланс',
-        jettonsNotFound: 'Джетони не знайдено'
+        jettonsNotFound: 'Токени не знайдено'
     },
     connections: {
         extensions: 'Розширення',
@@ -1082,6 +1095,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bannerTitle: 'Оновіть вашу адресу',
         bannerDescription: 'З EQ на UQ',
     },
+    changelly: {
+        bannerTitle: 'Депозити USDT та USDC',
+        bannerDescription: 'Доступні Tron, Solana, Ethereum, Polygon!'
+    },
     w5: {
         banner: {
             title: 'Додати гаманець W5',
@@ -1148,6 +1165,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     update: {
         callToAction: 'Оновити Tonhub'
+    },
+    savings: {
+        ton: 'TON ощадний рахунок',
+        usdt: 'USDT ощадний рахунок',
+    },
+    spending: {
+        ton: 'TON рахунок для витрат',
+        usdt: 'USDT рахунок для витрат'
     }
 };
 

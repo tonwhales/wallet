@@ -1,90 +1,5 @@
 import { LocalizationSchema, PrepareSchema } from "./schema";
 
-<<<<<<< HEAD
-const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
-    "lang": "es",
-    "common": {
-        "and": "y",
-        "accept": "Aceptar",
-        "start": "Comenzar",
-        "continue": "Continuar",
-        "continueAnyway": "Continuar de todos modos",
-        "back": "Atrás",
-        "logout": "Cerrar sesión",
-        "logoutFrom": "Cerrar sesión de {{name}}",
-        "cancel": "Cancelar",
-        "balance": "Saldo",
-        "totalBalance": "Saldo total",
-        "walletAddress": "Dirección de la billetera",
-        "recipientAddress": "Dirección del destinatario",
-        "recipient": "Destinatario",
-        "copy": "Copiar",
-        "copiedAlert": "Copiado al portapapeles",
-        "copied": "Copiado",
-        "share": "Compartir",
-        "send": "Enviar",
-        "yes": "Sí",
-        "no": "No",
-        "amount": "Cantidad",
-        "today": "Hoy",
-        "yesterday": "Ayer",
-        "comment": "Comentario",
-        "products": "Productos",
-        "confirm": "Confirmar",
-        "soon": "pronto",
-        "in": "en",
-        "max": "Máximo",
-        "close": "Cerrar",
-        "delete": "Eliminar",
-        "apply": "Aplicar",
-        "domainOrAddress": "Dirección de billetera o dominio",
-        "domainOrAddressOrContact": "Dirección, dominio o nombre",
-        "domain": "Dominio",
-        "search": "Buscar",
-        "termsOfService": "Términos\u00A0De\u00A0Servicio",
-        "privacyPolicy": "Política\u00A0De\u00A0Privacidad",
-        "apy": "APY",
-        "tx": "Transacción",
-        "add": "Agregar",
-        "connect": "Conectar",
-        "gotIt": "Entendido",
-        "error": "Error",
-        "wallet": "Billetera",
-        "wallets": "Billeteras",
-        "later": "Más tarde",
-        "select": "Seleccionar",
-        "show": "Mostrar",
-        "hide": "Ocultar",
-        "showAll": "Mostrar todo",
-        "hideAll": "Ocultar todo",
-        "done": "Hecho",
-        "mainWallet": "Billetera principal",
-        "walletName": "Nombre de la billetera",
-        "from": "De",
-        "to": "A",
-        "transaction": "Transacción",
-        "somethingWentWrong": "Algo salió mal",
-        "checkInternetConnection": "Verifique su conexión a internet",
-        "reload": "Recargar",
-        "errorOccurred": "Ocurrió un error: {{error}}",
-        "recent": "Reciente",
-        "ok": "OK",
-        "attention": "Atención",
-        "save": "Guardar",
-        "assets": "Activos",
-        "message": "Mensaje",
-        "messages": "Mensajes",
-        "airdrop": "Airdrop",
-        "myWallets": "Mis billeteras",
-        "showMore": "Mostrar más",
-        "balances": "Saldos",
-        "loading": "Cargando...",
-        "notFound": "No encontrado",
-        "unverified": "No verificado",
-        "addressBook": "Libreta de direcciones",
-        "gasless": "Sin gas",
-        "address": "Dirección",
-=======
 const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     lang: 'es',
     common: {
@@ -170,7 +85,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         address: 'Dirección',
         currencyChanged: 'Moneda cambiada',
         required: 'requerido'
->>>>>>> develop
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -183,24 +97,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "browser": "Navegador",
         "more": "Más",
     },
-<<<<<<< HEAD
-    "settings": {
-        "title": "Más",
-        "backupKeys": "Respaldar claves",
-        "migrateOldWallets": "Migrar billeteras antiguas",
-        "termsOfService": "Términos de Servicio",
-        "privacyPolicy": "Política de privacidad",
-        "developerTools": "Herramientas de desarrollador",
-        "spamFilter": "Filtro de SPAM",
-        "primaryCurrency": "Moneda principal",
-        "experimental": "Experimental",
-        "support": {
-            "title": "Soporte",
-            "telegram": "Telegram",
-            "form": "Formulario de soporte",
-            "holders": "Tarjeta bancaria y cuentas",
-            "tonhub": "Tonhub",
-=======
     settings: {
         title: 'Más',
         backupKeys: 'Respaldar claves',
@@ -218,7 +114,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             form: 'Formulario de soporte',
             holders: 'Tarjeta bancaria y cuentas',
             tonhub: 'Tonhub',
->>>>>>> develop
         },
         "telegram": "Telegram",
         "rateApp": "Calificar aplicación",
@@ -270,21 +165,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         "blockchainFee": "Tarifa de red",
         "blockchainFeeDescription": "Esta tarifa también se conoce como GAS. Es necesaria para que una transacción se procese con éxito en la blockchain. El tamaño del GAS depende de la cantidad de trabajo que los validadores necesitan hacer para incluir una transacción en el bloque.",
     },
-<<<<<<< HEAD
-    "receive": {
-        "title": "Recibir",
-        "subtitle": "Solo envía activos de la Blockchain TON a esta dirección. Otros activos se perderán para siempre",
-        "share": {
-            "title": "Mi dirección de Tonhub",
-            "error": "No se pudo compartir la dirección, por favor intente de nuevo o contacte al soporte"
-=======
     receive: {
         title: 'Recibir',
         subtitle: 'Envía solo Toncoin y tokens en la red TON a esta dirección, o podrías perder tus fondos.',
         share: {
             title: 'Mi dirección de Tonhub',
             error: 'No se pudo compartir la dirección, por favor intente de nuevo o contacte al soporte'
->>>>>>> develop
         },
         "holdersJettonWarning": "Transfiera a esta dirección solo {{symbol}}, si envía otro token, lo perderá.",
         "assets": "Tokens y Cuentas",
@@ -650,27 +536,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 }
             }
         },
-<<<<<<< HEAD
-        "holders": {
-            "title": "Cuenta bancaria",
-            "loadingLongerTitle": "Problemas de conexión",
-            "loadingLonger": "Verifica tu conexión a internet y recarga la página. Si el problema persiste, por favor contacta al soporte",
-            "accounts": {
-                "title": "Gastos",
-                "prepaidTitle": "Tarjetas",
-                "account": "Cuenta",
-                "basicAccount": "Cuenta de gastos",
-                "proAccount": "Cuenta pro",
-                "noCards": "No hay tarjetas",
-                "prepaidCard": "Tonhub Prepaid *{{lastFourDigits}}",
-                "prepaidCardDescription": "Tarjeta recargable para uso diario",
-                "hiddenCards": "Tarjetas ocultas",
-                "hiddenAccounts": "Cuentas ocultas",
-                "primaryName": "Cuenta principal",
-                "paymentName": "Cuenta de pago {{accountIndex}}",
-                "topUp": "Recargar cuenta",
-                "addNew": "Agregar cuenta"
-=======
         holders: {
             title: 'Cuenta bancaria',
             loadingLongerTitle: 'Problemas de conexión',
@@ -690,7 +555,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 paymentName: 'Cuenta de pago {{accountIndex}}',
                 topUp: 'Recargar cuenta',
                 addNew: 'Agregar cuenta'
->>>>>>> develop
             },
             "pageTitles": {
                 "general": "Tarjetas Tonhub",

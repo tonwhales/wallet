@@ -50,32 +50,33 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
         queryKey: Queries.TransactionsV2(account, !!token),
         refetchOnMount: options.refetchOnMount,
         refetchOnWindowFocus: true,
-        getNextPageParam: (last) => {
-            if (!last) {
+        getNextPageParam: (last, allPages) => {
+            if (!last || allPages.length < 1) {
                 return undefined;
             }
 
             let lastTon: TonTransaction | undefined;
             let lastHolders: HoldersTransaction | undefined;
 
-            for (let i = last.length - 1; i >= 0; i--) {
-                if (last[i].type === TransactionType.TON) {
-                    if (lastTon && lastHolders) {
-                        break;
-                    } else if (lastTon) {
+            for (let i = allPages.length - 1; i >= 0; i--) {
+                for (let j = allPages[i].length - 1; j >= 0; j--) {
+                    if (allPages[i][j].type === TransactionType.TON) {
+                        if (lastTon && lastHolders) {
+                            break;
+                        } else if (lastTon) {
+                            continue;
+                        }
+                        lastTon = allPages[i][j].data as TonTransaction;
                         continue;
                     }
-                    lastTon = last[i].data as TonTransaction;
-                    continue;
-                }
 
-                if (lastTon && lastHolders) {
-                    break;
-                } else if (lastHolders) {
-                    continue;
+                    if (lastTon && lastHolders) {
+                        break;
+                    } else if (lastHolders) {
+                        continue;
+                    }
+                    lastHolders = allPages[i][j].data as HoldersTransaction;
                 }
-                lastHolders = last[i].data as HoldersTransaction;
-
             }
 
             if (!lastTon && !lastHolders) {
@@ -108,7 +109,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
                 tonCursor = { lt: accountLite.account.last.lt, hash: accountLite.account.last.hash };
             }
 
-            log(`[txns-query] fetching ${tonCursor ? `ton: ${tonCursor}` : ''} ${holdersCursor ? `holders: ${holdersCursor}` : ''} ${sliceFirst ? 'sliceFirst' : ''}`);
+            log(`[txns-query] fetching ${tonCursor ? `ton: ${JSON.stringify(tonCursor)}` : ''} ${holdersCursor ? `holders: ${JSON.stringify(holdersCursor)}` : ''} ${sliceFirst ? 'sliceFirst' : ''}`);
 
             const cursor: AccountTransactionsV2Cursor = { ton: tonCursor, holders: holdersCursor };
 

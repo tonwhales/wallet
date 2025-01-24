@@ -84,7 +84,9 @@ export type LocalizationSchema = {
         unverified: string,
         addressBook: string,
         gasless: string,
-        address: string
+        address: string,
+        currencyChanged: string,
+        required: string,
     },
     syncStatus: {
         connecting: string,
@@ -100,6 +102,7 @@ export type LocalizationSchema = {
     settings: {
         title: string,
         backupKeys: string,
+        holdersAccounts: string,
         migrateOldWallets: string,
         termsOfService: string,
         privacyPolicy: string,

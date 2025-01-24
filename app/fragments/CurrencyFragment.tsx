@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Platform, View, Text, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../fragment";
@@ -10,6 +10,7 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import { usePrimaryCurrency, useTheme } from "../engine/hooks";
 import { CurrencySymbols, PrimaryCurrency } from "../utils/formatCurrency";
 import { StatusBar } from "expo-status-bar";
+import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -18,16 +19,17 @@ export const CurrencyFragment = fragment(() => {
     const navigation = useTypedNavigation();
     let [currency, setPrimaryCurrency] = usePrimaryCurrency();
     const theme = useTheme();
+    const toaster = useToaster();
 
-    const onCurrency = useCallback(
-        async (code: string) => {
-            if (currency === code) {
-                return;
-            }
-            setPrimaryCurrency(code)
-        },
-        [currency],
-    );
+    const onCurrency = (code: string) => {
+        if (currency === code) return;
+        setPrimaryCurrency(code);
+        toaster.show({
+            message: `${t('common.currencyChanged')}: ${code}`,
+            type: 'default',
+            duration: ToastDuration.SHORT,
+        })
+    };
 
     return (
         <View style={{

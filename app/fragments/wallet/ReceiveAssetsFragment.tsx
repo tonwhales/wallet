@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -15,12 +15,13 @@ import { Platform } from "react-native";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
 import { ReceiveableAsset } from "./ReceiveFragment";
-import { getAccountName } from "../../utils/holders/getAccountName";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
 import { SpecialJettonProduct } from "../../components/products/SpecialJettonProduct";
 import { AssetViewType } from "./AssetsFragment";
+import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
+import { HoldersAppParams, HoldersAppParamsType } from "../holders/HoldersAppFragment";
 
 enum AssetType {
     TON = 'ton',
@@ -117,6 +118,9 @@ export const ReceiveAssetsFragment = fragment(() => {
     const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
     const hints = useDisplayableJettons(owner.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
+    const url = holdersUrl(isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
+    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
 
     const onAssetCallback = useCallback((asset: ReceiveableAsset | null) => {
         if (assetCallback) {
@@ -130,18 +134,21 @@ export const ReceiveAssetsFragment = fragment(() => {
     }, [assetCallback, isLedger]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
-        if (!target.address) {
+        const path = `/account/${target.id}?deposit-open=true`;
+        const navParams: HoldersAppParams = { type: HoldersAppParamsType.Path, path, query: {} };
+
+        navigation.goBack();
+
+        if (needsEnrollment || !isHoldersReady) {
+            navigation.navigateHoldersLanding(
+                { endpoint: url, onEnrollType: navParams },
+                isTestnet
+            );
             return;
         }
 
-        const name = getAccountName(target.accountIndex, target.name);
-
-        onAssetCallback({
-            address: Address.parse(target.address),
-            content: { icon: null, name },
-            holders: target
-        });
-    }, [onAssetCallback, isTestnet]);
+        navigation.navigateHolders(navParams, isTestnet);
+    }, [needsEnrollment, isHoldersReady, isTestnet]);
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
@@ -240,6 +247,14 @@ export const ReceiveAssetsFragment = fragment(() => {
             );
         }
 
+        if (section.type === 'otherCoins') {
+            return (
+                <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
+                    {t('jetton.productButtonTitle')}
+                </Text>
+            );
+        }
+
         return (
             <Text style={[{ color: theme.textPrimary, marginVertical: 16 }, Typography.semiBold20_28]}>
                 {t('products.savings')}
@@ -252,17 +267,17 @@ export const ReceiveAssetsFragment = fragment(() => {
         data: [{ type: AssetType.TON }, { type: AssetType.SPECIAL }]
     };
 
-    if (showOtherCoins) {
-        defaultSection.data.push({ type: AssetType.OTHERCOINS });
-    }
-
-    const itemsList: { type: 'default' | 'holders', data: ListItem[] }[] = [
+    
+    const itemsList: { type: 'default' | 'holders' | 'otherCoins', data: ListItem[] }[] = [
         {
             type: 'holders',
             data: holdersAccounts.map((account) => ({ account, type: AssetType.HOLDERS }))
         },
         defaultSection
     ];
+    if (showOtherCoins) {
+        itemsList.push({ type: 'otherCoins', data: [{ type: AssetType.OTHERCOINS }] }); 
+    }
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -284,7 +299,7 @@ export const ReceiveAssetsFragment = fragment(() => {
                 renderSectionHeader={renderSectionHeader}
                 removeClippedSubviews={true}
                 stickySectionHeadersEnabled={false}
-                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
                 style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 contentInset={{ bottom: safeArea.bottom + 16 }}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, Pressable, Image, Platform } from 'react-native';
+import { View, Text, Pressable, Image, Platform, Linking } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
@@ -9,10 +9,9 @@ import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
-import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady, useLanguage } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
@@ -25,9 +24,13 @@ import { queryClient } from '../engine/clients';
 import { getQueryData } from '../engine/utils/getQueryData';
 import { Queries } from '../engine/queries';
 import { getHoldersToken, HoldersAccountStatus, useHoldersAccountStatus } from '../engine/hooks/holders/useHoldersAccountStatus';
-import { HoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
+import { HoldersAccounts, useHoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
 import { useIsHoldersInvited } from '../engine/hooks/holders/useIsHoldersInvited';
 import { HoldersAppParamsType } from './holders/HoldersAppFragment';
+import { HeaderSyncStatus } from './wallet/views/HeaderSyncStatus';
+import { lagnTitles } from '../i18n/i18n';
+import { HoldersBannerType } from '../components/products/ProductsComponent';
+import { HoldersBanner } from '../components/products/HoldersBanner';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -38,9 +41,11 @@ import IcPrivacy from '@assets/settings/ic-privacy.svg';
 import IcSupport from '@assets/settings/ic-support.svg';
 import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
-import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
+
+const iosStoreUrl = 'https://apps.apple.com/app/apple-store/id1607656232?action=write-review';
+const androidStoreUrl = 'https://play.google.com/store/apps/details?id=com.tonhub.wallet&showAllReviews=true';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -54,25 +59,27 @@ export const SettingsFragment = fragment(() => {
     const [walletSettings] = useWalletSettings(selected?.address);
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-    const syncState = useSyncState();
     const [, currency] = usePrice();
+    const [lang] = useLanguage();
     const [bounceableFormat] = useBounceableWalletFormat();
     const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '');
     const inviteCheck = useIsHoldersInvited(selected?.address, network.isTestnet);
     const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
+    const holdersAccounts = useHoldersAccounts(selected?.address).data;
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
 
-    
+    const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
+    const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
+    const holdersBanner: HoldersBannerType = !!inviteCheck?.settingsBanner ? { type: 'custom', banner: inviteCheck.settingsBanner } : { type: 'built-in' };
+    const holderBannerContent = showHoldersBanner ? holdersBanner : null;
+    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+
     // Ledger
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
-    const showHoldersItem = !isLedger && (inviteCheck?.allowed || hasHoldersProducts);
+    const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
-
-    const needsEnrollment = useMemo(() => {
-        return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
-    }, [holdersAccStatus?.state]);
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrollment || !isHoldersReady) {
@@ -102,11 +109,35 @@ export const SettingsFragment = fragment(() => {
         };
     }, []);
 
-    const onRateApp = useCallback(async () => {
-        if (await StoreReview.hasAction()) {
-            StoreReview.requestReview();
+    const redirectToStore = () => {
+        const storeUrl = Platform.OS === 'android' ? androidStoreUrl : iosStoreUrl;
+        Linking.openURL(storeUrl);
+    }
+
+    const onRateApp = async () => {
+        if (Platform.OS === 'android') {
+            redirectToStore();
+            return;
         }
-    }, []);
+
+        try {
+            const isStoreReviewAvailable = await StoreReview.isAvailableAsync();
+
+            if (!isStoreReviewAvailable) {
+                redirectToStore();
+                return;
+            }
+            const hasAction = await StoreReview.hasAction();
+
+            if (!hasAction) {
+                redirectToStore();
+                return;
+            }
+            await StoreReview.requestReview();
+        } catch (error) {
+            redirectToStore();
+        }
+    };
 
     const onSupport = useCallback(() => {
         const tonhubOptions = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
@@ -221,42 +252,21 @@ export const SettingsFragment = fragment(() => {
                         borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
                         alignItems: 'center',
                         opacity: pressed ? 0.8 : 1,
+                        maxWidth: '50%',
                     })}
                     onPress={onAccountPress}
                 >
                     <Text
-                        style={{
-                            fontWeight: '500',
-                            fontSize: 17, lineHeight: 24,
+                        style={[{
                             color: theme.textPrimary, flexShrink: 1,
                             marginRight: 8
-                        }}
+                        }, Typography.medium17_24]}
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
                         {isLedger ? 'Ledger' : (walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`)}
                     </Text>
-                    {syncState === 'updating' && (
-                        <ReAnimatedCircularProgress
-                            size={14}
-                            color={theme.textThird}
-                            reverse
-                            infinitRotate
-                            progress={0.8}
-                        />
-                    )}
-                    {syncState === 'connecting' && (
-                        <IcNoConnection
-                            height={16}
-                            width={16}
-                            style={{ height: 16, width: 16 }}
-                        />
-                    )}
-                    {syncState === 'online' && (
-                        <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
-                        </View>
-                    )}
+                    <HeaderSyncStatus />
                 </Pressable>
             </View>
             <ScrollView
@@ -269,6 +279,14 @@ export const SettingsFragment = fragment(() => {
                 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             >
+                {!!holderBannerContent && selected && holderBannerContent.type === 'custom' && (
+                    <HoldersBanner
+                        onPress={onHoldersPress}
+                        isSettings={true}
+                        address={selected.address}
+                        {...holderBannerContent.banner}
+                    />
+                )}
                 <View style={{
                     marginBottom: 16, marginTop: 16,
                     backgroundColor: theme.border,
@@ -286,7 +304,7 @@ export const SettingsFragment = fragment(() => {
                     {showHoldersItem && (
                         <ItemButton
                             leftIcon={require('@assets/ic-card.png')}
-                            title={t('products.holders.accounts.title')}
+                            title={t('settings.holdersAccounts')}
                             onPress={onHoldersPress}
                         />
                     )}
@@ -335,6 +353,12 @@ export const SettingsFragment = fragment(() => {
                     />
                     <ItemButton
                         leftIcon={require('@assets/ic-explorer.png')}
+                        title={t('settings.language')}
+                        onPress={() => navigation.navigate('Language')}
+                        hint={lagnTitles[lang] || lang}
+                    />
+                    <ItemButton
+                        leftIcon={require('@assets/ic-search.png')}
                         title={t('settings.searchEngine')}
                         onPress={() => navigation.navigate('SearchEngine')}
                     />

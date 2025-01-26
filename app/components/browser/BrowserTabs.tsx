@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Dimensions, NativeScrollEvent, Platform, StyleSheet, View } from 'react-native';
 import { PressableChip } from '../PressableChip';
 import { t } from '../../i18n/t';
@@ -26,12 +26,12 @@ function filterByStoreGeoListings(codes: { countryCode: string; storeFrontCode: 
       includedRegions: string[] | null = null;
     try {
       excludedRegions = JSON.parse(listing.regions_to_exclude || '[]');
-    } catch {}
+    } catch { }
 
     if (!!listing.regions_to_include) {
       try {
         includedRegions = JSON.parse(listing.regions_to_include);
-      } catch {}
+      } catch { }
     }
 
     // check for excluded regions
@@ -64,7 +64,9 @@ export const BrowserTabs = memo(
     const browserListings = useBrowserListings().data || [];
     const regionCodes = getCountryCodes();
     const filterByCodes = useCallback(filterByStoreGeoListings(regionCodes), [regionCodes]);
-    const listings = browserListings.filter(filterByCodes);
+    const listings = Platform.OS === 'ios'
+      ? []
+      : browserListings.filter(filterByCodes);
     const hasListings = !!listings && listings.length > 0;
     const tabRef = useRef(hasListings ? 0 : 1);
     const [tab, setTab] = useState(tabRef.current);
@@ -72,8 +74,9 @@ export const BrowserTabs = memo(
     const chipsScrollRef = useRef<ScrollView>(null);
 
     const tabsAnimStyles = useAnimatedStyle(() => {
+      const tabIndex = hasListings ? tab : tab - 1;
       return {
-        right: withTiming(tab * SCREEN_WIDTH, { duration: 450 }),
+        right: withTiming(tabIndex * SCREEN_WIDTH, { duration: 450 }),
       };
     });
 
@@ -92,13 +95,15 @@ export const BrowserTabs = memo(
 
     useEffect(() => {
       if (chipsScrollRef.current) {
-        if (tab === 0) {
+        const isFirst = (hasListings ? 0 : 1) === tab;
+
+        if (isFirst) {
           chipsScrollRef.current.scrollTo({ x: -24, y: 0, animated: true });
         } else if (tab === 2) {
           chipsScrollRef.current.scrollToEnd({ animated: true });
         }
       }
-    }, [tab]);
+    }, [tab, hasListings]);
 
     return (
       <View>
@@ -113,7 +118,7 @@ export const BrowserTabs = memo(
           contentOffset={{ x: -24, y: 0 }}
           showsHorizontalScrollIndicator={false}
           style={{ marginBottom: 8 }}>
-          {!!listings && listings.length > 0 && (
+          {hasListings && (
             <PressableChip
               onPress={() => onSetTab(0)}
               style={[
@@ -129,7 +134,7 @@ export const BrowserTabs = memo(
             style={[
               { backgroundColor: tab === 1 ? theme.accent : theme.border },
               (!listings || listings.length <= 0) &&
-                Platform.select({ android: { marginLeft: 16 } }),
+              Platform.select({ android: { marginLeft: 16 } }),
             ]}
             textStyle={{ color: tab === 1 ? theme.white : theme.textPrimary }}
             text={t('connections.extensions')}
@@ -142,9 +147,11 @@ export const BrowserTabs = memo(
           />
         </ScrollView>
         <Animated.View style={[styles.container, tabsAnimStyles]}>
-          <View style={styles.box}>
-            <BrowserListings onScroll={onScroll} listings={listings} />
-          </View>
+          {hasListings && (
+            <View style={styles.box}>
+              <BrowserListings onScroll={onScroll} listings={listings} />
+            </View>
+          )}
           <View style={styles.box}>
             <BrowserExtensions onScroll={onScroll} />
           </View>

@@ -13,16 +13,10 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useMemo, useState } from 'react';
-import { useOfflineApp } from '../../engine/hooks';
+import { useCallback, useMemo } from 'react';
 import { useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
-import { useCloudValue } from '../../engine/hooks';
-import { ThemeStyle } from '../../engine/state/theme';
-import { useThemeStyle } from '../../engine/hooks';
-import { useLanguage } from '../../engine/hooks';
-import i18n from 'i18next';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
 import { getCurrentAddress } from '../../storage/appState';
 import { useClearHolders } from '../../engine/hooks';
@@ -43,7 +37,6 @@ export const DeveloperToolsFragment = fragment(() => {
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const offlineApp = useOfflineApp();
     const countryCodes = getCountryCodes();
     const setHiddenBanners = useSetHiddenBanners();
 
@@ -51,14 +44,6 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
-
-    const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);
-
-    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
-    const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
-
-    const [themeStyle, setThemeStyle] = useThemeStyle();
-    const [lang, setLang] = useLanguage();
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -147,9 +132,9 @@ export const DeveloperToolsFragment = fragment(() => {
                     contentInset={{
                         bottom: safeArea.bottom + 44,
                     }}
+                    contentContainerStyle={{ gap: 16 }}
                 >
                     <View style={{
-                        marginBottom: 16, marginTop: 17,
                         backgroundColor: theme.border,
                         borderRadius: 14,
                         overflow: 'hidden',
@@ -161,14 +146,11 @@ export const DeveloperToolsFragment = fragment(() => {
                             <ItemButton title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
+                            <ItemButton dangerZone title={'Clean cache and reset'} onPress={resetCache} />
                         </View>
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
-                        </View>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={"Counter"} hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
                         </View>
 
                         {!(
@@ -182,91 +164,14 @@ export const DeveloperToolsFragment = fragment(() => {
                                 </View>
                             )}
 
-                        <View style={{ width: '100%', marginBottom: 16 }}>
-                            <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
-                            <Item title={"Country code"} hint={countryCodes.countryCode} />
-                        </View>
-                    </View>
-                    <View style={{
-                        marginTop: 16,
-                        backgroundColor: theme.border,
-                        borderRadius: 14,
-                        overflow: 'hidden',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexShrink: 1,
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp.version ? offlineApp.version : 'Not loaded'} />
-                        </View>
 
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={'Offline integrity:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
-                        </View>
-
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
-                        </View>
                     </View>
                     <View style={{
-                        marginTop: 16,
                         backgroundColor: theme.border,
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
-                        alignItems: 'center',
-                        flexShrink: 1,
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton
-                                title={'Theme'}
-                                hint={themeStyle}
-                                onPress={() => {
-                                    if (theme.style === ThemeStyle.Light) {
-                                        setThemeStyle(ThemeStyle.Dark);
-                                        return;
-                                    }
-
-                                    setThemeStyle(ThemeStyle.Light);
-                                    return;
-                                }}
-                            />
-                        </View>
-                    </View>
-                    <View style={{
-                        marginTop: 16,
-                        backgroundColor: theme.border,
-                        borderRadius: 14,
-                        overflow: 'hidden',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexShrink: 1,
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton
-                                title={'Language'}
-                                hint={i18n.language}
-                                onPress={async () => {
-                                    if (i18n.language === 'en') {
-                                        await i18n.changeLanguage('ru');
-                                        setLang('ru');
-                                    } else {
-                                        await i18n.changeLanguage('en');
-                                        setLang('en');
-                                    }
-                                    setTimeout(() => reboot(), 100);
-                                }}
-                            />
-                        </View>
-                    </View>
-                    <View style={{
-                        marginTop: 16,
-                        backgroundColor: theme.border,
-                        borderRadius: 14,
-                        overflow: 'hidden',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexShrink: 1,
+                        alignItems: 'center'
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton
@@ -287,13 +192,11 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
                     </View>
                     <View style={{
-                        marginTop: 16,
                         backgroundColor: theme.border,
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
-                        alignItems: 'center',
-                        flexShrink: 1,
+                        alignItems: 'center'
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton
@@ -303,6 +206,17 @@ export const DeveloperToolsFragment = fragment(() => {
                                 }}
                             />
                         </View>
+                    </View>
+                    <View style={{
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 4
+                    }}>
+                        <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
+                        <Item title={"Country code"} hint={countryCodes.countryCode} />
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

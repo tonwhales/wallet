@@ -88,7 +88,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
 
     const balance = useMemo(() => {
         if (params?.action === 'withdraw') {
-            return member?.balance ?? 0n;
+            return BigInt(member?.balance ?? 0n);
         }
         if (params.action === 'top_up') {
             return account?.balance ?? 0n;
@@ -443,7 +443,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     }]}
                                     suffix={priceText}
                                     hideClearButton
-                                    prefix={'wsTON'}
+                                    inputSuffix={'wsTON'}
                                 />
                             </View>
                             <View
@@ -517,7 +517,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     }]}
                                     suffix={priceText}
                                     hideClearButton
-                                    prefix={'TON'}
+                                    inputSuffix={'TON'}
                                 />
                                 {!!minAmountWarn && (
                                     <Text style={{
@@ -627,7 +627,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     }]}
                                     suffix={priceText}
                                     hideClearButton
-                                    prefix={'TON'}
+                                    inputSuffix={'TON'}
                                 />
                                 {!!minAmountWarn && (
                                     <Text style={{
@@ -717,7 +717,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     }]}
                                     suffix={priceText}
                                     hideClearButton
-                                    prefix={'wsTON'}
+                                    inputSuffix={'wsTON'}
                                 />
                             </View>
                         </>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, BackHandler } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
@@ -18,7 +18,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -37,7 +37,6 @@ import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TransferHeader } from '../../components/transfer/TransferHeader';
 import { JettonIcon } from '../../components/products/JettonIcon';
-import { AnimTextInputRef } from '../../components/address/AddressDomainInput';
 import { Typography } from '../../components/styles';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
@@ -48,7 +47,15 @@ import { useHoldersAccountTrargets } from '../../engine/hooks/holders/useHolders
 import { AddressSearchItem } from '../../components/address/AddressSearch';
 import { Image } from 'expo-image';
 import { mapJettonToMasterState } from '../../utils/jettons/mapJettonToMasterState';
-import { JettonViewType } from '../wallet/AssetsFragment';
+import { AssetViewType } from '../wallet/AssetsFragment';
+import { getQueryData } from '../../engine/utils/getQueryData';
+import { queryClient } from '../../engine/clients';
+import { Queries } from '../../engine/queries';
+import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
+import { PressableChip } from '../../components/PressableChip';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { useAppFocusEffect } from '../../utils/useAppFocusEffect';
+import { AmountInput } from '../../components/input/AmountInput';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -469,8 +476,10 @@ const SimpleTransferComponent = () => {
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
         let res = resolveUrl(src, network.isTestnet);
-        if (res && res.type === 'transaction') {
+        const validTransfer = res && (res.type === 'transaction' || res.type === 'jetton-transaction');
+        if (validTransfer) {
             if (res.payload) {
+                navigation.goBack();
                 linkNavigator(res);
             } else {
                 let mComment = commentString;
@@ -486,7 +495,8 @@ const SimpleTransferComponent = () => {
                 }
 
                 if (res.address) {
-                    mTarget = res.address.toString({ testOnly: network.isTestnet });
+                    const bounceable = res.isBounceable ?? true;
+                    mTarget = res.address.toString({ testOnly: network.isTestnet, bounceable });
                 }
 
                 if (res.amount) {
@@ -496,7 +506,8 @@ const SimpleTransferComponent = () => {
                 if (res.comment) {
                     mComment = res.comment;
                 }
-                if (res.stateInit) {
+
+                if (res.type === 'transaction' && res.stateInit) {
                     mStateInit = res.stateInit;
                 } else {
                     mStateInit = null;
@@ -511,6 +522,10 @@ const SimpleTransferComponent = () => {
                         jetton: mJetton,
                     });
                     return;
+                }
+
+                if (res.type === 'jetton-transaction' && res.jettonMaster) {
+                    mJetton = res.jettonMaster
                 }
 
                 navigation.navigateSimpleTransfer({
@@ -539,14 +554,9 @@ const SimpleTransferComponent = () => {
     const hasParamsFilled = !!params.target && !!params.amount;
     const [selectedInput, setSelectedInput] = useState<number | null>(hasParamsFilled ? null : 0);
 
-    const refs = useMemo(() => {
-        let r: RefObject<ATextInputRef>[] = [];
-        for (let i = 0; i < 3; i++) {
-            r.push(createRef());
-        }
-        return r;
-    }, []);
-
+    const addressRef = useRef<ATextInputRef>(null);
+    const amountRef = useRef<ATextInputRef>(null);
+    const commentRef = useRef<ATextInputRef>(null);
     const scrollRef = useRef<ScrollView>(null);
 
     const keyboard = useKeyboard();
@@ -679,18 +689,12 @@ const SimpleTransferComponent = () => {
         supportsGaslessTransfer
     ]);
 
-    const onFocus = useCallback((index: number) => {
-        setSelectedInput(index);
-    }, []);
-
-    const onSubmit = useCallback((index: number) => {
-        setSelectedInput(null);
-    }, []);
-
-    const resetInput = useCallback(() => {
+    const onFocus = (index: number) => setSelectedInput(index);
+    const onSubmit = () => setSelectedInput(null);
+    const resetInput = () => {
         Keyboard.dismiss();
         setSelectedInput(null);
-    }, []);
+    };
 
     const holdersTarget = holdersAccounts?.find((a) => targetAddressValid?.address.equals(a.address));
     const holdersTargetJetton = holdersTarget?.jettonMaster ? Address.parse(holdersTarget.jettonMaster) : null;
@@ -699,6 +703,35 @@ const SimpleTransferComponent = () => {
     const shouldChangeJetton = holdersTargetJetton
         ? !jettonMaster?.equals(holdersTargetJetton)
         : holdersTarget && !!jetton && holdersTarget.symbol === 'TON';
+
+    const onChangeJetton = useCallback(() => {
+        if (holdersTarget?.symbol === 'TON') {
+            setJetton(null);
+            return;
+        }
+
+        if (!holdersTarget?.jettonMaster) {
+            return;
+        }
+
+        const queryCache = queryClient.getQueryCache();
+        const key = Queries.HintsFull(address?.toString({ testOnly: network.isTestnet }));
+        const hintsFull = getQueryData<HintsFull>(queryCache, key);
+
+        if (hintsFull) {
+            const index = hintsFull?.addressesIndex?.[holdersTarget?.jettonMaster];
+            const hint = hintsFull?.hints?.[index];
+
+            if (!hint) {
+                return;
+            }
+
+            try {
+                const wallet = Address.parse(hint.walletAddress.address)
+                setJetton(wallet);
+            } catch { }
+        }
+    }, [holdersTargetJetton, holdersTarget?.symbol, jetton?.wallet]);
 
     const amountError = useMemo(() => {
         if (shouldChangeJetton) {
@@ -811,7 +844,7 @@ const SimpleTransferComponent = () => {
 
         // Default
         return { selected: null, onNext: null, header: { ...headertitle } };
-    }, [selectedInput, targetAddressValid, validAmount, refs, doSend, amountError]);
+    }, [selectedInput, targetAddressValid, validAmount, doSend, amountError]);
 
     const [addressInputHeight, setAddressInputHeight] = useState(0);
     const [amountInputHeight, setAmountInputHeight] = useState(0);
@@ -866,6 +899,41 @@ const SimpleTransferComponent = () => {
         }));
     });
 
+    const appFocusCallback = useCallback(async () => {
+        const clipboardText = (await Clipboard.getString()).trim();
+
+        if (!clipboardText) {
+            return;
+        }
+
+        switch (selectedInput) {
+            case 1:
+                try {
+                    const valid = clipboardText.replace(',', '.').replaceAll(' ', '');
+                    let value: bigint | null;
+
+                    // Manage jettons with decimals
+                    const decimals = jetton?.decimals ?? 9;
+                    if (jetton) {
+                        value = toBnWithDecimals(valid, decimals);
+                    } else {
+                        value = toNano(valid);
+                    }
+
+                    if (value) {
+                        const newAmount = formatInputAmount(fromBnWithDecimals(value, decimals), decimals);
+                        amountRef.current?.setText(newAmount);
+                    }
+                } catch { }
+                break;
+            case 2:
+                commentRef.current?.setText(clipboardText);
+                break;
+        }
+    }, [!!jetton, jetton?.decimals, selectedInput]);
+
+    useAppFocusEffect(appFocusCallback);
+
     const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
 
@@ -873,6 +941,19 @@ const SimpleTransferComponent = () => {
         scrollRef.current?.scrollTo({ y: 0 });
         setComment(item.memo || '');
     }, []);
+
+    const backHandler = useCallback(() => {
+        if (selectedInput !== null) {
+            setSelectedInput(null);
+            return true;
+        }
+        return false;
+    }, [selectedInput]);
+
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', backHandler);
+        return () => BackHandler.removeEventListener('hardwareBackPress', backHandler);
+    }, [selectedInput]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -887,10 +968,17 @@ const SimpleTransferComponent = () => {
             <ScrollView
                 ref={scrollRef}
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
-                contentContainerStyle={{ marginHorizontal: 16, flexGrow: 1 }}
+                contentContainerStyle={[
+                    { marginHorizontal: 16, flexGrow: 1 },
+                    Platform.select({ android: { minHeight: addressInputHeight } }),
+                ]}
+                contentInset={{
+                    // bottom: 0.1,
+                    bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - 86 - 32 : 0.1 /* Some weird bug on iOS */, // + 56 + 32
+                    top: 0.1 /* Some weird bug on iOS */
+                }}
                 contentInsetAdjustmentBehavior={'never'}
                 keyboardShouldPersistTaps={'always'}
-                keyboardDismissMode={'none'}
                 automaticallyAdjustContentInsets={false}
                 scrollEnabled={!selectedInput}
                 nestedScrollEnabled={!selectedInput}
@@ -898,10 +986,10 @@ const SimpleTransferComponent = () => {
                 <Animated.View
                     layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                     style={seletectInputStyles.address}
-                    onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
+                    onLayout={(e) => { setAddressInputHeight(e.nativeEvent.layout.height) }}
                 >
                     <TransferAddressInput
-                        ref={refs[0] as RefObject<AnimTextInputRef>}
+                        ref={addressRef}
                         acc={ledgerAddress ?? acc!.address}
                         theme={theme}
                         target={target}
@@ -921,6 +1009,9 @@ const SimpleTransferComponent = () => {
                         autoFocus={selectedInput === 0}
                     />
                 </Animated.View>
+                {selected === 'address' && (
+                    <View style={{ height: addressInputHeight }} />
+                )}
                 <View style={{ marginTop: 16 }}>
                     <Animated.View
                         layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
@@ -937,14 +1028,12 @@ const SimpleTransferComponent = () => {
                         >
                             <Pressable
                                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                                onPress={() => navigation.navigateAssets(
-                                    {
-                                        callback: onAssetSelected,
-                                        selectedJetton: jetton?.master,
-                                        jettonViewType: JettonViewType.Transfer
-                                    },
+                                onPress={() => navigation.navigateAssets({
+                                    jettonCallback: onAssetSelected,
+                                    selectedAsset: jetton?.master,
+                                    viewType: AssetViewType.Transfer,
                                     isLedger
-                                )}
+                                })}
                             >
                                 <View style={{
                                     flexDirection: 'row',
@@ -1020,39 +1109,57 @@ const SimpleTransferComponent = () => {
                                     </Text>
                                 </Pressable>
                             </View>
-                            <ATextInput
+                            <AmountInput
                                 index={1}
-                                ref={refs[1]}
-                                onFocus={onFocus}
+                                ref={amountRef}
+                                onFocus={() => onFocus(1)}
                                 value={amount}
                                 onValueChange={(newVal) => {
                                     const formatted = formatInputAmount(newVal, jetton?.decimals ?? 9, { skipFormattingDecimals: true }, amount);
                                     setAmount(formatted);
                                 }}
-                                keyboardType={'numeric'}
                                 style={{
                                     backgroundColor: theme.elevation,
                                     paddingHorizontal: 16, paddingVertical: 14,
-                                    borderRadius: 16,
+                                    borderRadius: 16
                                 }}
-                                inputStyle={{
-                                    fontSize: 17, fontWeight: '400',
+                                inputStyle={[{
                                     color: amountError ? theme.accentRed : theme.textPrimary,
-                                    width: 'auto',
-                                    flexShrink: 1
-                                }}
+                                    flexGrow: 1
+                                }, Typography.regular17_24, { lineHeight: undefined }]}
                                 suffix={priceText}
-                                hideClearButton
-                                prefix={jetton ? jetton.symbol : 'TON'}
+                                ticker={jetton ? jetton.symbol : 'TON'}
                                 cursorColor={theme.accent}
                             />
-                            {amountError && (
-                                <Animated.View entering={FadeIn} exiting={FadeOut.duration(100)}>
-                                    <Text style={[{ color: theme.accentRed, marginTop: 8 }, Typography.regular13_18]}>
-                                        {amountError}
-                                    </Text>
-                                </Animated.View>
-                            )}
+                            <View style={{
+                                flexDirection: 'row',
+                                marginTop: 8, gap: 4
+                            }}>
+                                {amountError && (
+                                    <Animated.View
+                                        style={{ flexShrink: 1 }}
+                                        entering={FadeIn}
+                                        exiting={FadeOut.duration(100)}
+                                    >
+                                        <Text style={[{ color: theme.accentRed, flexShrink: 1 }, Typography.regular13_18]}>
+                                            {amountError}
+                                        </Text>
+                                    </Animated.View>
+                                )}
+                                {shouldChangeJetton && (
+                                    <Animated.View
+                                        entering={FadeInUp} exiting={FadeOutDown}
+                                        layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                                    >
+                                        <PressableChip
+                                            text={t('transfer.changeJetton', { symbol: holdersTarget?.symbol })}
+                                            style={{ backgroundColor: theme.accent }}
+                                            textStyle={{ color: theme.textUnchangeable }}
+                                            onPress={onChangeJetton}
+                                        />
+                                    </Animated.View>
+                                )}
+                            </View>
                         </View>
                     </Animated.View>
                 </View>
@@ -1079,7 +1186,7 @@ const SimpleTransferComponent = () => {
                                 <ATextInput
                                     value={commentString}
                                     index={2}
-                                    ref={refs[2]}
+                                    ref={commentRef}
                                     onFocus={onFocus}
                                     onValueChange={setComment}
                                     placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
@@ -1099,19 +1206,13 @@ const SimpleTransferComponent = () => {
                                 entering={FadeInUp} exiting={FadeOutDown}
                                 layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                             >
-                                <Text style={{ color: theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                <Text style={[{ color: theme.accentRed }, Typography.regular13_18]}>
                                     {commentError}
                                 </Text>
                             </Animated.View>
                         ) : ((selected === 'comment' && !known) && (
                             <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
-                                <Text style={{
-                                    color: theme.textSecondary,
-                                    fontSize: 13, lineHeight: 18,
-                                    fontWeight: '400',
-                                    paddingHorizontal: 16,
-                                    marginTop: 2
-                                }}>
+                                <Text style={[{ color: theme.textSecondary, paddingHorizontal: 16, marginTop: 2 }, Typography.regular13_18]}>
                                     {t('transfer.commentDescription')}
                                 </Text>
                             </Animated.View>

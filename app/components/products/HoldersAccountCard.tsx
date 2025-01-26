@@ -23,23 +23,12 @@ const cardImages = {
 
 export const HoldersAccountCard = memo(({ card, theme }: { card: GeneralHoldersCard, theme: ThemeType }) => {
     const [lockAppWithAuth] = useLockAppWithAuthState();
-    // TODO: remove this when we have the correct personalization code
-    // let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'classic';
+    // TODO: remove this when we have the correct personalization codes
     let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'black-pro';
-    // switch (card.personalizationCode) {
-    //     case 'holders':
-    //         imageType = 'holders';
-    //         break;
-    //     case 'whales':
-    //         imageType = 'whales';
-    //         break;
-    //     case 'black-pro':
-    //         imageType = 'black-pro';
-    //         break;
-    //     default:
-    //         imageType = 'classic';
-    //         break;
-    // }
+
+    if (card.provider === 'elysphere-kauri') {
+        imageType = 'classic';
+    }
 
     return (
         <PerfView style={{ width: 46, height: 30, borderRadius: 6 }}>

@@ -83,7 +83,10 @@ export type LocalizationSchema = {
         notFound: string,
         unverified: string,
         addressBook: string,
-        gasless: string
+        gasless: string,
+        address: string,
+        currencyChanged: string,
+        required: string,
     },
     syncStatus: {
         connecting: string,
@@ -99,6 +102,7 @@ export type LocalizationSchema = {
     settings: {
         title: string,
         backupKeys: string,
+        holdersAccounts: string,
         migrateOldWallets: string,
         termsOfService: string,
         privacyPolicy: string,
@@ -117,7 +121,8 @@ export type LocalizationSchema = {
         rateApp: string,
         deleteAccount: string,
         theme: string,
-        searchEngine: string
+        searchEngine: string,
+        language: string
     },
     theme: {
         title: string,
@@ -133,6 +138,7 @@ export type LocalizationSchema = {
             send: string,
             buy: string,
             swap: string,
+            deposit: string
         },
         empty: {
             message: string,
@@ -167,7 +173,12 @@ export type LocalizationSchema = {
         share: {
             title: string,
             error: string
-        }
+        },
+        holdersJettonWarning: string,
+        assets: string,
+        fromExchange: string,
+        otherCoins: string,
+        deposit: string
     },
     transfer: {
         title: string,
@@ -190,6 +201,7 @@ export type LocalizationSchema = {
             invalidTransaction: string,
             invalidTransactionMessage: string,
             memoRequired: string,
+            holdersMemoRequired: string,
             memoChange: string,
             gaslessFailed: string,
             gaslessFailedMessage: string,
@@ -205,7 +217,10 @@ export type LocalizationSchema = {
             gaslessNotEnoughCoins: string,
             notEnoughJettons: string,
             jettonChange: string,
+            notEnoughGasTitle: string,
+            notEnoughGasMessage: string,
         },
+        changeJetton: string,
         sendAll: string,
         scanQR: string,
         sendTo: string,
@@ -324,6 +339,7 @@ export type LocalizationSchema = {
             },
             successAuth: string
         },
+        savings: string,
         accounts: string,
         services: string,
         oldWallets: {
@@ -348,6 +364,7 @@ export type LocalizationSchema = {
             subtitle: string
         },
         staking: {
+            earnings: string,
             title: string,
             balance: string,
             subtitle: {
@@ -539,6 +556,7 @@ export type LocalizationSchema = {
                 primaryName: string,
                 paymentName: string,
                 topUp: string,
+                addNew: string
             },
             pageTitles: {
                 general: string,
@@ -620,6 +638,20 @@ export type LocalizationSchema = {
                     fetchToken: string,
                     createSignature: string,
                 },
+            },
+            otpBanner: {
+                title: string,
+                accept: string,
+                decline: string,
+                expired: string
+            },
+            banner: {
+                fewMore: string,
+                ready: string,
+                readyAction: string,
+                kycAction: string
+                emailAction: string,
+                failedAction: string
             }
         }
     }
@@ -1065,6 +1097,10 @@ export type LocalizationSchema = {
         bannerTitle: string,
         bannerDescription: string,
     },
+    changelly: {
+        bannerTitle: string,
+        bannerDescription: string
+    }
     w5: {
         banner: {
             title: string,
@@ -1131,6 +1167,14 @@ export type LocalizationSchema = {
     },
     update: {
         callToAction: string,
+    },
+    savings: {
+        ton: string,
+        usdt: string,
+    },
+    spending: {
+        ton: string,
+        usdt: string
     }
 };
 

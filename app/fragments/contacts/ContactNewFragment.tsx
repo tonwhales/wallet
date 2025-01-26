@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Alert, Keyboard, TextInput, KeyboardAvoidingView, ScrollView } from "react-native";
+import { Platform, View, Text, Alert, Keyboard, KeyboardAvoidingView, ScrollView } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ContactField } from "../../components/Contacts/ContactField";
@@ -10,17 +10,17 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemDivider } from "../../components/ItemDivider";
-import { ATextInput } from "../../components/ATextInput";
+import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { useNetwork, useSetContact, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { useParams } from "../../utils/useParams";
 import { Avatar } from "../../components/avatar/Avatar";
 import { KnownWallets } from "../../secure/KnownWallets";
+import { Typography } from "../../components/styles";
 
 export const requiredFields = [
-    { key: 'lastName', value: '' },
-    { key: 'notes', value: '' },
+    { key: 'notes', value: '' }
 ];
 
 export const ContactNewFragment = fragment(() => {
@@ -93,11 +93,11 @@ export const ContactNewFragment = fragment(() => {
     // Scroll with Keyboard
     const [selectedInput, setSelectedInput] = useState(0);
     const refs = useMemo(() => {
-        let r: RefObject<TextInput>[] = [];
-        r.push(createRef<TextInput>()); // address input ref
-        r.push(createRef<TextInput>()); // name input ref
+        let r: RefObject<ATextInputRef>[] = [];
+        r.push(createRef<ATextInputRef>()); // address input ref
+        r.push(createRef<ATextInputRef>()); // name input ref
         for (let i = 0; i < fields.length; i++) {
-            r.push(createRef<TextInput>());
+            r.push(createRef<ATextInputRef>());
         }
         return r;
     }, [fields]);
@@ -106,7 +106,7 @@ export const ContactNewFragment = fragment(() => {
     const scrollToInput = useCallback((index: number) => {
         'worklet';
 
-        if (index === 0) {
+        if (index === 1) {
             scrollTo(scrollRef, 0, 0, true);
             return;
         }
@@ -208,11 +208,12 @@ export const ContactNewFragment = fragment(() => {
                             ref={refs[1]}
                             value={name}
                             onValueChange={(newValue) => setName(newValue.trimStart())}
-                            label={t('contacts.name')}
+                            label={t('contacts.name') + ` (${t('common.required')})`}
                             style={{ paddingHorizontal: 16 }}
                             blurOnSubmit={true}
                             editable={true}
-                            onFocus={() => onFocus(1)}
+                            index={1}
+                            onFocus={onFocus}
                             cursorColor={theme.accent}
                         />
                     </View>
@@ -228,24 +229,22 @@ export const ContactNewFragment = fragment(() => {
                             style={{ paddingHorizontal: 16 }}
                             keyboardType={'ascii-capable'}
                             onValueChange={(newValue) => setAddress(newValue.trim())}
-                            label={t('common.walletAddress')}
+                            label={t('common.walletAddress') + ` (${t('common.required')})`}
                             blurOnSubmit={true}
                             editable={true}
                             multiline
-                            onFocus={() => onFocus(0)}
+                            index={0}
+                            onFocus={onFocus}
                             cursorColor={theme.accent}
                         />
                     </View>
                     {address.length >= 48 && !parsed && (
                         <Animated.View entering={FadeIn} exiting={FadeOut}>
-                            <Text style={{
+                            <Text style={[{
                                 color: theme.accentRed,
-                                fontSize: 13,
-                                lineHeight: 18,
                                 marginTop: 8,
-                                marginLeft: 16,
-                                fontWeight: '400'
-                            }}>
+                                marginLeft: 16
+                            }, Typography.regular13_18]}>
                                 {t('transfer.error.invalidAddress')}
                             </Text>
                         </Animated.View>

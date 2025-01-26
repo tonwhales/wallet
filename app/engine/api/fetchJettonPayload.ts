@@ -1,5 +1,6 @@
 import axios from "axios";
 import { z } from "zod";
+import { whalesConnectEndpoint } from "../clients";
 
 const jettonPayloadScheme = z.object({
     customPayload: z.string().optional().nullable(),
@@ -9,7 +10,7 @@ const jettonPayloadScheme = z.object({
 export type JettonPayload = z.infer<typeof jettonPayloadScheme>;
 
 export async function fetchJettonPayload(account: string, jettonMaster: string, customPayloadApiUri?: string | null): Promise<JettonPayload> {
-    const endpoint = `https://connect.tonhubapi.com/mintless/jettons/`;
+    const endpoint = `${whalesConnectEndpoint}/mintless/jettons/`;
     const path = `${jettonMaster}/transfer/${account}/payload`;
 
     const searchParams = new URLSearchParams();

@@ -7,15 +7,14 @@ import { t } from '../../i18n/t';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
-import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
+import { useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { HoldersPlaceholder, HoldersLoader } from './components/HoldersAppComponent';
+import { HoldersLoader } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 import { openWithInApp } from '../../utils/openWithInApp';
 import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
@@ -23,8 +22,8 @@ import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebV
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
 import { useActionSheet } from '@expo/react-native-action-sheet';
-import { queryClient } from '../../engine/clients';
-import { Queries } from '../../engine/queries';
+import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import { AnimatedCards } from './components/AnimatedCards';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -35,13 +34,13 @@ export const HoldersLandingFragment = fragment(() => {
     const { showActionSheetWithOptions } = useActionSheet();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const [currency,] = usePrimaryCurrency();
+    const [currency] = usePrimaryCurrency();
 
     const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 
     const domain = extractDomain(endpoint);
     const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
-    const lang = getLocales()[0].languageCode;
+    const [lang] = useLanguage();
 
     // Anim
     const isAuthenticating = useRef(false);
@@ -84,9 +83,6 @@ export const HoldersLandingFragment = fragment(() => {
                 isAuthenticating.current = false;
                 return;
             }
-
-            const addressString = acc.address.toString({ testOnly: isTestnet });
-            await queryClient.refetchQueries({ queryKey: Queries.Holders(addressString).Invite() })
 
             const res = await enroll();
 
@@ -160,7 +156,7 @@ export const HoldersLandingFragment = fragment(() => {
         queryParams.append('initial-route', 'about');
 
         return { url, initialRoute, queryParams: queryParams.toString() };
-    }, [theme]);
+    }, [theme, lang, currency, endpoint]);
 
     const onContentProcessDidTerminate = useCallback(() => {
         webRef.current?.reload();
@@ -194,8 +190,9 @@ export const HoldersLandingFragment = fragment(() => {
     const [renderKey, setRenderKey] = useState(0);
 
     const onReload = useCallback(() => {
+        trackEvent(MixpanelEvent.HoldersReload, { route: source.url }, isTestnet);
         setRenderKey(renderKey + 1);
-    }, []);
+    }, [renderKey, isTestnet]);
 
     const onSupport = useCallback(() => {
         const tonhubOptions = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
@@ -252,7 +249,7 @@ export const HoldersLandingFragment = fragment(() => {
                         onBackPressed={navigation.goBack}
                         style={{ paddingHorizontal: 16 }}
                     />
-                    <HoldersPlaceholder />
+                    <AnimatedCards />
                 </Animated.View>
             </View>
         </View>

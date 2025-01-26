@@ -44,6 +44,11 @@ export const userStateCodec = z.union([
                     z.undefined(),
                     z.null()
                 ]),
+                completed: z.boolean().nullish(),
+                result: z.union([
+                    z.literal('GREEN'),
+                    z.literal('RED'),
+                ]).nullish(),
             }),
         ]),
         notificationSettings: z.object({

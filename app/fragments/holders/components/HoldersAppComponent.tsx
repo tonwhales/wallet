@@ -6,13 +6,12 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
-import { getLocales } from 'react-native-localize';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams, HoldersAppParamsType } from '../HoldersAppFragment';
-import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { useDAppBridge, usePrimaryCurrency } from '../../../engine/hooks';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useDAppBridge, useLanguage, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { useSelectedAccount } from '../../../engine/hooks';
@@ -29,8 +28,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { AccountPlaceholder } from './AccountPlaceholder';
 import { Image } from "expo-image";
 import { CardPlaceholder } from './CardPlaceholder';
-
-import IcHolders from '@assets/ic_holders.svg';
+import { AnimatedCards } from './AnimatedCards';
 
 export const holdersSupportUrl = 'https://t.me/Welcome_holders';
 export const supportFormUrl = 'https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN';
@@ -39,59 +37,6 @@ export const holdersSupportWebUrl = 'https://help.holders.io/en';
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
-
-export const HoldersPlaceholder = memo(() => {
-    const animation = useSharedValue(0);
-    const safeArea = useSafeAreaInsets();
-
-    useEffect(() => {
-        animation.value =
-            withRepeat(
-                withTiming(1, {
-                    duration: 300,
-                    easing: Easing.linear,
-                }),
-                -1,
-                true,
-            );
-    }, []);
-
-    const animatedStyles = useAnimatedStyle(() => {
-        const opacity = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 0.9],
-            Extrapolation.CLAMP
-        );
-        const scale = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 1.01],
-            Extrapolation.CLAMP,
-        )
-        return {
-            flex: 1,
-            flexGrow: 1,
-            alignSelf: 'center',
-            justifyContent: 'center',
-            marginBottom: 56,
-            opacity: opacity,
-            transform: [{ scale: scale }],
-        };
-    }, []);
-
-    return (
-        <Animated.View style={[
-            animatedStyles,
-            Platform.select({
-                ios: { paddingTop: safeArea.top - 8 },
-                android: { paddingTop: safeArea.top }
-            })
-        ]}>
-            <IcHolders color={'#eee'} />
-        </Animated.View>
-    );
-});
 
 export const HoldersLoader = memo(({
     loaded,
@@ -173,7 +118,7 @@ export const HoldersLoader = memo(({
             );
         }
 
-        return <HoldersPlaceholder />;
+        return <AnimatedCards />;
     }, [type, theme, showClose]);
 
     return (
@@ -244,7 +189,7 @@ export const HoldersAppComponent = memo((
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const domain = useMemo(() => extractDomain(props.endpoint), []);
-    const lang = getLocales()[0].languageCode;
+    const [lang] = useLanguage();
     const acc = useMemo(() => getCurrentAddress(), []);
     const status = props.status;
     const accountsStatus = props.accounts;
@@ -444,8 +389,9 @@ export const HoldersAppComponent = memo((
     const [renderKey, setRenderKey] = useState(0);
 
     const onReaload = useCallback(() => {
+        trackEvent(MixpanelEvent.HoldersReload, { route: source.url }, isTestnet);
         setRenderKey(renderKey + 1);
-    }, []);
+    }, [renderKey, isTestnet]);
 
     const onSupport = useCallback(() => {
         const tonhubOptions = [

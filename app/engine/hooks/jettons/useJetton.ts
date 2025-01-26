@@ -4,7 +4,7 @@ import { Jetton } from "../../types";
 import { mapJettonFullToMasterState } from "../../../utils/jettons/mapJettonToMasterState";
 import { useMemo } from "react";
 
-export function useJetton(params: { owner: Address | string, master?: Address | string, wallet?: Address | string }, suspense?: boolean): Jetton | null {
+export function useJetton(params: { owner: Address | string, master?: Address | string, wallet?: Address | string }): Jetton | null {
     const { isTestnet: testOnly } = useNetwork();
     const { owner, master, wallet } = params;
     const masterStr = typeof master === 'string' ? master : (master?.toString({ testOnly }) ?? null);

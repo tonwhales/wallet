@@ -129,6 +129,8 @@ export const DAppWebViewFragment = fragment(() => {
 
     const [currentUrl, setCurrentUrl] = useState(endpoint);
 
+    const [currentUrl, setCurrentUrl] = useState(endpoint);
+
     const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
 

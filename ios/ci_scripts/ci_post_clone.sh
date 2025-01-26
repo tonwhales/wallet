@@ -19,6 +19,23 @@ plutil -replace branch_key.live -string "$BRANCH_KEY_LIVE" Info.plist
 
 plutil -p Info.plist
 
+# Ensure the AppsFlyer Key environment variable is set
+if [ -z "$APPSFLYER_KEY" ]; then
+    echo "Error: APPSFLYER_KEY environment variable is not set."
+    exit 1
+fi
+
+# Replace the AppsFlyer key in the keys.json file
+line="YOUR_APPSFLYER_KEY"
+rep="$APPSFLYER_KEY"
+
+cd ../../../repository
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+# go back to the ios folder
+cd ios/wallet
+
 echo "===== Evn variables replaced ====="
 
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE

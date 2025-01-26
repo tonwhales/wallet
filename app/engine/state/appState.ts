@@ -1,11 +1,17 @@
 import { atom, selector } from 'recoil';
 import { getAppState } from '../../storage/appState';
 import { networkSelector } from './network';
-import { mixpanelIdentify } from '../../analytics/mixpanel';
+import { mixpanelAddWallet, mixpanelIdentify } from '../../analytics/mixpanel';
 
 export const appStateAtom = atom({
     key: 'wallet/appstate',
     default: getAppState(),
+    effects: [({ setSelf }) => {
+        const stored = getAppState();
+        if (stored) {
+            setSelf(stored);
+        }
+    }]
 });
 
 export const selectedAccountSelector = selector({
@@ -17,10 +23,6 @@ export const selectedAccountSelector = selector({
         let selected = (state.selected === -1 || state.selected >= state.addresses.length)
             ? null
             : state.addresses[state.selected];
-
-        if (selected) {
-            mixpanelIdentify(selected.address.toString({ testOnly: isTestnet }), isTestnet);
-        }
 
         if (selected) {
             return {

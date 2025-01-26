@@ -81,7 +81,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "notFound": "Не найден",
         "unverified": "Неверифицированные",
         "addressBook": "Адресная книга",
-        "gasless": "Gasless"
+        "gasless": "Gasless",
+        "address": "Адрес",
+        "currencyChanged": "Валюта изменена",
+        "required": 'обязательно'
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -97,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "settings": {
         "title": "Ещё",
         "backupKeys": "Сохранить seed-фразу",
+        "holdersAccounts": "Платежные счета",
         "migrateOldWallets": "Перенос со старых адресов",
         "termsOfService": "Условия использования",
         "privacyPolicy": "Политика конфиденциальности",
@@ -116,6 +120,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "deleteAccount": "Удалить аккаунт",
         "theme": "Тема",
         "searchEngine": "Поисковая система",
+        "language": "Язык"
     },
     "theme": {
         "title": "Тема",
@@ -131,6 +136,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "send": "Отправить",
             "buy": "Купить",
             "swap": "Обмен",
+            "deposit": "Пополнить"
         },
         "empty": {
             "message": "У вас нет транзакций",
@@ -149,7 +155,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "share": {
             "title": "Мой Tonhub адрес",
             "error": "Не удалось поделиться адресом, попробуйте еще раз или обратитесь в службу поддержки"
-        }
+        },
+        "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
+        "assets": "Жетоны и счета",
+        "fromExchange": "С биржи",
+        "otherCoins": "Другие токены",
+        "deposit": "Пополнить"
     },
     "transfer": {
         "title": "Отправить",
@@ -172,6 +183,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidTransaction": "Неверная транзакция",
             "invalidTransactionMessage": "Пожалуйста, проверьте данные транзакции",
             "memoRequired": "Добавьте обязательный мемо/тег, чтобы избежать потери средств",
+            "holdersMemoRequired": "Tag/MEMO",
             "memoChange": "Измените мемо/тег на \"{{memo}}\"",
             "gaslessFailed": "Не удалось отправить транзакцию",
             "gaslessFailedMessage": "Попробуйте снова или обратитесь в службу поддержки",
@@ -187,7 +199,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "gaslessNotEnoughCoins": "Необходимо {{fee}} для оплаты комиссии, не хватает {{missing}}",
             "notEnoughJettons": "Недостаточно {{symbol}}",
             "jettonChange": "Получатель поддерживает только транзакции в {{symbol}}, пожалуйста, измените получателя или валюту транзакции",
+            "notEnoughGasTitle": "Недостаточно TON для оплаты комиссии",
+            "notEnoughGasMessage": "Пожалуйста, пополните кошелек TON (необходимо еще как минимум {{diff}} TON) и попробуйте снова",
         },
+        "changeJetton": "Сменить на {{symbol}}",
         "sendAll": "Max",
         "scanQR": "Считать QR код",
         "sendTo": "Получатель",
@@ -213,15 +228,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "txsSummary": "Итого",
         "txsTotal": "Общая сумма",
         "gasDetails": "Детали комиссий",
-        "jettonGas": "Gas за отправку жетонов",
-        "unusualJettonsGas": "Необычно высокий Gas за отправку жетонов",
-        "unusualJettonsGasTitle": "Gas за отправку жетонов {{amount}} TON",
-        "unusualJettonsGasMessage": "Комиссия за отправку жетонов выше чем обычно",
-        "addressNotActive": "Не активен",
-        "wrongJettonTitle": "Неверный жетон",
+        "jettonGas": "Gas за отправку токенов",
+        "unusualJettonsGas": "Необычно высокий Gas за отправку токнов",
+        "unusualJettonsGasTitle": "Gas за отправку токенов {{amount}} TON",
+        "unusualJettonsGasMessage": "Комиссия за отправку токенов выше чем обычно",
+        "addressNotActive": "С этого адреса не было исходящих транзакций",
+        "wrongJettonTitle": "Неверный токен",
         "wrongJettonMessage": "Вы пытаетесь отправить жетон, которого у вас нет",
-        "notEnoughJettonsTitle": "Недостаточно жетонов",
-        "notEnoughJettonsMessage": "У вас недостаточно жетонов для отправки",
+        "notEnoughJettonsTitle": "Недостаточно токенов",
+        "notEnoughJettonsMessage": "У вас недостаточно токенов для отправки",
         "aboutFees": "О комиссиях",
         "aboutFeesDescription": "Комиссии за транзакции в блокчейне зависят от нескольких факторов: загруженности сети, размера транзакции, цены газа и конфигурационных параметров блокчейна. Чем больше размер транзакции (сообщение/комментарий транзакции) или выше спрос на обработку, тем выше будут комиссии.",
         "gaslessTransferSwitch": "Оплатить комиссию в {{symbol}}"
@@ -322,6 +337,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             "successAuth": "Подключено"
         },
+        "savings": "Сберегательные счета",
         "accounts": "Жетоны",
         "services": "Расширения",
         "oldWallets": {
@@ -346,7 +362,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "subtitle": "Нажмите, чтобы посмотреть запрос"
         },
         "staking": {
-            "title": "Стейкинг",
+            "earnings": "Заработок",
+            "title": "TON Стейкинг",
             "balance": "Баланс стейкинга",
             "subtitle": {
                 "join": "Зарабатывайте на TON до {{apy}}%",
@@ -524,10 +541,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "loadingLongerTitle": "Проблемы c подключением",
             "loadingLonger": "Проверьте подключение к интернету и перезагрузите страницу. Если проблема сохраняется, обратитесь в службу поддержки",
             "accounts": {
-                "title": 'Счета и карты',
-                "prepaidTitle": 'Prepaid карты',
+                "title": "Платежные счета",
+                "prepaidTitle": "Предоплаченные карты",
                 "account": 'Счет',
-                "basicAccount": 'Базовый счет',
+                "basicAccount": 'Платежный счет',
                 "proAccount": 'Pro счет',
                 "noCards": "Нет карт",
                 "prepaidCard": "Tonhub Prepaid *{{lastFourDigits}}",
@@ -535,8 +552,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "hiddenCards": "Скрытые карты",
                 "hiddenAccounts": "Скрытые счета",
                 "primaryName": 'Основной счет',
-                "paymentName": 'Платежный счет {{accountIndex}}',
-                "topUp": 'Пополнить счёт',
+                "paymentName": "Платежный счет {{accountIndex}}",
+                "topUp": "Пополнить счёт",
+                "addNew": "Добавить счёт",
             },
             "pageTitles": {
                 "general": "Tonhub Cards",
@@ -555,8 +573,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "card": "Карта",
                 "cards": "Карты Holders",
                 "title": "Tonhub card {{cardNumber}}",
-                "defaultSubtitle": "Платите TON и USDT где угодно",
-                "defaultTitle": "Карты Tonhub",
+                "defaultSubtitle": "Платите USDT и TON везде с картой Tonhub",
+                "defaultTitle": "Tonhub карта",
                 "eurSubtitle": "Tonhub EUR",
                 "type": {
                     "physical": "Физическая карта",
@@ -618,6 +636,20 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                     "fetchToken": "Во время получения токена",
                     "createSignature": "Во время создания подписи"
                 }
+            },
+            "otpBanner": {
+                "title": "Новый запрос на оплату",
+                "accept": "Принять",
+                "decline": "Отклонить",
+                "expired": "Истек"
+            },
+            "banner": {
+                "fewMore": "Осталось всего несколько шагов",
+                "ready": "Верификация завершена! Ваша карта готова!",
+                "readyAction": "Получить сейчас",
+                "emailAction": "Подтвердите почту",
+                "kycAction": "Пройдите верификацию",
+                "failedAction": "Верификация не удалась",
             }
         }
     },
@@ -1063,6 +1095,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "bannerTitle": 'Обновите ваш адрес',
         "bannerDescription": 'С EQ на UQ',
     },
+    "changelly": {
+        "bannerTitle": "Депозиты USDT и USDC",
+        "bannerDescription": "Доступны Tron, Solana, Ethereum, Polygon!"
+    },
     "w5": {
         "banner": {
             "title": 'Добавить кошелек W5',
@@ -1129,6 +1165,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "update": {
         "callToAction": 'Обновить Tonhub'
+    },
+    "savings": {
+        "ton": "Сберегательный счет в TON",
+        "usdt": "Сберегательный счет в USDT",
+    },
+    "spending": {
+        "ton": "Платеждный счет в TON",
+        "usdt": "Платеждный счет в USDT"
     }
 };
 

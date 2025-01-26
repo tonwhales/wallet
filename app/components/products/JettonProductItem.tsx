@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
-import { Suspense, memo, useCallback, useMemo, useRef } from 'react';
-import { Swipeable } from 'react-native-gesture-handler';
+import { Suspense, memo, useCallback, useMemo, useRef, useState } from 'react';
+import { Swipeable, Pressable as GHPressable } from 'react-native-gesture-handler';
 import { useNetwork, usePrimaryCurrency, useTheme, useVerifyJetton } from '../../engine/hooks';
 import { PerfText } from '../basic/PerfText';
 import { Address, toNano } from '@ton/core';
@@ -21,12 +21,12 @@ import { mapJettonFullToMasterState } from '../../utils/jettons/mapJettonToMaste
 import { CurrencySymbols } from '../../utils/formatCurrency';
 import { calculateSwapAmount } from '../../utils/jettons/calculateSwapAmount';
 import { JettonFull } from '../../engine/api/fetchHintsFull';
-import { JettonViewType } from '../../fragments/wallet/AssetsFragment';
+import { AssetViewType } from '../../fragments/wallet/AssetsFragment';
 import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
-
-import IcCheck from "@assets/ic-check.svg";
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { GaslessInfoButton } from '../jettons/GaslessInfoButton';
+
+import IcCheck from "@assets/ic-check.svg";
 
 type JettonProductItemProps = {
     hint: JettonFull,
@@ -43,10 +43,12 @@ type JettonProductItemProps = {
         onSelect: (j: JettonFull) => void,
         selectedFn?: (j: JettonFull) => boolean
         hideSelection?: boolean,
+        forceBalance?: boolean
     }
     selected?: boolean,
     onReady?: (address: string) => void,
-    jettonViewType: JettonViewType
+    jettonViewType: AssetViewType,
+    description?: string
 };
 
 const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loading' | 'failed' }) => {
@@ -291,7 +293,7 @@ export const JettonProductItem = memo((props: JettonProductItemProps) => {
 
 const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
     const theme = useTheme();
-    const { hint, jettonViewType, owner } = props;
+    const { hint, jettonViewType, owner, description } = props;
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const balance = BigInt(hint.balance) ?? 0n;
@@ -373,8 +375,27 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
 
     const subtitle = useMemo(() => {
         switch (jettonViewType) {
-            case JettonViewType.Default:
-                const showRate = !!rate && rate !== 0;
+            case AssetViewType.Default:
+                if (!!description) {
+                    return (
+                        <Text
+                            numberOfLines={1} ellipsizeMode={'tail'}
+                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                        >
+                            {description}
+                        </Text>
+                    );
+                }
+                let showRate = !!rate && rate !== 0;
+
+                // Check if rate is valid 
+                if (showRate) {
+                    try {
+                        toNano(rate!);
+                    } catch {
+                        showRate = false;
+                    }
+                }
 
                 if (!showRate && !isSCAM) {
                     return null;
@@ -386,7 +407,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         >
                             {'SCAM'}
                         </Text>
-                    )
+                    );
                 }
 
                 return (
@@ -402,7 +423,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                             )}
                             {showRate && (
                                 <ValueComponent
-                                    value={toNano(rate)}
+                                    value={toNano(rate!)}
                                     precision={2}
                                     suffix={` ${CurrencySymbols[currency]?.symbol}`}
                                     forcePrecision
@@ -411,9 +432,9 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         </Text>
                     </Text>
                 );
-            case JettonViewType.Receive:
+            case AssetViewType.Receive:
                 return null;
-            case JettonViewType.Transfer:
+            case AssetViewType.Transfer:
                 return (
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                         <ValueComponent
@@ -430,7 +451,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                 return null;
         }
 
-    }, [rate, balance, symbol, jettonViewType, currency, isSCAM, theme, hint.jetton.decimals]);
+    }, [rate, balance, symbol, jettonViewType, currency, isSCAM, theme, hint.jetton.decimals, description]);
 
     return (
         (props.rightAction) ? (
@@ -440,6 +461,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                     overshootRight={false}
                     containerStyle={{ flex: 1 }}
                     useNativeAnimations={true}
+
                     childrenContainerStyle={[
                         {
                             flex: 1,
@@ -484,7 +506,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         )
                     }}
                 >
-                    <Pressable
+                    <GHPressable
                         style={({ pressed }) => ({ flexGrow: 1, opacity: pressed ? 0.5 : 1 })}
                         onPress={onPress}
                     >
@@ -502,9 +524,9 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 backgroundColor={theme.surfaceOnElevation}
                             />
                             <View style={{ marginLeft: 12, flex: 1, justifyContent: 'center' }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                                     <PerfText
-                                        style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
+                                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                         ellipsizeMode="tail"
                                         numberOfLines={1}
                                     >
@@ -538,7 +560,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                                 )}
                             </View>
                         </View>
-                    </Pressable>
+                    </GHPressable>
                 </Swipeable>
                 {!props.last && !props.card && (
                     <PerfView
@@ -582,7 +604,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         </PerfText>
                         {subtitle}
                     </View>
-                    {!props.selectParams ? (
+                    {(!props.selectParams || props.selectParams.forceBalance) ? (
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.semiBold17_24]}>
                                 <ValueComponent

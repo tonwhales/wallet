@@ -8,6 +8,7 @@ import { clients } from './clients';
 import { useSetRecoilState } from 'recoil';
 import { blockWatcherAtom, lastWatchedBlockAtom } from './state/blockWatcherState';
 import { Address } from '@ton/core';
+import { focusManager } from '@tanstack/react-query';
 
 let lastBlockResolve: ((block: number) => void) | undefined;
 let lastBlockPromise: Promise<number> = new Promise((resolve) => {
@@ -26,7 +27,12 @@ export function useBlocksWatcher() {
 
     useEffect(() => {
         let watcher: BlocksWatcher | undefined;
-        if (appStateVisible === 'active') {
+
+        const isActive = appStateVisible === 'active';
+
+        focusManager.setFocused(isActive);
+        
+        if (isActive) {
             watcher = new BlocksWatcher(isTestnet ? 'testnet-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com');
             let client = clients.ton[isTestnet ? 'testnet' : 'mainnet'];
 

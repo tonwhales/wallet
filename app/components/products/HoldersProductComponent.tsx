@@ -38,6 +38,7 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
     return (
         <View style={{ marginTop: (hasAccounts || hasPrepaid) ? 16 : 0 }}>
             <HoldersAccounts
+                owner={selected!.address}
                 theme={theme}
                 isTestnet={network.isTestnet}
                 markAccount={markAccount}

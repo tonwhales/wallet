@@ -3,10 +3,6 @@ import { Queries } from '../../queries';
 import { fetchHints } from '../../api/fetchHints';
 import { z } from "zod";
 import { storagePersistence } from '../../../storage/storage';
-import { fetchMintlessHints, MintlessJetton } from '../../api/fetchMintlessHints';
-import { queryClient } from '../../clients';
-import { StoredJettonWallet } from '../../metadata/StoredMetadata';
-import { getQueryData } from '../../utils/getQueryData';
 
 const txsHintsKey = 'txsHints';
 const txsHintsCodec = z.array(z.string());
@@ -45,41 +41,6 @@ export function useHints(addressString?: string): string[] {
             const hints = new Set([...fetched, ...txsHints]);
 
             return Array.from(hints);
-        },
-        enabled: !!addressString,
-        refetchOnMount: true,
-        staleTime: 1000 * 30
-    });
-
-    return hints.data || [];
-}
-
-export function useMintlessHints(addressString?: string): MintlessJetton[] {
-    let hints = useQuery({
-        queryKey: Queries.Mintless(addressString || ''),
-        queryFn: async () => {
-            try {
-                const fetched = await fetchMintlessHints(addressString!);
-
-                const cache = queryClient.getQueryCache();
-                // update jetton wallets with mintless hints
-                fetched?.forEach(hint => {
-                    const wallet = getQueryData<StoredJettonWallet | null>(cache, Queries.Account(hint.walletAddress.address).JettonWallet());
-
-                    if (!wallet) {
-                        queryClient.setQueryData<StoredJettonWallet | null>(Queries.Account(hint.walletAddress.address).JettonWallet(), {
-                            balance: hint.balance,
-                            owner: addressString!,
-                            master: hint.jetton.address,
-                            address: hint.walletAddress.address
-                        });
-                    }
-                });
-
-                return fetched;
-            } catch (e) {
-                console.warn('fetch mintless hints error', e);
-            }
         },
         enabled: !!addressString,
         refetchOnMount: true,

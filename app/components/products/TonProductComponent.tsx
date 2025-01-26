@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import { Pressable, View, Text } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { ValueComponent } from "../ValueComponent";
@@ -8,6 +8,7 @@ import { Address } from "@ton/core";
 import { useAccountLite, useBounceableWalletFormat } from "../../engine/hooks";
 import { Image } from "expo-image";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { t } from "../../i18n/t";
 
 export const TonProductComponent = memo(({
     theme,
@@ -24,27 +25,18 @@ export const TonProductComponent = memo(({
     const accountLite = useAccountLite(address);
     const balance = accountLite?.balance ?? 0n;
     const [bounceableFormat] = useBounceableWalletFormat();
-    const ledgerAddressStr = address?.toString({ bounceable: bounceableFormat, testOnly });
+    const addr = address?.toString({ bounceable: bounceableFormat, testOnly });
 
-    const onTonPress = useCallback(() => {
-        if (balance === 0n) {
-            if (isLedger) {
-                navigation.navigate('LedgerReceive', { addr: ledgerAddressStr, ledger: true });
-            } else {
-                navigation.navigate('Receive');
-            }
-            return;
-        }
-
-        navigation.navigate(isLedger ? 'LedgerSimpleTransfer' : 'SimpleTransfer');
-    }, [ledgerAddressStr, balance]);
+    const onPress = () => {
+        navigation.navigateTonWallet({ owner: addr }, isLedger);
+    };
 
     return (
         <Pressable
             style={({ pressed }) => {
                 return { flex: 1, opacity: pressed ? 0.8 : 1 }
             }}
-            onPress={onTonPress}
+            onPress={onPress}
         >
             <View style={{
                 flexDirection: 'row', flexGrow: 1,
@@ -88,7 +80,7 @@ export const TonProductComponent = memo(({
                         ellipsizeMode={'tail'}
                         style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                     >
-                        {'The Open Network'}
+                        {t('savings.ton')}
                     </Text>
                 </View>
                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>

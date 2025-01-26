@@ -1,5 +1,5 @@
 import React, { ReactElement, memo, useCallback, useMemo } from "react"
-import { Pressable, Text, View } from "react-native"
+import { View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
@@ -15,18 +15,18 @@ import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
 import { ProductBanner } from "./ProductBanner"
 import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUserState"
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
-import { Typography } from "../styles"
 import { useBanners } from "../../engine/hooks/banners"
 import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import { AddressFormatUpdate } from "./AddressFormatUpdate"
-import { TonProductComponent } from "./TonProductComponent"
-import { SpecialJettonProduct } from "./SpecialJettonProduct"
 import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited"
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment"
 import { W5Banner } from "./W5Banner"
 import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck"
 import { HoldersBanner } from "./HoldersBanner"
+import { SavingsProduct } from "./SavingsProduct"
+import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
+import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -98,13 +98,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
     }, [selected, isTestnet]);
 
-    const showAddNewProduct = showHoldersBanner || !(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n);
+    const showAddNewProduct = totalStaked === 0n;
 
     return (
         <View>
-            <View style={{
-                backgroundColor: theme.backgroundPrimary,
-            }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary }}>
+                <PaymentOtpBanner address={selected.address} />
                 <AddressFormatUpdate />
                 <W5Banner />
                 <DappsRequests />
@@ -137,59 +136,17 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         ) : (
                             <HoldersBanner
                                 onPress={onHoldersPress}
+                                address={selected.address}
                                 {...holderBannerContent.banner}
                             />
                         )
                 )}
 
+                <HoldersChangellyBanner address={selected.address} />
+
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
-                <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
-                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
-                        {t('common.balances')}
-                    </Text>
-                    <View style={{
-                        backgroundColor: theme.surfaceOnBg,
-                        borderRadius: 20, marginTop: 8
-                    }}>
-                        <TonProductComponent
-                            key={'ton-native'}
-                            theme={theme}
-                            address={selected.address}
-                            testOnly={isTestnet}
-                        />
-
-                        <SpecialJettonProduct
-                            key={'special-jettton'}
-                            theme={theme}
-                            address={selected.address}
-                            testOnly={isTestnet}
-                            divider={'top'}
-                        />
-                    </View>
-                </View>
-
-                <Pressable
-                    style={({ pressed }) => (
-                        {
-                            flexDirection: 'row',
-                            justifyContent: 'space-between', alignItems: 'center',
-                            padding: 16,
-                            opacity: showAddNewProduct && pressed ? 0.5 : 1
-                        }
-                    )}
-                    disabled={!showAddNewProduct}
-                    onPress={() => navigation.navigate('Products')}
-                >
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('common.products')}
-                    </Text>
-                    {showAddNewProduct && (
-                        <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                            {t('products.addNew')}
-                        </Text>
-                    )}
-                </Pressable>
+                <SavingsProduct address={selected.address} />
 
                 <StakingProductComponent
                     key={'pool'}

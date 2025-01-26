@@ -81,7 +81,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         notFound: 'Not found',
         unverified: 'Unverified',
         addressBook: 'Address book',
-        gasless: 'Gasless'
+        gasless: 'Gasless',
+        address: 'Address',
+        currencyChanged: 'Currency changed',
+        required: 'required'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -97,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     settings: {
         title: 'More',
         backupKeys: 'Backup keys',
+        holdersAccounts: 'Spending accounts',
         migrateOldWallets: 'Migrate old wallets',
         termsOfService: 'Terms of Service',
         privacyPolicy: 'Privacy policy',
@@ -116,6 +120,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         deleteAccount: 'Delete account',
         theme: 'Theme',
         searchEngine: 'Search engine',
+        language: 'Language'
     },
     theme: {
         title: 'Theme',
@@ -131,6 +136,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             send: 'Send',
             buy: 'Buy',
             swap: 'Swap',
+            deposit: 'Deposit'
         },
         empty: {
             message: 'You have no transactions',
@@ -161,11 +167,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     receive: {
         title: 'Receive',
-        subtitle: 'Only send TON Blockchain assets to this address. Other assets will be lost forever',
+        subtitle: 'Send only Toncoin and tokens in TON network to this address, or you might lose your funds.',
         share: {
             title: 'My Tonhub Address',
             error: 'Failed to share address, please try again or contact support'
-        }
+        },
+        holdersJettonWarning: 'Transfer to this address only {{symbol}}, if you send another token, you will lose it.',
+        assets: 'Tokens and Accounts',
+        fromExchange: 'From an exchange',
+        otherCoins: 'Other tokens',
+        deposit: 'Deposit to',
     },
     transfer: {
         title: 'Send',
@@ -188,6 +199,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidTransaction: 'Invalid transaction',
             invalidTransactionMessage: 'Please check the transaction details',
             memoRequired: 'Add a memo/tag to avoid losing funds',
+            holdersMemoRequired: 'Comment/MEMO',
             memoChange: 'Change memo/tag to \"{{memo}}\"',
             gaslessFailed: 'Failed to send transaction',
             gaslessFailedMessage: 'Please try again or contact support',
@@ -202,8 +214,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             gaslessTryLaterMessage: 'You can try again later or contact support',
             gaslessNotEnoughCoins: '{{fee}} in fees required to send, missing {{missing}}',
             notEnoughJettons: 'Not enough {{symbol}}',
-            jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency'
+            jettonChange: 'Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency',
+            notEnoughGasTitle: 'Insufficient TON to cover the gas fee',
+            notEnoughGasMessage: 'Please top up your wallet with TON (at least {{diff}} TON more is needed) and try again'
         },
+        changeJetton: 'Switch to {{symbol}}',
         sendAll: 'Max',
         scanQR: 'scan qr code',
         sendTo: 'Send to',
@@ -229,15 +244,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsSummary: 'Total',
         txsTotal: 'Total amount',
         gasDetails: 'Gas details',
-        jettonGas: 'Gas for sending jettons',
+        jettonGas: 'Gas for sending tokens',
         unusualJettonsGas: 'Gas is higher than usual',
-        unusualJettonsGasTitle: 'The fee for sending jettons is {{amount}} TON',
-        unusualJettonsGasMessage: 'Jetton transaction fee (Gas) is higher than usual',
-        addressNotActive: 'Not active',
-        wrongJettonTitle: 'Wrong jetton',
-        wrongJettonMessage: 'You are trying to send a jetton that that you don\'t have',
-        notEnoughJettonsTitle: 'Not enough jettons',
-        notEnoughJettonsMessage: 'You are trying to send more jettons than you have',
+        unusualJettonsGasTitle: 'The fee for sending tokens is {{amount}} TON',
+        unusualJettonsGasMessage: 'Tokens transaction fee (Gas) is higher than usual',
+        addressNotActive: 'This wallet had no outgoing transactions',
+        wrongJettonTitle: 'Wrong token',
+        wrongJettonMessage: 'You are trying to send a token that that you don\'t have',
+        notEnoughJettonsTitle: 'Not enough tokens',
+        notEnoughJettonsMessage: 'You are trying to send more tokens than you have',
         aboutFees: 'About fees',
         aboutFeesDescription: 'The fees for transactions on the blockchain depend on several factors, such as network congestion, transaction size, gas price, and blockchain configuration parameters. The higher the demand for transaction processing on the blockchain or the larger the transaction size (message/comment), the higher the fees will be.',
         gaslessTransferSwitch: 'Pay gas fee in {{symbol}}'
@@ -322,6 +337,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             successAuth: 'Connected',
         },
+        savings: 'Savings',
         accounts: 'Tokens',
         services: 'Extensions',
         oldWallets: {
@@ -346,7 +362,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             subtitle: 'Press to view request'
         },
         staking: {
-            title: 'Staking',
+            earnings: 'Earnings',
+            title: 'TON Staking',
             balance: 'Staking balance',
             subtitle: {
                 join: 'Earn up to {{apy}}% on your TONs',
@@ -524,10 +541,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadingLongerTitle: 'Connection problems',
             loadingLonger: 'Check your internet connection and reload page. If the issue persists please contact support',
             accounts: {
-                title: 'Accounts & Cards',
+                title: 'Spendings',
                 prepaidTitle: 'Prepaid cards',
                 account: 'Account',
-                basicAccount: 'Basic account',
+                basicAccount: 'Spending account',
                 proAccount: 'Pro account',
                 noCards: 'No cards',
                 prepaidCard: 'Tonhub Prepaid *{{lastFourDigits}}',
@@ -535,8 +552,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 hiddenCards: 'Hidden cards',
                 hiddenAccounts: 'Hidden accounts',
                 primaryName: 'Main account',
-                paymentName: 'Payment account {{accountIndex}}',
+                paymentName: 'Spending account {{accountIndex}}',
                 topUp: 'Top up account',
+                addNew: 'Add new account'
             },
             pageTitles: {
                 general: 'Tonhub Cards',
@@ -555,8 +573,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 card: 'Card',
                 cards: 'Holders cards',
                 title: 'Tonhub card {{cardNumber}}',
-                defaultSubtitle: 'Pay with TON and USDT everywhere',
-                defaultTitle: 'Tonhub cards',
+                defaultSubtitle: 'Pay with USDT or TON everywhere by card',
+                defaultTitle: 'Tonhub card',
                 eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Physical Card',
@@ -618,6 +636,20 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                     fetchToken: 'During token fetching',
                     createSignature: 'During signature creation',
                 },
+            },
+            otpBanner: {
+                title: 'New payment request',
+                accept: 'Accept',
+                decline: 'Decline',
+                expired: 'Expired'
+            },
+            banner: {
+                fewMore: 'Only a few more steps to complete',
+                ready: 'Verification completed! Your card is ready!',
+                readyAction: 'Get it now',
+                emailAction: 'Verify your email',
+                kycAction: 'Verify your identity',
+                failedAction: 'Verification failed',
             }
         }
     },
@@ -762,13 +794,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     jetton: {
         token: 'token',
-        productButtonTitle: 'Jettons',
+        productButtonTitle: 'Tokens',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
-        hidden: 'Hidden jettons',
+        hidden: 'Hidden tokens',
         liquidPoolDescriptionDedust: 'Liquidity for {{name0}}/{{name1}} on DeDust DEX',
         liquidPoolDescriptionStonFi: 'Liquidity for {{name0}}/{{name1}} on STON.fi DEX',
         emptyBalance: 'Empty balance',
-        jettonsNotFound: 'No jettons found'
+        jettonsNotFound: 'No tokens found'
     },
     connections: {
         extensions: 'Extensions',
@@ -1063,6 +1095,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         bannerTitle: 'Update your address',
         bannerDescription: 'From EQ to UQ',
     },
+    changelly: {
+        bannerTitle: 'USDT & USDC deposits',
+        bannerDescription: 'Tron, Solana, Ethereum, Polygon available!'
+    },
     w5: {
         banner: {
             title: 'Add wallet W5',
@@ -1129,6 +1165,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     update: {
         callToAction: 'Update Tonhub'
+    },
+    savings: {
+        ton: 'TON saving account',
+        usdt: 'USDT saving account',
+    },
+    spending: {
+        ton: 'TON spending account',
+        usdt: 'USDT spending account'
     }
 };
 

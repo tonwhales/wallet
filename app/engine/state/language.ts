@@ -21,9 +21,16 @@ function storeLanguageState(state: string) {
 export const languageState = atom({
     key: 'language',
     default: getLanguageState(),
-    effects: [({ onSet }) => {
+    effects: [({ onSet, setSelf }) => {
         onSet((newValue) => {
             storeLanguageState(newValue);
-        })
+            i18n.changeLanguage(newValue);
+        });
+
+        const stored = getLanguageState();
+
+        if (stored) {
+            setSelf(stored);
+        }
     }]
 });

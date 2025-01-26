@@ -171,9 +171,15 @@ function storeThemeStyleState(state: ThemeStyle) {
 export const themeStyleState = atom<ThemeStyle>({
     key: 'theme/style',
     default: getThemeStyleState(),
-    effects: [({ onSet }) => {
+    effects: [({ onSet, setSelf }) => {
         onSet((newValue) => {
             storeThemeStyleState(newValue);
         })
+
+        const stored = getThemeStyleState();
+
+        if (stored) {
+            setSelf(stored);
+        }
     }]
 });

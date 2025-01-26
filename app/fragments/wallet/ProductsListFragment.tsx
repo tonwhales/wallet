@@ -9,7 +9,7 @@ import { View } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { HoldersAccountItem } from "../../components/products/HoldersAccountItem";
+import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { HoldersPrepaidCard } from "../../components/products/HoldersPrepaidCard";
 import { GeneralHoldersAccount, PrePaidHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -61,6 +61,8 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                             onBeforeOpen={navigation.goBack}
                             hideCardsIfEmpty
+                            owner={Address.parse(addressStr)}
+                            content={{ type: HoldersItemContentType.BALANCE }}
                         />
                     );
                 },

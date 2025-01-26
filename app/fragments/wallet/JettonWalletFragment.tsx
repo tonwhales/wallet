@@ -19,9 +19,9 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
-import { PendingTransactions } from "./views/PendingTransactions";
 import { useFocusEffect } from "@react-navigation/native";
 import { PendingTransaction } from "../../engine/state/pending";
+import { JettonPendingTransactions } from "./views/JettonPendingTransactions";
 
 export type JettonWalletFragmentProps = {
     owner: string;
@@ -73,7 +73,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
     const safeArea = useSafeAreaInsets();
     const ownerAddress = Address.parse(owner);
 
-    const jetton = useJetton({ owner, master, wallet }, true);
+    const jetton = useJetton({ owner, master, wallet });
     const txs = useJettonTransactions(owner, master, { refetchOnMount: true });
     const transactions = txs.data ?? [];
 
@@ -106,8 +106,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
     });
 
     if (!jetton) {
-        navigation.goBack();
-        return null;
+        return <JettonWalletSkeleton />;
     }
 
     const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
@@ -186,15 +185,18 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                 </Text>
                             </View>
                             <WalletActions
-                                jetton={jetton}
+                                actionAsset={{
+                                    type: 'jetton',
+                                    jetton: jetton
+                                }}
                                 theme={theme}
                                 navigation={navigation}
                                 isTestnet={isTestnet}
                             />
-                            <PendingTransactions
-                                address={ownerAddress.toString({ testOnly: isTestnet })}
+                            <JettonPendingTransactions
+                                owner={ownerAddress.toString({ testOnly: isTestnet })}
+                                master={master}
                                 onChange={onRefresh}
-                                viewType={'jetton-history'}
                                 filter={pendingFilter}
                             />
                         </View>

@@ -68,9 +68,27 @@ export const StakingPoolsFragment = fragment(() => {
     const items: ReactElement[] = [];
     const processed = new Set<string>();
 
-    const onJoinClub = useCallback(() => openWithInApp(network.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club'), []);
-    const onJoinTeam = useCallback(() => openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1'), []);
-    const onEPNMore = useCallback(() => openWithInApp('https://epn.bz/'), []);
+    const onJoinClub = () => {
+        const url = network.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club';
+
+        navigation.navigateDAppWebViewModal({
+            lockNativeBack: true,
+            safeMode: true,
+            url,
+            header: { title: { type: 'params', params: { domain: 'tonwhales.com', title: t('products.staking.pools.club') } } },
+            useStatusBar: true,
+            engine: 'ton-connect',
+            controlls: {
+                refresh: true,
+                share: true,
+                back: true,
+                forward: true
+            },
+        });
+    };
+
+    const onJoinTeam = () => openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
+    const onEPNMore = () => openWithInApp('https://epn.bz/');
 
     // Await config
     if (!config) {

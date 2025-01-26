@@ -1,7 +1,7 @@
 import React, { forwardRef, memo, useEffect, useState } from "react";
 import { TextInput } from "react-native";
 import { t } from "../../i18n/t";
-import { ATextInput } from "../ATextInput";
+import { ATextInput, ATextInputRef } from "../ATextInput";
 import { useTheme } from '../../engine/hooks';
 import { useContactField } from '../../engine/hooks';
 
@@ -33,7 +33,7 @@ export const ContactField = memo(forwardRef((props: {
     fieldKey: string,
     index: number,
     onFieldChange?: (index: number, value: string) => void,
-}, ref: React.ForwardedRef<TextInput>) => {
+}, ref: React.ForwardedRef<ATextInputRef>) => {
     const theme = useTheme();
     const [value, setValue] = useState(props.input.value || '');
     const debouncedValue = useDebounceInput(value, 500);

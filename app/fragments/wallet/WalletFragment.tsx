@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Alert, Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
@@ -32,6 +32,9 @@ import { JettonWalletFragment } from './JettonWalletFragment';
 import { queryClient } from '../../engine/clients';
 import { HoldersUserState } from '../../engine/api/holders/fetchUserState';
 import { Queries } from '../../engine/queries';
+import { TonWalletFragment } from './TonWalletFragment';
+import { getCampaignId } from '../../utils/CachedLinking';
+import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -173,6 +176,12 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
         setIsRefreshing(true);
         queryClient.refetchQueries({
             predicate: query => {
+                const otpKey = Queries.Holders(addressString).OTP();
+
+                if (query.queryKey.join(',') === otpKey.join(',')) {
+                    return true;
+                }
+
                 if (
                     query.queryKey[0] === 'account'
                     && query.queryKey[1] === addressString
@@ -199,8 +208,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
 
                 const token = (
                     !!holdersStatus &&
-                    holdersStatus.state !== HoldersUserState.NoRef &&
-                    holdersStatus.state !== HoldersUserState.NeedEnrollment
+                    holdersStatus.state === HoldersUserState.Ok
                 ) ? holdersStatus.token : null;
 
                 const holdersQueryKey = Queries.Holders(addressString).Cards(!!token ? 'private' : 'public');
@@ -259,6 +267,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                         theme={theme}
                         navigation={navigation}
                         isTestnet={network.isTestnet}
+                        address={address}
                     />
                 </View>
                 <ProductsComponent selected={selectedAcc} />
@@ -276,7 +285,26 @@ const skeleton = (
 )
 
 export const WalletFragment = fragment(() => {
+    const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
+
+    useEffect(() => {
+        if (!selectedAcc) {
+            return;
+        }
+
+        try {
+            const id = getCampaignId();
+            if (!!id) {
+                mixpanelAddReferrer(id);
+            }
+
+            mixpanelIdentify(selectedAcc?.address.toString({ testOnly: isTestnet }), isTestnet);
+        } catch (error) {
+            Alert.alert('Error', JSON.stringify(error));
+        }
+
+    }, [selectedAcc?.addressString, isTestnet]);
 
     return (
         <>
@@ -304,7 +332,8 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     fullScreen('LiquidStaking', LiquidStakingFragment),
-    fullScreen('JettonWalletFragment', JettonWalletFragment)
+    fullScreen('JettonWalletFragment', JettonWalletFragment),
+    fullScreen('TonWallet', TonWalletFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

@@ -1,15 +1,14 @@
 import { Dispatch, SetStateAction, memo, useCallback } from "react";
-import { ScreenHeader } from "../ScreenHeader";
 import { Pressable, Image, Text, View } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { KnownPools } from "../../utils/KnownPools";
 import { useNetwork, useStakingActive, useTheme } from "../../engine/hooks";
-import { openWithInApp } from "../../utils/openWithInApp";
 import { Address } from "@ton/core";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform } from "react-native";
 import { BackButton } from "../navigation/BackButton";
 import { Typography } from "../styles";
+import { extractDomain } from "../../engine/utils/extractDomain";
 
 export const StakingPoolHeader = memo(({
     isLedger,
@@ -24,7 +23,8 @@ export const StakingPoolHeader = memo(({
     }>>
 }) => {
     const safeArea = useSafeAreaInsets();
-    const active = useStakingActive();
+    const active = useStakingActive() || {};
+    const activeLength = Object.keys(active).length;
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const network = useNetwork();
@@ -32,7 +32,7 @@ export const StakingPoolHeader = memo(({
     const currentPoolFriendly = currentPool.toString({ testOnly: network.isTestnet });
 
     const openPoolSelector = useCallback(() => {
-        if (active.length < 2) {
+        if (activeLength < 2) {
             return;
         }
         navigation.navigate(
@@ -44,11 +44,29 @@ export const StakingPoolHeader = memo(({
                 }
             },
         )
-    }, [isLedger, currentPool, setParams, active]);
+    }, [isLedger, currentPool, setParams, activeLength]);
 
-    const openMoreInfo = useCallback(() => {
-        openWithInApp(KnownPools(network.isTestnet)[currentPoolFriendly]?.webLink)
-    }, [network.isTestnet]);
+    const openMoreInfo = () => {
+        const url = KnownPools(network.isTestnet)[currentPoolFriendly]?.webLink;
+
+        if (!!url) {
+            const domain = extractDomain(url);
+            navigation.navigateDAppWebViewModal({
+                lockNativeBack: true,
+                safeMode: true,
+                url,
+                header: { title: { type: 'params', params: { domain } } },
+                useStatusBar: true,
+                engine: 'ton-connect',
+                controlls: {
+                    refresh: true,
+                    share: true,
+                    back: true,
+                    forward: true
+                }
+            });
+        }
+    };
 
     return (
         <View
@@ -76,7 +94,7 @@ export const StakingPoolHeader = memo(({
                 <Pressable
                     style={({ pressed }) => ({
                         flex: 1, alignItems: 'center', justifyContent: 'center', minWidth: '30%',
-                        opacity: (pressed && active.length >= 2) ? 0.5 : 1
+                        opacity: (pressed && activeLength >= 2) ? 0.5 : 1
                     })}
                     onPress={openPoolSelector}
                 >

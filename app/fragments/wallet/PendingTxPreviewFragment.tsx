@@ -55,9 +55,9 @@ const PendingTxPreview = () => {
     const appState = useAppState();
     const addressBook = useAddressBookContext();
     const [price, currency] = usePrice();
-    const [dontShowComments,] = useDontShowComments();
-    const [walletSettings,] = useWalletSettings(selected.address);
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [dontShowComments] = useDontShowComments();
+    const [walletSettings] = useWalletSettings(selected.address);
+    const [bounceableFormat] = useBounceableWalletFormat();
     const params = useParams<PendingTxPreviewParams>();
 
     const tx = params.transaction;

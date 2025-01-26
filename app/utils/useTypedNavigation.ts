@@ -22,7 +22,9 @@ import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
 import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
 import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
 import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
-import { Camera } from 'expo-camera';
+import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
+import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
+import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -231,6 +233,10 @@ export class TypedNavigation {
         this.navigate('DAppWebView', params);
     }
 
+    navigateDAppWebViewModal(params: DAppWebViewFragmentParams) {
+        this.navigate('DAppWebViewModal', params);
+    }
+
     navigateAndReplaceHome(params?: HomeFragmentProps) {
         this.navigateAndReplaceAll('Home', params);
     }
@@ -251,24 +257,48 @@ export class TypedNavigation {
         this.navigate('JettonWalletFragment', param);
     }
 
+    navigateTonWallet(params: TonWalletFragmentParams, isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerTonWallet', params);
+            return;
+        }
+        this.navigate('TonWallet', params);
+    }
+
     navigateJettonTransaction(param: JettonTransactionPreviewParams) {
         this.navigate('JettonTransaction', param);
     }
 
-    navigateReceive(params?: ReceiveFragmentParams) {
+    navigateReceive(params?: ReceiveFragmentParams, isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerReceive', params);
+            return;
+        }
         this.navigate('Receive', params);
     }
 
-    navigateAssets(params: AssetsFragmentParams, isLedger?: boolean) {
+    navigateReceiveAssets(params: ReceiveAssetsFragment, isLedger?: boolean) {
         if (isLedger) {
-            this.navigate('LedgerAssets', params);
+            this.navigate('LedgerReceiveAssets', params);
             return;
         }
+        this.navigate('ReceiveAssets', params);
+    }
+
+    navigateAssets(params: AssetsFragmentParams) {
         this.navigate('Assets', params);
+    }
+
+    navigateReceiveAssetsJettons(params: AssetsFragmentParams) {
+        this.navigate('ReceiveAssetsJettons', params);
     }
 
     navigateAddressBook(params: AddressBookParams) {
         this.navigate('AddressBook', params);
+    }
+
+    navigateExchanges(params: ExchangesFragmentParams) {
+        this.navigate('Exchanges', params);
     }
 }
 

@@ -16,7 +16,7 @@ import { Address } from "@ton/core";
 import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { getFailedBannerClicked, setFailedBannerClicked } from "../../utils/holders/holdersBanner";
 
-const gradientColors = ['#3F33CC', '#B341D9'];
+const gradientColors: [string, string] = ['#3F33CC', '#B341D9'];
 
 const CardActionBanner = memo(({ onPress, content, gradient }: { onPress: () => void, content: HoldersBannerContent, gradient?: boolean }) => {
     const theme = useTheme();

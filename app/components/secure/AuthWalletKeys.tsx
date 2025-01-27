@@ -195,7 +195,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 },
                                 {
                                     text: t('security.auth.biometricsPermissionCheck.openSettings'),
-                                    onPress: openSettings
+                                    onPress: () => openSettings()
                                 }
                             ]
                         );

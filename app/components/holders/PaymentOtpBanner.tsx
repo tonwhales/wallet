@@ -19,7 +19,7 @@ import { fetchOtpAnswer } from "../../engine/api/holders/fetchOtpAnswer";
 const AcceptIcon = <Image style={{ height: 16, width: 16 }} source={require('@assets/ic-accept-otp.png')} />;
 const DeclineIcon = <Image style={{ height: 16, width: 16 }} source={require('@assets/ic-decline-otp.png')} />;
 
-const gradientColors = ['#478CF3', '#372DC8'];
+const gradientColors: [string, string] = ['#478CF3', '#372DC8'];
 
 const OtpTimer = memo(({ expireAt, onExpired }: { expireAt: Date, onExpired: () => void }) => {
     const theme = useTheme();

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Linking, View, Platform, Share, Pressable, BackHandler, Text } from "react-native";
+import { ActivityIndicator, Linking, View, Platform, Share, Pressable, BackHandler, Text, NativeEventSubscription } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -378,10 +378,15 @@ export const DAppWebViewFragment = fragment(() => {
     }, []);
 
     useEffect(() => {
+        let sub: NativeEventSubscription | undefined;
         if (Platform.OS === 'android' && lockNativeBack) {
-            BackHandler.addEventListener('hardwareBackPress', onAndroidBackPressed);
+            sub = BackHandler.addEventListener('hardwareBackPress', onAndroidBackPressed);
         }
-        return () => BackHandler.removeEventListener('hardwareBackPress', onAndroidBackPressed);
+        return () => {
+            if (sub) {
+                sub.remove();
+            }
+        };
     }, [onAndroidBackPressed, lockNativeBack]);
 
     const onNavigationStateChange = useCallback((event: WebViewNavigation) => {

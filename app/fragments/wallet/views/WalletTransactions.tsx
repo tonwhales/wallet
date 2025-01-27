@@ -5,7 +5,7 @@ import { EdgeInsets } from "react-native-safe-area-context";
 import { SectionList, SectionListData, SectionListRenderItemInfo, View, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { ThemeType } from "../../../engine/state/theme";
-import { HoldersTransaction, TransactionType } from '../../../engine/types';
+import { AccountStoredTransaction, HoldersTransaction, TonTransaction, TransactionType } from '../../../engine/types';
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
@@ -22,14 +22,13 @@ import { getQueryData } from "../../../engine/utils/getQueryData";
 import { Queries } from "../../../engine/queries";
 import { StoredJettonWallet } from "../../../engine/metadata/StoredMetadata";
 import { jettonWalletQueryFn } from "../../../engine/hooks/jettons/jettonsBatcher";
-import { TonTransaction, AccountTransaction } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
 import { HoldersTransactionView } from "./HoldersTransactionView";
 import { TransactionListItem } from "./TransactionListItem";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 import { HoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
 
 export const WalletTransactions = memo((props: {
-    txs: AccountTransaction[],
+    txs: AccountStoredTransaction[],
     hasNext: boolean,
     address: Address,
     navigation: TypedNavigation,
@@ -69,7 +68,7 @@ export const WalletTransactions = memo((props: {
     const { showActionSheetWithOptions } = useActionSheet();
 
     const { transactionsSectioned } = useMemo(() => {
-        const sectioned = new Map<string, { title: string, data: AccountTransaction[] }>();
+        const sectioned = new Map<string, { title: string, data: AccountStoredTransaction[] }>();
         for (let i = 0; i < props.txs.length; i++) {
             const tx = props.txs[i];
             const time = (tx.type === TransactionType.TON ? tx.data.base.time : tx.data.time);
@@ -249,7 +248,7 @@ export const WalletTransactions = memo((props: {
         }
     }, [pending.length]);
 
-    const renderItem = useCallback((tx: SectionListRenderItemInfo<AccountTransaction, { title: string }>) => {
+    const renderItem = useCallback((tx: SectionListRenderItemInfo<AccountStoredTransaction, { title: string }>) => {
         if (tx.item.type === TransactionType.HOLDERS) {
             const hTx = tx.item.data as HoldersTransaction;
 

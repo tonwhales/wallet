@@ -7,7 +7,6 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { useHoldersAccountStatus, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
-import { useAccountTransactions } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
 import { useFocusEffect, useRoute } from "@react-navigation/native";

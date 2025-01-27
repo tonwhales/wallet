@@ -40,7 +40,7 @@ import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
 import { isTxSPAM } from "../../utils/spam/isTxSPAM";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
-import { TonTransaction } from "../../engine/hooks/transactions/useAccountTransactionsV2";
+import { TonTransaction } from "../../engine/types";
 
 const TransactionPreview = () => {
     const theme = useTheme();

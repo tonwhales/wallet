@@ -20,7 +20,7 @@ import { useConnectPendingRequests, useNetwork, useTheme } from '../engine/hooks
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../components/styles';
-import { TransactionDescription } from '../engine/types';
+import { TonTransaction } from '../engine/types';
 import { useParams } from '../utils/useParams';
 import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from './secure/TransferFragment';
@@ -32,7 +32,7 @@ const Tab = createBottomTabNavigator();
 export type HomeFragmentProps = {
     navigateTo?: {
         type: 'tx',
-        transaction: TransactionDescription
+        transaction: TonTransaction
     } | {
         type: 'tonconnect-request',
         request: TransferFragmentProps
@@ -100,7 +100,7 @@ export const HomeFragment = fragment(() => {
 
     useEffect(() => {
         if (navigateTo?.type === 'tx') {
-            navigation.navigate('Transaction', { transaction: navigateTo.transaction });
+            navigation.navigateTonTransaction(navigateTo.transaction);
         } else if (navigateTo?.type === 'tonconnect-request') {
             navigation.navigateTransfer(navigateTo.request);
         }

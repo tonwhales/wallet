@@ -8,7 +8,7 @@ import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { useDebouncedValue } from "../../utils/useDebouncedValue";
-import { TransactionDescription } from "../../engine/types";
+import { TonTransaction } from "../../engine/types";
 import { ThemeType } from "../../engine/state/theme";
 import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
 import { HoldersAccountTarget } from "../../engine/hooks/holders/useHoldersAccountTrargets";
@@ -51,7 +51,7 @@ export const AddressSearch = memo(({
     }[],
     bounceableFormat: boolean,
     knownWallets: { [key: string]: KnownWallet },
-    lastTwoTxs: TransactionDescription[],
+    lastTwoTxs: TonTransaction[],
     theme: ThemeType,
     holdersAccounts?: HoldersAccountTarget[]
 }) => {

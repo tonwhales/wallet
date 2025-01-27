@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { TransactionView } from "./TransactionView";
 import { SectionListRenderItemInfo } from "react-native";
-import { TonTransaction } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
 import { Address } from "@ton/core";
 import { ThemeType } from "../../../engine/state/theme";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
@@ -9,6 +8,7 @@ import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { AppState } from "../../../storage/appState";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { KnownWallet } from "../../../secure/KnownWallets";
+import { TonTransaction } from "../../../engine/types";
 
 export type TransactionListItemProps = {
     address: Address,

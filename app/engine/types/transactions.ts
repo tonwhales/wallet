@@ -138,15 +138,6 @@ export type OperationItem = {
     decimals: number | null
 };
 
-
-export type TransactionDescription = {
-    id: string;
-    base: StoredTransaction;
-    op: string | null;
-    title: string | null;
-    verified: boolean | null;
-};
-
 export type ChargeAction = 'purchase' | 'refund' | 'cash_withdraw' | 'other';
 
 export type Limits = {
@@ -480,13 +471,45 @@ export type HoldersTransaction =
 
 export enum TransactionType {
     TON = 'ton',
-    HOLDERS = 'holders'
+    HOLDERS = 'holders',
+    ALL = 'all'
 }
 
-export type GeneralTransaction = {
-    type: TransactionType.HOLDERS,
-    data: HoldersTransaction
-} | {
+//
+// Fetched
+//
+export type TonTx = {
     type: TransactionType.TON,
     data: StoredTransaction
-};
+}
+
+export type HoldersTx = {
+    type: TransactionType.HOLDERS,
+    data: HoldersTransaction
+}
+
+export type CommonTx = HoldersTx | TonTx;
+
+//
+// Stored
+//
+export type TonTransaction = {
+    id: string,
+    base: StoredTransaction,
+    outMessagesCount: number,
+    outMessages: StoredMessage[],
+    lt: string,
+    hash: string
+}
+
+export type TonStoredTransaction = {
+    type: TransactionType.TON,
+    data: TonTransaction
+}
+
+export type HoldersStoredTransaction = {
+    type: TransactionType.HOLDERS,
+    data: HoldersTransaction
+}
+
+export type AccountStoredTransaction = TonStoredTransaction | HoldersStoredTransaction;

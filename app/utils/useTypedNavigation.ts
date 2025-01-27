@@ -26,7 +26,7 @@ import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
 import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
-import { TonTransaction } from '../engine/hooks/transactions/useAccountTransactionsV2';
+import { TonTransaction } from '../engine/types';
 
 type Base = NavigationProp<ParamListBase>;
 

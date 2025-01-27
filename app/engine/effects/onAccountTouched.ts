@@ -66,6 +66,10 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
         queryKey: Queries.TransactionsV2(address, !!token),
         refetchPage: (last, index, allPages) => index == 0,
     });
+    // queryClient.invalidateQueries({
+    //     queryKey: Queries.Transactions(address),
+    //     refetchPage: (last, index, allPages) => index == 0,
+    // });
     queryClient.invalidateQueries({
         predicate: (query) => {
             const queryKey = query.queryKey as string[];

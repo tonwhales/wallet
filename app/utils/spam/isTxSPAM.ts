@@ -4,7 +4,7 @@ import { BigMath } from "../BigMath";
 import { SPAM_KEYWORDS_EN, SPAM_KEYWORDS_RU } from "./spamKeywords";
 import { JettonTransfer } from "../../engine/hooks/transactions/useJettonTransactions";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
-import { TonTransaction } from "../../engine/hooks/transactions/useAccountTransactionsV2";
+import { TonTransaction } from "../../engine/types";
 
 const triggerScore = 100;
 const enKeys = Object.entries(SPAM_KEYWORDS_EN);

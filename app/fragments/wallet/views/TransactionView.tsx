@@ -26,7 +26,7 @@ import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo'
 import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
-import { TonTransaction } from '../../../engine/hooks/transactions/useAccountTransactionsV2';
+import { TonTransaction } from '../../../engine/types';
 
 export function TransactionView(props: {
     own: Address,

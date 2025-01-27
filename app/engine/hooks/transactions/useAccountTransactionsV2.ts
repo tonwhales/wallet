@@ -1,36 +1,19 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { Address } from '@ton/core';
-import { HoldersTransaction, StoredMessage, StoredTransaction, TransactionType } from '../../types';
+import { AccountStoredTransaction, HoldersTransaction, StoredTransaction, TonTransaction, TransactionType } from '../../types';
 import { useClient4, useHoldersAccountStatus, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
 import { log } from '../../../utils/log';
 import { queryClient } from '../../clients';
 import { HoldersUserState } from '../../api/holders/fetchUserState';
-import { AccountTransactionsV2Cursor, fetchAccountTransactionsV2, HoldersCursor, TonCursor } from '../../api/fetchAccountTransactionsV2';
+import { AccountTransactionsParams, AccountTransactionsV2Cursor, fetchAccountTransactionsV2, HoldersCursor, TonCursor } from '../../api/fetchAccountTransactionsV2';
 import { useEffect, useRef, useState } from 'react';
 
 const TRANSACTIONS_LENGTH = 16;
 
-export type TonTransaction = {
-    id: string,
-    base: StoredTransaction,
-    outMessagesCount: number,
-    outMessages: StoredMessage[],
-    lt: string,
-    hash: string
-}
-
-export type AccountTransaction = {
-    type: TransactionType.HOLDERS,
-    data: HoldersTransaction
-} | {
-    type: TransactionType.TON,
-    data: TonTransaction
-}
-
-export function useAccountTransactionsV2(account: string, options: { refetchOnMount: boolean } = { refetchOnMount: false }): {
-    data: AccountTransaction[] | null,
+export function useAccountTransactionsV2(account: string, options: { refetchOnMount: boolean } = { refetchOnMount: false }, params?: AccountTransactionsParams): {
+    data: AccountStoredTransaction[] | null,
     next: () => void,
     hasNext: boolean,
     loading: boolean,
@@ -46,7 +29,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
         status.state === HoldersUserState.Ok
     ) ? status.token : undefined;
 
-    let raw = useInfiniteQuery<AccountTransaction[]>({
+    let raw = useInfiniteQuery<AccountStoredTransaction[]>({
         queryKey: Queries.TransactionsV2(account, !!token),
         refetchOnMount: options.refetchOnMount,
         refetchOnWindowFocus: true,
@@ -113,14 +96,17 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
 
             const cursor: AccountTransactionsV2Cursor = { ton: tonCursor, holders: holdersCursor };
 
-            const res = await fetchAccountTransactionsV2(accountAddr, isTestnet, cursor, token);
-            let txs: AccountTransaction[] = [];
+            const res = await fetchAccountTransactionsV2(accountAddr, isTestnet, cursor, token, params);
+            let txs: AccountStoredTransaction[] = [];
             let shouldRefetchJttons = false;
 
             // Add jetton wallets to hints (in case of hits worker lag being to high)
             txs = res.data.map(t => {
                 if (t.type !== TransactionType.TON) {
-                    return t;
+                    return {
+                        type: TransactionType.HOLDERS,
+                        data: t.data as HoldersTransaction
+                    };
                 }
 
                 const base = t.data as StoredTransaction;
@@ -218,7 +204,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
             }
 
             // If found, we need to shift pages and pageParams
-            let pages: AccountTransaction[][] = [next.pages[0]];
+            let pages: AccountStoredTransaction[][] = [next.pages[0]];
             let pageParams: AccountTransactionsV2Cursor[] = [next.pageParams[0] as any];
             let tail = old!.pages[0].slice(TRANSACTIONS_LENGTH - offset);
             let nextPageParams = {

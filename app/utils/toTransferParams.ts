@@ -3,7 +3,7 @@ import { PendingTransaction } from "../engine/state/pending";
 import { SimpleTransferParams } from "../fragments/secure/SimpleTransferFragment";
 import { TransferFragmentProps } from "../fragments/secure/TransferFragment";
 import { fromBnWithDecimals } from "./withDecimals";
-import { TonTransaction } from "../engine/hooks/transactions/useAccountTransactionsV2";
+import { TonTransaction } from "../engine/types";
 
 export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
 

@@ -560,6 +560,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     props.onNavigationStateChange?.(event);
                     // Searching for supported query
                     onNavigation(event.url);
+                    console.log(event.url);
                 }}
                 onLoadEnd={onLoadEnd}
                 injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}

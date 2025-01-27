@@ -24,6 +24,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { CloseButton } from "../../components/navigation/CloseButton";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../i18n/t";
+import { usePermissions } from "../../utils/expo/usePermissions";
 import { ThemeType } from "../../engine/state/theme";
 import { Typography } from "../../components/styles";
 
@@ -94,7 +95,7 @@ export const DAppWebViewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
-    const [pushPemissions] = usePermissions();
+    const pushPemissionsGranted = usePermissions();
     const [, currency] = usePrice();
     const routeName = useRoute().name;
     const isModal = routeName === 'DAppWebViewModal';
@@ -126,8 +127,6 @@ export const DAppWebViewFragment = fragment(() => {
             return url;
         }
     }, [url, pushPemissionsGranted, currency, theme.style]);
-
-    const [currentUrl, setCurrentUrl] = useState(endpoint);
 
     const [currentUrl, setCurrentUrl] = useState(endpoint);
 

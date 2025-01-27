@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer, useState } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Platform, Pressable, useWindowDimensions, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { avatarColors } from "../avatar/Avatar";
@@ -163,8 +163,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const addressBookContext = useAddressBookContext();
     const contact = addressBookContext.asContact(target);
     const appState = useAppState();
-    const dimentions = useDimensions();
-    const screenWidth = dimentions.screen.width;
+    const dimentions = useWindowDimensions();
+    const screenWidth = dimentions.width;
     const validAddressFriendly = validAddress?.toString({ testOnly: isTestnet });
     const [walletSettings] = useWalletSettings(validAddressFriendly);
     const [bounceableFormat] = useBounceableWalletFormat();

@@ -12,7 +12,11 @@ import { useEffect, useRef, useState } from 'react';
 
 const TRANSACTIONS_LENGTH = 16;
 
-export function useAccountTransactionsV2(account: string, options: { refetchOnMount: boolean } = { refetchOnMount: false }, params?: AccountTransactionsParams): {
+export function useAccountTransactionsV2(
+    account: string,
+    options: { refetchOnMount: boolean } = { refetchOnMount: false },
+    params?: AccountTransactionsParams
+): {
     data: AccountStoredTransaction[] | null,
     next: () => void,
     hasNext: boolean,
@@ -30,7 +34,7 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
     ) ? status.token : undefined;
 
     let raw = useInfiniteQuery<AccountStoredTransaction[]>({
-        queryKey: Queries.TransactionsV2(account, !!token),
+        queryKey: Queries.TransactionsV2(account, !!token, params),
         refetchOnMount: options.refetchOnMount,
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
@@ -95,6 +99,8 @@ export function useAccountTransactionsV2(account: string, options: { refetchOnMo
             log(`[txns-query] fetching ${tonCursor ? `ton: ${JSON.stringify(tonCursor)}` : ''} ${holdersCursor ? `holders: ${JSON.stringify(holdersCursor)}` : ''} ${sliceFirst ? 'sliceFirst' : ''}`);
 
             const cursor: AccountTransactionsV2Cursor = { ton: tonCursor, holders: holdersCursor };
+
+            console.log('fetching', account, cursor, token, params);
 
             const res = await fetchAccountTransactionsV2(accountAddr, isTestnet, cursor, token, params);
             let txs: AccountStoredTransaction[] = [];

@@ -105,6 +105,7 @@ import { ReceiveAssetsFragment } from './fragments/wallet/ReceiveAssetsFragment'
 import { LanguageFragment } from './fragments/LanguageFragment';
 import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
+import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilterFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -266,6 +267,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Products', ProductsFragment, safeArea),
     modalScreen('ProductsList', ProductsListFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
+    modalScreen('TransactionsFilter', TransactionsFilterFragment, safeArea),
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),

@@ -216,6 +216,7 @@ export const generalCardSchema = z.intersection(cardSchema, cardPublicSchema);
 
 export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
 export type HoldersAccount = z.infer<typeof accountSchema>;
+export type HoldersCard = z.infer<typeof cardSchema>;
 export type GeneralHoldersCard = z.infer<typeof generalCardSchema>;
 export type PrePaidHoldersCard = z.infer<typeof cardPrepaid>;
 

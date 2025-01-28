@@ -27,6 +27,7 @@ import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
 import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
 import { TonTransaction } from '../engine/types';
+import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -305,6 +306,10 @@ export class TypedNavigation {
 
     navigateExchanges(params: ExchangesFragmentParams) {
         this.navigate('Exchanges', params);
+    }
+
+    navigateTransactionsFilter(params: TransactionsFilterFragmentParams) {
+        this.navigate('TransactionsFilter', params);
     }
 }
 

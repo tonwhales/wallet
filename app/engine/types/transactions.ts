@@ -472,7 +472,7 @@ export type HoldersTransaction =
 export enum TransactionType {
     TON = 'ton',
     HOLDERS = 'holders',
-    ALL = 'all'
+    ANY = 'any'
 }
 
 //

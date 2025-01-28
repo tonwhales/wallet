@@ -150,6 +150,13 @@ export type LocalizationSchema = {
     transactions: {
         title: string,
         history: string,
+        filter: {
+            holders: string,
+            ton: string,
+            any: string,
+            type: string,
+            accounts: string,
+        }
     },
     tx: {
         sending: string,

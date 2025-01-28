@@ -40,7 +40,7 @@ export async function fetchAccountTransactionsV2(
         holders?: { fromCursor?: string | null },
     },
     token?: string,
-    params?:AccountTransactionsParams,
+    params?: AccountTransactionsParams,
 ): Promise<AccountTransactionsV2> {
     const addressString = typeof address === 'string' ? address : address.toString({ testOnly: isTestnet });
     const url = `${whalesConnectEndpoint}/transactions/v2/${addressString}`;

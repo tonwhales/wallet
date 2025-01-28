@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { Address } from '@ton/core';
-import { AccountStoredTransaction, HoldersTransaction, StoredTransaction, TonTransaction, TransactionType } from '../../types';
+import { AccountStoredTransaction, HoldersStoredTransaction, HoldersTransaction, HoldersTx, StoredTransaction, TonTransaction, TonTx, TransactionType } from '../../types';
 import { useClient4, useHoldersAccountStatus, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
 import { log } from '../../../utils/log';
@@ -38,7 +38,7 @@ export function useAccountTransactionsV2(
         refetchOnMount: options.refetchOnMount,
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
-            if (!last || allPages.length < 1) {
+            if (!last || allPages.length < 1 || !last[TRANSACTIONS_LENGTH - 2]) {
                 return undefined;
             }
 
@@ -47,13 +47,14 @@ export function useAccountTransactionsV2(
 
             for (let i = allPages.length - 1; i >= 0; i--) {
                 for (let j = allPages[i].length - 1; j >= 0; j--) {
-                    if (allPages[i][j].type === TransactionType.TON) {
+                    const item = allPages[i][j];
+                    if (item.type === TransactionType.TON) {
                         if (lastTon && lastHolders) {
                             break;
                         } else if (lastTon) {
                             continue;
                         }
-                        lastTon = allPages[i][j].data as TonTransaction;
+                        lastTon = item.data as TonTransaction;
                         continue;
                     }
 
@@ -62,7 +63,9 @@ export function useAccountTransactionsV2(
                     } else if (lastHolders) {
                         continue;
                     }
-                    lastHolders = allPages[i][j].data as HoldersTransaction;
+
+
+                    lastHolders = item.data as HoldersTransaction;
                 }
             }
 
@@ -100,8 +103,6 @@ export function useAccountTransactionsV2(
 
             const cursor: AccountTransactionsV2Cursor = { ton: tonCursor, holders: holdersCursor };
 
-            console.log('fetching', account, cursor, token, params);
-
             const res = await fetchAccountTransactionsV2(accountAddr, isTestnet, cursor, token, params);
             let txs: AccountStoredTransaction[] = [];
             let shouldRefetchJttons = false;
@@ -111,7 +112,8 @@ export function useAccountTransactionsV2(
                 if (t.type !== TransactionType.TON) {
                     return {
                         type: TransactionType.HOLDERS,
-                        data: t.data as HoldersTransaction
+                        data: t.data as HoldersTransaction,
+                        hasMore: res.hasMore
                     };
                 }
 

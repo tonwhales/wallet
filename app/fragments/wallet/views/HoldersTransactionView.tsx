@@ -245,7 +245,7 @@ const RightContent = ({ tx }: { tx: HoldersTransaction }) => {
                 {(isPrepaidTopUp && amount) && (
                     <Text
                         style={[
-                            { color: theme.accentGreen, marginRight: 2 },
+                            { color: theme.accentGreen, marginRight: 2, alignSelf: 'flex-end' },
                             Typography.semiBold17_24
                         ]}
                         numberOfLines={1}
@@ -257,7 +257,7 @@ const RightContent = ({ tx }: { tx: HoldersTransaction }) => {
                 {(isPrepaidTopUp && cryptoCurrency) && (
                     <Text
                         style={[
-                            { color: theme.accentGreen, marginRight: 2 },
+                            { color: theme.accentGreen, marginRight: 2, alignSelf: 'flex-end' },
                             Typography.semiBold17_24
                         ]}
                         numberOfLines={1}

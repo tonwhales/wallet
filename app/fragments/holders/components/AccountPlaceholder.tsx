@@ -1,7 +1,7 @@
 import { memo, useEffect } from "react";
 import { ThemeType } from "../../../engine/state/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { Easing, Extrapolation, FadeInDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { Platform, View, Text } from "react-native";
 import { } from "react-native";
 import { RoundButton } from "../../../components/RoundButton";
@@ -129,7 +129,7 @@ export const AccountPlaceholder = memo(({
                 />
             </Animated.View>
 
-            {(onReload || onSupport) && (
+            {showClose && (
                 <View style={{
                     flexGrow: 1,
                     paddingHorizontal: 16, paddingBottom: safeArea.bottom,
@@ -147,26 +147,22 @@ export const AccountPlaceholder = memo(({
                     </Text>
                     <View style={{ gap: 16, width: '100%' }}>
                         {onReload && (
-                            <Animated.View entering={FadeInDown}>
-                                <RoundButton
-                                    title={t('common.reload')}
-                                    onPress={onReload}
-                                    style={{ alignSelf: 'stretch' }}
-                                />
-                            </Animated.View>
+                            <RoundButton
+                                title={t('common.reload')}
+                                onPress={onReload}
+                                style={{ alignSelf: 'stretch' }}
+                            />
                         )}
                         {onSupport && (
-                            <Animated.View entering={FadeInDown}>
-                                <RoundButton
-                                    title={t('webView.contactSupport')}
-                                    onPress={onSupport}
-                                    display={'secondary'}
-                                    style={[
-                                        { alignSelf: 'stretch' },
-                                        Platform.select({ android: { marginBottom: 16 + safeArea.bottom } })
-                                    ]}
-                                />
-                            </Animated.View>
+                            <RoundButton
+                                title={t('webView.contactSupport')}
+                                onPress={onSupport}
+                                display={'secondary'}
+                                style={[
+                                    { alignSelf: 'stretch' },
+                                    Platform.select({ android: { marginBottom: 16 + safeArea.bottom } })
+                                ]}
+                            />
                         )}
                     </View>
                 </View>

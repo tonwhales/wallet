@@ -20,8 +20,6 @@ import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { Typography } from "../styles";
 import { Image } from "expo-image";
 import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
-import Clipboard from '@react-native-clipboard/clipboard';
-import { useAppFocusEffect } from "../../utils/useAppFocusEffect";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -291,31 +289,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             </Pressable>
         );
     }, [openAddressBook]);
-
-    const appFocusCallback = useCallback(async () => {
-        const clipboardText = (await Clipboard.getString()).trim();
-
-        if (!clipboardText || !isFocused) {
-            return;
-        }
-
-        if (addressDomainInputState.input.length > 0) {
-            return;
-        }
-
-        try {
-            Address.parse(clipboardText);
-            dispatchAddressDomainInput({
-                type: InputActionType.InputTarget,
-                target: clipboardText,
-                input: clipboardText,
-                suffix: ''
-            });
-            (ref as RefObject<ATextInputRef>)?.current?.setText(clipboardText);
-        } catch { }
-    }, [isFocused, addressDomainInputState.input]);
-
-    useAppFocusEffect(appFocusCallback);
 
     return (
         <View>

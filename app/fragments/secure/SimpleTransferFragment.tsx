@@ -18,7 +18,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -53,8 +53,6 @@ import { queryClient } from '../../engine/clients';
 import { Queries } from '../../engine/queries';
 import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
 import { PressableChip } from '../../components/PressableChip';
-import Clipboard from '@react-native-clipboard/clipboard';
-import { useAppFocusEffect } from '../../utils/useAppFocusEffect';
 import { AmountInput } from '../../components/input/AmountInput';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -898,41 +896,6 @@ const SimpleTransferComponent = () => {
             default: 'auto'
         }));
     });
-
-    const appFocusCallback = useCallback(async () => {
-        const clipboardText = (await Clipboard.getString()).trim();
-
-        if (!clipboardText) {
-            return;
-        }
-
-        switch (selectedInput) {
-            case 1:
-                try {
-                    const valid = clipboardText.replace(',', '.').replaceAll(' ', '');
-                    let value: bigint | null;
-
-                    // Manage jettons with decimals
-                    const decimals = jetton?.decimals ?? 9;
-                    if (jetton) {
-                        value = toBnWithDecimals(valid, decimals);
-                    } else {
-                        value = toNano(valid);
-                    }
-
-                    if (value) {
-                        const newAmount = formatInputAmount(fromBnWithDecimals(value, decimals), decimals);
-                        amountRef.current?.setText(newAmount);
-                    }
-                } catch { }
-                break;
-            case 2:
-                commentRef.current?.setText(clipboardText);
-                break;
-        }
-    }, [!!jetton, jetton?.decimals, selectedInput]);
-
-    useAppFocusEffect(appFocusCallback);
 
     const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;

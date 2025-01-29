@@ -142,13 +142,13 @@ export const TransactionsHeader = memo(({ showFilters, address }: TransactionsHe
 
     return (
         <View>
+            <TransactionsFilter address={addressString} />
             {filters?.type !== TransactionType.HOLDERS && (
                 <PendingTransactions
                     viewType={'history'}
                     address={addressString}
                 />
             )}
-            <TransactionsFilter address={addressString} />
         </View>
     );
 });

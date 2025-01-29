@@ -198,6 +198,7 @@ export const TransactionsFilterFragment = fragment(() => {
                     data={data}
                     renderItem={renderItem}
                     contentContainerStyle={{ gap: 16 }}
+                    style={{ flexBasis: 0 }}
                 />
                 <View style={[
                     { marginTop: 16, justifyContent: 'flex-end' },

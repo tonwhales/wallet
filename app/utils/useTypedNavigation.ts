@@ -26,6 +26,7 @@ import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
 import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
+import { SimpleTransferAddressParams } from '../fragments/secure/SimpleTransferAddressFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -83,6 +84,10 @@ export class TypedNavigation {
 
     goBack = () => {
         this.base.goBack();
+    }
+
+    pop = (screens: number) => {
+        this.base.pop(screens);
     }
 
     setOptions = (options: Partial<{}>) => {
@@ -300,6 +305,10 @@ export class TypedNavigation {
 
     navigateExchanges(params: ExchangesFragmentParams) {
         this.navigate('Exchanges', params);
+    }
+
+    navigateSimpleTransferAddress(params: SimpleTransferAddressParams) {
+        this.navigate('SimpleTransferAddress', params);
     }
 }
 

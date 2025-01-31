@@ -147,7 +147,14 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "transactions": {
         "title": "Transações",
-        "history": "Histórico"
+        "history": "Histórico",
+        "filter": {
+            "holders": "Cartões",
+            "ton": "Transações da carteira",
+            "any": "Todos",
+            "type": "Tipo",
+            "accounts": "Despesas"
+        }
     },
     "tx": {
         "sending": "Enviando",

@@ -147,7 +147,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "transactions": {
         "title": "Транзакции",
-        "history": "История"
+        "history": "История",
+        "filter": {
+            "holders": "Карты",
+            "ton": "Транзакции кошелька",
+            "any": "Все",
+            "type": "Тип",
+            "accounts": "Расходы"
+        }
     },
     "receive": {
         "title": "Получить",

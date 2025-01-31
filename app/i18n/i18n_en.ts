@@ -151,7 +151,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "filter": {
             "holders": "Cards",
             "ton": "Wallet transactions",
-            "any": "Any",
+            "any": "All",
             "type": "Type",
             "accounts": "Spendings",
         }

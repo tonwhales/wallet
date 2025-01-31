@@ -371,8 +371,12 @@ const LeftContent = ({ tx }: { tx: HoldersTransaction }) => {
                     </View>
                 )}
             </View>
-            <View>
-                <Text style={[Typography.semiBold17_24, { color: theme.textPrimary }]}>
+            <View style={{ flex: 1 }}>
+                <Text
+                    style={[Typography.semiBold17_24, { color: theme.textPrimary }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                >
                     {merchantInfo?.cleanName || merchantInfo?.dirtyName || eventName}
                 </Text>
                 <Text style={[Typography.regular13_18, { color: theme.textSecondary }]}>
@@ -417,7 +421,7 @@ export const HoldersTransactionView = memo(({
 
     return (
         <Pressable
-            style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', paddingVertical: 16, paddingHorizontal: 12 }}
+            style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', paddingVertical: 16, paddingHorizontal: 12, gap: 8 }}
             onPress={onPress}
         >
             <LeftContent tx={tx} />

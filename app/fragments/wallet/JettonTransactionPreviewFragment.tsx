@@ -60,10 +60,10 @@ const JettonTransactionPreview = () => {
 
     const { transaction: tx, owner, master, wallet } = useParams<JettonTransactionPreviewParams>();
 
-    // TODO: Implement LedgerTransactionPreview
+    // TODO: Implement LedgerTransaction
     // const ledgerContext = useLedgerTransport();
     // const route = useRoute();
-    // const isLedger = route.name === 'LedgerTransactionPreview';
+    // const isLedger = route.name === 'LedgerTransaction';
 
     const address = selected.address;
     const destination = tx.destination

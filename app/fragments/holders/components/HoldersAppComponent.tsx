@@ -79,7 +79,7 @@ export const HoldersLoader = memo(({
     useEffect(() => {
         const showCloseTimer = setTimeout(() => {
             setShowClose(true);
-        }, 7000);
+        }, 5000);
 
         if (longLoadingTimerRef.current) {
             clearTimeout(longLoadingTimerRef.current);
@@ -101,8 +101,8 @@ export const HoldersLoader = memo(({
                 <AccountPlaceholder
                     theme={theme}
                     showClose={showClose}
-                    onReload={showClose ? onReload : undefined}
-                    onSupport={showClose ? onSupport : undefined}
+                    onReload={onReload}
+                    onSupport={onSupport}
                 />
             );
         }
@@ -112,14 +112,14 @@ export const HoldersLoader = memo(({
                 <CardPlaceholder
                     theme={theme}
                     showClose={showClose}
-                    onReload={showClose ? onReload : undefined}
-                    onSupport={showClose ? onSupport : undefined}
+                    onReload={onReload}
+                    onSupport={onSupport}
                 />
             );
         }
 
         return <AnimatedCards />;
-    }, [type, theme, showClose]);
+    }, [type, theme, showClose, onReload, onSupport]);
 
     return (
         <Animated.View

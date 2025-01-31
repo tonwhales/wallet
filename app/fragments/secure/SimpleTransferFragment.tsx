@@ -6,7 +6,7 @@ import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutD
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { resolveUrl } from '../../utils/resolveUrl';
+import { ResolvedTxUrl, resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AsyncLock } from 'teslabot';
@@ -475,11 +475,15 @@ const SimpleTransferComponent = () => {
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
         let res = resolveUrl(src, network.isTestnet);
-        const validTransfer = res && (res.type === 'transaction' || res.type === 'jetton-transaction');
-        if (validTransfer) {
-            if (res.payload) {
+        if (!res) {
+            return;
+        }
+        const isTransferValid = res && (res.type === 'transaction' || res.type === 'jetton-transaction');
+        if (isTransferValid) {
+            const tx = res as ResolvedTxUrl;
+            if (tx.payload) {
                 navigation.goBack();
-                linkNavigator(res);
+                linkNavigator(tx);
             } else {
                 let mComment = commentString;
                 let mTarget = null;
@@ -493,21 +497,21 @@ const SimpleTransferComponent = () => {
                     mAmount = null;
                 }
 
-                if (res.address) {
-                    const bounceable = res.isBounceable ?? true;
-                    mTarget = res.address.toString({ testOnly: network.isTestnet, bounceable });
+                if (tx.address) {
+                    const bounceable = tx.isBounceable ?? true;
+                    mTarget = tx.address.toString({ testOnly: network.isTestnet, bounceable });
                 }
 
-                if (res.amount) {
-                    mAmount = res.amount;
+                if (tx.amount) {
+                    mAmount = tx.amount;
                 }
 
-                if (res.comment) {
-                    mComment = res.comment;
+                if (tx.comment) {
+                    mComment = tx.comment;
                 }
 
-                if (res.type === 'transaction' && res.stateInit) {
-                    mStateInit = res.stateInit;
+                if (tx.type === 'transaction' && tx.stateInit) {
+                    mStateInit = tx.stateInit;
                 } else {
                     mStateInit = null;
                 }
@@ -523,8 +527,8 @@ const SimpleTransferComponent = () => {
                     return;
                 }
 
-                if (res.type === 'jetton-transaction' && res.jettonMaster) {
-                    mJetton = res.jettonMaster
+                if (tx.type === 'jetton-transaction' && tx.jettonMaster) {
+                    mJetton = tx.jettonMaster
                 }
 
                 navigation.navigateSimpleTransfer({

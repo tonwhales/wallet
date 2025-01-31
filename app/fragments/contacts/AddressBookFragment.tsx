@@ -1,7 +1,7 @@
 import { Platform, ScrollView, View } from "react-native";
 import { fragment } from "../../fragment";
 import { AddressSearch, AddressSearchItem } from "../../components/address/AddressSearch";
-import { useAccountTransactions, useAppState, useBounceableWalletFormat, useNetwork, useTheme } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useLastTwoTxs, useNetwork, useTheme } from "../../engine/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
@@ -15,6 +15,7 @@ import { t } from "../../i18n/t";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../components/ScreenHeader";
+import { TonStoredTransaction } from "../../engine/types";
 
 export type AddressBookParams = {
     account: string,
@@ -31,14 +32,11 @@ export const AddressBookFragment = fragment(() => {
     const { account, onSelected } = useParams<AddressBookParams>();
     const [bounceableFormat] = useBounceableWalletFormat();
     const knownWallets = KnownWallets(isTestnet);
-    const txs = useAccountTransactions(account).data;
+    const lastTwoTxs = (useLastTwoTxs(account) as TonStoredTransaction[]).map((t) => t.data);
     const accAddress = useMemo(() => Address.parse(account), [account]);
     const holdersAccounts = useHoldersAccountTrargets(accAddress);
     const [search, setSearch] = useState('');
 
-    const lastTwoTxs = useMemo(() => {
-        return txs?.slice(0, 2) || [];
-    }, [txs?.[0]?.id, txs?.[1]?.id]);
 
     const myWallets = useMemo(() => {
         return appState.addresses

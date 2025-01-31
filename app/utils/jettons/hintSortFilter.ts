@@ -6,7 +6,7 @@ import { verifyJetton } from "../../engine/hooks/jettons/useVerifyJetton";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getQueryData } from "../../engine/utils/getQueryData";
 import { QueryCache } from "@tanstack/react-query";
-import { jettonMasterContentQueryFn, jettonWalletQueryFn } from "../../engine/hooks/jettons/usePrefetchHints";
+import { jettonMasterContentQueryFn, jettonWalletQueryFn } from "../../engine/hooks/jettons/jettonsBatcher";
 import { MintlessJetton } from "../../engine/api/fetchMintlessHints";
 import { calculateHintRateNum } from "./calculateHintRateNum";
 import { JettonFull } from "../../engine/api/fetchHintsFull";

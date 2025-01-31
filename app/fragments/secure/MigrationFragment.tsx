@@ -110,7 +110,7 @@ const MigrationProcessFragment = fragment(() => {
                     // Create external message
                     let extMessage = external({
                         to: contract.address,
-                        body: transfer,
+                        body: transfer as any,
                         init: seqno === 0 ? contract.init : undefined,
                     });
 

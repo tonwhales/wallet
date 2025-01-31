@@ -1,6 +1,3 @@
-import { useEffect } from 'react';
-import { useHints } from './useHints';
-import { useNetwork } from '../network/useNetwork';
 import { Queries } from '../../queries';
 import { fetchMetadata } from '../../metadata/fetchMetadata';
 import { getLastBlock } from '../../accountWatcher';
@@ -9,8 +6,6 @@ import { Address } from '@ton/core';
 import { StoredContractMetadata, StoredJettonWallet } from '../../metadata/StoredMetadata';
 import { log } from '../../../utils/log';
 import { TonClient4 } from '@ton/ton';
-import { QueryClient } from '@tanstack/react-query';
-import { storage } from '../../../storage/storage';
 import { create, keyResolver, windowedFiniteBatchScheduler } from "@yornaath/batshit";
 import { clients, queryClient } from '../../clients';
 import { AsyncLock } from 'teslabot';
@@ -241,91 +236,4 @@ export function jettonWalletAddressQueryFn(master: string, owner: string, isTest
     return async (): Promise<string | null> => {
         return walletAddressBatcher(clients.ton[isTestnet ? 'testnet' : 'mainnet'], isTestnet).fetch({ master, owner });
     }
-}
-
-const currentJettonsVersion = 3;
-const jettonsVersionKey = 'jettons-version';
-
-function invalidateJettonsDataIfVersionChanged(queryClient: QueryClient) {
-    try {
-        const lastVersion = storage.getNumber(jettonsVersionKey);
-
-        if (!lastVersion || lastVersion < currentJettonsVersion) {
-            storage.set(jettonsVersionKey, currentJettonsVersion);
-            queryClient.invalidateQueries(['jettons', 'master']);
-            queryClient.invalidateQueries(['contractMetadata']);
-        }
-    } catch {
-        // ignore
-    }
-}
-
-export function usePrefetchHints(queryClient: QueryClient, address?: string) {
-    const hints = useHints(address);
-    const { isTestnet } = useNetwork();
-
-    useEffect(() => {
-        if (!address) {
-            return;
-        }
-
-        (async () => {
-            // Invalidate jettons data if version is changed
-            invalidateJettonsDataIfVersionChanged(queryClient);
-
-            // Prefetch contract metadata and jetton master content
-            await Promise.all(hints.map(async hint => {
-                let result = queryClient.getQueryData<StoredContractMetadata>(Queries.ContractMetadata(hint));
-                if (!result) {
-                    result = await queryClient.fetchQuery({
-                        queryKey: Queries.ContractMetadata(hint),
-                        queryFn: contractMetadataQueryFn(isTestnet, hint),
-                    });
-
-                    if (result?.jettonWallet) {
-                        queryClient.setQueryData(Queries.Account(hint).JettonWallet(), () => {
-                            return {
-                                balance: result!.jettonWallet!.balance,
-                                master: result!.jettonWallet!.master,
-                                owner: result!.jettonWallet!.owner,
-                                address: hint
-                            } as StoredJettonWallet
-                        });
-                    }
-                }
-
-                const masterAddress = result?.jettonWallet?.master;
-                let masterContent = masterAddress
-                    ? queryClient.getQueryData<JettonMasterState>(Queries.Jettons().MasterContent(masterAddress))
-                    : undefined;
-
-                if (masterAddress && !masterContent) {
-                    let masterAddress = result!.jettonWallet!.master;
-                    await queryClient.prefetchQuery({
-                        queryKey: Queries.Jettons().MasterContent(masterAddress),
-                        queryFn: jettonMasterContentQueryFn(masterAddress, isTestnet),
-                    });
-                    await queryClient.prefetchQuery({
-                        queryKey: Queries.Jettons().Address(address).Wallet(masterAddress),
-                        queryFn: jettonWalletAddressQueryFn(masterAddress, address, isTestnet),
-                    });
-                }
-
-                masterContent = queryClient.getQueryData<JettonMasterState>(Queries.Jettons().MasterContent(hint));
-
-                if (result?.jettonMaster && !masterContent) {
-                    await queryClient.prefetchQuery({
-                        queryKey: Queries.Jettons().MasterContent(hint),
-                        queryFn: jettonMasterContentQueryFn(hint, isTestnet),
-                    });
-                    await queryClient.prefetchQuery({
-                        queryKey: Queries.Jettons().Address(address).Wallet(hint),
-                        queryFn: jettonWalletAddressQueryFn(hint, address, isTestnet),
-                    });
-                }
-            }));
-        })().catch((e) => {
-            console.warn(e);
-        });
-    }, [address, hints]);
 }

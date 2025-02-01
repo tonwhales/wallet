@@ -7,7 +7,7 @@ import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragmen
 import { LegalFragment } from './fragments/onboarding/LegalFragment';
 import { WalletBackupFragment } from './fragments/secure/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
-import { SimpleTransferFragment } from './fragments/secure/SimpleTransferFragment';
+import { SimpleTransferFragment } from './fragments/secure/simple-transfer';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/secure/MigrationFragment';
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';

@@ -27,7 +27,6 @@ import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletVersions } from "../../../engine/types";
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
 import { useJettonPayload } from "../../../engine/hooks/jettons/useJettonPayload";
-import { useAppFocusEffect } from "../../../utils/useAppFocusEffect";
 import SimpleTransferRecipient from "./components/recipient";
 import SimpleTransferAmount from "./components/amount";
 import { TransferHeader } from "../../../components/transfer/TransferHeader";
@@ -210,23 +209,14 @@ const SimpleTransferComponent = () => {
     jetton,
   });
 
-  const {
-    onFocus,
-    onSubmit,
-    resetInput,
-    onAddAll,
-    onSearchItemSelected,
-    handleClipboardData,
-  } = useGeneralTransferHandlers({
-    scrollRef,
-    balance,
-    jetton,
-    dispatch,
-    setSelectedInput,
-    selectedInput,
-    amountRef,
-    commentRef,
-  });
+  const { onFocus, onSubmit, resetInput, onAddAll, onSearchItemSelected } =
+    useGeneralTransferHandlers({
+      scrollRef,
+      balance,
+      jetton,
+      dispatch,
+      setSelectedInput,
+    });
 
   const { selected, onNext, header } = useMemo(() => {
     const titleComponent = targetAddressValid && (
@@ -289,7 +279,7 @@ const SimpleTransferComponent = () => {
     BackHandler.addEventListener("hardwareBackPress", backHandler);
     return () =>
       BackHandler.removeEventListener("hardwareBackPress", backHandler);
-  }, [selectedInput, backHandler]);
+  }, [backHandler]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ y: 0 });
@@ -304,8 +294,6 @@ const SimpleTransferComponent = () => {
       })
     );
   });
-
-  useAppFocusEffect(handleClipboardData);
 
   const scrollViewContentStyle = useMemo(
     () => ({
@@ -345,13 +333,13 @@ const SimpleTransferComponent = () => {
           selectedInputStyles={selectedInputStyles}
           addressDomainInputState={state.addressDomainInputState}
           selected={selected}
-          targetAddressValid={targetAddressValid}
           onFocus={onFocus}
           onSubmit={onSubmit}
           onQRCodeRead={handleQRCodeScan}
           onSearchItemSelected={onSearchItemSelected}
           selectedInput={selectedInput}
           dispatch={dispatch}
+          params={params}
         />
         <SimpleTransferAmount
           onFocus={onFocus}

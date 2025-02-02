@@ -105,6 +105,7 @@ import { ReceiveAssetsFragment } from './fragments/wallet/ReceiveAssetsFragment'
 import { LanguageFragment } from './fragments/LanguageFragment';
 import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
+import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilterFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -266,6 +267,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Products', ProductsFragment, safeArea),
     modalScreen('ProductsList', ProductsListFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
+    modalScreen('TransactionsFilter', TransactionsFilterFragment, safeArea),
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
@@ -308,7 +310,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerSimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('LedgerReceive', ReceiveFragment, safeArea),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
-    modalScreen('LedgerTransactionPreview', TransactionPreviewFragment, safeArea),
+    modalScreen('LedgerTransaction', TransactionPreviewFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),

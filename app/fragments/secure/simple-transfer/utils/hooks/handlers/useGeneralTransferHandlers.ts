@@ -1,12 +1,8 @@
 import { Dispatch, RefObject, useCallback } from "react";
 import { Keyboard, ScrollView } from "react-native";
 import { formatInputAmount } from "../../../../../../utils/formatCurrency";
-import {
-  fromBnWithDecimals,
-  toBnWithDecimals,
-} from "../../../../../../utils/withDecimals";
-import { fromNano, toNano } from "@ton/core";
-import Clipboard from "@react-native-clipboard/clipboard";
+import { fromBnWithDecimals } from "../../../../../../utils/withDecimals";
+import { fromNano } from "@ton/core";
 import {
   SimpleTransferAction,
   SimpleTransferActions,
@@ -19,17 +15,6 @@ type Props = {
   jetton: Jetton | null;
   dispatch: Dispatch<SimpleTransferAction>;
   setSelectedInput: (value: number | null) => void;
-  selectedInput: number | null;
-  amountRef: {
-    current: {
-      setText: (text: string) => void;
-    } | null;
-  };
-  commentRef: {
-    current: {
-      setText: (text: string) => void;
-    } | null;
-  };
 };
 
 export const useGeneralTransferHandlers = ({
@@ -38,12 +23,12 @@ export const useGeneralTransferHandlers = ({
   jetton,
   dispatch,
   setSelectedInput,
-  selectedInput,
-  amountRef,
-  commentRef,
 }: Props) => {
-  const onFocus = useCallback((index: number) => setSelectedInput(index), []);
-  const onSubmit = useCallback(() => setSelectedInput(null), []);
+  const onInputFocus = useCallback(
+    (index: number) => setSelectedInput(index),
+    []
+  );
+  const onInputSubmit = useCallback(() => setSelectedInput(null), []);
   const resetInput = useCallback(() => {
     Keyboard.dismiss();
     setSelectedInput(null);
@@ -68,51 +53,19 @@ export const useGeneralTransferHandlers = ({
 
   const onSearchItemSelected = useCallback((item: any) => {
     scrollRef.current?.scrollTo({ y: 0 });
-    dispatch({
-      type: SimpleTransferActions.SET_COMMENT,
-      payload: item.memo || "",
-    });
+    if (item.memo) {
+      dispatch({
+        type: SimpleTransferActions.SET_COMMENT,
+        payload: item.memo,
+      });
+    }
   }, []);
 
-  const handleClipboardData = useCallback(async () => {
-    const clipboardText = (await Clipboard.getString()).trim();
-    if (!clipboardText) {
-      return;
-    }
-
-    switch (selectedInput) {
-      case 1:
-        try {
-          const valid = clipboardText.replace(",", ".").replaceAll(" ", "");
-          const decimals = jetton?.decimals ?? 9;
-          const value = jetton
-            ? toBnWithDecimals(valid, decimals)
-            : toNano(valid);
-          if (value) {
-            const formattedAmount = formatInputAmount(
-              fromBnWithDecimals(value, decimals),
-              decimals
-            );
-            amountRef.current?.setText(formattedAmount);
-          }
-        } catch {}
-        break;
-
-      case 2:
-        commentRef.current?.setText(clipboardText);
-        break;
-
-      default:
-        break;
-    }
-  }, [selectedInput, jetton]);
-
   return {
-    onFocus,
-    onSubmit,
+    onFocus: onInputFocus,
+    onSubmit: onInputSubmit,
     resetInput,
     onAddAll,
     onSearchItemSelected,
-    handleClipboardData,
   };
 };

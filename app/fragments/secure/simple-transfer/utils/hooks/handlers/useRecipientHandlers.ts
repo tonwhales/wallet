@@ -4,7 +4,7 @@ import { useNetwork } from "../../../../../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useTypedNavigation } from "../../../../../../utils/useTypedNavigation";
 import { useLinkNavigator } from "../../../../../../useLinkNavigator";
-import { resolveUrl } from "../../../../../../utils/resolveUrl";
+import { ResolvedTxUrl, resolveUrl } from "../../../../../../utils/resolveUrl";
 
 type Props = {
   addressDomainInputState: {
@@ -43,44 +43,41 @@ export const useRecipientHandlers = ({
 
   const handleQRCodeScan = useCallback(
     (src: string) => {
-      const resolvedData = resolveUrl(src, network.isTestnet);
-      if (
-        !resolvedData ||
-        (resolvedData.type !== "transaction" &&
-          resolvedData.type !== "jetton-transaction")
-      ) {
+      const tx = resolveUrl(src, network.isTestnet) as ResolvedTxUrl;
+      const isTransferInvalid =
+        !tx || (tx.type !== "transaction" && tx.type !== "jetton-transaction");
+
+      if (isTransferInvalid) {
         return;
       }
 
-      if (resolvedData.payload) {
+      if (tx.payload) {
         navigation.goBack();
-        linkNavigator(resolvedData);
+        linkNavigator(tx);
         return;
       }
 
-      const newAmount = resolvedData.amount ?? convertToNano(amount);
-      const newComment = resolvedData.comment ?? commentString;
-      const newTarget = resolvedData.address
-        ? resolvedData.address.toString({
+      const mAmount = tx.amount ?? convertToNano(amount);
+      const mComment = tx.comment ?? commentString;
+      const mTarget = tx.address
+        ? tx.address.toString({
             testOnly: network.isTestnet,
-            bounceable: resolvedData.isBounceable ?? true,
+            bounceable: tx.isBounceable ?? true,
           })
         : addressDomainInputState.target;
-      const newStateInit =
-        resolvedData.type === "transaction"
-          ? resolvedData.stateInit ?? null
-          : stateInit;
-      const newJetton =
-        resolvedData.type === "jetton-transaction" && resolvedData.jettonMaster
-          ? resolvedData.jettonMaster
+      const mStateInit =
+        tx.type === "transaction" ? tx.stateInit ?? null : stateInit;
+      const mJetton =
+        tx.type === "jetton-transaction" && tx.jettonMaster
+          ? tx.jettonMaster
           : selectedJetton;
 
       const transactionParams = {
-        target: newTarget,
-        comment: newComment,
-        amount: newAmount,
-        stateInit: newStateInit,
-        jetton: newJetton,
+        target: mTarget,
+        comment: mComment,
+        amount: mAmount,
+        stateInit: mStateInit,
+        jetton: mJetton,
       };
 
       isLedger

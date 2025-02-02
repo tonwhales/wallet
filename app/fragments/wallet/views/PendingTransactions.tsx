@@ -17,13 +17,15 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/avatar/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useAccountTransactions, useBounceableWalletFormat, usePendingActions, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
+import { useBounceableWalletFormat, usePendingActions, useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 import { useContractInfo } from "../../../engine/hooks/metadata/useContractInfo";
 import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
+import { useAccountTransactionsV2 } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
+import { TonStoredTransaction, TransactionType } from "../../../engine/types";
 
 const PendingTransactionView = memo(({
     tx,
@@ -305,8 +307,8 @@ export const PendingTransactions = memo(({
     const network = useNetwork();
     const addr = address ?? account?.addressString ?? '';
     const { state: pending, removePending } = usePendingActions(addr, network.isTestnet);
-    const txs = useAccountTransactions(addr).data;
-    const lastTxs = txs?.flat()?.slice(-1)?.[0];
+    const txs = useAccountTransactionsV2(addr, undefined, { type: TransactionType.TON }).data;
+    const lastTxs = (txs as TonStoredTransaction[])?.slice(-1)?.[0]?.data;
     const lastTxsSeqno = lastTxs?.base.parsed.seqno;
     const theme = useTheme();
 

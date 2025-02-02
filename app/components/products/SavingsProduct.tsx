@@ -149,7 +149,7 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                 </View>
             </View>
         );
-    }, [theme.surfaceOnBg, theme.textPrimary, theme.textSecondary, theme.style]);
+    }, [theme.surfaceOnBg, theme.textPrimary, theme.textSecondary, theme.style, totalBalance]);
 
     if (savingsItems.length === 0) {
         return (

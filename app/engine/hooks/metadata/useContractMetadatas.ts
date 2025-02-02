@@ -1,6 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 import { Queries } from '../../queries';
-import { contractMetadataQueryFn } from '../jettons/usePrefetchHints';
+import { contractMetadataQueryFn } from '../jettons/jettonsBatcher';
 import { useNetwork } from '../network/useNetwork';
 
 export function useContractMetadatas(contracts: string[]) {

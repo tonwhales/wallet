@@ -1,27 +1,24 @@
 import React, { Dispatch, useMemo, useRef } from "react";
 import Animated from "react-native-reanimated";
-import {
-  AddressInputState,
-  TransferAddressInput,
-} from "../../../../../components/address/TransferAddressInput";
+import { TransferAddressInput } from "../../../../../components/address/TransferAddressInput";
 import { StyleProp, View, ViewStyle } from "react-native";
-import {
-  useNetwork,
-  useSelectedAccount,
-  useTheme,
-} from "../../../../../engine/hooks";
+import { useNetwork, useSelectedAccount } from "../../../../../engine/hooks";
 import { useTypedNavigation } from "../../../../../utils/useTypedNavigation";
 import { useRoute } from "@react-navigation/native";
 import { KnownWallets } from "../../../../../secure/KnownWallets";
 import { useLedgerTransport } from "../../../../ledger/components/TransportContext";
 import { Address } from "@ton/core";
-import { ATextInputRef } from "../../../../../components/ATextInput";
 import {
   SimpleTransferAction,
   SimpleTransferActions,
 } from "../../utils/hooks/state/useSimpleTransferState";
 import { SimpleTransferInputType } from "../../types/SimpleTransferInputType";
 import { animatedLayout } from "../../styles";
+import {
+  AddressDomainInputRef,
+  AddressInputState,
+} from "../../../../../components/address/AddressDomainInput";
+import { SimpleTransferParams } from "../../types/SimpleTransferParams";
 
 type Props = {
   addressInputHeight: number;
@@ -34,15 +31,13 @@ type Props = {
     domain?: string;
   };
   selected: SimpleTransferInputType;
-  targetAddressValid: {
-    address: Address;
-  } | null;
   onFocus: (index: number) => void;
   onSubmit: () => void;
   onQRCodeRead: (data: string) => void;
   onSearchItemSelected: (item: any) => void;
   selectedInput: number | null;
   dispatch: Dispatch<SimpleTransferAction>;
+  params: SimpleTransferParams;
 };
 
 export default function SimpleTransferRecipient({
@@ -50,15 +45,14 @@ export default function SimpleTransferRecipient({
   selectedInputStyles,
   addressDomainInputState,
   selected,
-  targetAddressValid,
   onFocus,
   onSubmit,
   onQRCodeRead,
   onSearchItemSelected,
   selectedInput,
   dispatch,
+  params,
 }: Props) {
-  const theme = useTheme();
   const network = useNetwork();
   const navigation = useTypedNavigation();
 
@@ -78,8 +72,8 @@ export default function SimpleTransferRecipient({
     }
   }, [addr]);
 
-  const { target, input: addressDomainInput, domain } = addressDomainInputState;
-  const addressRef = useRef<ATextInputRef>(null);
+  const { domain } = addressDomainInputState;
+  const addressRef = useRef<AddressDomainInputRef>(null);
 
   const setAddressDomainInputState = (value: AddressInputState) => {
     dispatch({
@@ -101,15 +95,12 @@ export default function SimpleTransferRecipient({
         }}
       >
         <TransferAddressInput
+          index={0}
           ref={addressRef}
           acc={ledgerAddress ?? acc!.address}
-          theme={theme}
-          target={target}
-          input={addressDomainInput}
+          initTarget={params?.target || ""}
           domain={domain}
-          validAddress={targetAddressValid?.address}
           isTestnet={network.isTestnet}
-          index={0}
           onFocus={onFocus}
           setAddressDomainInputState={setAddressDomainInputState}
           onSubmit={onSubmit}

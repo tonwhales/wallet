@@ -8,7 +8,6 @@ import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
-import { TransactionDescription } from '../../../engine/types';
 import { useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
@@ -27,15 +26,15 @@ import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo'
 import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
+import { TonTransaction } from '../../../engine/types';
 
 export function TransactionView(props: {
     own: Address,
-    tx: TransactionDescription,
-    separator: boolean,
+    tx: TonTransaction,
     theme: ThemeType,
     navigation: TypedNavigation,
-    onPress: (src: TransactionDescription) => void,
-    onLongPress?: (src: TransactionDescription) => void,
+    onPress: (src: TonTransaction) => void,
+    onLongPress?: (src: TonTransaction) => void,
     ledger?: boolean,
     spamMinAmount: bigint,
     dontShowComments: boolean,
@@ -77,7 +76,8 @@ export function TransactionView(props: {
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
     const contact = contacts[parsedAddressFriendly];
-    const verified = !!tx.verified;
+    // const verified = !!tx.verified;
+    const verified = false;
 
     // Operation
     const op = useMemo(() => {
@@ -126,9 +126,9 @@ export function TransactionView(props: {
     if (knownWallets[parsedAddressFriendly]) {
         known = knownWallets[parsedAddressFriendly];
     }
-    if (tx.title) {
-        known = { name: tx.title };
-    }
+    // if (tx.title) {
+    //     known = { name: tx.title };
+    // }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }

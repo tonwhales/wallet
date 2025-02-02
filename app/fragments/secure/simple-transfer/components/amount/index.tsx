@@ -175,6 +175,8 @@ export default function SimpleTransferAmount({
                       { color: theme.textPrimary },
                       Typography.semiBold17_24,
                     ]}
+                    numberOfLines={2}
+                    ellipsizeMode={"tail"}
                   >
                     {symbol}
                   </Text>

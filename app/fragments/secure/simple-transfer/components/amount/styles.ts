@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
   rowFlexShrink: {
     flexDirection: "row",
     flexShrink: 1,
-    overflow: "hidden",
+    overflow: "visible",
   },
   iconWrapper: {
     height: 46,

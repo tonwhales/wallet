@@ -1,6 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 import { Queries } from '../../queries';
-import { jettonWalletQueryFn } from './usePrefetchHints';
+import { jettonWalletQueryFn } from './jettonsBatcher';
 import { useNetwork } from '../network/useNetwork';
 
 export function useJettonWallets(wallets: string[]) {

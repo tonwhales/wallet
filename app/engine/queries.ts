@@ -1,3 +1,5 @@
+import { AccountTransactionsParams } from "./api/fetchAccountTransactionsV2";
+
 export const Queries = {
     // Everything in account is invalidated futher in onAccountTouched.ts
     Account: (address: string) => ({
@@ -18,9 +20,27 @@ export const Queries = {
     StakingStatus: (network: 'mainnet' | 'testnet') => ['staking', 'status', network],
     StakingLiquid: (pool: string) => ['staking', 'liquid', pool],
     StakingLiquidMember: (pool: string, member: string) => ['staking', 'member', 'liquid', pool, member],
-    StakingAccountInfo: (address: string) => ['staking', 'accountInfo', address], 
+    StakingAccountInfo: (address: string) => ['staking', 'accountInfo', address],
 
     Transactions: (address: string) => ['transactions', address],
+    TransactionsV2: (address: string, token: boolean, params?: AccountTransactionsParams) => {
+        const base = token
+            ? ['transactions', 'v2', 'holders', address]
+            : ['transactions', 'v2', address];
+
+            if (!!params) {
+                for (const key of Object.keys(params) as (keyof AccountTransactionsParams)[]) {
+                    const value = params[key];
+                    if (typeof value === 'string') {
+                        base.push(`${key}_${value}`);
+                    } else if (Array.isArray(value)) {
+                        base.push(`${key}_${value.join(',')}`);
+                    }
+                }
+            }
+
+        return base;
+    },
     Holders: (address: string) => ({
         All: () => ['holders', address],
         Status: () => ['holders', address, 'status'],

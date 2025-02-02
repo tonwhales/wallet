@@ -5,7 +5,7 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LedgerNavigationStack } from "./LedgerHomeFragment";
-import { useAccountTransactions, useNetwork, useTheme } from "../../engine/hooks";
+import { useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
@@ -13,12 +13,13 @@ import { SettingsFragment } from '../SettingsFragment';
 import { HintsPrefetcher } from "../../components/HintsPrefetcher";
 import { PendingTxsWatcher } from "../../components/PendingTxsWatcher";
 import { Address } from "@ton/core";
+import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
+import { TransactionType } from "../../engine/types";
 
 const Tab = createBottomTabNavigator();
 
-
 const PrefetchTransactions = ({ address }: { address: string }) => {
-    useAccountTransactions(address, { refetchOnMount: true });
+    useAccountTransactionsV2(address, { refetchOnMount: true }, { type: TransactionType.TON });
     return null;
 }
 

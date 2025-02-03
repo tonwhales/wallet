@@ -154,7 +154,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         if (onSearchItemSelected) {
             onSearchItemSelected(item);
         }
-    }, []);
+    }, [onSearchItemSelected]);
 
     return (
         <View>
@@ -247,7 +247,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         theme={theme}
                         isTestnet={isTestnet}
                         acc={account}
-                        onSearchItemSelected={onSearchItemSelected}
+                        onSearchItemSelected={onAddressSearchItemSelected}
                     />
                 </View>
                 {isInvalid && (

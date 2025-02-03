@@ -138,8 +138,15 @@ export class TypedNavigation {
         this.navigate('LiquidWithdrawAction');
     }
 
-    navigateSimpleTransfer(tx: SimpleTransferParams) {
-        this.navigate('SimpleTransfer', tx);
+    navigateSimpleTransfer(tx: SimpleTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+
+        if (options?.ledger) {
+            action('LedgerSimpleTransfer', tx);
+            return;
+        }
+
+        action('SimpleTransfer', tx);
     }
 
     navigateSign(tx: {
@@ -157,10 +164,6 @@ export class TypedNavigation {
         url: string
     }) {
         this.navigate('Review', params);
-    }
-
-    navigateLedgerTransfer(tx: SimpleTransferParams) {
-        this.navigate('LedgerSimpleTransfer', tx);
     }
 
     navigateLedgerSignTransfer(params: LedgerSignTransferParams) {

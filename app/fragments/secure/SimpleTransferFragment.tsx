@@ -479,6 +479,7 @@ const SimpleTransferComponent = () => {
             return;
         }
         const isTransferValid = res && (res.type === 'transaction' || res.type === 'jetton-transaction');
+
         if (isTransferValid) {
             const tx = res as ResolvedTxUrl;
             if (tx.payload) {
@@ -489,7 +490,7 @@ const SimpleTransferComponent = () => {
                 let mTarget = null;
                 let mAmount = validAmount;
                 let mStateInit = stateInit;
-                let mJetton = null;
+                let mJetton = selectedJetton;
 
                 try {
                     mAmount = toNano(amount);
@@ -516,17 +517,6 @@ const SimpleTransferComponent = () => {
                     mStateInit = null;
                 }
 
-                if (isLedger) {
-                    navigation.navigateLedgerTransfer({
-                        target: mTarget,
-                        comment: mComment,
-                        amount: mAmount,
-                        stateInit: mStateInit,
-                        jetton: mJetton,
-                    }, true);
-                    return;
-                }
-
                 if (tx.type === 'jetton-transaction' && tx.jettonMaster) {
                     mJetton = tx.jettonMaster
                 }
@@ -536,11 +526,11 @@ const SimpleTransferComponent = () => {
                     comment: mComment,
                     amount: mAmount,
                     stateInit: mStateInit,
-                    jetton: mJetton,
-                }, true);
+                    jetton: mJetton
+                }, { ledger: isLedger, replace: true });
             }
         }
-    }, [commentString, validAmount]);
+    }, [commentString, validAmount, selectedJetton]);
 
     const onAddAll = useCallback(() => {
         const amount = jetton

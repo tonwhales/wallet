@@ -13,8 +13,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Canvas, rrect, rect, DiffRect } from '@shopify/react-native-skia';
 import * as RNImagePicker from 'expo-image-picker';
-import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
-import { Camera, FlashMode } from 'expo-camera';
+import { Camera, CameraView } from 'expo-camera';
 import { useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
 import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
@@ -40,7 +39,7 @@ export const ScannerFragment = systemFragment(() => {
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
 
-    const cameraRef = useRef<Camera>(null);
+    const cameraRef = useRef<CameraView>(null);
 
     // Screen Ratio and image padding for Android
     // The issue arises from the discrepancy between the camera preview's aspect ratio and the screen's aspect ratio. 
@@ -75,7 +74,7 @@ export const ScannerFragment = systemFragment(() => {
                 })
                 if (!result.canceled) {
                     const resourceUri = result.assets[0].uri;
-                    const results = await BarCodeScanner.scanFromURLAsync(resourceUri);
+                    const results = await Camera.scanFromURLAsync(resourceUri);
                     if (results.length > 0) {
                         const res = results[0];
                         setActive(false);
@@ -93,19 +92,19 @@ export const ScannerFragment = systemFragment(() => {
 
     useEffect(() => {
         (async () => {
-            const status = await BarCodeScanner.requestPermissionsAsync();
+            const status = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status.granted);
         })();
     }, []);
 
-    const onScanned = useCallback((res: BarCodeScannerResult) => {
-        if (res.data.length > 0) {
+    const onScanned = useCallback(({ type, data }: any) => {
+        if (data.length > 0) {
             if (route && (route as any).callback) {
                 setActive(false);
 
                 setTimeout(() => {
                     navigation.goBack();
-                    (route as any).callback(res.data);
+                    (route as any).callback(data);
                 }, 10);
             }
         }
@@ -203,14 +202,14 @@ export const ScannerFragment = systemFragment(() => {
                     {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
 
                     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                        <Camera
+                        <CameraView
                             ref={cameraRef}
-                            onBarCodeScanned={!isActive ? undefined : onScanned}
+                            onBarcodeScanned={!isActive ? undefined : onScanned}
                             style={[
                                 StyleSheet.absoluteFill,
                                 Platform.select({ android: { marginTop: imagePadding, marginBottom: imagePadding } })
                             ]}
-                            flashMode={flashOn ? FlashMode.torch : FlashMode.off}
+                            flash={flashOn ? 'on' : 'off'}
                             onCameraReady={onCameraReady}
                             ratio={ratio}
                         />

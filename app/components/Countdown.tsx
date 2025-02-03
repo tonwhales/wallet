@@ -21,23 +21,15 @@ export function getDuration(seconds: number) {
 type DurationKey = 'xSeconds' | 'xMinutes' | 'xHours' | 'xDays';
 
 const formatDurationLocales = {
-    ru: {
-        xSeconds: '{{count}}',
-        xMinutes: '{{count}}',
-        xHours: '{{count}}',
-        xDays: '{{count}}'
-    },
-    en: {
-        xSeconds: '{{count}}',
-        xMinutes: '{{count}}',
-        xHours: '{{count}}',
-        xDays: '{{count}}'
-    }
+    xSeconds: '{{count}}',
+    xMinutes: '{{count}}',
+    xHours: '{{count}}',
+    xDays: '{{count}}'
 }
 
-export function shortLocale(code: 'ru' | 'en') {
+export function shortLocale() {
     const formatDistance = (key: DurationKey, count: number) => {
-        return formatDurationLocales[code][key].replace('{{count}}', String(count || '').padStart(2, '0'))
+        return formatDurationLocales[key].replace('{{count}}', String(count || '').padStart(2, '0'))
     }
     return { formatDistance };
 }
@@ -47,7 +39,7 @@ function format(duration: number, hidePrefix?: boolean) {
     return (hidePrefix ? '' : t('common.in') + ' ')
         + formatDuration(
             getDuration(duration),
-            { locale: shortLocale(t('lang') as 'ru' | 'en'), delimiter: ':', zero: true }
+            { locale: shortLocale(), delimiter: ':', zero: true }
         );
 }
 

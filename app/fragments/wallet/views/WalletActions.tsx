@@ -112,13 +112,10 @@ export const WalletActions = memo(({
                     />
                 )}
                 <WalletActionButton
-                    action={
-                        !!jetton
-                            ? { type: WalletActionType.Send, jetton: jetton.wallet }
-                            : { type: WalletActionType.Send }
-                    }
+                    action={{ type: WalletActionType.Send, jetton: jetton?.wallet }}
                     navigation={navigation}
                     theme={theme}
+                    isLedger={isLedger}
                 />
             </View>
         </View>

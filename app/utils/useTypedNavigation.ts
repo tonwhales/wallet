@@ -26,8 +26,8 @@ import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
 import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
-import { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSelectionFragment';
-import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
+import { TonTransaction } from '../engine/types';
+import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -138,8 +138,15 @@ export class TypedNavigation {
         this.navigate('LiquidWithdrawAction');
     }
 
-    navigateSimpleTransfer(tx: SimpleTransferParams) {
-        this.navigate('SimpleTransfer', tx);
+    navigateSimpleTransfer(tx: SimpleTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+
+        if (options?.ledger) {
+            action('LedgerSimpleTransfer', tx);
+            return;
+        }
+
+        action('SimpleTransfer', tx);
     }
 
     navigateSign(tx: {
@@ -157,10 +164,6 @@ export class TypedNavigation {
         url: string
     }) {
         this.navigate('Review', params);
-    }
-
-    navigateLedgerTransfer(tx: SimpleTransferParams) {
-        this.navigate('LedgerSimpleTransfer', tx);
     }
 
     navigateLedgerSignTransfer(params: LedgerSignTransferParams) {
@@ -268,6 +271,10 @@ export class TypedNavigation {
         this.navigate('TonWallet', params);
     }
 
+    navigateTonTransaction(transaction: TonTransaction, isLedger?: boolean) {
+        this.navigate(isLedger ? 'LedgerTransaction' : 'Transaction', { transaction });
+    }
+
     navigateJettonTransaction(param: JettonTransactionPreviewParams) {
         this.navigate('JettonTransaction', param);
     }
@@ -304,12 +311,8 @@ export class TypedNavigation {
         this.navigate('Exchanges', params);
     }
 
-    navigateLedgerDeviceSelection(params: LedgerDeviceSelectionParams) {
-        this.navigate('LedgerDeviceSelection', params);
-    }
-
-    navigateLedgerSelectAccount(params: LedgerSelectAccountParams) {
-        this.navigate('LedgerSelectAccount', params);
+    navigateTransactionsFilter(params: TransactionsFilterFragmentParams) {
+        this.navigate('TransactionsFilter', params);
     }
 }
 

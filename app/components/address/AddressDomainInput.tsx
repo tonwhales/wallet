@@ -1,6 +1,6 @@
 import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
 import { Alert, Pressable, Image, TextInput, View, Text, } from "react-native"
-import Animated, { FadeIn, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
@@ -418,7 +418,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 position: 'absolute', top: 0, right: 0, left: 0,
                 paddingHorizontal: 16, marginLeft: -16
             }}>
-                <Animated.View style={labelAnimStyle}>
+                <Animated.View style={[labelAnimStyle, { maxWidth: '85%' }]}>
                     <Text
                         numberOfLines={1}
                         onTextLayout={(e) => {

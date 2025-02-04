@@ -144,6 +144,7 @@ export const HoldersCards = memo(({
                     {cards.map((item, index) => {
                         return (
                             <HoldersPrepaidCard
+                                owner={owner}
                                 key={`card-${index}`}
                                 card={item}
                                 rightActionIcon={hideIcon}

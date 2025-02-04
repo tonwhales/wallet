@@ -262,7 +262,11 @@ export class TypedNavigation {
     }
 
     navigateJettonWallet(param: JettonWalletFragmentParams) {
-        this.navigate('JettonWalletFragment', param);
+        if (param.isLedger) {
+            this.navigate('LedgerJettonWallet', param);
+            return;
+        }
+        this.navigate('JettonWallet', param);
     }
 
     navigateTonWallet(params: TonWalletFragmentParams, isLedger?: boolean) {

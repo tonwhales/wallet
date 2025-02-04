@@ -332,7 +332,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     fullScreen('LiquidStaking', LiquidStakingFragment),
-    fullScreen('JettonWalletFragment', JettonWalletFragment),
+    fullScreen('JettonWallet', JettonWalletFragment),
     fullScreen('TonWallet', TonWalletFragment)
 ]
 

@@ -1,7 +1,7 @@
 import { memo, useCallback, useMemo } from "react";
 import { ThemeType } from "../../engine/state/theme";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Pressable, View, Image, Text, Alert } from "react-native";
+import { Pressable, View, Image, Text } from "react-native";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
@@ -9,12 +9,11 @@ import { Address } from "@ton/core";
 import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { WImage } from "../WImage";
 import { ItemDivider } from "../ItemDivider";
-import { useBounceableWalletFormat, useJettonContent, useNetwork } from "../../engine/hooks";
+import { useBounceableWalletFormat, useJettonContent } from "../../engine/hooks";
 import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
 import { ReceiveableAsset } from "../../fragments/wallet/ReceiveFragment";
-import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { t } from "../../i18n/t";
 
 export const SpecialJettonProduct = memo(({
@@ -40,8 +39,6 @@ export const SpecialJettonProduct = memo(({
     const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
     const gaslessConfig = useGaslessConfig().data;
     const walletVersion = useWalletVersion(address);
-    const ledgerContext = useLedgerTransport();
-    const { isTestnet } = useNetwork();
 
     const isGassless = useMemo(() => {
         if (walletVersion !== 'v5R1') {
@@ -76,61 +73,12 @@ export const SpecialJettonProduct = memo(({
 
         const hasWallet = !!specialJetton?.wallet;
 
-        if (isLedger) {
-            if (!hasWallet) {
-
-                if (ledgerContext.tonTransport && !ledgerContext.isReconnectLedger) {
-                    const verificationResult = await ledgerContext.verifyAddressWithAlert(isTestnet);
-                    const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
-
-                    if (!isValid) {
-                        Alert.alert(
-                            t('hardwareWallet.verifyAddress.invalidAddressTitle'),
-                            t('hardwareWallet.verifyAddress.invalidAddressMessage')
-                        );
-                        return;
-                    }
-
-                    navigation.navigate(
-                        'LedgerReceive',
-                        {
-                            addr: ledgerAddressStr,
-                            ledger: true, asset: specialJetton ? {
-                                address: specialJetton.master,
-                                content: {
-                                    icon: masterContent?.originalImage,
-                                    name: masterContent?.name,
-                                }
-                            } : undefined
-                        });
-                    return;
-                }
-
-                ledgerContext.reset();
-                ledgerContext.onShowLedgerConnectionError();
-                return;
-            }
-
-            // TODO: implement LedgerJettonWallet
-            const tx = {
-                amount: null,
-                target: null,
-                comment: null,
-                jetton: specialJetton.wallet,
-                stateInit: null,
-                job: null,
-                callback: null
-            }
-
-            navigation.navigateSimpleTransfer(tx, { ledger: true });
-            return;
-        }
-
         if (hasWallet) {
             navigation.navigateJettonWallet({
                 owner: address.toString({ bounceable: bounceableFormat, testOnly }),
                 master: specialJetton.master.toString({ testOnly }),
-                wallet: specialJetton.wallet?.toString({ testOnly })
+                wallet: specialJetton.wallet?.toString({ testOnly }),
+                isLedger
             });
 
             return;
@@ -143,8 +91,9 @@ export const SpecialJettonProduct = memo(({
                     icon: masterContent?.originalImage,
                     name: masterContent?.name,
                 }
-            } : undefined
-        });
+            } : undefined,
+            addr: address.toString({ bounceable: isLedger ? false : bounceableFormat, testOnly })
+        }, isLedger);
     }, [assetCallback, specialJetton, isLedger, ledgerAddressStr, navigation, masterContent]);
 
     return (

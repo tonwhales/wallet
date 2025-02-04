@@ -129,9 +129,9 @@ export const ReceiveAssetsFragment = fragment(() => {
                 assetCallback(asset);
             }, 10);
         } else {
-            navigation.navigateReceive({ asset: asset || undefined, ledger: isLedger });
+            navigation.navigateReceive({ addr: owner.toString({ testOnly: isTestnet, bounceable: isLedger ? false : undefined }), asset: asset || undefined }, isLedger);
         }
-    }, [assetCallback, isLedger]);
+    }, [assetCallback, isLedger, owner, isTestnet]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         const path = `/account/${target.id}?deposit-open=true`;
@@ -267,7 +267,6 @@ export const ReceiveAssetsFragment = fragment(() => {
         data: [{ type: AssetType.TON }, { type: AssetType.SPECIAL }]
     };
 
-    
     const itemsList: { type: 'default' | 'holders' | 'otherCoins', data: ListItem[] }[] = [
         {
             type: 'holders',
@@ -276,7 +275,7 @@ export const ReceiveAssetsFragment = fragment(() => {
         defaultSection
     ];
     if (showOtherCoins) {
-        itemsList.push({ type: 'otherCoins', data: [{ type: AssetType.OTHERCOINS }] }); 
+        itemsList.push({ type: 'otherCoins', data: [{ type: AssetType.OTHERCOINS }] });
     }
 
     return (

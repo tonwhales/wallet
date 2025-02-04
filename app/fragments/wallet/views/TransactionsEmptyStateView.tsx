@@ -26,19 +26,8 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     const showBuy = isNeocryptoAvailable();
 
     const navigateReceive = useCallback(() => {
-        if (isLedger && !!ledgerContext?.addr) {
-            navigation.navigate(
-                'LedgerReceive',
-                {
-                    addr: ledgerContext.addr.address,
-                    ledger: true
-                }
-            );
-            return;
-        }
-
-        navigation.navigate('Receive');
-    }, [isLedger, ledgerContext]);
+        navigation.navigateReceive({ addr: ledgerContext?.addr?.address }, isLedger && !!ledgerContext?.addr);
+    }, [isLedger, ledgerContext?.addr]);
 
     return (
         <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, minHeight: dimensions.window.height - safeArea.bottom - 112 }}>

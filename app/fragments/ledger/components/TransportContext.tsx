@@ -10,7 +10,6 @@ import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permis
 import { delay } from "teslabot";
 import { useLedgerWallets } from "../../../engine/hooks";
 import { navigationRef } from "../../../Navigation";
-import { useModalAlert } from "../../../components/ModalAlert";
 import { z } from "zod";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 
@@ -96,8 +95,7 @@ export const TransportContext = createContext<
         ledgerName: string,
         onShowLedgerConnectionError: () => void,
         isReconnectLedger: boolean,
-        verifySelectedAddress: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>,
-        verifyAddressWithAlert: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>,
+        verifySelectedAddress: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>
     }
     | null
 >(null);
@@ -121,8 +119,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     const [isReconnectLedger, setIsReconnectLedger] = useState<boolean>(false);
 
-    const modalAlert = useModalAlert();
-
     // Selected Ledger name
     const ledgerName = useMemo(() => {
         const index = ledgerWallets.findIndex(wallet => wallet.address === addr?.address);
@@ -133,8 +129,12 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     const reset = useCallback((isLogout?: boolean) => {
         if (isLogout) {
-            setLedgerWallets(ledgerWallets.filter(wallet => wallet.address !== addr?.address));
+            const newItems = ledgerWallets.filter(wallet => wallet.address !== addr?.address);
+            setLedgerWallets(newItems);
             setAddr(null);
+            if (newItems.length > 0) {
+                return;
+            }
         }
 
         setLedgerConnection(null);
@@ -221,27 +221,25 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         setSearch((prevSearch) => prevSearch + 1);
     }, []);
 
-    const showLedgerConnectionError = () => {
-        modalAlert.current?.showWithProps({
-            title: t('transfer.error.ledgerErrorConnectionTitle'),
-            message: t('transfer.error.ledgerErrorConnectionMessage'),
-            buttons: [
-                {
-                    text: t('hardwareWallet.actions.connect'),
-                    display: 'text',
-                    onPress: async () => {
-                        console.warn('[ledger] Stop connecting');
-                        reset();
-                        await modalAlert.current?.hide();
-                        if (Platform.OS === 'ios') {
-                            navigationRef.navigate('LedgerDeviceSelection', { selectedAddress: addr });
-                        } else {
-                            navigationRef.navigate('Ledger');
-                        }
+    const onShowLedgerConnectionError = () => {
+        reset();
+        Alert.alert(t('transfer.error.ledgerErrorConnectionTitle'), t('transfer.error.ledgerErrorConnectionMessage'), [
+            {
+                text: t('hardwareWallet.actions.connect'),
+                onPress: async () => {
+                    console.warn('[ledger] Stop connecting');
+                    if (Platform.OS === 'ios') {
+                        navigationRef.navigate('LedgerDeviceSelection', { selectedAddress: addr });
+                    } else {
+                        navigationRef.navigate('Ledger');
                     }
-                },
-            ]
-        });
+                }
+            },
+            {
+                text: t('common.cancel'),
+                style: 'cancel'
+            }
+        ]);
     };
 
     const verifySelectedAddress = useCallback(async (isTestnet: boolean) => {
@@ -252,34 +250,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         const path = pathFromAccountNumber(addr.acc, isTestnet);
         return await tonTransport?.validateAddress(path, { testOnly: isTestnet });
     }, [addr, tonTransport]);
-
-    const verifyAddressWithAlert = async (isTestnet: boolean) => {
-        if (!addr) {
-            return undefined;
-        }
-        return await new Promise<{ address: string; publicKey: Buffer } | undefined>((resolve, reject) => {
-            modalAlert.current?.showWithProps({
-                title: t('hardwareWallet.verifyAddress.title'),
-                message: addr?.address,
-                buttons: [
-                    {
-                        text: t('hardwareWallet.verifyAddress.action'),
-                        display: 'text',
-                        action: async () => {
-                            try {
-                                const res = await verifySelectedAddress(isTestnet);
-                                await modalAlert.current?.hide();
-                                resolve(res);
-                            } catch {
-                                await modalAlert.current?.hide();
-                                reject();
-                            }
-                        }
-                    },
-                ]
-            });
-        });
-    }
 
     useEffect(() => {
         let powerSub: Subscription;
@@ -430,10 +400,9 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 reset,
                 ledgerWallets,
                 ledgerName,
-                onShowLedgerConnectionError: showLedgerConnectionError,
+                onShowLedgerConnectionError,
                 isReconnectLedger,
-                verifySelectedAddress,
-                verifyAddressWithAlert
+                verifySelectedAddress
             }}
         >
             {children}

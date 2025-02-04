@@ -240,8 +240,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     genericScreen('BackupIntro', BackupIntroFragment, safeArea),
-    modalScreen('Transaction', TransactionPreviewFragment, safeArea),
-    modalScreen('JettonTransaction', JettonTransactionPreviewFragment, safeArea),
     modalScreen('PendingTransaction', PendingTxPreviewFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
@@ -268,6 +266,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('ProductsList', ProductsListFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
     modalScreen('TransactionsFilter', TransactionsFilterFragment, safeArea),
+    modalScreen('Transaction', TransactionPreviewFragment, safeArea),
+    modalScreen('JettonTransaction', JettonTransactionPreviewFragment, safeArea),
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
@@ -311,6 +311,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerReceive', ReceiveFragment, safeArea),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
     modalScreen('LedgerTransaction', TransactionPreviewFragment, safeArea),
+    modalScreen('LedgerJettonTransactionPreview', JettonTransactionPreviewFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),

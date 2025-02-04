@@ -68,18 +68,16 @@ export const SettingsFragment = fragment(() => {
     const holdersAccounts = useHoldersAccounts(selected?.address).data;
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
-
-    const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
-    const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
-    const holdersBanner: HoldersBannerType = !!inviteCheck?.settingsBanner ? { type: 'custom', banner: inviteCheck.settingsBanner } : { type: 'built-in' };
-    const holderBannerContent = showHoldersBanner ? holdersBanner : null;
-    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
-
-    // Ledger
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
+
+    const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
+    const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed;
+    const holdersBanner: HoldersBannerType = !!inviteCheck?.settingsBanner ? { type: 'custom', banner: inviteCheck.settingsBanner } : { type: 'built-in' };
+    const holderBannerContent = showHoldersBanner ? holdersBanner : null;
+    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrollment || !isHoldersReady) {

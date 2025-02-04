@@ -3,7 +3,7 @@ import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { t } from "../../i18n/t";
-import { Pressable, View, Image, Text, Platform, ScrollView, RefreshControl, Alert } from "react-native";
+import { Pressable, View, Platform, ScrollView, RefreshControl } from "react-native";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
@@ -25,6 +25,9 @@ import { queryClient } from "../../engine/clients";
 import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { Queries } from "../../engine/queries";
 import { TonWalletFragment } from "../wallet/TonWalletFragment";
+import { Typography } from "../../components/styles";
+import { WalletActions } from "../wallet/views/WalletActions";
+import { JettonWalletFragment } from "../wallet/JettonWalletFragment";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -70,52 +73,6 @@ export const LedgerHomeFragment = fragment(() => {
 
     // Navigation
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-
-    const navigateTransfer = useCallback(async () => {
-        if (ledgerContext.tonTransport && !ledgerContext.isReconnectLedger) {
-            navigation.navigate('LedgerSimpleTransfer', {
-                amount: null,
-                target: null,
-                comment: null,
-                jetton: null,
-                stateInit: null,
-                job: null,
-                callback: null
-            });
-            return;
-        }
-
-        ledgerContext.reset();
-        ledgerContext.onShowLedgerConnectionError();
-    }, [ledgerContext]);
-
-    const navigateReceive = useCallback(async () => {
-        if (!addressFriendly || !address) {
-            return;
-        }
-
-        if (ledgerContext.tonTransport && !ledgerContext.isReconnectLedger) {
-            const verificationResult = await ledgerContext.verifyAddressWithAlert(isTestnet);
-            const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
-
-            if (!isValid) {
-                Alert.alert(
-                    t('hardwareWallet.verifyAddress.invalidAddressTitle'),
-                    t('hardwareWallet.verifyAddress.invalidAddressMessage')
-                );
-                return;
-            }
-
-            navigation.navigate(
-                'LedgerReceive',
-                { addr: addressFriendly, ledger: true }
-            );
-            return;
-        }
-
-        ledgerContext.reset();
-        ledgerContext.onShowLedgerConnectionError();
-    }, [addressFriendly, ledgerContext, isTestnet, address]);
 
     useEffect(() => {
         if (syncState !== 'updating') {
@@ -278,14 +235,11 @@ export const LedgerHomeFragment = fragment(() => {
                                 marginTop: 16,
                                 alignSelf: 'center',
                             }}
-                            textStyle={{
-                                fontSize: 15,
-                                lineHeight: 20,
+                            textStyle={[{
                                 color: theme.textUnchangeable,
-                                fontWeight: '400',
                                 opacity: 0.5,
                                 fontFamily: undefined
-                            }}
+                            }, Typography.regular15_20]}
                             disableContextMenu
                             copyOnPress
                             copyToastProps={Platform.select({
@@ -293,108 +247,15 @@ export const LedgerHomeFragment = fragment(() => {
                                 android: { marginBottom: 16, }
                             })}
                             theme={theme}
+                            bounceable={false}
                         />
                     </View>
-                    <View style={{ paddingHorizontal: 16 }}>
-                        <View style={{
-                            backgroundColor: theme.backgroundUnchangeable,
-                            position: 'absolute', top: Platform.OS === 'android' ? -1 : 0, left: 0, right: 0,
-                            height: '50%',
-                            borderBottomLeftRadius: 20,
-                            borderBottomRightRadius: 20,
-                        }} />
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnBg,
-                                borderRadius: 20,
-                                marginTop: 28,
-                                overflow: 'hidden'
-                            }}
-                            collapsable={false}
-                        >
-                            <View style={{
-                                flexGrow: 1, flexBasis: 0,
-                                marginRight: 7,
-                                borderRadius: 14,
-                                padding: 10
-                            }}>
-                                <Pressable
-                                    onPress={navigateReceive}
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 20
-                                        }
-                                    }}
-                                >
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                        <View style={{
-                                            backgroundColor: theme.accent,
-                                            width: 32, height: 32,
-                                            borderRadius: 16,
-                                            alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            <Image source={require('@assets/ic_receive.png')} />
-                                        </View>
-                                        <Text style={{
-                                            fontSize: 15, lineHeight: 20,
-                                            color: theme.textPrimary,
-                                            marginTop: 6,
-                                            fontWeight: '500'
-                                        }}
-                                            minimumFontScale={0.7}
-                                            adjustsFontSizeToFit
-                                            numberOfLines={1}
-                                        >
-                                            {t('wallet.actions.receive')}
-                                        </Text>
-                                    </View>
-                                </Pressable>
-                            </View>
-                            <View style={{
-                                flexGrow: 1, flexBasis: 0,
-                                marginRight: 7,
-                                borderRadius: 14,
-                                padding: 10
-                            }}>
-                                <Pressable
-                                    onPress={navigateTransfer}
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 20
-                                        }
-                                    }}
-                                >
-                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                        <View style={{
-                                            backgroundColor: theme.accent,
-                                            width: 32, height: 32,
-                                            borderRadius: 16,
-                                            alignItems: 'center', justifyContent: 'center'
-                                        }}>
-                                            <Image source={require('@assets/ic_send.png')} />
-                                        </View>
-                                        <Text style={{
-                                            fontSize: 15, lineHeight: 20,
-                                            color: theme.textPrimary,
-                                            marginTop: 6,
-                                            fontWeight: '500'
-                                        }}
-                                            minimumFontScale={0.7}
-                                            adjustsFontSizeToFit
-                                            numberOfLines={1}
-                                        >
-                                            {t('wallet.actions.send')}
-                                        </Text>
-                                    </View>
-                                </Pressable>
-                            </View>
-                        </View>
-                    </View>
+                    <WalletActions
+                        theme={theme}
+                        navigation={navigation}
+                        isTestnet={isTestnet}
+                        isLedger={true}
+                    />
                 </View>
                 <LedgerProductsComponent
                     testOnly={isTestnet}
@@ -413,6 +274,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('LedgerStaking', StakingFragment),
     fullScreen('LedgerStakingPools', StakingPoolsFragment),
     fullScreen('LedgerLiquidStaking', LiquidStakingFragment),
+    fullScreen('LedgerJettonWallet', JettonWalletFragment),
     fullScreen('LedgerTonWallet', TonWalletFragment)
 ]
 

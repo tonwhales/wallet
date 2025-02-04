@@ -57,15 +57,13 @@ const JettonTransactionPreview = () => {
     const [dontShowComments] = useDontShowComments();
     const [bounceableFormat] = useBounceableWalletFormat();
     const [walletsSettings] = useWalletsSettings();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerJettonTransactionPreview';
+    const ledgerContext = useLedgerTransport();
 
     const { transaction: tx, owner, master, wallet } = useParams<JettonTransactionPreviewParams>();
 
-    // TODO: Implement LedgerTransaction
-    // const ledgerContext = useLedgerTransport();
-    // const route = useRoute();
-    // const isLedger = route.name === 'LedgerTransaction';
-
-    const address = selected.address;
+    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected.address;
     const destination = tx.destination
     const source = tx.source;
     const amount = BigInt(tx.amount);

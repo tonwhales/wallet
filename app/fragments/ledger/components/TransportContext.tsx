@@ -100,6 +100,7 @@ export const TransportContext = createContext<
     | null
 >(null);
 
+// TODO: rewrite with useReducer
 export const LedgerTransportProvider = ({ children }: { children: ReactNode }) => {
     // Trasport state
     const [ledgerConnection, setLedgerConnection] = useState<TypedTransport | null>(null);

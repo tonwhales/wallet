@@ -644,6 +644,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "createDomainKey": "Durante la creación de la clave de dominio",
                     "fetchToken": "Durante la obtención del token",
                     "createSignature": "Durante la creación de la firma"
+                },
+                "ledger": {
+                    "confirmTitle": "Continuar con Ledger",
+                    "confirmMessage": "Firme la autorización y confirme la dirección de la cartera"
                 }
             },
             "otpBanner": {

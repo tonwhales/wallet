@@ -353,7 +353,8 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                         setHoldersToken(addressString!, token);
                     }
                     return { type: 'success' };
-                } catch {
+                } catch (e) {
+                    console.warn('Failed to fetch token', e);
                     deleteHoldersToken(addressString!);
                     return { type: 'error', error: HoldersEnrollErrorType.FetchTokenFailed };
                 }

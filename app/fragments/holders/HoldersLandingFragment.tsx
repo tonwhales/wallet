@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Alert, StyleSheet } from 'react-native';
+import { View, Alert, StyleSheet, Text } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -25,8 +25,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { AnimatedCards } from './components/AnimatedCards';
 import { useRoute } from '@react-navigation/native';
-import { useLedgerTransport } from '../ledger/components/TransportContext';
-import { Address } from '@ton/core';
+import { Typography } from '../../components/styles';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -38,19 +37,23 @@ export const HoldersLandingFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [currency] = usePrimaryCurrency();
+    const [lang] = useLanguage();
     const route = useRoute();
     const isLedger = route.name === 'LedgerHoldersLanding';
-    const ledgerContext = useLedgerTransport();
-    const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : null;
-    const address = isLedger ? ledgerAddress : acc?.address;
 
     const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 
     const domain = extractDomain(endpoint);
+    const [confirmLedger, setConfirmLedger] = useState(false);
     const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
     const ledgerEnroll = useHoldersLedgerEnroll(inviteId);
-    const authenticate = isLedger ? ledgerEnroll : enroll;
-    const [lang] = useLanguage();
+    const ledgerAuthenticate = (async () => {
+        setConfirmLedger(true);
+        const res = await ledgerEnroll();
+        setConfirmLedger(false);
+        return res;
+    });
+    const authenticate = isLedger ? ledgerAuthenticate : enroll;
 
     // Anim
     const isAuthenticating = useRef(false);
@@ -120,6 +123,8 @@ export const HoldersLandingFragment = fragment(() => {
                     break;
             }
 
+            console.log('HoldersLandingFragment enroll error', res.error, message);
+
             Alert.alert(
                 t('products.holders.enroll.failed.title'),
                 message,
@@ -134,7 +139,8 @@ export const HoldersLandingFragment = fragment(() => {
             authOpacity.value = 0;
             isAuthenticating.current = false;
             return;
-        } catch {
+        } catch (error) {
+            console.error('HoldersLandingFragment enroll error', error);
             authOpacity.value = 0;
             isAuthenticating.current = false;
 
@@ -260,6 +266,16 @@ export const HoldersLandingFragment = fragment(() => {
                         style={{ paddingHorizontal: 16 }}
                     />
                     <AnimatedCards />
+                    {!!confirmLedger && (
+                        <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: safeArea.top + 60, justifyContent: 'center', paddingHorizontal: 16, gap: 16 }}>
+                            <Text style={[Typography.semiBold20_28, { color: theme.textPrimary, textAlign: 'center', marginTop: 16, paddingHorizontal: 16 }]}>
+                                {t('products.holders.enroll.ledger.confirmTitle')}
+                            </Text>
+                            <Text style={[Typography.semiBold20_28, { color: theme.textPrimary, textAlign: 'center', marginTop: 16, paddingHorizontal: 16 }]}>
+                                {t('products.holders.enroll.ledger.confirmMessage')}
+                            </Text>
+                        </Animated.View>
+                    )}
                 </Animated.View>
             </View>
         </View>

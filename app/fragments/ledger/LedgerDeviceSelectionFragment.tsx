@@ -37,8 +37,8 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
 
     const onDeviceSelect = useCallback(async (device: any) => {
         try {
-            ledgerContext.reset();
             const transport = await TransportBLE.open(device.id);
+            ledgerContext.reset();
             ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });
         } catch (error) {
             console.warn('Error connecting to device', error);

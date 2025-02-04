@@ -20,9 +20,9 @@ import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
 import { Image } from "expo-image";
 import { AddressComponent } from "../address/AddressComponent";
 import { LinearGradient } from "expo-linear-gradient";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import IcCheck from "@assets/ic-check.svg";
-import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 export enum HoldersItemContentType {
     BALANCE = 'balance',

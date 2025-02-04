@@ -647,6 +647,10 @@ export type LocalizationSchema = {
                     fetchToken: string,
                     createSignature: string,
                 },
+                ledger: {
+                    confirmTitle: string,
+                    confirmMessage: string
+                }
             },
             otpBanner: {
                 title: string,

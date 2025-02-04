@@ -313,8 +313,9 @@ export class TypedNavigation {
         this.navigate('Exchanges', params);
     }
 
-    navigateLedgerDeviceSelection(params: LedgerDeviceSelectionParams) {
-        this.navigate('LedgerDeviceSelection', params);
+    navigateLedgerDeviceSelection(params: LedgerDeviceSelectionParams, options: { replace?: boolean } = {}) {
+        const action = options.replace ? this.replace : this.navigate;
+        action('LedgerDeviceSelection', params);
     }
 
     navigateLedgerSelectAccount(params: LedgerSelectAccountParams) {

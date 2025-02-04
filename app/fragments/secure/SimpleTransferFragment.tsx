@@ -659,6 +659,30 @@ const SimpleTransferComponent = () => {
         if (isLedger) {
             setVerifyingLedger(true);
             try {
+                if (!ledgerContext.ledgerConnection) {
+                    Alert.alert(
+                        t('transfer.error.ledgerErrorConnectionTitle'),
+                        t('transfer.error.ledgerErrorConnectionMessage'),
+                        [
+                            {
+                                text: t('common.connect'),
+                                onPress: () => {
+                                    if (ledgerContext.addr) {
+                                        navigation.navigateLedgerDeviceSelection({ selectedAddress: ledgerContext.addr }, { replace: true });
+                                    }
+                                }
+                            },
+                            {
+                                text: t('common.cancel'),
+                                style: 'cancel'
+                            }
+                        ]
+                    );
+
+                    setVerifyingLedger(false);
+                    return;
+                }
+
                 const verificationResult = await ledgerContext.verifySelectedAddress(network.isTestnet);
                 const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
 
@@ -677,7 +701,10 @@ const SimpleTransferComponent = () => {
                     setVerifyingLedger(false);
                     return;
                 }
-                Alert.alert(t('hardwareWallet.verifyAddress.failed'), t('hardwareWallet.verifyAddress.failedMessage'));
+                Alert.alert(
+                    t('hardwareWallet.verifyAddress.failed'),
+                    t('hardwareWallet.verifyAddress.failedMessage')
+                );
             } finally {
                 setVerifyingLedger(false);
             }

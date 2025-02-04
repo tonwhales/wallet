@@ -17,12 +17,14 @@ import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonc
 import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
 
-export function useDAppBridge(endpoint: string, navigation: TypedNavigation): any {
+export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string): any {
     const saveAppConnection = useSaveAppConnection();
-    const getConnectApp = useConnectApp();
-    const autoConnect = useAutoConnect();
-    const removeInjectedConnection = useRemoveInjectedConnection();
-    const onDisconnect = useDisconnectApp();
+    const getConnectApp = useConnectApp(address);
+    const autoConnect = useAutoConnect(address);
+    const removeInjectedConnection = useRemoveInjectedConnection(address);
+    const onDisconnect = useDisconnectApp(address);
+
+    const account = address ?? getCurrentAddress().addressString;
 
     const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
     const [requestId, setRequestId] = useState(0);
@@ -61,9 +63,8 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                     const event = await new Promise<ConnectEvent>((resolve, reject) => {
                         const callback = (result: TonConnectAuthResult) => {
                             if (result.ok) {
-                                const currentAccount = getCurrentAddress();
                                 saveAppConnection({
-                                    address: currentAccount.addressString,
+                                    address: account,
                                     app: {
                                         name: manifest.name,
                                         url: manifest.url,

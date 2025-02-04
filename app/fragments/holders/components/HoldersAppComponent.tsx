@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, Platform, Pressable, View, Text } from 'react-native';
+import { Linking, Platform, Pressable, View } from 'react-native';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
@@ -28,7 +28,6 @@ import { Image } from "expo-image";
 import { CardPlaceholder } from './CardPlaceholder';
 import { AnimatedCards } from './AnimatedCards';
 import { Address } from '@ton/core';
-import { Typography } from '../../../components/styles';
 
 export const holdersSupportUrl = 'https://t.me/Welcome_holders';
 export const supportFormUrl = 'https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN';
@@ -186,7 +185,7 @@ export const HoldersAppComponent = memo((
         address?: Address
     }
 ) => {
-    const { variant, title, endpoint, status, accounts, address } = props;
+    const { variant, endpoint, status, accounts, address } = props;
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -304,7 +303,7 @@ export const HoldersAppComponent = memo((
     //
     // Injection
     //
-    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(url, navigation);
+    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(url, navigation, address?.toString({ testOnly: isTestnet }));
 
     const injectSource = useMemo(() => {
         if (!address) {

@@ -82,7 +82,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "unverified": "Неверифицированные",
         "addressBook": "Адресная книга",
         "gasless": "Gasless",
-        "address": "Адрес"
+        "address": "Адрес",
+        "currencyChanged": "Валюта изменена",
+        "required": 'обязательно'
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -98,6 +100,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "settings": {
         "title": "Ещё",
         "backupKeys": "Сохранить seed-фразу",
+        "holdersAccounts": "Платежные счета",
         "migrateOldWallets": "Перенос со старых адресов",
         "termsOfService": "Условия использования",
         "privacyPolicy": "Политика конфиденциальности",
@@ -144,7 +147,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "transactions": {
         "title": "Транзакции",
-        "history": "История"
+        "history": "История",
+        "filter": {
+            "holders": "Карты",
+            "ton": "Транзакции кошелька",
+            "any": "Все",
+            "type": "Тип",
+            "accounts": "Расходы"
+        }
     },
     "receive": {
         "title": "Получить",
@@ -196,8 +206,6 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "gaslessNotEnoughCoins": "Необходимо {{fee}} для оплаты комиссии, не хватает {{missing}}",
             "notEnoughJettons": "Недостаточно {{symbol}}",
             "jettonChange": "Получатель поддерживает только транзакции в {{symbol}}, пожалуйста, измените получателя или валюту транзакции",
-            "ledgerErrorConnectionTitle": "Леджер не подключен",
-            "ledgerErrorConnectionMessage": "Пожалуйста, подключите Ledger и повторите попытку",
             "notEnoughGasTitle": "Недостаточно TON для оплаты комиссии",
             "notEnoughGasMessage": "Пожалуйста, пополните кошелек TON (необходимо еще как минимум {{diff}} TON) и попробуйте снова",
         },
@@ -227,15 +235,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "txsSummary": "Итого",
         "txsTotal": "Общая сумма",
         "gasDetails": "Детали комиссий",
-        "jettonGas": "Gas за отправку жетонов",
-        "unusualJettonsGas": "Необычно высокий Gas за отправку жетонов",
-        "unusualJettonsGasTitle": "Gas за отправку жетонов {{amount}} TON",
-        "unusualJettonsGasMessage": "Комиссия за отправку жетонов выше чем обычно",
+        "jettonGas": "Gas за отправку токенов",
+        "unusualJettonsGas": "Необычно высокий Gas за отправку токнов",
+        "unusualJettonsGasTitle": "Gas за отправку токенов {{amount}} TON",
+        "unusualJettonsGasMessage": "Комиссия за отправку токенов выше чем обычно",
         "addressNotActive": "С этого адреса не было исходящих транзакций",
-        "wrongJettonTitle": "Неверный жетон",
+        "wrongJettonTitle": "Неверный токен",
         "wrongJettonMessage": "Вы пытаетесь отправить жетон, которого у вас нет",
-        "notEnoughJettonsTitle": "Недостаточно жетонов",
-        "notEnoughJettonsMessage": "У вас недостаточно жетонов для отправки",
+        "notEnoughJettonsTitle": "Недостаточно токенов",
+        "notEnoughJettonsMessage": "У вас недостаточно токенов для отправки",
         "aboutFees": "О комиссиях",
         "aboutFeesDescription": "Комиссии за транзакции в блокчейне зависят от нескольких факторов: загруженности сети, размера транзакции, цены газа и конфигурационных параметров блокчейна. Чем больше размер транзакции (сообщение/комментарий транзакции) или выше спрос на обработку, тем выше будут комиссии.",
         "gaslessTransferSwitch": "Оплатить комиссию в {{symbol}}"
@@ -361,7 +369,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "subtitle": "Нажмите, чтобы посмотреть запрос"
         },
         "staking": {
-            "title": "Стейкинг",
+            "earnings": "Заработок",
+            "title": "TON Стейкинг",
             "balance": "Баланс стейкинга",
             "subtitle": {
                 "join": "Зарабатывайте на TON до {{apy}}%",
@@ -539,10 +548,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "loadingLongerTitle": "Проблемы c подключением",
             "loadingLonger": "Проверьте подключение к интернету и перезагрузите страницу. Если проблема сохраняется, обратитесь в службу поддержки",
             "accounts": {
-                "title": "Счета для трат",
-                "prepaidTitle": "Карты",
+                "title": "Платежные счета",
+                "prepaidTitle": "Предоплаченные карты",
                 "account": 'Счет',
-                "basicAccount": 'Базовый счет',
+                "basicAccount": 'Платежный счет',
                 "proAccount": 'Pro счет',
                 "noCards": "Нет карт",
                 "prepaidCard": "Tonhub Prepaid *{{lastFourDigits}}",
@@ -550,8 +559,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "hiddenCards": "Скрытые карты",
                 "hiddenAccounts": "Скрытые счета",
                 "primaryName": 'Основной счет',
-                "paymentName": 'Платежный счет {{accountIndex}}',
-                "topUp": 'Пополнить счёт',
+                "paymentName": "Платежный счет {{accountIndex}}",
+                "topUp": "Пополнить счёт",
+                "addNew": "Добавить счёт",
             },
             "pageTitles": {
                 "general": "Tonhub Cards",
@@ -639,7 +649,132 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "accept": "Принять",
                 "decline": "Отклонить",
                 "expired": "Истек"
-            }
+            },
+            "banner": {
+                "fewMore": "Осталось всего несколько шагов",
+                "ready": "Верификация завершена! Ваша карта готова!",
+                "readyAction": "Получить сейчас",
+                "emailAction": "Подтвердите почту",
+                "kycAction": "Пройдите верификацию",
+                "failedAction": "Верификация не удалась",
+            },
+            "transaction": {
+                "type": {
+                    "cardReady": "Карта активирована",
+                    "accountReady": "Аккаунт активирован",
+                    "deposit": "Пополнение аккаунта",
+                    "prepaidTopUp": "Пополнение предоплаченной карты",
+                    "payment": "Платеж",
+                    "decline": "Отклонено",
+                    "refund": "Возврат",
+                    "limitsChanging": "Изменение лимитов",
+                    "limitsChanged": "Лимиты изменены",
+                    "cardWithdraw": "Перевод на кошелек",
+                    "contractClosed": "Контракт закрыт",
+                    "cardBlock": "Карта заблокирована",
+                    "cardFreeze": "Карта заморожена",
+                    "cardUnfreeze": "Карта разморожена",
+                    "cardPaid": "Выпуск банковской карты",
+                    "unknown": "Неизвестно"
+                },
+                "rejectReason": {
+                    "approve": "н/д",
+                    "generic": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "fraud_or_ban": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "not_able_to_trace_back_to_original_transaction": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "do_not_honour": "Мы не можем выполнить операцию для этого продавца",
+                    "card_not_effective": "Транзакция отклонена, так как ваша карта заблокирована. Разблокируйте карту через мобильное приложение или свяжитесь с поддержкой",
+                    "expired_card": "Срок действия вашей карты истек. Закажите новую через мобильное приложение",
+                    "incorrect_pin": "Проблема с PIN-кодом. Проверьте данные и попробуйте снова. Если проблема не исчезнет, свяжитесь с поддержкой",
+                    "cvc2_or_cvv2_incorrect": "Неверный CVV. Проверьте трехзначный код на обратной стороне карты и попробуйте снова",
+                    "incorrect_expiry_date": "Неверная дата истечения. Проверьте дату на карте или в мобильном приложении и попробуйте снова",
+                    "invalid_card_number": "Неверный номер карты. Проверьте номер на карте или в мобильном приложении и попробуйте снова",
+                    "blocked_merchant_country_code": "Ваша карта не может использоваться для транзакций в этой стране",
+                    "insufficient_funds": "Недостаточно средств на счете для завершения транзакции. Пополните счет и попробуйте снова",
+                    "exceeds_contactless_payments_daily_limit": "Транзакция превышает дневной лимит расходов. Свяжитесь с поддержкой или попробуйте завтра",
+                    "exceeds_contactless_payments_monthly_limit": "Транзакция превышает месячный лимит расходов. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_contactless_payments_transaction_limit": "Транзакция превышает максимальную сумму. Свяжитесь с поддержкой",
+                    "exceeds_contactless_payments_weekly_limit": "Транзакция превышает недельный лимит расходов. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_daily_overall_limit": "Транзакция превышает дневной лимит расходов на карте. Свяжитесь с поддержкой или попробуйте завтра",
+                    "exceeds_internet_purchase_payments_daily_limit": "Транзакция превышает дневной лимит для интернет-покупок. Свяжитесь с поддержкой или попробуйте завтра",
+                    "exceeds_internet_purchase_payments_monthly_limit": "Транзакция превышает месячный лимит для интернет-покупок. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_internet_purchase_payments_transaction_limit": "Транзакция превышает максимальную сумму. Свяжитесь с поддержкой",
+                    "exceeds_internet_purchase_payments_weekly_limit": "Транзакция превышает недельный лимит для интернет-покупок. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_monthly_overall_limit": "Транзакция превышает месячный лимит расходов на карте. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_purchases_daily_limit": "Транзакция превышает дневной лимит расходов на карте. Свяжитесь с поддержкой или попробуйте завтра",
+                    "exceeds_purchases_monthly_limit": "Транзакция превышает месячный лимит расходов на карте. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_purchases_transaction_limit": "Транзакция превышает максимальную сумму. Свяжитесь с поддержкой",
+                    "exceeds_purchases_weekly_limit": "Транзакция превышает недельный лимит расходов на карте. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_settlement_risk_limit": "Транзакция превышает максимальную сумму. Свяжитесь с поддержкой",
+                    "exceeds_weekly_overall_limit": "Транзакция превышает недельный лимит расходов на карте. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_withdrawal_amount_limit": "Транзакция превышает лимит снятия наличных. Свяжитесь с поддержкой",
+                    "exceeds_withdrawal_maximum_limit": "Транзакция превышает лимит снятия наличных. Свяжитесь с поддержкой",
+                    "exceeds_withdrawal_minimum_limit": "Неверная сумма транзакции",
+                    "exceeds_withdrawals_daily_limit": "Транзакция превышает дневной лимит снятия наличных. Свяжитесь с поддержкой или попробуйте завтра",
+                    "exceeds_withdrawals_monthly_limit": "Транзакция превышает месячный лимит снятия наличных. Свяжитесь с поддержкой или попробуйте позже",
+                    "exceeds_withdrawals_transaction_limit": "Транзакция превышает лимит снятия наличных. Свяжитесь с поддержкой или попробуйте завтра",
+                    "exceeds_withdrawals_weekly_limit": "Транзакция превышает недельный лимит снятия наличных. Свяжитесь с поддержкой или попробуйте позже",
+                    "transaction_not_permitted_to_card_holder": "Тип транзакции не поддерживается. Свяжитесь с продавцом",
+                    "blocked_merchant_category_code": "Мы не можем выполнить операцию для этого продавца",
+                    "blocked_merchant_id": "Мы не можем выполнить операцию для этого продавца",
+                    "blocked_merchant_name": "Мы не можем выполнить операцию для этого продавца",
+                    "blocked_terminal_id": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "no_card_record": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "suspected_fraud": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "token_not_effective": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "client_system_malfunction": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "system_malfunction": "Возникла проблема. Пожалуйста, попробуйте снова. Если ошибка повторится, свяжитесь с поддержкой",
+                    "contactless_payments_switched_off": "Транзакция отклонена, так как бесконтактные платежи отключены на вашей карте. Свяжитесь с поддержкой",
+                    "internet_purchase_payments_switched_off": "Транзакция отклонена, так как интернет-покупки отключены на вашей карте. Свяжитесь с поддержкой",
+                    "withdrawals_switched_off": "Транзакция отклонена, так как снятие наличных отключено на вашей карте. Свяжитесь с поддержкой",
+                    "purchases_switched_off": "Транзакция отклонена, так как покупки отключены на вашей карте. Свяжитесь с поддержкой",
+                    "advice_acknowledged_no_financial_liability_accepted": "Мы не можем выполнить операцию для этого продавца",
+                    "merchant_without_3ds": "Мы не можем выполнить операцию для этого продавца"
+                },
+                "to": {
+                    "single": "К",
+                    "prepaidCard": "На предоплаченную карту",
+                    "wallet": "На кошелек",
+                    "account": "На аккаунт"
+                },
+                "from": {
+                    "single": "От",
+                    "prepaidCard": "С предоплаченной карты",
+                    "wallet": "С кошелька",
+                    "account": "С аккаунта"
+                },
+                "category": {
+                    "transfers": "Выводы",
+                    "purchase": "Покупка",
+                    "cash": "Снятие наличных",
+                    "other": "Другое",
+                    "deposit": "Пополнения"
+                },
+                "status": {
+                    "failed": "Не удалось",
+                    "overOnetimeFailed": "Не удалось (превышен лимит на одну транзакцию)",
+                    "overDailyFailed": "Не удалось (превышен дневной лимит)",
+                    "overMonthlyFailed": "Не удалось (превышен месячный лимит)",
+                    "complete": "Завершено"
+                },
+                "statsBlock": {
+                    "title": "Транзакции",
+                    "description": "Расходы за {{month}}",
+                    "spent": "Потрачено",
+                    "in": "в {{month}}"
+                },
+                "list": {
+                    "emptyText": "Транзакций пока нет"
+                },
+                "single": {
+                    "report": "Сообщить о проблеме"
+                },
+                "pendingPopover": {
+                    "title": "Ожидающая транзакция",
+                    "cancelButtonText": "Показать детали транзакции",
+                    "text": "В настоящее время идет проверка блокчейна. Это может занять несколько минут"
+                }
+            },
         }
     },
     "welcome": {
@@ -1015,17 +1150,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "locationServicesUnauthorized": "Службы геолокации не доступны",
             "bluetoothScanFailed": "Поиск Bluetooth не удался"
         },
-        "moreAbout": "Подробнее о Ledger",
-        "verifyAddress": {
-            "title": "Подтвердите адрес на Ledger",
-            "message": "Пожалуйста, подтвердите адрес: {{address}} на вашем устройстве Ledger",
-            "action": "Подтвердить",
-            "invalidAddressTitle": "Неверный адрес",
-            "invalidAddressMessage": "Этот адрес недействителен. Пожалуйста, проверьте адрес и попробуйте снова",
-            "failed": "Не удалось подтвердить адрес",
-            "failedMessage": "Произошла ошибка при подтверждении адреса. Пожалуйста, переподключите Ledger и попробуйте снова",
-            "verifying": "Подтвердите на Ledger"
-        }
+        "moreAbout": "Подробнее о Ledger"
     },
     "devTools": {
         "switchNetwork": "Сеть",
@@ -1094,6 +1219,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "bannerTitle": 'Обновите ваш адрес',
         "bannerDescription": 'С EQ на UQ',
     },
+    "changelly": {
+        "bannerTitle": "Депозиты USDT и USDC",
+        "bannerDescription": "Доступны Tron, Solana, Ethereum, Polygon!"
+    },
     "w5": {
         "banner": {
             "title": 'Добавить кошелек W5',
@@ -1160,6 +1289,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "update": {
         "callToAction": 'Обновить Tonhub'
+    },
+    "savings": {
+        "ton": "Сберегательный счет в TON",
+        "usdt": "Сберегательный счет в USDT",
+    },
+    "spending": {
+        "ton": "Платеждный счет в TON",
+        "usdt": "Платеждный счет в USDT"
     }
 };
 

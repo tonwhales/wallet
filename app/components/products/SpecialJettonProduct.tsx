@@ -101,7 +101,7 @@ export const SpecialJettonProduct = memo(({
                 callback: null
             }
 
-            navigation.navigateLedgerTransfer(tx);
+            navigation.navigateSimpleTransfer(tx, { ledger: true });
             return;
         }
 

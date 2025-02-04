@@ -19,6 +19,7 @@ export const LedgerWalletHeader = memo(() => {
     const onQRCodeRead = useCallback((src: string) => {
         try {
             let res = resolveUrl(src, isTestnet);
+            
             if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
                 const bounceable = res.isBounceable ?? true;
                 if (res.type === 'transaction') {
@@ -38,26 +39,26 @@ export const LedgerWalletHeader = memo(() => {
                         //     text: res.comment
                         // });
                     } else {
-                        navigation.navigateLedgerTransfer({
+                        navigation.navigateSimpleTransfer({
                             target: res.address.toString({ testOnly: isTestnet, bounceable }),
                             comment: res.comment,
                             amount: res.amount,
                             stateInit: res.stateInit,
                             jetton: null,
                             callback: null
-                        });
+                        }, { ledger: true });
                     }
                     return;
                 }
 
-                navigation.navigateLedgerTransfer({
+                navigation.navigateSimpleTransfer({
                     target: res.address.toString({ testOnly: isTestnet, bounceable }),
                     comment: res.comment,
                     amount: res.amount,
                     stateInit: null,
                     jetton: res.jettonMaster,
                     callback: null
-                });
+                }, { ledger: true });
             }
         } catch {
             // Ignore

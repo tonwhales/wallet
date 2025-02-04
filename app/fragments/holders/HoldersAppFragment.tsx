@@ -9,7 +9,9 @@ import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAcc
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useLedgerTransport } from '../ledger/components/TransportContext';
+import { Address } from '@ton/core';
 
 export enum HoldersAppParamsType {
     Account = 'account',
@@ -36,9 +38,14 @@ export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const params = useParams<HoldersAppParams>();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerHolders';
     const acc = useSelectedAccount();
-    const status = useHoldersAccountStatus(acc!.address.toString({ testOnly: isTestnet })).data;
-    const accounts = useHoldersAccounts(acc!.address.toString({ testOnly: isTestnet })).data;
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : null;
+    const address = isLedger ? ledgerAddress : acc?.address;
+    const status = useHoldersAccountStatus(address!.toString({ testOnly: isTestnet })).data;
+    const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet })).data;
     const url = holdersUrl(isTestnet);
 
     useEffect(() => {
@@ -69,6 +76,7 @@ export const HoldersAppFragment = fragment(() => {
                 endpoint={url}
                 accounts={holders.accounts}
                 status={holders.status}
+                address={address!}
             />
         </View>
     );

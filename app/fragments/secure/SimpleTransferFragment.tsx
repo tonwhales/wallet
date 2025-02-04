@@ -999,6 +999,7 @@ const SimpleTransferComponent = () => {
                         knownWallets={knownWallets}
                         navigation={navigation}
                         autoFocus={selectedInput === 0}
+                        isLedger={isLedger}
                     />
                 </Animated.View>
                 {selected === 'address' && (

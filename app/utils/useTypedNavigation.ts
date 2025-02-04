@@ -194,16 +194,18 @@ export class TypedNavigation {
         }
     }
 
-    navigateHolders(params: HoldersAppParams, isTestnet: boolean) {
+    navigateHolders(params: HoldersAppParams, isTestnet: boolean, isLedger?: boolean, replace?: boolean) {
+        const action = replace ? this.replace : this.navigate;
+        const navigate = () => action(isLedger ? 'LedgerHolders' : 'Holders', params);
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
                 if (success) { // navigate only if auth is set up
-                    this.navigate('Holders', params);
+                    navigate();
                 }
             }
             this.navigateMandatoryAuthSetup({ callback });
         } else {
-            this.navigate('Holders', params);
+            navigate();
         }
     }
 

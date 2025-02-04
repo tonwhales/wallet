@@ -46,7 +46,8 @@ export const HoldersAccountItem = memo((props: {
     onBeforeOpen?: () => void
     onOpen?: () => void,
     content?: { type: HoldersItemContentType.SELECT, isSelected: boolean } | { type: HoldersItemContentType.BALANCE } | { type: HoldersItemContentType.NAVIGATION },
-    addressDescription?: boolean
+    addressDescription?: boolean,
+    isLedger?: boolean
 }) => {
     const {
         owner, account, holdersAccStatus,
@@ -54,7 +55,7 @@ export const HoldersAccountItem = memo((props: {
         style, itemStyle,
         onBeforeOpen, onOpen,
         hideCardsIfEmpty,
-        isTestnet
+        isTestnet, isLedger
     } = props;
     const [price] = usePrice();
     const master = account?.cryptoCurrency?.tokenContract || undefined;
@@ -106,12 +107,12 @@ export const HoldersAccountItem = memo((props: {
 
         if (needsEnrollment) {
             const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Account, id: account.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType, isLedger }, isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: account.id }, isTestnet);
-    }, [account, needsEnrollment, isTestnet, onOpen]);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: account.id }, isTestnet, isLedger);
+    }, [account, needsEnrollment, isTestnet, onOpen, isLedger]);
 
     const subtitle = t('products.holders.accounts.basicAccount');
 

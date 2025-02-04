@@ -85,8 +85,6 @@ export async function fetchUserToken(key: AccountKeyParam, isTestnet: boolean, i
 
     const url = `https://${endpoint}/v2/user/wallet/connect`;
 
-    console.log('fetchUserToken', url);
-
     const res = await axios.post(
         url,
         requestParams

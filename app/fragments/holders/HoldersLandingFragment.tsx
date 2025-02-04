@@ -17,13 +17,16 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { HoldersLoader } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 import { openWithInApp } from '../../utils/openWithInApp';
-import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
+import { HoldersEnrollErrorType, useHoldersLedgerEnroll } from '../../engine/hooks/holders/useHoldersEnroll';
 import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { AnimatedCards } from './components/AnimatedCards';
+import { useRoute } from '@react-navigation/native';
+import { useLedgerTransport } from '../ledger/components/TransportContext';
+import { Address } from '@ton/core';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -35,11 +38,18 @@ export const HoldersLandingFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [currency] = usePrimaryCurrency();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerHoldersLanding';
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : null;
+    const address = isLedger ? ledgerAddress : acc?.address;
 
     const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 
     const domain = extractDomain(endpoint);
     const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
+    const ledgerEnroll = useHoldersLedgerEnroll(inviteId);
+    const authenticate = isLedger ? ledgerEnroll : enroll;
     const [lang] = useLanguage();
 
     // Anim
@@ -84,11 +94,11 @@ export const HoldersLandingFragment = fragment(() => {
                 return;
             }
 
-            const res = await enroll();
+            const res = await authenticate();
 
             if (res.type === 'success') {
                 // Navigate to continue
-                navigation.replace('Holders', onEnrollType);
+                navigation.navigateHolders(onEnrollType, isTestnet, isLedger, true);
                 isAuthenticating.current = false;
                 return;
             }
@@ -140,7 +150,7 @@ export const HoldersLandingFragment = fragment(() => {
                 ]
             );
         }
-    }, [enroll]);
+    }, [authenticate]);
 
     const source = useMemo(() => {
         const queryParams = new URLSearchParams({

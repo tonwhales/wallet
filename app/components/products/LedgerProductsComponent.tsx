@@ -17,6 +17,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { ProductAd } from "../../engine/api/fetchBanners";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
+import { HoldersProductComponent } from "./HoldersProductComponent";
 
 export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
     const theme = useTheme();
@@ -38,10 +39,10 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrollment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, testOnly);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create }, isLedger: true }, testOnly);
             return;
         }
-        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, testOnly);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, testOnly, true);
     }, [needsEnrollment, isHoldersReady, testOnly]);
 
     const onProductBannerPress = useCallback((product: ProductAd) => {
@@ -100,9 +101,15 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
                         )
                 )}
 
+                <HoldersProductComponent
+                    holdersAccStatus={holdersAccStatus}
+                    key={'holders'}
+                    isLedger
+                />
+
                 <SavingsProduct
                     address={address}
-                    isLedger={true}
+                    isLedger
                 />
 
                 <View style={{ marginTop: 4 }}>

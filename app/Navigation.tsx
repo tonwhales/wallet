@@ -319,6 +319,10 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerProductsList', ProductsListFragment, safeArea),
     modalScreen('LedgerSignData', LedgerSignDataFragment, safeArea),
 
+    // Ledger Holders
+    genericScreen('LedgerHoldersLanding', HoldersLandingFragment, safeArea, true, 0),
+    genericScreen('LedgerHolders', HoldersAppFragment, safeArea, true, 0),
+
     // Settings
     modalScreen('WalletBackup', WalletBackupFragment, safeArea),
     modalScreen('Security', SecurityFragment, safeArea),

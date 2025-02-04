@@ -37,6 +37,12 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { Address, beginCell, storeStateInit } from '@ton/core';
 import { WalletVersions } from '../../engine/types';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { AppManifest } from '../../engine/api/fetchManifest';
+import { getAppManifest } from '../../engine/getters/getAppManifest';
+import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
+import { getTimeSec } from '../../utils/getTimeSec';
+import { setHoldersToken } from '../../engine/hooks/holders/useHoldersAccountStatus';
+import { onHoldersEnroll } from '../../engine/effects/onHoldersEnroll';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -66,6 +72,11 @@ export const DeveloperToolsFragment = fragment(() => {
         setHiddenBanners([]);
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
+        for (const ledgerWalet of ledgerContext.ledgerWallets) {
+            const address = Address.parse(ledgerWalet.address);
+            await clearHolders(address.toString({ testOnly: isTestnet }));
+            await onAccountTouched(address.toString({ testOnly: isTestnet }), isTestnet);
+        }
         IosWalletService.setCredentialsInGroupUserDefaults({});
         reboot();
     }, [isTestnet, clearHolders, setHiddenBanners]);
@@ -227,57 +238,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                 title={'Open LedgerSignData'}
                                 onPress={() => {
                                     navigation.navigate('LedgerSignData');
-                                }}
-                            />
-                            <ItemButton
-                                title={'Test token sign'}
-                                onPress={async () => {
-                                    if (ledgerContext?.addr && ledgerContext.tonTransport) {
-                                        try {
-                                            const ledgerAddress = ledgerContext.addr;
-                                            const path = pathFromAccountNumber(ledgerContext.addr.acc, isTestnet);
-                                            const url = holdersUrl(isTestnet);
-                                            const domain = extractDomain(url);
-
-                                            const signRes = await ledgerContext.tonTransport.signData(
-                                                path,
-                                                {
-                                                    type: 'app-data',
-                                                    domain,
-                                                    data: beginCell().storeBuffer(Buffer.from('test')).endCell()
-                                                }
-                                            );
-
-                                            const contract = contractFromPublicKey(ledgerAddress.publicKey, WalletVersions.v4R2, isTestnet);
-                                            const initialCode = contract.init.code;
-                                            const initialData = contract.init.data;
-                                            const stateInitCell = beginCell().store(storeStateInit({ code: initialCode, data: initialData })).endCell();
-                                            const stateInitStr = stateInitCell.toBoc({ idx: false }).toString('base64');
-
-                                            const tokenParams: AccountKeyParam = {
-                                                kind: 'tonhub-ledger-v1',
-                                                wallet: 'tonhub',
-                                                config: {
-                                                    address: Address.parse(ledgerAddress.address).toRawString(),
-                                                    proof: {
-                                                        timestamp: signRes.timestamp,
-                                                        signature: signRes.signature.toString('base64'),
-                                                        cell: signRes.cell.toBoc().toString('base64'),
-                                                        walletStateInit: stateInitStr,
-                                                        publicKey: ledgerAddress.publicKey.toString('hex'),
-                                                    }
-                                                }
-                                            }
-
-                                            console.log('Fetching token with params:', tokenParams);
-
-                                            const token = await fetchUserToken(tokenParams, isTestnet);
-
-                                            console.log('Token:', token);
-                                        } catch (error) {
-                                            console.log('Error:', error);
-                                        }
-                                    }
                                 }}
                             />
                         </View>

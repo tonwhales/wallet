@@ -37,10 +37,11 @@ type TransferAddressInputProps = {
     navigation: TypedNavigation,
     setAddressDomainInputState: (state: AddressInputState) => void,
     autoFocus?: boolean,
+    isLedger?: boolean
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const { acc: account, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus } = props;
+    const { acc: account, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger } = props;
     const theme = useTheme();
 
     const [state, setState] = useState<AddressInputState>({
@@ -267,6 +268,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     query={query}
                     holdersAccounts={holdersAccounts}
                     owner={account}
+                    isLedger={isLedger}
                 />
             </View>
         </View>

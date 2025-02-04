@@ -30,15 +30,15 @@ export const HoldersPrepaidCard = memo((props: {
     itemStyle?: StyleProp<ViewStyle>,
     isTestnet: boolean,
     holdersAccStatus?: HoldersAccountStatus,
-    onBeforeOpen?: () => void
+    onBeforeOpen?: () => void,
+    isLedger?: boolean
 }) => {
     const [lockAppWithAuth] = useLockAppWithAuthState();
-    const card = props.card;
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const holdersAccStatus = props.holdersAccStatus;
-    const url = holdersUrl(props.isTestnet);
+    const { isLedger, holdersAccStatus, isTestnet, card, onBeforeOpen, rightAction, rightActionIcon, style, itemStyle } = props;
+    const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
 
     const needsEnrollment = useMemo(() => {
@@ -59,23 +59,23 @@ export const HoldersPrepaidCard = memo((props: {
 
     const onPress = useCallback(() => {
         // Close full list modal (holders navigations is below it in the other nav stack)
-        props.onBeforeOpen?.();
+        onBeforeOpen?.();
 
         if (needsEnrollment) {
             const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Prepaid, id: card.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, props.isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType, isLedger  }, isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: HoldersAppParamsType.Prepaid, id: card.id }, props.isTestnet);
-    }, [card, needsEnrollment, props.onBeforeOpen, props.isTestnet]);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Prepaid, id: card.id }, isTestnet, isLedger);
+    }, [card, needsEnrollment, onBeforeOpen, isTestnet, isLedger]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     const title = t('products.holders.accounts.prepaidCard', { lastFourDigits: lockAppWithAuth ? card.lastFourDigits : '****' });
     const subtitle = t('products.holders.accounts.prepaidCardDescription');
 
-    const renderRightAction = (!!props.rightActionIcon && !!props.rightAction)
+    const renderRightAction = (!!rightActionIcon && !!rightAction)
         ? () => {
             return (
                 <Pressable
@@ -90,12 +90,12 @@ export const HoldersPrepaidCard = memo((props: {
                     ]}
                     onPress={() => {
                         swipableRef.current?.close();
-                        if (props.rightAction) {
-                            props.rightAction();
+                        if (rightAction) {
+                            rightAction();
                         }
                     }}
                 >
-                    {props.rightActionIcon}
+                    {rightActionIcon}
                 </Pressable>
             )
         }
@@ -104,7 +104,7 @@ export const HoldersPrepaidCard = memo((props: {
     return (
         <Swipeable
             ref={swipableRef}
-            containerStyle={[{ flex: 1 }, props.style]}
+            containerStyle={[{ flex: 1 }, style]}
             useNativeAnimations={true}
             renderRightActions={renderRightAction}
         >
@@ -116,7 +116,7 @@ export const HoldersPrepaidCard = memo((props: {
                     onPress={onPress}
                     activeOpacity={0.8}
                 >
-                    <View style={[{ flexGrow: 1, paddingVertical: 20, backgroundColor: theme.surfaceOnBg }, props.itemStyle]}>
+                    <View style={[{ flexGrow: 1, paddingVertical: 20, backgroundColor: theme.surfaceOnBg }, itemStyle]}>
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                             <HoldersAccountCard
                                 key={'card-item-prepaid'}

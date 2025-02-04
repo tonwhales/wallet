@@ -59,10 +59,6 @@ export const ReceiveFragment = fragment(() => {
     const isLedger = route.name === 'LedgerReceive';
     const ledgerContext = useLedgerTransport();
 
-    console.log({
-        addr, asset
-    })
-
     const address = useMemo(() => {
         if (addr) {
             try {

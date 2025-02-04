@@ -26,14 +26,16 @@ export const HoldersAccounts = memo(({
     theme,
     markAccount,
     isTestnet,
-    holdersAccStatus
+    holdersAccStatus,
+    isLedger
 }: {
     owner: Address,
     accs: GeneralHoldersAccount[],
     theme: ThemeType,
     markAccount: (cardId: string, hidden: boolean) => void,
     isTestnet: boolean,
-    holdersAccStatus?: HoldersAccountStatus
+    holdersAccStatus?: HoldersAccountStatus,
+    isLedger?: boolean
 }) => {
     const [price] = usePrice();
     const navigation = useTypedNavigation();
@@ -49,12 +51,12 @@ export const HoldersAccounts = memo(({
 
     const addNew = useCallback(() => {
         if (needsEnrolment || !isHoldersReady) {
-            navigation.navigateHoldersLanding({ endpoint: holdersUrl, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: holdersUrl, onEnrollType: { type: HoldersAppParamsType.Create }, isLedger }, isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet);
-    }, [needsEnrolment, isHoldersReady, isTestnet]);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, isTestnet, isLedger);
+    }, [needsEnrolment, isHoldersReady, isTestnet, isLedger]);
 
     const totalBalance = useMemo(() => {
         return reduceHoldersBalances(accs, price?.price?.usd ?? 0);
@@ -146,6 +148,7 @@ export const HoldersAccounts = memo(({
                         holdersAccStatus={holdersAccStatus}
                         hideCardsIfEmpty
                         content={{ type: HoldersItemContentType.BALANCE }}
+                        isLedger={isLedger}
                     />
                 )
             }}

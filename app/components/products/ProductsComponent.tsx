@@ -99,11 +99,11 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
+                <PendingTransactions />
                 <PaymentOtpBanner address={selected.address} />
                 <AddressFormatUpdate />
                 <W5Banner />
                 <DappsRequests />
-                <PendingTransactions />
 
                 {(!inviteCheck && !!banners?.product) && (
                     <View style={{ paddingHorizontal: 16, marginTop: 16 }}>

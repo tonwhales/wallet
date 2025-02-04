@@ -14,8 +14,6 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from '
 import { useDAppBridge, useLanguage, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
-import { useSelectedAccount } from '../../../engine/hooks';
-import { getCurrentAddress } from '../../../storage/appState';
 import { HoldersUserState, holdersUrl } from '../../../engine/api/holders/fetchUserState';
 import { HoldersAccountStatus, getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 import { ScreenHeader } from '../../../components/ScreenHeader';
@@ -29,6 +27,7 @@ import { AccountPlaceholder } from './AccountPlaceholder';
 import { Image } from "expo-image";
 import { CardPlaceholder } from './CardPlaceholder';
 import { AnimatedCards } from './AnimatedCards';
+import { Address } from '@ton/core';
 
 export const holdersSupportUrl = 'https://t.me/Welcome_holders';
 export const supportFormUrl = 'https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN';
@@ -183,18 +182,16 @@ export const HoldersAppComponent = memo((
         endpoint: string,
         status?: HoldersAccountStatus,
         accounts?: HoldersAccounts,
+        address?: Address
     }
 ) => {
+    const { variant, title, endpoint, status, accounts, address } = props;
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const domain = useMemo(() => extractDomain(props.endpoint), []);
+    const domain = useMemo(() => extractDomain(endpoint), []);
     const [lang] = useLanguage();
-    const acc = useMemo(() => getCurrentAddress(), []);
-    const status = props.status;
-    const accountsStatus = props.accounts;
     const [currency] = usePrimaryCurrency();
-    const selectedAccount = useSelectedAccount();
     const url = holdersUrl(isTestnet);
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -207,7 +204,7 @@ export const HoldersAppComponent = memo((
         });
 
         let route = '';
-        switch (props.variant.type) {
+        switch (variant.type) {
             case HoldersAppParamsType.Invite:
                 route = '/';
                 break;
@@ -215,14 +212,14 @@ export const HoldersAppComponent = memo((
                 route = '/create';
                 break;
             case HoldersAppParamsType.Account:
-                route = `/account/${props.variant.id}`;
+                route = `/account/${variant.id}`;
                 break;
             case HoldersAppParamsType.Prepaid:
-                route = `/card-prepaid/${props.variant.id}`;
+                route = `/card-prepaid/${variant.id}`;
                 break;
             case HoldersAppParamsType.Transactions:
                 route = `/transactions`;
-                for (const [key, value] of Object.entries(props.variant.query)) {
+                for (const [key, value] of Object.entries(variant.query)) {
                     if (!!value) {
                         queryParams.append(key, value);
                     }
@@ -230,39 +227,39 @@ export const HoldersAppComponent = memo((
                 break;
             case HoldersAppParamsType.Path:
                 // check if path is has a leading slash
-                if (props.variant.path.startsWith('/')) {
-                    route = props.variant.path;
+                if (variant.path.startsWith('/')) {
+                    route = variant.path;
                 } else {
-                    route = `/${props.variant.path}`;
+                    route = `/${variant.path}`;
                 }
 
-                for (const [key, value] of Object.entries(props.variant.query)) {
+                for (const [key, value] of Object.entries(variant.query)) {
                     if (!!value) {
                         queryParams.append(key, value);
                     }
                 }
                 break;
             case HoldersAppParamsType.Topup:
-                route = `/account/${props.variant.id}/deposit`;
+                route = `/account/${variant.id}/deposit`;
                 break;
             case HoldersAppParamsType.Accounts:
                 route = '/accounts';
                 break;
         }
 
-        const uri = `${props.endpoint}${route}`;
+        const uri = `${endpoint}${route}`;
         const url = new URL(uri);
         for (const [key, value] of queryParams.entries()) {
             url.searchParams.append(key, value);
         }
 
         const urlString = url.toString();
-        let initialRoute = urlString.split(props.endpoint)[1];
+        let initialRoute = urlString.split(endpoint)[1];
 
         queryParams.append('initial-route', route);
 
         return { url: urlString, initialRoute, queryParams: queryParams.toString() };
-    }, [props, lang, currency, status, theme]);
+    }, [lang, currency, status, theme, variant]);
 
     // 
     // Track events
@@ -270,14 +267,14 @@ export const HoldersAppComponent = memo((
     const start = useMemo(() => {
         return Date.now();
     }, []);
-    useTrackEvent(MixpanelEvent.Holders, { url: props.variant.type }, isTestnet);
+    useTrackEvent(MixpanelEvent.Holders, { url: variant.type }, isTestnet);
 
     //
     // Navigation
     //
     const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
-        if (extractDomain(event.url) === extractDomain(props.endpoint)) {
+        if (extractDomain(event.url) === extractDomain(endpoint)) {
             return true;
         }
 
@@ -289,7 +286,7 @@ export const HoldersAppComponent = memo((
         }
 
         // Secondary protection
-        let prt = protectNavigation(event.url, props.endpoint);
+        let prt = protectNavigation(event.url, endpoint);
         if (prt) {
             return true;
         }
@@ -301,7 +298,7 @@ export const HoldersAppComponent = memo((
         // Resolve linking
         Linking.openURL(event.url);
         return false;
-    }, []);
+    }, [endpoint, isTestnet]);
 
     //
     // Injection
@@ -309,7 +306,7 @@ export const HoldersAppComponent = memo((
     const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(url, navigation);
 
     const injectSource = useMemo(() => {
-        if (!selectedAccount) {
+        if (!address) {
             throw new Error('No account selected');
         }
 
@@ -323,11 +320,11 @@ export const HoldersAppComponent = memo((
                             kycStatus: status.state === 'need-kyc' ? status.kycStatus : null,
                             suspended: (status as { suspended: boolean | undefined }).suspended === true,
                         },
-                        token: status.state === HoldersUserState.Ok ? status.token : getHoldersToken(acc.address.toString({ testOnly: isTestnet })),
+                        token: status.state === HoldersUserState.Ok ? status.token : getHoldersToken(address.toString({ testOnly: isTestnet })),
                     }
                 }
                 : {},
-            ...accountsStatus?.type === 'private' ? { accountsList: accountsStatus.accounts, prepaidCards: accountsStatus.prepaidCards } : {},
+            ...accounts?.type === 'private' ? { accountsList: accounts.accounts, prepaidCards: accounts.prepaidCards } : {},
         };
 
         return `
@@ -336,12 +333,15 @@ export const HoldersAppComponent = memo((
             window.initialState = ${JSON.stringify(initialState)};
         })();
         `
-    }, [status, accountsStatus, tonConnectWebViewProps]);
+    }, [status, accounts, tonConnectWebViewProps]);
 
     const onClose = useCallback(() => {
-        onHoldersInvalidate(acc.addressString, isTestnet);
-        trackEvent(MixpanelEvent.HoldersClose, { type: props.variant.type, duration: Date.now() - start }, isTestnet);
-    }, []);
+        if (!address) {
+            return;
+        }
+        onHoldersInvalidate(address?.toString({ testOnly: isTestnet }), isTestnet);
+        trackEvent(MixpanelEvent.HoldersClose, { type: variant.type, duration: Date.now() - start }, isTestnet);
+    }, [address, isTestnet]);
 
     const onContentProcessDidTerminate = useCallback(() => {
         webViewRef.current?.reload();
@@ -445,9 +445,9 @@ export const HoldersAppComponent = memo((
                 loader={(p) => (
                     <HoldersLoader
                         type={
-                            props.variant.type === HoldersAppParamsType.Transactions || props.variant.type === HoldersAppParamsType.Path
+                            variant.type === HoldersAppParamsType.Transactions || variant.type === HoldersAppParamsType.Path
                                 ? HoldersAppParamsType.Account
-                                : props.variant.type
+                                : variant.type
                         }
                         {...p}
                         onReload={onReaload}

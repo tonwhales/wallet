@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useCallback, useMemo } from "react"
+import React, { ReactElement, memo, useCallback } from "react"
 import { View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
@@ -50,9 +50,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
     const holderBannerContent = showHoldersBanner ? holdersBanner : null;
 
-    const needsEnrollment = useMemo(() => {
-        return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
-    }, [holdersAccStatus?.state]);
+    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
 
     // Resolve accounts
     let accounts: ReactElement[] = [];
@@ -97,8 +95,6 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
         });
 
     }, [selected, isTestnet]);
-
-    const showAddNewProduct = totalStaked === 0n;
 
     return (
         <View>

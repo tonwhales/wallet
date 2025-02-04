@@ -212,6 +212,22 @@ export const DeveloperToolsFragment = fragment(() => {
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                title={'Test ledger sign'}
+                                onPress={() => {
+                                    navigation.navigate('LedgerSignData');
+                                }}
+                            />
+                        </View>
+                    </View>
+                    <View style={{
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
                         alignItems: 'center',
                         padding: 4
                     }}>

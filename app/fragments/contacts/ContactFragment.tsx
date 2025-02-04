@@ -48,7 +48,7 @@ export const ContactFragment = fragment(() => {
     const contact = useContact(params.address);
     const contractInfo = useContractInfo(params.address ?? '');
 
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const [editing, setEditing] = useState(!contact);
     const name = contact?.name ?? '';
     const fields = contact?.fields ?? requiredFields;

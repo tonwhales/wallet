@@ -106,6 +106,7 @@ import { LanguageFragment } from './fragments/LanguageFragment';
 import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
 import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilterFragment';
+import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -316,6 +317,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('LedgerProductsList', ProductsListFragment, safeArea),
+    modalScreen('LedgerSignData', LedgerSignDataFragment, safeArea),
 
     // Settings
     modalScreen('WalletBackup', WalletBackupFragment, safeArea),

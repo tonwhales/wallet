@@ -154,7 +154,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                     },
                     connections: [{
                         type: TonConnectBridgeType.Injected,
-                        replyItems: replyItems,
+                        replyItems
                     }]
                 });
 

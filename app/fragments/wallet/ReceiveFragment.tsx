@@ -22,9 +22,9 @@ import Share from 'react-native-share';
 import { ExchangesFragmentParams } from "./ExchangesFragment";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { TransportStatusError } from "@ledgerhq/hw-transport";
+import { useRoute } from "@react-navigation/native";
 
 import CopyIcon from '@assets/ic-copy.svg';
-import { useRoute } from "@react-navigation/native";
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;

@@ -414,8 +414,9 @@ export const ReceiveFragment = fragment(() => {
                         style={{
                             backgroundColor: theme.surfaceOnElevation,
                             borderRadius: 40, paddingHorizontal: 16,
-                            flexShrink: 1, maxWidth: 224, marginTop: 16, alignSelf: 'center',
-                            paddingVertical: 8
+                            flexShrink: 1, maxWidth: 224, alignSelf: 'center',
+                            paddingVertical: 8,
+                            marginTop: capturing ? 0 : 16
                         }}
                         entering={FadeInUp}
                         exiting={FadeOutDown}
@@ -448,7 +449,7 @@ export const ReceiveFragment = fragment(() => {
                         backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 40, paddingHorizontal: 16, gap: 8,
                         flexShrink: 1, maxWidth: 224,
-                        marginTop: capturing ? 0 : 16,
+                        marginTop: (capturing && !isLedger) ? 0 : 16,
                         alignSelf: 'center',
                         paddingVertical: 8
                     }}

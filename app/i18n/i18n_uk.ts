@@ -222,6 +222,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "gaslessNotEnoughCoins": "{{fee}} комісії необхідно для надсилання, не вистачає {{missing}}",
             "notEnoughJettons": "Недостатньо {{symbol}}",
             "jettonChange": "Отримувач підтримує лише перекази {{symbol}}, будь ласка, змініть отримувача або валюту переказу",
+            "ledgerErrorConnectionTitle": "Ledger не підключений",
+            "ledgerErrorConnectionMessage": "Будь ласка, підключіть Ledger та повторіть спробу",
             "notEnoughGasTitle": "Недостатньо TON для оплати комісії за газ",
             "notEnoughGasMessage": "Будь ласка, поповніть гаманець TON (потрібно щонайменше {{diff}} TON) і спробуйте ще раз"
         },
@@ -1150,7 +1152,17 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "locationServicesUnauthorized": "Служби місцезнаходження не авторизовані",
             "bluetoothScanFailed": "Сканування Bluetooth не вдалося"
         },
-        "moreAbout": "Детальніше про Ledger"
+        "moreAbout": "Детальніше про Ledger",
+        "verifyAddress": {
+            "title": "Підтвердіть адресу на Ledger",
+            "message": "Будь ласка, підтвердіть адресу: {{address}} на вашому пристрої Ledger",
+            "action": "Підтвердити",
+            "invalidAddressTitle": "Неправильна адреса",
+            "invalidAddressMessage": "Ця адреса недійсна. Будь ласка, перевірте адресу та спробуйте ще раз",
+            "failed": "Не вдалося підтвердити адресу",
+            "failedMessage": "Виникла помилка під час підтвердження адреси. Будь ласка, перепідключіть Ledger і спробуйте ще раз",
+            "verifying": "Підтвердження на Ledger"
+        }
     },
     "devTools": {
         "switchNetwork": "Мережа",

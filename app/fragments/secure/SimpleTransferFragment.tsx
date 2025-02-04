@@ -54,6 +54,7 @@ import { Queries } from '../../engine/queries';
 import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
 import { PressableChip } from '../../components/PressableChip';
 import { AmountInput } from '../../components/input/AmountInput';
+import { TransportStatusError } from '@ledgerhq/hw-transport';
 import { AddressDomainInputRef, AddressInputState } from '../../components/address/AddressDomainInput';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -660,12 +661,12 @@ const SimpleTransferComponent = () => {
             try {
                 const verificationResult = await ledgerContext.verifySelectedAddress(network.isTestnet);
                 const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
-    
+
                 if (!isValid) {
                     Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
                     return;
                 }
-    
+
                 navigation.replace('LedgerSignTransfer', {
                     text: null,
                     order: order as LedgerOrder,
@@ -917,8 +918,8 @@ const SimpleTransferComponent = () => {
         }));
     });
 
-    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
-    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
+    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo || isVerifyingLedger;
+    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading || isVerifyingLedger;
 
     const onSearchItemSelected = useCallback((item: AddressSearchItem) => {
         scrollRef.current?.scrollTo({ y: 0 });
@@ -1276,7 +1277,7 @@ const SimpleTransferComponent = () => {
                     : <RoundButton
                         disabled={continueDisabled}
                         loading={continueLoading}
-                        loadingStatus={isVerifyingLedger? t('hardwareWallet.verifyAddress.verifying') : undefined}
+                        loadingStatus={isVerifyingLedger ? t('hardwareWallet.verifyAddress.verifying') : undefined}
                         title={t('common.continue')}
                         action={doSend}
                     />

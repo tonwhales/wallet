@@ -14,6 +14,7 @@ import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
 import { ReceiveableAsset } from "../../fragments/wallet/ReceiveFragment";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { t } from "../../i18n/t";
 
 export const SpecialJettonProduct = memo(({

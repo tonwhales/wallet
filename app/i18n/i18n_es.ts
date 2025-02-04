@@ -222,6 +222,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "gaslessNotEnoughCoins": "{{fee}} en tarifas requeridas para enviar, faltan {{missing}}",
             "notEnoughJettons": "No hay suficientes {{symbol}}",
             "jettonChange": "El destinatario solo admite transferencias de {{symbol}}, por favor cambia el destinatario o la moneda de transferencia",
+            "ledgerErrorConnectionTitle": "Ledger no está conectado",
+            "ledgerErrorConnectionMessage": "Por favor, conecte su Ledger y vuelva a intentarlo",
             "notEnoughGasTitle": "No tienes suficientes TON para cubrir la tarifa de gas",
             "notEnoughGasMessage": "Por favor recarga tu billetera con TON (se necesita al menos {{diff}} TON más) e intenta de nuevo"
         },
@@ -1200,7 +1202,17 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "locationServicesUnauthorized": "Servicios de ubicación no autorizados",
             "bluetoothScanFailed": "Escaneo de Bluetooth fallido"
         },
-        "moreAbout": "Más sobre Ledger"
+        "moreAbout": "Más sobre Ledger",
+        "verifyAddress": {
+            "title": "Confirmar dirección en Ledger",
+            "message": "Por favor, confirme la dirección: {{address}} en su dispositivo Ledger",
+            "action": "Confirmar",
+            "invalidAddressTitle": "Dirección inválida",
+            "invalidAddressMessage": "Esta dirección no es válida. Por favor, verifique la dirección y vuelva a intentarlo",
+            "failed": "Error al confirmar la dirección",
+            "failedMessage": "Hubo un error al confirmar la dirección. Por favor, reconecte Ledger y vuelva a intentarlo",
+            "verifying": "Confirmar en Ledger"
+        }
     },
     "devTools": {
         "switchNetwork": "Red",

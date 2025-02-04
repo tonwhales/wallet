@@ -26,6 +26,8 @@ import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
 import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
+import { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSelectionFragment';
+import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
 import { TonTransaction } from '../engine/types';
 import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
 
@@ -311,6 +313,14 @@ export class TypedNavigation {
         this.navigate('Exchanges', params);
     }
 
+    navigateLedgerDeviceSelection(params: LedgerDeviceSelectionParams) {
+        this.navigate('LedgerDeviceSelection', params);
+    }
+
+    navigateLedgerSelectAccount(params: LedgerSelectAccountParams) {
+        this.navigate('LedgerSelectAccount', params);
+    }
+    
     navigateTransactionsFilter(params: TransactionsFilterFragmentParams) {
         this.navigate('TransactionsFilter', params);
     }

@@ -222,6 +222,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "gaslessNotEnoughCoins": "{{fee}} an Gebühren erforderlich, um zu senden, es fehlen {{missing}}",
             "notEnoughJettons": "Nicht genug {{symbol}}",
             "jettonChange": "Der Empfänger unterstützt nur {{symbol}}-Überweisungen, bitte ändern Sie den Empfänger oder die Überweisungswährung",
+            "ledgerErrorConnectionTitle": "Ledger ist nicht verbunden",
+            "ledgerErrorConnectionMessage": "Bitte verbinden Sie Ledger und versuchen Sie es erneut",
             "notEnoughGasTitle": "Nicht genug TON, um die Gasgebühr zu decken",
             "notEnoughGasMessage": "Bitte füllen Sie Ihr Wallet mit TON auf (mindestens {{diff}} TON mehr erforderlich) und versuchen Sie es erneut"
         },
@@ -1150,7 +1152,17 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "locationServicesUnauthorized": "Standortdienste sind nicht autorisiert",
             "bluetoothScanFailed": "Bluetooth-Scan fehlgeschlagen"
         },
-        "moreAbout": "Mehr über Ledger"
+        "moreAbout": "Mehr über Ledger",
+        "verifyAddress": {
+            "title": "Adresse auf Ledger bestätigen",
+            "message": "Bitte bestätigen Sie die Adresse: {{address}} auf Ihrem Ledger Gerät",
+            "action": "Bestätigen",
+            "invalidAddressTitle": "Ungültige Adresse",
+            "invalidAddressMessage": "Diese Adresse ist ungültig. Bitte überprüfen Sie die Adresse und versuchen Sie es erneut",
+            "failed": "Bestätigung der Adresse fehlgeschlagen",
+            "failedMessage": "Beim Bestätigen der Adresse ist ein Fehler aufgetreten. Bitte verbinden Sie Ledger erneut und versuchen Sie es noch einmal",
+            "verifying": "Auf Ledger bestätigen"
+        }
     },
     "devTools": {
         "switchNetwork": "Netzwerk",

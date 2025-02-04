@@ -182,10 +182,11 @@ export const HoldersAppComponent = memo((
         endpoint: string,
         status?: HoldersAccountStatus,
         accounts?: HoldersAccounts,
-        address?: Address
+        address?: Address,
+        isLedger?: boolean
     }
 ) => {
-    const { variant, endpoint, status, accounts, address } = props;
+    const { variant, endpoint, status, accounts, address, isLedger } = props;
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -303,7 +304,7 @@ export const HoldersAppComponent = memo((
     //
     // Injection
     //
-    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(url, navigation, address?.toString({ testOnly: isTestnet }));
+    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(url, navigation, address?.toString({ testOnly: isTestnet }), isLedger);
 
     const injectSource = useMemo(() => {
         if (!address) {

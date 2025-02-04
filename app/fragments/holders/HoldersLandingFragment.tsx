@@ -123,8 +123,6 @@ export const HoldersLandingFragment = fragment(() => {
                     break;
             }
 
-            console.log('HoldersLandingFragment enroll error', res.error, message);
-
             Alert.alert(
                 t('products.holders.enroll.failed.title'),
                 message,

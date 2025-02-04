@@ -78,7 +78,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
 
-    const holdersAccounts = useHoldersAccounts(appState.addresses[appState.selected].address).data?.accounts ?? [];
+    const holdersAccounts = useHoldersAccounts(account).data?.accounts ?? [];
     const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);

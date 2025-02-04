@@ -18,7 +18,6 @@ import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/
 import { LedgerOrder } from '../secure/ops/Order';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
-import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -30,7 +29,7 @@ import { TonTransport } from '@ton-community/ton-ledger';
 import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
-import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
+import { fromBnWithDecimals } from '../../utils/withDecimals';
 import { Address, Cell, SendMode, WalletContractV4, beginCell, external, internal, storeMessage, storeMessageRelaxed } from '@ton/ton';
 import { estimateFees } from '../../utils/estimateFees';
 import { TransferSingleView } from '../secure/components/TransferSingleView';
@@ -39,10 +38,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { ledgerOrderToPendingTransactionBody, LedgerTransferPayload, PendingTransactionBody, PendingTransactionStatus } from '../../engine/state/pending';
+import { useParams } from '../../utils/useParams';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
     text: string | null,
+    callback?: ((ok: boolean, result: Cell | null) => void) | null,
 }
 
 type ConfirmLoadedProps = {
@@ -61,6 +62,7 @@ type ConfirmLoadedProps = {
     metadata: ContractMetadata,
     transport: TonTransport,
     addr: { acc: number, address: string, publicKey: Buffer },
+    callback?: ((ok: boolean, result: Cell | null) => void) | null
 };
 
 const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferState: (state: 'confirm' | 'sending' | 'sent') => void })) => {
@@ -88,7 +90,8 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         metadata,
         transport,
         addr,
-        setTransferState
+        setTransferState,
+        callback
     } = props;
 
     const jetton = useJetton({ owner: ledgerAddress!, master: metadata?.jettonWallet?.master, wallet: metadata.jettonWallet?.address });
@@ -174,6 +177,9 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 if (target.balance <= 0n) {
                     let cont = await confirmAlert('transfer.error.addressIsNotActive');
                     if (!cont) {
+                        if (!!callback) {
+                            callback(false, null);
+                        }
                         navigation.goBack();
                         return;
                     }
@@ -194,6 +200,9 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                     payload: order.payload ? order.payload : undefined,
                 });
             } catch (error) {
+                if (!!callback) {
+                    callback(false, null);
+                }
                 if (error instanceof Error && error.name === 'LockedDeviceError') {
                     Alert.alert(t('hardwareWallet.unlockLedgerDescription'));
                     return;
@@ -254,9 +263,15 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 hash: msg.hash()
             });
 
+            if (!!callback) {
+                callback(true, signed);
+            }
+
             navigation.popToTop();
-        } catch (e) {
-            console.warn(e);
+        } catch {
+            if (!!callback) {
+                callback(false, null);
+            }
             Alert.alert(t('hardwareWallet.errors.transferFailed'), undefined, [{
                 text: t('common.back'),
                 onPress: () => {
@@ -311,11 +326,7 @@ const Skeleton = memo(() => {
 });
 
 export const LedgerSignTransferFragment = fragment(() => {
-    const params: {
-        order: LedgerOrder,
-        text: string | null,
-    } = useRoute().params! as any;
-
+    const params = useParams<LedgerSignTransferParams>();
     const theme = useTheme();
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
@@ -357,10 +368,16 @@ export const LedgerSignTransferFragment = fragment(() => {
 
         backoff('transfer', async () => {
             if (!ledgerContext || !ledgerContext.ledgerConnection || !ledgerContext.tonTransport || !ledgerContext.addr) {
+                if (params && params.callback) {
+                    params.callback(false, null);
+                }
                 return;
             }
 
             if (!from) {
+                if (params && params.callback) {
+                    params.callback(false, null);
+                }
                 return;
             }
 
@@ -403,6 +420,9 @@ export const LedgerSignTransferFragment = fragment(() => {
                         throw Error('Error resolving wallet address');
                     }
                 } catch (e) {
+                    if (params && params.callback) {
+                        params.callback(false, null);
+                    }
                     Alert.alert(t('transfer.error.invalidDomain'), undefined, [{
                         text: t('common.close'),
                         onPress: () => navigation.goBack()
@@ -488,7 +508,8 @@ export const LedgerSignTransferFragment = fragment(() => {
                 metadata,
                 addr: ledgerContext.addr,
                 transport: ledgerContext.tonTransport,
-                text
+                text,
+                callback: params.callback
             });
         });
 

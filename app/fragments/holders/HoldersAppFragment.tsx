@@ -77,6 +77,7 @@ export const HoldersAppFragment = fragment(() => {
                 accounts={holders.accounts}
                 status={holders.status}
                 address={address!}
+                isLedger={isLedger}
             />
         </View>
     );

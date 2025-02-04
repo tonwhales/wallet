@@ -16,15 +16,17 @@ import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../tonconnect
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonconnect/utils';
 import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
+import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
 
-export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string): any {
+export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string, isLedger?: boolean): any {
     const saveAppConnection = useSaveAppConnection();
     const getConnectApp = useConnectApp(address);
     const autoConnect = useAutoConnect(address);
     const removeInjectedConnection = useRemoveInjectedConnection(address);
     const onDisconnect = useDisconnectApp(address);
-
+    
     const account = address ?? getCurrentAddress().addressString;
+    const handleLedgerRequest = useHoldersLedgerTonconnectHandler(account);
 
     const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
     const [requestId, setRequestId] = useState(0);
@@ -189,6 +191,11 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                             return;
                         }
 
+                        if (isLedger) {
+                            handleLedgerRequest(request.id.toString(), params, callback, extractDomain(endpoint));
+                            return;
+                        }
+
                         navigation.navigateTransfer({
                             text: null,
                             order: {
@@ -239,7 +246,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                 });
             }
         };
-    }, [endpoint, app, requestId, saveAppConnection, autoConnect, removeInjectedConnection]);
+    }, [endpoint, app, requestId, saveAppConnection, autoConnect, removeInjectedConnection, handleLedgerRequest]);
 
     const [ref, injectedJavaScriptBeforeContentLoaded, onMessage, sendEvent] =
         useWebViewBridge<TonConnectInjectedBridge, WalletEvent>(bridgeObject);

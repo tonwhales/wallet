@@ -91,11 +91,10 @@ export const WalletActionButton = memo(({
         }
         case WalletActionType.Send: {
             const navigate = () => {
-                if (isLedger) {
-                    navigation.navigateLedgerTransfer({ ...nullTransfer, jetton: action.jetton });
-                    return;
-                }
-                navigation.navigateSimpleTransfer({ ...nullTransfer, jetton: action.jetton });
+                navigation.navigateSimpleTransfer(
+                    { ...nullTransfer, jetton: action.jetton },
+                    { ledger: isLedger }
+                );
             }
 
             return (

@@ -84,7 +84,9 @@ export type LocalizationSchema = {
         unverified: string,
         addressBook: string,
         gasless: string,
-        address: string
+        address: string,
+        currencyChanged: string,
+        required: string,
     },
     syncStatus: {
         connecting: string,
@@ -100,6 +102,7 @@ export type LocalizationSchema = {
     settings: {
         title: string,
         backupKeys: string,
+        holdersAccounts: string,
         migrateOldWallets: string,
         termsOfService: string,
         privacyPolicy: string,
@@ -147,6 +150,13 @@ export type LocalizationSchema = {
     transactions: {
         title: string,
         history: string,
+        filter: {
+            holders: string,
+            ton: string,
+            any: string,
+            type: string,
+            accounts: string,
+        }
     },
     tx: {
         sending: string,
@@ -363,6 +373,7 @@ export type LocalizationSchema = {
             subtitle: string
         },
         staking: {
+            earnings: string,
             title: string,
             balance: string,
             subtitle: {
@@ -554,6 +565,7 @@ export type LocalizationSchema = {
                 primaryName: string,
                 paymentName: string,
                 topUp: string,
+                addNew: string
             },
             pageTitles: {
                 general: string,
@@ -641,6 +653,131 @@ export type LocalizationSchema = {
                 accept: string,
                 decline: string,
                 expired: string
+            },
+            banner: {
+                fewMore: string,
+                ready: string,
+                readyAction: string,
+                kycAction: string
+                emailAction: string,
+                failedAction: string
+            },
+            transaction: {
+                type: {
+                    cardReady: string,
+                    accountReady: string,
+                    deposit: string,
+                    prepaidTopUp: string,
+                    payment: string,
+                    decline: string,
+                    refund: string,
+                    limitsChanging: string,
+                    limitsChanged: string,
+                    cardWithdraw: string,
+                    contractClosed: string,
+                    cardBlock: string,
+                    cardFreeze: string,
+                    cardUnfreeze: string,
+                    cardPaid: string,
+                    unknown: string,
+                },
+                rejectReason: {
+                    approve: string,
+                    generic: string,
+                    fraud_or_ban: string,
+                    not_able_to_trace_back_to_original_transaction: string,
+                    do_not_honour: string,
+                    card_not_effective: string,
+                    expired_card: string,
+                    incorrect_pin: string,
+                    cvc2_or_cvv2_incorrect: string,
+                    incorrect_expiry_date: string,
+                    invalid_card_number: string,
+                    blocked_merchant_country_code: string,
+                    insufficient_funds: string,
+                    exceeds_contactless_payments_daily_limit: string,
+                    exceeds_contactless_payments_monthly_limit: string,
+                    exceeds_contactless_payments_transaction_limit: string,
+                    exceeds_contactless_payments_weekly_limit: string,
+                    exceeds_daily_overall_limit: string,
+                    exceeds_internet_purchase_payments_daily_limit: string,
+                    exceeds_internet_purchase_payments_monthly_limit: string,
+                    exceeds_internet_purchase_payments_transaction_limit: string,
+                    exceeds_internet_purchase_payments_weekly_limit: string,
+                    exceeds_monthly_overall_limit: string,
+                    exceeds_purchases_daily_limit: string,
+                    exceeds_purchases_monthly_limit: string,
+                    exceeds_purchases_transaction_limit: string,
+                    exceeds_purchases_weekly_limit: string,
+                    exceeds_settlement_risk_limit: string,
+                    exceeds_weekly_overall_limit: string,
+                    exceeds_withdrawal_amount_limit: string,
+                    exceeds_withdrawal_maximum_limit: string,
+                    exceeds_withdrawal_minimum_limit: string,
+                    exceeds_withdrawals_daily_limit: string,
+                    exceeds_withdrawals_monthly_limit: string,
+                    exceeds_withdrawals_transaction_limit: string,
+                    exceeds_withdrawals_weekly_limit: string,
+                    transaction_not_permitted_to_card_holder: string,
+                    blocked_merchant_category_code: string,
+                    blocked_merchant_id: string,
+                    blocked_merchant_name: string,
+                    blocked_terminal_id: string,
+                    no_card_record: string,
+                    suspected_fraud: string,
+                    token_not_effective: string,
+                    client_system_malfunction: string,
+                    system_malfunction: string,
+                    contactless_payments_switched_off: string,
+                    internet_purchase_payments_switched_off: string,
+                    withdrawals_switched_off: string,
+                    purchases_switched_off: string,
+                    advice_acknowledged_no_financial_liability_accepted: string,
+                    merchant_without_3ds: string,
+                },
+                to: {
+                    single: string,
+                    prepaidCard: string,
+                    wallet: string,
+                    account: string
+                },
+                from: {
+                    single: string,
+                    prepaidCard: string,
+                    wallet: string,
+                    account: string
+                },
+                category: {
+                    transfers: string,
+                    purchase: string,
+                    cash: string,
+                    other: string,
+                    deposit: string
+                },
+                status: {
+                    failed: string,
+                    overOnetimeFailed: string,
+                    overDailyFailed: string,
+                    overMonthlyFailed: string,
+                    complete: string
+                },
+                statsBlock: {
+                    title: string,
+                    description: string,
+                    spent: string,
+                    in: string
+                },
+                list: {
+                    emptyText: string
+                },
+                single: {
+                    report: string
+                },
+                pendingPopover: {
+                    title: string,
+                    cancelButtonText: string,
+                    text: string
+                }
             }
         }
     }
@@ -1096,6 +1233,10 @@ export type LocalizationSchema = {
         bannerTitle: string,
         bannerDescription: string,
     },
+    changelly: {
+        bannerTitle: string,
+        bannerDescription: string
+    }
     w5: {
         banner: {
             title: string,
@@ -1162,6 +1303,14 @@ export type LocalizationSchema = {
     },
     update: {
         callToAction: string,
+    },
+    savings: {
+        ton: string,
+        usdt: string,
+    },
+    spending: {
+        ton: string,
+        usdt: string
     }
 };
 

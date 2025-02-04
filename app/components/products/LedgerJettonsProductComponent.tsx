@@ -46,20 +46,22 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                         {t('jetton.productButtonTitle')}
                     </Text>
                 </View>
-                {hints.map((h, index) => {
-                    return (
-                        <JettonProductItem
-                            key={'jt' + h.jetton.address}
-                            hint={h}
-                            first={index === 0}
-                            last={index === hints.length - 1}
-                            single={hints.length === 1}
-                            ledger
-                            owner={address}
-                            jettonViewType={AssetViewType.Default}
-                        />
-                    )
-                })}
+                <View style={{ paddingHorizontal: 16 }}>
+                    {hints.map((h, index) => {
+                        return (
+                            <JettonProductItem
+                                key={'jt' + h.jetton.address}
+                                hint={h}
+                                first={index === 0}
+                                last={index === hints.length - 1}
+                                single={hints.length === 1}
+                                ledger
+                                owner={address}
+                                jettonViewType={AssetViewType.Default}
+                            />
+                        )
+                    })}
+                </View>
             </View>
         )
     }

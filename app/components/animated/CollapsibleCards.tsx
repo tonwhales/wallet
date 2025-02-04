@@ -6,8 +6,9 @@ import Animated, { Easing, Extrapolation, SharedValue, interpolate, useAnimatedS
 import { Typography } from "../styles";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ProductsListFragmentParams } from "../../fragments/wallet/ProductsListFragment";
+import { Image } from "expo-image";
 
-const CardItemWrapper = memo(({
+export const CardItemWrapper = memo(({
     progress,
     item,
     index,
@@ -56,7 +57,8 @@ type CollapsibleCardsProps<T> = {
     itemHeight?: number,
     theme: ThemeType,
     initialCollapsed?: boolean,
-    limitConfig?: CollapsibleCardsLimitConfig
+    limitConfig?: CollapsibleCardsLimitConfig,
+    action?: React.ReactNode
 };
 
 const CollapsibleCardsComponent = <T,>({
@@ -67,11 +69,14 @@ const CollapsibleCardsComponent = <T,>({
     itemHeight = 86,
     theme,
     initialCollapsed = true,
-    limitConfig
+    limitConfig,
+    action
 }: CollapsibleCardsProps<T>) => {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const [collapsed, setCollapsed] = useState(initialCollapsed);
+
+    const toggle = () => setCollapsed((prev) => !prev);
 
     const progress = useSharedValue(initialCollapsed ? 0 : 1);
 
@@ -177,6 +182,31 @@ const CollapsibleCardsComponent = <T,>({
         ),
     }));
 
+    const chevronStyle = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${interpolate(progress.value, [0, 1], [0, 90])}deg` }]
+    }));
+
+    const mapHideWidth = (value: number) => {
+        'worklet';
+
+        if (value > 0.9) {
+            return 'auto';
+        }
+
+        return value
+    }
+
+    const hideStyle = useAnimatedStyle(() => {
+        let w: number | 'auto' = interpolate(
+            progress.value,
+            [0, 0.9, 1],
+            [0, 0.9, 1],
+            Extrapolation.CLAMP
+        );
+
+        return { width: mapHideWidth(w) }
+    });
+
     const faceStyle = useAnimatedStyle(() => ({
         opacity: interpolate(
             progress.value,
@@ -184,34 +214,86 @@ const CollapsibleCardsComponent = <T,>({
             [1, 0],
             Extrapolation.CLAMP
         ),
-
         pointerEvents: progress.value === 1 ? 'none' : 'auto'
     }));
 
+    if (items.length < 3) {
+        return (
+            <View>
+                <View style={{ marginBottom: 14 }}>
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.8 : 1,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                paddingHorizontal: 16
+                            }
+                        }}
+                        onPress={toggle}
+                    >
+                        <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                            {title}
+                        </Text>
+                        {action}
+                    </Pressable>
+                </View>
+                <View style={{ gap: 16, paddingHorizontal: 16 }}>
+                    {items.map((item, index) => {
+                        const itemView = renderItem(item, index);
+                        return itemView;
+                    })}
+                </View>
+            </View>
+        );
+    }
+
     return (
         <View>
-            <Animated.View
-                style={titleStyle}
-            >
+            <View>
                 <Pressable
                     style={({ pressed }) => {
                         return {
-                            opacity: pressed ? 0.5 : 1,
+                            opacity: pressed ? 0.8 : 1,
                             flexDirection: 'row',
-                            justifyContent: 'space-between', alignItems: 'center',
-                            paddingHorizontal: 16
+                            alignItems: 'center',
+                            paddingHorizontal: 16,
+                            gap: 8,
+                            justifyContent: 'space-between',
+                            marginBottom: 8,
+                            height: 34
                         }
                     }}
-                    onPress={() => setCollapsed(!collapsed)}
+                    onPress={toggle}
                 >
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {title}
-                    </Text>
-                    <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                        {t('common.hide')}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                            {title}
+                        </Text>
+                        <View style={{
+                            flexDirection: 'row', alignItems: 'center',
+                            backgroundColor: theme.surfaceOnBg,
+                            paddingVertical: 8, paddingHorizontal: 6,
+                            borderRadius: 100,
+                            gap: 4
+                        }}>
+                            <Animated.View style={chevronStyle}>
+                                <Image
+                                    source={require('@assets/ic-chevron-right.png')}
+                                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                                />
+                            </Animated.View>
+                            <Animated.View style={hideStyle}>
+                                <Text style={[{ color: theme.textSecondary, marginRight: 6 }, Typography.medium13_18]}>
+                                    {t('common.hide')}
+                                </Text>
+                            </Animated.View>
+                        </View>
+                    </View>
+                    {action}
                 </Pressable>
-            </Animated.View>
+            </View>
             <View style={{ zIndex: 102 }}>
                 <View style={{ zIndex: 101 }}>
                     <Animated.View style={[

@@ -15,6 +15,48 @@ import { ItemHeader } from "../ItemHeader";
 
 import StakingIcon from '@assets/ic_staking.svg';
 
+const LiquidStakingPoolTimer = memo(({ moveDown, stakeUntil }: { moveDown?: boolean, stakeUntil: number }) => {
+    const theme = useTheme();
+
+    const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
+
+    useEffect(() => {
+        const timerId = setInterval(() => {
+            setLeft(Math.floor((stakeUntil) - (Date.now() / 1000)));
+        }, 1000);
+        return () => {
+            clearInterval(timerId);
+        };
+    }, [stakeUntil]);
+
+
+    return (
+        <View style={[
+            {
+                flexShrink: 1,
+                alignItems: 'center',
+                alignSelf: 'flex-end',
+                borderRadius: 16,
+                overflow: 'hidden',
+                backgroundColor: theme.border,
+                maxWidth: 74, justifyContent: 'center',
+            },
+            moveDown ? { position: 'relative', top: -10, right: -6 } : { position: 'relative', top: 10, right: -6 }
+        ]}>
+            <Text style={[
+                { paddingHorizontal: 8, paddingVertical: 1, color: theme.textPrimary, flexShrink: 1 },
+                Typography.regular13_18
+            ]}>
+                <Countdown
+                    hidePrefix
+                    left={left}
+                    textStyle={[{ color: theme.textPrimary, flex: 1, flexShrink: 1 }, Typography.regular13_18]}
+                />
+            </Text>
+        </View>
+    );
+});
+
 export const LiquidStakingPool = memo((
     props: {
         member: Address,
@@ -52,18 +94,6 @@ export const LiquidStakingPool = memo((
     const requireSource = knownPools[poolAddressString]?.requireSource;
     const name = knownPools[poolAddressString]?.name;
     const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);
-
-
-    const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
-
-    useEffect(() => {
-        const timerId = setInterval(() => {
-            setLeft(Math.floor((stakeUntil) - (Date.now() / 1000)));
-        }, 1000);
-        return () => {
-            clearInterval(timerId);
-        };
-    }, [stakeUntil]);
 
     return (
         <View style={[{ borderRadius: 20 }, props.style]}>
@@ -111,31 +141,10 @@ export const LiquidStakingPool = memo((
                 }, props.style]}
             >
                 {!props.hideCycle && (
-                    <View style={[
-                        {
-                            flexShrink: 1,
-                            alignItems: 'center',
-                            alignSelf: 'flex-end',
-                            borderRadius: 16,
-                            overflow: 'hidden',
-                            backgroundColor: theme.border,
-                            maxWidth: 74, justifyContent: 'center',
-                        },
-                        balance > 0n
-                            ? { position: 'relative', top: -10, right: -6 }
-                            : { position: 'relative', top: 10, right: -6 }
-                    ]}>
-                        <Text style={[
-                            { paddingHorizontal: 8, paddingVertical: 1, color: theme.textPrimary, flexShrink: 1 },
-                            Typography.regular13_18
-                        ]}>
-                            <Countdown
-                                hidePrefix
-                                left={left}
-                                textStyle={[{ color: theme.textPrimary, flex: 1, flexShrink: 1 }, Typography.regular13_18]}
-                            />
-                        </Text>
-                    </View>
+                    <LiquidStakingPoolTimer
+                        stakeUntil={stakeUntil}
+                        moveDown={balance > 0n}
+                    />
                 )}
                 <View style={{
                     alignSelf: 'stretch',
@@ -221,3 +230,5 @@ export const LiquidStakingPool = memo((
         </View>
     );
 });
+
+LiquidStakingPool.displayName = 'LiquidStakingPool';

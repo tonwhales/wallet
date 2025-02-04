@@ -60,10 +60,10 @@ const JettonTransactionPreview = () => {
 
     const { transaction: tx, owner, master, wallet } = useParams<JettonTransactionPreviewParams>();
 
-    // TODO: Implement LedgerTransactionPreview
+    // TODO: Implement LedgerTransaction
     // const ledgerContext = useLedgerTransport();
     // const route = useRoute();
-    // const isLedger = route.name === 'LedgerTransactionPreview';
+    // const isLedger = route.name === 'LedgerTransaction';
 
     const address = selected.address;
     const destination = tx.destination
@@ -77,7 +77,7 @@ const JettonTransactionPreview = () => {
     const displayAddressBounceable = displayAddress.toString({ testOnly: isTestnet });
     const comment = parseForwardPayloadComment(tx.forward_payload);
 
-    const ownWalletSettings = walletsSettings[displayAddressBounceable];
+    const ownWalletSettings = walletsSettings[address.toString({ testOnly: isTestnet })];
     const opAddressWalletSettings = walletsSettings[displayAddressBounceable];
 
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(displayAddressBounceable, avatarColors.length);

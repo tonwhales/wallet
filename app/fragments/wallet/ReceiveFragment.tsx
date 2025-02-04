@@ -149,6 +149,8 @@ export const ReceiveFragment = fragment(() => {
 
     const onScreenCapture = async () => {
         setCapturing(true);
+        // wait for the view to render
+        await new Promise((resolve) => setTimeout(resolve, 50));
         const localUri = await captureRef(imageRef, {
             height: 440,
             quality: 1,
@@ -235,7 +237,8 @@ export const ReceiveFragment = fragment(() => {
                     }), {
                         alignItems: 'center',
                         gap: 16,
-                        paddingVertical: capturing ? 16 : 0
+                        paddingVertical: capturing ? 16 : 0,
+                        marginTop: capturing ? -16 : 0
                     }]}
                 >
                     {isHolders ? (
@@ -375,7 +378,9 @@ export const ReceiveFragment = fragment(() => {
                     style={{
                         backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 40, paddingHorizontal: 16, gap: 8,
-                        flexShrink: 1, maxWidth: 224, marginTop: 16, alignSelf: 'center',
+                        flexShrink: 1, maxWidth: 224,
+                        marginTop: capturing ? 0 : 16,
+                        alignSelf: 'center',
                         paddingVertical: 8
                     }}
                     entering={FadeInUp}

@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useAccountLite, useAccountTransactions, useNetwork, useTheme } from "../../engine/hooks";
+import { useAccountLite, useNetwork, useTheme } from "../../engine/hooks";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -17,6 +17,8 @@ import { WalletTransactions } from "./views/WalletTransactions";
 import { WalletActions } from "./views/WalletActions";
 import { Image } from "expo-image";
 import { ValueComponent } from "../../components/ValueComponent";
+import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
+import { TransactionType } from "../../engine/types";
 
 export type TonWalletFragmentParams = { owner: string }
 
@@ -50,7 +52,11 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
     const account = useAccountLite(ownerAddress);
     const isLedger = route.name === 'LedgerTonWallet';
 
-    const txs = useAccountTransactions(ownerAddress.toString({ testOnly: isTestnet }), { refetchOnMount: true });
+    const txs = useAccountTransactionsV2(
+        ownerAddress.toString({ testOnly: isTestnet }),
+        { refetchOnMount: true },
+        { type: TransactionType.TON }
+    );
     const transactions = txs.data;
 
     const onReachedEnd = useCallback(() => {
@@ -109,14 +115,30 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                 ledger={isLedger}
                 header={
                     <View style={styles.content}>
-                        <Image
-                            source={require('@assets/ic-ton-acc.png')}
-                            style={{
-                                borderRadius: 36,
-                                height: 72,
-                                width: 72
-                            }}
-                        />
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            width: 72, height: 72, borderRadius: 36,
+                        }}>
+                            <Image
+                                source={require('@assets/ic-ton-acc.png')}
+                                style={{
+                                    borderRadius: 36,
+                                    height: 72,
+                                    width: 72
+                                }}
+                            />
+                            <View style={{
+                                justifyContent: 'center', alignItems: 'center',
+                                height: 32, width: 32, borderRadius: 32,
+                                position: 'absolute', right: -7, bottom: -7,
+                                backgroundColor: theme.surfaceOnBg
+                            }}>
+                                <Image
+                                    source={require('@assets/ic-verified.png')}
+                                    style={{ height: 32, width: 32 }}
+                                />
+                            </View>
+                        </View>
                         <View style={{ marginTop: 16, width: '100%' }}>
                             <View style={{ gap: 8, alignItems: 'center' }}>
                                 <ValueComponent

@@ -1,12 +1,11 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, Pressable, View } from "react-native";
-import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { avatarColors } from "../avatar/Avatar";
-import { AddressDomainInput } from "./AddressDomainInput";
+import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputActionType } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useHoldersAccounts, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -18,151 +17,58 @@ import { useDimensions } from "@react-native-community/hooks";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { Typography } from "../styles";
-import { Image } from "expo-image";
 import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
-import Clipboard from '@react-native-clipboard/clipboard';
-import { useAppFocusEffect } from "../../utils/useAppFocusEffect";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
 type TransferAddressInputProps = {
     acc: Address,
-    theme: ThemeType,
-    validAddress?: Address,
     isTestnet: boolean,
     index: number,
-    target: string,
-    input: string,
+    initTarget: string,
     domain?: string,
     onFocus: (index: number) => void,
     onSubmit: (index: number) => void,
     onQRCodeRead: (value: string) => void,
     isSelected?: boolean,
     onNext?: () => void,
-    onSearchItemSelected?: (item: AddressSearchItem) => void,
+    onSearchItemSelected: (item: AddressSearchItem) => void,
     knownWallets: { [key: string]: KnownWallet },
     navigation: TypedNavigation,
     setAddressDomainInputState: (state: AddressInputState) => void,
     autoFocus?: boolean,
 }
 
-export type AddressInputState = {
-    input: string,
-    target: string,
-    domain: string | undefined,
-    suffix: string | undefined
-}
+export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
+    const { acc: account, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus } = props;
+    const theme = useTheme();
 
-export enum InputActionType {
-    Input = 'input',
-    Target = 'target',
-    Domain = 'domain',
-    DomainTarget = 'domain-target',
-    InputTarget = 'input-target',
-    Clear = 'clear',
-}
+    const [state, setState] = useState<AddressInputState>({
+        input: initTarget,
+        target: initTarget,
+        suffix: '',
+        domain: undefined
+    });
 
-export type AddressInputAction = {
-    type: InputActionType.Input,
-    input: string,
-} | {
-    type: InputActionType.Target,
-    target: string,
-} | {
-    type: InputActionType.Domain,
-    domain: string | undefined,
-} | {
-    type: InputActionType.DomainTarget,
-    domain: string | undefined,
-    target: string,
-} | {
-    type: InputActionType.InputTarget,
-    input: string,
-    target: string,
-    suffix: string,
-} | { type: InputActionType.Clear }
+    useEffect(() => {
+        setAddressDomainInputState(state);
+    }, [state]);
 
-export function addressInputReducer(ref: ForwardedRef<ATextInputRef>) {
-    return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
-        switch (action.type) {
-            case InputActionType.Input:
-                if (action.input === state.input) {
-                    return state;
-                }
-                try {
-                    Address.parse(action.input);
-                    return {
-                        input: action.input,
-                        domain: undefined,
-                        target: action.input,
-                        suffix: undefined
-                    };
-                } catch {
-                    // ignore
-                }
-                return {
-                    input: action.input,
-                    domain: undefined,
-                    target: '',
-                    suffix: undefined
-                };
-            case InputActionType.Target:
-                return {
-                    ...state,
-                    target: action.target,
-                    suffix: undefined
-                };
-            case InputActionType.Domain:
-                return {
-                    ...state,
-                    domain: action.domain,
-                    suffix: undefined
-                };
-            case InputActionType.DomainTarget:
-                return {
-                    ...state,
-                    domain: action.domain,
-                    target: action.target,
-                    suffix: undefined
-                };
-            case InputActionType.InputTarget:
-                return {
-                    ...state,
-                    input: action.input,
-                    target: action.target,
-                    suffix: action.suffix
-                };
-            case InputActionType.Clear:
-                (ref as RefObject<ATextInputRef>)?.current?.setText('');
-                return {
-                    input: '',
-                    target: '',
-                    domain: undefined,
-                    suffix: undefined
-                };
-            default:
-                return state;
+    const [validAddress, isInvalid] = useMemo(() => {
+        if (state.target.length < 48) {
+            return [null, false];
         }
-    }
-}
-
-export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
-    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
-        addressInputReducer(ref),
-        {
-            input: props?.target || '',
-            target: props?.target || '',
-            domain: undefined,
-            suffix: undefined,
+        try {
+            return [Address.parse(state.target), false]
+        } catch {
+            return [null, true];
         }
-    );
-    const { acc: account, theme, validAddress, isTestnet, index, target, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, domain } = props;
-    const [isFocused, setIsFocused] = useState(false);
+    }, [state.target]);
 
-    const query = addressDomainInputState.input;
-    const isKnown: boolean = !!knownWallets[target];
+    const { input: query, target } = state;
+    const isKnown: boolean = !!knownWallets[initTarget];
     const addressBookContext = useAddressBookContext();
-    const contact = addressBookContext.asContact(target);
+    const contact = addressBookContext.asContact(initTarget);
     const appState = useAppState();
     const dimentions = useDimensions();
     const screenWidth = dimentions.screen.width;
@@ -211,34 +117,18 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     });
 
-    const onFocusCallback = () => {
-        setIsFocused(true);
-        onFocus(index);
-    }
+    const onFocusCallback = useCallback(() => onFocus(index), [index]);
 
-    const onBlurCallback = () => {
-        setIsFocused(false);
-    }
-
-    const select = () => {
+    const select = useCallback(() => {
         (ref as RefObject<ATextInputRef>)?.current?.focus();
-        onFocusCallback();
-    };
+        onFocus(index);
+    }, [onFocus, index]);
 
     useEffect(() => {
         if (isSelected) {
             select();
         }
     }, [select, isSelected]);
-
-    useEffect(() => {
-        setAddressDomainInputState(addressDomainInputState);
-    }, [addressDomainInputState]);
-
-    // set input value on mount
-    useEffect(() => {
-        (ref as RefObject<ATextInputRef>)?.current?.setText(addressDomainInputState.input);
-    }, []);
 
     const onAddressSearchItemSelected = useCallback((item: AddressSearchItem) => {
         const friendly = item.addr.address.toString({
@@ -254,64 +144,17 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
         const suff = friendly.slice(0, 4) + '...' + friendly.slice(friendly.length - 4);
 
-        dispatchAddressDomainInput({
+        (ref as RefObject<AddressDomainInputRef> | undefined)?.current?.inputAction({
             type: InputActionType.InputTarget,
             input: name.trim(),
             target: friendly,
             suffix: suff
         });
 
-        (ref as RefObject<ATextInputRef>)?.current?.setText(name.trim());
-
         if (onSearchItemSelected) {
             onSearchItemSelected(item);
         }
     }, [onSearchItemSelected]);
-
-    const openAddressBook = useCallback(() => {
-        navigation.navigate('AddressBook', {
-            account: account.toString({ testOnly: isTestnet }),
-            onSelected: onAddressSearchItemSelected
-        });
-    }, [onAddressSearchItemSelected]);
-
-    const rightAction = useMemo(() => {
-        return (
-            <Pressable
-                style={({ pressed }) => ({
-                    opacity: pressed ? 0.5 : 1
-                })}
-                onPress={openAddressBook}
-                hitSlop={4}
-            >
-                <Image
-                    source={require('@assets/ic-address-book.png')}
-                    style={{ height: 24, width: 24, tintColor: theme.accent }}
-                />
-            </Pressable>
-        );
-    }, [openAddressBook]);
-
-    const appFocusCallback = useCallback(async () => {
-        const clipboardText = (await Clipboard.getString()).trim();
-
-        if (!clipboardText || !isFocused) {
-            return;
-        }
-
-        try {
-            Address.parse(clipboardText);
-            dispatchAddressDomainInput({
-                type: InputActionType.InputTarget,
-                target: clipboardText,
-                input: clipboardText,
-                suffix: ''
-            });
-            (ref as RefObject<ATextInputRef>)?.current?.setText(clipboardText);
-        } catch { }
-    }, [isFocused]);
-
-    useAppFocusEffect(appFocusCallback);
 
     return (
         <View>
@@ -331,7 +174,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     <AddressInputAvatar
                         size={46}
                         theme={theme}
-                        isTestnet={isTestnet}
                         isOwn={own}
                         markContact={!!contact}
                         hash={walletSettings?.avatar}
@@ -339,7 +181,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         friendly={validAddressFriendly}
                         avatarColor={avatarColor}
                         knownWallets={knownWallets}
-                        forceAvatar={isTargetHolders ? 'holders' : undefined}
+                        forceAvatar={!!isTargetHolders ? 'holders' : undefined}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
@@ -373,44 +215,42 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         gap: 16
                     }}
                 >
-                    <AddressInputAvatar
-                        size={46}
-                        theme={theme}
-                        isTestnet={isTestnet}
-                        isOwn={own}
-                        markContact={!!contact}
-                        hash={walletSettings?.avatar}
-                        isLedger={isSelectedLedger}
-                        friendly={validAddressFriendly}
-                        avatarColor={avatarColor}
-                        knownWallets={knownWallets}
-                        forceAvatar={isTargetHolders ? 'holders' : undefined}
-                    />
+                    <View style={{ height: '100%' }}>
+                        <AddressInputAvatar
+                            size={46}
+                            theme={theme}
+                            isOwn={own}
+                            markContact={!!contact}
+                            hash={walletSettings?.avatar}
+                            isLedger={isSelectedLedger}
+                            friendly={validAddressFriendly}
+                            avatarColor={avatarColor}
+                            knownWallets={knownWallets}
+                            forceAvatar={isTargetHolders ? 'holders' : undefined}
+                        />
+                    </View>
                     <AddressDomainInput
-                        input={addressDomainInputState.input}
-                        dispatch={dispatchAddressDomainInput}
-                        target={target}
+                        onStateChange={setState}
                         index={index}
                         ref={ref}
+                        initTarget={initTarget}
                         autoFocus={autoFocus}
                         onFocus={onFocusCallback}
-                        onBlur={onBlurCallback}
                         isKnown={isKnown}
                         onSubmit={onSubmit}
                         contact={contact}
                         onQRCodeRead={onQRCodeRead}
-                        domain={domain}
                         screenWidth={screenWidth * 0.75}
                         bounceableFormat={bounceableFormat}
                         knownWallets={knownWallets}
                         navigation={navigation}
                         theme={theme}
                         isTestnet={isTestnet}
-                        rightAction={rightAction}
-                        suffix={addressDomainInputState.suffix}
+                        acc={account}
+                        onSearchItemSelected={onAddressSearchItemSelected}
                     />
                 </View>
-                {!validAddress && (target.length >= 48) && (
+                {isInvalid && (
                     <Animated.View entering={FadeIn} exiting={FadeOut}>
                         <PerfText style={[{
                             color: theme.accentRed,

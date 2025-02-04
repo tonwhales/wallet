@@ -11,6 +11,7 @@ import { AddressSearchItem } from "./AddressSearch";
 import { HoldersAccountItem } from "../products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { Address } from "@ton/core";
+import Animated from "react-native-reanimated";
 
 type HoldersSearchItem = AddressSearchItem & { acc: GeneralHoldersAccount };
 
@@ -28,7 +29,7 @@ export const HoldersAccountsSearch = memo(({
     owner: Address,
 }) => {
     const { isTestnet } = useNetwork();
-    const debouncedQuery = useDebouncedValue(query?.toLowerCase(), 500);
+    const debouncedQuery = useDebouncedValue(query?.toLowerCase(), 30);
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
 
     const searchItems: HoldersSearchItem[] = useMemo(() => {
@@ -67,46 +68,40 @@ export const HoldersAccountsSearch = memo(({
         return searchItems.filter((i) => i.searchable.includes(debouncedQuery))
     }, [searchItems, debouncedQuery]);
 
-    if (!filtered || filtered.length === 0) {
-        return null;
-    }
+    const isEmpty = !filtered || filtered.length === 0;
 
     return (
         <View style={{ marginTop: 16 }}>
-            <View style={{
-                borderRadius: 20,
-                padding: 2
-            }}>
-                <Text style={[{
-                    color: theme.textPrimary,
-                    marginBottom: 12,
-                    marginTop: 8
-                }, Typography.semiBold17_24]}>
-                    {t('products.holders.accounts.title')}
-                </Text>
-                <View style={{
-                    borderRadius: 18,
-                    gap: 4
-                }}>
-                    {filtered.map((item, index) => {
-                        const onOpen = () => onSelect?.(item);
-                        return (
-                            <HoldersAccountItem
-                                key={`holders-${index}`}
-                                owner={owner}
-                                account={item.acc}
-                                itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
-                                style={{ paddingVertical: 0 }}
-                                isTestnet={isTestnet}
-                                hideCardsIfEmpty
-                                holdersAccStatus={holdersAccStatus}
-                                onOpen={onOpen}
-                                addressDescription
-                            />
-                        );
-                    })}
-                </View>
-            </View>
+            {!isEmpty && (
+                <Animated.View
+                    style={{ gap: 16 }}
+                // entering={FadeInDown}
+                // exiting={FadeOutDown}
+                >
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold17_24]}>
+                        {t('products.holders.accounts.title')}
+                    </Text>
+                    <View style={{ borderRadius: 20, gap: 16 }}>
+                        {filtered.map((item, index) => {
+                            const onOpen = () => onSelect?.(item);
+                            return (
+                                <HoldersAccountItem
+                                    key={`holders-${index}`}
+                                    owner={owner}
+                                    account={item.acc}
+                                    itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
+                                    style={{ paddingVertical: 0 }}
+                                    isTestnet={isTestnet}
+                                    hideCardsIfEmpty
+                                    holdersAccStatus={holdersAccStatus}
+                                    onOpen={onOpen}
+                                    addressDescription
+                                />
+                            );
+                        })}
+                    </View>
+                </Animated.View>
+            )}
             {Platform.OS === 'android' && (<View style={{ height: 56 }} />)}
         </View>
     );

@@ -660,25 +660,7 @@ const SimpleTransferComponent = () => {
             setVerifyingLedger(true);
             try {
                 if (!ledgerContext.ledgerConnection) {
-                    Alert.alert(
-                        t('transfer.error.ledgerErrorConnectionTitle'),
-                        t('transfer.error.ledgerErrorConnectionMessage'),
-                        [
-                            {
-                                text: t('common.connect'),
-                                onPress: () => {
-                                    if (ledgerContext.addr) {
-                                        navigation.navigateLedgerDeviceSelection({ selectedAddress: ledgerContext.addr }, { replace: true });
-                                    }
-                                }
-                            },
-                            {
-                                text: t('common.cancel'),
-                                style: 'cancel'
-                            }
-                        ]
-                    );
-
+                    ledgerContext.onShowLedgerConnectionError();
                     setVerifyingLedger(false);
                     return;
                 }

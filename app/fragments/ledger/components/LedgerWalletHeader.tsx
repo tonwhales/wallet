@@ -7,6 +7,7 @@ import { useNetwork, useTheme } from '../../../engine/hooks';
 import { useLedgerTransport } from "./TransportContext";
 import { Address } from "@ton/core";
 import { HeaderSyncStatus } from "../../wallet/views/HeaderSyncStatus";
+import { Typography } from "../../../components/styles";
 
 export const LedgerWalletHeader = memo(({ address }: { address: Address }) => {
     const theme = useTheme();
@@ -104,13 +105,11 @@ export const LedgerWalletHeader = memo(({ address }: { address: Address }) => {
                         alignItems: 'center'
                     }}>
                         <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 17, lineHeight: 24,
+                            style={[{
                                 color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary,
                                 flexShrink: 1,
                                 marginRight: 8
-                            }}
+                            }, Typography.medium17_24]}
                             ellipsizeMode='tail'
                             numberOfLines={1}
                         >

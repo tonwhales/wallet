@@ -264,7 +264,7 @@ export const SettingsFragment = fragment(() => {
                     >
                         {isLedger ? ledgerContext.ledgerName : (walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`)}
                     </Text>
-                    <HeaderSyncStatus />
+                    <HeaderSyncStatus isLedger={isLedger} />
                 </Pressable>
             </View>
             <ScrollView

@@ -105,18 +105,32 @@ export function getFullConnectionsMap() {
     res[accString] = getConnectionsState(accString);
   }
 
+  const ledgerWallets = getLedgerWallets();
+
+  for (const acc of ledgerWallets) {
+    if (acc.address) {
+      const address = Address.parse(acc.address).toString({ testOnly: isTestnet });
+      res[address] = getConnectionsState(address);
+    }
+  }
+
   return res;
 }
 
 export const connectionsMapAtom = atom<FullConnectionsMap>({
   key: 'tonconnect/connections/map',
   default: getFullConnectionsMap(),
-  effects: [({ onSet }) => {
+  effects: [({ onSet, setSelf }) => {
     onSet((newValue) => {
       for (const address in newValue) {
         storeConnectionsState(address, newValue[address]);
       }
     });
+
+    const stored = getFullConnectionsMap();
+    if (stored) {
+      setSelf(stored);
+    }
   }]
 });
 

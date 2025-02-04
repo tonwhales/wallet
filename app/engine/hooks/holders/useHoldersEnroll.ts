@@ -219,7 +219,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
 export function useHoldersLedgerEnroll(inviteId?: string) {
     const { isTestnet } = useNetwork();
     const ledgerContext = useLedgerTransport();
-    const ledgerAddress = ledgerContext.addr;
+    const ledgerAddress = ledgerContext?.addr;
     const addressString = ledgerAddress?.address ? Address.parse(ledgerAddress.address).toString({ testOnly: isTestnet }) : undefined;
     const saveAppConnection = useSaveAppConnection();
     const connectApp = useConnectApp(addressString);
@@ -234,7 +234,7 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                     const url = holdersUrl(isTestnet);
                     const domain = extractDomain(url);
                     const app = connectApp(url);
-                    const connections = app ? connectAppConnections(extensionKey(app.url)) : [];
+                    const connections = !!app ? connectAppConnections(extensionKey(app.url)) : [];
                     const isInjected = connections.find((item) => item.type === TonConnectBridgeType.Injected);
 
                     if (inviteId || storedInviteId) {

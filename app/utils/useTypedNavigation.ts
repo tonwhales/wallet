@@ -180,16 +180,17 @@ export class TypedNavigation {
         this.navigateAndReplaceAll('LedgerApp');
     }
 
-    navigateHoldersLanding({ endpoint, onEnrollType, inviteId }: { endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }, isTestnet: boolean) {
+    navigateHoldersLanding({ endpoint, onEnrollType, inviteId, isLedger }: { endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string, isLedger?: boolean }, isTestnet: boolean) {
+        const navigate = () => this.navigate(isLedger ? 'LedgerHoldersLanding' : 'HoldersLanding', { endpoint, onEnrollType, inviteId });
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
                 if (success) { // navigate only if auth is set up
-                    this.navigate('HoldersLanding', { endpoint, onEnrollType, inviteId })
+                    navigate();
                 }
             }
             this.navigateMandatoryAuthSetup({ callback });
         } else {
-            this.navigate('HoldersLanding', { endpoint, onEnrollType, inviteId });
+            navigate();
         }
     }
 
@@ -325,7 +326,7 @@ export class TypedNavigation {
     navigateLedgerSelectAccount(params: LedgerSelectAccountParams) {
         this.navigate('LedgerSelectAccount', params);
     }
-    
+
     navigateTransactionsFilter(params: TransactionsFilterFragmentParams) {
         this.navigate('TransactionsFilter', params);
     }

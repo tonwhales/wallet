@@ -29,6 +29,14 @@ import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
+import { useLedgerTransport } from '../ledger/components/TransportContext';
+import { AccountKeyParam, fetchUserToken } from '../../engine/api/holders/fetchUserToken';
+import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
+import { holdersUrl } from '../../engine/api/holders/fetchUserState';
+import { extractDomain } from '../../engine/utils/extractDomain';
+import { Address, beginCell, storeStateInit } from '@ton/core';
+import { WalletVersions } from '../../engine/types';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -39,6 +47,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const countryCodes = getCountryCodes();
     const setHiddenBanners = useSetHiddenBanners();
+
+    const ledgerContext = useLedgerTransport();
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
@@ -163,8 +173,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                     <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                                 </View>
                             )}
-
-
                     </View>
                     <View style={{
                         backgroundColor: theme.border,
@@ -216,9 +224,60 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton
-                                title={'Test ledger sign'}
+                                title={'Open LedgerSignData'}
                                 onPress={() => {
                                     navigation.navigate('LedgerSignData');
+                                }}
+                            />
+                            <ItemButton
+                                title={'Test token sign'}
+                                onPress={async () => {
+                                    if (ledgerContext?.addr && ledgerContext.tonTransport) {
+                                        try {
+                                            const ledgerAddress = ledgerContext.addr;
+                                            const path = pathFromAccountNumber(ledgerContext.addr.acc, isTestnet);
+                                            const url = holdersUrl(isTestnet);
+                                            const domain = extractDomain(url);
+
+                                            const signRes = await ledgerContext.tonTransport.signData(
+                                                path,
+                                                {
+                                                    type: 'app-data',
+                                                    domain,
+                                                    data: beginCell().storeBuffer(Buffer.from('test')).endCell()
+                                                }
+                                            );
+
+                                            const contract = contractFromPublicKey(ledgerAddress.publicKey, WalletVersions.v4R2, isTestnet);
+                                            const initialCode = contract.init.code;
+                                            const initialData = contract.init.data;
+                                            const stateInitCell = beginCell().store(storeStateInit({ code: initialCode, data: initialData })).endCell();
+                                            const stateInitStr = stateInitCell.toBoc({ idx: false }).toString('base64');
+
+                                            const tokenParams: AccountKeyParam = {
+                                                kind: 'tonhub-ledger-v1',
+                                                wallet: 'tonhub',
+                                                config: {
+                                                    address: Address.parse(ledgerAddress.address).toRawString(),
+                                                    proof: {
+                                                        timestamp: signRes.timestamp,
+                                                        signature: signRes.signature.toString('base64'),
+                                                        cell: signRes.cell.toBoc().toString('base64'),
+                                                        walletStateInit: stateInitStr,
+                                                        publicKey: ledgerAddress.publicKey.toString('hex'),
+                                                    }
+                                                }
+                                            }
+
+                                            console.log('Fetching token with params:', tokenParams);
+
+                                            const token = await fetchUserToken(tokenParams, isTestnet);
+
+                                            console.log('Token:', token);
+                                        } catch (error) {
+                                            console.log('Error:', error);
+                                        }
+                                    }
                                 }}
                             />
                         </View>

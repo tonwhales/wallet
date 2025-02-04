@@ -241,7 +241,7 @@ export const HoldersLandingFragment = fragment(() => {
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <View
                 key={`content-${renderKey}`}
-                style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
             >
                 <DAppWebView
                     ref={webRef}

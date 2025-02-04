@@ -105,13 +105,13 @@ export const ReceiveAssetsFragment = fragment(() => {
     const route = useRoute();
     const isLedger = route.name === 'LedgerReceiveAssets';
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
-    const ledgerTransport = useLedgerTransport();
+    const ledgerContext = useLedgerTransport();
 
     const ledgerAddress = useMemo(() => {
-        if (isLedger && !!ledgerTransport?.addr) {
-            return Address.parse(ledgerTransport.addr.address);
+        if (isLedger && !!ledgerContext?.addr) {
+            return Address.parse(ledgerContext.addr.address);
         }
-    }, [ledgerTransport, isLedger]);
+    }, [ledgerContext, isLedger]);
 
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
@@ -139,16 +139,21 @@ export const ReceiveAssetsFragment = fragment(() => {
 
         navigation.goBack();
 
+
         if (needsEnrollment || !isHoldersReady) {
+            if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
+                ledgerContext.onShowLedgerConnectionError();
+                return;
+            }
             navigation.navigateHoldersLanding(
-                { endpoint: url, onEnrollType: navParams },
+                { endpoint: url, onEnrollType: navParams, isLedger },
                 isTestnet
             );
             return;
         }
 
-        navigation.navigateHolders(navParams, isTestnet);
-    }, [needsEnrollment, isHoldersReady, isTestnet]);
+        navigation.navigateHolders(navParams, isTestnet, isLedger);
+    }, [needsEnrollment, isHoldersReady, isTestnet, isLedger, ledgerContext]);
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {

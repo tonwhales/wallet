@@ -18,6 +18,8 @@ import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment
 import { ProductAd } from "../../engine/api/fetchBanners";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { HoldersProductComponent } from "./HoldersProductComponent";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent";
 
 export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
     const theme = useTheme();
@@ -29,6 +31,7 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
     const url = holdersUrl(testOnly);
     const isHoldersReady = useIsConnectAppReady(url);
     const inviteCheck = useIsHoldersInvited(address, testOnly);
+    const ledgerContext = useLedgerTransport();
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
@@ -39,11 +42,15 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
 
     const onHoldersPress = useCallback(() => {
         if (needsEnrollment || !isHoldersReady) {
+            if (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport) {
+                ledgerContext.onShowLedgerConnectionError();
+                return;
+            }
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create }, isLedger: true }, testOnly);
             return;
         }
         navigation.navigateHolders({ type: HoldersAppParamsType.Create }, testOnly, true);
-    }, [needsEnrollment, isHoldersReady, testOnly]);
+    }, [needsEnrollment, isHoldersReady, testOnly, ledgerContext]);
 
     const onProductBannerPress = useCallback((product: ProductAd) => {
         trackEvent(
@@ -103,7 +110,6 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
 
                 <HoldersProductComponent
                     holdersAccStatus={holdersAccStatus}
-                    key={'holders'}
                     isLedger
                 />
 
@@ -115,16 +121,19 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
                 <View style={{ marginTop: 4 }}>
                     <StakingProductComponent
                         isLedger
-                        key={'pool'}
                         address={address}
                     />
                 </View>
                 <LedgerJettonsProductComponent
                     address={address}
                     testOnly={testOnly}
-                    key={'jettons'}
                 />
             </View>
+
+            <HoldersHiddenProductComponent
+                holdersAccStatus={holdersAccStatus}
+                isLedger
+            />
         </View>
     );
 });

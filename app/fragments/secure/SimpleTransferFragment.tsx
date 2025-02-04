@@ -659,7 +659,7 @@ const SimpleTransferComponent = () => {
         if (isLedger) {
             setVerifyingLedger(true);
             try {
-                if (!ledgerContext.ledgerConnection) {
+                if (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport) {
                     ledgerContext.onShowLedgerConnectionError();
                     setVerifyingLedger(false);
                     return;

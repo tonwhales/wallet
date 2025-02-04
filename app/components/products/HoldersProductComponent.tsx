@@ -52,6 +52,7 @@ export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { h
             />
             <View style={{ marginTop: (hasAccounts && hasPrepaid) ? 16 : 0 }}>
                 <HoldersCards
+                    owner={address}
                     theme={theme}
                     isTestnet={network.isTestnet}
                     markPrepaidCard={markPrepaidCard}

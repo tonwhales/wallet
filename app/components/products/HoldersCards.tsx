@@ -8,13 +8,14 @@ import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { PriceComponent } from "../PriceComponent";
-import { toNano } from "@ton/core";
+import { Address, toNano } from "@ton/core";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { Image } from "expo-image";
 
 const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
 export const HoldersCards = memo(({
+    owner,
     cards,
     theme,
     isTestnet,
@@ -22,6 +23,7 @@ export const HoldersCards = memo(({
     holdersAccStatus,
     isLedger
 }: {
+    owner: Address,
     cards?: PrePaidHoldersCard[],
     theme: ThemeType,
     isTestnet: boolean,
@@ -45,6 +47,7 @@ export const HoldersCards = memo(({
     const renderItem = useCallback((item: PrePaidHoldersCard, index: number) => {
         return (
             <HoldersPrepaidCard
+                owner={owner}
                 key={`card-${index}`}
                 card={item}
                 rightActionIcon={hideIcon}
@@ -55,7 +58,7 @@ export const HoldersCards = memo(({
                 isLedger={isLedger}
             />
         );
-    }, [isLedger, markPrepaidCard, isTestnet, holdersAccStatus]);
+    }, [isLedger, markPrepaidCard, isTestnet, holdersAccStatus, owner]);
 
     const renderFace = useCallback(() => {
         return (

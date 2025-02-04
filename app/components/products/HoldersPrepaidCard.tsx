@@ -11,14 +11,16 @@ import { GeneralHoldersCard, PrePaidHoldersCard } from "../../engine/api/holders
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
 import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
-import { toNano } from "@ton/core";
+import { Address, toNano } from "@ton/core";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { useLockAppWithAuthState } from "../../engine/hooks/settings";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 export const HoldersPrepaidCard = memo((props: {
+    owner: Address,
     card: PrePaidHoldersCard,
     last?: boolean,
     first?: boolean,
@@ -37,9 +39,10 @@ export const HoldersPrepaidCard = memo((props: {
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const { isLedger, holdersAccStatus, isTestnet, card, onBeforeOpen, rightAction, rightActionIcon, style, itemStyle } = props;
+    const { isLedger, holdersAccStatus, isTestnet, card, onBeforeOpen, rightAction, rightActionIcon, style, itemStyle, owner } = props;
     const url = holdersUrl(isTestnet);
-    const isHoldersReady = useIsConnectAppReady(url);
+    const isHoldersReady = useIsConnectAppReady(url, owner.toString({ testOnly: isTestnet }));
+    const ledgerContext = useLedgerTransport();
 
     const needsEnrollment = useMemo(() => {
         if (!isHoldersReady) {
@@ -61,14 +64,19 @@ export const HoldersPrepaidCard = memo((props: {
         // Close full list modal (holders navigations is below it in the other nav stack)
         onBeforeOpen?.();
 
+
         if (needsEnrollment) {
+            if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
+                ledgerContext.onShowLedgerConnectionError();
+                return;
+            }
             const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Prepaid, id: card.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType, isLedger  }, isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType, isLedger }, isTestnet);
             return;
         }
 
         navigation.navigateHolders({ type: HoldersAppParamsType.Prepaid, id: card.id }, isTestnet, isLedger);
-    }, [card, needsEnrollment, onBeforeOpen, isTestnet, isLedger]);
+    }, [card, needsEnrollment, onBeforeOpen, isTestnet, isLedger, ledgerContext]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 

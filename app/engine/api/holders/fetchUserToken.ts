@@ -59,8 +59,8 @@ const tonhubLedgerConfig = z.object({
         timestamp: z.number(),
         signature: z.string(),
         cell: z.string(),
-        walletStateInit: z.string().optional().nullable(),
-        publicKey: z.string().optional().nullable(),
+        walletStateInit: z.string().nullish(),
+        publicKey: z.string().nullish(),
     })
 });
 

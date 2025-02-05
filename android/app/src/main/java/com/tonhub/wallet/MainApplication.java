@@ -47,7 +47,12 @@ public class MainApplication extends Application implements ReactApplication {
                     packages.add(new KeyStorePackage());
                     packages.add(new NavigationBarColorPackage());
                     packages.add(new AppearancePackage());
-                    packages.add(new WalletPackage());
+                    try {
+                        Class.forName("com.google.android.gms.tapandpay.TapAndPay");
+                        packages.add(new WalletPackage());
+                    } catch (ClassNotFoundException e) {
+                        // tapandpay_sdk was not added: skip WalletPackage
+                    }
                     return packages;
                 }
 

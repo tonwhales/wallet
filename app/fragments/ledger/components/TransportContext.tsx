@@ -227,13 +227,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
         dispatchBleState({ type: 'error' });
         reset();
-
-        Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
-            text: t('common.back'),
-            onPress: () => {
-                navigationRef.reset({ index: 0, routes: [{ name: 'LedgerHome' }] });
-            }
-        }]);
     }, [ledgerConnection]);
 
     const startBleSearch = useCallback(() => {

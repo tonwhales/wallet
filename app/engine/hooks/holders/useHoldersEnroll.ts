@@ -226,7 +226,7 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
     const connectAppConnections = useAppConnections(addressString);
 
     return (async () => {
-        if (ledgerAddress && ledgerContext.tonTransport) {
+        if (ledgerAddress && ledgerContext?.tonTransport) {
             const tokenRes = await (async () => {
                 try {
                     const storedInviteId = getInviteId();
@@ -255,6 +255,13 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                     if (!!existingToken && existingToken.toString().length > 0 && isInjected) {
                         return { type: 'success' };
                     } else {
+                        const isTonAppOpen = ledgerContext.tonTransport?.isAppOpen();
+
+                        if (!isTonAppOpen) {
+                            ledgerContext.onShowLedgerConnectionError();
+                            return;
+                        }
+                        
                         const signRes = await ledgerContext!.tonTransport!.signData(
                             path,
                             {
@@ -368,7 +375,7 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
 
             return tokenRes as HoldersEnrollResult;
         } else {
-            return { type: 'error', error: HoldersEnrollErrorType.NoDomainKey } as HoldersEnrollResult;
+            ledgerContext.onShowLedgerConnectionError();
         }
     });
 }

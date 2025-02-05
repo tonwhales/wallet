@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useRoute } from '@react-navigation/native';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
@@ -265,9 +264,12 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
 
             if (!!callback) {
                 callback(true, signed);
+                navigation.goBack();
+                return;
             }
-
+            
             navigation.popToTop();
+
         } catch {
             if (!!callback) {
                 callback(false, null);

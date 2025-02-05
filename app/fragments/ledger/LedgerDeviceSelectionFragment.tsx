@@ -18,6 +18,7 @@ import { Platform } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Typography } from "../../components/styles";
 import { useParams } from "../../utils/useParams";
+import { useToaster } from "../../components/toast/ToastProvider";
 
 export type LedgerDeviceSelectionParams = {
     selectedAddress?: LedgerWallet | null
@@ -29,6 +30,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
     const { selectedAddress } = useParams<LedgerDeviceSelectionParams>();
+    const toaster = useToaster();
 
     const devices = (
         (ledgerContext?.bleSearchState?.type === 'completed' && ledgerContext?.bleSearchState?.success)
@@ -37,6 +39,11 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
 
     const onDeviceSelect = useCallback(async (device: any) => {
         try {
+            toaster.show({
+                type: 'success',
+                message: t('syncStatus.online'),
+                marginBottom: 32
+            });
             const transport = await TransportBLE.open(device.id);
             ledgerContext.reset();
             ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });

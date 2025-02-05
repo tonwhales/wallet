@@ -1,4 +1,4 @@
-import { RpcMethod, WalletResponse } from "@tonconnect/protocol";
+import { RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from "@tonconnect/protocol";
 import { useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
 import { SignRawParams } from "../../tonconnect/types";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -20,12 +20,24 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
 
         if (!ledgerContext?.tonTransport) {
             ledgerContext?.onShowLedgerConnectionError();
-            callback({ result: { error: 'Ledger not connected' }, id });
+            callback({
+                error: {
+                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                    message: 'Ledger not connected',
+                },
+                id
+            });
             return;
         }
 
         if (params.messages.length === 0 || params.messages.length > 1) {
-            callback({ result: { error: 'Invalid message count' }, id });
+            callback({
+                error: {
+                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                    message: 'Invalid messages count',
+                },
+                id
+            });
             return;
         }
 
@@ -42,7 +54,13 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
         try {
             target = parseAnyStringAddress(msg.address, isTestnet);
         } catch {
-            callback({ result: { error: 'Invalid address' }, id });
+            callback({
+                error: {
+                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                    message: 'Invalid address',
+                },
+                id
+            });
             return;
         }
 
@@ -75,7 +93,13 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
                     if (ok) {
                         callback({ result: { result: result?.toBoc()?.toString('base64') }, id });
                     } else {
-                        callback({ result: { error: 'Invalid order' }, id });
+                        callback({
+                            error: {
+                                code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                                message: 'User rejected',
+                            },
+                            id
+                        });
                     }
                 }
 
@@ -125,18 +149,30 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
                                     responseTarget: Address.parse(address),
                                     // text: commentString,
                                     text: null,
-                                    amount: toNano(fromNano(msg.amount)),
+                                    amount: jettonTransfer.amount,
                                     tonAmount: 1n,
                                     txAmount: txForwardAmount,
                                     payload: null
                                 }, isTestnet);
                             } else {
-                                callback({ result: { error: 'Invalid order' }, id });
+                                callback({
+                                    error: {
+                                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                                        message: 'Invalid jetton transfer',
+                                    },
+                                    id
+                                });
                                 return;
                             }
 
                             if (!order) {
-                                callback({ result: { error: 'Invalid order' }, id });
+                                callback({
+                                    error: {
+                                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                                        message: 'Invalid order',
+                                    },
+                                    id
+                                });
                                 return;
                             }
 
@@ -159,7 +195,13 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
                     }
                 }
             } else {
-                callback({ result: { error: 'Invalid body type' }, id });
+                callback({
+                    error: {
+                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                        message: 'Invalid body type',
+                    },
+                    id
+                });
             }
         }
     }

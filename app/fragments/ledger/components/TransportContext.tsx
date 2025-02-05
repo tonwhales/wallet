@@ -129,22 +129,40 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const reconnectAttempts = useRef<number>(0);
 
     const reset = useCallback((isLogout?: boolean) => {
+        const resetState = () => {
+            setLedgerConnection(null);
+            setTonTransport(null);
+            setIsReconnectLedger(false);
+            setSearch(0);
+            dispatchBleState({ type: 'reset' });
+            reconnectAttempts.current = 0;
+        }
         if (isLogout) {
-            const newItems = ledgerWallets.filter(wallet => wallet.address !== addr?.address);
-            setLedgerWallets(newItems);
-            setAddr(null);
-            if (newItems.length > 0) {
-                return;
-            }
+            Alert.alert(t('logout.title', { name: ledgerName }), undefined, [
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                    onPress: () => { }
+                },
+                {
+                    text: t('common.logout'),
+                    style: 'destructive',
+                    onPress: () => {
+                        const newItems = ledgerWallets.filter(wallet => wallet.address !== addr?.address);
+                        setLedgerWallets(newItems);
+                        setAddr(null);
+                        if (newItems.length > 0) {
+                            return;
+                        }
+                        resetState();
+                    }
+                }
+            ]);
+            return;
         }
 
-        setLedgerConnection(null);
-        setTonTransport(null);
-        setIsReconnectLedger(false);
-        setSearch(0);
-        dispatchBleState({ type: 'reset' });
-        reconnectAttempts.current = 0;
-    }, [addr, ledgerWallets]);
+        resetState();
+    }, [addr, ledgerWallets, ledgerName]);
 
     const onSetAddr = useCallback((addr: LedgerWallet | null) => {
         if (!addr) return;

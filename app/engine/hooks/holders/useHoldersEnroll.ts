@@ -21,6 +21,8 @@ import { extractDomain } from "../../utils/extractDomain";
 import { WalletVersions } from "../../types";
 import { getTimeSec } from "../../../utils/getTimeSec";
 import { warn } from "../../../utils/log";
+import { Alert } from "react-native";
+import { t } from "../../../i18n/t";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -258,10 +260,10 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                         const isTonAppOpen = ledgerContext.tonTransport?.isAppOpen();
 
                         if (!isTonAppOpen) {
-                            ledgerContext.onShowLedgerConnectionError();
+                            Alert.alert(t('hardwareWallet.errors.appNotOpen'));
                             return;
                         }
-                        
+
                         const signRes = await ledgerContext!.tonTransport!.signData(
                             path,
                             {

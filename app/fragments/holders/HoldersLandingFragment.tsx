@@ -269,9 +269,6 @@ export const HoldersLandingFragment = fragment(() => {
                             <Text style={[Typography.semiBold20_28, { color: theme.textPrimary, textAlign: 'center', marginTop: 16, paddingHorizontal: 16 }]}>
                                 {t('products.holders.enroll.ledger.confirmTitle')}
                             </Text>
-                            <Text style={[Typography.semiBold20_28, { color: theme.textPrimary, textAlign: 'center', marginTop: 16, paddingHorizontal: 16 }]}>
-                                {t('products.holders.enroll.ledger.confirmMessage')}
-                            </Text>
                         </Animated.View>
                     )}
                 </Animated.View>

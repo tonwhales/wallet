@@ -295,27 +295,27 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                             publicKey
                         }];
 
-                        try {
-                            const timestamp = getTimeSec();
-                            const proof = await ledgerContext.tonTransport?.getAddressProof(path, { domain, timestamp, payload: Buffer.from('ton-proof-any') });
+                        // try {
+                        //     const timestamp = getTimeSec();
+                        //     const proof = await ledgerContext.tonTransport?.getAddressProof(path, { domain, timestamp, payload: Buffer.from('ton-proof-any') });
 
-                            if (proof) {
-                                replyItems.push({
-                                    name: 'ton_proof',
-                                    proof: {
-                                        timestamp,
-                                        domain: {
-                                            lengthBytes: domainBuffer.byteLength,
-                                            value: domain,
-                                        },
-                                        signature: proof.signature.toString('base64'),
-                                        payload: 'ton-proof-any',
-                                    },
-                                });
-                            }
-                        } catch {
-                            warn('Failed to get address proof');
-                        }
+                        //     if (proof) {
+                        //         replyItems.push({
+                        //             name: 'ton_proof',
+                        //             proof: {
+                        //                 timestamp,
+                        //                 domain: {
+                        //                     lengthBytes: domainBuffer.byteLength,
+                        //                     value: domain,
+                        //                 },
+                        //                 signature: proof.signature.toString('base64'),
+                        //                 payload: 'ton-proof-any',
+                        //             },
+                        //         });
+                        //     }
+                        // } catch {
+                        //     warn('Failed to get address proof');
+                        // }
 
                         await saveAppConnection({
                             address: addressString!,

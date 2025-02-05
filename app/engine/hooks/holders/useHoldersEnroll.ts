@@ -23,6 +23,8 @@ import { getTimeSec } from "../../../utils/getTimeSec";
 import { warn } from "../../../utils/log";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
+import { normalizeUrl } from "../../../utils/resolveUrl";
+import { authParamsFromLedgerProof } from "../../../utils/holders/authParamsFromLedgerProof";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -234,7 +236,7 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                     const storedInviteId = getInviteId();
                     const path = pathFromAccountNumber(ledgerContext!.addr!.acc, isTestnet);
                     const url = holdersUrl(isTestnet);
-                    const domain = extractDomain(url);
+                    const manifestUrl = `${url}/jsons/tonconnect-manifest.json`;
                     const app = connectApp(url);
                     const connections = !!app ? connectAppConnections(extensionKey(app.url)) : [];
                     const isInjected = connections.find((item) => item.type === TonConnectBridgeType.Injected);
@@ -264,16 +266,6 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                             return;
                         }
 
-                        const signRes = await ledgerContext!.tonTransport!.signData(
-                            path,
-                            {
-                                type: 'app-data',
-                                domain,
-                                address: Address.parse(ledgerAddress.address),
-                                data: beginCell().storeBuffer(Buffer.from('test')).endCell()
-                            }
-                        );
-
                         const contract = contractFromPublicKey(ledgerAddress.publicKey, WalletVersions.v4R2, isTestnet);
                         const initialCode = contract.init.code;
                         const initialData = contract.init.data;
@@ -281,9 +273,6 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                         const walletStateInit = stateInitCell.toBoc({ idx: false }).toString('base64');
                         const publicKey = ledgerAddress.publicKey.toString('hex');
                         const rawAddress = Address.parse(ledgerAddress.address).toRawString();
-                        const domainBuffer = Buffer.from(domain);
-
-                        const manifestUrl = `${url}/jsons/tonconnect-manifest.json`;
 
                         let manifest: AppManifest | null;
                         try {
@@ -296,6 +285,10 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                             return { type: 'error', error: HoldersEnrollErrorType.ManifestFailed };
                         }
 
+                        const normalizedUrl = normalizeUrl(manifest.url);
+                        const domain = extractDomain(normalizedUrl ?? url);
+                        const domainBuffer = Buffer.from(domain);
+
                         const replyItems: ConnectItemReply[] = [{
                             name: 'ton_addr',
                             address: rawAddress,
@@ -304,27 +297,48 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                             publicKey
                         }];
 
-                        // try {
-                        //     const timestamp = getTimeSec();
-                        //     const proof = await ledgerContext.tonTransport?.getAddressProof(path, { domain, timestamp, payload: Buffer.from('ton-proof-any') });
+                        try {
+                            const timestamp = getTimeSec();
+                            const proof = await ledgerContext.tonTransport?.getAddressProof(path,
+                                {
+                                    domain,
+                                    timestamp,
+                                    payload: Buffer.from('ton-proof-any')
+                                },
+                                { testOnly: isTestnet }
+                            );
 
-                        //     if (proof) {
-                        //         replyItems.push({
-                        //             name: 'ton_proof',
-                        //             proof: {
-                        //                 timestamp,
-                        //                 domain: {
-                        //                     lengthBytes: domainBuffer.byteLength,
-                        //                     value: domain,
-                        //                 },
-                        //                 signature: proof.signature.toString('base64'),
-                        //                 payload: 'ton-proof-any',
-                        //             },
-                        //         });
-                        //     }
-                        // } catch {
-                        //     warn('Failed to get address proof');
-                        // }
+                            if (proof) {
+                                replyItems.push({
+                                    name: 'ton_proof',
+                                    proof: {
+                                        timestamp,
+                                        domain: {
+                                            lengthBytes: domainBuffer.byteLength,
+                                            value: domain,
+                                        },
+                                        signature: proof.signature.toString('base64'),
+                                        payload: 'ton-proof-any',
+                                    },
+                                });
+                            }
+                        } catch {
+                            warn('Failed to get address proof');
+                            return { type: 'error', error: HoldersEnrollErrorType.FetchTokenFailed };
+                        }
+
+                        const proof = (replyItems.find((item) => item.name === 'ton_proof') as TonProofItemReplySuccess | undefined);
+
+                        const tokenParams: AccountKeyParam = authParamsFromLedgerProof(
+                            Address.parse(rawAddress),
+                            proof!,
+                            publicKey,
+                            {
+                                lengthBytes: domainBuffer.byteLength,
+                                value: domain,
+                            },
+                            walletStateInit
+                        )
 
                         await saveAppConnection({
                             address: addressString!,
@@ -342,21 +356,6 @@ export function useHoldersLedgerEnroll(inviteId?: string) {
                                 replyItems
                             }]
                         });
-
-                        const tokenParams: AccountKeyParam = {
-                            kind: 'tonhub-ledger-v1',
-                            wallet: 'tonhub',
-                            config: {
-                                address: rawAddress,
-                                proof: {
-                                    timestamp: signRes.timestamp,
-                                    signature: signRes.signature.toString('base64'),
-                                    cell: signRes.cell.toBoc().toString('base64'),
-                                    walletStateInit,
-                                    publicKey
-                                }
-                            }
-                        }
 
                         const token = await fetchUserToken(tokenParams, isTestnet, storedInviteId);
                         setHoldersToken(addressString!, token);

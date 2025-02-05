@@ -3,7 +3,7 @@ import { useLedgerTransport } from "../../../fragments/ledger/components/Transpo
 import { SignRawParams } from "../../tonconnect/types";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { parseBody } from "../../transactions/parseWalletTransaction";
-import { Address, Cell, fromNano, toNano } from "@ton/core";
+import { Address, Cell, toNano } from "@ton/core";
 import { parseAnyStringAddress } from "../../../utils/parseAnyStringAddress";
 import { useBounceableWalletFormat, useNetwork } from "..";
 import { OperationType } from "../../transactions/parseMessageBody";
@@ -29,6 +29,24 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
             });
             return;
         }
+
+        // await Promise.all(
+        //     transfer.messages.map(async (message, index) => ({
+        //         to: Address.parse(message.address),
+        //         bounce: await tonConnectAddressIsBounceable(this.api, message.address),
+        //         amount: BigInt(message.amount),
+        //         seqno: seqno + index,
+        //         timeout: getTTL(timestamp + index * 60),
+        //         sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+        //         payload: message.payload
+        //             ? {
+        //                   type: 'unsafe' as const,
+        //                   message: Cell.fromBase64(message.payload)
+        //               }
+        //             : undefined,
+        //         stateInit: toStateInit(message.stateInit)
+        //     }))
+        // )
 
         if (params.messages.length === 0 || params.messages.length > 1) {
             callback({
@@ -176,7 +194,7 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
                                 return;
                             }
 
-                            navigation.navigate('LedgerSignTransfer', { text: null, order, callback: resCallback });
+                            navigation.navigateLedgerSignTransfer({ text: null, order, callback: resCallback });
                         } else if (op === OperationType.HoldersAccountTopUp) {
                             sc.loadUintBig(64);
                             const amount = sc.loadCoins();
@@ -190,7 +208,7 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
                                 stateInit
                             });
 
-                            navigation.navigate('LedgerSignTransfer', { text: null, order, callback: resCallback });
+                            navigation.navigateLedgerSignTransfer({ text: null, order, callback: resCallback });
                         }
                     }
                 }

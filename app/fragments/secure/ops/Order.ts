@@ -25,7 +25,7 @@ export type LedgerOrder = {
     domain?: string;
     amount: bigint;
     amountAll: boolean;
-    payload: TonPayloadFormat | null;
+    payload: TonPayloadFormat[] | null;
     stateInit: Cell | null;
     app?: {
         domain: string,
@@ -66,7 +66,7 @@ export function createLedgerJettonOrder(args: {
         target: args.wallet.toString({ testOnly: isTestnet }),
         domain: args.domain,
         amount: args.txAmount,
-        payload: {
+        payload: [{
             type: 'jetton-transfer',
             queryId: null,
             amount: args.amount,
@@ -74,8 +74,9 @@ export function createLedgerJettonOrder(args: {
             responseDestination: args.responseTarget,
             customPayload: null,
             forwardAmount: args.tonAmount,
-            forwardPayload: payload
-        },
+            forwardPayload: payload,
+            knownJetton: null
+        }],
         amountAll: false,
         stateInit: null,
     }
@@ -98,9 +99,7 @@ export function createSimpleLedgerOrder(args: {
     // Resolve payload
     let payload: TonPayloadFormat | null = null;
     if (args.payload) {
-        // payload = { type: 'unsafe', message: new CellMessage(args.payload) };
-        // TODO
-        throw new Error('Not implemented');
+        payload = { type: 'unsafe', message: args.payload };
     } else if (args.text) {
         payload = { type: 'comment', text: args.text };
     }
@@ -111,7 +110,7 @@ export function createSimpleLedgerOrder(args: {
         domain: args.domain,
         amount: args.amount,
         amountAll: args.amountAll,
-        payload,
+        payload: payload ? [payload] : null,
         stateInit: args.stateInit,
         app: args.app
     }

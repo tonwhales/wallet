@@ -42,7 +42,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
             toaster.show({
                 type: 'success',
                 message: t('syncStatus.online'),
-                marginBottom: 32
+                marginBottom: safeArea.bottom + 32
             });
             const transport = await TransportBLE.open(device.id);
             ledgerContext.reset();

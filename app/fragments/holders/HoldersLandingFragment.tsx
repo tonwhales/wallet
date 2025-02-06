@@ -10,14 +10,14 @@ import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
+import { useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { HoldersLoader } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 import { openWithInApp } from '../../utils/openWithInApp';
-import { HoldersEnrollErrorType, useHoldersLedgerEnroll } from '../../engine/hooks/holders/useHoldersEnroll';
+import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
 import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
@@ -26,6 +26,7 @@ import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { AnimatedCards } from './components/AnimatedCards';
 import { useRoute } from '@react-navigation/native';
 import { Typography } from '../../components/styles';
+import { Image } from 'expo-image';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -44,16 +45,10 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 
     const domain = extractDomain(endpoint);
-    const [confirmLedger, setConfirmLedger] = useState(false);
+    const [confirmOnLedger, setConfirmOnLedger] = useState(false);
     const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
-    const ledgerEnroll = useHoldersLedgerEnroll(inviteId);
-    const ledgerAuthenticate = (async () => {
-        setConfirmLedger(true);
-        const res = await ledgerEnroll();
-        setConfirmLedger(false);
-        return res;
-    });
-    const authenticate = isLedger ? ledgerAuthenticate : enroll;
+    const ledgerEnroll = useHoldersLedgerEnroll({ inviteId, setConfirming: setConfirmOnLedger });
+    const authenticate = isLedger ? ledgerEnroll : enroll;
 
     // Anim
     const isAuthenticating = useRef(false);
@@ -106,9 +101,17 @@ export const HoldersLandingFragment = fragment(() => {
                 return;
             }
 
+            const err = (res as { type: 'error', error: HoldersEnrollErrorType }).error;
+
+            if (err === HoldersEnrollErrorType.LedgerHandled) {
+                authOpacity.value = 0;
+                isAuthenticating.current = false;
+                return;
+            }
+
             let message = ''
 
-            switch (res.error) {
+            switch (err) {
                 case HoldersEnrollErrorType.NoDomainKey:
                     message = t('products.holders.enroll.failed.noDomainKey');
                     break;
@@ -264,11 +267,19 @@ export const HoldersLandingFragment = fragment(() => {
                         style={{ paddingHorizontal: 16 }}
                     />
                     <AnimatedCards />
-                    {!!confirmLedger && (
-                        <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: safeArea.top + 60, justifyContent: 'center', paddingHorizontal: 16, gap: 16 }}>
-                            <Text style={[Typography.semiBold20_28, { color: theme.textPrimary, textAlign: 'center', marginTop: 16, paddingHorizontal: 16 }]}>
-                                {t('products.holders.enroll.ledger.confirmTitle')}
-                            </Text>
+                    {!!confirmOnLedger && (
+                        <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: safeArea.top + 60, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, gap: 16 }}>
+                            <View style={{ flexDirection: 'row', flex: 1, flexShrink: 1, paddingLeft: 12, paddingRight: 16, paddingVertical: 8, backgroundColor: theme.surfaceOnElevation, borderRadius: 62, gap: 4, alignItems: 'center' }}>
+                                <Image
+                                    style={{ width: 46, height: 46 }}
+                                    source={require('@assets/ledger_device.png')}
+                                />
+                                <View style={{ flexShrink: 1 }}>
+                                    <Text style={[Typography.semiBold20_28, { color: theme.textPrimary, textAlign: 'center', flexShrink: 1 }]}>
+                                        {t('products.holders.enroll.ledger.confirmTitle')}
+                                    </Text>
+                                </View>
+                            </View>
                         </Animated.View>
                     )}
                 </Animated.View>

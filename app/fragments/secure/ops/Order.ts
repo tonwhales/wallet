@@ -1,6 +1,7 @@
-import { Address, beginCell, Cell, comment } from "@ton/core";
+import { Address, beginCell, Cell, comment, fromNano, toNano } from "@ton/core";
 import { OperationType } from "../../../engine/transactions/parseMessageBody";
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
+import { SignRawMessage } from "../../../engine/tonconnect/types";
 
 export type Order = {
     type: 'order';
@@ -25,7 +26,7 @@ export type LedgerOrder = {
     domain?: string;
     amount: bigint;
     amountAll: boolean;
-    payload: TonPayloadFormat[] | null;
+    payload: TonPayloadFormat | null;
     stateInit: Cell | null;
     app?: {
         domain: string,
@@ -66,7 +67,7 @@ export function createLedgerJettonOrder(args: {
         target: args.wallet.toString({ testOnly: isTestnet }),
         domain: args.domain,
         amount: args.txAmount,
-        payload: [{
+        payload: {
             type: 'jetton-transfer',
             queryId: null,
             amount: args.amount,
@@ -76,9 +77,27 @@ export function createLedgerJettonOrder(args: {
             forwardAmount: args.tonAmount,
             forwardPayload: payload,
             knownJetton: null
-        }],
+        },
         amountAll: false,
         stateInit: null,
+    }
+}
+
+export function createUnsafeLedgerOrder(
+    msg: SignRawMessage
+): LedgerOrder {
+    let payload: TonPayloadFormat | null = null;
+    if (msg.payload) {
+        payload = { type: 'unsafe', message: Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] };
+    }
+
+    return {
+        type: 'ledger',
+        target: msg.address,
+        amount: toNano(fromNano(msg.amount)),
+        amountAll: false,
+        payload,
+        stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null,
     }
 }
 
@@ -110,7 +129,7 @@ export function createSimpleLedgerOrder(args: {
         domain: args.domain,
         amount: args.amount,
         amountAll: args.amountAll,
-        payload: payload ? [payload] : null,
+        payload: payload ? payload : null,
         stateInit: args.stateInit,
         app: args.app
     }

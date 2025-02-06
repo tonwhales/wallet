@@ -2,13 +2,10 @@ import { RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from "@toncon
 import { useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
 import { SignRawParams } from "../../tonconnect/types";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { parseBody } from "../../transactions/parseWalletTransaction";
-import { Address, Cell, toNano } from "@ton/core";
+import { Address, Cell } from "@ton/core";
 import { parseAnyStringAddress } from "../../../utils/parseAnyStringAddress";
 import { useBounceableWalletFormat, useNetwork } from "..";
-import { OperationType } from "../../transactions/parseMessageBody";
-import { resolveBounceableTag } from "../../../utils/resolveBounceableTag";
-import { createLedgerJettonOrder, createSimpleLedgerOrder, LedgerOrder } from "../../../fragments/secure/ops/Order";
+import { createSimpleLedgerOrder, createUnsafeLedgerOrder } from "../../../fragments/secure/ops/Order";
 
 export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: string): (id: string, params: SignRawParams, callback: (response: WalletResponse<T>) => void, domain: string) => void {
     const ledgerContext = useLedgerTransport();
@@ -82,145 +79,22 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
             return;
         }
 
-        let jettonTransfer: {
-            queryId: number | bigint;
-            amount: bigint;
-            destination: {
-                isBounceable: boolean;
-                isTestOnly: boolean;
-                address: Address;
-            };
-            responseDestination: Address | null;
-            customPayload: Cell | null;
-            stateInit: Cell | null;
-            forwardTonAmount: bigint;
-            forwardPayload: Cell | null;
-            jettonWallet: Address;
-        } | null = null;
-        let jettonTarget: typeof target | null = null;
+        const order = createUnsafeLedgerOrder(msg);
 
-        // Parse payload
-        if (payload) {
-            const body = parseBody(payload);
-
-            if (body && body.type === 'payload') {
-                const cell = body.cell;
-                const sc = cell?.beginParse();
-
-                const resCallback: ((ok: boolean, result: Cell | null) => void) = (ok, result) => {
-                    if (ok) {
-                        callback({ result: { result: result?.toBoc()?.toString('base64') }, id });
-                    } else {
-                        callback({
-                            error: {
-                                code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
-                                message: 'User rejected',
-                            },
-                            id
-                        });
-                    }
-                }
-
-                if (sc) {
-                    if (sc.remainingBits > 32) {
-                        let op = sc.loadUint(32);
-                        // Jetton transfer op
-                        if (op === OperationType.JettonTransfer) {
-                            let queryId = sc.loadUintBig(64);
-                            let jettonAmount = sc.loadCoins();
-                            let jettonTargetAddress = sc.loadAddress();
-                            let responseDestination = sc.loadMaybeAddress();
-                            let customPayload = sc.loadBit() ? sc.loadRef() : null;
-                            let forwardTonAmount = sc.loadCoins();
-                            let forwardPayload = null;
-                            if (sc.remainingBits > 0) {
-                                forwardPayload = sc.loadMaybeRef() ?? sc.asCell();
-                            }
-
-                            const destination = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat }));
-
-                            jettonTransfer = {
-                                queryId,
-                                amount: jettonAmount,
-                                destination,
-                                responseDestination,
-                                customPayload,
-                                forwardTonAmount,
-                                forwardPayload,
-                                jettonWallet: target.address,
-                                stateInit: stateInit
-                            }
-
-                            if (jettonTargetAddress) {
-                                const bounceable = await resolveBounceableTag(jettonTargetAddress, { testOnly: isTestnet, bounceableFormat });
-                                jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet, bounceable }));
-                            }
-
-                            const estim = toNano('0.1');
-
-                            let order: LedgerOrder | null = null;
-                            if (jettonTransfer) {
-                                const txForwardAmount = toNano('0.05') + estim;
-                                order = createLedgerJettonOrder({
-                                    wallet: jettonTransfer.jettonWallet,
-                                    target: jettonTransfer.destination.address.toString({ testOnly: isTestnet, bounceable: jettonTransfer.destination.isBounceable }),
-                                    responseTarget: Address.parse(address),
-                                    // text: commentString,
-                                    text: null,
-                                    amount: jettonTransfer.amount,
-                                    tonAmount: 1n,
-                                    txAmount: txForwardAmount,
-                                    payload: null
-                                }, isTestnet);
-                            } else {
-                                callback({
-                                    error: {
-                                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
-                                        message: 'Invalid jetton transfer',
-                                    },
-                                    id
-                                });
-                                return;
-                            }
-
-                            if (!order) {
-                                callback({
-                                    error: {
-                                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
-                                        message: 'Invalid order',
-                                    },
-                                    id
-                                });
-                                return;
-                            }
-
-                            navigation.navigateLedgerSignTransfer({ text: null, order, callback: resCallback });
-                        } else if (op === OperationType.HoldersAccountTopUp) {
-                            sc.loadUintBig(64);
-                            const amount = sc.loadCoins();
-
-                            const order = createSimpleLedgerOrder({
-                                target: target.address.toString({ testOnly: isTestnet, bounceable: target.isBounceable }),
-                                text: 'Top Up',
-                                payload: null,
-                                amount,
-                                amountAll: false,
-                                stateInit
-                            });
-
-                            navigation.navigateLedgerSignTransfer({ text: null, order, callback: resCallback });
-                        }
-                    }
-                }
+        const resCallback: ((ok: boolean, result: Cell | null) => void) = (ok, result) => {
+            if (ok) {
+                callback({ result: { result: result?.toBoc()?.toString('base64') }, id });
             } else {
                 callback({
                     error: {
-                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
-                        message: 'Invalid body type',
+                        code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                        message: 'User rejected',
                     },
                     id
                 });
             }
         }
+
+        navigation.navigateLedgerSignTransfer({ text: null, order, callback: resCallback });
     }
 }

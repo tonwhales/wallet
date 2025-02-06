@@ -12,6 +12,7 @@ import { useLedgerWallets } from "../../../engine/hooks";
 import { navigationRef } from "../../../Navigation";
 import { z } from "zod";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
+import { wait } from "../../../utils/wait";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 const bufferSchema = z
@@ -80,25 +81,24 @@ const bleSearchStateReducer = (state: BLESearchState, action: BleSearchAction): 
     }
 }
 
-export const TransportContext = createContext<
-    {
-        ledgerConnection: TypedTransport | null,
-        setLedgerConnection: (transport: TypedTransport | null) => void,
-        tonTransport: TonTransport | null,
-        addr: LedgerWallet | null,
-        setAddr: (addr: LedgerWallet | null) => void,
-        bleSearchState: BLESearchState,
-        startHIDSearch: () => Promise<void>,
-        startBleSearch: () => void,
-        reset: (isLogout?: boolean) => void,
-        ledgerWallets: LedgerWallet[],
-        ledgerName: string,
-        onShowLedgerConnectionError: () => void,
-        isReconnectLedger: boolean,
-        verifySelectedAddress: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>
-    }
-    | null
->(null);
+export type LedgerTransport = {
+    ledgerConnection: TypedTransport | null,
+    setLedgerConnection: (transport: TypedTransport | null) => void,
+    tonTransport: TonTransport | null,
+    addr: LedgerWallet | null,
+    setAddr: (addr: LedgerWallet | null) => void,
+    bleSearchState: BLESearchState,
+    startHIDSearch: () => Promise<void>,
+    startBleSearch: () => void,
+    reset: (isLogout?: boolean) => void,
+    ledgerWallets: LedgerWallet[],
+    ledgerName: string,
+    onShowLedgerConnectionError: () => void,
+    isReconnectLedger: boolean,
+    verifySelectedAddress: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>
+}
+
+export const TransportContext = createContext<LedgerTransport | null>(null);
 
 // TODO: rewrite with useReducer
 export const LedgerTransportProvider = ({ children }: { children: ReactNode }) => {
@@ -183,9 +183,11 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         let hid: Transport | undefined;
         try { // For some reason, the first time this is called, it fails and only requests permission to connect the HID device
             hid = await TransportHID.create();
+            await wait(100);
         } catch {
             // Retry to account for first failed create with connect permission request
             hid = await TransportHID.create();
+            await wait(100);
         }
 
         if (hid) {

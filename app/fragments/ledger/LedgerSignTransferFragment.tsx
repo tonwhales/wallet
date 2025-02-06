@@ -38,6 +38,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { ledgerOrderToPendingTransactionBody, LedgerTransferPayload, PendingTransactionBody, PendingTransactionStatus } from '../../engine/state/pending';
 import { useParams } from '../../utils/useParams';
+import { handleLedgerSignError } from '../../utils/ledger/handleLedgerSignError';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -191,30 +192,16 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 signed = await transport.signTransaction(path, {
                     to: address!,
                     sendMode: order.amountAll
-                        ? SendMode.CARRY_ALL_REMAINING_BALANCE : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                        ? SendMode.CARRY_ALL_REMAINING_BALANCE
+                        : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                     amount: value!,
                     seqno: accountSeqno,
                     timeout: Math.floor(Date.now() / 1e3) + 60000,
                     bounce,
-                    payload: order.payload ? order.payload : undefined,
+                    payload: order.payload || undefined
                 });
             } catch (error) {
-                if (!!callback) {
-                    callback(false, null);
-                }
-                if (error instanceof Error && error.name === 'LockedDeviceError') {
-                    Alert.alert(t('hardwareWallet.unlockLedgerDescription'));
-                    return;
-                }
-                const focused = navigation.baseNavigation().isFocused();
-                Alert.alert(t('hardwareWallet.errors.transactionRejected'), undefined, [{
-                    text: focused ? t('common.back') : undefined,
-                    onPress: () => {
-                        if (focused) {
-                            navigation.goBack();
-                        }
-                    }
-                }]);
+                handleLedgerSignError({ navigation, callback, error, ledgerContext, type: order.payload?.type });
                 return;
             }
 
@@ -237,9 +224,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 }
             });
 
-
             let transferPayload: LedgerTransferPayload | null = null;
-
             if (order.payload?.type === 'jetton-transfer' && !!jetton) {
                 transferPayload = { ...order.payload, jetton };
             } else if (order.payload?.type === 'comment') {
@@ -267,7 +252,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 navigation.goBack();
                 return;
             }
-            
+
             navigation.popToTop();
 
         } catch {

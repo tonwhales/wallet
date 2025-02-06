@@ -17,6 +17,7 @@ import { ThemeType } from '../../engine/state/theme';
 import { Typography } from '../../components/styles';
 import { useFocusEffect } from "@react-navigation/native";
 import { useParams } from "../../utils/useParams";
+import { isLedgerTonAppReady } from "../../utils/ledger/isLedgerTonAppReady";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 type AccountsLite = ReturnType<typeof useAccountsLite>;
@@ -201,7 +202,8 @@ export const LedgerSelectAccountFragment = fragment(() => {
                     const res: { address: Address, publicKey: Buffer }[] = [];
                     const run = Array.from({ length: 10 }).map((_, i) => i);
                     try {
-                        let isAppOpen = await ledgerContext.tonTransport?.isAppOpen();
+                        let isAppOpen = await isLedgerTonAppReady(ledgerContext.tonTransport);
+
                         if (cancelled) return;
 
                         if (!isAppOpen) {
@@ -253,7 +255,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
             setSelected(undefined);
         } catch (e) {
             setSelected(undefined);
-            let isAppOpen = await ledgerContext.tonTransport?.isAppOpen();
+            let isAppOpen = await isLedgerTonAppReady(ledgerContext.tonTransport);
 
             if (!isAppOpen) {
                 console.warn('[ledger] closed app');

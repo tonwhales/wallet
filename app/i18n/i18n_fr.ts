@@ -1144,6 +1144,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bleTitle": "Erreur Bluetooth",
             "noDevice": "Aucun appareil trouvé",
             "appNotOpen": "L’application Ton n’est pas ouverte sur Ledger",
+            "openApp": "Veuillez ouvrir l'application TON sur votre Ledger",
             "turnOnBluetooth": "Veuillez activer le Bluetooth et réessayer",
             "lostConnection": "Connexion perdue avec Ledger",
             "transactionNotFound": "Transaction introuvable",
@@ -1154,7 +1155,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "reboot": "Veuillez redémarrer votre appareil et réessayer",
             "turnOnLocation": "Veuillez activer les services de localisation et réessayer, c’est nécessaire pour détecter les appareils à proximité",
             "locationServicesUnauthorized": "Services de localisation non autorisés",
-            "bluetoothScanFailed": "Échec de la recherche Bluetooth"
+            "bluetoothScanFailed": "Échec de la recherche Bluetooth",
+            "unsafeTransfer": "Veuillez autoriser la signature à l'aveugle dans l'application TON Ledger",
+            "userCanceled": "Rejeté sur Ledger"
         },
         "moreAbout": "En savoir plus sur Ledger",
         "verifyAddress": {

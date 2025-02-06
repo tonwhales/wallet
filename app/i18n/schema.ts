@@ -1146,6 +1146,7 @@ export type LocalizationSchema = {
             bleTitle: string,
             noDevice: string,
             appNotOpen: string,
+            openApp: string,
             turnOnBluetooth: string,
             lostConnection: string,
             transactionNotFound: string,
@@ -1156,7 +1157,9 @@ export type LocalizationSchema = {
             reboot: string,
             turnOnLocation: string,
             locationServicesUnauthorized: string,
-            bluetoothScanFailed: string
+            bluetoothScanFailed: string,
+            unsafeTransfer: string,
+            userCanceled: string,
         },
         moreAbout: string,
         verifyAddress: {

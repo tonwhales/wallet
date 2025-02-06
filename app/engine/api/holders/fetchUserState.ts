@@ -2,8 +2,7 @@ import axios from 'axios';
 import { z } from 'zod';
 
 export const holdersEndpointStage = 'card-staging.whales-api.com';
-export const holdersUrlStage = 'https://stage.holders.io';
-// export const holdersUrlStage = 'https://tonhub-stage.holders.io';
+export const holdersUrlStage = 'https://tonhub-stage.holders.io';
 
 export const holdersEndpointProd = 'card-prod.whales-api.com';
 export const holdersUrlProd = 'https://tonhub.holders.io';

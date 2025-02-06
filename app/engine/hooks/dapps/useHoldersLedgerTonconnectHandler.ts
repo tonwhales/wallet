@@ -27,24 +27,6 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
             return;
         }
 
-        // await Promise.all(
-        //     transfer.messages.map(async (message, index) => ({
-        //         to: Address.parse(message.address),
-        //         bounce: await tonConnectAddressIsBounceable(this.api, message.address),
-        //         amount: BigInt(message.amount),
-        //         seqno: seqno + index,
-        //         timeout: getTTL(timestamp + index * 60),
-        //         sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
-        //         payload: message.payload
-        //             ? {
-        //                   type: 'unsafe' as const,
-        //                   message: Cell.fromBase64(message.payload)
-        //               }
-        //             : undefined,
-        //         stateInit: toStateInit(message.stateInit)
-        //     }))
-        // )
-
         if (params.messages.length === 0 || params.messages.length > 1) {
             callback({
                 error: {

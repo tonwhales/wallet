@@ -222,6 +222,8 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                     console.warn('[ledger] reconnect failed');
                     await delay(1000);
                     onDisconnect();
+                } finally {
+                    setIsReconnectLedger(false);
                 }
             })();
             return;

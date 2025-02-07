@@ -1167,7 +1167,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidAddressTitle": "Неверный адрес",
             "invalidAddressMessage": "Этот адрес недействителен. Пожалуйста, проверьте адрес и попробуйте снова",
             "failed": "Не удалось подтвердить адрес",
-            "failedMessage": "Произошла ошибка при подтверждении адреса. Пожалуйста, переподключите Ledger и попробуйте снова",
+            "failedMessage": "Пожалуйста, переподключите Ledger и попробуйте снова",
             "verifying": "Подтверждение на Ledger"
         }
     },

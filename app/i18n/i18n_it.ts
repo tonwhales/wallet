@@ -1167,7 +1167,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "invalidAddressTitle": "Indirizzo non valido",
             "invalidAddressMessage": "Questo indirizzo non è valido. Controlla l'indirizzo e riprova",
             "failed": "Verifica dell'indirizzo fallita",
-            "failedMessage": "Si è verificato un errore durante la verifica dell'indirizzo. Ricollega Ledger e riprova",
+            "failedMessage": "Ricollega Ledger e riprova",
             "verifying": "Conferma su Ledger"
         }
     },

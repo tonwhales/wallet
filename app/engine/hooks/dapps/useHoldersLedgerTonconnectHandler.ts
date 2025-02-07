@@ -4,14 +4,13 @@ import { SignRawParams } from "../../tonconnect/types";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, Cell } from "@ton/core";
 import { parseAnyStringAddress } from "../../../utils/parseAnyStringAddress";
-import { useBounceableWalletFormat, useNetwork } from "..";
-import { createSimpleLedgerOrder, createUnsafeLedgerOrder } from "../../../fragments/secure/ops/Order";
+import { useNetwork } from "..";
+import { createUnsafeLedgerOrder } from "../../../fragments/secure/ops/Order";
 
 export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: string): (id: string, params: SignRawParams, callback: (response: WalletResponse<T>) => void, domain: string) => void {
     const ledgerContext = useLedgerTransport();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
-    const [bounceableFormat] = useBounceableWalletFormat();
 
     return async (id: string, params: SignRawParams, callback: (response: WalletResponse<T>) => void, domain: string) => {
 

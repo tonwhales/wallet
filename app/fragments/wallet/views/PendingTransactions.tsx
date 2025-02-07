@@ -316,7 +316,7 @@ export const PendingTransactions = memo(({
         if (!!lastTxsSeqno) {
             removePending(pending.filter((tx) => tx.seqno < lastTxsSeqno).map((tx) => tx.id));
         }
-    }, [lastTxsSeqno]);
+    }, [lastTxsSeqno, pending]);
 
     const pendingTxs = useMemo(() => {
         // Show only pending on history tab
@@ -357,8 +357,7 @@ export const PendingTransactions = memo(({
                     style={{
                         backgroundColor: theme.backgroundPrimary,
                         justifyContent: 'flex-end',
-                        paddingVertical: 16,
-                        marginTop: 20,
+                        paddingVertical: 16
                     }}
                 >
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>

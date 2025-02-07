@@ -20,6 +20,9 @@ import { copyText } from "../../utils/copyText";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import Share from 'react-native-share';
 import { ExchangesFragmentParams } from "./ExchangesFragment";
+import { useLedgerTransport } from "../ledger/components/TransportContext";
+import { TransportStatusError } from "@ledgerhq/hw-transport";
+import { useRoute } from "@react-navigation/native";
 
 import CopyIcon from '@assets/ic-copy.svg';
 
@@ -36,7 +39,6 @@ export type ReceiveableAsset = {
 
 export type ReceiveFragmentParams = {
     addr?: string;
-    ledger?: boolean;
     asset?: ReceiveableAsset;
 }
 
@@ -48,11 +50,14 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
-    const { addr, asset: asset } = useParams<ReceiveFragmentParams>();
+    const { addr, asset } = useParams<ReceiveFragmentParams>();
     const selected = useSelectedAccount();
     const [bounceableFormat] = useBounceableWalletFormat();
     const toaster = useToaster();
     const dimensions = useWindowDimensions();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerReceive';
+    const ledgerContext = useLedgerTransport();
 
     const address = useMemo(() => {
         if (addr) {
@@ -75,7 +80,7 @@ export const ReceiveFragment = fragment(() => {
         icon: jetton.icon,
         name: jetton.name
     } : null
-    const icon = jettonAssetcontent?.icon;
+    const icon = asset?.content?.icon || jettonAssetcontent?.icon;
     const name = asset?.content?.name;
 
     const friendly = useMemo(() => {
@@ -186,6 +191,36 @@ export const ReceiveFragment = fragment(() => {
             });
         }
     }, [link]);
+
+    const verifyLedger = async () => {
+        if (!isLedger) {
+            return
+        }
+        if (!(ledgerContext.tonTransport && !ledgerContext.isReconnectLedger)) {
+            ledgerContext.onShowLedgerConnectionError();
+            return;
+        }
+
+        try {
+            const verificationResult = await ledgerContext.verifySelectedAddress(network.isTestnet)
+            const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
+
+            if (!isValid) {
+                Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
+                return;
+            }
+
+        } catch (e) {
+            const isCanceled = e instanceof TransportStatusError && (e as any).statusCode === 0x6985;
+            if (isCanceled) {
+                return;
+            }
+            Alert.alert(
+                t('hardwareWallet.verifyAddress.failed'),
+                t('hardwareWallet.verifyAddress.failedMessage')
+            );
+        }
+    };
 
     const screenWidth = dimensions.width;
     let qrCodeSize = qrSize
@@ -374,12 +409,47 @@ export const ReceiveFragment = fragment(() => {
                         )}
                     </View>
                 </View>
+                {isLedger && (
+                    <Animated.View
+                        style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 40, paddingHorizontal: 16,
+                            flexShrink: 1, maxWidth: 224, alignSelf: 'center',
+                            paddingVertical: 8,
+                            marginTop: capturing ? 0 : 16
+                        }}
+                        entering={FadeInUp}
+                        exiting={FadeOutDown}
+                    >
+                        <Pressable
+                            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            onPress={verifyLedger}
+                        >
+                            <View style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 8
+                            }}>
+                                <View style={{ height: 20, width: 20, justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image
+                                        source={require('@assets/ic-backup.png')}
+                                        style={{ height: 20, width: 20 }}
+                                    />
+                                </View>
+                                <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                    {t('hardwareWallet.verifyAddress.action')}
+                                </Text>
+                            </View>
+                        </Pressable>
+                    </Animated.View>
+                )}
                 <Animated.View
                     style={{
                         backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 40, paddingHorizontal: 16, gap: 8,
                         flexShrink: 1, maxWidth: 224,
-                        marginTop: capturing ? 0 : 16,
+                        marginTop: (capturing && !isLedger) ? 0 : 16,
                         alignSelf: 'center',
                         paddingVertical: 8
                     }}

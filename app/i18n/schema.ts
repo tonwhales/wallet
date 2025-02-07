@@ -224,6 +224,8 @@ export type LocalizationSchema = {
             gaslessNotEnoughCoins: string,
             notEnoughJettons: string,
             jettonChange: string,
+            ledgerErrorConnectionTitle: string,
+            ledgerErrorConnectionMessage: string,
             notEnoughGasTitle: string,
             notEnoughGasMessage: string,
         },
@@ -645,6 +647,10 @@ export type LocalizationSchema = {
                     fetchToken: string,
                     createSignature: string,
                 },
+                ledger: {
+                    confirmTitle: string,
+                    confirmMessage: string
+                }
             },
             otpBanner: {
                 title: string,
@@ -1140,6 +1146,7 @@ export type LocalizationSchema = {
             bleTitle: string,
             noDevice: string,
             appNotOpen: string,
+            openApp: string,
             turnOnBluetooth: string,
             lostConnection: string,
             transactionNotFound: string,
@@ -1150,9 +1157,21 @@ export type LocalizationSchema = {
             reboot: string,
             turnOnLocation: string,
             locationServicesUnauthorized: string,
-            bluetoothScanFailed: string
+            bluetoothScanFailed: string,
+            unsafeTransfer: string,
+            userCanceled: string,
         },
-        moreAbout: string
+        moreAbout: string,
+        verifyAddress: {
+            title: string,
+            message: string,
+            action: string,
+            invalidAddressTitle: string,
+            invalidAddressMessage: string,
+            failed: string,
+            failedMessage: string,
+            verifying: string,
+        }
     },
     devTools: {
         switchNetwork: string,

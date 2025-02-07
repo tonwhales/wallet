@@ -25,9 +25,9 @@ const BlinkingDot = memo(() => {
     )
 });
 
-export const HeaderSyncStatus = memo(() => {
+export const HeaderSyncStatus = memo(({ address, isLedger }: { address?: string, isLedger?: boolean }) => {
     const theme = useTheme();
-    const syncState = useSyncState();
+    const syncState = useSyncState(address);
 
     if (syncState === 'updating') {
         return <BlinkingDot />;

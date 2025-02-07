@@ -222,6 +222,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "gaslessNotEnoughCoins": "{{fee}} in fees required to send, missing {{missing}}",
             "notEnoughJettons": "Not enough {{symbol}}",
             "jettonChange": "Recipient supports only {{symbol}} transfers, please change the recipient or the transfer currency",
+            "ledgerErrorConnectionTitle": "Ledger is not connected",
+            "ledgerErrorConnectionMessage": "Please, connect ledger and try again",
             "notEnoughGasTitle": "Insufficient TON to cover the gas fee",
             "notEnoughGasMessage": "Please top up your wallet with TON (at least {{diff}} TON more is needed) and try again"
         },
@@ -642,6 +644,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "createDomainKey": "During domain key creation",
                     "fetchToken": "During token fetching",
                     "createSignature": "During signature creation"
+                },
+                "ledger": {
+                    "confirmTitle": "Continue with Ledger",
+                    "confirmMessage": "Sign authorization & confirm wallet address",
                 }
             },
             "otpBanner": {
@@ -1138,6 +1144,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bleTitle": "Bluetooth error",
             "noDevice": "No device found",
             "appNotOpen": "Ton app is not open on Ledger",
+            "openApp": "Please, open the TON app on your Ledger",
             "turnOnBluetooth": "Please, turn Bluetooth on and try again",
             "lostConnection": "Lost connection with Ledger",
             "transactionNotFound": "Transaction not found",
@@ -1148,9 +1155,21 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "reboot": "Please, reboot your device and try again",
             "turnOnLocation": "Please, turn on location services and try again, this is required to scan for nearby devices",
             "locationServicesUnauthorized": "Location services are unauthorized",
-            "bluetoothScanFailed": "Bluetooth scan failed"
+            "bluetoothScanFailed": "Bluetooth scan failed",
+            "unsafeTransfer": "Please, allow blind sign in TON Ledger app",
+            "userCanceled": "Rejected on Ledger"
         },
-        "moreAbout": "More about Ledger"
+        "moreAbout": 'More about Ledger',
+        "verifyAddress": {
+            "title": 'Confirm address on Ledger',
+            "message": 'Please, verify the address: {{address}} on your Ledger device',
+            "action": 'Verify',
+            "invalidAddressTitle": 'Invalid address',
+            "invalidAddressMessage": 'This address is not valid. Please, check the address and try again',
+            "failed": 'Failed to verify address',
+            "failedMessage": 'There was an error verifying the address. Please, reconnect Ledger and try again',
+            "verifying": 'Confirm on Ledger'
+        }
     },
     "devTools": {
         "switchNetwork": "Network",

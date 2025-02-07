@@ -1,5 +1,9 @@
 import { atom } from 'recoil';
-import { getLedgerEnabled, setLedgerEnabled } from '../../storage/appState';
+import {getLedgerEnabled, getLedgerWallets, setLedgerEnabled} from '../../storage/appState';
+import { storage } from '../../storage/storage';
+import { LedgerWallet } from '../../fragments/ledger/components/TransportContext';
+
+export const ledgerWalletsKey = 'ledgerWalletsKey';
 
 export const ledgerEnabledState = atom({
     key: 'misc/ledgerEnabledState',
@@ -10,3 +14,19 @@ export const ledgerEnabledState = atom({
         })
     }]
 });
+
+export const ledgerWalletsAtom = atom<LedgerWallet[]>({
+    key: 'ledger/wallets',
+    default: getLedgerWallets(),
+    effects: [
+        ({ onSet }) => {
+            onSet((ledgerWallets) => {
+                setLedgerWallets(ledgerWallets);
+            });
+        }
+    ]
+});
+
+export function setLedgerWallets(ledgerWallets: LedgerWallet[]) {
+    storage.set(ledgerWalletsKey, JSON.stringify(ledgerWallets));
+}

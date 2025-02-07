@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Alert, StyleSheet } from 'react-native';
+import { View, Alert, StyleSheet, Text } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -10,7 +10,7 @@ import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
+import { useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -24,6 +24,9 @@ import { getAppManifest } from '../../engine/getters/getAppManifest';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { AnimatedCards } from './components/AnimatedCards';
+import { useRoute } from '@react-navigation/native';
+import { Typography } from '../../components/styles';
+import { Image } from 'expo-image';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -35,12 +38,17 @@ export const HoldersLandingFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [currency] = usePrimaryCurrency();
+    const [lang] = useLanguage();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerHoldersLanding';
 
     const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 
     const domain = extractDomain(endpoint);
+    const [confirmOnLedger, setConfirmOnLedger] = useState(false);
     const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
-    const [lang] = useLanguage();
+    const ledgerEnroll = useHoldersLedgerEnroll({ inviteId, setConfirming: setConfirmOnLedger });
+    const authenticate = isLedger ? ledgerEnroll : enroll;
 
     // Anim
     const isAuthenticating = useRef(false);
@@ -84,18 +92,26 @@ export const HoldersLandingFragment = fragment(() => {
                 return;
             }
 
-            const res = await enroll();
+            const res = await authenticate();
 
             if (res.type === 'success') {
                 // Navigate to continue
-                navigation.replace('Holders', onEnrollType);
+                navigation.navigateHolders(onEnrollType, isTestnet, isLedger, true);
+                isAuthenticating.current = false;
+                return;
+            }
+
+            const err = (res as { type: 'error', error: HoldersEnrollErrorType }).error;
+
+            if (err === HoldersEnrollErrorType.LedgerHandled) {
+                authOpacity.value = 0;
                 isAuthenticating.current = false;
                 return;
             }
 
             let message = ''
 
-            switch (res.error) {
+            switch (err) {
                 case HoldersEnrollErrorType.NoDomainKey:
                     message = t('products.holders.enroll.failed.noDomainKey');
                     break;
@@ -124,7 +140,8 @@ export const HoldersLandingFragment = fragment(() => {
             authOpacity.value = 0;
             isAuthenticating.current = false;
             return;
-        } catch {
+        } catch (error) {
+            console.error('HoldersLandingFragment enroll error', error);
             authOpacity.value = 0;
             isAuthenticating.current = false;
 
@@ -140,7 +157,7 @@ export const HoldersLandingFragment = fragment(() => {
                 ]
             );
         }
-    }, [enroll]);
+    }, [authenticate]);
 
     const source = useMemo(() => {
         const queryParams = new URLSearchParams({
@@ -225,7 +242,7 @@ export const HoldersLandingFragment = fragment(() => {
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <View
                 key={`content-${renderKey}`}
-                style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
             >
                 <DAppWebView
                     ref={webRef}
@@ -250,6 +267,21 @@ export const HoldersLandingFragment = fragment(() => {
                         style={{ paddingHorizontal: 16 }}
                     />
                     <AnimatedCards />
+                    {!!confirmOnLedger && (
+                        <Animated.View style={{ position: 'absolute', left: 0, right: 0, top: safeArea.top + 60, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, gap: 16 }}>
+                            <View style={{ flexDirection: 'row', flex: 1, flexShrink: 1, paddingLeft: 12, paddingRight: 16, paddingVertical: 8, backgroundColor: theme.surfaceOnElevation, borderRadius: 62, gap: 4, alignItems: 'center' }}>
+                                <Image
+                                    style={{ width: 46, height: 46 }}
+                                    source={require('@assets/ledger_device.png')}
+                                />
+                                <View style={{ flexShrink: 1 }}>
+                                    <Text style={[Typography.semiBold20_28, { color: theme.textPrimary, textAlign: 'center', flexShrink: 1 }]}>
+                                        {t('products.holders.enroll.ledger.confirmTitle')}
+                                    </Text>
+                                </View>
+                            </View>
+                        </Animated.View>
+                    )}
                 </Animated.View>
             </View>
         </View>

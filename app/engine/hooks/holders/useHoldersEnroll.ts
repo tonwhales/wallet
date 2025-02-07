@@ -1,6 +1,6 @@
 import { Address, beginCell, storeStateInit } from "@ton/core";
 import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
-import { fetchUserToken } from "../../api/holders/fetchUserToken";
+import { AccountKeyParam, fetchUserToken } from "../../api/holders/fetchUserToken";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { WalletKeys } from "../../../storage/walletKeys";
@@ -8,14 +8,23 @@ import { ConnectReplyBuilder } from "../../tonconnect/ConnectReplyBuilder";
 import { holdersUrl } from "../../api/holders/fetchUserState";
 import { getAppManifest } from "../../getters/getAppManifest";
 import { AppManifest } from "../../api/fetchManifest";
-import { ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
+import { CHAIN, ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
 import { useAppConnections, useConnectApp, useNetwork, useSaveAppConnection } from "..";
 import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
 import { TonConnectBridgeType } from "../../tonconnect/types";
 import { extensionKey } from "../dapps/useAddExtension";
 import { useWalletVersion } from "../useWalletVersion";
 import { getInviteId } from "../../../useLinkNavigator";
-
+import { LedgerWallet, useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
+import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
+import { extractDomain } from "../../utils/extractDomain";
+import { WalletVersions } from "../../types";
+import { getTimeSec } from "../../../utils/getTimeSec";
+import { warn } from "../../../utils/log";
+import { Alert } from "react-native";
+import { t } from "../../../i18n/t";
+import { normalizeUrl } from "../../../utils/resolveUrl";
+import { authParamsFromLedgerProof } from "../../../utils/holders/authParamsFromLedgerProof";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -31,6 +40,12 @@ export type HoldersEnrollParams = {
     inviteId?: string
 }
 
+export type HoldersLedgerEnrollParams = {
+    acc: LedgerWallet,
+    domain: string,
+    inviteId?: string
+}
+
 export enum HoldersEnrollErrorType {
     NoDomainKey = 'NoDomainKey',
     DomainKeyFailed = 'DomainKeyFailed',
@@ -40,7 +55,8 @@ export enum HoldersEnrollErrorType {
     SignFailed = 'SignFailed',
     ManifestFailed = 'ManifestFailed',
     ReplyItemsFailed = 'ReplyItemsFailed',
-    NoProof = 'NoProof'
+    NoProof = 'NoProof',
+    LedgerHandled = 'LedgerHandled'
 }
 
 export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType } | { type: 'success' };
@@ -137,7 +153,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                         stateInitStr,
                         isTestnet
                     );
-                } catch (e) {
+                } catch {
                     return { type: 'error', error: HoldersEnrollErrorType.ReplyItemsFailed };
                 }
 
@@ -154,7 +170,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                     },
                     connections: [{
                         type: TonConnectBridgeType.Injected,
-                        replyItems: replyItems,
+                        replyItems
                     }]
                 });
 
@@ -204,3 +220,4 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
         return res as HoldersEnrollResult;
     })
 }
+

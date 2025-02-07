@@ -5,8 +5,9 @@ import { CHAIN } from "@tonconnect/protocol";
 import { ConnectedApp } from "../hooks/dapps/useTonConnectExtenstions";
 import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, ConnectedAppConnectionRemote, SendTransactionRequest, TonConnectBridgeType } from '../tonconnect/types';
 import { selectedAccountSelector } from "./appState";
-import { getAppState } from "../../storage/appState";
+import { getAppState, getLedgerWallets } from "../../storage/appState";
 import { getIsTestnet } from "./network";
+import { Address } from "@ton/core";
 
 const appConnectionsKey = 'connectConnectedApps';
 const pendingRequestsKey = 'connectPendingRequests';
@@ -104,18 +105,32 @@ export function getFullConnectionsMap() {
     res[accString] = getConnectionsState(accString);
   }
 
+  const ledgerWallets = getLedgerWallets();
+
+  for (const acc of ledgerWallets) {
+    if (acc.address) {
+      const address = Address.parse(acc.address).toString({ testOnly: isTestnet });
+      res[address] = getConnectionsState(address);
+    }
+  }
+
   return res;
 }
 
 export const connectionsMapAtom = atom<FullConnectionsMap>({
   key: 'tonconnect/connections/map',
   default: getFullConnectionsMap(),
-  effects: [({ onSet }) => {
+  effects: [({ onSet, setSelf }) => {
     onSet((newValue) => {
       for (const address in newValue) {
         storeConnectionsState(address, newValue[address]);
       }
     });
+
+    const stored = getFullConnectionsMap();
+    if (stored) {
+      setSelf(stored);
+    }
   }]
 });
 
@@ -257,6 +272,15 @@ export function getFullExtensionsMap() {
   for (const acc of appState.addresses) {
     const accString = acc?.address.toString({ testOnly: isTestnet }) || '';
     res[accString] = getStoredConnectExtensions(accString);
+  }
+
+  const ledgerWallets = getLedgerWallets();
+
+  for (const acc of ledgerWallets) {
+    if (acc.address) {
+      const address = Address.parse(acc.address).toString({ testOnly: isTestnet });
+      res[address] = getStoredConnectExtensions(address);
+    }
   }
 
   return res;

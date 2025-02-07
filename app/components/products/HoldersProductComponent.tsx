@@ -5,16 +5,20 @@ import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHold
 import { HoldersAccounts } from "./HoldersAccounts";
 import { HoldersCards } from "./HoldersCards";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { Address } from "@ton/core";
 
-export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccStatus?: HoldersAccountStatus }) => {
+export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { holdersAccStatus?: HoldersAccountStatus, isLedger?: boolean }) => {
     const network = useNetwork();
     const theme = useTheme();
+    const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
-    const accounts = useHoldersAccounts(selected!.address).data?.accounts;
-    const prePaid = useHoldersAccounts(selected!.address).data?.prepaidCards;
+    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address!;
+    const accounts = useHoldersAccounts(address).data?.accounts;
+    const prePaid = useHoldersAccounts(address).data?.prepaidCards;
 
-    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(selected!.address);
-    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(selected!.address);
+    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address);
+    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address);
 
     const visibleAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {
@@ -38,20 +42,23 @@ export const HoldersProductComponent = memo(({ holdersAccStatus }: { holdersAccS
     return (
         <View style={{ marginTop: (hasAccounts || hasPrepaid) ? 16 : 0 }}>
             <HoldersAccounts
-                owner={selected!.address}
+                owner={address}
                 theme={theme}
                 isTestnet={network.isTestnet}
                 markAccount={markAccount}
                 accs={visibleAccountsList}
                 holdersAccStatus={holdersAccStatus}
+                isLedger={isLedger}
             />
             <View style={{ marginTop: (hasAccounts && hasPrepaid) ? 16 : 0 }}>
                 <HoldersCards
+                    owner={address}
                     theme={theme}
                     isTestnet={network.isTestnet}
                     markPrepaidCard={markPrepaidCard}
                     cards={visiblePrepaidList}
                     holdersAccStatus={holdersAccStatus}
+                    isLedger={isLedger}
                 />
             </View>
         </View>

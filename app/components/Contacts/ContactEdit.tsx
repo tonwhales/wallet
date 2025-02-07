@@ -46,7 +46,7 @@ export const ContactEdit = memo(({
     const contact = useContact(address);
     const contractInfo = useContractInfo(address);
 
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const [name, setName] = useState(contact?.name);
     const [fields, setFields] = useState(contact?.fields || requiredFields);
 

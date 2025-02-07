@@ -222,6 +222,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "gaslessNotEnoughCoins": "{{fee}} em taxas necessárias para enviar, faltando {{missing}}",
             "notEnoughJettons": "{{symbol}} insuficiente",
             "jettonChange": "O destinatário suporta apenas transferências de {{symbol}}, por favor altere o destinatário ou a moeda da transferência",
+            "ledgerErrorConnectionTitle": "Ledger não está conectado",
+            "ledgerErrorConnectionMessage": "Por favor, conecte o Ledger e tente novamente",
             "notEnoughGasTitle": "TON insuficiente para cobrir a taxa de gás",
             "notEnoughGasMessage": "Por favor, deposite TON em sua carteira (pelo menos {{diff}} TON a mais é necessário) e tente novamente"
         },
@@ -642,6 +644,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "createDomainKey": "Durante a criação da chave de domínio",
                     "fetchToken": "Durante a busca do token",
                     "createSignature": "Durante a criação da assinatura"
+                },
+                "ledger": {
+                    "confirmTitle": "Continuar com Ledger",
+                    "confirmMessage": "Assine a autorização e confirme o endereço da carteira"
                 }
             },
             "otpBanner": {
@@ -1138,6 +1144,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bleTitle": "Erro de Bluetooth",
             "noDevice": "Nenhum dispositivo encontrado",
             "appNotOpen": "Aplicativo Ton não está aberto no Ledger",
+            "openApp": "Por favor, abra o aplicativo Ton no seu Ledger",
             "turnOnBluetooth": "Por favor, ative o Bluetooth e tente novamente",
             "lostConnection": "Conexão com Ledger perdida",
             "transactionNotFound": "Transação não encontrada",
@@ -1148,9 +1155,21 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "reboot": "Por favor, reinicie seu dispositivo e tente novamente",
             "turnOnLocation": "Por favor, ative os serviços de localização e tente novamente, isso é necessário para procurar dispositivos próximos",
             "locationServicesUnauthorized": "Serviços de localização não autorizados",
-            "bluetoothScanFailed": "Busca por Bluetooth falhou"
+            "bluetoothScanFailed": "Busca por Bluetooth falhou",
+            "unsafeTransfer": "Por favor, permita a assinatura cega no aplicativo TON Ledger",
+             "userCanceled": "Rejeitado no Ledger"
         },
-        "moreAbout": "Mais sobre Ledger"
+        "moreAbout": "Mais sobre Ledger",
+        "verifyAddress": {
+            "title": "Confirmar endereço no Ledger",
+            "message": "Por favor, verifique o endereço: {{address}} no seu dispositivo Ledger",
+            "action": "Confirmar",
+            "invalidAddressTitle": "Endereço inválido",
+            "invalidAddressMessage": "Este endereço não é válido. Por favor, verifique o endereço e tente novamente",
+            "failed": "Falha ao verificar endereço",
+            "failedMessage": "Ocorreu um erro ao verificar o endereço. Por favor, reconecte o Ledger e tente novamente",
+            "verifying": "Confirmar no Ledger"
+        }
     },
     "devTools": {
         "switchNetwork": "Rede",

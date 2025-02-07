@@ -29,10 +29,7 @@ export const LedgerAppFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const { isTestnet: testOnly } = useNetwork();
 
-    if (
-        !ledgerContext?.tonTransport
-        || !ledgerContext.addr
-    ) {
+    if (!ledgerContext.addr) {
         navigation.navigateAndReplaceAll('Home')
         return null;
     }

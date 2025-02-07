@@ -206,6 +206,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "gaslessNotEnoughCoins": "Необходимо {{fee}} для оплаты комиссии, не хватает {{missing}}",
             "notEnoughJettons": "Недостаточно {{symbol}}",
             "jettonChange": "Получатель поддерживает только транзакции в {{symbol}}, пожалуйста, измените получателя или валюту транзакции",
+            "ledgerErrorConnectionTitle": "Ledger не подключен",
+            "ledgerErrorConnectionMessage": "Пожалуйста, подключите Ledger и попробуйте снова",
             "notEnoughGasTitle": "Недостаточно TON для оплаты комиссии",
             "notEnoughGasMessage": "Пожалуйста, пополните кошелек TON (необходимо еще как минимум {{diff}} TON) и попробуйте снова",
         },
@@ -642,6 +644,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                     "createDomainKey": "Во время создания ключа домена",
                     "fetchToken": "Во время получения токена",
                     "createSignature": "Во время создания подписи"
+                },
+                "ledger": {
+                    "confirmTitle": "Продолжить с Ledger",
+                    "confirmMessage": "Подпишите авторизацию и подтвердите адрес кошелька"
                 }
             },
             "otpBanner": {
@@ -1137,7 +1143,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "errors": {
             "bleTitle": 'Ошибка Bluetooth',
             "noDevice": "Устройство не найдено",
-            "appNotOpen": "Приложение Ton App не открыто на вашем Ledger",
+            "appNotOpen": "Приложение TON App не открыто на вашем Ledger",
+            "openApp": "Пожалуйста, откройте TON App на вашем Ledger",
             "turnOnBluetooth": "Пожалуйста, включите Bluetooth и попробуйте снова",
             "lostConnection": "Потеряно соединение с устройством",
             "transactionNotFound": "Транзакция не найдена",
@@ -1148,9 +1155,21 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "reboot": "Пожалуйста, перезагрузите ваше устройство и попробуйте снова",
             "turnOnLocation": "Пожалуйста, включите службы геолокации и попробуйте снова, это необходимо для поиска устройств рядом",
             "locationServicesUnauthorized": "Службы геолокации не доступны",
-            "bluetoothScanFailed": "Поиск Bluetooth не удался"
+            "bluetoothScanFailed": "Поиск Bluetooth не удался",
+            "unsafeTransfer": "Пожалуйста, разрешите blind sign в приложении TON Ledger",
+            "userCanceled": "Отклонено на Ledger"
         },
-        "moreAbout": "Подробнее о Ledger"
+        "moreAbout": "Подробнее о Ledger",
+        "verifyAddress": {
+            "title": "Подтвердите адрес на Ledger",
+            "message": "Пожалуйста, подтвердите адрес: {{address}} на вашем Ledger устройстве",
+            "action": "Подтвердить",
+            "invalidAddressTitle": "Неверный адрес",
+            "invalidAddressMessage": "Этот адрес недействителен. Пожалуйста, проверьте адрес и попробуйте снова",
+            "failed": "Не удалось подтвердить адрес",
+            "failedMessage": "Произошла ошибка при подтверждении адреса. Пожалуйста, переподключите Ledger и попробуйте снова",
+            "verifying": "Подтверждение на Ledger"
+        }
     },
     "devTools": {
         "switchNetwork": "Сеть",

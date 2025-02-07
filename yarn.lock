@@ -2948,10 +2948,10 @@
   resolved "https://registry.yarnpkg.com/@tokenizer/token/-/token-0.3.0.tgz#fe98a93fe789247e998c75e74e9c7c63217aa276"
   integrity sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==
 
-"@ton-community/ton-ledger@^7.0.1":
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/@ton-community/ton-ledger/-/ton-ledger-7.0.1.tgz#184f3f81a2e379e28646f3481530f036b015fe63"
-  integrity sha512-4QDjG9D/c3vKyApKa36KfqyE0UcPn/ExSJvCb8Cd03BdhMiZQNvm7tJsKg12lslPCIbl1dW9ZC6fg1RvqAAqnQ==
+"@ton-community/ton-ledger@^7.2.0-pre.3":
+  version "7.2.0-pre.3"
+  resolved "https://registry.yarnpkg.com/@ton-community/ton-ledger/-/ton-ledger-7.2.0-pre.3.tgz#db9fdeed6d119f2e91dac49a862ba8143a03b6b8"
+  integrity sha512-ZVv/rIxqrbBPfSfd2mgpnQYiVpgAMccyr0UtJSwgOKtvqF0me2POLSjVxfyMN1InT4RRlt9b/xV9OFQPZ0qwuQ==
   dependencies:
     "@ledgerhq/hw-transport" "^6.28.4"
     "@ton/crypto" "^3.2.0"

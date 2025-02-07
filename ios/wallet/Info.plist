@@ -107,19 +107,5 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>branch_key</key>
-	<dict>
-		<key>live</key>
-		<string>$BRANCH_KEY_LIVE</string>
-		<key>test</key>
-		<string>$BRANCH_KEY_TEST</string>
-	</dict>
-	<key>branch_universal_link_domains</key>
-	<dict>
-		<key>Item 0</key>
-		<string>tonhub.app.link</string>
-		<key>Item 1</key>
-		<string>tonhub-alternate.app.link</string>
-	</dict>
 </dict>
 </plist>

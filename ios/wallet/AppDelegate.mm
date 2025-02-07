@@ -3,7 +3,6 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
 #import <ReactNativePerformance/ReactNativePerformance.h>
-#import <RNBranch/RNBranch.h>
 #import <RNAppsFlyer.h>
 
 
@@ -11,8 +10,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [RNBranch.branch checkPasteboardOnInstall];
-	[RNBranch initSessionWithLaunchOptions:launchOptions isReferrable:YES];
   [ReactNativePerformance onAppStarted];
   // Disable iCloud backup
   NSArray *urlArray = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask];
@@ -62,14 +59,12 @@
 
 // Linking API
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-  [RNBranch application:application openURL:url options:options];
   [[AppsFlyerAttribution shared] handleOpenUrl:url options:options];
   return YES;
 }
 
 // Universal Links
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
-  [RNBranch continueUserActivity:userActivity];
   [[AppsFlyerAttribution shared] continueUserActivity:userActivity restorationHandler:restorationHandler];
   return YES;
 }

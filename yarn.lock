@@ -8803,11 +8803,6 @@ react-native-bouncy-checkbox@^2.1.9:
   resolved "https://registry.yarnpkg.com/react-native-bouncy-checkbox/-/react-native-bouncy-checkbox-2.1.13.tgz#d9234b1d34f31178ad1d6d6528fee4949f67df0f"
   integrity sha512-E9F5d7Lp2K/w0JjNnaRr6gTy8+oD8GGHCmIjWI/+A447Vy/jLfmGd9AVcM6Gunj75xdi9+DmtbaE4dJKwltehQ==
 
-react-native-branch@^6.3.0:
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-branch/-/react-native-branch-6.3.0.tgz#f7746fd4dbfbf8f5ddfa812e512ad1d4fae5072d"
-  integrity sha512-m6okQV2rqORBUPNIdVDeCD6Hg9dPk/PvynsP4gSlPRmLlbqciiqXoT5qbh/V+pR7+BGm1HMQtGD5Y8XBrVFkMw==
-
 react-native-chart-kit@^6.12.0:
   version "6.12.0"
   resolved "https://registry.yarnpkg.com/react-native-chart-kit/-/react-native-chart-kit-6.12.0.tgz#187a4987a668a85b7e93588c248ed2c33b3a06f6"

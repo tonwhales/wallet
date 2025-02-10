@@ -10,7 +10,7 @@ import { KnownWallet } from "../../../../secure/KnownWallets";
 
 type Props = {
     commentString: string;
-    selected: "address" | "amount" | "comment" | null
+    isActive: boolean;
     payload: Cell | null
     onInputFocus: (index: number) => void
     setComment: Dispatch<SetStateAction<string>>
@@ -20,7 +20,7 @@ type Props = {
 
 export const Comment = memo(forwardRef(({
     commentString,
-    selected,
+    isActive,
     payload,
     onInputFocus,
     setComment,
@@ -30,13 +30,13 @@ export const Comment = memo(forwardRef(({
     const theme = useTheme();
     const innerRef = useRef(null)
     useImperativeHandle(ref, () => innerRef.current)
-    
+
     return (
         <>
             <View style={{
                 backgroundColor: theme.surfaceOnElevation,
                 paddingVertical: 20,
-                paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
+                paddingHorizontal: (commentString.length > 0 && !isActive) ? 4 : 0,
                 width: '100%', borderRadius: 20,
                 overflow: 'hidden'
             }}>
@@ -72,7 +72,7 @@ export const Comment = memo(forwardRef(({
                         {commentError}
                     </Text>
                 </Animated.View>
-            ) : ((selected === 'comment' && !known) && (
+            ) : ((isActive && !known) && (
                 <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
                     <Text style={[{ color: theme.textSecondary, paddingHorizontal: 16, marginTop: 2 }, Typography.regular13_18]}>
                         {t('transfer.commentDescription')}

@@ -16,12 +16,11 @@ type Props = {
     setAddressDomainInputState: Dispatch<SetStateAction<AddressInputState>>;
     onInputSubmit: () => void
     onQRCodeRead: (src: string) => void;
-    selected: "address" | "amount" | "comment" | null
+    isActive: boolean;
     onSearchItemSelected: (item: AddressSearchItem) => void
     knownWallets: {
         [key: string]: KnownWallet;
     };
-    selectedInput: number | null
 }
 
 export const SimpleTransferAddress = memo(forwardRef(({
@@ -32,10 +31,9 @@ export const SimpleTransferAddress = memo(forwardRef(({
     setAddressDomainInputState,
     onInputSubmit,
     onQRCodeRead,
-    selected,
+    isActive,
     onSearchItemSelected,
     knownWallets,
-    selectedInput,
 }: Props, ref) => {
     const network = useNetwork();
     const navigation = useTypedNavigation();
@@ -55,11 +53,11 @@ export const SimpleTransferAddress = memo(forwardRef(({
             setAddressDomainInputState={setAddressDomainInputState}
             onSubmit={onInputSubmit}
             onQRCodeRead={onQRCodeRead}
-            isSelected={selected === 'address'}
+            isSelected={isActive}
             onSearchItemSelected={onSearchItemSelected}
             knownWallets={knownWallets}
             navigation={navigation}
-            autoFocus={selectedInput === 0}
+            autoFocus={isActive}
         />
     )
 }))

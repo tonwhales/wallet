@@ -169,9 +169,9 @@ const SimpleTransferComponent = () => {
             ref={scrollRef}
             headerComponent={<Header {...header} />}
             footerComponent={<Footer {...{ selected, onNext, continueDisabled, continueLoading, doSend }} />}
-            addressComponent={<SimpleTransferAddress ref={addressRef} {...{ ledgerAddress, params, domain, onInputFocus, setAddressDomainInputState, onInputSubmit, onQRCodeRead, selected, onSearchItemSelected, knownWallets, selectedInput }} />}
+            addressComponent={<SimpleTransferAddress ref={addressRef} {...{ ledgerAddress, params, domain, onInputFocus, setAddressDomainInputState, onInputSubmit, onQRCodeRead, isActive: selected === 'address', onSearchItemSelected, knownWallets }} />}
             amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton }} />}
-            commentComponent={<Comment ref={commentRef} {...{ commentString, selected, payload, onInputFocus, setComment, known, commentError }} />}
+            commentComponent={<Comment ref={commentRef} {...{ commentString, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError }} />}
             feesComponent={estimation ? <Fees {...{ estimation, estimationPrice }} /> : null}
             scrollEnabled={!selectedInput}
             nestedScrollEnabled={!selectedInput}

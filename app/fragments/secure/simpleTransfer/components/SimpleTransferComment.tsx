@@ -65,7 +65,7 @@ export const SimpleTransferComment = memo(forwardRef(({
             </View>
             {!!commentError ? (
                 <Animated.View
-                    style={{ marginTop: 2, marginLeft: 16 }}
+                    style={{ marginTop: 4, marginLeft: 20 }}
                     entering={FadeInUp} exiting={FadeOutDown}
                     layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                 >
@@ -75,7 +75,7 @@ export const SimpleTransferComment = memo(forwardRef(({
                 </Animated.View>
             ) : ((isActive && !known) && (
                 <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
-                    <Text style={[{ color: theme.textSecondary, paddingHorizontal: 16, marginTop: 2 }, Typography.regular13_18]}>
+                    <Text style={[{ color: theme.textSecondary, paddingHorizontal: 20, marginTop: 4 }, Typography.regular13_18]}>
                         {t('transfer.commentDescription')}
                     </Text>
                 </Animated.View>

@@ -1,5 +1,5 @@
 import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
-import { Alert, Pressable, Image, TextInput, View, Text, } from "react-native"
+import { Alert, Pressable, Image, TextInput, View, Text, LayoutChangeEvent } from "react-native"
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Address } from "@ton/core";
@@ -339,16 +339,28 @@ export const AddressDomainInput = memo(forwardRef(({
 
     const valueNotEmptyShared = useSharedValue(0);
     const labelHeightCoeff = useSharedValue(1);
+
+    const labelHeight = useSharedValue(0);
+    const labelWidth = useSharedValue(1);
+
     const valueNotEmpty = (textInput?.length || 0) > 0;
     const screenWidthValue = screenWidth ?? 0;
     const xTranslate = Math.round(screenWidthValue * 0.1) + Math.round(screenWidthValue / 2 * 0.018);
 
+    const handleLayout = (event: LayoutChangeEvent) => {
+        const { width, height } = event.nativeEvent.layout;
+        labelHeight.value = height
+        labelWidth.value = width
+      };
+
     const labelAnimStyle = useAnimatedStyle(() => {
         return {
             transform: [
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -labelWidth.value / 2]) },
+                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [0, -labelHeight.value * 2]) },
                 { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
-                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -xTranslate]) },
-                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelWidth.value / 2 ]) },
+                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeight.value * 2]) },
             ],
             opacity: interpolate(valueNotEmptyShared.value, [0, 0.2, 1], [1, 0.1, 1]),
         }
@@ -418,7 +430,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 position: 'absolute', top: 0, right: 0, left: 0,
                 paddingHorizontal: 16, marginLeft: -16
             }}>
-                <Animated.View style={[labelAnimStyle, { maxWidth: '85%' }]}>
+                <Animated.View onLayout={handleLayout} style={[labelAnimStyle, { maxWidth: '85%' }]}>
                     <Text
                         numberOfLines={1}
                         onTextLayout={(e) => {

@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions, LayoutChangeEvent } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { Easing, FadeIn, FadeInUp, FadeOutDown, LinearTransition, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTheme } from '../engine/hooks';
-import { useDimensions } from '@react-native-community/hooks';
 import { Typography } from './styles';
 
 import Clear from '@assets/ic-clear.svg';
@@ -128,8 +127,6 @@ export interface ATextInputProps {
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const theme = useTheme();
-    const dimentions = useDimensions();
-    const screenWidth = props.screenWidth ?? dimentions.screen.width;
 
     const [focused, setFocused] = useState(false);
 
@@ -172,17 +169,27 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
     const valueNotEmptyShared = useSharedValue(0);
     const labelHeightCoeff = useSharedValue(1);
 
+    const labelHeight = useSharedValue(0);
+    const labelWidth = useSharedValue(1);
+    
+
     const withLabel = !!props.label;
     const valueNotEmpty = (props.value?.length || 0) > 0;
-
-    const xTranslate = Math.round(screenWidth * 0.1) + 2;
+    
+    const handleLayout = (event: LayoutChangeEvent) => {
+        const { width, height } = event.nativeEvent.layout;
+        labelHeight.value = height
+        labelWidth.value = width
+      };
 
     const labelAnimStyle = useAnimatedStyle(() => {
         return {
             transform: [
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -labelWidth.value / 2]) },
+                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [0, -labelHeight.value * 2]) },
                 { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
-                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -xTranslate]) },
-                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelWidth.value / 2 ]) },
+                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeight.value * 2]) },
             ],
             opacity: interpolate(valueNotEmptyShared.value, [0, 0.5, 1], [1, 0.1, 1]),
         }
@@ -229,7 +236,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                             { position: 'absolute', top: 0, right: 0, left: 0, paddingHorizontal: 16 },
                             props.labelStyle
                         ]}>
-                            <Animated.View style={labelAnimStyle}>
+                            <Animated.View onLayout={handleLayout} style={labelAnimStyle}>
                                 <Text
                                     numberOfLines={1}
                                     onTextLayout={(e) => {

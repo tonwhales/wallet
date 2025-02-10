@@ -77,25 +77,20 @@ export type TransferEstimate = {
     params: GaslessEstimate
 }
 
+export type TransferTarget = {
+    isTestOnly: boolean;
+    address: Address;
+    balance: bigint,
+    active: boolean,
+    domain?: string | undefined,
+    bounceable?: boolean
+}
+
 export type ConfirmLoadedPropsSingle = {
     type: 'single',
     source?: TransferRequestSource
-    target: {
-        isTestOnly: boolean;
-        address: Address;
-        balance: bigint,
-        active: boolean,
-        domain?: string,
-        bounceable?: boolean
-    },
-    jettonTarget?: {
-        isTestOnly: boolean;
-        bounceable?: boolean;
-        address: Address;
-        balance: bigint;
-        active: boolean;
-        domain?: string | undefined;
-    },
+    target: TransferTarget,
+    jettonTarget?: TransferTarget,
     text: string | null,
     order: Order,
     fees: TransferEstimate,

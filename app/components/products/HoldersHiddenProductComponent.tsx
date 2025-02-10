@@ -9,6 +9,8 @@ import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHold
 import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { Image } from "expo-image";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { Address } from "@ton/core";
 
 const showIcon = <Image source={require('@assets/ic-show.png')} style={{ width: 36, height: 36 }} />;
 
@@ -18,16 +20,18 @@ export const holdersCardImageMap: { [key: string]: any } = {
     'whales': require('@assets/holders/whales.png'),
 }
 
-export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holdersAccStatus?: HoldersAccountStatus }) => {
+export const HoldersHiddenProductComponent = memo(({ holdersAccStatus, isLedger }: { holdersAccStatus?: HoldersAccountStatus, isLedger?: boolean }) => {
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
-    const address = selected!.address;
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
+    const address = isLedger ? ledgerAddress : selected!.address;
     const accounts = useHoldersAccounts(address).data?.accounts;
     const prePaid = useHoldersAccounts(address).data?.prepaidCards;
 
-    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address);
-    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address);
+    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address!);
+    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address!);
 
     let hiddenAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {
@@ -87,6 +91,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                         renderItem={(item, index) => {
                             return (
                                 <HoldersAccountItem
+                                owner={address!}
                                     key={`card-${index}`}
                                     account={item}
                                     first={index === 0}
@@ -99,8 +104,8 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     isTestnet={network.isTestnet}
                                     holdersAccStatus={holdersAccStatus}
                                     hideCardsIfEmpty
-                                    owner={address}
                                     content={{ type: HoldersItemContentType.BALANCE }}
+                                    isLedger={isLedger}
                                 />
                             )
                         }}
@@ -141,6 +146,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                         renderItem={(item, index) => {
                             return (
                                 <HoldersPrepaidCard
+                                    owner={address!}
                                     key={`card-${index}`}
                                     card={item}
                                     first={index === 0}
@@ -152,6 +158,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus }: { holde
                                     style={{ paddingVertical: 0 }}
                                     isTestnet={network.isTestnet}
                                     holdersAccStatus={holdersAccStatus}
+                                    isLedger={isLedger}
                                 />
                             )
                         }}

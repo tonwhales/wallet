@@ -248,7 +248,7 @@ const PendingTxPreview = () => {
                             address={opAddress}
                             showSpambadge
                             verified={verified}
-                            borderWith={2.5}
+                            borderWidth={2.5}
                             borderColor={theme.surfaceOnElevation}
                             backgroundColor={theme.elevation}
                             markContact={!!contact}

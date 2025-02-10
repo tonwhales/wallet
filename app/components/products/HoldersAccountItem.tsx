@@ -20,6 +20,7 @@ import { resolveHoldersIcon } from "../../utils/holders/resolveHoldersIcon";
 import { Image } from "expo-image";
 import { AddressComponent } from "../address/AddressComponent";
 import { LinearGradient } from "expo-linear-gradient";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -46,7 +47,8 @@ export const HoldersAccountItem = memo((props: {
     onBeforeOpen?: () => void
     onOpen?: () => void,
     content?: { type: HoldersItemContentType.SELECT, isSelected: boolean } | { type: HoldersItemContentType.BALANCE } | { type: HoldersItemContentType.NAVIGATION },
-    addressDescription?: boolean
+    addressDescription?: boolean,
+    isLedger?: boolean
 }) => {
     const {
         owner, account, holdersAccStatus,
@@ -54,7 +56,7 @@ export const HoldersAccountItem = memo((props: {
         style, itemStyle,
         onBeforeOpen, onOpen,
         hideCardsIfEmpty,
-        isTestnet
+        isTestnet, isLedger
     } = props;
     const [price] = usePrice();
     const master = account?.cryptoCurrency?.tokenContract || undefined;
@@ -63,8 +65,9 @@ export const HoldersAccountItem = memo((props: {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const url = holdersUrl(isTestnet);
-    const isHoldersReady = useIsConnectAppReady(url);
+    const isHoldersReady = useIsConnectAppReady(url, owner.toString({ testOnly: isTestnet }));
     const name = getAccountName(account.accountIndex, account.name);
+    const ledgerContext = useLedgerTransport();
 
     const priceAmount = useMemo(() => {
         const cryptoCurrency = account.cryptoCurrency;
@@ -105,13 +108,17 @@ export const HoldersAccountItem = memo((props: {
         }
 
         if (needsEnrollment) {
+            if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
+                ledgerContext.onShowLedgerConnectionError();
+                return;
+            }
             const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Account, id: account.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType }, isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType, isLedger }, isTestnet);
             return;
         }
 
-        navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: account.id }, isTestnet);
-    }, [account, needsEnrollment, isTestnet, onOpen]);
+        navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: account.id }, isTestnet, isLedger);
+    }, [account, needsEnrollment, isTestnet, onOpen, isLedger, ledgerContext]);
 
     const subtitle = t('products.holders.accounts.basicAccount');
 

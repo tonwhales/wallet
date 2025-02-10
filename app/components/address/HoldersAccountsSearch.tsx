@@ -21,12 +21,14 @@ export const HoldersAccountsSearch = memo(({
     theme,
     holdersAccounts,
     owner,
+    isLedger
 }: {
     query?: string,
     onSelect?: (item: AddressSearchItem) => void,
     theme: ThemeType,
     holdersAccounts?: GeneralHoldersAccount[],
     owner: Address,
+    isLedger?: boolean
 }) => {
     const { isTestnet } = useNetwork();
     const debouncedQuery = useDebouncedValue(query?.toLowerCase(), 30);
@@ -73,11 +75,7 @@ export const HoldersAccountsSearch = memo(({
     return (
         <View style={{ marginTop: 16 }}>
             {!isEmpty && (
-                <Animated.View
-                    style={{ gap: 16 }}
-                // entering={FadeInDown}
-                // exiting={FadeOutDown}
-                >
+                <View style={{ gap: 16 }}>
                     <Text style={[{ color: theme.textPrimary, }, Typography.semiBold17_24]}>
                         {t('products.holders.accounts.title')}
                     </Text>
@@ -96,11 +94,12 @@ export const HoldersAccountsSearch = memo(({
                                     holdersAccStatus={holdersAccStatus}
                                     onOpen={onOpen}
                                     addressDescription
+                                    isLedger={isLedger}
                                 />
                             );
                         })}
                     </View>
-                </Animated.View>
+                </View>
             )}
             {Platform.OS === 'android' && (<View style={{ height: 56 }} />)}
         </View>

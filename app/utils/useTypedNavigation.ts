@@ -26,6 +26,8 @@ import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
 import { ExchangesFragmentParams } from '../fragments/wallet/ExchangesFragment';
 import { ReceiveAssetsFragment } from '../fragments/wallet/ReceiveAssetsFragment';
 import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
+import { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSelectionFragment';
+import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
 import { TonTransaction } from '../engine/types';
 import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
 
@@ -178,29 +180,32 @@ export class TypedNavigation {
         this.navigateAndReplaceAll('LedgerApp');
     }
 
-    navigateHoldersLanding({ endpoint, onEnrollType, inviteId }: { endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }, isTestnet: boolean) {
+    navigateHoldersLanding({ endpoint, onEnrollType, inviteId, isLedger }: { endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string, isLedger?: boolean }, isTestnet: boolean) {
+        const navigate = () => this.navigate(isLedger ? 'LedgerHoldersLanding' : 'HoldersLanding', { endpoint, onEnrollType, inviteId });
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
                 if (success) { // navigate only if auth is set up
-                    this.navigate('HoldersLanding', { endpoint, onEnrollType, inviteId })
+                    navigate();
                 }
             }
             this.navigateMandatoryAuthSetup({ callback });
         } else {
-            this.navigate('HoldersLanding', { endpoint, onEnrollType, inviteId });
+            navigate();
         }
     }
 
-    navigateHolders(params: HoldersAppParams, isTestnet: boolean) {
+    navigateHolders(params: HoldersAppParams, isTestnet: boolean, isLedger?: boolean, replace?: boolean) {
+        const action = replace ? this.replace : this.navigate;
+        const navigate = () => action(isLedger ? 'LedgerHolders' : 'Holders', params);
         if (shouldTurnAuthOn(isTestnet)) {
             const callback = (success: boolean) => {
                 if (success) { // navigate only if auth is set up
-                    this.navigate('Holders', params);
+                    navigate();
                 }
             }
             this.navigateMandatoryAuthSetup({ callback });
         } else {
-            this.navigate('Holders', params);
+            navigate();
         }
     }
 
@@ -260,7 +265,11 @@ export class TypedNavigation {
     }
 
     navigateJettonWallet(param: JettonWalletFragmentParams) {
-        this.navigate('JettonWalletFragment', param);
+        if (param.isLedger) {
+            this.navigate('LedgerJettonWallet', param);
+            return;
+        }
+        this.navigate('JettonWallet', param);
     }
 
     navigateTonWallet(params: TonWalletFragmentParams, isLedger?: boolean) {
@@ -309,6 +318,15 @@ export class TypedNavigation {
 
     navigateExchanges(params: ExchangesFragmentParams) {
         this.navigate('Exchanges', params);
+    }
+
+    navigateLedgerDeviceSelection(params: LedgerDeviceSelectionParams, options: { replace?: boolean } = {}) {
+        const action = options.replace ? this.replace : this.navigate;
+        action('LedgerDeviceSelection', params);
+    }
+
+    navigateLedgerSelectAccount(params: LedgerSelectAccountParams) {
+        this.navigate('LedgerSelectAccount', params);
     }
 
     navigateTransactionsFilter(params: TransactionsFilterFragmentParams) {

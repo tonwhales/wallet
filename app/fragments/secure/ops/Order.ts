@@ -1,6 +1,7 @@
-import { Address, beginCell, Cell, comment } from "@ton/core";
+import { Address, beginCell, Cell, comment, fromNano, toNano } from "@ton/core";
 import { OperationType } from "../../../engine/transactions/parseMessageBody";
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
+import { SignRawMessage } from "../../../engine/tonconnect/types";
 
 export type Order = {
     type: 'order';
@@ -74,10 +75,29 @@ export function createLedgerJettonOrder(args: {
             responseDestination: args.responseTarget,
             customPayload: null,
             forwardAmount: args.tonAmount,
-            forwardPayload: payload
+            forwardPayload: payload,
+            knownJetton: null
         },
         amountAll: false,
         stateInit: null,
+    }
+}
+
+export function createUnsafeLedgerOrder(
+    msg: SignRawMessage
+): LedgerOrder {
+    let payload: TonPayloadFormat | null = null;
+    if (msg.payload) {
+        payload = { type: 'unsafe', message: Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] };
+    }
+
+    return {
+        type: 'ledger',
+        target: msg.address,
+        amount: toNano(fromNano(msg.amount)),
+        amountAll: false,
+        payload,
+        stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null,
     }
 }
 
@@ -98,9 +118,7 @@ export function createSimpleLedgerOrder(args: {
     // Resolve payload
     let payload: TonPayloadFormat | null = null;
     if (args.payload) {
-        // payload = { type: 'unsafe', message: new CellMessage(args.payload) };
-        // TODO
-        throw new Error('Not implemented');
+        payload = { type: 'unsafe', message: args.payload };
     } else if (args.text) {
         payload = { type: 'comment', text: args.text };
     }
@@ -111,7 +129,7 @@ export function createSimpleLedgerOrder(args: {
         domain: args.domain,
         amount: args.amount,
         amountAll: args.amountAll,
-        payload,
+        payload: payload ? payload : null,
         stateInit: args.stateInit,
         app: args.app
     }

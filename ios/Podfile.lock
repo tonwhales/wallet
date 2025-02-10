@@ -3,7 +3,6 @@ PODS:
     - AppsFlyerFramework/Main (= 6.15.1)
   - AppsFlyerFramework/Main (6.15.1)
   - boost (1.76.0)
-  - BranchSDK (3.6.3)
   - DoubleConversion (1.1.6)
   - EXApplication (5.3.1):
     - ExpoModulesCore
@@ -435,9 +434,6 @@ PODS:
     - React-Core
   - react-native-blurhash (1.1.11):
     - React-Core
-  - react-native-branch (6.3.0):
-    - BranchSDK (= 3.6.3)
-    - React-Core
   - react-native-context-menu-view (1.12.0):
     - React
   - react-native-fast-pbkdf2 (0.3.1):
@@ -692,7 +688,6 @@ DEPENDENCIES:
   - react-native-appsflyer (from `../node_modules/react-native-appsflyer`)
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
   - react-native-blurhash (from `../node_modules/react-native-blurhash`)
-  - react-native-branch (from `../node_modules/react-native-branch`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - react-native-minimizer (from `../node_modules/react-native-minimizer`)
@@ -741,7 +736,6 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - AppsFlyerFramework
-    - BranchSDK
     - fmt
     - libaom
     - libavif
@@ -873,8 +867,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ble-plx"
   react-native-blurhash:
     :path: "../node_modules/react-native-blurhash"
-  react-native-branch:
-    :path: "../node_modules/react-native-branch"
   react-native-context-menu-view:
     :path: "../node_modules/react-native-context-menu-view"
   react-native-fast-pbkdf2:
@@ -967,7 +959,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppsFlyerFramework: 375c63ff47da664031d2723947867caf0205058c
   boost: 7dcd2de282d72e344012f7d6564d024930a6a440
-  BranchSDK: a5418b5fde1b837567cf00a4a7f2ed45abf2e26c
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EXApplication: 042aa2e3f05258a16962ea1a9914bf288db9c9a1
   EXBarCodeScanner: 44783bf0be375ab18a838dcfef29dd648397000a
@@ -1034,7 +1025,6 @@ SPEC CHECKSUMS:
   react-native-appsflyer: 84e6e37fe91b8ec22875bd10a50fb8baf9434567
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
   react-native-blurhash: a59e6bf8117a0304488ed576abd440f4b0777a8c
-  react-native-branch: 2d064d63b23ea395bc3ee187faadfc8937d791fd
   react-native-context-menu-view: 2ae33d47b93dadab8bce27cddc1506f17411f7e5
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-minimizer: bd07450123d8c685acb2dff64f0213b0c7b5dbd6

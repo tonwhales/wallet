@@ -1,4 +1,4 @@
-import { DisconnectEvent, SessionCrypto, WalletEvent, WalletResponse } from "@tonconnect/protocol";
+import { SessionCrypto, WalletResponse } from "@tonconnect/protocol";
 import { useConnectApp } from "../../hooks/dapps/useConnectApp";
 import { useAppConnections } from "../../hooks/dapps/useAppConnections";
 import { extensionKey } from "./useAddExtension";
@@ -7,10 +7,10 @@ import { useConnectPendingRequests } from "../../hooks/dapps/useConnectPendingRe
 import { useRemoveConnectApp } from "./useRemoveConnectApp";
 import { ConnectedAppConnectionRemote, TonConnectBridgeType } from '../../tonconnect/types';
 
-export function useDisconnectApp() {
-    const getConnectApp = useConnectApp();
-    const getConnections = useAppConnections();
-    const removeConnectedApp = useRemoveConnectApp();
+export function useDisconnectApp(address?: string) {
+    const getConnectApp = useConnectApp(address);
+    const getConnections = useAppConnections(address);
+    const removeConnectedApp = useRemoveConnectApp(address);
     const [, update] = useConnectPendingRequests();
 
     return (endpoint: string, eventId: number | string) => {

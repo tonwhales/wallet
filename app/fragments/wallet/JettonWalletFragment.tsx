@@ -19,7 +19,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { PendingTransaction } from "../../engine/state/pending";
 import { JettonPendingTransactions } from "./views/JettonPendingTransactions";
 
@@ -27,6 +27,7 @@ export type JettonWalletFragmentProps = {
     owner: string;
     master: string;
     wallet?: string;
+    isLedger?: boolean;
 }
 
 function validateWalletAddresses(owner: string, master: string, wallet?: string) {
@@ -65,7 +66,7 @@ const JettonWalletSkeleton = memo(() => {
     );
 });
 
-const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragmentProps) => {
+const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonWalletFragmentProps) => {
     const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -156,6 +157,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
                 loading={false}
+                ledger={isLedger}
                 header={
                     <View style={styles.content}>
                         <JettonIcon
@@ -192,6 +194,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet }: JettonWalletFragm
                                 theme={theme}
                                 navigation={navigation}
                                 isTestnet={isTestnet}
+                                isLedger={isLedger}
                             />
                             <JettonPendingTransactions
                                 owner={ownerAddress.toString({ testOnly: isTestnet })}
@@ -211,6 +214,8 @@ export const JettonWalletFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const { owner, master, wallet } = useParams<JettonWalletFragmentProps>();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerJettonWallet';
 
     const addresses = validateWalletAddresses(owner, master, wallet);
 
@@ -229,6 +234,7 @@ export const JettonWalletFragment = fragment(() => {
                     owner={owner}
                     master={master}
                     wallet={wallet}
+                    isLedger={isLedger}
                 />
             </Suspense>
         </View>

@@ -222,6 +222,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "gaslessNotEnoughCoins": "{{fee}} комісії необхідно для надсилання, не вистачає {{missing}}",
             "notEnoughJettons": "Недостатньо {{symbol}}",
             "jettonChange": "Отримувач підтримує лише перекази {{symbol}}, будь ласка, змініть отримувача або валюту переказу",
+            "ledgerErrorConnectionTitle": "Ledger не підключений",
+            "ledgerErrorConnectionMessage": "Будь ласка, підключіть Ledger та повторіть спробу",
             "notEnoughGasTitle": "Недостатньо TON для оплати комісії за газ",
             "notEnoughGasMessage": "Будь ласка, поповніть гаманець TON (потрібно щонайменше {{diff}} TON) і спробуйте ще раз"
         },
@@ -642,6 +644,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "createDomainKey": "Під час створення ключа домену",
                     "fetchToken": "Під час отримання токена",
                     "createSignature": "Під час створення підпису"
+                },
+                "ledger": {
+                    "confirmTitle": "Продовжити з Ledger",
+                    "confirmMessage": "Підпишіть авторизацію та підтвердіть адресу гаманця"
                 }
             },
             "otpBanner": {
@@ -1138,6 +1144,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bleTitle": "Помилка Bluetooth",
             "noDevice": "Пристрій не знайдено",
             "appNotOpen": "Додаток Ton не відкрито на Ledger",
+            "openApp": "Відкрийте додаток Ton на вашому Ledger",
             "turnOnBluetooth": "Будь ласка, увімкніть Bluetooth і спробуйте знову",
             "lostConnection": "Втрачено з'єднання з Ledger",
             "transactionNotFound": "Транзакція не знайдена",
@@ -1148,9 +1155,21 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "reboot": "Будь ласка, перезавантажте ваш пристрій і спробуйте знову",
             "turnOnLocation": "Будь ласка, увімкніть служби місцезнаходження і спробуйте знову, це необхідно для сканування найближчих пристроїв",
             "locationServicesUnauthorized": "Служби місцезнаходження не авторизовані",
-            "bluetoothScanFailed": "Сканування Bluetooth не вдалося"
+            "bluetoothScanFailed": "Сканування Bluetooth не вдалося",
+            "unsafeTransfer": "Будь ласка, дозвольте blind sign у додатку TON Ledger",
+             "userCanceled": "Відхилено на Ledger"
         },
-        "moreAbout": "Детальніше про Ledger"
+        "moreAbout": "Детальніше про Ledger",
+        "verifyAddress": {
+            "title": "Підтвердіть адресу на Ledger",
+            "message": "Будь ласка, підтвердіть адресу: {{address}} на вашому пристрої Ledger",
+            "action": "Підтвердити",
+            "invalidAddressTitle": "Неправильна адреса",
+            "invalidAddressMessage": "Ця адреса недійсна. Будь ласка, перевірте адресу та спробуйте ще раз",
+            "failed": "Не вдалося підтвердити адресу",
+            "failedMessage": "Будь ласка, перепідключіть Ledger і спробуйте ще раз",
+            "verifying": "Підтвердження на Ledger"
+        }
     },
     "devTools": {
         "switchNetwork": "Мережа",

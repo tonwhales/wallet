@@ -60,7 +60,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
 
     const totalBalance = useMemo(() => {
         return liquidBalance + activeArray.reduce((acc, item) => {
-            return acc + item?.balance || 0n;
+            return acc + (item?.balance || 0n);
         }, 0n);
     }, [active, liquidBalance]);
 

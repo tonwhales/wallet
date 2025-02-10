@@ -62,7 +62,7 @@ export const AddressInputAvatar = memo(({
                     backgroundColor={avatarColor}
                     markContact={markContact}
                     icProps={{ isOwn }}
-                    borderWith={0}
+                    borderWidth={0}
                 />
             </Animated.View>
         );

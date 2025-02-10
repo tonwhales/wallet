@@ -12,16 +12,25 @@ import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from "../../engine/hooks";
-import { useLedgerTransport } from "./components/TransportContext";
+import { LedgerWallet, useLedgerTransport } from "./components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { Typography } from "../../components/styles";
+import { useParams } from "../../utils/useParams";
+import { useToaster } from "../../components/toast/ToastProvider";
+
+export type LedgerDeviceSelectionParams = {
+    selectedAddress?: LedgerWallet | null
+}
 
 export const LedgerDeviceSelectionFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
+    const { selectedAddress } = useParams<LedgerDeviceSelectionParams>();
+    const toaster = useToaster();
 
     const devices = (
         (ledgerContext?.bleSearchState?.type === 'completed' && ledgerContext?.bleSearchState?.success)
@@ -29,8 +38,18 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
     ) ? ledgerContext.bleSearchState.devices : [];
 
     const onDeviceSelect = useCallback(async (device: any) => {
-        const transport = await TransportBLE.open(device.id);
-        ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });
+        try {
+            toaster.show({
+                type: 'success',
+                message: t('syncStatus.online'),
+                marginBottom: safeArea.bottom + 32
+            });
+            const transport = await TransportBLE.open(device.id);
+            ledgerContext.reset();
+            ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });
+        } catch (error) {
+            console.warn('Error connecting to device', error);
+        }
     }, [ledgerContext]);
 
     const newScan = useCallback(() => {
@@ -43,9 +62,13 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
 
     useEffect(() => {
         if (ledgerContext?.ledgerConnection?.type === 'ble') {
-            navigation.navigate('LedgerSelectAccount');
+            if (!selectedAddress) {
+                navigation.navigate('LedgerSelectAccount');
+                return;
+            }
+            navigation.goBack();
         }
-    }, [ledgerContext?.ledgerConnection]);
+    }, [ledgerContext?.ledgerConnection, selectedAddress]);
 
     // Reseting ledger context on back navigation & stoping all searches
     useFocusEffect(
@@ -79,13 +102,11 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                         Platform.select({ android: { paddingTop: safeArea.top } })
                     ]}
                 />
-                <Text style={{
-                    fontSize: 18,
-                    fontWeight: '600',
+                <Text style={[{
                     marginHorizontal: 16,
                     marginVertical: 16,
                     textAlign: 'center'
-                }}>
+                }, Typography.semiBold17_24]}>
                     {t('hardwareWallet.errors.permissions')}
                 </Text>
                 <RoundButton
@@ -160,19 +181,18 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
             />
-            <Text style={{
-                color: theme.textPrimary,
-                fontWeight: '600',
-                fontSize: 32, lineHeight: 38,
-                marginVertical: 16, marginHorizontal: 16
-            }}>
+            <Text style={[{ color: theme.textPrimary, marginVertical: 16, marginHorizontal: 16 }, Typography.semiBold32_38]}>
                 {t('hardwareWallet.devices')}
             </Text>
-            <ScrollView style={{
-                flexGrow: 1
-            }}>
+            <ScrollView style={{ flexGrow: 1 }}>
                 {devices.map((device: any) => {
-                    return (<BleDevice key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />);
+                    return (
+                        <BleDevice
+                            key={`ledger-${device.id}`}
+                            device={device}
+                            onSelect={onDeviceSelect}
+                        />
+                    );
                 })}
                 <View style={{ height: 16 }} />
             </ScrollView>

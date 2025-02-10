@@ -3,8 +3,8 @@ import { ConnectedApp, useConnectExtensions } from "./useTonConnectExtenstions";
 import { useAppConnections } from "./useAppConnections";
 import { ConnectedAppConnectionRemote, TonConnectBridgeType } from '../../tonconnect/types';
 
-export function useConnectApp() {
-    const [extensions] = useConnectExtensions();
+export function useConnectApp(address?: string) {
+    const [extensions] = useConnectExtensions(address);
 
     const apps = Object.values(extensions);
 

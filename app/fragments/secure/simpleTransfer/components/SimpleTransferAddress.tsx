@@ -1,0 +1,65 @@
+import { Dispatch, forwardRef, memo, SetStateAction, useImperativeHandle, useRef } from 'react';
+import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
+import { useNetwork, useSelectedAccount } from '../../../../engine/hooks';
+import { TransferAddressInput } from '../../../../components/address/TransferAddressInput';
+import { Address } from '@ton/core';
+import { SimpleTransferParams } from '../SimpleTransferFragment';
+import { AddressInputState } from '../../../../components/address/AddressDomainInput';
+import { AddressSearchItem } from '../../../../components/address/AddressSearch';
+import { KnownWallet } from '../../../../secure/KnownWallets';
+
+type Props = {
+    ledgerAddress?: Address;
+    params: SimpleTransferParams;
+    domain?: string;
+    onInputFocus: (index: number) => void
+    setAddressDomainInputState: Dispatch<SetStateAction<AddressInputState>>;
+    onInputSubmit: () => void
+    onQRCodeRead: (src: string) => void;
+    selected: "address" | "amount" | "comment" | null
+    onSearchItemSelected: (item: AddressSearchItem) => void
+    knownWallets: {
+        [key: string]: KnownWallet;
+    };
+    selectedInput: number | null
+}
+
+export const SimpleTransferAddress = memo(forwardRef(({
+    ledgerAddress,
+    params,
+    domain,
+    onInputFocus,
+    setAddressDomainInputState,
+    onInputSubmit,
+    onQRCodeRead,
+    selected,
+    onSearchItemSelected,
+    knownWallets,
+    selectedInput,
+}: Props, ref) => {
+    const network = useNetwork();
+    const navigation = useTypedNavigation();
+    const acc = useSelectedAccount();
+    const innerRef = useRef(null)
+    useImperativeHandle(ref, () => innerRef.current)
+
+    return (
+        <TransferAddressInput
+            index={0}
+            ref={innerRef}
+            acc={ledgerAddress ?? acc!.address}
+            initTarget={params?.target || ''}
+            domain={domain}
+            isTestnet={network.isTestnet}
+            onFocus={onInputFocus}
+            setAddressDomainInputState={setAddressDomainInputState}
+            onSubmit={onInputSubmit}
+            onQRCodeRead={onQRCodeRead}
+            isSelected={selected === 'address'}
+            onSearchItemSelected={onSearchItemSelected}
+            knownWallets={knownWallets}
+            navigation={navigation}
+            autoFocus={selectedInput === 0}
+        />
+    )
+}))

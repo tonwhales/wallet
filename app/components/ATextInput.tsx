@@ -123,7 +123,7 @@ export interface ATextInputProps {
     inputMode?: InputModeOptions,
     cursorColor?: string,
     maxHeight?: number
-    onStartShouldSetResponder?: ((event: GestureResponderEvent) => boolean) | undefined
+    onStartShouldSetResponder?: (event: GestureResponderEvent) => boolean
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
@@ -173,7 +173,6 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
     const labelHeight = useSharedValue(0);
     const labelWidth = useSharedValue(1);
     
-
     const withLabel = !!props.label;
     const valueNotEmpty = (props.value?.length || 0) > 0;
     

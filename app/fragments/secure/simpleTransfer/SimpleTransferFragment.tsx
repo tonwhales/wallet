@@ -1,24 +1,20 @@
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, BackHandler, Keyboard, Alert } from "react-native";
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { Cell, Address } from '@ton/core';
+import { setStatusBarStyle } from 'expo-status-bar';
+import { ScrollView } from 'react-native-gesture-handler';
 import { ATextInputRef } from '../../../components/ATextInput';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { fragment } from '../../../fragment';
 import { useParams } from '../../../utils/useParams';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { useNetwork, useSelectedAccount, useTheme } from '../../../engine/hooks';
-import { Cell, Address } from '@ton/core';
-import { setStatusBarStyle } from 'expo-status-bar';
-import { ScrollView } from 'react-native-gesture-handler';
+import { useNetwork, useTheme } from '../../../engine/hooks';
 import { AddressSearchItem } from '../../../components/address/AddressSearch';
 import { AddressDomainInputRef } from '../../../components/address/AddressDomainInput';
 import { Fees, Footer, Header, Layout, Comment, SimpleTransferAmount, SimpleTransferAddress } from './components';
-import { useSimpleTransfer } from './hooks/useSimpleTransfer';
+import { SelectedInput, useSimpleTransfer } from './hooks/useSimpleTransfer';
 import { t } from '../../../i18n/t';
 import { TransferHeader } from '../../../components/transfer/TransferHeader';
-import { LedgerOrder, Order } from '../ops/Order';
-import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
-import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
-import { usePrevious } from './hooks/usePrevious';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -40,13 +36,10 @@ export type SimpleTransferParams = {
 
 const SimpleTransferComponent = () => {
     const theme = useTheme();
-
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
     const route = useRoute();
     const network = useNetwork();
-    const acc = useSelectedAccount();
-    const walletVersion = useWalletVersion();
 
     const {
         amount,
@@ -77,30 +70,24 @@ const SimpleTransferComponent = () => {
         setComment,
         shouldChangeJetton,
         symbol,
-        target,
-        order,
-        supportsGaslessTransfer,
         targetAddressValid,
-        validAmount,
-    } = useSimpleTransfer({params, route, navigation})
+        setSelectedInput,
+        selectedInput,
+        doSend
+    } = useSimpleTransfer({ params, route, navigation });
 
-    const callback: ((ok: boolean, result: Cell | null) => void) | null = useMemo(() => params && params.callback ? params.callback : null, [params.callback])
-
-    // Auto-cancel job
     useEffect(() => {
         return () => {
-            if (params && params.callback) {
-                params.callback(false, null);
-            }
-        }
-    }, []);
+            params?.callback?.(false, null);
+        };
+    }, [params?.callback]);
 
     const addressRef = useRef<AddressDomainInputRef>(null);
     const amountRef = useRef<ATextInputRef>(null);
     const commentRef = useRef<ATextInputRef>(null);
     const scrollRef = useRef<ScrollView>(null);
 
-    const onInputFocus = useCallback((index: number) => { setSelectedInput(index) }, []);
+    const onInputFocus = useCallback((index: SelectedInput) => setSelectedInput(index), []);
     const onInputSubmit = useCallback(() => setSelectedInput(null), []);
 
     useFocusEffect(() => {
@@ -117,9 +104,6 @@ const SimpleTransferComponent = () => {
             setComment(item.memo);
         }
     }, []);
-
-    const hasParamsFilled = !!params.target && !!params.amount;
-    const [selectedInput, setSelectedInput] = useState<number | null>(hasParamsFilled ? null : 0);
 
     const backHandler = useCallback(() => {
         if (selectedInput !== null) {
@@ -138,154 +122,10 @@ const SimpleTransferComponent = () => {
         scrollRef.current?.scrollTo({ y: 0 });
     }, [selectedInput]);
 
-    const doSendData = usePrevious({
-        publicKey: acc?.publicKey,
-        balance,
-        commentString,
-        isLedger,
-        jetton,
-        ledgerAddress,
-        order,
-        back: params.back,
-        supportsGaslessTransfer,
-        target,
-        validAmount,
-        walletVersion,
-    })
-
-    const doSend = useCallback(async () => {
-        if (!doSendData.current) {
-            return
-        }
-
-        const {
-            publicKey,
-            balance,
-            commentString,
-            isLedger,
-            jetton,
-            ledgerAddress,
-            order,
-            back,
-            supportsGaslessTransfer,
-            target,
-            validAmount,
-            walletVersion
-        } = doSendData.current
-
-        let address: Address;
-
-        try {
-            let parsed = Address.parseFriendly(target);
-            address = parsed.address;
-        } catch (e) {
-            Alert.alert(t('transfer.error.invalidAddress'));
-            return;
-        }
-
-        if (validAmount === null) {
-            Alert.alert(t('transfer.error.invalidAmount'));
-            return;
-        }
-
-        if (validAmount < 0n) {
-            Alert.alert(t('transfer.error.invalidAmount'));
-            return;
-        }
-
-        // Might not happen
-        if (!order) {
-            return;
-        }
-
-        // Load contract
-        const contract = await contractFromPublicKey(publicKey!, walletVersion, network.isTestnet);
-
-        // Check if transfering to yourself
-        if (isLedger && !ledgerAddress) {
-            return;
-        }
-
-        if (address.equals(isLedger ? ledgerAddress! : contract.address)) {
-            let allowSendingToYourself = await new Promise((resolve) => {
-                Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
-                    {
-                        onPress: () => resolve(true),
-                        text: t('common.continueAnyway')
-                    },
-                    {
-                        onPress: () => resolve(false),
-                        text: t('common.cancel'),
-                        isPreferred: true,
-                    }
-                ]);
-            });
-            if (!allowSendingToYourself) {
-                return;
-            }
-        }
-
-        // Check amount
-        if (balance < validAmount || balance === 0n) {
-            Alert.alert(
-                t('common.error'),
-                t('transfer.error.notEnoughCoins')
-            );
-            return;
-        }
-
-        if (validAmount === 0n) {
-            if (!!jetton) {
-                Alert.alert(t('transfer.error.zeroCoins'));
-                return;
-            }
-            let allowSeingZero = await new Promise((resolve) => {
-                Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
-                    {
-                        onPress: () => resolve(true),
-                        text: t('common.continueAnyway')
-                    },
-                    {
-                        onPress: () => resolve(false),
-                        text: t('common.cancel'),
-                        isPreferred: true,
-                    }
-                ]);
-            });
-            if (!allowSeingZero) {
-                return;
-            }
-        }
-
-        setSelectedInput(null);
-        // Dismiss keyboard for iOS
-        if (Platform.OS === 'ios') {
-            Keyboard.dismiss();
-        }
-
-        if (isLedger) {
-            navigation.replace('LedgerSignTransfer', {
-                text: null,
-                order: order as LedgerOrder,
-            });
-            return;
-        }
-
-        // Navigate to transaction confirmation
-        navigation.navigateTransfer({
-            text: commentString,
-            order: order as Order,
-            callback,
-            back: back ? back + 1 : undefined,
-            useGasless: supportsGaslessTransfer
-        });
-    }, []);
-
     const resetInput = () => {
         Keyboard.dismiss();
         setSelectedInput(null);
     };
-
 
     const { selected, onNext, header } = useMemo<{
         selected: 'amount' | 'address' | 'comment' | null,
@@ -293,70 +133,36 @@ const SimpleTransferComponent = () => {
         header: {
             onBackPressed?: () => void,
             title?: string,
-            rightButton?: ReactNode,
             titleComponent?: ReactNode,
         }
     }>(() => {
-
         if (selectedInput === null) {
-            return {
-                selected: null,
-                onNext: null,
-                header: { title: t('transfer.title') }
-            }
+            return { selected: null, onNext: null, header: { title: t('transfer.title') } };
         }
 
-        let headertitle: {
-            onBackPressed?: () => void,
-            title?: string,
-            rightButton?: ReactNode,
-            titleComponent?: ReactNode,
-        } = { title: t('transfer.title') };
+        const headerTitle = targetAddressValid ? {
+            titleComponent: (
+                <TransferHeader
+                    theme={theme}
+                    address={targetAddressValid.address}
+                    isTestnet={network.isTestnet}
+                    bounceable={targetAddressValid.isBounceable}
+                    knownWallets={knownWallets}
+                />
+            )
+        } : { title: t('transfer.title') };
 
-        if (targetAddressValid) {
-            headertitle = {
-                titleComponent: (
-                    <TransferHeader
-                        theme={theme}
-                        address={targetAddressValid.address}
-                        isTestnet={network.isTestnet}
-                        bounceable={targetAddressValid.isBounceable}
-                        knownWallets={knownWallets}
-                    />
-                )
-            };
+        switch (selectedInput) {
+            case SelectedInput.ADDRESS:
+                return { selected: 'address', onNext: targetAddressValid ? resetInput : null, header: { title: t('common.recipient') } };
+            case SelectedInput.AMOUNT:
+                return { selected: 'amount', onNext: resetInput, header: headerTitle };
+            case SelectedInput.COMMENT:
+                return { selected: 'comment', onNext: resetInput, header: headerTitle };
+            default:
+                return { selected: null, onNext: null, header: headerTitle };
         }
-
-        if (selectedInput === 0) {
-            return {
-                selected: 'address',
-                onNext: targetAddressValid ? resetInput : null,
-                header: {
-                    title: t('common.recipient'),
-                    titleComponent: undefined,
-                }
-            }
-        }
-
-        if (selectedInput === 1) {
-            return {
-                selected: 'amount',
-                onNext: resetInput,
-                header: { ...headertitle }
-            }
-        }
-
-        if (selectedInput === 2) {
-            return {
-                selected: 'comment',
-                onNext: resetInput,
-                header: { ...headertitle }
-            }
-        }
-
-        // Default
-        return { selected: null, onNext: null, header: { ...headertitle } };
-    }, [selectedInput, targetAddressValid, doSend]);
+    }, [selectedInput, targetAddressValid, theme, network.isTestnet, knownWallets, t]);
 
     return (
         <Layout

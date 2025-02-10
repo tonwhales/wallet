@@ -23,6 +23,9 @@ import { useOrder } from './useOrder';
 import { usePrevious } from './usePrevious';
 import { ParamListBase, RouteProp } from '@react-navigation/native';
 import { TypedNavigation } from '../../../../utils/useTypedNavigation';
+import { LedgerOrder, Order } from '../../ops/Order';
+import { Alert, Keyboard, Platform } from 'react-native';
+import { contractFromPublicKey } from '../../../../engine/contractFromPublicKey';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -48,6 +51,12 @@ type Options = {
     navigation: TypedNavigation;
 }
 
+export enum SelectedInput {
+    ADDRESS = 0,
+    AMOUNT = 1,
+    COMMENT = 2,
+}
+
 export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const network = useNetwork();
     const knownWallets = KnownWallets(network.isTestnet);
@@ -56,6 +65,8 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const [price, currency] = usePrice();
     const gaslessConfig = useGaslessConfig();
     const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
+    const hasParamsFilled = !!params?.target && !!params?.amount;
+    const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
 
     // Ledger
     const ledgerAddress = useLedgerAddress({ isLedger })
@@ -403,6 +414,113 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
 
+    const doSendData = usePrevious({
+        publicKey: acc?.publicKey,
+        balance,
+        commentString,
+        isLedger,
+        jetton,
+        ledgerAddress,
+        order,
+        back: params?.back,
+        supportsGaslessTransfer,
+        target,
+        validAmount,
+        walletVersion,
+        callback: params?.callback
+    });
+
+    const doSend = useCallback(async () => {
+        if (!doSendData.current) return;
+
+        const {
+            publicKey,
+            balance,
+            commentString,
+            isLedger,
+            jetton,
+            ledgerAddress,
+            order,
+            back,
+            supportsGaslessTransfer,
+            target,
+            validAmount,
+            walletVersion,
+            callback
+        } = doSendData.current;
+
+        if (validAmount === null || validAmount < 0n) {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
+
+        if (!target || !order) {
+            return;
+        }
+
+        let address: Address;
+        try {
+            address = Address.parseFriendly(target).address;
+        } catch (e) {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
+
+         // Load contract
+        const contract = await contractFromPublicKey(publicKey!, walletVersion, network.isTestnet);
+
+        // Check if transfering to yourself
+        if (isLedger && !ledgerAddress) return;
+
+        if (address.equals(isLedger ? ledgerAddress! : contract.address)) {
+            const allowSendingToYourself = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
+                    { onPress: () => resolve(true), text: t('common.continueAnyway') },
+                    { onPress: () => resolve(false), text: t('common.cancel'), isPreferred: true }
+                ]);
+            });
+            if (!allowSendingToYourself) return;
+        }
+
+        // Check amount
+        if (balance < validAmount || balance === 0n) {
+            Alert.alert(t('common.error'), t('transfer.error.notEnoughCoins'));
+            return;
+        }
+
+        if (validAmount === 0n) {
+            if (!!jetton) {
+                Alert.alert(t('transfer.error.zeroCoins'));
+                return;
+            }
+            const allowSendingZero = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
+                    { onPress: () => resolve(true), text: t('common.continueAnyway') },
+                    { onPress: () => resolve(false), text: t('common.cancel'), isPreferred: true }
+                ]);
+            });
+            if (!allowSendingZero) return;
+        }
+
+        setSelectedInput(null);
+        // Dismiss keyboard for iOS
+        if (Platform.OS === 'ios') Keyboard.dismiss();
+
+        if (isLedger) {
+            navigation.replace('LedgerSignTransfer', { text: null, order: order as LedgerOrder });
+            return;
+        }
+
+        // Navigate to transaction confirmation
+        navigation.navigateTransfer({
+            text: commentString,
+            order: order as Order,
+            callback,
+            back: back ? back + 1 : undefined,
+            useGasless: supportsGaslessTransfer
+        });
+    }, []);
+
     return {
         acc,
         amount,
@@ -434,12 +552,11 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         setComment,
         shouldChangeJetton,
         symbol,
-        target,
         accountLite,
         stateInit,
-        order,
-        supportsGaslessTransfer,
         targetAddressValid,
-        validAmount,
+        selectedInput, 
+        setSelectedInput,
+        doSend
     }
 }

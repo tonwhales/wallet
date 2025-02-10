@@ -12,7 +12,7 @@ type Props = {
     estimationPrice?: string;
 }
 
-export const Fees = memo(({
+export const SimpleTransferFees = memo(({
     estimation,
     estimationPrice,
 }: Props) => {

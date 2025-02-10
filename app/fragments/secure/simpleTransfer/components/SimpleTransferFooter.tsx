@@ -12,7 +12,7 @@ type Props = {
     doSend: () => Promise<void>
 }
 
-export const Footer = memo(({
+export const SimpleTransferFooter = memo(({
     selected,
     onNext,
     continueDisabled,

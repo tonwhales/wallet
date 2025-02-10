@@ -1,9 +1,9 @@
-import { forwardRef, memo, ReactNode, useCallback, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { Platform, View, StyleProp, ViewStyle, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useKeyboard } from '@react-native-community/hooks';
-import { ScrollView } from 'react-native-gesture-handler';
-import { AnimatedWrapper } from './SimpleTransferAnimatedWrapper';
-import { LayoutChangeEvent } from 'react-native';
+import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
+import { NativeViewGestureHandler } from 'react-native-gesture-handler';
+import { Dispatch, forwardRef, memo, ReactNode, SetStateAction, useImperativeHandle, useMemo, useRef } from "react";
+import { SimpleTransferAnimatedWrapper } from "./SimpleTransferAnimatedWrapper";
 
 type Props = {
     headerComponent: ReactNode;
@@ -14,10 +14,11 @@ type Props = {
     feesComponent: ReactNode;
     scrollEnabled: boolean;
     nestedScrollEnabled: boolean;
-    selected: "address" | "amount" | "comment" | null
+    selected: "address" | "amount" | "comment" | null;
+    setIsScrolling: Dispatch<SetStateAction<boolean>>;
 }
 
-export const Layout = memo(forwardRef(({
+export const SimpleTransferLayout = memo(forwardRef(({
     headerComponent,
     footerComponent,
     scrollEnabled,
@@ -26,117 +27,69 @@ export const Layout = memo(forwardRef(({
     amountComponent,
     commentComponent,
     feesComponent,
-    selected
+    selected,
+    setIsScrolling
 }: Props, ref) => {
     const keyboard = useKeyboard();
 
-    const innerRef = useRef<ScrollView>(null)
+    const innerRef = useRef<Animated.ScrollView>(null)
     useImperativeHandle(ref, () => innerRef.current)
 
-    const [addressInputHeight, setAddressInputHeight] = useState(0);
-    const [amountInputHeight, setAmountInputHeight] = useState(0);
+    const scrollOffsetSv = useSharedValue(0)
+    const scrollHandler = useAnimatedScrollHandler((event) => {
+        scrollOffsetSv.value = event.contentOffset.y;
+      });
 
-    const _setAddressInputHeight = useCallback((e: LayoutChangeEvent) => {
-        setAddressInputHeight(e.nativeEvent.layout.height)
-    }, [])
-    const _setAmountInputHeight = useCallback((e: LayoutChangeEvent) => {
-        setAmountInputHeight(e.nativeEvent.layout.height)
-    }, [])
-
-    const seletectInputStyles = useMemo<{
-        amount: StyleProp<ViewStyle>,
-        address: StyleProp<ViewStyle>,
-        comment: StyleProp<ViewStyle>,
-        fees: StyleProp<ViewStyle>,
-    }>(() => {
-        switch (selected) {
-            case 'address':
-                return {
-                    address: styles.addressAddress,
-                    amount: [styles.disabled, styles.disabledHeight],
-                    comment: [styles.disabled, styles.disabledHeight],
-                    fees: [styles.disabled, styles.disabledHeight],
-                }
-            case 'amount':
-                return {
-                    address: styles.disabled,
-                    amount: [styles.amountAmount, {top: -addressInputHeight - 16}],
-                    comment: styles.disabled,
-                    fees: styles.disabled,
-                }
-            case 'comment':
-                return {
-                    address: styles.disabled,
-                    amount: styles.disabled,
-                    comment: [styles.commentComment, {top: -addressInputHeight - amountInputHeight - 32}],
-                    fees: styles.disabled,
-                }
-            default:
-                return {
-                    address: styles.default,
-                    amount: styles.default,
-                    comment: styles.default,
-                    fees: styles.default,
-                }
+    const contentInset = useMemo(() => {
+        return {
+            // bottom: 0.1,
+            bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - 86 - 32 : 0.1 /* Some weird bug on iOS */, // + 56 + 32
+            top: 0.1 /* Some weird bug on iOS */
         }
-    }, [selected, addressInputHeight, amountInputHeight]);
+    }, [keyboard.keyboardShown, keyboard.keyboardHeight])
 
     return (
-        <View style={{ flexGrow: 1 }}>
+        <View style={styles.container}>
             {headerComponent}
-            <ScrollView
-                ref={innerRef}
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
-                contentContainerStyle={[{ marginHorizontal: 16, flexGrow: 1 }, Platform.select({ android: { minHeight: addressInputHeight } })]}
-                contentInset={{
-                    bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - 86 - 32 : 0.1 /* Some weird bug on iOS */, // + 56 + 32
-                    top: 0.1 /* Some weird bug on iOS */
-                }}
-                contentInsetAdjustmentBehavior={'never'}
-                keyboardShouldPersistTaps={'always'}
-                automaticallyAdjustContentInsets={false}
-                scrollEnabled={scrollEnabled}
-                nestedScrollEnabled={nestedScrollEnabled}
-            >
-                <AnimatedWrapper style={seletectInputStyles.address} onLayout={_setAddressInputHeight} key='renderTransferAddress'>
-                    {addressComponent}
-                </AnimatedWrapper>
-
-                {selected === 'address' && <View style={{ height: addressInputHeight }} />}
-                
-                <View style={{ marginTop: 16 }}>
-                    <AnimatedWrapper delay={10} style={[seletectInputStyles.amount, { flex: 1 }]} onLayout={_setAmountInputHeight} key='renderTransaction'>
-                        {amountComponent}
-                    </AnimatedWrapper>
-                </View>
-
-                <View style={{ marginTop: 16 }}>
-                    <AnimatedWrapper delay={20} style={[ seletectInputStyles.comment, { flex: 1 } ]} key='renderSmartContract'>
-                        {commentComponent}
-                    </AnimatedWrapper>
-                </View>
-
-                {!!feesComponent && 
-                    <View style={{ marginTop: 16 }}>
-                        <AnimatedWrapper delay={30} style={[ seletectInputStyles.fees, { flex: 1 } ]} key='renderEstimation'>
+            <NativeViewGestureHandler disallowInterruption={true}>
+                <Animated.ScrollView
+                    ref={innerRef}
+                    onScroll={scrollHandler}
+                    style={styles.scrollContainer}
+                    contentContainerStyle={styles.scrollContentContainer}
+                    contentInset={contentInset}
+                    contentInsetAdjustmentBehavior={'never'}
+                    keyboardShouldPersistTaps={'always'}
+                    automaticallyAdjustContentInsets={false}
+                    scrollEnabled={scrollEnabled}
+                    nestedScrollEnabled={nestedScrollEnabled}
+                    onScrollBeginDrag={() => setIsScrolling(true)}
+                    onScrollEndDrag={() => setIsScrolling(false)} 
+                >
+                    {[
+                        { type: 'address', component: addressComponent },
+                        { type: 'amount', component: amountComponent },
+                        { type: 'comment', component: commentComponent },
+                    ].map(({type, component}) => (
+                        <SimpleTransferAnimatedWrapper key={type} isActive={selected ? selected === type : selected} scrollOffsetSv={scrollOffsetSv}>
+                            {component}
+                        </SimpleTransferAnimatedWrapper>
+                    ))}
+                    
+                    {!!feesComponent && 
+                        <SimpleTransferAnimatedWrapper noAnimation isActive={selected === null ? null : false} scrollOffsetSv={scrollOffsetSv}>
                             {feesComponent}
-                        </AnimatedWrapper>
-                    </View>
-                }
-                <View style={{ height: 56 }} />
-            </ScrollView>
+                        </SimpleTransferAnimatedWrapper>
+                    }
+                </Animated.ScrollView>
+            </NativeViewGestureHandler>
             {footerComponent}
         </View>
     )
 }))
 
 const styles = StyleSheet.create({
-    disabled: { opacity: 0, pointerEvents: 'none' },
-    disabledHeight: { height: 0 },
-
-    addressAddress: { position: 'absolute', top: 0, left: 0, right: 0, opacity: 1, zIndex: 1 },
-    amountAmount: { position: 'relative', left: 0, right: 0, opacity: 1, zIndex: 1 },
-    commentComment: { position: 'absolute', left: 0, right: 0, opacity: 1, zIndex: 1 },
-
-    default: { opacity: 1 }
+    container: { flexGrow: 1 },
+    scrollContainer: { flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 },
+    scrollContentContainer: { marginHorizontal: 16, flexGrow: 1, paddingBottom: 56, rowGap: 16 }
 })

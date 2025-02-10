@@ -12,7 +12,7 @@ type Props = {
     titleComponent?: ReactNode,
 }
 
-export const Header = memo(({
+export const SimpleTransferHeader = memo(({
     title,
     onBackPressed,
     titleComponent,

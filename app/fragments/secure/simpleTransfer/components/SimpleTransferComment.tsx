@@ -16,6 +16,8 @@ type Props = {
     setComment: Dispatch<SetStateAction<string>>
     known: KnownWallet;
     commentError?: string;
+    maxHeight?: number;
+    isScrolling?: boolean;
 }
 
 export const SimpleTransferComment = memo(forwardRef(({
@@ -26,6 +28,8 @@ export const SimpleTransferComment = memo(forwardRef(({
     setComment,
     known,
     commentError,
+    maxHeight,
+    isScrolling
 }: Props, ref) => {
     const theme = useTheme();
     const innerRef = useRef(null)
@@ -56,10 +60,10 @@ export const SimpleTransferComment = memo(forwardRef(({
                             autoCapitalize={'sentences'}
                             label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                             style={{ paddingHorizontal: 16 }}
-                            inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
+                            inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center', maxHeight }, Typography.regular17_24]}
                             multiline
                             cursorColor={theme.accent}
-                            maxHeight={isActive ? 150 : undefined}
+                            editable={!isScrolling}
                         />
                 )}
             </View>

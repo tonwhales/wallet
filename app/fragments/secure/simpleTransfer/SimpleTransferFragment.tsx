@@ -11,7 +11,7 @@ import { useParams } from '../../../utils/useParams';
 import { useNetwork, useTheme } from '../../../engine/hooks';
 import { AddressSearchItem } from '../../../components/address/AddressSearch';
 import { AddressDomainInputRef } from '../../../components/address/AddressDomainInput';
-import { Fees, Footer, Header, Layout, Comment, SimpleTransferAmount, SimpleTransferAddress } from './components';
+import { SimpleTransferLayout, SimpleTransferAmount, SimpleTransferAddress, SimpleTransferComment, SimpleTransferFees, SimpleTransferHeader, SimpleTransferFooter } from './components';
 import { SelectedInput, useSimpleTransfer } from './hooks/useSimpleTransfer';
 import { t } from '../../../i18n/t';
 import { TransferHeader } from '../../../components/transfer/TransferHeader';
@@ -76,6 +76,8 @@ const SimpleTransferComponent = () => {
         doSend
     } = useSimpleTransfer({ params, route, navigation });
 
+    const [isScrolling, setIsScrolling] = useState(false);
+
     useEffect(() => {
         return () => {
             params?.callback?.(false, null);
@@ -118,10 +120,6 @@ const SimpleTransferComponent = () => {
         return () => BackHandler.removeEventListener('hardwareBackPress', backHandler);
     }, [backHandler]);
 
-    useEffect(() => {
-        scrollRef.current?.scrollTo({ y: 0 });
-    }, [selectedInput]);
-
     const resetInput = () => {
         Keyboard.dismiss();
         setSelectedInput(null);
@@ -136,10 +134,6 @@ const SimpleTransferComponent = () => {
             titleComponent?: ReactNode,
         }
     }>(() => {
-        if (selectedInput === null) {
-            return { selected: null, onNext: null, header: { title: t('transfer.title') } };
-        }
-
         const headerTitle = targetAddressValid ? {
             titleComponent: (
                 <TransferHeader
@@ -160,22 +154,23 @@ const SimpleTransferComponent = () => {
             case SelectedInput.COMMENT:
                 return { selected: 'comment', onNext: resetInput, header: headerTitle };
             default:
-                return { selected: null, onNext: null, header: headerTitle };
+                return { selected: null, onNext: null, header: { title: t('transfer.title') } };
         }
     }, [selectedInput, targetAddressValid, theme, network.isTestnet, knownWallets, t]);
 
     return (
-        <Layout
+        <SimpleTransferLayout
             ref={scrollRef}
-            headerComponent={<Header {...header} />}
-            footerComponent={<Footer {...{ selected, onNext, continueDisabled, continueLoading, doSend }} />}
+            headerComponent={<SimpleTransferHeader {...header} />}
+            footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, continueLoading, doSend }} />}
             addressComponent={<SimpleTransferAddress ref={addressRef} {...{ ledgerAddress, params, domain, onInputFocus, setAddressDomainInputState, onInputSubmit, onQRCodeRead, isActive: selected === 'address', onSearchItemSelected, knownWallets }} />}
             amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton }} />}
-            commentComponent={<Comment ref={commentRef} {...{ commentString, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError }} />}
-            feesComponent={estimation ? <Fees {...{ estimation, estimationPrice }} /> : null}
-            scrollEnabled={!selectedInput}
-            nestedScrollEnabled={!selectedInput}
+            commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError, maxHeight: selected === 'comment' ? 200 : undefined }} />}
+            feesComponent={estimation ? <SimpleTransferFees {...{ estimation, estimationPrice }} /> : null}
+            scrollEnabled={selectedInput === null}
+            nestedScrollEnabled={selectedInput === null}
             selected={selected}
+            setIsScrolling={setIsScrolling}
         />
     );
 }

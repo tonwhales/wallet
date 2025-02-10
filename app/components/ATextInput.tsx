@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions, LayoutChangeEvent } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, Platform, InputModeOptions, LayoutChangeEvent, GestureResponderEvent } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { Easing, FadeIn, FadeInUp, FadeOutDown, LinearTransition, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -123,6 +123,7 @@ export interface ATextInputProps {
     inputMode?: InputModeOptions,
     cursorColor?: string,
     maxHeight?: number
+    onStartShouldSetResponder?: ((event: GestureResponderEvent) => boolean) | undefined
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
@@ -269,7 +270,6 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                     hitSlop={16}                         
                                     style={[
                                         {
-                                            maxHeight: props.maxHeight,
                                             color: theme.textPrimary,
                                             fontSize: props.fontSize !== undefined ? props.fontSize : 17,
                                             lineHeight: props.lineHeight !== undefined ? props.lineHeight : undefined,
@@ -312,6 +312,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                     onSubmitEditing={onSubmit}
                                     maxLength={props.maxLength}
                                     inputMode={props.inputMode}
+                                    onStartShouldSetResponder={props.onStartShouldSetResponder}
                                 />
                                 {props.inputSuffix && (
                                     <Text

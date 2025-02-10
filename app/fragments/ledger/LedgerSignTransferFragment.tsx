@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { backoff } from '../../utils/time';
+import { backoff, backoffFailaible } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
@@ -13,7 +13,6 @@ import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
-import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import { LedgerOrder } from '../secure/ops/Order';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
@@ -24,7 +23,6 @@ import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { confirmAlert } from '../../utils/confirmAlert';
 import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
-import { TonTransport } from '@ton-community/ton-ledger';
 import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
@@ -35,10 +33,11 @@ import { TransferSingleView } from '../secure/components/TransferSingleView';
 import { RoundButton } from '../../components/RoundButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { ledgerOrderToPendingTransactionBody, LedgerTransferPayload, PendingTransactionBody, PendingTransactionStatus } from '../../engine/state/pending';
 import { useParams } from '../../utils/useParams';
 import { handleLedgerSignError } from '../../utils/ledger/handleLedgerSignError';
+import { TransferTarget } from '../secure/TransferFragment';
+import { WalletVersions } from '../../engine/types';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -48,26 +47,30 @@ export type LedgerSignTransferParams = {
 
 type ConfirmLoadedProps = {
     restricted: boolean,
-    target: {
-        isTestOnly: boolean;
-        address: Address;
-        balance: bigint,
-        active: boolean,
-        domain?: string
-        bounceable?: boolean
-    },
+    target: TransferTarget,
+    jettonTrarget?: TransferTarget,
     text: string | null,
     order: LedgerOrder,
     fees: bigint,
     metadata: ContractMetadata,
-    transport: TonTransport,
     addr: { acc: number, address: string, publicKey: Buffer },
     callback?: ((ok: boolean, result: Cell | null) => void) | null
 };
 
 const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferState: (state: 'confirm' | 'sending' | 'sent') => void })) => {
-    const network = useNetwork();
-    const client = useClient4(network.isTestnet);
+    const {
+        target,
+        jettonTrarget,
+        text,
+        order,
+        fees,
+        metadata,
+        addr,
+        setTransferState,
+        callback
+    } = props;
+    const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -79,27 +82,14 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
     }, [ledgerContext]);
     const account = useAccountLite(ledgerAddress);
     const [walletSettings] = useWalletSettings(ledgerAddress!);
-    const registerPending = useRegisterPending(ledgerAddress?.toString({ testOnly: network.isTestnet }));
-
-    const {
-        restricted,
-        target,
-        text,
-        order,
-        fees,
-        metadata,
-        transport,
-        addr,
-        setTransferState,
-        callback
-    } = props;
-
+    const registerPending = useRegisterPending(ledgerAddress?.toString({ testOnly: isTestnet }));
+    const path = pathFromAccountNumber(addr.acc, isTestnet);
     const jetton = useJetton({ owner: ledgerAddress!, master: metadata?.jettonWallet?.master, wallet: metadata.jettonWallet?.address });
 
     // Resolve operation
-    let payload = order.payload ? resolveLedgerPayload(order.payload) : null;
-    let body = payload ? parseBody(payload) : null;
-    let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target) }, network.isTestnet);
+    const payload = order.payload ? resolveLedgerPayload(order.payload) : null;
+    const body = payload ? parseBody(payload) : null;
+    const operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target) }, isTestnet);
 
     // Resolve Jettion amount
     const jettonAmountString = useMemo(() => {
@@ -117,9 +107,6 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         } catch { }
     }, [order, jetton, payload]);
 
-    // Resolve operation
-    let path = pathFromAccountNumber(addr.acc, network.isTestnet);
-
     // Tracking
     const success = useRef(false);
     useEffect(() => {
@@ -130,30 +117,25 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         }
     }, []);
 
-    const friendlyTarget = target.address.toString({ testOnly: network.isTestnet, bounceable: target.bounceable });
-    // Contact wallets
+    const friendlyTarget = target.address.toString({ testOnly: isTestnet, bounceable: target.bounceable });
     const contact = useContact(friendlyTarget);
+    const isSpam = useDenyAddress(friendlyTarget);
+    const spam = useIsSpamWallet(friendlyTarget) || isSpam;
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(network.isTestnet)[friendlyTarget]) {
-        known = KnownWallets(network.isTestnet)[friendlyTarget];
+    if (KnownWallets(isTestnet)[friendlyTarget]) {
+        known = KnownWallets(isTestnet)[friendlyTarget];
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
-    const isSpam = useDenyAddress(friendlyTarget);
-    const spam = useIsSpamWallet(friendlyTarget) || isSpam
-    const walletVersion = useWalletVersion();
-
     // Confirmation
     const doSend = useCallback(async () => {
-        let value: bigint = order.amount;
+        const value: bigint = order.amount;
+        const address: Address = target.address;
 
-        // Parse address
-        let address: Address = target.address;
-
-        const contract = await contractFromPublicKey(addr.publicKey, walletVersion, network.isTestnet);
+        const contract = await contractFromPublicKey(addr.publicKey, WalletVersions.v4R2, isTestnet);
         const source = WalletContractV4.create({ workchain: 0, publicKey: addr.publicKey });
 
         try {
@@ -167,7 +149,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                         backoff('ledger-target', () => client.getAccount(block.last.seqno, address)),
                         block
                     ])
-                }),
+                })
             ]);
 
             // Check bounce flag
@@ -189,7 +171,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
             // Send sign request to Ledger
             let signed: Cell | null = null;
             try {
-                signed = await transport.signTransaction(path, {
+                signed = await ledgerContext.tonTransport!.signTransaction(path, {
                     to: address!,
                     sendMode: order.amountAll
                         ? SendMode.CARRY_ALL_REMAINING_BALANCE
@@ -206,24 +188,15 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
             }
 
             // Sending when accepted
-            let extMessage = external({
+            const extMessage = external({
                 to: contract.address,
                 body: signed,
                 init: accountSeqno === 0 ? source.init : null
             });
+            const msg = beginCell().store(storeMessage(extMessage)).endCell();
+            await backoffFailaible('ledger-transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
-            let msg = beginCell().store(storeMessage(extMessage)).endCell();
-
-            // Transfer
-            await backoff('ledger-transfer', async () => {
-                try {
-                    setTransferState('sending');
-                    await client.sendMessage(msg.toBoc({ idx: false }));
-                } catch (error) {
-                    console.warn(error);
-                }
-            });
-
+            // Resolve & reg pending transaction
             let transferPayload: LedgerTransferPayload | null = null;
             if (order.payload?.type === 'jetton-transfer' && !!jetton) {
                 transferPayload = { ...order.payload, jetton };
@@ -280,7 +253,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                     order={order}
                     amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
                     jettonAmountString={jettonAmountString}
-                    target={target}
+                    target={jettonTrarget || target}
                     fees={{ type: 'ton', value: fees }}
                     jetton={jetton}
                     walletSettings={walletSettings}
@@ -315,8 +288,8 @@ const Skeleton = memo(() => {
 export const LedgerSignTransferFragment = fragment(() => {
     const params = useParams<LedgerSignTransferParams>();
     const theme = useTheme();
-    const network = useNetwork();
-    const client = useClient4(network.isTestnet);
+    const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
     const ledgerContext = useLedgerTransport();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -368,73 +341,23 @@ export const LedgerSignTransferFragment = fragment(() => {
                 return;
             }
 
-            // Confirm domain-resolved wallet address
-            if (order.domain) {
-                const tonDnsRootAddress = Address.parse(netConfig.rootDnsAddress);
-                try {
-                    const tonZoneMatch = order.domain.match(/\.ton$/);
-                    const tMeZoneMatch = order.domain.match(/\.t\.me$/);
-                    let zone = null;
-                    let domain = null;
-                    if (tonZoneMatch || tMeZoneMatch) {
-                        zone = tonZoneMatch ? '.ton' : '.t.me';
-                        domain = zone === '.ton'
-                            ? order.domain.slice(0, order.domain.length - 4)
-                            : order.domain.slice(0, order.domain.length - 5)
-                    }
-
-                    if (!domain) {
-                        throw Error('Invalid domain');
-                    }
-
-                    domain = domain.toLowerCase();
-
-                    const valid = validateDomain(domain);
-                    if (!valid) {
-                        throw Error('Invalid domain');
-                    }
-
-                    const resolvedDomainWallet = await resolveDomain(client, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
-                    if (!resolvedDomainWallet) {
-                        throw Error('Error resolving domain wallet');
-                    }
-
-                    if (
-                        !resolvedDomainWallet
-                        || !Address.isAddress(resolvedDomainWallet)
-                        || !(resolvedDomainWallet as Address).equals(target!.address)
-                    ) {
-                        throw Error('Error resolving wallet address');
-                    }
-                } catch (e) {
-                    if (params && params.callback) {
-                        params.callback(false, null);
-                    }
-                    Alert.alert(t('transfer.error.invalidDomain'), undefined, [{
-                        text: t('common.close'),
-                        onPress: () => navigation.goBack()
-                    }]);
-                    return;
-                }
-            }
-
             // Get contract
-            const contract = contractFromPublicKey(from.publicKey, undefined, network.isTestnet) as WalletContractV4;
+            const contract = contractFromPublicKey(from.publicKey, undefined, isTestnet) as WalletContractV4;
 
             // Resolve payload 
             let payload: Cell | null = order.payload ? resolveLedgerPayload(order.payload) : null;
 
             // Create transfer
-            let intMessage = internal({
+            const intMessage = internal({
                 to: target.address,
                 value: order.amount,
                 bounce: false,
                 body: payload
             });
 
-            let block = await backoff('transfer', () => client.getLastBlock());
-            let seqno = await backoff('transfer', async () => fetchSeqno(client, block.last.seqno, contract.address));
-            let transfer = contract.createTransfer({
+            const block = await backoff('transfer', () => client.getLastBlock());
+            const seqno = await backoff('transfer', async () => fetchSeqno(client, block.last.seqno, contract.address));
+            const transfer = contract.createTransfer({
                 seqno: seqno,
                 secretKey: Buffer.alloc(64),
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
@@ -449,14 +372,11 @@ export const LedgerSignTransferFragment = fragment(() => {
                 backoff('transfer', () => fetchConfig()),
                 backoff('transfer', async () => {
                     return Promise.all([
-                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, network.isTestnet, true)),
+                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet, true)),
                         backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
                     ])
-                }),
-            ])
-            if (exited) {
-                return;
-            }
+                })
+            ]);
 
             // Check if wallet is restricted
             let restricted = false;
@@ -467,17 +387,40 @@ export const LedgerSignTransferFragment = fragment(() => {
                 }
             }
 
+            let jettonTrarget: TransferTarget | undefined = undefined;
+            if (order.payload?.type === 'jetton-transfer') {
+                const dest = order.payload.destination;
+                const destState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, dest));
+
+                jettonTrarget = {
+                    isTestOnly: isTestnet,
+                    address: dest,
+                    balance: BigInt(destState.account.balance.coins),
+                    active: destState.account.state.type === 'active',
+                    domain: order.domain
+                }
+
+                for (let r of config.wallets.restrict_send) {
+                    if (Address.parse(r).equals(dest)) {
+                        restricted = true;
+                        break;
+                    }
+                }
+            }
+
+            if (exited) {
+                return;
+            }
+
             // Estimate fee
-            let inMsgExt = external({
+            const inMsgExt = external({
                 to: contract.address,
                 body: transfer,
                 init: seqno === 0 ? contract.init : null
             });
 
-            let inMsg = beginCell().store(storeMessage(inMsgExt)).endCell();
-
-
-            let fees = estimateFees(netConfig!, inMsg, [beginCell().store(storeMessageRelaxed(intMessage)).endCell()], [state!.account.storageStat]);
+            const inMsg = beginCell().store(storeMessage(inMsgExt)).endCell();
+            const fees = estimateFees(netConfig!, inMsg, [beginCell().store(storeMessageRelaxed(intMessage)).endCell()], [state!.account.storageStat]);
 
             // Set state
             setLoadedProps({
@@ -490,11 +433,11 @@ export const LedgerSignTransferFragment = fragment(() => {
                     domain: order.domain,
                     bounceable: target.isBounceable
                 },
+                jettonTrarget,
                 order,
                 fees,
                 metadata,
                 addr: ledgerContext.addr,
-                transport: ledgerContext.tonTransport,
                 text,
                 callback: params.callback
             });

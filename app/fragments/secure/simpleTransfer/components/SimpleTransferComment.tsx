@@ -18,7 +18,7 @@ type Props = {
     commentError?: string;
 }
 
-export const Comment = memo(forwardRef(({
+export const SimpleTransferComment = memo(forwardRef(({
     commentString,
     isActive,
     payload,
@@ -36,7 +36,7 @@ export const Comment = memo(forwardRef(({
             <View style={{
                 backgroundColor: theme.surfaceOnElevation,
                 paddingVertical: 20,
-                paddingHorizontal: (commentString.length > 0 && !isActive) ? 4 : 0,
+                paddingHorizontal: 4,
                 width: '100%', borderRadius: 20,
                 overflow: 'hidden'
             }}>
@@ -45,21 +45,22 @@ export const Comment = memo(forwardRef(({
                         {t('transfer.smartContract')}
                     </Text>
                 ) : (
-                    <ATextInput
-                        value={commentString}
-                        index={2}
-                        ref={innerRef}
-                        onFocus={onInputFocus}
-                        onValueChange={setComment}
-                        placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
-                        keyboardType={'default'}
-                        autoCapitalize={'sentences'}
-                        label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
-                        style={{ paddingHorizontal: 16 }}
-                        inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
-                        multiline
-                        cursorColor={theme.accent}
-                    />
+                        <ATextInput
+                            value={commentString}
+                            index={2}
+                            ref={innerRef}
+                            onFocus={onInputFocus}
+                            onValueChange={setComment}
+                            placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
+                            keyboardType={'default'}
+                            autoCapitalize={'sentences'}
+                            label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
+                            style={{ paddingHorizontal: 16 }}
+                            inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
+                            multiline
+                            cursorColor={theme.accent}
+                            maxHeight={isActive ? 150 : undefined}
+                        />
                 )}
             </View>
             {!!commentError ? (

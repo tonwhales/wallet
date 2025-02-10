@@ -123,6 +123,7 @@ export interface ATextInputProps {
     screenWidth?: number,
     inputMode?: InputModeOptions,
     cursorColor?: string,
+    maxHeight?: number
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
@@ -258,9 +259,10 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                             >
                                 <TextInput
                                     ref={tref}
-                                    hitSlop={16}
+                                    hitSlop={16}                         
                                     style={[
                                         {
+                                            maxHeight: props.maxHeight,
                                             color: theme.textPrimary,
                                             fontSize: props.fontSize !== undefined ? props.fontSize : 17,
                                             lineHeight: props.lineHeight !== undefined ? props.lineHeight : undefined,

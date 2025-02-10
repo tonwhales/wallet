@@ -70,14 +70,14 @@ export const SimpleTransferLayout = memo(forwardRef(({
                         { type: 'address', component: addressComponent },
                         { type: 'amount', component: amountComponent },
                         { type: 'comment', component: commentComponent },
-                    ].map(({type, component}) => (
-                        <SimpleTransferAnimatedWrapper key={type} isActive={selected ? selected === type : selected} scrollOffsetSv={scrollOffsetSv}>
+                    ].map(({type, component}, index) => (
+                        <SimpleTransferAnimatedWrapper key={type} delay={index * 10} isActive={selected ? selected === type : selected} scrollOffsetSv={scrollOffsetSv}>
                             {component}
                         </SimpleTransferAnimatedWrapper>
                     ))}
                     
                     {!!feesComponent && 
-                        <SimpleTransferAnimatedWrapper noAnimation isActive={selected === null ? null : false} scrollOffsetSv={scrollOffsetSv}>
+                        <SimpleTransferAnimatedWrapper delay={30} noAnimation isActive={selected === null ? null : false} scrollOffsetSv={scrollOffsetSv}>
                             {feesComponent}
                         </SimpleTransferAnimatedWrapper>
                     }

@@ -6,11 +6,12 @@ import { TimingConfig } from "@shopify/react-native-skia/lib/typescript/src/anim
 
 const timingConfig = (noAnimation?: boolean): TimingConfig => ({ duration: noAnimation ? 0 : 300, easing: Easing.bezierFn(0.25, 0.1, 0.25, 1) })
 
-export const SimpleTransferAnimatedWrapper = memo(({ scrollOffsetSv, isActive, children, noAnimation }: PropsWithChildren<{
+export const SimpleTransferAnimatedWrapper = memo(({ scrollOffsetSv, delay = 0, isActive, children, noAnimation }: PropsWithChildren<{
     isActive: boolean | null
     scrollOffsetSv: SharedValue<number>
     noAnimation?: boolean
-}>) => {
+    delay?: number
+}>) => {  
     const animvSV = useSharedValue(0)
     const offsetSv = useSharedValue(0)
     const onLayout = useCallback((e: LayoutChangeEvent) => {
@@ -34,7 +35,7 @@ export const SimpleTransferAnimatedWrapper = memo(({ scrollOffsetSv, isActive, c
         ]
     }), [])
 
-    useEffect(() => {        
+    useEffect(() => {
         if (isActive === null) {
             animvSV.value = withTiming(1, timingConfig(noAnimation))
         } else if (isActive) {
@@ -45,8 +46,10 @@ export const SimpleTransferAnimatedWrapper = memo(({ scrollOffsetSv, isActive, c
     }, [isActive])
 
     return (
-        <Animated.View style={animatedStyle} onLayout={onLayout}>
-            {children}
-        </Animated.View>
+        <WithDelay delay={delay}>
+            <Animated.View style={animatedStyle} onLayout={onLayout}>
+                {children}
+            </Animated.View>
+        </WithDelay>
     )
 })

@@ -52,7 +52,7 @@ export const AddressSearchItemView = memo(({
             address={addressString}
             id={addressString}
             size={46}
-            borderWith={0}
+            borderWidth={0}
             markContact={item.type === 'contact'}
             icProps={{
                 isOwn: item.type === 'own',

@@ -87,7 +87,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
             return null;
         }
 
-        const i = index - (ledgerContext?.ledgerWallets?.length ?? 0);
+        const i = index - (ledgerContext?.wallets?.length ?? 0);
         const isSelected = i === appState.selected && !isPrevScreenLedger;
 
         return (
@@ -103,7 +103,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                 knownWallets={knownWallets}
             />
         )
-    }, [isPrevScreenLedger, onLedgerSelect, onSelect, appState.selected, bounceableFormat, isTestnet, knownWallets, ledgerContext.ledgerWallets, connectedLedgerAddress]);
+    }, [isPrevScreenLedger, onLedgerSelect, onSelect, appState.selected, bounceableFormat, isTestnet, knownWallets, ledgerContext.wallets, connectedLedgerAddress]);
 
     const items: Item[] = useMemo(() => {
         const walletItems: Item[] = appState.addresses.map(account => ({
@@ -111,14 +111,14 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
             account
         }));
 
-        const ledgerItems: Item[] = ledgerContext.ledgerWallets.map((address, index) => ({
+        const ledgerItems: Item[] = ledgerContext.wallets.map((address, index) => ({
             type: 'ledger' as const,
             address,
         }));
 
         return [...ledgerItems, ...walletItems];
 
-    }, [appState, ledgerContext.ledgerWallets]);
+    }, [appState, ledgerContext.wallets]);
 
     return (
         <FlatList

@@ -100,7 +100,7 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
                 </>
             ) : (
                 accountsLite.map((acc) => {
-                    if (ledgerContext?.ledgerWallets?.some((a) => Address.parse(a.address).equals(acc.address))) {
+                    if (ledgerContext?.wallets?.some((a) => Address.parse(a.address).equals(acc.address))) {
                         return null;
                     }
                     const item = accs.find((a) => a.address.equals(acc.address));

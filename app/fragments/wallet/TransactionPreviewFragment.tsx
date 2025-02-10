@@ -52,6 +52,7 @@ const TransactionPreview = () => {
     const selected = useSelectedAccount()!;
     const toaster = useToaster();
     const ledgerContext = useLedgerTransport();
+    const ledgerAddresses = ledgerContext?.wallets;
     const appState = useAppState();
     const addressBook = useAddressBookContext();
     const [price, currency] = usePrice();
@@ -155,7 +156,19 @@ const TransactionPreview = () => {
         } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
-    }, [targetContract]);
+
+        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+            try {
+                return Address.parse(opAddress)?.equals(Address.parse(addr.address));
+            } catch (error) {
+                return false;
+            }
+        });
+
+        if (isLedgerTarget) {
+            return 'ledger';
+        }
+    }, [targetContract, ledgerAddresses, opAddress]);
 
     const holdersOp = useMemo<null | HoldersOp>(
         () => {
@@ -305,6 +318,8 @@ const TransactionPreview = () => {
                                 position: 'bottom',
                                 size: 28
                             }}
+                            borderWidth={2.5}
+                            borderColor={theme.surfaceOnBg}
                         />
                     ) : (
                         tx.base.outMessagesCount > 1 ? (
@@ -336,7 +351,7 @@ const TransactionPreview = () => {
                                 address={opAddressBounceable}
                                 spam={spam}
                                 showSpambadge
-                                borderWith={2.5}
+                                borderWidth={2.5}
                                 borderColor={theme.surfaceOnElevation}
                                 backgroundColor={avatarColor}
                                 markContact={!!contact}

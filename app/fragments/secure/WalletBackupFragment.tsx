@@ -187,7 +187,7 @@ export const WalletBackupFragment = systemFragment(() => {
                                 hash={walletSettings.avatar}
                                 size={77}
                                 borderColor={theme.elevation}
-                                borderWith={3}
+                                borderWidth={3}
                                 theme={theme}
                                 knownWallets={knownWallets}
                                 backgroundColor={avatarColor}

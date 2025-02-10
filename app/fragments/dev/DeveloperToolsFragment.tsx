@@ -72,7 +72,7 @@ export const DeveloperToolsFragment = fragment(() => {
         setHiddenBanners([]);
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
-        for (const ledgerWalet of ledgerContext.ledgerWallets) {
+        for (const ledgerWalet of ledgerContext.wallets) {
             const address = Address.parse(ledgerWalet.address);
             await clearHolders(address.toString({ testOnly: isTestnet }));
             await onAccountTouched(address.toString({ testOnly: isTestnet }), isTestnet);

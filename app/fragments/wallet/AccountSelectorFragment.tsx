@@ -27,7 +27,7 @@ export const AccountSelectorFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const isLedgerConnected = !!ledgerContext.tonTransport;
 
-    const addressesCount = appState.addresses.length + ledgerContext.ledgerWallets.length;
+    const addressesCount = appState.addresses.length + ledgerContext.wallets.length;
 
     const heightMultiplier = useMemo(() => {
         const heightDependentMultiplier = dimentions.height > 800 ? 0 : .1;

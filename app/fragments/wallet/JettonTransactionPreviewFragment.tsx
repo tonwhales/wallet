@@ -60,6 +60,7 @@ const JettonTransactionPreview = () => {
     const route = useRoute();
     const isLedger = route.name === 'LedgerJettonTransactionPreview';
     const ledgerContext = useLedgerTransport();
+    const ledgerAddresses = ledgerContext?.wallets;
 
     const { transaction: tx, owner, master, wallet } = useParams<JettonTransactionPreviewParams>();
 
@@ -72,16 +73,16 @@ const JettonTransactionPreview = () => {
     const kind: 'in' | 'out' = destinationAddress.equals(address) ? 'in' : 'out';
     const displayAddress = kind === 'in' ? sourceAddress : destinationAddress;
     const isOwn = appState.addresses.findIndex((a) => a.address.equals(displayAddress)) >= 0;
-    const displayAddressBounceable = displayAddress.toString({ testOnly: isTestnet });
+    const opAddress = displayAddress.toString({ testOnly: isTestnet });
     const comment = parseForwardPayloadComment(tx.forward_payload);
 
     const ownWalletSettings = walletsSettings[address.toString({ testOnly: isTestnet })];
-    const opAddressWalletSettings = walletsSettings[displayAddressBounceable];
+    const opAddressWalletSettings = walletsSettings[opAddress];
 
-    const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(displayAddressBounceable, avatarColors.length);
+    const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
-    const contact = addressBook.asContact(displayAddressBounceable);
+    const contact = addressBook.asContact(opAddress);
 
     let dateStr = `${formatDate(tx.transaction_now, 'MMMM dd, yyyy')} • ${formatTime(tx.transaction_now)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
@@ -107,12 +108,24 @@ const JettonTransactionPreview = () => {
         } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
-    }, [targetContract]);
+
+        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+            try {
+                return Address.parse(opAddress)?.equals(Address.parse(addr.address));
+            } catch (error) {
+                return false;
+            }
+        });
+
+        if (isLedgerTarget) {
+            return 'ledger';
+        }
+    }, [targetContract, ledgerAddresses, opAddress]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (knownWallets[displayAddressBounceable]) {
-        known = knownWallets[displayAddressBounceable];
+    if (knownWallets[opAddress]) {
+        known = knownWallets[opAddress];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
@@ -242,11 +255,11 @@ const JettonTransactionPreview = () => {
                     ) : (
                         <Avatar
                             size={68}
-                            id={displayAddressBounceable}
-                            address={displayAddressBounceable}
+                            id={opAddress}
+                            address={opAddress}
                             spam={spam}
                             showSpambadge
-                            borderWith={2.5}
+                            borderWidth={2.5}
                             borderColor={theme.surfaceOnElevation}
                             backgroundColor={avatarColor}
                             markContact={!!contact}
@@ -265,7 +278,7 @@ const JettonTransactionPreview = () => {
                         style={[
                             {
                                 color: theme.textPrimary,
-                                paddingTop: (spam || !!contact || isOwn || !!knownWallets[displayAddressBounceable]) ? 16 : 8,
+                                paddingTop: (spam || !!contact || isOwn || !!knownWallets[opAddress]) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}

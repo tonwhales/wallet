@@ -139,7 +139,7 @@ export const ContactFragment = fragment(() => {
                                         id={parsed ? parsed.address.toString({ testOnly: isTestnet }) : ''}
                                         size={100}
                                         image={undefined}
-                                        borderWith={2}
+                                        borderWidth={2}
                                         borderColor={theme.surfaceOnElevation}
                                         theme={theme}
                                         knownWallets={knownWallets}

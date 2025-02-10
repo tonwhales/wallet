@@ -81,7 +81,7 @@ export const WalletHeader = memo(({ address }: { address: Address }) => {
                         <Avatar
                             id={address.toString({ testOnly: network.isTestnet })}
                             size={32}
-                            borderWith={0}
+                            borderWidth={0}
                             hash={walletSettings?.avatar}
                             theme={theme}
                             knownWallets={knownWallets}

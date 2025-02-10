@@ -56,7 +56,7 @@ export const ContactTransactionView = memo(({
                         address={addressFriendly}
                         id={addressFriendly}
                         size={46}
-                        borderWith={0}
+                        borderWidth={0}
                         theme={theme}
                         hashColor
                         knownWallets={knownWallets}

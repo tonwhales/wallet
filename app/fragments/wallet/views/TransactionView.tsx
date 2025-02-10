@@ -27,6 +27,7 @@ import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
 import { TonTransaction } from '../../../engine/types';
+import { useLedgerTransport } from '../../ledger/components/TransportContext';
 
 export function TransactionView(props: {
     own: Address,
@@ -70,6 +71,8 @@ export function TransactionView(props: {
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet);
     const targetContract = useContractInfo(opAddress);
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddresses = ledgerContext?.wallets;
 
     const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
@@ -119,7 +122,19 @@ export function TransactionView(props: {
         if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
-    }, [targetContract, holdersOp]);
+
+        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+            try {
+                return Address.parse(opAddress)?.equals(Address.parse(addr.address));
+            } catch (error) {
+                return false;
+            }
+        });
+
+        if (isLedgerTarget) {
+            return 'ledger';
+        }
+    }, [targetContract, holdersOp, ledgerAddresses, opAddress]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

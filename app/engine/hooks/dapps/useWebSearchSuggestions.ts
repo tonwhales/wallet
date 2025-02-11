@@ -4,7 +4,7 @@ import { BrowserSearchSuggestion } from "./useDAppsSuggestions";
 
 export function useWebSearchSuggestions(query: string) {
     const dappsSuggestions = useDAppsSuggestions(query);
-    const [searchEngine,] = useSearchEngine();
+    const [searchEngine] = useSearchEngine();
     const webSuggestions = useBrowserWebSearchSuggestions(query, searchEngine);
 
     const resRef = useRef<BrowserSearchSuggestion[]>([]);

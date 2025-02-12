@@ -289,17 +289,6 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
                     mStateInit = null;
                 }
 
-                if (isLedger) {
-                    navigation.navigateLedgerTransfer({
-                        target: mTarget,
-                        comment: mComment,
-                        amount: mAmount,
-                        stateInit: mStateInit,
-                        jetton: mJetton,
-                    }, true);
-                    return;
-                }
-
                 if (tx.type === 'jetton-transaction' && tx.jettonMaster) {
                     mJetton = tx.jettonMaster
                 }
@@ -309,8 +298,8 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
                     comment: mComment,
                     amount: mAmount,
                     stateInit: mStateInit,
-                    jetton: mJetton,
-                }, true);
+                    jetton: mJetton
+                }, { ledger: isLedger, replace: true });
             }
         }
     }, []);

@@ -53,11 +53,28 @@ const tonconnectV2Key = z.object({
     config: tonconnectV2Config,
 });
 
-const keys = z.union([tonXKey, tonXLiteKey, tonconnectV2Key]);
+const tonhubLedgerConfig = z.object({
+    address: z.string(),
+    proof: z.object({
+        timestamp: z.number(),
+        signature: z.string(),
+        cell: z.string(),
+        walletStateInit: z.string().nullish(),
+        publicKey: z.string().nullish(),
+    })
+});
+
+const tonhubLedgerKey = z.object({
+    kind: z.literal('tonhub-ledger-v1'),
+    wallet: z.literal('tonhub'),
+    config: tonhubLedgerConfig,
+});
+
+const keys = z.union([tonXKey, tonXLiteKey, tonconnectV2Key, tonhubLedgerKey]);
 
 export type AccountKeyParam = z.infer<typeof keys>;
 
-export async function fetchUserToken(key: AccountKeyParam, isTestnet: boolean, inviteId?: string): Promise<string> {    
+export async function fetchUserToken(key: AccountKeyParam, isTestnet: boolean, inviteId?: string): Promise<string> {
     const endpoint = holdersEndpoint(isTestnet);
     const requestParams = {
         stack: 'ton',
@@ -66,8 +83,10 @@ export async function fetchUserToken(key: AccountKeyParam, isTestnet: boolean, i
         inviteId
     };
 
+    const url = `https://${endpoint}/v2/user/wallet/connect`;
+
     const res = await axios.post(
-        `https://${endpoint}/v2/user/wallet/connect`,
+        url,
         requestParams
     );
 

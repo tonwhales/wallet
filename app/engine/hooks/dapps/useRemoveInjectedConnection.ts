@@ -5,8 +5,8 @@ import { TonConnectBridgeType } from '../../tonconnect/types';
 import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
 
-export function useRemoveInjectedConnection() {
-    const [extensions,] = useConnectExtensions();
+export function useRemoveInjectedConnection(address?: string) {
+    const [extensions] = useConnectExtensions(address);
     const setConnections = useSetAppsConnectionsState();
 
     return (endpoint: string) => {
@@ -27,9 +27,10 @@ export function useRemoveInjectedConnection() {
         }
 
         const currentAccount = getCurrentAddress();
+        const account = address ?? currentAccount?.addressString;
 
         setConnections(
-            currentAccount.addressString,
+            account,
             (prev) => {
                 const newConnections = (prev[key] ?? []).filter((item) => item.type !== TonConnectBridgeType.Injected);
                 return {

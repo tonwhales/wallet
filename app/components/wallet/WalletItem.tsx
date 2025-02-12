@@ -90,7 +90,7 @@ export const WalletItem = memo((
                 alignItems: 'center'
             }}>
                 <Avatar
-                    borderWith={0}
+                    borderWidth={0}
                     id={address.toString({ testOnly: isTestnet })}
                     size={46}
                     hash={walletSettings?.avatar}

@@ -68,7 +68,7 @@ const HoldersChip = ({ address }: { address: string | Address }) => {
     const holdersAccounts = useHoldersAccounts(addressString);
     const cards = holdersAccounts.data?.accounts?.map((a) => a.cards)?.flat() as HoldersCard[] || [];
 
-    if (filters?.type === TransactionType.TON) {
+    if (filters?.type !== TransactionType.HOLDERS) {
         return null;
     }
 

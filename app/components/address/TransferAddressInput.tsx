@@ -37,10 +37,11 @@ type TransferAddressInputProps = {
     navigation: TypedNavigation,
     setAddressDomainInputState: (state: AddressInputState) => void,
     autoFocus?: boolean,
+    isLedger?: boolean
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const { acc: account, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus } = props;
+    const { acc: account, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger } = props;
     const theme = useTheme();
 
     const [state, setState] = useState<AddressInputState>({
@@ -77,7 +78,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
 
-    const holdersAccounts = useHoldersAccounts(appState.addresses[appState.selected].address).data?.accounts ?? [];
+    const holdersAccounts = useHoldersAccounts(account).data?.accounts ?? [];
     const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
@@ -267,6 +268,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     query={query}
                     holdersAccounts={holdersAccounts}
                     owner={account}
+                    isLedger={isLedger}
                 />
             </View>
         </View>

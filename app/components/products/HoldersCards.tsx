@@ -8,24 +8,28 @@ import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { PriceComponent } from "../PriceComponent";
-import { toNano } from "@ton/core";
+import { Address, toNano } from "@ton/core";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { Image } from "expo-image";
 
 const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
 export const HoldersCards = memo(({
+    owner,
     cards,
     theme,
     isTestnet,
     markPrepaidCard,
-    holdersAccStatus
+    holdersAccStatus,
+    isLedger
 }: {
+    owner: Address,
     cards?: PrePaidHoldersCard[],
     theme: ThemeType,
     isTestnet: boolean,
     markPrepaidCard: (cardId: string, hidden: boolean) => void,
-    holdersAccStatus?: HoldersAccountStatus
+    holdersAccStatus?: HoldersAccountStatus,
+    isLedger?: boolean
 }) => {
     const totalBalance = useMemo(() => {
         const float = cards?.reduce((acc, item) => {
@@ -39,6 +43,22 @@ export const HoldersCards = memo(({
 
         return toNano((float ?? 0).toFixed(2));
     }, [cards]);
+
+    const renderItem = useCallback((item: PrePaidHoldersCard, index: number) => {
+        return (
+            <HoldersPrepaidCard
+                owner={owner}
+                key={`card-${index}`}
+                card={item}
+                rightActionIcon={hideIcon}
+                rightAction={() => markPrepaidCard(item.id, true)}
+                style={{ paddingVertical: 0 }}
+                isTestnet={isTestnet}
+                holdersAccStatus={holdersAccStatus}
+                isLedger={isLedger}
+            />
+        );
+    }, [isLedger, markPrepaidCard, isTestnet, holdersAccStatus, owner]);
 
     const renderFace = useCallback(() => {
         return (
@@ -124,6 +144,7 @@ export const HoldersCards = memo(({
                     {cards.map((item, index) => {
                         return (
                             <HoldersPrepaidCard
+                                owner={owner}
                                 key={`card-${index}`}
                                 card={item}
                                 rightActionIcon={hideIcon}
@@ -131,6 +152,7 @@ export const HoldersCards = memo(({
                                 style={{ paddingVertical: 0 }}
                                 isTestnet={isTestnet}
                                 holdersAccStatus={holdersAccStatus}
+                                isLedger={isLedger}
                             />
                         )
                     })}
@@ -139,23 +161,13 @@ export const HoldersCards = memo(({
         );
     }
 
+
+
     return (
         <CollapsibleCards
             title={t('products.holders.accounts.prepaidTitle')}
             items={cards}
-            renderItem={(item, index) => {
-                return (
-                    <HoldersPrepaidCard
-                        key={`card-${index}`}
-                        card={item}
-                        rightActionIcon={hideIcon}
-                        rightAction={() => markPrepaidCard(item.id, true)}
-                        style={{ paddingVertical: 0 }}
-                        isTestnet={isTestnet}
-                        holdersAccStatus={holdersAccStatus}
-                    />
-                );
-            }}
+            renderItem={renderItem}
             renderFace={renderFace}
             itemHeight={84}
             theme={theme}

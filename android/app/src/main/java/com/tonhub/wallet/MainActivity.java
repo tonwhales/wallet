@@ -10,7 +10,6 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
 import expo.modules.ReactActivityDelegateWrapper;
-import io.branch.rnbranch.RNBranchModule;
 
 public class MainActivity extends ReactActivity {
   @Override
@@ -25,13 +24,11 @@ public class MainActivity extends ReactActivity {
   @Override
   protected void onStart() {
     super.onStart();
-    RNBranchModule.initSession(getIntent().getData(), this);
   }
 
   @Override
   public void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    RNBranchModule.onNewIntent(intent);
   }
 
   /**

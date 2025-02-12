@@ -8,7 +8,7 @@ export function useJetton(params: { owner: Address | string, master?: Address | 
     const { isTestnet: testOnly } = useNetwork();
     const { owner, master, wallet } = params;
     const masterStr = typeof master === 'string' ? master : (master?.toString({ testOnly }) ?? null);
-    const ownerStr = typeof owner === 'string' ? owner : owner.toString({ testOnly });
+    const ownerStr = typeof owner === 'string' ? owner : owner?.toString({ testOnly });
     const walletStr = typeof wallet === 'string' ? wallet : (wallet?.toString({ testOnly }) ?? null);
 
     const hintsFull = useHintsFull(ownerStr);

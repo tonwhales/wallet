@@ -46,7 +46,7 @@ export const ContactEdit = memo(({
     const contact = useContact(address);
     const contractInfo = useContractInfo(address);
 
-    const [bounceableFormat,] = useBounceableWalletFormat();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const [name, setName] = useState(contact?.name);
     const [fields, setFields] = useState(contact?.fields || requiredFields);
 
@@ -209,7 +209,7 @@ export const ContactEdit = memo(({
                                 id={parsed ? parsed.address.toString({ testOnly: isTestnet }) : ''}
                                 size={100}
                                 image={undefined}
-                                borderWith={2}
+                                borderWidth={2}
                                 borderColor={theme.surfaceOnElevation}
                                 theme={theme}
                                 hashColor

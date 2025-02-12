@@ -25,19 +25,9 @@ export const AccountSelectorFragment = fragment(() => {
     const appState = useAppState();
 
     const ledgerContext = useLedgerTransport();
-    const isLedgerConnected = useMemo(() => {
-        if (!ledgerContext?.tonTransport || !ledgerContext.addr?.address) {
-            return false;
-        }
-        try {
-            Address.parse(ledgerContext.addr?.address);
-            return true;
-        } catch {
-            return false;
-        }
-    }, [ledgerContext]);
+    const isLedgerConnected = !!ledgerContext.tonTransport;
 
-    const addressesCount = appState.addresses.length + (isLedgerConnected ? 1 : 0);
+    const addressesCount = appState.addresses.length + ledgerContext.wallets.length;
 
     const heightMultiplier = useMemo(() => {
         const heightDependentMultiplier = dimentions.height > 800 ? 0 : .1;
@@ -52,16 +42,18 @@ export const AccountSelectorFragment = fragment(() => {
             multiplier = .8;
         }
         return multiplier;
-    }, [addressesCount, isLedgerConnected, dimentions.height]);
+    }, [addressesCount, dimentions.height]);
 
-    const isScrollMode = useMemo(() => {
-        return addressesCount + (isLedgerConnected ? 1 : 0) > 3;
-    }, [addressesCount, isLedgerConnected]);
+    const isScrollMode = useMemo(() => addressesCount > 3, [addressesCount]);
 
     const onAddNewAccount = useCallback(() => {
-        const options = isLedgerConnected
-            ? [t('common.cancel'), t('create.addNew'), t('welcome.importWallet')]
-            : [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
+        const options = [
+            t('common.cancel'),
+            t('create.addNew'),
+            t('welcome.importWallet'),
+            t('hardwareWallet.actions.connect')
+        ];
+
         const cancelButtonIndex = 0;
 
         showActionSheetWithOptions({
@@ -83,13 +75,19 @@ export const AccountSelectorFragment = fragment(() => {
                     }, 50);
                     break;
                 case 3:
+                    if (isLedgerConnected) {
+                        navigation.navigateLedgerSelectAccount({ selectedAddress: ledgerContext.addr });
+                        return;
+                    }
+
+                    ledgerContext.reset();
                     navigation.replace('Ledger');
                     break;
                 default:
                     break;
             }
         });
-    }, [isLedgerConnected]);
+    }, [isLedgerConnected, ledgerContext.addr]);
 
     return (
         <View style={[
@@ -125,7 +123,6 @@ export const AccountSelectorFragment = fragment(() => {
                 }}>
                     {Platform.OS === 'ios' && (
                         <Text style={[{
-                            fontWeight: '600',
                             color: theme.textPrimary,
                             marginTop: Platform.OS === 'ios' ? 32 : 0,
                             marginLeft: 16

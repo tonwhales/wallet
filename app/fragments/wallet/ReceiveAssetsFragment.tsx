@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -105,13 +105,14 @@ export const ReceiveAssetsFragment = fragment(() => {
     const route = useRoute();
     const isLedger = route.name === 'LedgerReceiveAssets';
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
-    const ledgerTransport = useLedgerTransport();
+    const ledgerContext = useLedgerTransport();
+    const [bounceableFormat] = useBounceableWalletFormat();
 
     const ledgerAddress = useMemo(() => {
-        if (isLedger && !!ledgerTransport?.addr) {
-            return Address.parse(ledgerTransport.addr.address);
+        if (isLedger && !!ledgerContext?.addr) {
+            return Address.parse(ledgerContext.addr.address);
         }
-    }, [ledgerTransport, isLedger]);
+    }, [ledgerContext, isLedger]);
 
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
@@ -129,9 +130,9 @@ export const ReceiveAssetsFragment = fragment(() => {
                 assetCallback(asset);
             }, 10);
         } else {
-            navigation.navigateReceive({ asset: asset || undefined, ledger: isLedger });
+            navigation.navigateReceive({ addr: owner.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
         }
-    }, [assetCallback, isLedger]);
+    }, [assetCallback, isLedger, owner, isTestnet, bounceableFormat]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         const path = `/account/${target.id}?deposit-open=true`;
@@ -139,16 +140,21 @@ export const ReceiveAssetsFragment = fragment(() => {
 
         navigation.goBack();
 
+
         if (needsEnrollment || !isHoldersReady) {
+            if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
+                ledgerContext.onShowLedgerConnectionError();
+                return;
+            }
             navigation.navigateHoldersLanding(
-                { endpoint: url, onEnrollType: navParams },
+                { endpoint: url, onEnrollType: navParams, isLedger },
                 isTestnet
             );
             return;
         }
 
-        navigation.navigateHolders(navParams, isTestnet);
-    }, [needsEnrollment, isHoldersReady, isTestnet]);
+        navigation.navigateHolders(navParams, isTestnet, isLedger);
+    }, [needsEnrollment, isHoldersReady, isTestnet, isLedger, ledgerContext]);
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
@@ -267,7 +273,6 @@ export const ReceiveAssetsFragment = fragment(() => {
         data: [{ type: AssetType.TON }, { type: AssetType.SPECIAL }]
     };
 
-    
     const itemsList: { type: 'default' | 'holders' | 'otherCoins', data: ListItem[] }[] = [
         {
             type: 'holders',
@@ -276,7 +281,7 @@ export const ReceiveAssetsFragment = fragment(() => {
         defaultSection
     ];
     if (showOtherCoins) {
-        itemsList.push({ type: 'otherCoins', data: [{ type: AssetType.OTHERCOINS }] }); 
+        itemsList.push({ type: 'otherCoins', data: [{ type: AssetType.OTHERCOINS }] });
     }
 
     return (

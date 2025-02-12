@@ -93,7 +93,7 @@ export const AvatarPickerFragment = fragment(() => {
                                     size={68}
                                     hash={index}
                                     borderColor={theme.border}
-                                    borderWith={0}
+                                    borderWidth={0}
                                     theme={theme}
                                     knownWallets={knownWallets}
                                     id={address.toString({ testOnly: isTestnet })}

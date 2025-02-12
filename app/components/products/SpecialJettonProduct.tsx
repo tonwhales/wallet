@@ -58,7 +58,7 @@ export const SpecialJettonProduct = memo(({
         }) !== undefined;
     }, [gaslessConfig?.gas_jettons, walletVersion, specialJetton?.master]);
 
-    const onPress = useCallback(() => {
+    const onPress = useCallback(async () => {
 
         if (!!assetCallback && specialJetton?.master) {
             assetCallback({
@@ -73,43 +73,12 @@ export const SpecialJettonProduct = memo(({
 
         const hasWallet = !!specialJetton?.wallet;
 
-        if (isLedger) {
-            if (!hasWallet) {
-                navigation.navigate(
-                    'LedgerReceive',
-                    {
-                        addr: ledgerAddressStr,
-                        ledger: true, asset: specialJetton ? {
-                            address: specialJetton.master,
-                            content: {
-                                icon: masterContent?.originalImage,
-                                name: masterContent?.name,
-                            }
-                        } : undefined
-                    });
-                return;
-            }
-
-            // TODO: implement LedgerJettonWallet
-            const tx = {
-                amount: null,
-                target: null,
-                comment: null,
-                jetton: specialJetton.wallet,
-                stateInit: null,
-                job: null,
-                callback: null
-            }
-
-            navigation.navigateSimpleTransfer(tx, { ledger: true });
-            return;
-        }
-
         if (hasWallet) {
             navigation.navigateJettonWallet({
                 owner: address.toString({ bounceable: bounceableFormat, testOnly }),
                 master: specialJetton.master.toString({ testOnly }),
-                wallet: specialJetton.wallet?.toString({ testOnly })
+                wallet: specialJetton.wallet?.toString({ testOnly }),
+                isLedger
             });
 
             return;
@@ -122,8 +91,9 @@ export const SpecialJettonProduct = memo(({
                     icon: masterContent?.originalImage,
                     name: masterContent?.name,
                 }
-            } : undefined
-        });
+            } : undefined,
+            addr: address.toString({ bounceable: isLedger ? false : bounceableFormat, testOnly })
+        }, isLedger);
     }, [assetCallback, specialJetton, isLedger, ledgerAddressStr, navigation, masterContent]);
 
     return (

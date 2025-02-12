@@ -25,6 +25,7 @@ import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isJettonTxSPAM, parseForwardPayloadComment } from '../../../utils/spam/isTxSPAM';
 import { JettonTransfer } from '../../../engine/hooks/transactions/useJettonTransactions';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
+import { useLedgerTransport } from '../../ledger/components/TransportContext';
 
 export function JettonTransactionView(props: {
     own: Address,
@@ -66,16 +67,18 @@ export function JettonTransactionView(props: {
     const sourceAddress = Address.parse(source);
     const kind: 'in' | 'out' = destinationAddress.equals(props.own) ? 'in' : 'out';
     const displayAddress = kind === 'in' ? sourceAddress : destinationAddress;
-    const displayAddressBounceable = displayAddress.toString({ testOnly: isTestnet });
+    const opAddress = displayAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(displayAddress)) >= 0;
-    const targetContract = useContractInfo(displayAddressBounceable);
+    const targetContract = useContractInfo(opAddress);
     const comment = parseForwardPayloadComment(tx.forward_payload);
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddresses = ledgerContext?.wallets;
 
-    const walletSettings = props.walletsSettings[displayAddressBounceable];
+    const walletSettings = props.walletsSettings[opAddress];
 
-    const avatarColorHash = walletSettings?.color ?? avatarHash(displayAddressBounceable, avatarColors.length);
+    const avatarColorHash = walletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-    const contact = contacts[displayAddressBounceable];
+    const contact = contacts[opAddress];
 
     // Operation
     let op = kind === 'in' ? t('tx.received') : t('tx.sent');
@@ -97,12 +100,24 @@ export function JettonTransactionView(props: {
         if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
-    }, [targetContract]);
+
+        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+            try {
+                return Address.parse(opAddress)?.equals(Address.parse(addr.address));
+            } catch (error) {
+                return false;
+            }
+        });
+
+        if (isLedgerTarget) {
+            return 'ledger';
+        }
+    }, [targetContract, opAddress, ledgerAddresses]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (knownWallets[displayAddressBounceable]) {
-        known = knownWallets[displayAddressBounceable];
+    if (knownWallets[opAddress]) {
+        known = knownWallets[opAddress];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
@@ -146,7 +161,7 @@ export function JettonTransactionView(props: {
                 <PerfView style={styles.avatar}>
                     <TxAvatar
                         status={status}
-                        parsedAddressFriendly={displayAddressBounceable}
+                        parsedAddressFriendly={opAddress}
                         kind={kind}
                         spam={spam}
                         isOwn={isOwn}

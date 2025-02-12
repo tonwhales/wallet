@@ -32,9 +32,9 @@ export function getIsConnectAppReady(appUrl: string, isTestnet: boolean, address
     return true;
 }
 
-export function useIsConnectAppReady(appUrl: string) {
-    const connectApp = useConnectApp();
-    const connectAppConnections = useAppConnections();
+export function useIsConnectAppReady(appUrl: string, address?: string) {
+    const connectApp = useConnectApp(address);
+    const connectAppConnections = useAppConnections(address);
 
     return useMemo(() => {
         const app = connectApp(appUrl);

@@ -9,16 +9,6 @@ echo "===== Passing down env variables ====="
 
 cd ../wallet
 
-# Ensure the BRANCH_KEY_LIVE environment variable is set
-if [ -z "$BRANCH_KEY_LIVE" ]; then
-    echo "Error: BRANCH_KEY_LIVE environment variable is not set."
-    exit 1
-fi
-
-plutil -replace branch_key.live -string "$BRANCH_KEY_LIVE" Info.plist
-
-plutil -p Info.plist
-
 # Ensure the AppsFlyer Key environment variable is set
 if [ -z "$APPSFLYER_KEY" ]; then
     echo "Error: APPSFLYER_KEY environment variable is not set."

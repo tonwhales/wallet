@@ -26,19 +26,8 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     const showBuy = isNeocryptoAvailable();
 
     const navigateReceive = useCallback(() => {
-        if (isLedger && !!ledgerContext?.addr) {
-            navigation.navigate(
-                'LedgerReceive',
-                {
-                    addr: ledgerContext.addr.address,
-                    ledger: true
-                }
-            );
-            return;
-        }
-
-        navigation.navigate('Receive');
-    }, [isLedger, ledgerContext]);
+        navigation.navigateReceive({ addr: ledgerContext?.addr?.address }, isLedger && !!ledgerContext?.addr);
+    }, [isLedger, ledgerContext?.addr]);
 
     return (
         <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, minHeight: dimensions.window.height - safeArea.bottom - 112 }}>
@@ -56,17 +45,11 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
                 />
             </View>
             <Text
-                style={{
-                    textAlign: 'center',
-                    fontSize: 32, fontWeight: '600',
-                    color: theme.textPrimary
-                }}
+                style={[{ textAlign: 'center', color: theme.textPrimary }, Typography.semiBold32_38]}
             >
                 {t('wallet.empty.message')}
             </Text>
-            <Text
-                style={[{ marginTop: 16, textAlign: 'center', color: theme.textSecondary }, Typography.regular17_24]}
-            >
+            <Text style={[{ marginTop: 16, textAlign: 'center', color: theme.textSecondary }, Typography.regular17_24]}>
                 {t('wallet.empty.description')}
             </Text>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: 20 }}>

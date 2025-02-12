@@ -1,7 +1,6 @@
 import { Linking, Platform } from "react-native";
 import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
-import branch, { BranchParams } from 'react-native-branch'
 import { sharedStoragePersistence } from "../storage/storage";
 import appsFlyer, { InitSDKOptions } from 'react-native-appsflyer';
 
@@ -16,7 +15,7 @@ function handleLinkReceived(link: string) {
     }
 }
 
-function checkForBranchCampaignId(uri: string) {
+function checkForCampaignId(uri: string) {
     try {
         const url = new URL(uri);
         const campaignId = url.searchParams.get('campaignId')
@@ -30,24 +29,33 @@ function checkForBranchCampaignId(uri: string) {
 (async () => {
     let url = await Linking.getInitialURL();
     if (url) {
-        checkForBranchCampaignId(url);
+        checkForCampaignId(url);
         handleLinkReceived(url);
     }
 })();
 
-type TrimmedBranchParams = Omit<BranchParams, '+clicked_branch_link' | '~referring_link'>;
-
 const branchCampaignKey = 'branch-campaign';
+const campaignKey = 'campaignId-key';
+
+function clearBranchCampaignId() {
+    sharedStoragePersistence.delete(branchCampaignKey);
+}
 
 export function getCampaignId(): string | undefined {
-    return sharedStoragePersistence.getString(branchCampaignKey);
+    const branch = sharedStoragePersistence.getString(branchCampaignKey);
+    if (branch) {
+        clearBranchCampaignId();
+        storeCampaignId(branch);
+        return branch;
+    }
+    return sharedStoragePersistence.getString(campaignKey);
 }
 
 export function storeCampaignId(campaignId: string) {
-    sharedStoragePersistence.set(branchCampaignKey, campaignId);
+    sharedStoragePersistence.set(campaignKey, campaignId);
 }
 
-function handleAttribution(deepLink: string, params?: TrimmedBranchParams) {
+function handleAttribution(deepLink: string) {
     const uri = `https://tonhub.com/${deepLink}`;
     const url = new URL(uri);
 
@@ -57,57 +65,8 @@ function handleAttribution(deepLink: string, params?: TrimmedBranchParams) {
         storeCampaignId(campaignId);
     }
 
-    if (params) {
-        for (const [key, value] of Object.entries(params)) {
-            if (key === '$deeplink_path') {
-                continue;
-            }
-            url.searchParams.append(key, value as string);
-        }
-    }
-
     handleLinkReceived(url.toString());
 }
-
-function handleBranchLink(params: TrimmedBranchParams) {
-    const deepLink = params.$deeplink_path as string;
-
-    if (deepLink) {
-        handleAttribution(deepLink, params);
-    }
-}
-
-// Listener
-branch.subscribe({
-    onOpenComplete: ({
-        error,
-        params,
-        uri
-    }) => {
-        if (error) {
-            return;
-        }
-
-        if (params) {
-            if (uri) {
-                checkForBranchCampaignId(uri);
-            }
-            if (params['+clicked_branch_link']) {
-                // Routing with Branch link data 
-                let passingParams = params as Partial<BranchParams>;
-                delete passingParams['+clicked_branch_link'];
-                delete passingParams['~referring_link'];
-
-                handleBranchLink(passingParams);
-                return;
-            }
-
-            if (uri) {
-                handleLinkReceived(uri);
-            }
-        }
-    }
-});
 
 appsFlyer.onDeepLink(res => {
     if (res.data && res.data.deep_link_value) {
@@ -130,7 +89,7 @@ appsFlyer.initSdk(appsFlyerConfig);
 
 // Subscribe for links
 Linking.addEventListener('url', (e) => {
-    checkForBranchCampaignId(e.url);
+    checkForCampaignId(e.url);
     handleLinkReceived(e.url);
 });
 

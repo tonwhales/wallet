@@ -29,8 +29,6 @@ import com.tonhub.wallet.modules.store.KeyStorePackage;
 import com.shopify.reactnativeperformance.ReactNativePerformance;
 import com.tonhub.wallet.modules.wallet.WalletPackage;
 
-import io.branch.rnbranch.RNBranchModule;
-
 public class MainApplication extends Application implements ReactApplication {
     private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(
             this,
@@ -47,7 +45,12 @@ public class MainApplication extends Application implements ReactApplication {
                     packages.add(new KeyStorePackage());
                     packages.add(new NavigationBarColorPackage());
                     packages.add(new AppearancePackage());
-                    packages.add(new WalletPackage());
+                    try {
+                        Class.forName("com.google.android.gms.tapandpay.TapAndPay");
+                        packages.add(new WalletPackage());
+                    } catch (ClassNotFoundException e) {
+                        // tapandpay_sdk was not added: skip WalletPackage
+                    }
                     return packages;
                 }
 
@@ -76,8 +79,6 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         ReactNativePerformance.onAppStarted();
-        RNBranchModule.enableLogging();
-        RNBranchModule.getAutoInstance(this);
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {

@@ -54,6 +54,7 @@ import { Queries } from '../../engine/queries';
 import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
 import { PressableChip } from '../../components/PressableChip';
 import { AmountInput } from '../../components/input/AmountInput';
+import { TransportStatusError } from '@ledgerhq/hw-transport';
 import { AddressDomainInputRef, AddressInputState } from '../../components/address/AddressDomainInput';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -562,12 +563,14 @@ const SimpleTransferComponent = () => {
         setJetton(null);
     }, []);
 
+    const [isVerifyingLedger, setVerifyingLedger] = useState(false);
+
     const doSend = useCallback(async () => {
-        let address: Address;
+        let targetAddress: Address;
 
         try {
             let parsed = Address.parseFriendly(target);
-            address = parsed.address;
+            targetAddress = parsed.address;
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
@@ -596,7 +599,7 @@ const SimpleTransferComponent = () => {
             return;
         }
 
-        if (address.equals(isLedger ? ledgerAddress! : contract.address)) {
+        if (targetAddress.equals(isLedger ? ledgerAddress! : contract.address)) {
             let allowSendingToYourself = await new Promise((resolve) => {
                 Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
                     {
@@ -654,10 +657,39 @@ const SimpleTransferComponent = () => {
         }
 
         if (isLedger) {
-            navigation.replace('LedgerSignTransfer', {
-                text: null,
-                order: order as LedgerOrder,
-            });
+            setVerifyingLedger(true);
+            try {
+                if (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport) {
+                    ledgerContext.onShowLedgerConnectionError();
+                    setVerifyingLedger(false);
+                    return;
+                }
+
+                const verificationResult = await ledgerContext.verifySelectedAddress(network.isTestnet);
+                const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
+
+                if (!isValid) {
+                    Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
+                    return;
+                }
+
+                navigation.replace('LedgerSignTransfer', {
+                    text: null,
+                    order: order as LedgerOrder,
+                });
+            } catch (e) {
+                const isCanceled = e instanceof TransportStatusError && (e as any).statusCode === 0x6985;
+                if (isCanceled) {
+                    setVerifyingLedger(false);
+                    return;
+                }
+                Alert.alert(
+                    t('hardwareWallet.verifyAddress.failed'),
+                    t('hardwareWallet.verifyAddress.failedMessage')
+                );
+            } finally {
+                setVerifyingLedger(false);
+            }
             return;
         }
 
@@ -679,7 +711,10 @@ const SimpleTransferComponent = () => {
         ledgerAddress,
         isLedger,
         balance,
-        supportsGaslessTransfer
+        supportsGaslessTransfer,
+        ledgerContext,
+        network,
+        address
     ]);
 
     const onInputFocus = useCallback((index: number) => { setSelectedInput(index) }, []);
@@ -892,8 +927,8 @@ const SimpleTransferComponent = () => {
         }));
     });
 
-    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
-    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
+    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo || isVerifyingLedger;
+    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading || isVerifyingLedger;
 
     const onSearchItemSelected = useCallback((item: AddressSearchItem) => {
         scrollRef.current?.scrollTo({ y: 0 });
@@ -964,6 +999,7 @@ const SimpleTransferComponent = () => {
                         knownWallets={knownWallets}
                         navigation={navigation}
                         autoFocus={selectedInput === 0}
+                        isLedger={isLedger}
                     />
                 </Animated.View>
                 {selected === 'address' && (
@@ -1251,6 +1287,7 @@ const SimpleTransferComponent = () => {
                     : <RoundButton
                         disabled={continueDisabled}
                         loading={continueLoading}
+                        loadingStatus={isVerifyingLedger ? t('hardwareWallet.verifyAddress.verifying') : undefined}
                         title={t('common.continue')}
                         action={doSend}
                     />

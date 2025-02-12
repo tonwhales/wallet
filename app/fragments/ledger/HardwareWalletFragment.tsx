@@ -12,6 +12,8 @@ import { useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { ScrollView } from "react-native-gesture-handler";
+import { useParams } from "../../utils/useParams";
+import { LedgerDeviceSelectionParams } from "./LedgerDeviceSelectionFragment";
 
 const images = {
     ios: {
@@ -30,6 +32,7 @@ export const HardwareWalletFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
     const dimentions = useDimensions();
+    const { selectedAddress } = useParams<LedgerDeviceSelectionParams>();
 
     const [searching, setSearching] = useState(false);
     const [bleLocked, setBleLocked] = useState(false);
@@ -48,11 +51,11 @@ export const HardwareWalletFragment = fragment(() => {
         if (ledgerContext?.bleSearchState?.type === 'ongoing') {
             setSearching(true);
             if (ledgerContext.bleSearchState.devices.length > 0) {
-                navigation.navigate('LedgerDeviceSelection');
+                navigation.navigateLedgerDeviceSelection({ selectedAddress });
                 setSearching(false);
             }
         } else if (ledgerContext?.bleSearchState?.type === 'completed' && ledgerContext.bleSearchState.success) {
-            navigation.navigate('LedgerDeviceSelection');
+            navigation.navigateLedgerDeviceSelection({ selectedAddress });
             setSearching(false);
         } else {
             setSearching(false);
@@ -61,9 +64,15 @@ export const HardwareWalletFragment = fragment(() => {
 
     useEffect(() => {
         if (ledgerContext?.ledgerConnection?.type === 'hid') {
-            navigation.navigate('LedgerSelectAccount');
+            if (!selectedAddress) {
+                navigation.navigateLedgerSelectAccount({ selectedAddress });
+                return;
+            }
+            navigation.goBack();
+        } else if (ledgerContext?.ledgerConnection?.type === 'ble') {
+            navigation.goBack();
         }
-    }, [ledgerContext?.ledgerConnection]);
+    }, [ledgerContext?.ledgerConnection?.type]);
 
     return (
         <View style={{

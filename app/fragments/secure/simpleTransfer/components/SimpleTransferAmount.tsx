@@ -184,7 +184,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
             ticker={jetton?.symbol || 'TON'}
             cursorColor={theme.accent}
         />
-    ), [onInputFocus, onValueChange, amountError, priceText, jetton?.symbol])
+    ), [onInputFocus, onValueChange, amountError, priceText, jetton?.symbol, amount])
 
     const amountErrorLabel = useMemo(() => amountError && (
         <Animated.View

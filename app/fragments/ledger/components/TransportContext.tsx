@@ -247,7 +247,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                     if (Platform.OS === 'ios') {
                         navigationRef.navigate('LedgerDeviceSelection', { selectedAddress: addr });
                     } else {
-                        navigationRef.navigate('Ledger');
+                        navigationRef.navigate('Ledger', { selectedAddress: addr });
                     }
                 }
             },

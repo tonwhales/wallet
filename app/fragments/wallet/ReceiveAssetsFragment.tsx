@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -106,6 +106,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const isLedger = route.name === 'LedgerReceiveAssets';
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerContext = useLedgerTransport();
+    const [bounceableFormat] = useBounceableWalletFormat();
 
     const ledgerAddress = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr) {
@@ -129,9 +130,9 @@ export const ReceiveAssetsFragment = fragment(() => {
                 assetCallback(asset);
             }, 10);
         } else {
-            navigation.navigateReceive({ addr: owner.toString({ testOnly: isTestnet, bounceable: isLedger ? false : undefined }), asset: asset || undefined }, isLedger);
+            navigation.navigateReceive({ addr: owner.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
         }
-    }, [assetCallback, isLedger, owner, isTestnet]);
+    }, [assetCallback, isLedger, owner, isTestnet, bounceableFormat]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         const path = `/account/${target.id}?deposit-open=true`;

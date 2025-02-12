@@ -125,6 +125,12 @@ const SimpleTransferComponent = () => {
         setSelectedInput(null);
     };
 
+    useEffect(() => {
+        if(selectedInput === 0) {
+            scrollRef.current?.scrollTo({ y: 0, animated: true })
+        }
+    }, [selectedInput])
+
     const { selected, onNext, header } = useMemo<{
         selected: 'amount' | 'address' | 'comment' | null,
         onNext: (() => void) | null,
@@ -167,8 +173,8 @@ const SimpleTransferComponent = () => {
             amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton }} />}
             commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError, maxHeight: selected === 'comment' ? 200 : undefined }} />}
             feesComponent={estimation ? <SimpleTransferFees {...{ estimation, estimationPrice }} /> : null}
-            scrollEnabled={selectedInput === null}
-            nestedScrollEnabled={selectedInput === null}
+            scrollEnabled={!selectedInput}
+            nestedScrollEnabled={!selectedInput}
             selected={selected}
             setIsScrolling={setIsScrolling}
         />

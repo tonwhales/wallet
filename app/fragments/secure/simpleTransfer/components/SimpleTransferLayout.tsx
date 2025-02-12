@@ -47,7 +47,7 @@ export const SimpleTransferLayout = memo(forwardRef(({
             top: 0.1 /* Some weird bug on iOS */
         }
     }, [keyboard.keyboardShown, keyboard.keyboardHeight])
-
+    
     return (
         <View style={styles.container}>
             {headerComponent}
@@ -71,13 +71,13 @@ export const SimpleTransferLayout = memo(forwardRef(({
                         { type: 'amount', component: amountComponent },
                         { type: 'comment', component: commentComponent },
                     ].map(({type, component}, index) => (
-                        <SimpleTransferAnimatedWrapper key={type} delay={index * 10} isActive={selected ? selected === type : selected} scrollOffsetSv={scrollOffsetSv}>
+                        <SimpleTransferAnimatedWrapper selected={selected} key={type} delay={index * 10} isActive={selected ? selected === type : selected} scrollOffsetSv={scrollOffsetSv}>
                             {component}
                         </SimpleTransferAnimatedWrapper>
                     ))}
                     
                     {!!feesComponent && 
-                        <SimpleTransferAnimatedWrapper delay={30} noAnimation isActive={selected === null ? null : false} scrollOffsetSv={scrollOffsetSv}>
+                        <SimpleTransferAnimatedWrapper selected={selected} delay={30} noAnimation isActive={selected === null ? null : false} scrollOffsetSv={scrollOffsetSv}>
                             {feesComponent}
                         </SimpleTransferAnimatedWrapper>
                     }

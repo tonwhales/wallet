@@ -1,6 +1,6 @@
 import { Address, toNano } from "@ton/core";
 import { PendingTransaction } from "../engine/state/pending";
-import { SimpleTransferParams } from "../fragments/secure/SimpleTransferFragment";
+import { SimpleTransferParams } from "../fragments/secure/simpleTransfer";
 import { TransferFragmentProps } from "../fragments/secure/TransferFragment";
 import { fromBnWithDecimals } from "./withDecimals";
 import { TonTransaction } from "../engine/types";

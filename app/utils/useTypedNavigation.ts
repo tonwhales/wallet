@@ -4,7 +4,7 @@ import { StakingTransferParams } from '../fragments/staking/StakingTransferFragm
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
-import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
+import { SimpleTransferParams } from '../fragments/secure/simpleTransfer';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';

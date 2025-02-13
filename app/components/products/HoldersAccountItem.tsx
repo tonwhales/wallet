@@ -82,6 +82,19 @@ export const HoldersAccountItem = memo((props: {
         return toBnWithDecimals(amount, cryptoCurrency.decimals);
     }, [account.balance, account.cryptoCurrency, price?.price?.usd]);
 
+    const cards = account.cards.filter((c) => {
+        switch (c.status) {
+            case 'ACTIVE':
+            case 'PENDING_CARD':
+            case 'PENDING_CARD_ISSUE':
+            case 'PENDING_CONTRACT':
+            case 'WAITING_FOR_PAYMENT':
+                return true;
+            default:
+                return false;
+        }
+    });
+
     const needsEnrollment = useMemo(() => {
         if (!isHoldersReady) {
             return true;
@@ -243,14 +256,14 @@ export const HoldersAccountItem = memo((props: {
                                 </View>
                                 {contentView}
                             </View>
-                            {!(hideCardsIfEmpty && account.cards.length === 0) ? (
+                            {!(hideCardsIfEmpty && cards.length === 0) ? (
                                 <View
                                     style={{
                                         height: 46, marginTop: 10, gap: 8, flexDirection: 'row',
                                         marginLeft: 78
                                     }}
                                 >
-                                    {account.cards.slice(0, 5).map((card, index) => {
+                                    {cards.slice(0, 5).map((card, index) => {
                                         return (
                                             <HoldersAccountCard
                                                 key={`card-item-${index}`}
@@ -259,7 +272,7 @@ export const HoldersAccountItem = memo((props: {
                                             />
                                         )
                                     })}
-                                    {account.cards.length > 4 && (
+                                    {cards.length > 4 && (
                                         <LinearGradient
                                             style={{ height: 30, width: 20 + 8 + 46, position: 'absolute', right: 0, top: 0 }}
                                             colors={[

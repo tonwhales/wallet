@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, Alert, Platform } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,8 +15,6 @@ import { StatusBar } from "expo-status-bar";
 import { delay } from 'teslabot';
 import { ThemeType } from '../../engine/state/theme';
 import { Typography } from '../../components/styles';
-import { useFocusEffect } from "@react-navigation/native";
-import { useParams } from "../../utils/useParams";
 import { isLedgerTonAppReady } from "../../utils/ledger/isLedgerTonAppReady";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
@@ -178,17 +176,12 @@ export const LedgerSelectAccountFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
-    const { selectedAddress } = useParams<LedgerSelectAccountParams>();
-
+    const [connectionState, setConnectionState] = useState<'locked-device' | 'closed-app' | 'active' | 'loading'>('loading');
     const [selected, setSelected] = useState<number>();
-    const [accs, setAccounts] = useState<{
-        address: Address;
-        publicKey: Buffer;
-    }[]>([]);
-
+    const [accs, setAccounts] = useState<{ address: Address, publicKey: Buffer }[]>([]);
     const accountsLite = useAccountsLite(accs.map((a) => a.address));
 
-    const [connectionState, setConnectionState] = useState<'locked-device' | 'closed-app' | 'active' | 'loading'>('loading');
+    const finished = useRef(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -251,6 +244,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
         try {
             await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
             ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
+            finished.current = true;
             navigation.navigateLedgerApp();
             setSelected(undefined);
         } catch (e) {
@@ -270,35 +264,28 @@ export const LedgerSelectAccountFragment = fragment(() => {
         }
     }), [ledgerContext?.tonTransport]);
 
+    const onBeforeRemove = useCallback(() => {
+        if (!finished.current) {
+            const lastConnectionType = ledgerContext.ledgerConnection?.type;
+            ledgerContext.reset();
+
+            // Restart new search, we are navigating back to the search screen
+            if (lastConnectionType === 'ble') {
+                ledgerContext.startBleSearch();
+            } else if (lastConnectionType === 'hid') {
+                ledgerContext.startHIDSearch();
+            }
+        }
+    }, [ledgerContext.ledgerConnection?.type]);
+
     // Reseting ledger context on back navigation if no address selected
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => {
-                if (!ledgerContext.addr) {
-                    const lastConnectionType = ledgerContext.ledgerConnection?.type;
-                    ledgerContext.reset();
-
-                    // Restart new search, we are navigating back to the search screen
-                    if (lastConnectionType === 'ble') {
-                        ledgerContext.startBleSearch();
-                    } else if (lastConnectionType === 'hid') {
-                        ledgerContext.startHIDSearch();
-                    }
-                }
-            };
-
-            navigation.base.addListener('beforeRemove', onBackPress);
-
-            return () => {
-                navigation.base.removeListener('beforeRemove', onBackPress);
-            };
-        }, [navigation, ledgerContext])
-    );
+    useEffect(() => {
+        navigation.base.addListener('beforeRemove', onBeforeRemove);
+        return () => navigation.base.removeListener('beforeRemove', onBeforeRemove);
+    }, [onBeforeRemove]);
 
     return (
-        <View style={{
-            flex: 1,
-        }}>
+        <View style={{ flex: 1 }}>
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'

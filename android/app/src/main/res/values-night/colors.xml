@@ -3,4 +3,5 @@
   <color name="splashscreen_statusbar_color">#FFFFFF</color>
   <color name="colorPrimaryDark">#000000</color>
   <color name="navigationBarColor">#000000</color>
+  <color name="textColor">#ffffff</color>
 </resources>

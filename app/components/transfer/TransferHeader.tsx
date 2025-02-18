@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Text } from "react-native";
-import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { ThemeType } from "../../engine/state/theme";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { useWalletSettings } from "../../engine/hooks";
@@ -30,7 +30,7 @@ export const TransferHeader = memo(({
 
     return (
         <Animated.View
-            entering={FadeInDown} exiting={FadeOutDown}
+            entering={FadeInDown}
             style={{
                 backgroundColor: theme.border,
                 borderRadius: 100,

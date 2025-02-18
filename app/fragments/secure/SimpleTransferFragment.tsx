@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, BackHandler } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
+import Animated, { LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -55,7 +55,7 @@ import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
 import { PressableChip } from '../../components/PressableChip';
 import { AmountInput } from '../../components/input/AmountInput';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
-import { AddressDomainInputRef, AddressInputState } from '../../components/address/AddressDomainInput';
+import { AddressDomainInputRef, AddressInputState, InputActionType } from '../../components/address/AddressDomainInput';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -107,23 +107,25 @@ const SimpleTransferComponent = () => {
     const accountLite = useAccountLite(address);
     const holdersAccounts = useHoldersAccountTrargets(address!);
 
-    const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
-        {
+    const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>({
             input: params?.target || '',
             target: params?.target || '',
             domain: undefined,
             suffix: undefined,
-        }
-    );
+    });
+    const prevAddressDomainInputStateRef = useRef<AddressInputState>(addressDomainInputState);
 
     const { target, domain } = addressDomainInputState;
 
     const [commentString, setComment] = useState(params?.comment || '');
+    const prevCommentInputStateRef = useRef(commentString);
+
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
-    const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
+    const prevAmountInputStateRef = useRef(amount);
+
+    const stateInit = params?.stateInit || null;
     const [selectedJetton, setJetton] = useState<Address | null>(params?.jetton || null);
     const estimationRef = useRef<bigint | null>(null);
-    const [estimation, setEstimation] = useState<bigint | null>(estimationRef.current);
 
     // custom payload
     const payload = params.payload ?? null
@@ -135,9 +137,9 @@ const SimpleTransferComponent = () => {
         owner: address?.toString({ testOnly: network.isTestnet }),
         wallet: selectedJetton?.toString({ testOnly: network.isTestnet })
     });
-    const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons.map((j) => {
-        return Address.parse(j.master_id);
-    }).some((j) => jetton?.master && j.equals(jetton.master));
+    const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons
+    .map((j) => Address.parse(j.master_id))
+    .some((j) => jetton?.master && j.equals(jetton.master));
     const symbol = jetton ? jetton.symbol : 'TON';
     const { data: jettonPayload, loading: isJettonPayloadLoading } = useJettonPayload(
         address?.toString({ testOnly: network.isTestnet }),
@@ -145,9 +147,6 @@ const SimpleTransferComponent = () => {
     );
 
     const targetAddressValid = useMemo(() => {
-        if (target.length > 48) {
-            return null;
-        }
         try {
             return Address.parseFriendly(target);
         } catch {
@@ -192,19 +191,19 @@ const SimpleTransferComponent = () => {
     }, [jetton, validAmount, price, currency]);
 
     const estimationPrise = useMemo(() => {
-        if (!estimation || !price || !validAmount) {
+        if (!estimationRef.current || !price || !validAmount) {
             return undefined;
         }
 
-        const isNeg = estimation < 0n;
-        const abs = isNeg ? -estimation : estimation;
+        const isNeg = estimationRef.current < 0n;
+        const abs = isNeg ? -estimationRef.current : estimationRef.current;
 
         return formatCurrency(
             (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(2),
             currency,
             isNeg
         );
-    }, [price, currency, estimation]);
+    }, [price, currency, estimationRef.current]);
 
     const { isSCAM } = useVerifyJetton({
         ticker: jetton?.symbol,
@@ -460,10 +459,8 @@ const SimpleTransferComponent = () => {
                     storeMessageRelaxed(intMessage)(outMsg);
 
                     let local = estimateFees(config, inMsg.endCell(), [outMsg.endCell()], storageStats);
-                    setEstimation(local);
                     estimationRef.current = local;
                 } else {
-                    setEstimation(null);
                     estimationRef.current = null;
                 }
             });
@@ -813,7 +810,6 @@ const SimpleTransferComponent = () => {
             titleComponent?: ReactNode,
         }
     }>(() => {
-
         if (selectedInput === null) {
             return {
                 selected: null,
@@ -846,10 +842,24 @@ const SimpleTransferComponent = () => {
         if (selectedInput === 0) {
             return {
                 selected: 'address',
-                onNext: targetAddressValid ? resetInput : null,
+                onNext: targetAddressValid ? () => {
+                    resetInput()
+                    prevAddressDomainInputStateRef.current = addressDomainInputState
+                 } : null,
                 header: {
                     title: t('common.recipient'),
                     titleComponent: undefined,
+                    onBackPressed: prevAddressDomainInputStateRef.current.target ? () => {
+                        resetInput()
+                        setAddressDomainInputState(prevAddressDomainInputStateRef.current);
+                        const {input, target, suffix} =  prevAddressDomainInputStateRef.current;
+                        (addressRef as React.RefObject<AddressDomainInputRef> | undefined)?.current?.inputAction({
+                            type: InputActionType.InputTarget,
+                            input: input,
+                            target: target,
+                            suffix: suffix ?? "",
+                        })
+                    } : undefined
                 }
             }
         }
@@ -857,16 +867,34 @@ const SimpleTransferComponent = () => {
         if (selectedInput === 1) {
             return {
                 selected: 'amount',
-                onNext: resetInput,
-                header: { ...headertitle }
+                onNext: () => {
+                    resetInput()
+                    prevAmountInputStateRef.current = amount
+                },
+                header: { 
+                    ...headertitle, 
+                    onBackPressed: () => {
+                        resetInput()
+                        setAmount(prevAmountInputStateRef.current)
+                    }
+                 }
             }
         }
 
         if (selectedInput === 2) {
             return {
                 selected: 'comment',
-                onNext: resetInput,
-                header: { ...headertitle }
+                onNext: () => {
+                    resetInput()
+                    prevCommentInputStateRef.current = commentString
+                },
+                header: { 
+                    ...headertitle,
+                    onBackPressed: () => {
+                        resetInput()
+                        setComment(prevCommentInputStateRef.current)
+                    }
+                 }
             }
         }
 
@@ -874,8 +902,8 @@ const SimpleTransferComponent = () => {
         return { selected: null, onNext: null, header: { ...headertitle } };
     }, [selectedInput, targetAddressValid, validAmount, doSend, amountError]);
 
-    const [addressInputHeight, setAddressInputHeight] = useState(0);
-    const [amountInputHeight, setAmountInputHeight] = useState(0);
+    const addressInputHeightRef = useRef(0);
+    const amountInputHeightRef = useRef(0);
 
     const seletectInputStyles = useMemo<{
         amount: StyleProp<ViewStyle>,
@@ -894,7 +922,7 @@ const SimpleTransferComponent = () => {
             case 'amount':
                 return {
                     address: { opacity: 0, pointerEvents: 'none' },
-                    amount: { position: 'relative', top: -addressInputHeight - 16, left: 0, right: 0, opacity: 1, zIndex: 1 },
+                    amount: { position: 'relative', top: -addressInputHeightRef.current - 16, left: 0, right: 0, opacity: 1, zIndex: 1 },
                     comment: { opacity: 0, pointerEvents: 'none' },
                     fees: { opacity: 0, pointerEvents: 'none' },
                 }
@@ -902,7 +930,7 @@ const SimpleTransferComponent = () => {
                 return {
                     address: { opacity: 0, pointerEvents: 'none' },
                     amount: { opacity: 0, pointerEvents: 'none' },
-                    comment: { position: 'absolute', top: -addressInputHeight - amountInputHeight - 32, left: 0, right: 0, opacity: 1, zIndex: 1 },
+                    comment: { position: 'absolute', top: -addressInputHeightRef.current - amountInputHeightRef.current - 32, left: 0, right: 0, opacity: 1, zIndex: 1 },
                     fees: { opacity: 0 },
                 }
             default:
@@ -913,7 +941,7 @@ const SimpleTransferComponent = () => {
                     fees: { opacity: 1 }
                 }
         }
-    }, [selected, addressInputHeight, amountInputHeight]);
+    }, [selected, addressInputHeightRef.current, amountInputHeightRef.current]);
 
     useEffect(() => {
         scrollRef.current?.scrollTo({ y: 0 });
@@ -958,14 +986,14 @@ const SimpleTransferComponent = () => {
                 onBackPressed={header?.onBackPressed}
                 titleComponent={header.titleComponent}
                 onClosePressed={navigation.goBack}
-                style={Platform.select({ android: { paddingTop: safeArea.top } })}
+                style={[Platform.select({ android: { paddingTop: safeArea.top } }), {paddingLeft: 16}]}
             />
             <ScrollView
                 ref={scrollRef}
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
                 contentContainerStyle={[
                     { marginHorizontal: 16, flexGrow: 1 },
-                    Platform.select({ android: { minHeight: addressInputHeight } }),
+                    Platform.select({ android: { minHeight: addressInputHeightRef.current } }),
                 ]}
                 contentInset={{
                     // bottom: 0.1,
@@ -978,10 +1006,9 @@ const SimpleTransferComponent = () => {
                 scrollEnabled={!selectedInput}
                 nestedScrollEnabled={!selectedInput}
             >
-                <Animated.View
-                    layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                <View
                     style={seletectInputStyles.address}
-                    onLayout={(e) => { setAddressInputHeight(e.nativeEvent.layout.height) }}
+                    onLayout={(e) => { addressInputHeightRef.current = e.nativeEvent.layout.height }}
                 >
                     <TransferAddressInput
                         index={0}
@@ -1001,15 +1028,15 @@ const SimpleTransferComponent = () => {
                         autoFocus={selectedInput === 0}
                         isLedger={isLedger}
                     />
-                </Animated.View>
+                </View>
                 {selected === 'address' && (
-                    <View style={{ height: addressInputHeight }} />
+                    <View style={{ height: addressInputHeightRef.current }} />
                 )}
                 <View style={{ marginTop: 16 }}>
                     <Animated.View
                         layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                         style={[seletectInputStyles.amount, { flex: 1 }]}
-                        onLayout={(e) => setAmountInputHeight(e.nativeEvent.layout.height)}
+                        onLayout={(e) => amountInputHeightRef.current = e.nativeEvent.layout.height}
                     >
                         <View
                             style={{
@@ -1117,7 +1144,8 @@ const SimpleTransferComponent = () => {
                                 }}
                                 style={{
                                     backgroundColor: theme.elevation,
-                                    paddingHorizontal: 16, paddingVertical: 14,
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 14,
                                     borderRadius: 16
                                 }}
                                 inputStyle={[{
@@ -1133,28 +1161,21 @@ const SimpleTransferComponent = () => {
                                 marginTop: 8, gap: 4
                             }}>
                                 {amountError && (
-                                    <Animated.View
-                                        style={{ flexShrink: 1 }}
-                                        entering={FadeIn}
-                                        exiting={FadeOut.duration(100)}
-                                    >
+                                    <View style={{ flexShrink: 1 }} >
                                         <Text style={[{ color: theme.accentRed, flexShrink: 1 }, Typography.regular13_18]}>
                                             {amountError}
                                         </Text>
-                                    </Animated.View>
+                                    </View>
                                 )}
                                 {shouldChangeJetton && (
-                                    <Animated.View
-                                        entering={FadeInUp} exiting={FadeOutDown}
-                                        layout={LinearTransition.duration(200).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
-                                    >
+                                    <View>
                                         <PressableChip
                                             text={t('transfer.changeJetton', { symbol: holdersTarget?.symbol })}
                                             style={{ backgroundColor: theme.accent }}
                                             textStyle={{ color: theme.textUnchangeable }}
                                             onPress={onChangeJetton}
                                         />
-                                    </Animated.View>
+                                    </View>
                                 )}
                             </View>
                         </View>
@@ -1216,10 +1237,9 @@ const SimpleTransferComponent = () => {
                         ))}
                     </Animated.View>
                 </View>
-                {!!estimation && (
+                {!!estimationRef.current && (
                     <View style={{ marginTop: 16 }}>
-                        <Animated.View
-                            layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                        <View
                             style={[
                                 seletectInputStyles.fees,
                                 { flex: 1 }
@@ -1227,9 +1247,11 @@ const SimpleTransferComponent = () => {
                         >
                             <View style={{
                                 backgroundColor: theme.surfaceOnElevation,
-                                padding: 20, borderRadius: 20,
+                                padding: 20,
+                                borderRadius: 20,
                                 flexDirection: 'row',
-                                justifyContent: 'space-between', alignItems: 'center',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
                             }}>
                                 <View>
                                     <Text
@@ -1241,9 +1263,9 @@ const SimpleTransferComponent = () => {
                                         {t('txPreview.blockchainFee')}
                                     </Text>
                                     <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                        {estimation
+                                        {estimationRef.current
                                             ? <>
-                                                {`${formatAmount(fromNano(estimation))} TON`}
+                                                {`${formatAmount(fromNano(estimationRef.current))} TON`}
                                             </>
                                             : '...'
                                         }
@@ -1262,7 +1284,7 @@ const SimpleTransferComponent = () => {
                                     size={24}
                                 />
                             </View>
-                        </Animated.View>
+                        </View>
                     </View>
                 )}
                 <View style={{ height: 56 }} />

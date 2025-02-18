@@ -55,18 +55,19 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         setAddressDomainInputState(state);
     }, [state]);
 
+    const { input: query, target } = state;
+
     const [validAddress, isInvalid] = useMemo(() => {
-        if (state.target.length < 48) {
+        if (target.length < 48) {
             return [null, false];
         }
         try {
-            return [Address.parse(state.target), false]
+            return [Address.parse(target), false]
         } catch {
             return [null, true];
         }
-    }, [state.target]);
+    }, [target]);
 
-    const { input: query, target } = state;
     const isKnown: boolean = !!knownWallets[initTarget];
     const addressBookContext = useAddressBookContext();
     const contact = addressBookContext.asContact(initTarget);
@@ -169,6 +170,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         padding: 20,
                         width: '100%', borderRadius: 20,
                         flexDirection: 'row', alignItems: 'center',
+                        justifyContent: 'space-between'
                     }}
                     onPress={select}
                 >
@@ -188,11 +190,12 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                             {t('common.recipient')}
                         </PerfText>
-                        <PerfText style={[{ color: theme.textPrimary, marginTop: 2 }, Typography.regular17_24]}>
+                        <PerfText style={[{ color: state.input !== state.target ? theme.textSecondary : theme.textPrimary, marginTop: 2, marginRight: 56 }, Typography.regular17_24]}>
+                            {(state.input !== state.target) && <PerfText style={[{ color: theme.textPrimary}, Typography.regular17_24]}>sasasa</PerfText>}
                             {target.slice(0, 4) + '...' + target.slice(-4)}
                         </PerfText>
                     </View>
-                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                    <IcChevron style={{ height: 12, width: 12}} height={12} width={12} />
                 </Pressable>
             </View>
             <View

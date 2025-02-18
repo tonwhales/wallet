@@ -260,25 +260,18 @@ export const AddressDomainInput = memo(forwardRef(({
                 throw Error('Error resolving domain wallet');
             }
 
+            let resolvedWalletAddress;
             if (resolvedDomainWallet instanceof Address) {
-                const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
-                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
-
-                inputAction({
-                    type: InputActionType.DomainTarget,
-                    domain: `${domain}${zone}`,
-                    target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
-                });
+                resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
             } else {
-                const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
-                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
-
-                inputAction({
-                    type: InputActionType.DomainTarget,
-                    domain: `${domain}${zone}`,
-                    target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
-                });
+                resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
             }
+            const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
+            inputAction({
+                type: InputActionType.DomainTarget,
+                domain: `${domain}${zone}`,
+                target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
+            });
         } catch {
             Alert.alert(t('transfer.error.invalidDomain'));
         }
@@ -348,7 +341,7 @@ export const AddressDomainInput = memo(forwardRef(({
             transform: [
                 { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
                 { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -xTranslate]) },
-                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
+                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -23]) },
             ],
             opacity: interpolate(valueNotEmptyShared.value, [0, 0.2, 1], [1, 0.1, 1]),
         }
@@ -438,7 +431,6 @@ export const AddressDomainInput = memo(forwardRef(({
                 </Animated.View>
             </View>
             <View style={{ width: '100%', flex: 1, flexShrink: 1 }}>
-                <Animated.View style={labelShiftStyle} />
                 <View style={{ justifyContent: 'center', gap: 4, paddingRight: 56 }}>
                     <TextInput
                         ref={animatedRef}
@@ -465,6 +457,7 @@ export const AddressDomainInput = memo(forwardRef(({
                         onFocus={focus}
                         onBlur={blur}
                         onSubmitEditing={submit}
+                        maxLength={48}
                     />
                     {suff && (
                         <View style={{ justifyContent: 'center' }}>

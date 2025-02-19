@@ -191,7 +191,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             {t('common.recipient')}
                         </PerfText>
                         <PerfText style={[{ color: state.input !== state.target ? theme.textSecondary : theme.textPrimary, marginTop: 2, marginRight: 56 }, Typography.regular17_24]}>
-                            {(state.input !== state.target) && <PerfText style={[{ color: theme.textPrimary}, Typography.regular17_24]}>sasasa</PerfText>}
+                            {(state.input !== state.target) && <PerfText style={[{ color: theme.textPrimary}, Typography.regular17_24]}>{state.input}</PerfText>}
                             {target.slice(0, 4) + '...' + target.slice(-4)}
                         </PerfText>
                     </View>

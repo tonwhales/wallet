@@ -457,7 +457,6 @@ export const AddressDomainInput = memo(forwardRef(({
                         onFocus={focus}
                         onBlur={blur}
                         onSubmitEditing={submit}
-                        maxLength={48}
                     />
                     {suff && (
                         <View style={{ justifyContent: 'center' }}>

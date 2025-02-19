@@ -147,6 +147,9 @@ const SimpleTransferComponent = () => {
     );
 
     const targetAddressValid = useMemo(() => {
+        if (target.length > 48) {
+            return null;
+        }
         try {
             return Address.parseFriendly(target);
         } catch {

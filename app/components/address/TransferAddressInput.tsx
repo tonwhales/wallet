@@ -153,7 +153,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
         const suff = friendly.slice(0, 4) + '...' + friendly.slice(friendly.length - 4);
 
-        (ref as RefObject<AddressDomainInputRef> | undefined)?.current?.addressDomainInputAction({
+        addressDomainInputAction({
             type: InputActionType.InputTarget,
             input: name.trim(),
             target: friendly,

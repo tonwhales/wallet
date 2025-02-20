@@ -1040,10 +1040,6 @@ const SimpleTransferComponent = () => {
         }
     }, [selected, addressInputHeightRef.current, amountInputHeightRef.current, maxCommentHeight]);
 
-    useEffect(() => {
-        scrollRef.current?.scrollTo({ y: 0 });
-    }, [selectedInput]);
-
     useFocusEffect(() => {
         setStatusBarStyle(Platform.select({
             android: theme.style === 'dark' ? 'light' : 'dark',
@@ -1056,7 +1052,6 @@ const SimpleTransferComponent = () => {
     const continueLoading = gaslessConfigLoading || isJettonPayloadLoading || isVerifyingLedger;
 
     const onSearchItemSelected = useCallback((item: AddressSearchItem) => {
-        scrollRef.current?.scrollTo({ y: 0 });
         if (item.memo) {
             setComment(item.memo);
         }

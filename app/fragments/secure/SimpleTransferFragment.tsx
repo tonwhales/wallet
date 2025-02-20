@@ -59,6 +59,86 @@ import { AddressDomainInputRef, AddressInputState, InputActionType } from '../..
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
+export type AddressInputAction = {
+    type: InputActionType.Input,
+    input: string,
+} | {
+    type: InputActionType.DomainTarget,
+    domain: string | undefined,
+    target: string,
+} | {
+    type: InputActionType.InputTarget,
+    input: string,
+    target: string,
+    suffix: string,
+} | {
+    type: InputActionType.Clear
+} | {
+    type: InputActionType.Previous,
+    input: string,
+    domain: string | undefined,
+    target: string,
+    suffix: string | undefined,
+}
+
+export function addressInputReducer() {
+    return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
+        switch (action.type) {
+            case InputActionType.Input:
+                if (action.input === state.input) {
+                    return state;
+                }
+                try {
+                    Address.parse(action.input);
+                    return {
+                        input: action.input,
+                        domain: undefined,
+                        target: action.input,
+                        suffix: undefined
+                    };
+                } catch {
+                    // ignore
+                }
+                return {
+                    input: action.input,
+                    domain: undefined,
+                    target: '',
+                    suffix: undefined
+                };
+            case InputActionType.DomainTarget:
+                return {
+                    ...state,
+                    domain: action.domain,
+                    target: action.target,
+                    suffix: undefined
+                };
+            case InputActionType.InputTarget:
+                return {
+                    ...state,
+                    input: action.input,
+                    target: action.target,
+                    suffix: action.suffix
+                };
+            case InputActionType.Clear:
+                return {
+                    input: '',
+                    target: '',
+                    domain: undefined,
+                    suffix: undefined
+                };
+            case InputActionType.Previous:
+                return {
+                    input: action.input,
+                    domain: action.domain,
+                    target: action.target,
+                    suffix: action.suffix
+                };
+            default:
+                return state;
+        }
+    }
+}
+
 export type SimpleTransferParams = {
     target?: string | null,
     comment?: string | null,
@@ -107,12 +187,16 @@ const SimpleTransferComponent = () => {
     const accountLite = useAccountLite(address);
     const holdersAccounts = useHoldersAccountTrargets(address!);
 
-    const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>({
+    const [addressDomainInputState, addressDomainInputAction] = React.useReducer(
+        addressInputReducer(),
+        {
             input: params?.target || '',
             target: params?.target || '',
             domain: undefined,
             suffix: undefined,
-    });
+        }
+    );
+
     const prevAddressDomainInputStateRef = useRef<AddressInputState>(addressDomainInputState);
 
     const { target, domain } = addressDomainInputState;
@@ -723,10 +807,10 @@ const SimpleTransferComponent = () => {
 
     const onInputFocus = useCallback((index: number) => { setSelectedInput(index) }, []);
     const onInputSubmit = useCallback(() => setSelectedInput(null), []);
-    const resetInput = () => {
+    const resetInput = useCallback(() => {
         Keyboard.dismiss();
         setSelectedInput(null);
-    };
+    }, []);
 
     const holdersTarget = holdersAccounts?.find((a) => targetAddressValid?.address.equals(a.address));
     const holdersTargetJetton = holdersTarget?.jettonMaster ? Address.parse(holdersTarget.jettonMaster) : null;
@@ -858,11 +942,11 @@ const SimpleTransferComponent = () => {
                     titleComponent: undefined,
                     onBackPressed: prevAddressDomainInputStateRef.current.target ? () => {
                         resetInput()
-                        setAddressDomainInputState(prevAddressDomainInputStateRef.current);
-                        const {input, target, suffix} =  prevAddressDomainInputStateRef.current;
-                        (addressRef as React.RefObject<AddressDomainInputRef> | undefined)?.current?.inputAction({
-                            type: InputActionType.InputTarget,
+                        const {input, target, suffix, domain} =  prevAddressDomainInputStateRef.current;
+                        addressDomainInputAction({
+                            type: InputActionType.Previous,
                             input: input,
+                            domain: domain,
                             target: target,
                             suffix: suffix ?? "",
                         })
@@ -1031,7 +1115,8 @@ const SimpleTransferComponent = () => {
                         domain={domain}
                         isTestnet={network.isTestnet}
                         onFocus={onInputFocus}
-                        setAddressDomainInputState={setAddressDomainInputState}
+                        addressDomainInputState={addressDomainInputState}
+                        addressDomainInputAction={addressDomainInputAction}
                         onSubmit={onInputSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}

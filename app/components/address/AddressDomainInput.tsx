@@ -1,4 +1,4 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { Alert, Pressable, Image, TextInput, View, Text, } from "react-native"
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -15,6 +15,7 @@ import { Typography } from "../styles";
 import { ThemeType } from "../../engine/state/theme";
 import { ATextInputRef } from "../ATextInput";
 import { AddressSearchItem } from "./AddressSearch";
+import { AddressInputAction } from "../../fragments/secure/SimpleTransferFragment";
 
 export type AddressInputState = {
     input: string,
@@ -30,89 +31,7 @@ export enum InputActionType {
     DomainTarget = 'domain-target',
     InputTarget = 'input-target',
     Clear = 'clear',
-}
-
-export type AddressInputAction = {
-    type: InputActionType.Input,
-    input: string,
-} | {
-    type: InputActionType.Target,
-    target: string,
-} | {
-    type: InputActionType.Domain,
-    domain: string | undefined,
-} | {
-    type: InputActionType.DomainTarget,
-    domain: string | undefined,
-    target: string,
-} | {
-    type: InputActionType.InputTarget,
-    input: string,
-    target: string,
-    suffix: string,
-} | { type: InputActionType.Clear }
-
-export function addressInputReducer() {
-    return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
-        switch (action.type) {
-            case InputActionType.Input:
-                if (action.input === state.input) {
-                    return state;
-                }
-                try {
-                    Address.parse(action.input);
-                    return {
-                        input: action.input,
-                        domain: undefined,
-                        target: action.input,
-                        suffix: undefined
-                    };
-                } catch {
-                    // ignore
-                }
-                return {
-                    input: action.input,
-                    domain: undefined,
-                    target: '',
-                    suffix: undefined
-                };
-            case InputActionType.Target:
-                return {
-                    ...state,
-                    target: action.target,
-                    suffix: undefined
-                };
-            case InputActionType.Domain:
-                return {
-                    ...state,
-                    domain: action.domain,
-                    suffix: undefined
-                };
-            case InputActionType.DomainTarget:
-                return {
-                    ...state,
-                    domain: action.domain,
-                    target: action.target,
-                    suffix: undefined
-                };
-            case InputActionType.InputTarget:
-                return {
-                    ...state,
-                    input: action.input,
-                    target: action.target,
-                    suffix: action.suffix
-                };
-            case InputActionType.Clear:
-                return {
-                    input: '',
-                    target: '',
-                    domain: undefined,
-                    suffix: undefined
-                };
-            default:
-                return state;
-        }
-    }
+    Previous = 'previous'
 }
 
 function RightActions({ resolving, input, openScanner, rightAction, clear }: { resolving: boolean | undefined, input: string, openScanner: () => void, rightAction?: React.ReactNode, clear: () => void }) {
@@ -162,7 +81,7 @@ function RightActions({ resolving, input, openScanner, rightAction, clear }: { r
 }
 
 export type AddressDomainInputRef = Omit<ATextInputRef, 'setText'> & {
-    inputAction: React.Dispatch<AddressInputAction>
+    addressDomainInputAction: React.Dispatch<AddressInputAction>
 }
 
 // TODO: pls refactor this component, its just sad
@@ -172,7 +91,8 @@ export const AddressDomainInput = memo(forwardRef(({
     onBlur,
     onSubmit,
     onSearchItemSelected,
-    onStateChange,
+    addressDomainInputState,
+    addressDomainInputAction,
     initTarget,
     isKnown,
     index,
@@ -190,7 +110,8 @@ export const AddressDomainInput = memo(forwardRef(({
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
-    onStateChange: (action: AddressInputState) => void,
+    addressDomainInputState: AddressInputState,
+    addressDomainInputAction: React.Dispatch<AddressInputAction>,
     onSearchItemSelected: (item: AddressSearchItem) => void,
     initTarget?: string,
     isKnown?: boolean,
@@ -209,19 +130,13 @@ export const AddressDomainInput = memo(forwardRef(({
     const netConfig = useConfig();
     const [resolving, setResolving] = useState<boolean>();
 
-    const [inputState, inputAction] = useReducer(
-        addressInputReducer(),
-        {
+    const inputState = 
+        initTarget ? {
             input: initTarget || '',
             target: initTarget || '',
             domain: undefined,
             suffix: undefined,
-        }
-    );
-
-    useEffect(() => {
-        onStateChange(inputState);
-    }, [inputState]);
+        } : addressDomainInputState
 
     const { input, domain, target, suffix } = inputState;
 
@@ -267,7 +182,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
             }
             const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
-            inputAction({
+            addressDomainInputAction({
                 type: InputActionType.DomainTarget,
                 domain: `${domain}${zone}`,
                 target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
@@ -327,8 +242,8 @@ export const AddressDomainInput = memo(forwardRef(({
         blur: () => {
             animatedRef.current!.blur();
         },
-        inputAction
-    }), [inputAction]);
+        addressDomainInputAction
+    }), [addressDomainInputAction]);
 
     const valueNotEmptyShared = useSharedValue(0);
     const labelHeightCoeff = useSharedValue(1);
@@ -352,17 +267,17 @@ export const AddressDomainInput = memo(forwardRef(({
         // Remove leading and trailing spaces
         value = value.trim();
         if (value !== textInput) {
-            inputAction({
+            addressDomainInputAction({
                 type: InputActionType.Input,
                 input: value
             });
         }
-    }, [textInput, inputAction]);
+    }, [textInput, addressDomainInputAction]);
 
     const focus = useCallback(() => onFocus?.(index), [index, onFocus]);
     const blur = useCallback(() => onBlur?.(index), [index, onBlur]);
     const submit = useCallback(() => onSubmit?.(index), [index, onSubmit]);
-    const clear = useCallback(() => inputAction({ type: InputActionType.Clear }), [inputAction]);
+    const clear = useCallback(() => addressDomainInputAction({ type: InputActionType.Clear }), [addressDomainInputAction]);
 
     useEffect(() => {
         valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 50 });

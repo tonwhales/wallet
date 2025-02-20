@@ -91,8 +91,8 @@ export const AddressSearchItemView = memo(({
                 opacity: pressed ? 0.5 : 1
             })}
         >
-            <View style={{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
+            <View style={{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                     {avatar}
                 </View>
                 <View style={{ flexShrink: 1, justifyContent: 'center' }}>

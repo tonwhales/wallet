@@ -444,6 +444,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                             forcePrecision
                             centFontStyle={{ color: theme.textSecondary }}
                             suffix={` ${symbol}`}
+                            fontStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         />
                     </Text>
                 );

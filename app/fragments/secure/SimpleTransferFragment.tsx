@@ -1072,11 +1072,10 @@ const SimpleTransferComponent = () => {
                                     alignItems: 'center',
                                     justifyContent: 'space-between'
                                 }}>
-                                    <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
+                                    <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible', gap: 12 }}>
                                         <View style={{
                                             height: 46, width: 46,
                                             justifyContent: 'center', alignItems: 'center',
-                                            marginRight: 12
                                         }}>
                                             {!!jetton ? (
                                                 <JettonIcon
@@ -1088,10 +1087,23 @@ const SimpleTransferComponent = () => {
                                                     isSCAM={isSCAM}
                                                 />
                                             ) : (
-                                                <Image
-                                                    source={require('@assets/ic-ton-acc.png')}
-                                                    style={{ height: 46, width: 46 }}
-                                                />
+                                                <View style={{ width: 46, height: 46 }}>
+                                                    <Image
+                                                        source={require('@assets/ic-ton-acc.png')}
+                                                        style={{ height: 46, width: 46 }}
+                                                    />
+                                                    <View style={{
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        height: 20, width: 20, borderRadius: 10,
+                                                        position: 'absolute', right: -2, bottom: -2,
+                                                        backgroundColor: theme.surfaceOnBg
+                                                    }}>
+                                                        <Image
+                                                            source={require('@assets/ic-verified.png')}
+                                                            style={{ height: 20, width: 20 }}
+                                                        />
+                                                    </View>
+                                                </View>
                                             )}
                                         </View>
                                         <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>

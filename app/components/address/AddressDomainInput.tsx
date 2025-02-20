@@ -344,6 +344,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -23]) },
             ],
             opacity: interpolate(valueNotEmptyShared.value, [0, 0.2, 1], [1, 0.1, 1]),
+            position: 'absolute', top: 0, right: 0, left: 0,
         }
     });
 
@@ -401,31 +402,28 @@ export const AddressDomainInput = memo(forwardRef(({
                 flexShrink: 1
             }}
         >
-            <View style={{
-                position: 'absolute', top: 0, right: 0, left: 0,
-                paddingHorizontal: 16, marginLeft: -16
-            }}>
-                <Animated.View style={[labelAnimStyle, { maxWidth: '85%' }]}>
-                    <Text
-                        numberOfLines={1}
-                        onTextLayout={(e) => {
-                            if (e.nativeEvent.lines.length <= 1) {
-                                labelHeightCoeff.value = 1;
-                                return;
-                            }
-                            labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
-                        }}
-                        style={[
-                            { color: theme.textSecondary },
-                            Typography.regular17_24
-                        ]}
-                    >
-                        {t('common.domainOrAddress')}
-                    </Text>
-                </Animated.View>
-            </View>
+            
+            <Animated.View
+                style={labelAnimStyle}>
+                <Text
+                    numberOfLines={1}
+                    onTextLayout={(e) => {
+                        if (e.nativeEvent.lines.length <= 1) {
+                            labelHeightCoeff.value = 1;
+                            return;
+                        }
+                        labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
+                    }}
+                    style={[
+                        { color: theme.textSecondary },
+                        Typography.regular17_24
+                    ]}
+                >
+                    {t('common.domainOrAddress')}
+                </Text>
+            </Animated.View>
             <View style={{ width: '100%', flex: 1, flexShrink: 1 }}>
-                <View style={{ justifyContent: 'center', gap: 4, paddingRight: 56 }}>
+                <View style={{ justifyContent: 'center', paddingRight: 56 }}>
                     <TextInput
                         ref={animatedRef}
                         value={input}

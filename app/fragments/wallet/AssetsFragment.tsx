@@ -89,8 +89,9 @@ const TonAssetItem = memo((params: {
                                 value={balance}
                                 precision={2}
                                 suffix={' TON'}
-                                centFontStyle={{ color: theme.textSecondary }}
+                                centFontStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                 forcePrecision
+                                fontStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                             />
                         </Text>
                     )}

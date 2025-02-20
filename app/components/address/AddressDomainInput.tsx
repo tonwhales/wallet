@@ -347,12 +347,6 @@ export const AddressDomainInput = memo(forwardRef(({
         }
     });
 
-    const labelShiftStyle = useAnimatedStyle(() => {
-        return {
-            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * 10]),
-        }
-    });
-
     const onChangeText = useCallback((value: string) => {
         // Remove leading and trailing spaces
         value = value.trim();

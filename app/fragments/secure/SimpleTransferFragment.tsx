@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, BackHandler } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, BackHandler, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { LinearTransition, Easing, FadeInUp, FadeOutDown } from 'react-native-reanimated';
@@ -554,7 +554,11 @@ const SimpleTransferComponent = () => {
     const scrollRef = useRef<ScrollView>(null);
 
     const keyboard = useKeyboard();
+    const dimensions = useWindowDimensions();
 
+    const maxCommentHeight = 
+        keyboard.keyboardShown && dimensions.height - keyboard.keyboardHeight - 86 - 32 - 150
+    
     const onAssetSelected = useCallback((selected?: { master: Address, wallet?: Address }) => {
         if (selected && selected.wallet) {
             setJetton(selected.wallet);
@@ -888,8 +892,9 @@ const SimpleTransferComponent = () => {
             return {
                 selected: 'comment',
                 onNext: () => {
+                    setComment(commentString.trim())
                     resetInput()
-                    prevCommentInputStateRef.current = commentString
+                    prevCommentInputStateRef.current = commentString.trim()
                 },
                 header: { 
                     ...headertitle,
@@ -933,7 +938,12 @@ const SimpleTransferComponent = () => {
                 return {
                     address: { opacity: 0, pointerEvents: 'none' },
                     amount: { opacity: 0, pointerEvents: 'none' },
-                    comment: { position: 'absolute', top: -addressInputHeightRef.current - amountInputHeightRef.current - 32, left: 0, right: 0, opacity: 1, zIndex: 1 },
+                    comment: {
+                        position: 'relative',
+                        top: -addressInputHeightRef.current - amountInputHeightRef.current - 32,
+                        opacity: 1,
+                        zIndex: 1,
+                    },
                     fees: { opacity: 0 },
                 }
             default:
@@ -944,7 +954,7 @@ const SimpleTransferComponent = () => {
                     fees: { opacity: 1 }
                 }
         }
-    }, [selected, addressInputHeightRef.current, amountInputHeightRef.current]);
+    }, [selected, addressInputHeightRef.current, amountInputHeightRef.current, maxCommentHeight]);
 
     useEffect(() => {
         scrollRef.current?.scrollTo({ y: 0 });
@@ -1041,8 +1051,7 @@ const SimpleTransferComponent = () => {
                         style={[seletectInputStyles.amount, { flex: 1 }]}
                         onLayout={(e) => amountInputHeightRef.current = e.nativeEvent.layout.height}
                     >
-                        <View
-                            style={{
+                        <View style={{
                                 backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 20,
                                 justifyContent: 'center',
@@ -1192,13 +1201,16 @@ const SimpleTransferComponent = () => {
                             { flex: 1 }
                         ]}
                     >
-                        <View style={{
-                            backgroundColor: theme.surfaceOnElevation,
-                            paddingVertical: 20,
-                            paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
-                            width: '100%', borderRadius: 20,
-                            overflow: 'hidden'
-                        }}>
+                        <View 
+                            style={[{
+                                backgroundColor: theme.surfaceOnElevation,
+                                paddingVertical: 20,
+                                paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
+                                width: '100%',
+                                borderRadius: 20,
+                                overflow: 'hidden',
+                            }]}
+                        >
                             {payload ? (
                                 <Text style={[{ color: theme.textPrimary, marginHorizontal: 16 }, Typography.regular17_24]}>
                                     {t('transfer.smartContract')}
@@ -1215,9 +1227,18 @@ const SimpleTransferComponent = () => {
                                     autoCapitalize={'sentences'}
                                     label={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                     style={{ paddingHorizontal: 16 }}
-                                    inputStyle={[{ flexShrink: 1, color: theme.textPrimary, textAlignVertical: 'center' }, Typography.regular17_24]}
+                                    inputStyle={
+                                        [{ 
+                                            flex: 1,
+                                            height: '100%',
+                                            color: theme.textPrimary
+                                        },
+                                            maxCommentHeight ? {maxHeight: maxCommentHeight} : {},
+                                            Typography.regular17_24
+                                        ]}
                                     multiline
                                     cursorColor={theme.accent}
+                                    scrollEnabled={selected === 'comment'}
                                 />
                             )}
                         </View>

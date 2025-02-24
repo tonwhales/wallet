@@ -83,9 +83,7 @@ export function createLedgerJettonOrder(args: {
     }
 }
 
-export function createUnsafeLedgerOrder(
-    msg: SignRawMessage
-): LedgerOrder {
+export function createUnsafeLedgerOrder(msg: SignRawMessage): LedgerOrder {
     let payload: TonPayloadFormat | null = null;
     if (msg.payload) {
         payload = { type: 'unsafe', message: Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] };

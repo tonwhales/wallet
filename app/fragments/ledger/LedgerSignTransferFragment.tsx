@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, Text, View, Alert } from "react-native";
+import { Platform, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff, backoffFailaible } from '../../utils/time';
@@ -17,12 +17,10 @@ import { LedgerOrder } from '../secure/ops/Order';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
-import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { confirmAlert } from '../../utils/confirmAlert';
-import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
 import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
@@ -57,7 +55,7 @@ type ConfirmLoadedProps = {
     callback?: ((ok: boolean, result: Cell | null) => void) | null
 };
 
-const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferState: (state: 'confirm' | 'sending' | 'sent') => void })) => {
+const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const {
         target,
         jettonTrarget,
@@ -66,7 +64,6 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         fees,
         metadata,
         addr,
-        setTransferState,
         callback
     } = props;
     const { isTestnet } = useNetwork();
@@ -98,8 +95,8 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 const temp = payload;
                 if (temp) {
                     const parsing = temp.beginParse();
-                    parsing.loadUint(32);
-                    parsing.loadUint(64);
+                    parsing.skip(32);
+                    parsing.skip(64);
                     const unformatted = parsing.loadCoins();
                     return fromBnWithDecimals(unformatted, jetton.decimals);
                 }
@@ -275,9 +272,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
 
 const Skeleton = memo(() => {
     return (
-        <View style={{
-            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        }}>
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
             <View style={{ flexGrow: 1, alignItems: 'center' }}>
                 <TransferSkeleton />
             </View>
@@ -303,18 +298,6 @@ export const LedgerSignTransferFragment = fragment(() => {
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
     const netConfig = useConfig();
-
-    // Sign/Transfer state
-    const [transferState, setTransferState] = useState<'confirm' | 'sending' | 'sent' | null>(null);
-
-    const transferStateTitle = useMemo(() => {
-        switch (transferState) {
-            case 'confirm': return t('hardwareWallet.actions.confirmOnLedger');
-            case 'sending': return t('hardwareWallet.actions.sending');
-            case 'sent': return t('hardwareWallet.actions.sent');
-            default: return '';
-        }
-    }, [transferState]);
 
     useEffect(() => {
 
@@ -454,49 +437,13 @@ export const LedgerSignTransferFragment = fragment(() => {
             <ScreenHeader
                 style={[{ paddingLeft: 16 }, Platform.select({ android: { paddingTop: safeArea.top } })]}
                 onBackPressed={navigation.goBack}
-                titleComponent={!!loadedProps && !!transferState && (
-                    <Animated.View
-                        entering={FadeInDown} exiting={FadeOutDown}
-                        style={{
-                            backgroundColor: theme.border,
-                            borderRadius: 100,
-                            maxWidth: '70%',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            paddingLeft: 6, paddingRight: 12,
-                            paddingVertical: 6
-                        }}
-                    >
-                        <Text style={{
-                            fontSize: 17, lineHeight: 24,
-                            color: theme.textPrimary,
-                            fontWeight: '500',
-                            marginLeft: 6,
-                            marginRight: 6,
-                            minHeight: 24
-                        }}>
-                            {transferStateTitle}
-                        </Text>
-                        <ReAnimatedCircularProgress
-                            size={14}
-                            color={theme.accent}
-                            reverse
-                            infinitRotate
-                            progress={0.8}
-                        />
-                    </Animated.View>
-                )}
             />
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 {!loadedProps ? (
                     <Skeleton />
                 ) : (
                     <Suspense fallback={<Skeleton />}>
-                        <LedgerTransferLoaded
-                            {...loadedProps}
-                            setTransferState={setTransferState}
-                        />
+                        <LedgerTransferLoaded {...loadedProps} />
                     </Suspense>
                 )}
             </View>

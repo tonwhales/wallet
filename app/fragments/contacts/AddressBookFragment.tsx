@@ -50,7 +50,7 @@ export const AddressBookFragment = fragment(() => {
                 index: -2
             })))
             .filter((acc) => !acc.address.equals(accAddress))
-    }, [appState.addresses, ledgerTransport.wallets]);
+    }, [appState.addresses, ledgerTransport.wallets, isTestnet]);
 
     const selectedItemRef = useRef<AddressSearchItem | null>(null);
 

@@ -37,7 +37,6 @@ export const AddressBookFragment = fragment(() => {
     const holdersAccounts = useHoldersAccountTrargets(accAddress);
     const [search, setSearch] = useState('');
 
-
     const myWallets = useMemo(() => {
         return appState.addresses
             .map((acc, index) => ({
@@ -45,15 +44,13 @@ export const AddressBookFragment = fragment(() => {
                 addressString: acc.address.toString({ testOnly: isTestnet }),
                 index: index
             }))
-            .concat(ledgerTransport.addr ? [
-                {
-                    address: Address.parse(ledgerTransport.addr.address),
-                    addressString: Address.parse(ledgerTransport.addr.address).toString({ testOnly: isTestnet }),
-                    index: -2
-                }
-            ] : [])
+            .concat(ledgerTransport.wallets.map((w) => ({
+                address: Address.parse(w.address),
+                addressString: Address.parse(w.address).toString({ testOnly: isTestnet }),
+                index: -2
+            })))
             .filter((acc) => !acc.address.equals(accAddress))
-    }, [appState.addresses, ledgerTransport.addr?.address]);
+    }, [appState.addresses, ledgerTransport.wallets, isTestnet]);
 
     const selectedItemRef = useRef<AddressSearchItem | null>(null);
 

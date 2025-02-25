@@ -338,17 +338,15 @@ export const AddressDomainInput = memo(forwardRef(({
     }), [inputAction]);
 
     const valueNotEmptyShared = useSharedValue(0);
-    const labelHeightCoeff = useSharedValue(1);
 
     const labelHeight = useSharedValue(0);
-    const labelWidth = useSharedValue(1);
+    const labelWidth = useSharedValue(0);
 
     const valueNotEmpty = (textInput?.length || 0) > 0;
-    const screenWidthValue = screenWidth ?? 0;
-    const xTranslate = Math.round(screenWidthValue * 0.1) + Math.round(screenWidthValue / 2 * 0.018);
 
     const handleLayout = (event: LayoutChangeEvent) => {
         const { width, height } = event.nativeEvent.layout;
+        
         labelHeight.value = height
         labelWidth.value = width
       };
@@ -368,7 +366,7 @@ export const AddressDomainInput = memo(forwardRef(({
 
     const labelShiftStyle = useAnimatedStyle(() => {
         return {
-            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * 10]),
+            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, 10]),
         }
     });
 
@@ -433,13 +431,6 @@ export const AddressDomainInput = memo(forwardRef(({
                 <Animated.View onLayout={handleLayout} style={[labelAnimStyle, { maxWidth: '85%' }]}>
                     <Text
                         numberOfLines={1}
-                        onTextLayout={(e) => {
-                            if (e.nativeEvent.lines.length <= 1) {
-                                labelHeightCoeff.value = 1;
-                                return;
-                            }
-                            labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
-                        }}
                         style={[
                             { color: theme.textSecondary },
                             Typography.regular17_24

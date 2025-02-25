@@ -68,18 +68,22 @@ export const HoldersAccountItem = memo((props: {
     const isHoldersReady = useIsConnectAppReady(url, owner.toString({ testOnly: isTestnet }));
     const name = getAccountName(account.accountIndex, account.name);
     const ledgerContext = useLedgerTransport();
-
+    
     const priceAmount = useMemo(() => {
-        const cryptoCurrency = account.cryptoCurrency;
-
-        if (!account || !account.cryptoCurrency || !account.balance) return 0n;
-
-        if (cryptoCurrency.ticker === 'TON') {
-            return BigInt(account.balance);
+        try {
+            const cryptoCurrency = account.cryptoCurrency;
+    
+            if (!account || !account.cryptoCurrency || !account.balance) return 0n;
+    
+            if (cryptoCurrency.ticker === 'TON') {
+                return BigInt(account.balance);
+            }
+    
+            const amount = toBnWithDecimals(account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd || 1n);
+            return toBnWithDecimals(amount, cryptoCurrency.decimals);
+        } catch (error) {
+            return 0n;
         }
-
-        const amount = toBnWithDecimals(account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd || 1n);
-        return toBnWithDecimals(amount, cryptoCurrency.decimals);
     }, [account.balance, account.cryptoCurrency, price?.price?.usd]);
 
     const needsEnrollment = useMemo(() => {

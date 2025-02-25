@@ -39,9 +39,9 @@ export function useSavingsBalance(addr: string | Address) {
     totalBalance += savingTotal + parseFloat(fromNano(specialTotal));
 
     return {
-        totalBalance: toNano(totalBalance),
-        tonBalance: toNano(tonTotal),
-        savingTotal: toNano(savingTotal),
+        totalBalance: toNano(totalBalance.toFixed(9)),
+        tonBalance: toNano(tonTotal.toFixed(9)),
+        savingTotal: toNano(savingTotal.toFixed(9)),
         specialBalance: specialTotal
     };
 }

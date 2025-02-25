@@ -310,7 +310,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
             : fromNano(balance);
         const formatted = formatInputAmount(amount.replace('.', ','), jetton?.decimals ?? 9, { skipFormattingDecimals: true });
         setAmount(formatted);
-    }, []);
+    }, [balance, jetton]);
 
     const onAssetSelected = useCallback((selected?: { master: Address, wallet?: Address }) => {
         if (selected && selected.wallet) {

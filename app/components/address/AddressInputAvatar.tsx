@@ -4,11 +4,12 @@ import { ThemeType } from "../../engine/state/theme";
 import { Avatar } from "../avatar/Avatar";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { ForcedAvatar, ForcedAvatarType } from "../avatar/ForcedAvatar";
+import { View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 export const AddressInputAvatar = memo(({
     size,
     theme,
-    isTestnet,
     friendly,
     isOwn,
     markContact,
@@ -20,7 +21,6 @@ export const AddressInputAvatar = memo(({
 }: {
     size: number,
     theme: ThemeType,
-    isTestnet: boolean,
     friendly?: string,
     isOwn: boolean,
     markContact: boolean,
@@ -31,48 +31,51 @@ export const AddressInputAvatar = memo(({
     forceAvatar?: ForcedAvatarType
 }) => {
 
+    let avatar = null;
+
     if (forceAvatar) {
-        return (
+        avatar = (
             <ForcedAvatar
                 type={forceAvatar}
                 size={size}
                 icProps={{ isOwn }}
             />
         );
-    }
-
-
-    if (isLedger) {
-        return (
+    } else if (isLedger) {
+        avatar = (
             <Image
                 source={require('@assets/ledger_device.png')}
                 style={{ height: size, width: size }}
             />
         );
-    }
-
-    if (friendly) {
-        return (
-            <Avatar
-                size={size}
-                id={friendly}
-                address={friendly}
-                borderColor={theme.elevation}
-                theme={theme}
-                hash={hash}
-                knownWallets={knownWallets}
-                backgroundColor={avatarColor}
-                markContact={markContact}
-                icProps={{ isOwn }}
-            />
+    } else if (friendly) {
+        avatar = (
+            <Animated.View entering={FadeIn} exiting={FadeOut}>
+                <Avatar
+                    size={size}
+                    id={friendly}
+                    address={friendly}
+                    borderColor={theme.elevation}
+                    theme={theme}
+                    hash={hash}
+                    knownWallets={knownWallets}
+                    backgroundColor={avatarColor}
+                    markContact={markContact}
+                    icProps={{ isOwn }}
+                    borderWidth={0}
+                />
+            </Animated.View>
         );
     }
 
     return (
-        <Image
-            source={require('@assets/ic-contact.png')}
-            style={{ height: size, width: size, tintColor: theme.iconPrimary }}
-        />
+        <View style={{ height: size, width: size, justifyContent: 'center', alignItems: 'center' }}>
+            <Image
+                source={require('@assets/ic-contact.png')}
+                style={{ height: size, width: size, tintColor: theme.iconPrimary, position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}
+            />
+            {avatar}
+        </View>
     );
 });
 

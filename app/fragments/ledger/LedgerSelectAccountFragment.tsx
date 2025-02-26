@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, Alert, Platform } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,13 +9,13 @@ import { AccountButton } from "./components/AccountButton";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useAccountsLite, useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
-import { useLedgerTransport } from "./components/TransportContext";
+import { LedgerWallet, useLedgerTransport } from "./components/TransportContext";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { delay } from 'teslabot';
 import { ThemeType } from '../../engine/state/theme';
 import { Typography } from '../../components/styles';
-import { useFocusEffect } from "@react-navigation/native";
+import { isLedgerTonAppReady } from "../../utils/ledger/isLedgerTonAppReady";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 type AccountsLite = ReturnType<typeof useAccountsLite>;
@@ -34,6 +34,8 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
     onLoadAccount: (acc: LedgerAccount) => Promise<void>,
     bounceable?: boolean
 }) => {
+    const ledgerContext = useLedgerTransport();
+
     return (
         <ScrollView
             contentInset={{ top: 0, bottom: safeArea.bottom + 16 }}
@@ -96,6 +98,9 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
                 </>
             ) : (
                 accountsLite.map((acc) => {
+                    if (ledgerContext?.wallets?.some((a) => Address.parse(a.address).equals(acc.address))) {
+                        return null;
+                    }
                     const item = accs.find((a) => a.address.equals(acc.address));
                     return (
                         <AccountButton
@@ -160,23 +165,23 @@ const LedgerHint = ({ state, theme }: { state: 'locked-device' | 'closed-app' | 
     );
 }
 
+export type LedgerSelectAccountParams = {
+    selectedAddress?: LedgerWallet | null
+};
+
 export const LedgerSelectAccountFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
-    const [bounceableFormat,] = useBounceableWalletFormat();
-
+    const [bounceableFormat] = useBounceableWalletFormat();
+    const [connectionState, setConnectionState] = useState<'locked-device' | 'closed-app' | 'active' | 'loading'>('loading');
     const [selected, setSelected] = useState<number>();
-    const [accs, setAccounts] = useState<{
-        address: Address;
-        publicKey: Buffer;
-    }[]>([]);
-
+    const [accs, setAccounts] = useState<{ address: Address, publicKey: Buffer }[]>([]);
     const accountsLite = useAccountsLite(accs.map((a) => a.address));
 
-    const [connectionState, setConnectionState] = useState<'locked-device' | 'closed-app' | 'active' | 'loading'>('loading');
+    const finished = useRef(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -190,7 +195,8 @@ export const LedgerSelectAccountFragment = fragment(() => {
                     const res: { address: Address, publicKey: Buffer }[] = [];
                     const run = Array.from({ length: 10 }).map((_, i) => i);
                     try {
-                        let isAppOpen = await ledgerContext.tonTransport?.isAppOpen();
+                        let isAppOpen = await isLedgerTonAppReady(ledgerContext.tonTransport);
+
                         if (cancelled) return;
 
                         if (!isAppOpen) {
@@ -238,10 +244,12 @@ export const LedgerSelectAccountFragment = fragment(() => {
         try {
             await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
             ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
+            finished.current = true;
+            navigation.navigateLedgerApp();
             setSelected(undefined);
         } catch (e) {
             setSelected(undefined);
-            let isAppOpen = await ledgerContext.tonTransport?.isAppOpen();
+            let isAppOpen = await isLedgerTonAppReady(ledgerContext.tonTransport);
 
             if (!isAppOpen) {
                 console.warn('[ledger] closed app');
@@ -256,41 +264,28 @@ export const LedgerSelectAccountFragment = fragment(() => {
         }
     }), [ledgerContext?.tonTransport]);
 
-    useEffect(() => {
-        if (!!ledgerContext?.addr) {
-            navigation.navigateLedgerApp();
+    const onBeforeRemove = useCallback(() => {
+        if (!finished.current) {
+            const lastConnectionType = ledgerContext.ledgerConnection?.type;
+            ledgerContext.reset();
+
+            // Restart new search, we are navigating back to the search screen
+            if (lastConnectionType === 'ble') {
+                ledgerContext.startBleSearch();
+            } else if (lastConnectionType === 'hid') {
+                ledgerContext.startHIDSearch();
+            }
         }
-    }, [ledgerContext?.addr]);
+    }, [ledgerContext.ledgerConnection?.type]);
 
     // Reseting ledger context on back navigation if no address selected
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => {
-                if (!ledgerContext.addr) {
-                    const lastConnectionType = ledgerContext.ledgerConnection?.type;
-                    ledgerContext.reset();
-
-                    // Restart new search, we are navigating back to the search screen
-                    if (lastConnectionType === 'ble') {
-                        ledgerContext.startBleSearch();
-                    } else if (lastConnectionType === 'hid') {
-                        ledgerContext.startHIDSearch();
-                    }
-                }
-            };
-
-            navigation.base.addListener('beforeRemove', onBackPress);
-
-            return () => {
-                navigation.base.removeListener('beforeRemove', onBackPress);
-            };
-        }, [navigation, ledgerContext])
-    );
+    useEffect(() => {
+        navigation.base.addListener('beforeRemove', onBeforeRemove);
+        return () => navigation.base.removeListener('beforeRemove', onBeforeRemove);
+    }, [onBeforeRemove]);
 
     return (
-        <View style={{
-            flex: 1,
-        }}>
+        <View style={{ flex: 1 }}>
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNetwork } from '../network/useNetwork';
 import { useClient4 } from '../network/useClient4';
 import { Queries } from '../../queries';
-import { contractMetadataQueryFn } from '../jettons/usePrefetchHints';
+import { contractMetadataQueryFn } from '../jettons/jettonsBatcher';
 
 export function useContractMetadata(contract: string | null) {
     const { isTestnet } = useNetwork();

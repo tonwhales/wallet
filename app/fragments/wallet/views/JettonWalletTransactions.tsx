@@ -21,11 +21,11 @@ import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { JettonTransfer } from "../../../engine/hooks/transactions/useJettonTransactions";
 import { JettonTransactionView } from "./JettonTransactionView";
-import { SectionHeader } from "./WalletTransactions";
 import { parseForwardPayloadComment } from "../../../utils/spam/isTxSPAM";
 import { t } from "../../../i18n/t";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
+import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 
 type TransactionListItemProps = {
     address: Address,
@@ -99,8 +99,7 @@ export const JettonWalletTransactions = memo((props: {
     theme: ThemeType,
     jetton: Jetton
 }) => {
-    const theme = props.theme;
-    const navigation = props.navigation;
+    const {theme, navigation, address, ledger, jetton, txs, header, loading, hasNext, sectionedListProps, onLoadMore, onRefresh } = props;
     const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
@@ -122,7 +121,7 @@ export const JettonWalletTransactions = memo((props: {
     const { transactionsSectioned } = useMemo(() => {
         const sectioned = new Map<string, { title: string, data: JettonTransfer[] }>();
         for (let i = 0; i < props.txs.length; i++) {
-            const t = props.txs[i];
+            const t = txs[i];
 
             if (gaslessConfig?.relay_address && Address.parse(gaslessConfig.relay_address).equals(Address.parse(t.destination))) {
                 continue;
@@ -137,28 +136,29 @@ export const JettonWalletTransactions = memo((props: {
             }
         }
         return { transactionsSectioned: Array.from(sectioned.values()) };
-    }, [props.txs, gaslessConfig?.relay_address]);
+    }, [txs, gaslessConfig?.relay_address]);
 
     const navigateToPreview = useCallback((transaction: JettonTransfer) => {
-        if (props.ledger) {
+        if (ledger) {
             navigation.navigate('LedgerJettonTransactionPreview', {
                 transaction,
-                wallet: props.jetton.wallet.toString({ testOnly: isTestnet }),
-                master: props.jetton.master.toString({ testOnly: isTestnet }),
-                owner: props.address.toString({ testOnly: isTestnet })
+                wallet: jetton.wallet.toString({ testOnly: isTestnet }),
+                master: jetton.master.toString({ testOnly: isTestnet }),
+                owner: address.toString({ testOnly: isTestnet })
             });
+            return;
         }
         navigation.navigateJettonTransaction({
             transaction,
-            wallet: props.jetton.wallet.toString({ testOnly: isTestnet }),
-            master: props.jetton.master.toString({ testOnly: isTestnet }),
-            owner: props.address.toString({ testOnly: isTestnet })
+            wallet: jetton.wallet.toString({ testOnly: isTestnet }),
+            master: jetton.master.toString({ testOnly: isTestnet }),
+            owner: address.toString({ testOnly: isTestnet })
         });
-    }, [props.ledger, props.navigation]);
+    }, [ledger, address, jetton, isTestnet]);
 
-    const renderSectionHeader = useCallback((section: { section: SectionListData<JettonTransfer, { title: string }> }) => (
-        <SectionHeader theme={theme} title={section.section.title} />
-    ), [theme]);
+    const renderSectionHeader = (section: { section: SectionListData<JettonTransfer, { title: string }> }) => (
+        <TransactionsSectionHeader theme={theme} title={section.section.title} />
+    );
 
     const onShare = useCallback((link: string, title: string) => {
         if (Platform.OS === 'ios') {
@@ -192,10 +192,10 @@ export const JettonWalletTransactions = memo((props: {
             comment: comment,
             amount: amount < 0n ? -amount : amount,
             stateInit: null,
-            jetton: props.jetton.wallet,
+            jetton: jetton.wallet,
             callback: null
         });
-    }, [navigation, isTestnet, bounceableFormat, props.jetton]);
+    }, [navigation, isTestnet, bounceableFormat, jetton]);
 
     const onLongPress = (tx: JettonTransfer) => {
         const targetAddress = Address.parse(tx.destination);
@@ -209,7 +209,7 @@ export const JettonWalletTransactions = memo((props: {
             + `${tx.transaction_lt}_${encodeURIComponent(txHash)}`;
         const contact = addressBook.contacts[target];
         const isSpam = !!addressBook.denyList[target]?.reason;
-        const kind: 'in' | 'out' = targetAddress.equals(props.address) ? 'in' : 'out';
+        const kind: 'in' | 'out' = targetAddress.equals(address) ? 'in' : 'out';
         const comment = parseForwardPayloadComment(tx.forward_payload);
 
         const spam =
@@ -218,7 +218,7 @@ export const JettonWalletTransactions = memo((props: {
             || !!comment && !knownWallets[target] && !isTestnet && kind === 'in';
 
         const canRepeat = kind === 'out'
-            && !props.ledger
+            && !ledger
             && !tx.custom_payload
             && !(!!tx.forward_payload && !comment);
 
@@ -278,9 +278,7 @@ export const JettonWalletTransactions = memo((props: {
         <SectionList
             ref={ref}
             style={{ flexGrow: 1 }}
-            contentContainerStyle={[
-                props.sectionedListProps?.contentContainerStyle
-            ]}
+            contentContainerStyle={sectionedListProps?.contentContainerStyle}
             contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}
             scrollEventThrottle={26}
@@ -292,8 +290,8 @@ export const JettonWalletTransactions = memo((props: {
             }}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
-            ListHeaderComponent={props.header}
-            ListFooterComponent={props.hasNext ? (
+            ListHeaderComponent={header}
+            ListFooterComponent={hasNext ? (
                 <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                     <ReAnimatedCircularProgress
                         size={24}
@@ -304,15 +302,15 @@ export const JettonWalletTransactions = memo((props: {
                     />
                 </View>
             ) : null}
-            ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
+            ListEmptyComponent={loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
             renderItem={(item) => (
                 <JettonTransactionListItem
                     {...item}
-                    address={props.address}
+                    address={address}
                     theme={theme}
                     onPress={navigateToPreview}
                     onLongPress={onLongPress}
-                    ledger={props.ledger}
+                    ledger={ledger}
                     navigation={navigation}
                     spamMinAmount={spamMinAmount}
                     dontShowComments={dontShowComments}
@@ -328,9 +326,9 @@ export const JettonWalletTransactions = memo((props: {
                     jetton={props.jetton}
                 />
             )}
-            onRefresh={props.onRefresh}
-            refreshing={props.loading}
-            onEndReached={() => props.onLoadMore()}
+            onRefresh={onRefresh}
+            refreshing={loading}
+            onEndReached={onLoadMore}
             onEndReachedThreshold={1}
             keyExtractor={(item) => 'tx-' + item.trace_id + item.transaction_lt}
         />

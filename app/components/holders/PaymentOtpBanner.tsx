@@ -166,7 +166,7 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
     const addressString = address.toString({ testOnly: isTestnet });
     const [actionDisabled, setActionDisabled] = useState(false);
 
-    let expiresAt = null;
+    let expiresAt: Date | null = null;
 
     if (otp && otp.expiresAt) {
         try {

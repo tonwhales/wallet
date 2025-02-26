@@ -1,84 +1,238 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useState } from "react"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
 import { Alert, Pressable, Image, TextInput, View, Text, } from "react-native"
-import Animated, { FadeIn, FadeOut, LinearTransition, cancelAnimation, interpolate, useAnimatedRef, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { Camera } from 'expo-camera';
 import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { useClient4, useConfig } from "../../engine/hooks";
+import { useClient4, useConfig, useTheme } from "../../engine/hooks";
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
 import { t } from "../../i18n/t";
-import { warn } from "../../utils/log";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
-import { AddressInputAction, InputActionType } from "./TransferAddressInput";
 import { resolveBounceableTag } from "../../utils/resolveBounceableTag";
 import { Typography } from "../styles";
 import { ThemeType } from "../../engine/state/theme";
 import { ATextInputRef } from "../ATextInput";
+import { AddressSearchItem } from "./AddressSearch";
 
-const AnimatedInput = Animated.createAnimatedComponent(TextInput);
+export type AddressInputState = {
+    input: string,
+    target: string,
+    domain: string | undefined,
+    suffix: string | undefined
+}
 
+export enum InputActionType {
+    Input = 'input',
+    Target = 'target',
+    Domain = 'domain',
+    DomainTarget = 'domain-target',
+    InputTarget = 'input-target',
+    Clear = 'clear',
+}
+
+export type AddressInputAction = {
+    type: InputActionType.Input,
+    input: string,
+} | {
+    type: InputActionType.Target,
+    target: string,
+} | {
+    type: InputActionType.Domain,
+    domain: string | undefined,
+} | {
+    type: InputActionType.DomainTarget,
+    domain: string | undefined,
+    target: string,
+} | {
+    type: InputActionType.InputTarget,
+    input: string,
+    target: string,
+    suffix: string,
+} | { type: InputActionType.Clear }
+
+export function addressInputReducer() {
+    return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
+        switch (action.type) {
+            case InputActionType.Input:
+                if (action.input === state.input) {
+                    return state;
+                }
+                try {
+                    Address.parse(action.input);
+                    return {
+                        input: action.input,
+                        domain: undefined,
+                        target: action.input,
+                        suffix: undefined
+                    };
+                } catch {
+                    // ignore
+                }
+                return {
+                    input: action.input,
+                    domain: undefined,
+                    target: '',
+                    suffix: undefined
+                };
+            case InputActionType.Target:
+                return {
+                    ...state,
+                    target: action.target,
+                    suffix: undefined
+                };
+            case InputActionType.Domain:
+                return {
+                    ...state,
+                    domain: action.domain,
+                    suffix: undefined
+                };
+            case InputActionType.DomainTarget:
+                return {
+                    ...state,
+                    domain: action.domain,
+                    target: action.target,
+                    suffix: undefined
+                };
+            case InputActionType.InputTarget:
+                return {
+                    ...state,
+                    input: action.input,
+                    target: action.target,
+                    suffix: action.suffix
+                };
+            case InputActionType.Clear:
+                return {
+                    input: '',
+                    target: '',
+                    domain: undefined,
+                    suffix: undefined
+                };
+            default:
+                return state;
+        }
+    }
+}
+
+function RightActions({ resolving, input, openScanner, rightAction, clear }: { resolving: boolean | undefined, input: string, openScanner: () => void, rightAction?: React.ReactNode, clear: () => void }) {
+    const theme = useTheme();
+
+    if (resolving) {
+        return (
+            <ReAnimatedCircularProgress
+                size={24}
+                color={theme.iconPrimary}
+                reverse
+                infinitRotate
+                progress={0.8}
+            />
+        );
+    }
+
+    return input.length > 0 ? (
+        <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Pressable
+                    onPress={clear}
+                    style={{ height: 24, width: 24 }}
+                    hitSlop={16}
+                >
+                    <Image
+                        source={require('@assets/ic-clear.png')}
+                        style={{ height: 24, width: 24 }}
+                    />
+                </Pressable>
+            </View>
+        </View>
+    ) : (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Pressable
+                onPress={openScanner}
+                style={{ height: 24, width: 24, marginLeft: undefined }}
+                hitSlop={8}
+            >
+                <Image source={require('@assets/ic-scan-tx.png')}
+                    style={{ height: 24, width: 24 }}
+                />
+            </Pressable>
+            {rightAction}
+        </View>
+    )
+}
+
+export type AddressDomainInputRef = Omit<ATextInputRef, 'setText'> & {
+    inputAction: React.Dispatch<AddressInputAction>
+}
+
+// TODO: pls refactor this component, its just sad
 export const AddressDomainInput = memo(forwardRef(({
+    acc,
     onFocus,
     onBlur,
     onSubmit,
-    target,
-    input,
-    dispatch,
+    onSearchItemSelected,
+    onStateChange,
+    initTarget,
     isKnown,
     index,
     contact,
     onQRCodeRead,
     autoFocus,
-    domain,
     screenWidth,
     bounceableFormat,
     knownWallets,
     theme,
     isTestnet,
     navigation,
-    rightAction,
-    suffix
 }: {
+    acc: Address,
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
-    target?: string,
-    input: string,
-    dispatch: (action: AddressInputAction) => void,
+    onStateChange: (action: AddressInputState) => void,
+    onSearchItemSelected: (item: AddressSearchItem) => void,
+    initTarget?: string,
     isKnown?: boolean,
     index: number,
     contact?: AddressContact | null,
-    onQRCodeRead?: (value: string) => void,
+    onQRCodeRead: (value: string) => void,
     autoFocus?: boolean,
-    domain?: string,
     screenWidth?: number,
     bounceableFormat: boolean,
     knownWallets: { [key: string]: KnownWallet },
     theme: ThemeType,
     isTestnet: boolean,
     navigation: TypedNavigation,
-    rightAction?: React.ReactNode,
-    suffix?: string
-}, ref: ForwardedRef<ATextInputRef>) => {
+}, ref: ForwardedRef<AddressDomainInputRef>) => {
     const client = useClient4(isTestnet);
     const netConfig = useConfig();
     const [resolving, setResolving] = useState<boolean>();
 
-    const openScanner = useCallback(() => {
-        if (!onQRCodeRead) {
-            return;
+    const [inputState, inputAction] = useReducer(
+        addressInputReducer(),
+        {
+            input: initTarget || '',
+            target: initTarget || '',
+            domain: undefined,
+            suffix: undefined,
         }
+    );
 
+    useEffect(() => {
+        onStateChange(inputState);
+    }, [inputState]);
+
+    const { input, domain, target, suffix } = inputState;
+
+    const openScanner = () => {
         (async () => {
             await Camera.requestCameraPermissionsAsync();
-            navigation.popToTop();
             navigation.navigateScanner({ callback: onQRCodeRead });
         })();
-    }, [onQRCodeRead]);
+    };
 
-    const onResolveDomain = useCallback(async (
+    const onResolveDomain = (async (
         toResolve: string, zone: '.t.me' | '.ton',
         rootDnsAddress: Address
     ) => {
@@ -110,7 +264,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
                 const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
 
-                dispatch({
+                inputAction({
                     type: InputActionType.DomainTarget,
                     domain: `${domain}${zone}`,
                     target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
@@ -119,18 +273,17 @@ export const AddressDomainInput = memo(forwardRef(({
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
                 const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
 
-                dispatch({
+                inputAction({
                     type: InputActionType.DomainTarget,
                     domain: `${domain}${zone}`,
                     target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
                 });
             }
-        } catch (e) {
+        } catch {
             Alert.alert(t('transfer.error.invalidDomain'));
-            warn(e);
         }
         setResolving(false);
-    }, [bounceableFormat, isTestnet, client]);
+    });
 
     const { suff, textInput } = useMemo(() => {
 
@@ -161,62 +314,6 @@ export const AddressDomainInput = memo(forwardRef(({
         return { suff, textInput };
     }, [resolving, isKnown, contact, target, input, domain, suffix]);
 
-    const actionsRight = useMemo(() => {
-        if (resolving) {
-            return (
-                <ReAnimatedCircularProgress
-                    size={24}
-                    color={theme.iconPrimary}
-                    reverse
-                    infinitRotate
-                    progress={0.8}
-                />
-            );
-        }
-
-        if (input.length === 0) {
-            return (
-                <Animated.View entering={FadeIn} exiting={FadeOut}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        {!!onQRCodeRead && (
-                            <Pressable
-                                onPress={openScanner}
-                                style={{ height: 24, width: 24, marginLeft: undefined }}
-                                hitSlop={36}
-                            >
-                                <Image source={require('@assets/ic-scan-tx.png')}
-                                    style={{ height: 24, width: 24 }}
-                                />
-                            </Pressable>
-                        )}
-                        {rightAction && (
-                            <View style={{ marginLeft: 8 }}>
-                                {rightAction}
-                            </View>
-                        )}
-                    </View>
-                </Animated.View>
-            )
-        }
-
-        return (
-            <Animated.View entering={FadeIn} exiting={FadeOut}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Pressable
-                        onPress={() => dispatch({ type: InputActionType.Clear })}
-                        style={{ height: 24, width: 24 }}
-                        hitSlop={36}
-                    >
-                        <Image
-                            source={require('@assets/ic-clear.png')}
-                            style={{ height: 24, width: 24 }}
-                        />
-                    </Pressable>
-                </View>
-            </Animated.View>
-        )
-    }, [resolving, input, onQRCodeRead, openScanner, rightAction]);
-
     useEffect(() => {
         if (!netConfig) {
             return;
@@ -228,7 +325,7 @@ export const AddressDomainInput = memo(forwardRef(({
         }
     }, [textInput, netConfig]);
 
-    const animatedRef = useAnimatedRef<TextInput>();
+    const animatedRef = useRef<TextInput | null>(null);
 
     useImperativeHandle(ref, () => ({
         focus: () => {
@@ -237,16 +334,14 @@ export const AddressDomainInput = memo(forwardRef(({
         blur: () => {
             animatedRef.current!.blur();
         },
-        setText: (text: string) => {
-            animatedRef.current!.setNativeProps({ text });
-        }
-    }), []);
+        inputAction
+    }), [inputAction]);
 
     const valueNotEmptyShared = useSharedValue(0);
     const labelHeightCoeff = useSharedValue(1);
     const valueNotEmpty = (textInput?.length || 0) > 0;
     const screenWidthValue = screenWidth ?? 0;
-    const xTranslate = Math.round(screenWidthValue * 0.1) + Math.round(screenWidthValue / 2 * 0.01);
+    const xTranslate = Math.round(screenWidthValue * 0.1) + Math.round(screenWidthValue / 2 * 0.018);
 
     const labelAnimStyle = useAnimatedStyle(() => {
         return {
@@ -255,7 +350,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -xTranslate]) },
                 { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
             ],
-            opacity: interpolate(valueNotEmptyShared.value, [0, 0.5, 1], [1, 0.1, 1]),
+            opacity: interpolate(valueNotEmptyShared.value, [0, 0.2, 1], [1, 0.1, 1]),
         }
     });
 
@@ -265,16 +360,49 @@ export const AddressDomainInput = memo(forwardRef(({
         }
     });
 
-    const inputHeightCompensatorStyle = useAnimatedStyle(() => {
-        return {
-            marginBottom: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * -4])
+    const onChangeText = useCallback((value: string) => {
+        // Remove leading and trailing spaces
+        value = value.trim();
+        if (value !== textInput) {
+            inputAction({
+                type: InputActionType.Input,
+                input: value
+            });
         }
-    });
+    }, [textInput, inputAction]);
+
+    const focus = useCallback(() => onFocus?.(index), [index, onFocus]);
+    const blur = useCallback(() => onBlur?.(index), [index, onBlur]);
+    const submit = useCallback(() => onSubmit?.(index), [index, onSubmit]);
+    const clear = useCallback(() => inputAction({ type: InputActionType.Clear }), [inputAction]);
 
     useEffect(() => {
-        cancelAnimation(valueNotEmptyShared);
-        valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 100 });
+        valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 50 });
     }, [valueNotEmpty]);
+
+    const openAddressBook = () => {
+        navigation.navigate('AddressBook', {
+            account: acc.toString({ testOnly: isTestnet }),
+            onSelected: onSearchItemSelected
+        });
+    };
+
+    const rightAction = useMemo(() => {
+        return (
+            <Pressable
+                style={({ pressed }) => ({
+                    opacity: pressed ? 0.5 : 1
+                })}
+                onPress={openAddressBook}
+                hitSlop={4}
+            >
+                <Image
+                    source={require('@assets/ic-address-book.png')}
+                    style={{ height: 24, width: 24, tintColor: theme.accent }}
+                />
+            </Pressable>
+        );
+    }, []);
 
     return (
         <View
@@ -286,11 +414,11 @@ export const AddressDomainInput = memo(forwardRef(({
                 flexShrink: 1
             }}
         >
-            <View style={[
-                { position: 'absolute', top: 0, right: 0, left: 0, paddingHorizontal: 16 },
-                { marginLeft: -16 }
-            ]}>
-                <Animated.View style={labelAnimStyle}>
+            <View style={{
+                position: 'absolute', top: 0, right: 0, left: 0,
+                paddingHorizontal: 16, marginLeft: -16
+            }}>
+                <Animated.View style={[labelAnimStyle, { maxWidth: '85%' }]}>
                     <Text
                         numberOfLines={1}
                         onTextLayout={(e) => {
@@ -302,31 +430,28 @@ export const AddressDomainInput = memo(forwardRef(({
                         }}
                         style={[
                             { color: theme.textSecondary },
-                            Typography.regular17_24,
+                            Typography.regular17_24
                         ]}
                     >
-                        {t('common.domainOrAddressOrContact')}
+                        {t('common.domainOrAddress')}
                     </Text>
                 </Animated.View>
             </View>
             <View style={{ width: '100%', flex: 1, flexShrink: 1 }}>
                 <Animated.View style={labelShiftStyle} />
-                <View style={{ justifyContent: 'center', gap: 4 }}>
-                    <AnimatedInput
+                <View style={{ justifyContent: 'center', gap: 4, paddingRight: 56 }}>
+                    <TextInput
                         ref={animatedRef}
+                        value={input}
                         style={[{
                             color: theme.textPrimary,
                             marginHorizontal: 0, marginVertical: 0,
-                            paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                            paddingLeft: 0, paddingRight: 0,
-                            textAlignVertical: 'center',
-                            flexShrink: 1,
-                            flex: 1,
+                            paddingBottom: 0, paddingTop: 0, paddingVertical: 0, paddingLeft: 0, paddingRight: 0,
+                            textAlignVertical: 'center'
                         }, Typography.regular17_24]}
                         selectionColor={theme.accent}
                         cursorColor={theme.textPrimary}
                         autoFocus={autoFocus}
-                        placeholderTextColor={theme.textSecondary}
                         autoCapitalize={'none'}
                         autoCorrect={false}
                         keyboardType={'default'}
@@ -335,23 +460,14 @@ export const AddressDomainInput = memo(forwardRef(({
                         multiline
                         blurOnSubmit={false}
                         editable={!resolving}
-                        onChangeText={(value) => {
-                            // Remove leading and trailing spaces
-                            value = value.trim();
-                            if (value !== textInput) {
-                                dispatch({
-                                    type: InputActionType.Input,
-                                    input: value
-                                });
-                            }
-                        }}
+                        onChangeText={onChangeText}
                         textContentType={'none'}
-                        onFocus={() => onFocus?.(index)}
-                        onBlur={() => onBlur?.(index)}
-                        onSubmitEditing={() => onSubmit?.(index)}
+                        onFocus={focus}
+                        onBlur={blur}
+                        onSubmitEditing={submit}
                     />
                     {suff && (
-                        <Animated.View style={{ justifyContent: 'center' }} layout={LinearTransition}>
+                        <View style={{ justifyContent: 'center' }}>
                             <Text
                                 numberOfLines={1}
                                 style={[
@@ -366,12 +482,22 @@ export const AddressDomainInput = memo(forwardRef(({
                             >
                                 {suff}
                             </Text>
-                        </Animated.View>
+                        </View>
                     )}
                 </View>
-                <Animated.View style={[inputHeightCompensatorStyle, { backgroundColor: 'rgba(255,125,0,0.2)' }]} />
             </View>
-            {actionsRight}
+            <View style={{
+                position: 'absolute', top: 0, right: 0, bottom: 0,
+                justifyContent: 'center', alignItems: 'center'
+            }}>
+                <RightActions
+                    resolving={resolving}
+                    input={input}
+                    openScanner={openScanner}
+                    rightAction={rightAction}
+                    clear={clear}
+                />
+            </View>
         </View>
     );
 }));

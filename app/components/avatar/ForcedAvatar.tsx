@@ -10,12 +10,16 @@ export const ForcedAvatar = memo(({
     type,
     size,
     hideVerifIcon,
-    icProps
+    icProps,
+    borderColor,
+    borderWidth
 }: {
     type: ForcedAvatarType,
     size: number,
     hideVerifIcon?: boolean,
-    icProps?: AvatarIcProps
+    icProps?: AvatarIcProps,
+    borderColor?: string,
+    borderWidth?: number
 }) => {
     const theme = useTheme();
     let icSize = icProps?.size ?? Math.floor(size * 0.43);
@@ -67,13 +71,22 @@ export const ForcedAvatar = memo(({
     }
 
     return (
-        <PerfView
-            style={{
-                width: size, height: size, borderRadius: size / 2,
-                justifyContent: 'center', alignItems: 'center',
-            }}
-        >
-            {img}
+        <PerfView style={{
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            alignItems: 'center', justifyContent: 'center',
+        }}>
+            <PerfView
+                style={{
+                    width: size, height: size, borderRadius: size / 2,
+                    justifyContent: 'center', alignItems: 'center',
+                    borderColor, borderWidth,
+                    overflow: 'hidden'
+                }}
+            >
+                {img}
+            </PerfView>
             {verifIcon}
         </PerfView>
     );

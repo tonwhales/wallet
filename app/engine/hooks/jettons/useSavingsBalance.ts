@@ -1,6 +1,7 @@
 import { Address, fromNano, toNano } from "@ton/core";
 import { useAccountLite, useDisplayableJettons, useNetwork, usePrice } from "..";
 import { useSpecialJetton } from "./useSpecialJetton";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
 
 export function useSavingsBalance(addr: string | Address) {
     const { isTestnet } = useNetwork();
@@ -11,8 +12,9 @@ export function useSavingsBalance(addr: string | Address) {
     const specialJetton = useSpecialJetton(address);
     const accountLite = useAccountLite(address);
 
-    const tonBalance = accountLite?.balance ?? 0n;
-    
+    let totalBalance = 0;
+
+    // savings jettons balance
     const savingTotal = savings.reduce((acc, s) => {
         if (!s.price) {
             return acc;
@@ -20,28 +22,34 @@ export function useSavingsBalance(addr: string | Address) {
 
         try {
             const balance = BigInt(s.balance);
-            const price = s.price.prices?.usd ?? 0;
+            const price = s.price.prices?.['USD'] ?? 0;
             return acc + parseFloat(fromNano(balance)) * price;
         } catch {
             return acc;
         }
     }, 0);
-    const specialTotal = specialJetton?.balance ?? 0n;
+    totalBalance += savingTotal;
+    
+    // TON balance
+    const tonBalance = accountLite?.balance ?? 0n;
     let tonTotal = 0;
-
-    let totalBalance = 0;
     if (price?.price?.usd && tonBalance) {
         try {
             tonTotal = parseFloat(fromNano(tonBalance)) * price.price.usd;
             totalBalance += tonTotal;
         } catch { }
     }
-    totalBalance += savingTotal + parseFloat(fromNano(specialTotal));
+
+    // Special jetton balance
+    const specialTotal = specialJetton?.balance ?? 0n;
+    try {
+        totalBalance += parseFloat(fromBnWithDecimals(specialTotal, specialJetton?.decimals ?? 6))
+    } catch { }
 
     return {
-        totalBalance: toNano(totalBalance),
-        tonBalance: toNano(tonTotal),
-        savingTotal: toNano(savingTotal),
+        totalBalance: toNano(totalBalance.toFixed(9)),
+        tonBalance: toNano(tonTotal.toFixed(9)),
+        savingTotal: toNano(savingTotal.toFixed(9)),
         specialBalance: specialTotal
     };
 }

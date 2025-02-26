@@ -1,8 +1,8 @@
 import { useConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
 import { extensionKey } from "./useAddExtension";
 
-export function useRemoveConnectApp() {
-    const [, update] = useConnectExtensions();
+export function useRemoveConnectApp(address?: string) {
+    const [, update] = useConnectExtensions(address);
 
     return (url: string) => {
         update((doc) => {

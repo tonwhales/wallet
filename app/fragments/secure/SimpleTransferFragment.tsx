@@ -6,7 +6,7 @@ import Animated, { FadeOut, FadeIn, LinearTransition, Easing, FadeInUp, FadeOutD
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { resolveUrl } from '../../utils/resolveUrl';
+import { ResolvedTxUrl, resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AsyncLock } from 'teslabot';
@@ -18,7 +18,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -30,7 +30,7 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
-import { AddressInputState, TransferAddressInput } from '../../components/address/TransferAddressInput';
+import { TransferAddressInput } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
@@ -53,9 +53,9 @@ import { queryClient } from '../../engine/clients';
 import { Queries } from '../../engine/queries';
 import { HintsFull } from '../../engine/hooks/jettons/useHintsFull';
 import { PressableChip } from '../../components/PressableChip';
-import Clipboard from '@react-native-clipboard/clipboard';
-import { useAppFocusEffect } from '../../utils/useAppFocusEffect';
 import { AmountInput } from '../../components/input/AmountInput';
+import { TransportStatusError } from '@ledgerhq/hw-transport';
+import { AddressDomainInputRef, AddressInputState } from '../../components/address/AddressDomainInput';
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -116,7 +116,7 @@ const SimpleTransferComponent = () => {
         }
     );
 
-    const { target, input: addressDomainInput, domain } = addressDomainInputState;
+    const { target, domain } = addressDomainInputState;
 
     const [commentString, setComment] = useState(params?.comment || '');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
@@ -476,14 +476,19 @@ const SimpleTransferComponent = () => {
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
         let res = resolveUrl(src, network.isTestnet);
-        const validTransfer = res && (res.type === 'transaction' || res.type === 'jetton-transaction');
-        if (validTransfer) {
-            if (res.payload) {
+        if (!res) {
+            return;
+        }
+        const isTransferValid = res && (res.type === 'transaction' || res.type === 'jetton-transaction');
+
+        if (isTransferValid) {
+            const tx = res as ResolvedTxUrl;
+            if (tx.payload) {
                 navigation.goBack();
-                linkNavigator(res);
+                linkNavigator(tx);
             } else {
                 let mComment = commentString;
-                let mTarget = target;
+                let mTarget = null;
                 let mAmount = validAmount;
                 let mStateInit = stateInit;
                 let mJetton = selectedJetton;
@@ -494,38 +499,27 @@ const SimpleTransferComponent = () => {
                     mAmount = null;
                 }
 
-                if (res.address) {
-                    const bounceable = res.isBounceable ?? true;
-                    mTarget = res.address.toString({ testOnly: network.isTestnet, bounceable });
+                if (tx.address) {
+                    const bounceable = tx.isBounceable ?? true;
+                    mTarget = tx.address.toString({ testOnly: network.isTestnet, bounceable });
                 }
 
-                if (res.amount) {
-                    mAmount = res.amount;
+                if (tx.amount) {
+                    mAmount = tx.amount;
                 }
 
-                if (res.comment) {
-                    mComment = res.comment;
+                if (tx.comment) {
+                    mComment = tx.comment;
                 }
 
-                if (res.type === 'transaction' && res.stateInit) {
-                    mStateInit = res.stateInit;
+                if (tx.type === 'transaction' && tx.stateInit) {
+                    mStateInit = tx.stateInit;
                 } else {
                     mStateInit = null;
                 }
 
-                if (isLedger) {
-                    navigation.navigateLedgerTransfer({
-                        target: mTarget,
-                        comment: mComment,
-                        amount: mAmount,
-                        stateInit: mStateInit,
-                        jetton: mJetton,
-                    });
-                    return;
-                }
-
-                if (res.type === 'jetton-transaction' && res.jettonMaster) {
-                    mJetton = res.jettonMaster
+                if (tx.type === 'jetton-transaction' && tx.jettonMaster) {
+                    mJetton = tx.jettonMaster
                 }
 
                 navigation.navigateSimpleTransfer({
@@ -533,11 +527,11 @@ const SimpleTransferComponent = () => {
                     comment: mComment,
                     amount: mAmount,
                     stateInit: mStateInit,
-                    jetton: mJetton,
-                });
+                    jetton: mJetton
+                }, { ledger: isLedger, replace: true });
             }
         }
-    }, [commentString, target, validAmount, stateInit, selectedJetton]);
+    }, [commentString, validAmount, selectedJetton]);
 
     const onAddAll = useCallback(() => {
         const amount = jetton
@@ -554,7 +548,7 @@ const SimpleTransferComponent = () => {
     const hasParamsFilled = !!params.target && !!params.amount;
     const [selectedInput, setSelectedInput] = useState<number | null>(hasParamsFilled ? null : 0);
 
-    const addressRef = useRef<ATextInputRef>(null);
+    const addressRef = useRef<AddressDomainInputRef>(null);
     const amountRef = useRef<ATextInputRef>(null);
     const commentRef = useRef<ATextInputRef>(null);
     const scrollRef = useRef<ScrollView>(null);
@@ -569,12 +563,14 @@ const SimpleTransferComponent = () => {
         setJetton(null);
     }, []);
 
+    const [isVerifyingLedger, setVerifyingLedger] = useState(false);
+
     const doSend = useCallback(async () => {
-        let address: Address;
+        let targetAddress: Address;
 
         try {
             let parsed = Address.parseFriendly(target);
-            address = parsed.address;
+            targetAddress = parsed.address;
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
@@ -603,7 +599,7 @@ const SimpleTransferComponent = () => {
             return;
         }
 
-        if (address.equals(isLedger ? ledgerAddress! : contract.address)) {
+        if (targetAddress.equals(isLedger ? ledgerAddress! : contract.address)) {
             let allowSendingToYourself = await new Promise((resolve) => {
                 Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
                     {
@@ -661,10 +657,39 @@ const SimpleTransferComponent = () => {
         }
 
         if (isLedger) {
-            navigation.replace('LedgerSignTransfer', {
-                text: null,
-                order: order as LedgerOrder,
-            });
+            setVerifyingLedger(true);
+            try {
+                if (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport) {
+                    ledgerContext.onShowLedgerConnectionError();
+                    setVerifyingLedger(false);
+                    return;
+                }
+
+                const verificationResult = await ledgerContext.verifySelectedAddress(network.isTestnet);
+                const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
+
+                if (!isValid) {
+                    Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
+                    return;
+                }
+
+                navigation.replace('LedgerSignTransfer', {
+                    text: null,
+                    order: order as LedgerOrder,
+                });
+            } catch (e) {
+                const isCanceled = e instanceof TransportStatusError && (e as any).statusCode === 0x6985;
+                if (isCanceled) {
+                    setVerifyingLedger(false);
+                    return;
+                }
+                Alert.alert(
+                    t('hardwareWallet.verifyAddress.failed'),
+                    t('hardwareWallet.verifyAddress.failedMessage')
+                );
+            } finally {
+                setVerifyingLedger(false);
+            }
             return;
         }
 
@@ -686,11 +711,14 @@ const SimpleTransferComponent = () => {
         ledgerAddress,
         isLedger,
         balance,
-        supportsGaslessTransfer
+        supportsGaslessTransfer,
+        ledgerContext,
+        network,
+        address
     ]);
 
-    const onFocus = (index: number) => setSelectedInput(index);
-    const onSubmit = () => setSelectedInput(null);
+    const onInputFocus = useCallback((index: number) => { setSelectedInput(index) }, []);
+    const onInputSubmit = useCallback(() => setSelectedInput(null), []);
     const resetInput = () => {
         Keyboard.dismiss();
         setSelectedInput(null);
@@ -899,47 +927,14 @@ const SimpleTransferComponent = () => {
         }));
     });
 
-    const appFocusCallback = useCallback(async () => {
-        const clipboardText = (await Clipboard.getString()).trim();
-
-        if (!clipboardText) {
-            return;
-        }
-
-        switch (selectedInput) {
-            case 1:
-                try {
-                    const valid = clipboardText.replace(',', '.').replaceAll(' ', '');
-                    let value: bigint | null;
-
-                    // Manage jettons with decimals
-                    const decimals = jetton?.decimals ?? 9;
-                    if (jetton) {
-                        value = toBnWithDecimals(valid, decimals);
-                    } else {
-                        value = toNano(valid);
-                    }
-
-                    if (value) {
-                        const newAmount = formatInputAmount(fromBnWithDecimals(value, decimals), decimals);
-                        amountRef.current?.setText(newAmount);
-                    }
-                } catch { }
-                break;
-            case 2:
-                commentRef.current?.setText(clipboardText);
-                break;
-        }
-    }, [!!jetton, jetton?.decimals, selectedInput]);
-
-    useAppFocusEffect(appFocusCallback);
-
-    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo;
-    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading;
+    const continueDisabled = !order || gaslessConfigLoading || isJettonPayloadLoading || shouldChangeJetton || shouldAddMemo || isVerifyingLedger;
+    const continueLoading = gaslessConfigLoading || isJettonPayloadLoading || isVerifyingLedger;
 
     const onSearchItemSelected = useCallback((item: AddressSearchItem) => {
         scrollRef.current?.scrollTo({ y: 0 });
-        setComment(item.memo || '');
+        if (item.memo) {
+            setComment(item.memo);
+        }
     }, []);
 
     const backHandler = useCallback(() => {
@@ -951,9 +946,9 @@ const SimpleTransferComponent = () => {
     }, [selectedInput]);
 
     useEffect(() => {
-        const sub = BackHandler.addEventListener('hardwareBackPress', backHandler);
-        return () => sub.remove();
-    }, [selectedInput]);
+        BackHandler.addEventListener('hardwareBackPress', backHandler);
+        return () => BackHandler.removeEventListener('hardwareBackPress', backHandler);
+    }, [backHandler]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -989,24 +984,22 @@ const SimpleTransferComponent = () => {
                     onLayout={(e) => { setAddressInputHeight(e.nativeEvent.layout.height) }}
                 >
                     <TransferAddressInput
+                        index={0}
                         ref={addressRef}
                         acc={ledgerAddress ?? acc!.address}
-                        theme={theme}
-                        target={target}
-                        input={addressDomainInput}
+                        initTarget={params?.target || ''}
                         domain={domain}
-                        validAddress={targetAddressValid?.address}
                         isTestnet={network.isTestnet}
-                        index={0}
-                        onFocus={onFocus}
+                        onFocus={onInputFocus}
                         setAddressDomainInputState={setAddressDomainInputState}
-                        onSubmit={onSubmit}
+                        onSubmit={onInputSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
                         onSearchItemSelected={onSearchItemSelected}
                         knownWallets={knownWallets}
                         navigation={navigation}
                         autoFocus={selectedInput === 0}
+                        isLedger={isLedger}
                     />
                 </Animated.View>
                 {selected === 'address' && (
@@ -1040,7 +1033,7 @@ const SimpleTransferComponent = () => {
                                     alignItems: 'center',
                                     justifyContent: 'space-between'
                                 }}>
-                                    <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'hidden' }}>
+                                    <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
                                         <View style={{
                                             height: 46, width: 46,
                                             justifyContent: 'center', alignItems: 'center',
@@ -1063,7 +1056,11 @@ const SimpleTransferComponent = () => {
                                             )}
                                         </View>
                                         <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
-                                            <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                            <Text
+                                                style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                                numberOfLines={2}
+                                                ellipsizeMode={'tail'}
+                                            >
                                                 {symbol}
                                             </Text>
                                             {isSCAM && (
@@ -1112,7 +1109,7 @@ const SimpleTransferComponent = () => {
                             <AmountInput
                                 index={1}
                                 ref={amountRef}
-                                onFocus={() => onFocus(1)}
+                                onFocus={() => onInputFocus(1)}
                                 value={amount}
                                 onValueChange={(newVal) => {
                                     const formatted = formatInputAmount(newVal, jetton?.decimals ?? 9, { skipFormattingDecimals: true }, amount);
@@ -1187,7 +1184,7 @@ const SimpleTransferComponent = () => {
                                     value={commentString}
                                     index={2}
                                     ref={commentRef}
-                                    onFocus={onFocus}
+                                    onFocus={onInputFocus}
                                     onValueChange={setComment}
                                     placeholder={!!known ? t('transfer.commentRequired') : t('transfer.comment')}
                                     keyboardType={'default'}
@@ -1290,6 +1287,7 @@ const SimpleTransferComponent = () => {
                     : <RoundButton
                         disabled={continueDisabled}
                         loading={continueLoading}
+                        loadingStatus={isVerifyingLedger ? t('hardwareWallet.verifyAddress.verifying') : undefined}
                         title={t('common.continue')}
                         action={doSend}
                     />

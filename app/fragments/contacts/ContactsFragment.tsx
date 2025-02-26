@@ -7,7 +7,7 @@ import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useSelectedAccount, useTheme, useAccountTransactions, useNetwork } from '../../engine/hooks';
+import { useSelectedAccount, useTheme, useNetwork } from '../../engine/hooks';
 import { ScreenHeader, useScreenHeader } from "../../components/ScreenHeader";
 import { ContactTransactionView } from "../../components/Contacts/ContactTransactionView";
 import { useParams } from "../../utils/useParams";
@@ -16,6 +16,8 @@ import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { ATextInput } from "../../components/ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { Typography } from "../../components/styles";
+import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
+import { TonStoredTransaction, TransactionType } from "../../engine/types";
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-contacts-dark.webp'),
@@ -32,7 +34,7 @@ export const ContactsFragment = fragment(() => {
     const contacts = addressBook.contacts;
     const account = useSelectedAccount();
     const dimensions = useWindowDimensions();
-    const transactions = useAccountTransactions(account?.addressString ?? '').data ?? [];
+    const transactions = useAccountTransactionsV2(account?.addressString ?? '', undefined, { type: TransactionType.TON }).data ?? [];
     const knownWallets = KnownWallets(isTestnet);
 
     const [search, setSearch] = useState('');
@@ -40,7 +42,7 @@ export const ContactsFragment = fragment(() => {
     const transactionsAddresses = useMemo(() => {
         const addresses = new Set<string>();
         // first 10 transactions
-        transactions.slice(0, 10).forEach((t) => {
+        (transactions as TonStoredTransaction[]).map((t) => t.data).slice(0, 10).forEach((t) => {
             if (t && !!t.base.operation.address) {
                 addresses.add(t.base.operation.address);
             }

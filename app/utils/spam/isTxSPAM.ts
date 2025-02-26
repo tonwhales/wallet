@@ -1,10 +1,10 @@
 import { Address, Cell } from "@ton/core";
-import { TransactionDescription } from "../../engine/types";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { BigMath } from "../BigMath";
 import { SPAM_KEYWORDS_EN, SPAM_KEYWORDS_RU } from "./spamKeywords";
 import { JettonTransfer } from "../../engine/hooks/transactions/useJettonTransactions";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
+import { TonTransaction } from "../../engine/types";
 
 const triggerScore = 100;
 const enKeys = Object.entries(SPAM_KEYWORDS_EN);
@@ -104,7 +104,7 @@ export function isJettonTxSPAM(
 }
 
 export function isTxSPAM(
-    tx: TransactionDescription,
+    tx: TonTransaction,
     config: {
         knownWallets: { [key: string]: KnownWallet },
         isDenyAddress: (addressString?: string | null) => boolean,

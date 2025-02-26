@@ -25,7 +25,7 @@ enum AssetType {
 type SavingsItem = { type: AssetType.Jetton, description: string } & JettonFull
     | { type: AssetType.Special } | { type: AssetType.Ton };
 
-export const SavingsProduct = memo(({ address }: { address: Address }) => {
+export const SavingsProduct = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const savings = useDisplayableJettons(address.toString({ testOnly: isTestnet })).savings || [];
@@ -37,7 +37,8 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
             navigation.navigateJettonWallet({
                 owner: address.toString({ testOnly: isTestnet }),
                 master: h.jetton.address,
-                wallet: h.walletAddress.address
+                wallet: h.walletAddress.address,
+                isLedger
             });
         },
         forceBalance: true
@@ -54,6 +55,7 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                         jettonViewType={AssetViewType.Default}
                         selectParams={selectParams}
                         description={item.description}
+                        ledger={isLedger}
                     />
                 );
             case 'special':
@@ -62,6 +64,7 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                         theme={theme}
                         address={address}
                         testOnly={isTestnet}
+                        isLedger={isLedger}
                     />
                 );
             case 'ton':
@@ -70,6 +73,7 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                         theme={theme}
                         address={address}
                         testOnly={isTestnet}
+                        isLedger={isLedger}
                     />
                 );
         }
@@ -149,7 +153,7 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                 </View>
             </View>
         );
-    }, [theme.surfaceOnBg, theme.textPrimary, theme.textSecondary, theme.style]);
+    }, [theme.surfaceOnBg, theme.textPrimary, theme.textSecondary, theme.style, totalBalance]);
 
     if (savingsItems.length === 0) {
         return (
@@ -165,6 +169,7 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                         theme={theme}
                         address={address}
                         testOnly={isTestnet}
+                        isLedger={isLedger}
                     />
                 </View>
 
@@ -176,6 +181,7 @@ export const SavingsProduct = memo(({ address }: { address: Address }) => {
                         theme={theme}
                         address={address}
                         testOnly={isTestnet}
+                        isLedger={isLedger}
                     />
                 </View>
             </View>

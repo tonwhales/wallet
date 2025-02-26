@@ -3,7 +3,7 @@ import { PendingTransaction } from "../engine/state/pending";
 import { SimpleTransferParams } from "../fragments/secure/SimpleTransferFragment";
 import { TransferFragmentProps } from "../fragments/secure/TransferFragment";
 import { fromBnWithDecimals } from "./withDecimals";
-import { TransactionDescription } from "../engine/types";
+import { TonTransaction } from "../engine/types";
 
 export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
 
@@ -74,7 +74,7 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
 
 // Map transaction preview obj to transfer params for navigator
 export function previewToTransferParams(
-    tx: TransactionDescription,
+    tx: TonTransaction,
     isTestnet: boolean,
     bounceableFormat: boolean,
     isLedger: boolean,

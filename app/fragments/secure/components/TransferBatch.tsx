@@ -132,8 +132,8 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                     const temp = message.payload;
                     if (temp) {
                         const parsing = temp.beginParse();
-                        parsing.loadUint(32);
-                        parsing.loadUint(64);
+                        parsing.skip(32);
+                        parsing.skip(64);
                         jettonAmount = parsing.loadCoins();
                     }
                 }

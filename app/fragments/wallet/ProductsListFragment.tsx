@@ -74,6 +74,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                 renderItem: ({ item, index }: { item: PrePaidHoldersCard, index: number }) => {
                     return (
                         <HoldersPrepaidCard
+                            owner={Address.parse(addressStr)}
                             key={`${item.id}-${index}`}
                             card={item}
                             style={{ paddingVertical: 0 }}

@@ -230,6 +230,7 @@ export const BrowserSearch = memo(({
 
         if (!url) {
             toaster.show({ type: 'error', message: t('browser.search.invalidUrl'), marginBottom: Platform.select({ ios: bottomBarHeight + 16, android: 16 }) });
+            setLockSelection(false);
             return;
         }
 
@@ -239,7 +240,7 @@ export const BrowserSearch = memo(({
             if (currentSuggestions.length !== 0) {
                 url = currentSuggestions[0].url;
             } else {
-                setLockSelection(false)
+                setLockSelection(false);
                 toaster.show({
                     type: 'error', message: t('browser.search.urlNotReachable'), marginBottom: Platform.select({ ios: bottomBarHeight + 16, android: 16 })
                 });
@@ -287,6 +288,12 @@ export const BrowserSearch = memo(({
         };
     });
 
+    const onSubmit = useCallback(() => {
+        const encodedQuery = encodeURIComponent(search);
+        const baseUrl = searchEngine === 'google' ? 'https://www.google.com/search?q=' : 'https://duckduckgo.com/?q=';
+        onSearch(`${baseUrl}${encodedQuery}`);
+    }, [search, searchEngine]);
+
     return (
         <View style={{ marginBottom: 16 }}>
             <Animated.View style={[{
@@ -308,7 +315,7 @@ export const BrowserSearch = memo(({
                     style={{ marginHorizontal: 16, flex: 1 }}
                     onValueChange={onSetSearch}
                     editable={!lockSelection}
-                    onSubmit={() => onSearch(search)}
+                    onSubmit={onSubmit}
                     keyboardType={'web-search'}
                     inputMode={'search'}
                     textContentType={'URL'}

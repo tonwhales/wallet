@@ -1,71 +1,139 @@
-import React, { memo } from "react"
-import { Text, View } from "react-native"
-import { t } from "../../i18n/t";
+import React, { memo, useCallback } from "react"
+import { View } from "react-native"
 import { StakingProductComponent } from "./StakingProductComponent";
 import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
-import { useTheme } from "../../engine/hooks";
-import { Typography } from "../styles";
-import { TonProductComponent } from "./TonProductComponent";
-import { SpecialJettonProduct } from "./SpecialJettonProduct";
+import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions";
+import { SavingsProduct } from "./SavingsProduct";
+import { useBanners } from "../../engine/hooks/banners";
+import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
+import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited";
+import { HoldersBannerType } from "./ProductsComponent";
+import { ProductBanner } from "./ProductBanner";
+import { t } from "../../i18n/t";
+import { HoldersBanner } from "./HoldersBanner";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
+import { ProductAd } from "../../engine/api/fetchBanners";
+import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
+import { HoldersProductComponent } from "./HoldersProductComponent";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent";
 
 export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
     const theme = useTheme();
+    const navigation = useTypedNavigation();
     const address = Address.parse(addr);
+    const holdersAccounts = useHoldersAccounts(address).data;
+    const holdersAccStatus = useHoldersAccountStatus(address).data;
+    const banners = useBanners();
+    const url = holdersUrl(testOnly);
+    const isHoldersReady = useIsConnectAppReady(url);
+    const inviteCheck = useIsHoldersInvited(address, testOnly);
+    const ledgerContext = useLedgerTransport();
+
+    const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
+    const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
+    const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
+    const holderBannerContent = showHoldersBanner ? holdersBanner : null;
+
+    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+
+    const onHoldersPress = useCallback(() => {
+        if (needsEnrollment || !isHoldersReady) {
+            if (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport) {
+                ledgerContext.onShowLedgerConnectionError();
+                return;
+            }
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create }, isLedger: true }, testOnly);
+            return;
+        }
+        navigation.navigateHolders({ type: HoldersAppParamsType.Create }, testOnly, true);
+    }, [needsEnrollment, isHoldersReady, testOnly, ledgerContext]);
+
+    const onProductBannerPress = useCallback((product: ProductAd) => {
+        trackEvent(
+            MixpanelEvent.ProductBannerClick,
+            { product: product.id, address: addr },
+            testOnly
+        );
+
+        navigation.navigateDAppWebView({
+            url: product.url,
+            refId: product.id,
+            useMainButton: true,
+            useStatusBar: false,
+            useQueryAPI: true,
+            useToaster: true
+        });
+
+    }, [address, testOnly]);
 
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
                 <PendingTransactions address={address.toString({ testOnly })} />
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    marginTop: 16,
-                    paddingVertical: 12,
-                    paddingHorizontal: 16
-                }}>
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('common.products')}
-                    </Text>
-                </View>
 
-                <View style={{
-                    marginHorizontal: 16, marginBottom: 16,
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20
-                }}>
-                    <TonProductComponent
-                        key={'ton-native'}
-                        theme={theme}
-                        address={address}
-                        testOnly={testOnly}
-                        isLedger={true}
-                    />
+                {(!inviteCheck && !!banners?.product) && (
+                    <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
+                        <ProductBanner
+                            title={banners.product.title}
+                            subtitle={banners.product.description}
+                            onPress={() => onProductBannerPress(banners.product!)}
+                            illustration={{ uri: banners.product.image }}
+                            reverse
+                        />
+                    </View>
+                )}
 
-                    <SpecialJettonProduct
-                        key={'special-jettton'}
-                        theme={theme}
-                        address={address}
-                        testOnly={testOnly}
-                        divider={'top'}
-                        isLedger={true}
-                    />
-                </View>
+                {holderBannerContent && (
+                    holderBannerContent.type === 'built-in'
+                        ? (
+                            <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
+                                <ProductBanner
+                                    title={t('products.holders.card.defaultTitle')}
+                                    subtitle={t('products.holders.card.defaultSubtitle')}
+                                    onPress={onHoldersPress}
+                                    illustration={require('@assets/banners/banner-holders.webp')}
+                                    reverse
+                                />
+                            </View>
+                        ) : (
+                            <HoldersBanner
+                                onPress={onHoldersPress}
+                                address={address}
+                                {...holderBannerContent.banner}
+                            />
+                        )
+                )}
+
+                <HoldersProductComponent
+                    holdersAccStatus={holdersAccStatus}
+                    isLedger
+                />
+
+                <SavingsProduct
+                    address={address}
+                    isLedger
+                />
 
                 <View style={{ marginTop: 4 }}>
                     <StakingProductComponent
                         isLedger
-                        key={'pool'}
                         address={address}
                     />
                 </View>
                 <LedgerJettonsProductComponent
                     address={address}
                     testOnly={testOnly}
-                    key={'jettons'}
                 />
             </View>
+
+            <HoldersHiddenProductComponent
+                holdersAccStatus={holdersAccStatus}
+                isLedger
+            />
         </View>
     );
 });

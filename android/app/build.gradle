@@ -219,7 +219,6 @@ android {
 }
 
 dependencies {
-    // branch io
     implementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
     implementation "com.android.installreferrer:installreferrer:2.2"
     implementation project(':react-native-branch')
@@ -274,6 +273,14 @@ dependencies {
     implementation 'com.google.firebase:firebase-installations:17.0.0'
     implementation 'com.google.firebase:firebase-iid:21.1.0'
     implementation 'androidx.work:work-runtime-ktx:2.7.0'
-    implementation 'com.google.android.gms:play-services-tapandpay:+'
+    if (project.hasProperty("enableTapAndPay") && project.property("enableTapAndPay").toBoolean()) {
+        implementation 'com.google.android.gms:play-services-tapandpay:+'
+    }
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+}
+
+configurations.all {
+   resolutionStrategy {
+    force 'androidx.browser:browser:1.8.0'
+   }
 }

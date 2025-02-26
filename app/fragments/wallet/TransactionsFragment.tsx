@@ -5,9 +5,8 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
-import { useAccountTransactions } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
@@ -17,7 +16,10 @@ import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
 import { setStatusBarStyle } from "expo-status-bar";
 import { ThemeType } from "../../engine/state/theme";
-import { PendingTransactions } from "./views/PendingTransactions";
+import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
+import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
+import { useTransactionsFilter } from "../../engine/hooks/transactions/useTransactionsFilter";
+import { TransactionsHeader } from "./views/TransactionsHeader";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean, theme: ThemeType }) {
     const safeArea = useSafeAreaInsets();
@@ -25,7 +27,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
     const { isTestnet } = useNetwork();
     const address = props.account;
     const theme = props.theme;
-    const txs = useAccountTransactions(address.toString({ testOnly: isTestnet }), { refetchOnMount: true });
+    const [params] = useTransactionsFilter(address);
+    const txs = useAccountTransactionsV2(address.toString({ testOnly: isTestnet }), { refetchOnMount: true }, params);
+    const holdersAccStatus = useHoldersAccountStatus(address).data;
+    const showFilters = !!holdersAccStatus && holdersAccStatus.state === HoldersUserState.Ok && !!holdersAccStatus.token;
     const transactions = txs.data;
 
     const onReachedEnd = useCallback(() => {
@@ -53,14 +58,12 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                 loading={txs.loading}
                 ledger={props.isLedger}
                 theme={theme}
-                header={<PendingTransactions
-                    viewType={'history'}
-                    address={address.toString({ testOnly: isTestnet })}
-                />}
+                header={<TransactionsHeader showFilters={showFilters} address={address} />}
                 refresh={{
                     onRefresh,
                     refreshing: txs.refreshing
                 }}
+                holdersAccStatus={holdersAccStatus}
             />
         </View>
     );

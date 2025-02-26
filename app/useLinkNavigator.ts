@@ -7,17 +7,17 @@ import { useSelectedAccount } from './engine/hooks';
 import { InfiniteData, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { Address, Cell, fromNano, toNano } from '@ton/core';
 import { fetchAccountTransactions } from './engine/api/fetchAccountTransactions';
-import { contractMetadataQueryFn, jettonMasterContentQueryFn } from './engine/hooks/jettons/usePrefetchHints';
-import { getJettonMasterAddressFromMetadata, parseStoredMetadata } from './engine/hooks/transactions/useAccountTransactions';
+import { contractMetadataQueryFn, jettonMasterContentQueryFn } from './engine/hooks/jettons/jettonsBatcher';
+import { getJettonMasterAddressFromMetadata, parseStoredMetadata } from './engine/hooks/transactions/parseStoredMetadata';
 import { AppState, getAppState } from './storage/appState';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import { ToastDuration, Toaster, useToaster } from './components/toast/ToastProvider';
-import { jettonWalletAddressQueryFn, jettonWalletQueryFn } from './engine/hooks/jettons/usePrefetchHints';
+import { jettonWalletAddressQueryFn, jettonWalletQueryFn } from './engine/hooks/jettons/jettonsBatcher';
 import { useGlobalLoader } from './components/useGlobalLoader';
 import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
 import { createBackoff } from './utils/time';
 import { getQueryData } from './engine/utils/getQueryData';
-import { SelectedAccount, StoredTransaction } from './engine/types';
+import { AccountStoredTransaction, SelectedAccount, StoredTransaction, TonTransaction, TransactionType } from './engine/types';
 import { TonConnectAuthType } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { warn } from './utils/log';
 import { getFullConnectionsMap, getStoredConnectExtensions } from './engine/state/tonconnect';
@@ -284,68 +284,50 @@ async function resolveAndNavigateToTransaction(
         if (!!selected.addressString) {
             const isSelectedAddress = selected.address.equals(Address.parse(resolved.address));
             const queryCache = queryClient.getQueryCache();
-            let txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
-            let tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
+            const holdersStatusKey = Queries.Holders(resolved.address).Status();
+            const holdersStatusData = getQueryData<HoldersAccountStatus>(queryCache, holdersStatusKey);
 
-            if (!tx) {
-                // If transaction is not found in the list, invalidate the cache and try to fetch it again
+            const token = (
+                !!holdersStatusData &&
+                holdersStatusData.state === HoldersUserState.Ok
+            ) ? holdersStatusData.token : null;
+
+            let txsV2 = getQueryData<InfiniteData<AccountStoredTransaction[]>>(queryCache, Queries.TransactionsV2(resolved.address, !!token));
+            // let txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
+            let transaction = txsV2?.pages?.flat()?.find(tx => tx.type === TransactionType.TON && (tx.data.lt === lt && tx.data.hash === hash))?.data as TonTransaction | undefined
+
+            if (!transaction) {
                 await queryClient.invalidateQueries({
-                    queryKey: Queries.Transactions(resolved.address),
+                    queryKey: Queries.TransactionsV2(resolved.address, !!token),
                     refetchPage: (last, index, allPages) => index == 0,
                 });
 
-                txs = getQueryData<InfiniteData<StoredTransaction[]>>(queryCache, Queries.Transactions(resolved.address));
-                tx = txs?.pages?.flat()?.find(tx => (tx.lt === lt && tx.hash === hash));
+                txsV2 = getQueryData<InfiniteData<AccountStoredTransaction[]>>(queryCache, Queries.TransactionsV2(resolved.address, !!token));
+                transaction = txsV2?.pages?.flat()?.find(tx => tx.type === TransactionType.TON && (tx.data.lt === lt && tx.data.hash === hash))?.data as TonTransaction | undefined;
             }
 
             // If transaction is not found in the list, fetch it from the server
-            if (!tx) {
+            if (!transaction) {
                 // Try to fetch transaction from the server
                 const rawTxs = await infoBackoff('tx', async () => await fetchAccountTransactions(selected.addressString, isTestnet, { lt, hash }));;
-                if (rawTxs.length > 0) {
-                    tx = rawTxs[0];
+                if (rawTxs.length > 0 && !!rawTxs[0]) {
+                    const base = rawTxs[0];
+                    transaction = {
+                        id: `${base.lt}_${base.hash}`,
+                        base: base,
+                        outMessagesCount: base.outMessagesCount,
+                        outMessages: base.outMessages,
+                        lt: base.lt,
+                        hash: base.hash
+                    };
                 }
             }
 
-            if (!!tx) {
-                // Fetch metadata for all mentioned addresses
-                const metadatas = (await Promise.all(
-                    tx.parsed.mentioned.map(async (address) => {
-                        return await queryClient.fetchQuery({
-                            queryKey: Queries.ContractMetadata(address),
-                            queryFn: contractMetadataQueryFn(isTestnet, address),
-                        });
-                    })
-                ));
-
-                // Find metadata for the base address
-                const metadata = metadatas.find(m => m?.address === tx!.parsed.resolvedAddress) ?? null;
-                const parsedMetadata = metadata ? parseStoredMetadata(metadata) : null;
-                const jettonMaster = getJettonMasterAddressFromMetadata(metadata);
-                // Fetch jetton master content
-                const masterContent = jettonMaster
-                    ? await queryClient.fetchQuery({
-                        queryKey: Queries.Jettons().MasterContent(jettonMaster),
-                        queryFn: jettonMasterContentQueryFn(jettonMaster, isTestnet),
-                    })
-                    : null;
-
-                // Create tx param body
-                const transaction = {
-                    id: `${tx.lt}_${tx.hash}`,
-                    base: tx,
-                    icon: masterContent?.image?.preview256 ?? null,
-                    masterMetadata: masterContent,
-                    masterAddressStr: jettonMaster,
-                    metadata: parsedMetadata,
-                    verified: null,
-                    op: null,
-                    title: null
-                };
+            if (!!transaction) {
 
                 // If transaction is for the selected address, navigate to it
                 if (isSelectedAddress) {
-                    navigation.navigate('Transaction', { transaction });
+                    navigation.navigateTonTransaction(transaction);
                 } else { // If transaction is for another address, navigate to the address first
                     const appState = getAppState();
                     const address = Address.parse(resolved.address);

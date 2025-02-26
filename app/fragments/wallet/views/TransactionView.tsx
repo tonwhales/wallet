@@ -8,7 +8,6 @@ import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
-import { TransactionDescription } from '../../../engine/types';
 import { useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
@@ -27,15 +26,16 @@ import { useContractInfo } from '../../../engine/hooks/metadata/useContractInfo'
 import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
+import { TonTransaction } from '../../../engine/types';
+import { useLedgerTransport } from '../../ledger/components/TransportContext';
 
 export function TransactionView(props: {
     own: Address,
-    tx: TransactionDescription,
-    separator: boolean,
+    tx: TonTransaction,
     theme: ThemeType,
     navigation: TypedNavigation,
-    onPress: (src: TransactionDescription) => void,
-    onLongPress?: (src: TransactionDescription) => void,
+    onPress: (src: TonTransaction) => void,
+    onLongPress?: (src: TonTransaction) => void,
     ledger?: boolean,
     spamMinAmount: bigint,
     dontShowComments: boolean,
@@ -71,13 +71,16 @@ export function TransactionView(props: {
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet);
     const targetContract = useContractInfo(opAddress);
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddresses = ledgerContext?.wallets;
 
     const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
     const contact = contacts[parsedAddressFriendly];
-    const verified = !!tx.verified;
+    // const verified = !!tx.verified;
+    const verified = false;
 
     // Operation
     const op = useMemo(() => {
@@ -119,16 +122,28 @@ export function TransactionView(props: {
         if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
-    }, [targetContract, holdersOp]);
+
+        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+            try {
+                return Address.parse(opAddress)?.equals(Address.parse(addr.address));
+            } catch (error) {
+                return false;
+            }
+        });
+
+        if (isLedgerTarget) {
+            return 'ledger';
+        }
+    }, [targetContract, holdersOp, ledgerAddresses, opAddress]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
     if (knownWallets[parsedAddressFriendly]) {
         known = knownWallets[parsedAddressFriendly];
     }
-    if (tx.title) {
-        known = { name: tx.title };
-    }
+    // if (tx.title) {
+    //     known = { name: tx.title };
+    // }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }

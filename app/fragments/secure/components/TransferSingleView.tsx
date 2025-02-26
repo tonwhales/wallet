@@ -82,7 +82,7 @@ const TxAvatar = memo(({
             hash={hash}
             spam={spam}
             showSpambadge={showSpambadge}
-            borderWith={2}
+            borderWidth={2}
             borderColor={borderColor}
             backgroundColor={backgroundColor}
             markContact={markContact}
@@ -306,7 +306,6 @@ export const TransferSingleView = memo(({
 
         return null;
     }, [operation?.op]);
-
 
     const onSend = useCallback(async () => {
         if (!doSend) {

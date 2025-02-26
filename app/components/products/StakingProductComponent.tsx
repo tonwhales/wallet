@@ -1,8 +1,8 @@
 import React, { memo, ReactNode, useCallback, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
+import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
+import { useStakingActive, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -12,6 +12,7 @@ import { PriceComponent } from "../PriceComponent";
 import { Address } from "@ton/core";
 import { LiquidStakingPool } from "../staking/LiquidStakingPool";
 import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
+import { StakingProductBanner } from "./StakingProductBanner";
 
 import StakingIcon from '@assets/ic-staking.svg';
 
@@ -37,16 +38,6 @@ const icStyleInner: StyleProp<ViewStyle> = {
     alignItems: 'center', justifyContent: 'center'
 }
 
-const titleStyle: StyleProp<TextStyle> = {
-    fontSize: 17, fontWeight: '600',
-    lineHeight: 24
-}
-
-const subtitleStyle: StyleProp<TextStyle> = {
-    fontSize: 15, fontWeight: '400',
-    lineHeight: 20
-}
-
 export const StakingProductComponent = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -67,16 +58,9 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
     }, [active]);
     const liquidBalance = useLiquidStakingBalance(address);
 
-    const apy = useStakingApy()?.apy;
-    const apyWithFee = useMemo(() => {
-        if (!!apy) {
-            return (apy - apy * (5 / 100)).toFixed(2)
-        }
-    }, [apy]);
-
     const totalBalance = useMemo(() => {
         return liquidBalance + activeArray.reduce((acc, item) => {
-            return acc + item.balance;
+            return acc + (item?.balance || 0n);
         }, 0n);
     }, [active, liquidBalance]);
 
@@ -100,39 +84,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
 
         if (p.type === 'banner') {
             return (
-                <Pressable
-                    onPress={() => navigation.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools')}
-                    style={({ pressed }) => {
-                        return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
-                    }}
-                >
-                    <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
-                        <View style={icStyle}>
-                            <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
-                                <StakingIcon width={32} height={32} color={'white'} />
-                            </View>
-                        </View>
-                        <View style={{
-                            flexDirection: 'row',
-                            flexGrow: 1, flexShrink: 1, alignItems: 'center',
-                            justifyContent: 'space-between',
-                            overflow: 'hidden'
-                        }}>
-                            <View style={{ flexGrow: 1, flexShrink: 1 }}>
-                                <Text
-                                    style={{ color: theme.textPrimary, ...titleStyle }}
-                                    ellipsizeMode={'tail'}
-                                    numberOfLines={1}
-                                >
-                                    {t('products.staking.title')}
-                                </Text>
-                                <Text style={{ color: theme.textSecondary, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
-                                    {t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
-                </Pressable>
+                <StakingProductBanner isLedger={isLedger}/>
             );
         }
 
@@ -151,7 +103,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 isLedger={isLedger}
             />
         )
-    }, [theme, address, isLedger, apyWithFee]);
+    }, [theme, address, isLedger]);
 
     if (!address) {
         return null;

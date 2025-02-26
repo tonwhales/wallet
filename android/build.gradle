@@ -3,7 +3,7 @@
 buildscript {
     ext {
         buildToolsVersion = "35.0.0"
-        minSdkVersion = 24
+        minSdkVersion = 26
         compileSdkVersion = 35
         targetSdkVersion = 34
         ndkVersion = "26.1.10909125"
@@ -39,8 +39,11 @@ buildscript {
                 url "$rootDir/../node_modules/expo-camera/android/maven"
             }
             // Remember to include the following sdk to build project
-            maven {
-                url "file:${project.rootDir}/tapandpay_sdk/"
+            if (file("${project.rootDir}/tapandpay_sdk").exists()) {
+                ext.enableTapAndPay = true
+                maven {
+                    url "file:${project.rootDir}/tapandpay_sdk/"
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ import { BrowserBanner } from "./BrowserBanner";
 import { useSharedValue } from "react-native-reanimated";
 import { useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { warn } from "../../utils/log";
 
 export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] }) => {
     const dimensions = useWindowDimensions();
@@ -79,6 +80,12 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
         );
     }, [halfBoxDistance, boxWidth, theme, navigation, pan, banners.length]);
 
+    const onScrollToIndexFailed = useCallback(() => {
+        warn('Failed to scroll to index');
+        if (banners.length === 0) return;
+        scrollRef.current?.scrollToIndex({ index: 0, animated: false });
+    }, [banners.length]);
+
     return (
         <FlatList
             ref={scrollRef}
@@ -103,6 +110,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
                 isScrolling.current = false;
             }}
             onScrollEndDrag={() => isPressed.current = false}
+            onScrollToIndexFailed={onScrollToIndexFailed}
             contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
             snapToAlignment={'center'}
             keyExtractor={(item, index) => `banner-${index}-${item.id}`}

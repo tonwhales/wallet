@@ -19,7 +19,6 @@ import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
 import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
-import { TransactionDescription } from "../../engine/types";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -41,6 +40,7 @@ import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
 import { isTxSPAM } from "../../utils/spam/isTxSPAM";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
+import { TonTransaction } from "../../engine/types";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -52,6 +52,7 @@ const TransactionPreview = () => {
     const selected = useSelectedAccount()!;
     const toaster = useToaster();
     const ledgerContext = useLedgerTransport();
+    const ledgerAddresses = ledgerContext?.wallets;
     const appState = useAppState();
     const addressBook = useAddressBookContext();
     const [price, currency] = usePrice();
@@ -60,7 +61,7 @@ const TransactionPreview = () => {
     const [bounceableFormat] = useBounceableWalletFormat();
     const knownJettonMasters = useKnownJettons(isTestnet)?.masters ?? {};
 
-    const isLedger = route.name === 'LedgerTransactionPreview';
+    const isLedger = route.name === 'LedgerTransaction';
 
     const address = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr?.address) {
@@ -74,7 +75,7 @@ const TransactionPreview = () => {
         }
     }, [ledgerContext?.addr?.address, selected]);
 
-    const params = useParams<{ transaction: TransactionDescription }>();
+    const params = useParams<{ transaction: TonTransaction }>();
 
     const tx = params.transaction;
     const operation = tx.base.operation;
@@ -130,29 +131,23 @@ const TransactionPreview = () => {
     }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals]);
 
     let op: string;
-    if (tx.op) {
-        op = tx.op;
-        if (op === 'airdrop') {
-            op = t('tx.airdrop');
+
+    if (tx.base.parsed.kind === 'out') {
+        if (tx.base.parsed.status === 'pending') {
+            op = t('tx.sending');
+        } else {
+            op = t('tx.sent');
+        }
+    } else if (tx.base.parsed.kind === 'in') {
+        if (tx.base.outMessagesCount > 1) {
+            op = t('tx.batch');
+        } else if (tx.base.parsed.bounced) {
+            op = t('tx.bounced');
+        } else {
+            op = t('tx.received');
         }
     } else {
-        if (tx.base.parsed.kind === 'out') {
-            if (tx.base.parsed.status === 'pending') {
-                op = t('tx.sending');
-            } else {
-                op = t('tx.sent');
-            }
-        } else if (tx.base.parsed.kind === 'in') {
-            if (tx.base.outMessagesCount > 1) {
-                op = t('tx.batch');
-            } else if (tx.base.parsed.bounced) {
-                op = t('tx.bounced');
-            } else {
-                op = t('tx.received');
-            }
-        } else {
-            throw Error('Unknown kind');
-        }
+        throw Error('Unknown kind');
     }
 
     const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
@@ -161,7 +156,19 @@ const TransactionPreview = () => {
         } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
-    }, [targetContract]);
+
+        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+            try {
+                return Address.parse(opAddress)?.equals(Address.parse(addr.address));
+            } catch (error) {
+                return false;
+            }
+        });
+
+        if (isLedgerTarget) {
+            return 'ledger';
+        }
+    }, [targetContract, ledgerAddresses, opAddress]);
 
     const holdersOp = useMemo<null | HoldersOp>(
         () => {
@@ -199,7 +206,6 @@ const TransactionPreview = () => {
         known = { name: opAddressWalletSettings.name }
     }
 
-    const verified = !!tx.verified;
     const config = useServerConfig().data;
     const spam = isTxSPAM(
         tx,
@@ -312,6 +318,8 @@ const TransactionPreview = () => {
                                 position: 'bottom',
                                 size: 28
                             }}
+                            borderWidth={2.5}
+                            borderColor={theme.surfaceOnBg}
                         />
                     ) : (
                         tx.base.outMessagesCount > 1 ? (
@@ -343,8 +351,7 @@ const TransactionPreview = () => {
                                 address={opAddressBounceable}
                                 spam={spam}
                                 showSpambadge
-                                verified={verified}
-                                borderWith={2.5}
+                                borderWidth={2.5}
                                 borderColor={theme.surfaceOnElevation}
                                 backgroundColor={avatarColor}
                                 markContact={!!contact}
@@ -364,7 +371,7 @@ const TransactionPreview = () => {
                         style={[
                             {
                                 color: theme.textPrimary,
-                                paddingTop: (spam || !!contact || verified || isOwn || !!knownWallets[opAddressBounceable]) ? 16 : 8,
+                                paddingTop: (spam || !!contact || isOwn || !!knownWallets[opAddressBounceable]) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}

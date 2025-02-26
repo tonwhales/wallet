@@ -98,8 +98,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
     );
 
-
-
     const safelyOpenUrl = useCallback((url: string) => {
         try {
             const scheme = new URL(url).protocol.replace(':', '');
@@ -578,6 +576,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         />
                     )
                 }}
+                setSupportMultipleWindows={false}
             />
             <KeyboardAvoidingView
                 style={{ position: 'absolute', bottom: safeArea.bottom, left: 0, right: 0 }}

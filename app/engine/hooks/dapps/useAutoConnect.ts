@@ -5,9 +5,9 @@ import { useConnectApp } from "./useConnectApp";
 import { ConnectEventError, TonConnectBridgeType } from '../../tonconnect/types';
 import { tonConnectDeviceInfo } from '../../tonconnect/config';
 
-export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
-    const getConnections = useAppConnections();
-    const connectApp = useConnectApp();
+export function useAutoConnect(address?: string): (endpoint: string) => Promise<ConnectEvent> {
+    const getConnections = useAppConnections(address);
+    const connectApp = useConnectApp(address);
     return async (endpoint: string) => {
         try {
             const app = connectApp(endpoint);

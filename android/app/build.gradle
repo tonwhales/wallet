@@ -221,7 +221,6 @@ android {
 dependencies {
     implementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
     implementation "com.android.installreferrer:installreferrer:2.2"
-    implementation project(':react-native-branch')
 
     constraints {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {

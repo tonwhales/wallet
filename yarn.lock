@@ -11652,23 +11652,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lottie-react-native@npm:7.0.0":
-  version: 7.0.0
-  resolution: "lottie-react-native@npm:7.0.0"
+"lottie-react-native@npm:^7.2.2":
+  version: 7.2.2
+  resolution: "lottie-react-native@npm:7.2.2"
   peerDependencies:
-    "@dotlottie/react-player": ^1.6.1
-    "@lottiefiles/react-lottie-player": ^3.5.3
+    "@lottiefiles/dotlottie-react": ^0.6.5
     react: "*"
     react-native: ">=0.46"
     react-native-windows: ">=0.63.x"
   peerDependenciesMeta:
-    "@dotlottie/react-player":
-      optional: true
-    "@lottiefiles/react-lottie-player":
+    "@lottiefiles/dotlottie-react":
       optional: true
     react-native-windows:
       optional: true
-  checksum: 10c0/f3f5562d231bae8aa66a69af857b1664f913b6d404a2fb4c98722cd036d1121be9cb3f96e5ab8ec0d16b8d2a2ec067f43261d60b7dd96f4e117cf36c728db621
+  checksum: 10c0/d0ee7c6ed639ad1b5cfe04dd3b704f3f968806c59a6361986fbb22ebd1b332d9cb13ee7d78ed49848f8d416d468ae2fdc9077815280023dac0b66e841b5ce840
   languageName: node
   linkType: hard
 
@@ -14268,16 +14265,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-webview@npm:13.12.2":
-  version: 13.12.2
-  resolution: "react-native-webview@npm:13.12.2"
+"react-native-webview@npm:^13.13.2":
+  version: 13.13.2
+  resolution: "react-native-webview@npm:13.13.2"
   dependencies:
     escape-string-regexp: "npm:^4.0.0"
     invariant: "npm:2.2.4"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/f10921205b6c140bc87f7fbc65547243598653bd37c5aded2c17414774fb4ba4bbf23a5c13bf9180ccecd78c5f581aaa5a97127754bb6cc603611bea5744db79
+  checksum: 10c0/b1a6f609a4be496b2cc5d871fe0b9e65ab3912232f284818ee0a1bd82807af8800911f583719e4ede8d7ee9f42cd92ec0544e32625ba404a4f009d21d83c80c1
   languageName: node
   linkType: hard
 
@@ -17193,7 +17190,7 @@ __metadata:
     is-valid-domain: "npm:^0.1.6"
     jest: "npm:^29.2.1"
     libphonenumber-js: "npm:^1.10.13"
-    lottie-react-native: "npm:7.0.0"
+    lottie-react-native: "npm:^7.2.2"
     mixpanel-react-native: "npm:^3.0.8"
     murmurhash: "npm:^2.0.0"
     number-to-bn: "npm:^1.7.0"
@@ -17243,7 +17240,7 @@ __metadata:
     react-native-typography: "npm:^1.4.1"
     react-native-url-polyfill: "npm:^1.3.0"
     react-native-view-shot: "npm:^3.8.0"
-    react-native-webview: "npm:13.12.2"
+    react-native-webview: "npm:^13.13.2"
     react-navigation: "npm:^5.0.0"
     recoil: "npm:^0.7.7"
     rxjs: "npm:^7.5.7"

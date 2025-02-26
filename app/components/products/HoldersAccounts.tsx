@@ -131,6 +131,23 @@ export const HoldersAccounts = memo(({
         );
     }, [totalBalance, theme]);
 
+    const renderItem = useCallback((item: GeneralHoldersAccount, index: number) => {
+        return (
+            <HoldersAccountItem
+                owner={owner}
+                key={`card-${index}`}
+                account={item}
+                rightActionIcon={hideIcon}
+                rightAction={rightAction}
+                isTestnet={isTestnet}
+                holdersAccStatus={holdersAccStatus}
+                hideCardsIfEmpty
+                content={{ type: HoldersItemContentType.BALANCE }}
+                isLedger={isLedger}
+            />
+        )
+    }, [rightAction, owner, isTestnet, holdersAccStatus, isLedger]);
+
     if (accs.length === 0) {
         return null;
     }
@@ -142,22 +159,7 @@ export const HoldersAccounts = memo(({
             items={accs.map((item) => {
                 return { ...item, height: item.cards.length > 0 ? 122 : 86 }
             })}
-            renderItem={(item, index) => {
-                return (
-                    <HoldersAccountItem
-                        owner={owner}
-                        key={`card-${index}`}
-                        account={item}
-                        rightActionIcon={hideIcon}
-                        rightAction={rightAction}
-                        isTestnet={isTestnet}
-                        holdersAccStatus={holdersAccStatus}
-                        hideCardsIfEmpty
-                        content={{ type: HoldersItemContentType.BALANCE }}
-                        isLedger={isLedger}
-                    />
-                )
-            }}
+            renderItem={renderItem}
             renderFace={renderFace}
             itemHeight={122}
             theme={theme}

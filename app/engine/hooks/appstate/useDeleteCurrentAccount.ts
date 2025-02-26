@@ -1,3 +1,4 @@
+import WebView from "react-native-webview";
 import { mixpanelFlush, mixpanelReset } from "../../../analytics/mixpanel";
 import { getAppState } from "../../../storage/appState";
 import { BiometricsState, PasscodeState } from '../../../storage/secureStorage';
@@ -10,6 +11,9 @@ import { useNetwork } from "../network";
 import { useSetAppState } from "./useSetAppState";
 import { useSetBiometricsState } from './useSetBiometricsState';
 import { useSetPasscodeState } from './useSetPasscodeState';
+import { NativeModules, Platform } from "react-native";
+
+const { WebViewCacheModule } = NativeModules;
 
 export function useDeleteCurrentAccount() {
     const { isTestnet } = useNetwork();
@@ -49,6 +53,9 @@ export function useDeleteCurrentAccount() {
             // clear all storage including app key and go to welcome screen
             storagePersistence.clearAll();
             storage.clearAll();
+            if (Platform.OS === 'android') {
+                WebViewCacheModule.clearCache();
+            }
 
             // Reset biometrics state to defaults
             setAppState({ addresses: [], selected: -1 }, isTestnet);

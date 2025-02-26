@@ -9,6 +9,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme, useThemeStyle } from "../engine/hooks";
 import { ThemeStyle } from "../engine/state/theme";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { changeNavBarColor } from "../modules/NavBar";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -21,6 +23,10 @@ export const ThemeFragment = fragment(() => {
     const { onPressIn: onPressInSystem, onPressOut: onPressOutSystem, animatedStyle: animatedStyleSystem } = useAnimatedPressedInOut();
     const { onPressIn: onPressInLight, onPressOut: onPressOutLight, animatedStyle: animatedStyleLight } = useAnimatedPressedInOut();
     const { onPressIn: onPressInDark, onPressOut: onPressOutDark, animatedStyle: animatedStyleDark } = useAnimatedPressedInOut();
+
+    useEffect(() => {
+        changeNavBarColor(theme.surfaceOnBg, undefined, true);
+    }, [theme.surfaceOnBg])
 
     return (
         <View>

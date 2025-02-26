@@ -41,16 +41,6 @@ class MainActivity : ReactActivity() {
             ){})
     }
 
-    override fun onStart() {
-        super.onStart()
-        RNBranchModule.initSession(intent.data, this)
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        RNBranchModule.onNewIntent(intent!!)
-    }
-
     /**
      * Align the back button behavior with Android S
      * where moving root activities to background instead of finishing activities.

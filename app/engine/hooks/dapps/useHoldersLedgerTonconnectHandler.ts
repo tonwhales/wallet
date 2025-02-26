@@ -6,8 +6,9 @@ import { Address, Cell } from "@ton/core";
 import { parseAnyStringAddress } from "../../../utils/parseAnyStringAddress";
 import { useNetwork } from "..";
 import { createUnsafeLedgerOrder } from "../../../fragments/secure/ops/Order";
+import { validateLedgerJettonTransfer } from "../../../utils/holders/validateLedgerJettonTransfer";
 
-export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: string): (id: string, params: SignRawParams, callback: (response: WalletResponse<T>) => void, domain: string) => void {
+export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(): (id: string, params: SignRawParams, callback: (response: WalletResponse<T>) => void, domain: string) => void {
     const ledgerContext = useLedgerTransport();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
@@ -29,7 +30,7 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
         if (params.messages.length === 0 || params.messages.length > 1) {
             callback({
                 error: {
-                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                    code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
                     message: 'Invalid messages count',
                 },
                 id
@@ -38,8 +39,6 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
         }
 
         const msg = params.messages[0];
-        const payload = msg.payload ? Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] : null
-        const stateInit = msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null
 
         let target: {
             isBounceable: boolean;
@@ -52,7 +51,7 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
         } catch {
             callback({
                 error: {
-                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_APP_ERROR,
+                    code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
                     message: 'Invalid address',
                 },
                 id
@@ -60,7 +59,11 @@ export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(address: 
             return;
         }
 
-        const order = createUnsafeLedgerOrder(msg);
+        let order = validateLedgerJettonTransfer(msg);
+
+        if (!order) {
+            order = createUnsafeLedgerOrder(msg);
+        }
 
         const resCallback: ((ok: boolean, result: Cell | null) => void) = (ok, result) => {
             if (ok) {

@@ -26,7 +26,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
     const onDisconnect = useDisconnectApp(address);
     
     const account = address ?? getCurrentAddress().addressString;
-    const handleLedgerRequest = useHoldersLedgerTonconnectHandler(account);
+    const handleLedgerRequest = useHoldersLedgerTonconnectHandler();
 
     const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
     const [requestId, setRequestId] = useState(0);

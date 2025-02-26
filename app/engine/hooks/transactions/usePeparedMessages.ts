@@ -61,8 +61,8 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean)
                         const temp = bodyCell;
                         if (temp) {
                             const parsing = temp.beginParse();
-                            parsing.loadUint(32);
-                            parsing.loadUintBig(64);
+                            parsing.skip(32);
+                            parsing.skip(64);
                             jettonAmount = parsing.loadCoins();
                         }
                     }

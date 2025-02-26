@@ -307,7 +307,6 @@ export const TransferSingleView = memo(({
         return null;
     }, [operation?.op]);
 
-
     const onSend = useCallback(async () => {
         if (!doSend) {
             return;

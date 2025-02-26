@@ -6,19 +6,18 @@ import { fragment } from '../../fragment';
 import { storagePersistence, storageQuery } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useMemo } from 'react';
-import { useTheme } from '../../engine/hooks';
+import { useCallback } from 'react';
+import { useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
-import { getCurrentAddress } from '../../storage/appState';
+import { AppState, getAppState, setAppState } from '../../storage/appState';
 import { useClearHolders } from '../../engine/hooks';
 import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
@@ -30,19 +29,8 @@ import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
-import { AccountKeyParam, fetchUserToken } from '../../engine/api/holders/fetchUserToken';
-import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
-import { holdersUrl } from '../../engine/api/holders/fetchUserState';
-import { extractDomain } from '../../engine/utils/extractDomain';
-import { Address, beginCell, storeStateInit } from '@ton/core';
-import { WalletVersions } from '../../engine/types';
+import { Address } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { AppManifest } from '../../engine/api/fetchManifest';
-import { getAppManifest } from '../../engine/getters/getAppManifest';
-import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
-import { getTimeSec } from '../../utils/getTimeSec';
-import { setHoldersToken } from '../../engine/hooks/holders/useHoldersAccountStatus';
-import { onHoldersEnroll } from '../../engine/effects/onHoldersEnroll';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -53,11 +41,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const countryCodes = getCountryCodes();
     const setHiddenBanners = useSetHiddenBanners();
-
     const ledgerContext = useLedgerTransport();
-
-    const acc = useMemo(() => getCurrentAddress(), []);
-
+    const acc = useSelectedAccount()!;
     const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
 
@@ -79,9 +64,34 @@ export const DeveloperToolsFragment = fragment(() => {
         }
         IosWalletService.setCredentialsInGroupUserDefaults({});
         reboot();
-    }, [isTestnet, clearHolders, setHiddenBanners]);
+    }, [isTestnet, clearHolders, setHiddenBanners, ledgerContext.wallets]);
 
-    const switchNetwork = useCallback(() => {
+    const onSwitchNetwork = async () => {
+        const storedAppState = getAppState();
+        const newAppState: AppState = {
+            ...storedAppState,
+            addresses: await Promise.all(
+                storedAppState.addresses.map(async (address) => {
+                    const publicKey = address.publicKey
+                    // to get the contract address for w5 wallet with correct network
+                    const contract = await contractFromPublicKey(publicKey, address.version, !isTestnet);
+
+                    return {
+                        address: contract.address,
+                        publicKey,
+                        secretKeyEnc: address.secretKeyEnc,
+                        utilityKey: address.utilityKey,
+                        addressString: contract.address.toString({ testOnly: !isTestnet }),
+                        version: address.version,
+                    }
+                })
+            )
+        };
+        setAppState(newAppState, !isTestnet);
+        setNetwork(isTestnet ? 'mainnet' : 'testnet');
+    }
+
+    const switchNetworkAlert = () => {
         Alert.alert(
             t('devTools.switchNetworkAlertTitle', { network: isTestnet ? 'Mainnet' : 'Testnet' }),
             t('devTools.switchNetworkAlertMessage'),
@@ -92,11 +102,11 @@ export const DeveloperToolsFragment = fragment(() => {
                 },
                 {
                     text: t('devTools.switchNetworkAlertAction'),
-                    onPress: () => setNetwork(isTestnet ? 'mainnet' : 'testnet'),
+                    onPress: onSwitchNetwork,
                 }
             ]
         );
-    }, [isTestnet]);
+    };
 
     const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
@@ -173,17 +183,9 @@ export const DeveloperToolsFragment = fragment(() => {
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                         </View>
-
-                        {!(
-                            Application.applicationId === 'com.tonhub.app.testnet' ||
-                            Application.applicationId === 'com.tonhub.app.debug.testnet' ||
-                            Application.applicationId === 'com.tonhub.wallet.testnet' ||
-                            Application.applicationId === 'com.tonhub.wallet.testnet.debug'
-                        ) && (
-                                <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                    <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
-                                </View>
-                            )}
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetworkAlert} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
+                        </View>
                     </View>
                     <View style={{
                         backgroundColor: theme.border,

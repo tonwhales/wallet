@@ -1,8 +1,9 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { Address } from "@ton/core";
 import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputActionType } from "./AddressDomainInput";
+import { AddressInputAction } from "../../fragments/secure/SimpleTransferFragment";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { useAppState, useBounceableWalletFormat, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
@@ -35,38 +36,45 @@ type TransferAddressInputProps = {
     onSearchItemSelected: (item: AddressSearchItem) => void,
     knownWallets: { [key: string]: KnownWallet },
     navigation: TypedNavigation,
-    setAddressDomainInputState: (state: AddressInputState) => void,
+    addressDomainInputState: AddressInputState,
+    addressDomainInputAction: React.Dispatch<AddressInputAction>,
     autoFocus?: boolean,
     isLedger?: boolean
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const { acc: account, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger } = props;
+    const { 
+        acc: account,
+        isTestnet,
+        index,
+        initTarget,
+        onFocus,
+        onSubmit,
+        onQRCodeRead,
+        isSelected,
+        onSearchItemSelected,
+        knownWallets,
+        navigation,
+        addressDomainInputState,
+        addressDomainInputAction,
+        autoFocus,
+        isLedger } = props;
+
     const theme = useTheme();
 
-    const [state, setState] = useState<AddressInputState>({
-        input: initTarget,
-        target: initTarget,
-        suffix: '',
-        domain: undefined
-    });
-
-    useEffect(() => {
-        setAddressDomainInputState(state);
-    }, [state]);
+    const { input: query, target, input } = addressDomainInputState;
 
     const [validAddress, isInvalid] = useMemo(() => {
-        if (state.target.length < 48) {
+        if (target.length < 48) {
             return [null, false];
         }
         try {
-            return [Address.parse(state.target), false]
+            return [Address.parse(target), false]
         } catch {
             return [null, true];
         }
-    }, [state.target]);
+    }, [target]);
 
-    const { input: query, target } = state;
     const isKnown: boolean = !!knownWallets[initTarget];
     const addressBookContext = useAddressBookContext();
     const contact = addressBookContext.asContact(initTarget);
@@ -145,7 +153,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
         const suff = friendly.slice(0, 4) + '...' + friendly.slice(friendly.length - 4);
 
-        (ref as RefObject<AddressDomainInputRef> | undefined)?.current?.inputAction({
+        addressDomainInputAction({
             type: InputActionType.InputTarget,
             input: name.trim(),
             target: friendly,
@@ -169,6 +177,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         padding: 20,
                         width: '100%', borderRadius: 20,
                         flexDirection: 'row', alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 12
                     }}
                     onPress={select}
                 >
@@ -184,15 +194,22 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         knownWallets={knownWallets}
                         forceAvatar={!!isTargetHolders ? 'holders' : undefined}
                     />
-                    <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
+                    <View style={{ flexGrow: 1 }}>
                         <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                             {t('common.recipient')}
                         </PerfText>
-                        <PerfText style={[{ color: theme.textPrimary, marginTop: 2 }, Typography.regular17_24]}>
+                        <PerfText style={[{ 
+                                color: input !== target ? theme.textSecondary : theme.textPrimary,
+                                marginTop: 2,
+                                marginRight: 56 
+                            }, Typography.regular17_24
+                            ]}
+                        >
+                            {(input !== target) && <PerfText style={[{ color: theme.textPrimary}, Typography.regular17_24]}>{input}{' '}</PerfText>}
                             {target.slice(0, 4) + '...' + target.slice(-4)}
                         </PerfText>
                     </View>
-                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                    <IcChevron style={{ height: 12, width: 12, position: 'absolute', right: 25}} height={12} width={12} />
                 </Pressable>
             </View>
             <View
@@ -202,9 +219,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             ios: { width: 0, height: 0, opacity: 0 },
                             android: { height: 1, opacity: 0 } // to account for wierd android behavior (not focusing on input when it's height/width is 0)
                         })
-                        : { height: 'auto', width: '100%', opacity: 1 }
+                        : { opacity: 1 }
                 }
-                pointerEvents={isSelected ? undefined : 'none'}
             >
                 <View
                     style={{
@@ -213,7 +229,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         paddingHorizontal: 20,
                         width: '100%', borderRadius: 20,
                         flexDirection: 'row', alignItems: 'center',
-                        gap: 16
+                        gap: 12
                     }}
                 >
                     <View style={{ height: '100%' }}>
@@ -231,10 +247,10 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         />
                     </View>
                     <AddressDomainInput
-                        onStateChange={setState}
+                        addressDomainInputState={addressDomainInputState}
+                        addressDomainInputAction={addressDomainInputAction}
                         index={index}
                         ref={ref}
-                        initTarget={initTarget}
                         autoFocus={autoFocus}
                         onFocus={onFocusCallback}
                         isKnown={isKnown}

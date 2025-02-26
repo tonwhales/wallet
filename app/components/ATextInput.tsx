@@ -123,6 +123,7 @@ export interface ATextInputProps {
     screenWidth?: number,
     inputMode?: InputModeOptions,
     cursorColor?: string,
+    scrollEnabled?: boolean,
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
@@ -140,11 +141,13 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
             props.onFocus(props.index);
         }
     }, [props.index, props.onFocus]);
+
     const onSubmit = useCallback(() => {
         if (props.onSubmit && typeof props.index === 'number') {
             props.onSubmit(props.index);
         }
     }, [props.index, props.onSubmit]);
+    
     const onBlur = useCallback(() => {
         setFocused(false);
         if (props.onBlur && typeof props.index === 'number') {
@@ -181,15 +184,9 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
             transform: [
                 { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
                 { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -xTranslate]) },
-                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
+                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -23]) },
             ],
             opacity: interpolate(valueNotEmptyShared.value, [0, 0.5, 1], [1, 0.1, 1]),
-        }
-    });
-
-    const labelShiftStyle = useAnimatedStyle(() => {
-        return {
-            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * 10]),
         }
     });
 
@@ -200,171 +197,164 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
     });
 
     useEffect(() => {
-        cancelAnimation(valueNotEmptyShared);
-        if (withLabel) {
-            valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 100 });
+        if (valueNotEmptyShared.value !== (valueNotEmpty ? 1 : 0)) {
+            cancelAnimation(valueNotEmptyShared);
+            if (withLabel) {
+                valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 100 });
+            }
         }
     }, [withLabel, valueNotEmpty]);
 
     return (
         <>
-            <TouchableWithoutFeedback
-                style={{ position: 'relative' }}
-                onPress={() => {
-                    if (!focused) {
-                        tref.current?.focus();
-                        return;
-                    }
-                }}
-            >
-                <Animated.View style={{
+            <View
+                style={{
                     flexDirection: 'row',
                     alignItems: 'center',
                     position: 'relative',
                     minHeight: 26
                 }}>
-                    {withLabel && (
-                        <View style={[
-                            { position: 'absolute', top: 0, right: 0, left: 0, paddingHorizontal: 16 },
-                            props.labelStyle
-                        ]}>
-                            <Animated.View style={labelAnimStyle}>
+                {withLabel && (
+                    <View style={[
+                        { position: 'absolute', top: 0, right: 0, left: 0, paddingHorizontal: 16 },
+                        props.labelStyle
+                    ]}>
+                        <Animated.View style={labelAnimStyle}>
+                            <Text
+                                numberOfLines={1}
+                                onTextLayout={(e) => {
+                                    if (e.nativeEvent.lines.length <= 1) {
+                                        labelHeightCoeff.value = 1;
+                                        return;
+                                    }
+                                    labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
+                                }}
+                                style={[
+                                    { color: theme.textSecondary },
+                                    Typography.regular17_24,
+                                    props.labelTextStyle
+                                ]}
+                            >
+                                {props.label}
+                            </Text>
+                        </Animated.View>
+                    </View>
+                )}
+                <View style={[{ flexDirection: 'row', alignItems: 'center' }, props.style]}>
+                    <View style={{ width: '100%', flex: 1 }}>
+                        <View
+                            style={{ flexDirection: 'row', alignItems: 'center' }}
+                            ref={props.innerRef}
+                        >
+                            <TextInput
+                                ref={tref}
+                                hitSlop={16}
+                                style={[
+                                    {
+                                        color: theme.textPrimary,
+                                        fontSize: props.fontSize !== undefined ? props.fontSize : 17,
+                                        lineHeight: props.lineHeight !== undefined ? props.lineHeight : undefined,
+                                        fontWeight: props.fontWeight ? props.fontWeight : '400',
+                                        textAlignVertical: props.textAlignVertical
+                                            ? props.textAlignVertical
+                                            : props.multiline
+                                                ? 'top'
+                                                : 'center',
+                                        marginHorizontal: 0, marginVertical: 0,
+                                        paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                        paddingLeft: 0, paddingRight: 0,
+                                        flexGrow: props.inputSuffix ? 0 : 1
+                                    },
+                                    props.inputStyle
+                                ]}
+                                selectionColor={Platform.select({
+                                    ios: theme.accent,
+                                    android: props.cursorColor ?? 'rgba(0, 0, 0, 0.3)',
+                                })}
+                                cursorColor={props.cursorColor ?? theme.textPrimary}
+                                textAlign={props.textAlign}
+                                autoFocus={props.autoFocus}
+                                placeholderTextColor={theme.textSecondary}
+                                autoCapitalize={props.autoCapitalize}
+                                placeholder={props.label ? undefined : props.placeholder}
+                                autoCorrect={props.autoCorrect}
+                                keyboardType={props.keyboardType}
+                                returnKeyType={props.returnKeyType}
+                                autoComplete={props.autoComplete}
+                                multiline={props.multiline}
+                                enabled={props.enabled}
+                                blurOnSubmit={props.blurOnSubmit}
+                                editable={props.editable}
+                                value={props.value}
+                                onChangeText={props.onValueChange}
+                                textContentType={props.textContentType}
+                                onFocus={onFocus}
+                                onBlur={onBlur}
+                                onSubmitEditing={onSubmit}
+                                maxLength={props.maxLength}
+                                inputMode={props.inputMode}
+                                scrollEnabled={props.scrollEnabled ?? true}
+                            />
+                            {props.inputSuffix && (
                                 <Text
                                     numberOfLines={1}
-                                    onTextLayout={(e) => {
-                                        if (e.nativeEvent.lines.length <= 1) {
-                                            labelHeightCoeff.value = 1;
-                                            return;
-                                        }
-                                        labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
+                                    style={{
+                                        fontSize: 17,
+                                        fontWeight: '400',
+                                        alignSelf: 'center',
+                                        marginLeft: 2,
+                                        color: theme.textSecondary,
                                     }}
-                                    style={[
-                                        { color: theme.textSecondary },
-                                        Typography.regular17_24,
-                                        props.labelTextStyle
-                                    ]}
                                 >
-                                    {props.label}
+                                    {props.inputSuffix}
                                 </Text>
-                            </Animated.View>
-                        </View>
-                    )}
-                    <View style={[{ flexDirection: 'row', alignItems: 'center' }, props.style]}>
-                        <View style={{ width: '100%', flex: 1, flexShrink: 1 }}>
-                            <Animated.View style={labelShiftStyle} />
-                            <View
-                                style={{ flexDirection: 'row', alignItems: 'center' }}
-                                ref={props.innerRef}
-                            >
-                                <TextInput
-                                    ref={tref}
-                                    hitSlop={16}
+                            )}
+                            {props.suffix && (
+                                <Text
+                                    numberOfLines={1}
+                                    ellipsizeMode={'tail'}
                                     style={[
                                         {
-                                            color: theme.textPrimary,
-                                            fontSize: props.fontSize !== undefined ? props.fontSize : 17,
-                                            lineHeight: props.lineHeight !== undefined ? props.lineHeight : undefined,
-                                            fontWeight: props.fontWeight ? props.fontWeight : '400',
-                                            textAlignVertical: props.textAlignVertical
-                                                ? props.textAlignVertical
-                                                : props.multiline
-                                                    ? 'top'
-                                                    : 'center',
-                                            marginHorizontal: 0, marginVertical: 0,
-                                            paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                            paddingLeft: 0, paddingRight: 0,
-                                            flexGrow: props.inputSuffix ? 0 : 1
-                                        },
-                                        props.inputStyle
-                                    ]}
-                                    selectionColor={Platform.select({
-                                        ios: theme.accent,
-                                        android: props.cursorColor ?? 'rgba(0, 0, 0, 0.3)',
-                                    })}
-                                    cursorColor={props.cursorColor ?? theme.textPrimary}
-                                    textAlign={props.textAlign}
-                                    autoFocus={props.autoFocus}
-                                    placeholderTextColor={theme.textSecondary}
-                                    autoCapitalize={props.autoCapitalize}
-                                    placeholder={props.label ? undefined : props.placeholder}
-                                    autoCorrect={props.autoCorrect}
-                                    keyboardType={props.keyboardType}
-                                    returnKeyType={props.returnKeyType}
-                                    autoComplete={props.autoComplete}
-                                    multiline={props.multiline}
-                                    enabled={props.enabled}
-                                    blurOnSubmit={props.blurOnSubmit}
-                                    editable={props.editable}
-                                    value={props.value}
-                                    onChangeText={props.onValueChange}
-                                    textContentType={props.textContentType}
-                                    onFocus={onFocus}
-                                    onBlur={onBlur}
-                                    onSubmitEditing={onSubmit}
-                                    maxLength={props.maxLength}
-                                    inputMode={props.inputMode}
-                                />
-                                {props.inputSuffix && (
-                                    <Text
-                                        numberOfLines={1}
-                                        style={{
-                                            fontSize: 17,
-                                            fontWeight: '400',
+                                            flexGrow: 1,
                                             alignSelf: 'center',
-                                            marginLeft: 2,
                                             color: theme.textSecondary,
-                                        }}
-                                    >
-                                        {props.inputSuffix}
-                                    </Text>
-                                )}
-                                {props.suffix && (
-                                    <Text
-                                        numberOfLines={1}
-                                        ellipsizeMode={'tail'}
-                                        style={[
-                                            {
-                                                flexGrow: 1,
-                                                alignSelf: 'center',
-                                                color: theme.textSecondary,
-                                                flexShrink: 1,
-                                                textAlign: 'right',
-                                                textAlignVertical: 'bottom'
-                                            },
-                                            Typography.regular15_20,
-                                            props.suffixStyle
-                                        ]}
-                                    >
-                                        {props.suffix}
-                                    </Text>
-                                )}
-                            </View>
-                            <Animated.View style={inputHeightCompensatorStyle} />
-                        </View>
-                        {!!props.actionButtonRight
-                            ? (props.actionButtonRight.component)
-                            : !props.hideClearButton && focused && hasValue && (
-                                <Animated.View
-                                    entering={FadeIn}
-                                    layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                                            flexShrink: 1,
+                                            textAlign: 'right',
+                                            textAlignVertical: 'bottom'
+                                        },
+                                        Typography.regular15_20,
+                                        props.suffixStyle
+                                    ]}
                                 >
-                                    <Pressable
-                                        onPress={() => {
-                                            if (props.onValueChange) {
-                                                props.onValueChange('');
-                                            }
-                                        }}
-                                        style={{ height: 24, width: 24 }}
-                                        hitSlop={16}
-                                    >
-                                        <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
-                                    </Pressable>
-                                </Animated.View>
-                            )
-                        }
+                                    {props.suffix}
+                                </Text>
+                            )}
+                        </View>
+                        <Animated.View style={inputHeightCompensatorStyle} />
                     </View>
-                </Animated.View>
-            </TouchableWithoutFeedback>
+                    {!!props.actionButtonRight
+                        ? (props.actionButtonRight.component)
+                        : !props.hideClearButton && focused && hasValue && (
+                            <Animated.View
+                                entering={FadeIn}
+                                layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                            >
+                                <Pressable
+                                    onPress={() => {
+                                        if (props.onValueChange) {
+                                            props.onValueChange('');
+                                        }
+                                    }}
+                                    style={{ height: 24, width: 24 }}
+                                    hitSlop={16}
+                                >
+                                    <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
+                                </Pressable>
+                            </Animated.View>
+                        )
+                    }
+                </View>
+            </View>
             {props.error && (
                 <Animated.View style={{ marginTop: 2, marginLeft: 16 }} entering={FadeInUp} exiting={FadeOutDown}>
                     <Text style={{ color: theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>

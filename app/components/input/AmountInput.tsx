@@ -26,6 +26,8 @@ export const AmountInput = memo(forwardRef((props: AmountInputProps, ref: Forwar
     } = props;
 
     const tref = useRef<TextInput>(null);
+    const suffixInputWeightRef = useRef(0);
+
     useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
@@ -117,6 +119,7 @@ export const AmountInput = memo(forwardRef((props: AmountInputProps, ref: Forwar
                                             alignSelf: 'center',
                                             color: theme.textSecondary,
                                         }}
+                                        onLayout={(e) => { suffixInputWeightRef.current = e.nativeEvent.layout.width }}
                                     >
                                         {ticker}
                                     </Text>
@@ -132,7 +135,8 @@ export const AmountInput = memo(forwardRef((props: AmountInputProps, ref: Forwar
                                             color: theme.textSecondary,
                                             flexShrink: 1,
                                             textAlign: 'right',
-                                            textAlignVertical: 'bottom'
+                                            textAlignVertical: 'bottom',
+                                            marginLeft: suffixInputWeightRef.current
                                         },
                                         Typography.regular15_20,
                                         suffixStyle

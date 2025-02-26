@@ -61,7 +61,7 @@ export const AddressInputAvatar = memo(({
                     knownWallets={knownWallets}
                     backgroundColor={avatarColor}
                     markContact={markContact}
-                    icProps={{ isOwn }}
+                    icProps={{ isOwn, size: 20 }}
                     borderWidth={0}
                 />
             </Animated.View>

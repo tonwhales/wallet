@@ -31,7 +31,14 @@ class MainApplication : Application(), ReactApplication {
                     packages.add(KeyStorePackage())
                     packages.add(NavigationBarColorPackage())
                     packages.add(AppearancePackage())
-                    packages.add(WalletPackage())
+
+                    try {
+                        Class.forName("com.google.android.gms.tapandpay.TapAndPay")
+                        packages.add(WalletPackage())
+                    } catch (e: ClassNotFoundException) {
+                        // tapandpay_sdk was not added: skip WalletPackage
+                    }
+                    
                     return packages
                 }
 

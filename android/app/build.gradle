@@ -279,7 +279,8 @@ dependencies {
 }
 
 configurations.all {
-   resolutionStrategy {
-    force 'androidx.browser:browser:1.8.0'
-   }
+    resolutionStrategy {
+        force 'androidx.browser:browser:1.8.0'
+        force "com.facebook.soloader:soloader:0.12.0"
+    }
 }

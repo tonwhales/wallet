@@ -7,7 +7,6 @@ import { warn } from '../utils/log';
 import { loadWalletKeys } from './walletKeys';
 import { deriveUtilityKey } from './utilityKeys';
 import { SelectedAccount, WalletVersions } from '../engine/types';
-import { ledgerWalletsKey } from '../engine/state/ledger';
 import { LedgerWallet, LedgerWalletSchema } from '../fragments/ledger/components/TransportContext';
 
 export type AppState = {
@@ -370,6 +369,7 @@ export function setLedgerEnabled(enabled: boolean) {
     storage.set('app_ledger_enabled', enabled);
 }
 
+export const ledgerWalletsKey = 'ledgerWalletsKey';
 export function getLedgerWallets(): LedgerWallet[] {
     const ledgerWallets = storage.getString(ledgerWalletsKey);
 

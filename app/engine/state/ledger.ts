@@ -1,9 +1,7 @@
 import { atom } from 'recoil';
-import {getLedgerEnabled, getLedgerWallets, setLedgerEnabled} from '../../storage/appState';
+import {getLedgerEnabled, getLedgerWallets, ledgerWalletsKey, setLedgerEnabled} from '../../storage/appState';
 import { storage } from '../../storage/storage';
 import { LedgerWallet } from '../../fragments/ledger/components/TransportContext';
-
-export const ledgerWalletsKey = 'ledgerWalletsKey';
 
 export const ledgerEnabledState = atom({
     key: 'misc/ledgerEnabledState',

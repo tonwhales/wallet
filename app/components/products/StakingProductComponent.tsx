@@ -38,9 +38,29 @@ const icStyleInner: StyleProp<ViewStyle> = {
     alignItems: 'center', justifyContent: 'center'
 }
 
+const AddStakeButton = memo(() => {
+    const navigation = useTypedNavigation();
+    const theme = useTheme();
+    return (
+        <Pressable
+            style={({ pressed }) => (
+                {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    opacity: pressed ? 0.5 : 1
+                }
+            )}
+            onPress={() => navigation.navigate('StakingPools')}
+        >
+            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
+                {t('products.addNew')}
+            </Text>
+        </Pressable>
+    )
+});
+
 export const StakingProductComponent = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
     const theme = useTheme();
-    const navigation = useTypedNavigation();
     const active = useStakingActive(address);
     const activeArray = useMemo(() => {
         if (!active) {
@@ -84,7 +104,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
 
         if (p.type === 'banner') {
             return (
-                <StakingProductBanner isLedger={isLedger}/>
+                <StakingProductBanner isLedger={isLedger} />
             );
         }
 
@@ -118,24 +138,6 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
 
     if (items.length === 0) {
         items.push({ type: 'banner' });
-    } else {
-        action = (
-            <Pressable
-                style={({ pressed }) => (
-                    {
-                        flexDirection: 'row',
-                        justifyContent: 'space-between', alignItems: 'center',
-                        padding: 16,
-                        opacity: pressed ? 0.5 : 1
-                    }
-                )}
-                onPress={() => navigation.navigate('StakingPools')}
-            >
-                <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                    {t('products.addNew')}
-                </Text>
-            </Pressable>
-        );
     }
 
     const renderFace = useCallback(() => {
@@ -212,7 +214,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 renderItem={renderItem}
                 theme={theme}
                 renderFace={renderFace}
-                action={action}
+                action={items.length ? <AddStakeButton /> : undefined}
                 itemHeight={86}
             />
         </View>

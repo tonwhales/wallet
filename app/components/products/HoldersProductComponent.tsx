@@ -1,5 +1,5 @@
-import React, { memo, useMemo } from "react"
-import { View } from "react-native";
+import React, { memo, useCallback, useEffect, useMemo } from "react"
+import { InteractionManager, View } from "react-native";
 import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
 import { HoldersAccounts } from "./HoldersAccounts";
@@ -7,6 +7,8 @@ import { HoldersCards } from "./HoldersCards";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { Address } from "@ton/core";
+import { makeScreenSecure } from "../../modules/SecureScreen";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { holdersAccStatus?: HoldersAccountStatus, isLedger?: boolean }) => {
     const network = useNetwork();
@@ -34,6 +36,15 @@ export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { h
 
     const hasAccounts = visibleAccountsList?.length > 0;
     const hasPrepaid = visiblePrepaidList?.length > 0;
+
+    useFocusEffect(useCallback(() => {
+        if (hasPrepaid || hasAccounts) {
+           InteractionManager.runAfterInteractions(() => makeScreenSecure())
+        }
+        return () => {
+            makeScreenSecure(false)
+        }
+    }, [hasPrepaid, hasAccounts]))
 
     if (!hasAccounts && !hasPrepaid) {
         return null;

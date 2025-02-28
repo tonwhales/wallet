@@ -1,17 +1,13 @@
-import { useEffect } from "react"
-import { NativeModules, Platform } from "react-native";
-
-const { FlagSecureModule } = NativeModules;
+import { useCallback, useEffect } from "react"
+import { makeScreenSecure } from "../../modules/SecureScreen";
+import { useFocusEffect } from "@react-navigation/native";
+import { InteractionManager } from "react-native";
 
 export const useSecureScreen = () => {
-    useEffect(() => {
-        if (Platform.OS === 'android') {
-            FlagSecureModule.activate()
-        }
+    useFocusEffect(useCallback(() => {
+        InteractionManager.runAfterInteractions(() => makeScreenSecure())
         return () => {
-            if (Platform.OS === 'android') {
-                FlagSecureModule.deactivate()
-            }
+            makeScreenSecure(false)
         }
-    }, [])
+    }, []))
 }

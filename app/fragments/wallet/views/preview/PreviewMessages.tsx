@@ -2,7 +2,7 @@ import { Address, fromNano } from "@ton/core";
 import { memo } from "react";
 import { View, Text, Image, Platform } from "react-native";
 import { ThemeType } from "../../../../engine/state/theme";
-import { useNetwork, useServerConfig } from "../../../../engine/hooks";
+import { useBounceableWalletFormat, useNetwork, useServerConfig } from "../../../../engine/hooks";
 import { KnownWallet, KnownWallets } from "../../../../secure/KnownWallets";
 import { AddressBook, AddressContact } from "../../../../engine/hooks/contacts/useAddressBook";
 import { ServerConfig } from "../../../../engine/api/fetchConfig";
@@ -39,8 +39,12 @@ const MessagePreview = memo(({
 
     let amount = message.amount;
 
-    const contractInfo = useContractInfo(addressString);
-    const bounceable = contractInfo?.kind !== 'wallet';
+    const targetContractInfo = useContractInfo(friendlyTarget);
+    const [bounceableFormat] = useBounceableWalletFormat();
+
+    const bounceable = (targetContractInfo?.kind === 'wallet')
+            ? bounceableFormat
+            : true;
 
     const target = Address.parse(friendlyTarget);
     const contact = contacts[friendlyTarget];

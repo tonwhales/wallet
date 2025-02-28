@@ -126,6 +126,10 @@ const TransactionPreview = () => {
     const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : null;
     const targetContract = useContractInfo(opAddress);
 
+    const isTargetBounceable = targetContract?.kind === 'wallet'
+        ? bounceableFormat 
+        : parsedOpAddr.isBounceable
+
     const repeatParams = useMemo(() => {
         return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals ?? 9);
     }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals]);
@@ -576,7 +580,7 @@ const TransactionPreview = () => {
                                     kind={kind}
                                     theme={theme}
                                     testOnly={isTestnet}
-                                    bounceableFormat={bounceableFormat}
+                                    bounceableFormat={isTargetBounceable}
                                 />
                                 <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <TxInfo

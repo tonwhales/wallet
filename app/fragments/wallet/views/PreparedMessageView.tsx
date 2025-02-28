@@ -21,6 +21,7 @@ import { WalletSettings } from '../../../engine/state/walletSettings';
 import { getLiquidStakingAddress } from '../../../utils/KnownPools';
 import { PreparedMessage } from '../../../engine/hooks/transactions/usePeparedMessages';
 import { TxAvatar } from './TxAvatar';
+import { useContractInfo } from '../../../engine/hooks';
 
 export function PreparedMessageView(props: {
     own: Address,
@@ -54,6 +55,10 @@ export function PreparedMessageView(props: {
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
     const contact = contacts[parsedAddressFriendly];
+    const targetContractInfo = useContractInfo(parsedAddressFriendly);
+    const bounceable = (targetContractInfo?.kind === 'wallet')
+        ? props.bounceableFormat
+        : parsedOpAddr.isBounceable;
 
     // Operation
     const op = useMemo(() => {
@@ -147,7 +152,7 @@ export function PreparedMessageView(props: {
                                 : <AddressComponent
                                     testOnly={isTestnet}
                                     address={parsedOpAddr.address}
-                                    bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
+                                    bounceable={bounceable}
                                 />
                             }
                             {' • '}

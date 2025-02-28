@@ -2,6 +2,7 @@ import { DefaultTheme, Theme as NavigationThemeType } from '@react-navigation/na
 import { atom } from 'recoil';
 import { storagePersistence } from '../../storage/storage';
 import { z } from "zod";
+import { changeNavBarColor } from '../../modules/NavBar';
 
 export enum ThemeStyle {
     Light = 'light',
@@ -166,6 +167,7 @@ export function getThemeStyleState() {
 
 function storeThemeStyleState(state: ThemeStyle) {
     storagePersistence.set(themeStyleKey, state);
+    changeNavBarColor(state === ThemeStyle.Dark ? darkTheme.surfaceOnBg : baseTheme.surfaceOnBg, undefined, true);
 }
 
 export const themeStyleState = atom<ThemeStyle>({

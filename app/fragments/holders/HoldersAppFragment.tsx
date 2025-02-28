@@ -5,7 +5,7 @@ import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useEffect, useMemo } from 'react';
-import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSecureScreen, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
@@ -47,6 +47,8 @@ export const HoldersAppFragment = fragment(() => {
     const status = useHoldersAccountStatus(address!.toString({ testOnly: isTestnet })).data;
     const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet })).data;
     const url = holdersUrl(isTestnet);
+
+    useSecureScreen()
 
     useEffect(() => {
         return () => {

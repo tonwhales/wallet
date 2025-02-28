@@ -23,6 +23,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { getThemeStyleState } from './app/engine/state/theme';
 import { AndroidAppearance } from './app/modules/AndroidAppearance';
+import { handleLinkReceived } from './app/utils/CachedLinking';
 
 const style = getThemeStyleState();
 const scheme = Platform.OS === 'android'? AndroidAppearance.getColorScheme() : Appearance.getColorScheme();
@@ -56,7 +57,12 @@ function Boot() {
   )
 }
 
-export default function App() {
+export default function App(props: any) {
+  const url = props?.url;
+
+  if (url && typeof url === 'string') {
+    handleLinkReceived(url)
+  }
   return (
     <Boot />
   );

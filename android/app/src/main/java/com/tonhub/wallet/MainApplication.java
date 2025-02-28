@@ -26,6 +26,7 @@ import com.tonhub.wallet.modules.appearance.AppearancePackage;
 import com.tonhub.wallet.modules.navbarcolor.NavigationBarColorPackage;
 import com.tonhub.wallet.modules.store.KeyStorePackage;
 import com.tonhub.wallet.modules.webview.WebViewCachePackage;
+import com.tonhub.wallet.modules.flagsecure.FlagSecurePackage;
 
 import com.shopify.reactnativeperformance.ReactNativePerformance;
 import com.tonhub.wallet.modules.wallet.WalletPackage;
@@ -47,6 +48,7 @@ public class MainApplication extends Application implements ReactApplication {
                     packages.add(new NavigationBarColorPackage());
                     packages.add(new AppearancePackage());
                     packages.add(new WebViewCachePackage());
+                    packages.add(new FlagSecurePackage());
                     try {
                         Class.forName("com.google.android.gms.tapandpay.TapAndPay");
                         packages.add(new WalletPackage());

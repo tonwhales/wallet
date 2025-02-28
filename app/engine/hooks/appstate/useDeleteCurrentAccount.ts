@@ -1,4 +1,3 @@
-import WebView from "react-native-webview";
 import { mixpanelFlush, mixpanelReset } from "../../../analytics/mixpanel";
 import { getAppState } from "../../../storage/appState";
 import { BiometricsState, PasscodeState } from '../../../storage/secureStorage';

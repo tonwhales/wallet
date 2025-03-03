@@ -214,7 +214,7 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
                 end={[1, 0]}
             />
             <View style={styles.body}>
-                <View>
+                <View style={styles.descriptionContainer}>
                     <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold17_24]}>
                         {t('products.holders.otpBanner.title')}
                     </Text>
@@ -226,7 +226,7 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
             </View>
             <View style={styles.actions}>
                 <OtpAction
-                    id={otp.txnId}
+                     id={otp.txnId}
                     accept
                     address={addressString}
                     disabled={actionDisabled}
@@ -277,5 +277,6 @@ const styles = StyleSheet.create({
     actions: { flexDirection: 'row', gap: 12, justifyContent: 'space-evenly', alignItems: 'center', width: '100%' },
     action: { flexDirection: 'row', gap: 4, paddingVertical: 8, borderRadius: 200, flex: 1, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
     actionAccept: { backgroundColor: '#fff', position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
-    actionDecline: { backgroundColor: '#fff', opacity: 0.16, position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }
+    actionDecline: { backgroundColor: '#fff', opacity: 0.16, position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
+    descriptionContainer: { flex: 1 }
 });

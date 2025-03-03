@@ -226,7 +226,7 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
             </View>
             <View style={styles.actions}>
                 <OtpAction
-                     id={otp.txnId}
+                    id={otp.txnId}
                     accept
                     address={addressString}
                     disabled={actionDisabled}

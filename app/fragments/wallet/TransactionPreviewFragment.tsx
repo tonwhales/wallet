@@ -283,6 +283,8 @@ const TransactionPreview = () => {
     const symbolString = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}` : '')
     const singleAmountString = `${amountText[0]}${amountText[1]}${symbolString}`;
 
+    const fromKnownWalletsList = !!knownWallets[opAddressBounceable]
+
     return (
         <PerfView
             style={{
@@ -375,7 +377,7 @@ const TransactionPreview = () => {
                         style={[
                             {
                                 color: theme.textPrimary,
-                                paddingTop: (spam || !!contact || isOwn || !!knownWallets[opAddressBounceable]) ? 16 : 8,
+                                paddingTop: (spam || !!contact || isOwn || fromKnownWalletsList) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}
@@ -403,7 +405,7 @@ const TransactionPreview = () => {
                                     bounceable={parsedOpAddr.isBounceable}
                                     end={4}
                                     testOnly={isTestnet}
-                                    known={!!knownWallets[opAddressBounceable]}
+                                    known={fromKnownWalletsList}
                                 />
                             </PerfText>
                         </PerfView>

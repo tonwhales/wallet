@@ -76,10 +76,7 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
     });
 
     return (
-        <View style={[styles.container, Platform.select({
-            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
-            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
-        })]}>
+        <View style={styles.container}>
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 style={styles.header}
@@ -113,6 +110,13 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                 loading={txs.loading}
                 theme={theme}
                 ledger={isLedger}
+                sectionedListProps={{
+                    contentContainerStyle:
+                        Platform.select({
+                            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
+                            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
+                        })
+                }}
                 header={
                     <View style={styles.content}>
                         <View style={{

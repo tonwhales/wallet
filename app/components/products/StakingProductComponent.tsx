@@ -42,20 +42,20 @@ const AddStakeButton = memo(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     return (
-        <Pressable
-            style={({ pressed }) => (
-                {
-                    flexDirection: 'row',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    opacity: pressed ? 0.5 : 1
-                }
-            )}
-            onPress={() => navigation.navigate('StakingPools')}
-        >
-            <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
-                {t('products.addNew')}
-            </Text>
-        </Pressable>
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <Pressable
+                style={({ pressed }) => (
+                    {
+                        opacity: pressed ? 0.5 : 1
+                    }
+                )}
+                onPress={() => navigation.navigate('StakingPools')}
+            >
+                <Text numberOfLines={1} ellipsizeMode="tail" style={[{ color: theme.accent }, Typography.medium15_20]}>
+                    {t('products.addNew')}
+                </Text>
+            </Pressable>
+        </View>
     )
 });
 

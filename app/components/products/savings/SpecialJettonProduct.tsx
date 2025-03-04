@@ -1,20 +1,20 @@
 import { memo, useCallback, useMemo } from "react";
-import { ThemeType } from "../../engine/state/theme";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { ThemeType } from "../../../engine/state/theme";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Pressable, View, Image, Text } from "react-native";
-import { Typography } from "../styles";
-import { PriceComponent } from "../PriceComponent";
-import { ValueComponent } from "../ValueComponent";
+import { Typography } from "../../styles";
+import { PriceComponent } from "../../PriceComponent";
+import { ValueComponent } from "../../ValueComponent";
 import { Address } from "@ton/core";
-import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
-import { WImage } from "../WImage";
-import { ItemDivider } from "../ItemDivider";
-import { useBounceableWalletFormat, useJettonContent } from "../../engine/hooks";
-import { useGaslessConfig } from "../../engine/hooks/jettons/useGaslessConfig";
-import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
-import { GaslessInfoButton } from "../jettons/GaslessInfoButton";
-import { ReceiveableAsset } from "../../fragments/wallet/ReceiveFragment";
-import { t } from "../../i18n/t";
+import { useSpecialJetton } from "../../../engine/hooks/jettons/useSpecialJetton";
+import { WImage } from "../../WImage";
+import { ItemDivider } from "../../ItemDivider";
+import { useBounceableWalletFormat, useJettonContent } from "../../../engine/hooks";
+import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
+import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
+import { GaslessInfoButton } from "../../jettons/GaslessInfoButton";
+import { ReceiveableAsset } from "../../../fragments/wallet/ReceiveFragment";
+import { t } from "../../../i18n/t";
 
 export const SpecialJettonProduct = memo(({
     theme,
@@ -49,7 +49,7 @@ export const SpecialJettonProduct = memo(({
             return false;
         }
 
-        return gaslessConfig.gas_jettons.find((j) => {
+        return gaslessConfig.gas_jettons.find((j: { master_id: string }) => {
             try {
                 return specialJetton?.master?.equals(Address.parse(j.master_id));
             } catch (error) {

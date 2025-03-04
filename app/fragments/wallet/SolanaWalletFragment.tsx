@@ -1,0 +1,287 @@
+import { fragment } from "../../fragment";
+import { useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
+import { setStatusBarStyle } from "expo-status-bar";
+import { Platform, View, StyleSheet, Text } from "react-native";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useParams } from "../../utils/useParams";
+import { Typography } from "../../components/styles";
+import { memo, Suspense, useCallback } from "react";
+import { ValueComponent } from "../../components/ValueComponent";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { CurrencySymbols } from "../../utils/formatCurrency";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { SolanaTransactions } from "./views/SolanaTransactions";
+import { SolanaWalletActions } from "./views/SolanaWalletActions";
+import { isSolanaAddress, SolanaAddress, solanaAddressFromString } from "../../utils/solana/core";
+
+import SolanaIcon from '@assets/ic-solana.svg';
+
+// Hook for Solana wallet - placeholder
+const useSolanaWallet = (owner: SolanaAddress) => {
+    return {
+        balance: 10000000000n, // Placeholder balance
+        decimals: 9,
+        symbol: "SOL",
+        prices: { USD: "144.44" } as Record<string, string>
+    };
+};
+
+// Hook for Solana transactions - placeholder
+const useSolanaTransactions = (owner: SolanaAddress, options?: { refetchOnMount: boolean }) => {
+    return {
+        data: [], // Placeholder for transactions
+        hasNext: false,
+        next: () => { },
+        refresh: () => { },
+    };
+};
+
+export type SolanaWalletFragmentProps = {
+    owner: string;
+    isLedger?: boolean;
+}
+
+const SolanaWalletSkeleton = memo(() => {
+    const theme = useTheme();
+    const navigation = useTypedNavigation();
+
+    return (
+        <View style={styles.container}>
+            <ScreenHeader
+                onBackPressed={navigation.goBack}
+                style={{ paddingHorizontal: 16 }}
+            />
+            <View style={styles.skeletonContent}>
+                <View style={[styles.skeletonIcon, { backgroundColor: theme.surfaceOnBg }]} />
+                <View style={[styles.skeletonBalance, { backgroundColor: theme.surfaceOnBg }]} />
+                <View style={[styles.skeletonActions, { backgroundColor: theme.surfaceOnBg }]} />
+            </View>
+        </View>
+    );
+});
+
+const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentProps) => {
+    const bottomBarHeight = useBottomTabBarHeight();
+    const { isTestnet } = useNetwork();
+    const navigation = useTypedNavigation();
+    const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
+    const ownerAddress = solanaAddressFromString(owner);
+
+    const solanaWallet = useSolanaWallet(ownerAddress);
+    const txs = useSolanaTransactions(ownerAddress, { refetchOnMount: true });
+    const transactions = txs.data ?? [];
+
+    const onReachedEnd = useCallback(() => {
+        if (txs.hasNext) {
+            txs.next();
+        }
+    }, [txs.next, txs.hasNext]);
+
+    const onRefresh = useCallback(() => {
+        txs.refresh();
+    }, [txs.refresh]);
+
+    const [currency] = usePrimaryCurrency();
+    const rate = currency === 'USD' ? solanaWallet?.prices?.USD : undefined;
+    const decimals = solanaWallet?.decimals ?? 9;
+    const balance = solanaWallet?.balance ?? 0n;
+
+    // Calculate USD value
+    const usdValue = rate ? (Number(balance) / Math.pow(10, decimals)) * Number(rate) : 0;
+    const usdValueBigInt = BigInt(Math.round(usdValue * 100)) * 10n ** 7n; // Convert to nano with 9 decimals
+
+    useFocusEffect(() => {
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+    });
+
+    if (!solanaWallet) {
+        return <SolanaWalletSkeleton />;
+    }
+
+    return (
+        <View style={[styles.container, Platform.select({
+            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
+            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
+        })]}>
+            <ScreenHeader
+                onBackPressed={navigation.goBack}
+                style={styles.header}
+                titleComponent={(
+                    <View style={styles.headerTitleComponent}>
+                        <Text
+                            style={[{ color: theme.textPrimary }, styles.headerTitle]}
+                            numberOfLines={1}
+                            ellipsizeMode={'tail'}
+                        >
+                            {solanaWallet?.symbol}
+                        </Text>
+                        {!!rate && (
+                            <Text
+                                style={[{ color: theme.textSecondary }, styles.headerSubtitle]}
+                                numberOfLines={1}
+                                ellipsizeMode={'tail'}
+                            >
+                                <ValueComponent
+                                    value={BigInt(Math.round(Number(rate) * 100)) * 10n ** 7n}
+                                    precision={2}
+                                    suffix={CurrencySymbols[currency]?.symbol}
+                                    forcePrecision
+                                />
+                            </Text>
+                        )}
+                    </View>
+                )}
+            />
+            <SolanaTransactions
+                solanaWallet={solanaWallet}
+                theme={theme}
+                navigation={navigation}
+                txs={transactions}
+                hasNext={txs.hasNext}
+                address={ownerAddress}
+                safeArea={safeArea}
+                onLoadMore={onReachedEnd}
+                onRefresh={onRefresh}
+                loading={false}
+                ledger={isLedger}
+                header={
+                    <View style={styles.content}>
+                        <SolanaIcon
+                            width={72}
+                            height={72}
+                            style={{
+                                borderRadius: 36,
+                                height: 72,
+                                width: 72
+                            }}
+                        />
+                        <View style={{ marginTop: 16, width: '100%' }}>
+                            <View style={{ gap: 8, alignItems: 'center' }}>
+                                {/* address */}
+                                <Text style={[{ color: theme.textPrimary, textAlign: 'center' }, Typography.semiBold17_24]}>
+                                    {ownerAddress.substring(0, 4)}...{ownerAddress.substring(ownerAddress.length - 4)}
+                                </Text>
+                                <ValueComponent
+                                    value={solanaWallet?.balance ?? 0n}
+                                    decimals={solanaWallet?.decimals ?? 9}
+                                    precision={4}
+                                    fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
+                                    centFontStyle={{ color: theme.textSecondary }}
+                                    suffix={solanaWallet?.symbol ? ` ${solanaWallet.symbol}` : ''}
+                                />
+                                <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                    <ValueComponent
+                                        value={usdValueBigInt}
+                                        precision={2}
+                                        decimals={9}
+                                        suffix={` ${CurrencySymbols[currency]?.symbol}`}
+                                    />
+                                </Text>
+                            </View>
+                            <SolanaWalletActions
+                                theme={theme}
+                                navigation={navigation}
+                                isTestnet={isTestnet}
+                                address={ownerAddress}
+                                isLedger={isLedger}
+                                solanaWallet={solanaWallet}
+                            />
+                            {/* Placeholder for pending transactions */}
+                            <View style={{ marginTop: 16 }} />
+                        </View>
+                    </View>
+                }
+            />
+        </View>
+    );
+});
+
+export const SolanaWalletFragment = fragment(() => {
+    const theme = useTheme();
+    const navigation = useTypedNavigation();
+    const { owner } = useParams<SolanaWalletFragmentProps>();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerSolanaWallet';
+
+    console.log('SolanaWalletFragment', owner, isLedger);
+
+    const isValidAddress = isSolanaAddress(owner);
+
+    if (!isValidAddress) { // should never happen
+        navigation.goBack();
+        return null;
+    }
+
+    return (
+        <View style={[
+            styles.fragment,
+            Platform.select({ android: { backgroundColor: theme.backgroundPrimary } })
+        ]}>
+            <Suspense fallback={<SolanaWalletSkeleton />}>
+                <SolanaWalletComponent
+                    owner={owner}
+                    isLedger={isLedger}
+                />
+            </Suspense>
+        </View>
+    );
+});
+
+const styles = StyleSheet.create({
+    fragment: {
+        flexGrow: 1,
+        paddingTop: 32
+    },
+    container: {
+        flexGrow: 1
+    },
+    content: {
+        flexGrow: 1,
+        paddingTop: 16,
+        alignItems: 'center'
+    },
+    header: {
+        paddingHorizontal: 16,
+    },
+    headerTitleComponent: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        maxWidth: '80%'
+    },
+    headerTitle: {
+        ...Typography.semiBold17_24,
+        textAlign: 'center'
+    },
+    headerSubtitle: {
+        ...Typography.regular15_20,
+        textAlign: 'center'
+    },
+    skeletonContent: {
+        flexGrow: 1,
+        padding: 16,
+        alignItems: 'center'
+    },
+    skeletonIcon: {
+        height: 72,
+        width: 72,
+        borderRadius: 36,
+        opacity: 0.5
+    },
+    skeletonBalance: {
+        height: 48,
+        width: 160,
+        borderRadius: 8,
+        opacity: 0.5,
+        marginTop: 8
+    },
+    skeletonActions: {
+        height: 92,
+        width: '100%',
+        borderRadius: 20,
+        opacity: 0.5,
+        marginTop: 28
+    }
+});

@@ -18,7 +18,7 @@ import { ReceiveableAsset } from "./ReceiveFragment";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
-import { SpecialJettonProduct } from "../../components/products/SpecialJettonProduct";
+import { SpecialJettonProduct } from "../../components/products/savings/SpecialJettonProduct";
 import { AssetViewType } from "./AssetsFragment";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { HoldersAppParams, HoldersAppParamsType } from "../holders/HoldersAppFragment";

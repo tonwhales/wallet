@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -13,7 +13,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback } from 'react';
-import { useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useSelectedAccount, useSolanaAccount, useSolanaClient, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
@@ -29,8 +29,26 @@ import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
-import { Address } from '@ton/core';
+import { Address, toNano } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { solanaAddressFromPublicKey } from '../../utils/solana/core';
+import {
+    createTransactionMessage,
+    setTransactionMessageFeePayer,
+    setTransactionMessageLifetimeUsingBlockhash,
+    signTransaction, createKeyPairSignerFromPrivateKeyBytes,
+    getComputeUnitEstimateForTransactionMessageFactory,
+    prependTransactionMessageInstruction,
+    compileTransaction,
+    createKeyPairSignerFromBytes,
+    createKeyPairFromBytes,
+    createSignerFromKeyPair,
+    appendTransactionMessageInstruction,
+    getBase64EncodedWireTransaction,
+} from '@solana/kit';
+import { getTransferSolInstruction } from '@solana-program/system';
+import { pipe } from '@solana/functional';
+import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget'
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -45,6 +63,9 @@ export const DeveloperToolsFragment = fragment(() => {
     const acc = useSelectedAccount()!;
     const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
+    const solanaAddress = solanaAddressFromPublicKey(acc.publicKey);
+    const solanaClient = useSolanaClient();
+    const solanaAccount = useSolanaAccount(solanaAddress);
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -254,6 +275,93 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
+                    </View>
+                    <View style={{
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 4
+                    }}>
+                        <View>
+                            <Text>
+                                {JSON.stringify(solanaAccount.data ?? 'No data')}
+                            </Text>
+                            <Text>
+                                { }
+                            </Text>
+                        </View>
+                        <ItemButton title='CHECK BALANCE' onPress={async () => {
+                            try {
+                                const balance = await solanaClient.getBalance(solanaAddress).send();
+                                console.log('balance', balance);
+                                const minBalance = await solanaClient.getMinimumBalanceForRentExemption(0n).send();
+                                console.log('minBalance', minBalance);
+                            } catch (error) {
+                                console.error('error', error);
+                            }
+                        }} />
+                        <ItemButton title='Send to Self' onPress={async () => {
+                            try {
+                                const lastBlockHash = await solanaClient.getLatestBlockhash().send();
+
+                                const recentBlockhash = {
+                                    blockhash: lastBlockHash.value.blockhash,
+                                    lastValidBlockHeight: lastBlockHash.value.lastValidBlockHeight,
+                                };
+                                console.log({ recentBlockhash });
+
+                                const getComputeUnitEstimateForTransactionMessage = getComputeUnitEstimateForTransactionMessageFactory({ rpc: solanaClient });
+
+                                const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+                                console.log('privateKey length', walletKeys.keyPair.secretKey.length);
+                                const privateKey = new Uint8Array(walletKeys.keyPair.secretKey);
+                                const keyPair = await createKeyPairFromBytes(privateKey);
+                                const signer = await createSignerFromKeyPair(keyPair);
+
+                                console.log('signer', signer);
+                                console.log('solanaAddress', solanaAddress);
+
+                                const transactionMessage = pipe(
+                                    createTransactionMessage({ version: 0 }),
+                                    tx => setTransactionMessageFeePayer(solanaAddress, tx),
+                                    tx => appendTransactionMessageInstruction(
+                                        getTransferSolInstruction({
+                                            source: signer,
+                                            destination: solanaAddress,
+                                            amount: toNano(1),
+                                        }),
+                                        tx
+                                    ),
+                                    tx => setTransactionMessageLifetimeUsingBlockhash(recentBlockhash, tx),
+                                );
+
+                                const computeUnitEstimate = await getComputeUnitEstimateForTransactionMessage(transactionMessage);
+                                console.log('computeUnitEstimate', computeUnitEstimate);
+
+                                const transactionMessageWithComputeUnitLimit = prependTransactionMessageInstruction(
+                                    getSetComputeUnitLimitInstruction({ units: computeUnitEstimate }),
+                                    transactionMessage,
+                                );
+
+                                const transaction = compileTransaction(transactionMessageWithComputeUnitLimit);
+                                console.log('transaction', transaction);
+
+                                // const signedTransaction = await signer.signTransactions([transaction]);
+                                const signedTransaction = await signTransaction([keyPair], transaction);
+                                console.log('signedTransaction', signedTransaction);
+
+                                const base64Transaction = getBase64EncodedWireTransaction(signedTransaction);
+
+                                // const sent = await solanaClient.sendTransaction(signedTransaction, { commitment: 'confirmed' }).send();
+                                const sent = await solanaClient.sendTransaction(base64Transaction, { encoding: 'base64' }).send();
+                                console.log('sent', sent);
+
+                            } catch (error) {
+                                console.error('error', error);
+                            }
+                        }} />
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

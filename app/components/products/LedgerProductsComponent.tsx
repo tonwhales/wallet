@@ -5,7 +5,7 @@ import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
 import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions";
-import { SavingsProduct } from "./SavingsProduct";
+import { SavingsProduct } from "./savings/SavingsProduct";
 import { useBanners } from "../../engine/hooks/banners";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { useIsHoldersInvited } from "../../engine/hooks/holders/useIsHoldersInvited";
@@ -18,13 +18,13 @@ import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment
 import { ProductAd } from "../../engine/api/fetchBanners";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { HoldersProductComponent } from "./HoldersProductComponent";
-import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent";
 
-export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
+export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: LedgerWallet, testOnly: boolean }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const address = Address.parse(addr);
+    const address = Address.parse(wallet.address);
     const holdersAccounts = useHoldersAccounts(address).data;
     const holdersAccStatus = useHoldersAccountStatus(address).data;
     const banners = useBanners();
@@ -55,7 +55,7 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
     const onProductBannerPress = useCallback((product: ProductAd) => {
         trackEvent(
             MixpanelEvent.ProductBannerClick,
-            { product: product.id, address: addr },
+            { product: product.id, address: wallet.address },
             testOnly
         );
 
@@ -68,7 +68,7 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
             useToaster: true
         });
 
-    }, [address, testOnly]);
+    }, [wallet.address, testOnly]);
 
     return (
         <View>
@@ -115,6 +115,7 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
 
                 <SavingsProduct
                     address={address}
+                    pubKey={wallet.publicKey}
                     isLedger
                 />
 

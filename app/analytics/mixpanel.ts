@@ -4,7 +4,7 @@ import { useCallback, useEffect } from "react";
 import { warn } from "../utils/log";
 import { IS_SANDBOX } from '../engine/state/network';
 
-const keys = require('@assets/keys.json');
+export const keys = require('@assets/keys.json');
 
 export enum MixpanelEvent {
     Reset = 'reset',

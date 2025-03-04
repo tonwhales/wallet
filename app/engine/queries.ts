@@ -89,4 +89,8 @@ export const Queries = {
     HoldersBrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', 'holders', network]),
 
     AppConfig: (network: 'mainnet' | 'testnet') => (['appConfig', network]),
+
+    // Solana
+    SolanaTransactions: (address: string) => (['solana', 'transactions', address]),
+    SolanaAccount: (address: string) => (['solana', 'wallet', address]),
 }

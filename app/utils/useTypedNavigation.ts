@@ -30,6 +30,7 @@ import { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSel
 import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
 import { TonTransaction } from '../engine/types';
 import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
+import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -331,6 +332,11 @@ export class TypedNavigation {
 
     navigateTransactionsFilter(params: TransactionsFilterFragmentParams) {
         this.navigate('TransactionsFilter', params);
+    }
+
+    // Solana
+    navigateSolanaWallet(params: SolanaWalletFragmentProps) {
+        this.navigate('SolanaWallet', params);
     }
 }
 

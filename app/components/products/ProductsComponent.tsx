@@ -24,7 +24,7 @@ import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment
 import { W5Banner } from "./W5Banner"
 import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck"
 import { HoldersBanner } from "./HoldersBanner"
-import { SavingsProduct } from "./SavingsProduct"
+import { SavingsProduct } from "./savings/SavingsProduct"
 import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
 
@@ -142,7 +142,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
 
-                <SavingsProduct address={selected.address} />
+                <SavingsProduct address={selected.address} pubKey={selected.publicKey} />
 
                 <StakingProductComponent
                     key={'pool'}

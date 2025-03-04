@@ -403,7 +403,7 @@ const TransactionPreview = () => {
                                     bounceable={parsedOpAddr.isBounceable}
                                     end={4}
                                     testOnly={isTestnet}
-                                    known={!!known}
+                                    known={!!knownWallets[opAddressBounceable]}
                                 />
                             </PerfText>
                         </PerfView>

@@ -113,10 +113,7 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
     const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
 
     return (
-        <View style={[styles.container, Platform.select({
-            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
-            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
-        })]}>
+        <View style={styles.container}>
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 style={styles.header}
@@ -157,6 +154,13 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
                 loading={false}
+                sectionedListProps={{
+                    contentContainerStyle:
+                        Platform.select({
+                            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
+                            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
+                        })
+                }}
                 ledger={isLedger}
                 header={
                     <View style={styles.content}>

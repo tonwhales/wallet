@@ -563,7 +563,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "primaryName": "Cuenta principal",
                 "paymentName": "Cuenta de pago {{accountIndex}}",
                 "topUp": "Recargar cuenta",
-                "addNew": "Agregar cuenta"
+                "addNew": "Agregar cuenta",
+                "network": "Red {{networkName}}",
             },
             "pageTitles": {
                 "general": "Tarjetas Tonhub",

@@ -1,113 +1,63 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
-import { Alert, Pressable, Image, TextInput, View, Text, LayoutChangeEvent } from "react-native"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef } from "react"
+import { Pressable, Image, TextInput, View, Text, LayoutChangeEvent } from "react-native"
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Address } from "@ton/core";
-import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { useClient4, useConfig, useTheme } from "../../engine/hooks";
-import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
 import { t } from "../../i18n/t";
-import { KnownWallet } from "../../secure/KnownWallets";
-import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
-import { resolveBounceableTag } from "../../utils/resolveBounceableTag";
 import { Typography } from "../styles";
 import { ThemeType } from "../../engine/state/theme";
 import { ATextInputRef } from "../ATextInput";
-import { AddressSearchItem } from "./AddressSearch";
 
-export type AddressInputState = {
+export type SolanaAddressInputState = {
     input: string,
     target: string,
-    domain: string | undefined,
     suffix: string | undefined
 }
 
-export enum InputAction {
+export enum SolanaInputAction {
     Input = 'input',
     Target = 'target',
-    Domain = 'domain',
-    DomainTarget = 'domain-target',
     InputTarget = 'input-target',
-    Clear = 'clear',
+    Clear = 'clear'
 }
 
-export type AddressInputAction = {
-    type: InputAction.Input,
+export type SolanaAddressInputAction = {
+    type: SolanaInputAction.Input,
     input: string,
 } | {
-    type: InputAction.Target,
+    type: SolanaInputAction.Target,
     target: string,
 } | {
-    type: InputAction.Domain,
-    domain: string | undefined,
-} | {
-    type: InputAction.DomainTarget,
-    domain: string | undefined,
-    target: string,
-} | {
-    type: InputAction.InputTarget,
+    type: SolanaInputAction.InputTarget,
     input: string,
     target: string,
-    suffix: string,
-} | { type: InputAction.Clear }
+} | { type: SolanaInputAction.Clear }
 
-export function addressInputReducer() {
-    return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
+export function solanaAddressInputReducer() {
+    return (state: SolanaAddressInputState, action: SolanaAddressInputAction): SolanaAddressInputState => {
         switch (action.type) {
-            case InputAction.Input:
-                if (action.input === state.input) {
-                    return state;
-                }
-                try {
-                    Address.parse(action.input);
-                    return {
-                        input: action.input,
-                        domain: undefined,
-                        target: action.input,
-                        suffix: undefined
-                    };
-                } catch {
-                    // ignore
-                }
+            case SolanaInputAction.Input:
                 return {
+                    ...state,
                     input: action.input,
-                    domain: undefined,
-                    target: '',
-                    suffix: undefined
                 };
-            case InputAction.Target:
+            case SolanaInputAction.Target:
                 return {
                     ...state,
                     target: action.target,
-                    suffix: undefined
                 };
-            case InputAction.Domain:
-                return {
-                    ...state,
-                    domain: action.domain,
-                    suffix: undefined
-                };
-            case InputAction.DomainTarget:
-                return {
-                    ...state,
-                    domain: action.domain,
-                    target: action.target,
-                    suffix: undefined
-                };
-            case InputAction.InputTarget:
+            case SolanaInputAction.InputTarget:
                 return {
                     ...state,
                     input: action.input,
                     target: action.target,
-                    suffix: action.suffix
                 };
-            case InputAction.Clear:
+            case SolanaInputAction.Clear:
                 return {
                     input: '',
                     target: '',
-                    domain: undefined,
-                    suffix: undefined
+                    suffix: undefined,
                 };
             default:
                 return state;
@@ -115,20 +65,7 @@ export function addressInputReducer() {
     }
 }
 
-function RightActions({ resolving, input, openScanner, rightAction, clear }: { resolving: boolean | undefined, input: string, openScanner: () => void, rightAction?: React.ReactNode, clear: () => void }) {
-    const theme = useTheme();
-
-    if (resolving) {
-        return (
-            <ReAnimatedCircularProgress
-                size={24}
-                color={theme.iconPrimary}
-                reverse
-                infinitRotate
-                progress={0.8}
-            />
-        );
-    }
+function RightActions({ input, openScanner, rightAction, clear }: { input: string, openScanner: () => void, rightAction?: React.ReactNode, clear: () => void }) {
 
     return input.length > 0 ? (
         <View>
@@ -161,60 +98,42 @@ function RightActions({ resolving, input, openScanner, rightAction, clear }: { r
     )
 }
 
-export type AddressDomainInputRef = Omit<ATextInputRef, 'setText'> & {
-    inputAction: React.Dispatch<AddressInputAction>
+export type SolanaAddressInputRef = Omit<ATextInputRef, 'setText'> & {
+    inputAction: React.Dispatch<SolanaAddressInputAction>
 }
 
-// TODO: pls refactor this component, its just sad
-export const AddressDomainInput = memo(forwardRef(({
+export const SolanaAddressInput = memo(forwardRef(({
     acc,
     onFocus,
     onBlur,
     onSubmit,
-    onSearchItemSelected,
     onStateChange,
     initTarget,
     isKnown,
     index,
-    contact,
     onQRCodeRead,
     autoFocus,
-    screenWidth,
-    bounceableFormat,
-    knownWallets,
     theme,
-    isTestnet,
     navigation,
 }: {
     acc: Address,
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
-    onStateChange: (action: AddressInputState) => void,
-    onSearchItemSelected: (item: AddressSearchItem) => void,
+    onStateChange: (action: SolanaAddressInputState) => void,
     initTarget?: string,
     isKnown?: boolean,
     index: number,
-    contact?: AddressContact | null,
     onQRCodeRead: (value: string) => void,
     autoFocus?: boolean,
-    screenWidth?: number,
-    bounceableFormat: boolean,
-    knownWallets: { [key: string]: KnownWallet },
     theme: ThemeType,
-    isTestnet: boolean,
     navigation: TypedNavigation,
-}, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const client = useClient4(isTestnet);
-    const netConfig = useConfig();
-    const [resolving, setResolving] = useState<boolean>();
-
+}, ref: ForwardedRef<SolanaAddressInputRef>) => {
     const [inputState, inputAction] = useReducer(
-        addressInputReducer(),
+        solanaAddressInputReducer(),
         {
             input: initTarget || '',
             target: initTarget || '',
-            domain: undefined,
             suffix: undefined,
         }
     );
@@ -223,7 +142,7 @@ export const AddressDomainInput = memo(forwardRef(({
         onStateChange(inputState);
     }, [inputState]);
 
-    const { input, domain, target, suffix } = inputState;
+    const { input, target, suffix } = inputState;
 
     const openScanner = () => {
         (async () => {
@@ -232,98 +151,19 @@ export const AddressDomainInput = memo(forwardRef(({
         })();
     };
 
-    const onResolveDomain = (async (
-        toResolve: string, zone: '.t.me' | '.ton',
-        rootDnsAddress: Address
-    ) => {
-        let domain = zone === '.ton'
-            ? toResolve.slice(0, toResolve.length - 4)
-            : toResolve.slice(0, toResolve.length - 5);
-
-        domain = domain.toLowerCase();
-
-        const valid = validateDomain(domain);
-
-        if (!valid) {
-            Alert.alert(t('transfer.error.invalidDomainString'));
-            return;
-        }
-
-        if (!domain) {
-            return;
-        }
-
-        setResolving(true);
-        try {
-            const resolvedDomainWallet = await resolveDomain(client, rootDnsAddress, toResolve, DNS_CATEGORY_WALLET);
-            if (!resolvedDomainWallet) {
-                throw Error('Error resolving domain wallet');
-            }
-
-            if (resolvedDomainWallet instanceof Address) {
-                const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
-                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
-
-                inputAction({
-                    type: InputAction.DomainTarget,
-                    domain: `${domain}${zone}`,
-                    target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
-                });
-            } else {
-                const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
-                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
-
-                inputAction({
-                    type: InputAction.DomainTarget,
-                    domain: `${domain}${zone}`,
-                    target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
-                });
-            }
-        } catch {
-            Alert.alert(t('transfer.error.invalidDomain'));
-        }
-        setResolving(false);
-    });
-
     const { suff, textInput } = useMemo(() => {
 
         let suff = undefined;
         let textInput = input;
 
-        if (domain && target) {
-            const t = target;
-
-            return {
-                suff: t.slice(0, 4) + '...' + t.slice(t.length - 4),
-                textInput: input
-            }
-        }
-
-        if (!resolving && target) {
-            if (isKnown) {
-                suff = target.slice(0, 4) + '...' + target.slice(target.length - 4);
-                textInput = `${knownWallets[target].name}`;
-            } else if (contact) {
-                suff = target.slice(0, 4) + '...' + target.slice(target.length - 4);
-                textInput = `${contact.name}`;
-            } else if (suffix) {
+        if (target) {
+            if (suffix) {
                 suff = suffix;
             }
         }
 
         return { suff, textInput };
-    }, [resolving, isKnown, contact, target, input, domain, suffix]);
-
-    useEffect(() => {
-        if (!netConfig) {
-            return;
-        }
-        if (textInput.endsWith('.ton')) {
-            onResolveDomain(textInput, '.ton', Address.parse(netConfig.rootDnsAddress));
-        } else if (textInput.endsWith('.t.me')) {
-            onResolveDomain(textInput, '.t.me', Address.parse(netConfig.rootDnsAddress));
-        }
-    }, [textInput, netConfig]);
+    }, [target, input, suffix]);
 
     const animatedRef = useRef<TextInput | null>(null);
 
@@ -375,7 +215,7 @@ export const AddressDomainInput = memo(forwardRef(({
         value = value.trim();
         if (value !== textInput) {
             inputAction({
-                type: InputAction.Input,
+                type: SolanaInputAction.Input,
                 input: value
             });
         }
@@ -384,35 +224,11 @@ export const AddressDomainInput = memo(forwardRef(({
     const focus = useCallback(() => onFocus?.(index), [index, onFocus]);
     const blur = useCallback(() => onBlur?.(index), [index, onBlur]);
     const submit = useCallback(() => onSubmit?.(index), [index, onSubmit]);
-    const clear = useCallback(() => inputAction({ type: InputAction.Clear }), [inputAction]);
+    const clear = useCallback(() => inputAction({ type: SolanaInputAction.Clear }), [inputAction]);
 
     useEffect(() => {
         valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 50 });
     }, [valueNotEmpty]);
-
-    const openAddressBook = () => {
-        navigation.navigate('AddressBook', {
-            account: acc.toString({ testOnly: isTestnet }),
-            onSelected: onSearchItemSelected
-        });
-    };
-
-    const rightAction = useMemo(() => {
-        return (
-            <Pressable
-                style={({ pressed }) => ({
-                    opacity: pressed ? 0.5 : 1
-                })}
-                onPress={openAddressBook}
-                hitSlop={4}
-            >
-                <Image
-                    source={require('@assets/ic-address-book.png')}
-                    style={{ height: 24, width: 24, tintColor: theme.accent }}
-                />
-            </Pressable>
-        );
-    }, []);
 
     return (
         <View
@@ -462,7 +278,7 @@ export const AddressDomainInput = memo(forwardRef(({
                         autoComplete={'off'}
                         multiline
                         blurOnSubmit={false}
-                        editable={!resolving}
+                        editable={true}
                         onChangeText={onChangeText}
                         textContentType={'none'}
                         onFocus={focus}
@@ -494,10 +310,8 @@ export const AddressDomainInput = memo(forwardRef(({
                 justifyContent: 'center', alignItems: 'center'
             }}>
                 <RightActions
-                    resolving={resolving}
                     input={input}
                     openScanner={openScanner}
-                    rightAction={rightAction}
                     clear={clear}
                 />
             </View>
@@ -505,4 +319,4 @@ export const AddressDomainInput = memo(forwardRef(({
     );
 }));
 
-AddressDomainInput.displayName = 'AddressDomainInput';
+SolanaAddressInput.displayName = 'SolanaAddressInput';

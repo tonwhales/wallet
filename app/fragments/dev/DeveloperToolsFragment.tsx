@@ -13,11 +13,11 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback } from 'react';
-import { useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
-import { AppState, getAppState, setAppState } from '../../storage/appState';
+import { AppState, getAppState } from '../../storage/appState';
 import { useClearHolders } from '../../engine/hooks';
 import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
@@ -45,6 +45,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const acc = useSelectedAccount()!;
     const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
+    const setAppState = useSetAppState();
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);

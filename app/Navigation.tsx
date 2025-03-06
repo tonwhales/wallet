@@ -107,6 +107,7 @@ import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
 import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilterFragment';
 import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragment';
+import { SolanaSimpleTransferFragment } from './fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -362,7 +363,10 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('DAppWebViewModal', DAppWebViewFragment, safeArea),
     genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
     fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea),
-    modalScreen('AddressBook', AddressBookFragment, safeArea)
+    modalScreen('AddressBook', AddressBookFragment, safeArea),
+
+    // Solana
+    modalScreen('SolanaSimpleTransfer', SolanaSimpleTransferFragment, safeArea),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

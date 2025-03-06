@@ -5,6 +5,7 @@ import { ThemeType } from "../../engine/state/theme";
 import { PerfView } from "../basic/PerfView";
 import { PerfText } from "../basic/PerfText";
 import { useLockAppWithAuthState } from "../../engine/hooks/settings";
+import { ImageStyle, StyleProp, TextStyle, ViewStyle } from "react-native";
 
 const cardImages = {
     'dark': {
@@ -21,7 +22,13 @@ const cardImages = {
     }
 }
 
-export const HoldersAccountCard = memo(({ card, theme }: { card: GeneralHoldersCard, theme: ThemeType }) => {
+export const HoldersAccountCard = memo(({ card, theme, style, coverImageStyle, cardNumberStyle }: { 
+    card: GeneralHoldersCard, 
+    theme: ThemeType, 
+    style?: StyleProp<ViewStyle>, 
+    coverImageStyle?: StyleProp<ImageStyle>,
+    cardNumberStyle?: StyleProp<TextStyle> 
+}) => {
     const [lockAppWithAuth] = useLockAppWithAuthState();
     // TODO: remove this when we have the correct personalization codes
     let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'black-pro';
@@ -31,10 +38,10 @@ export const HoldersAccountCard = memo(({ card, theme }: { card: GeneralHoldersC
     }
 
     return (
-        <PerfView style={{ width: 46, height: 30, borderRadius: 6 }}>
-            <Image source={cardImages[theme.style === 'dark' ? 'dark' : 'light'][imageType]} style={{ width: 46, height: 30 }} />
+        <PerfView style={[{ width: 46, height: 30, borderRadius: 6 }, style]}>
+            <Image source={cardImages[theme.style === 'dark' ? 'dark' : 'light'][imageType]} style={[{ width: 46, height: 30 }, coverImageStyle]} />
             {!!card.lastFourDigits && (
-                <PerfText style={{ position: 'absolute', left: 4, bottom: 3.5, fontSize: 7.5, fontWeight: '500', color: theme.textUnchangeable }}>
+                <PerfText style={[{ position: 'absolute', left: 4, bottom: 3.5, fontSize: 7.5, fontWeight: '500', color: theme.textUnchangeable }, cardNumberStyle]}>
                     {lockAppWithAuth ? card.lastFourDigits : '****'}
                 </PerfText>
             )}

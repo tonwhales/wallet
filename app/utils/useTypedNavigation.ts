@@ -31,6 +31,7 @@ import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccou
 import { TonTransaction } from '../engine/types';
 import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
 import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
+import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -337,6 +338,14 @@ export class TypedNavigation {
     // Solana
     navigateSolanaWallet(params: SolanaWalletFragmentProps) {
         this.navigate('SolanaWallet', params);
+    }
+
+    navigateSolanaSimpleTransfer(params: SolanaSimpleTransferParams) {
+        this.navigate('SolanaSimpleTransfer', params);
+    }
+
+    navigateSolanaReceive() {
+        this.navigate('ReceiveSolana');
     }
 }
 

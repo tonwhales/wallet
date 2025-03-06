@@ -56,12 +56,14 @@ export const WalletActionButton = memo(({
     action,
     navigation,
     theme,
-    isLedger
+    isLedger,
+    solana
 }: {
     action: WalletAction,
     navigation: TypedNavigation,
     theme: ThemeType,
-    isLedger?: boolean
+    isLedger?: boolean,
+    solana?: boolean
 }) => {
     const { isTestnet } = useNetwork();
     const ledgerContext = useLedgerTransport();
@@ -95,6 +97,10 @@ export const WalletActionButton = memo(({
         }
         case WalletActionType.Send: {
             let navigate = () => {
+                if (solana) {
+                    navigation.navigateSolanaSimpleTransfer({});
+                    return;
+                }
                 navigation.navigateSimpleTransfer(
                     { ...nullTransfer, jetton: action.jetton },
                     { ledger: isLedger }
@@ -128,6 +134,11 @@ export const WalletActionButton = memo(({
         }
         case WalletActionType.Receive: {
             const navigate = () => {
+                if (solana) {
+                    navigation.navigateSolanaReceive();
+                    return;
+                }
+
                 if (!!action.asset) {
                     const address = isLedger ? ledgerContext.addr?.address : undefined;
                     let addr = undefined;

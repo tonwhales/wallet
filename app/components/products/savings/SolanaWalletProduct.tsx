@@ -6,49 +6,36 @@ import { Typography } from "../../styles";
 import { PriceComponent } from "../../PriceComponent";
 import { ValueComponent } from "../../ValueComponent";
 import { ItemDivider } from "../../ItemDivider";
-import { useBounceableWalletFormat, useSelectedAccount } from "../../../engine/hooks";
+import { useBounceableWalletFormat, useSelectedAccount, useSolanaAccount } from "../../../engine/hooks";
 import { t } from "../../../i18n/t";
 import { SolanaAddress } from "../../../utils/solana/core";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
-// Mock Solana wallet hook - this would need to be implemented
-const useSolanaWallet = (address: SolanaAddress) => {
-    return {
-        balance: 10000000000n,
-        nanoBalance: 10000000000n,
-        address: address,
-        priceUSD: 144.44
-    };
-};
-
 export const SolanaWalletProduct = memo(({
     theme,
-    isLedger,
     address,
     testOnly,
     divider,
     assetCallback
 }: {
     theme: ThemeType,
-    isLedger?: boolean,
     address: SolanaAddress,
     testOnly: boolean,
     divider?: 'top' | 'bottom',
     assetCallback?: (asset: any) => void
 }) => {
     const navigation = useTypedNavigation();
-    const solanaWallet = useSolanaWallet(address);
     const [bounceableFormat] = useBounceableWalletFormat();
-    const selectedAccount = useSelectedAccount();
-    
+    const account = useSolanaAccount(address);
+
     // Placeholder values - would come from the actual Solana wallet integration
-    const balance = solanaWallet?.balance ?? 0n;
+    const balance = account.data?.lamports ?? 0n;
     const symbol = "SOL";
     const decimals = 9;
-    
+
     const onPress = useCallback(async () => {
-        if (!!assetCallback && solanaWallet?.address) {
+        if (!!assetCallback) {
             assetCallback({
                 address,
                 content: {
@@ -59,35 +46,8 @@ export const SolanaWalletProduct = memo(({
             return;
         }
 
-        const hasWallet = !!solanaWallet;
-
-        console.log('hasWallet', hasWallet);
-
-        const privateKey = selectedAccount?.secretKeyEnc;
-
-        if (!hasWallet && !privateKey) {
-            return;
-        }
-
-        if (hasWallet) {
-            navigation.navigateSolanaWallet({
-                owner: address,
-                isLedger
-            });
-            return;
-        }
-
-        // navigation.navigateReceive({
-        //     asset: solanaWallet ? {
-        //         address: address, // Use TON address as a placeholder
-        //         content: {
-        //             icon: require('@assets/ic-solana.svg'),
-        //             name: "Solana",
-        //         }
-        //     } : undefined,
-        //     addr: address.toString({ bounceable: isLedger ? false : bounceableFormat, testOnly })
-        // }, isLedger);
-    }, [assetCallback, solanaWallet, isLedger, navigation, address, bounceableFormat, testOnly]);
+        navigation.navigateSolanaWallet({ owner: address });
+    }, [assetCallback, navigation, address, bounceableFormat, testOnly]);
 
     return (
         <Pressable
@@ -108,17 +68,17 @@ export const SolanaWalletProduct = memo(({
                 <View style={{
                     width: 46, height: 46, borderRadius: 23,
                     borderWidth: 0,
-                    backgroundColor: theme.surfaceOnBg,
+                    backgroundColor: theme.backgroundPrimary,
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
                     <SolanaIcon
-                        width={46}
-                        height={46}
+                        width={32}
+                        height={32}
                         style={{
-                            borderRadius: 23,
-                            height: 46,
-                            width: 46
+                            borderRadius: 16,
+                            height: 32,
+                            width: 32
                         }}
                     />
                     <View style={{
@@ -173,7 +133,7 @@ export const SolanaWalletProduct = memo(({
                             </Text>
                         </Text>
                         <PriceComponent
-                            amount={solanaWallet?.nanoBalance ?? 0n}
+                            amount={balance}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0, paddingVertical: 0,
@@ -182,7 +142,7 @@ export const SolanaWalletProduct = memo(({
                             }}
                             textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                             theme={theme}
-                            priceUSD={solanaWallet?.priceUSD ?? 0}
+                            priceUSD={144}
                             hideCentsIfNull
                         />
                     </View>

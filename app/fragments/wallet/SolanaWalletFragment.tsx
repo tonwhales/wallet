@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
+import { useNetwork, usePrimaryCurrency, useSolanaAccount, useTheme } from "../../engine/hooks";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -18,16 +18,6 @@ import { isSolanaAddress, SolanaAddress, solanaAddressFromString } from "../../u
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
-// Hook for Solana wallet - placeholder
-const useSolanaWallet = (owner: SolanaAddress) => {
-    return {
-        balance: 10000000000n, // Placeholder balance
-        decimals: 9,
-        symbol: "SOL",
-        prices: { USD: "144.44" } as Record<string, string>
-    };
-};
-
 // Hook for Solana transactions - placeholder
 const useSolanaTransactions = (owner: SolanaAddress, options?: { refetchOnMount: boolean }) => {
     return {
@@ -39,8 +29,7 @@ const useSolanaTransactions = (owner: SolanaAddress, options?: { refetchOnMount:
 };
 
 export type SolanaWalletFragmentProps = {
-    owner: string;
-    isLedger?: boolean;
+    owner: string
 }
 
 const SolanaWalletSkeleton = memo(() => {
@@ -62,16 +51,20 @@ const SolanaWalletSkeleton = memo(() => {
     );
 });
 
-const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentProps) => {
+const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
     const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const ownerAddress = solanaAddressFromString(owner);
-
-    const solanaWallet = useSolanaWallet(ownerAddress);
+    const account = useSolanaAccount(ownerAddress);
     const txs = useSolanaTransactions(ownerAddress, { refetchOnMount: true });
+
+    const balance = account.data?.lamports ?? 0n;
+    const symbol = "SOL";
+    const decimals = 9;
+
     const transactions = txs.data ?? [];
 
     const onReachedEnd = useCallback(() => {
@@ -85,9 +78,8 @@ const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentPro
     }, [txs.refresh]);
 
     const [currency] = usePrimaryCurrency();
-    const rate = currency === 'USD' ? solanaWallet?.prices?.USD : undefined;
-    const decimals = solanaWallet?.decimals ?? 9;
-    const balance = solanaWallet?.balance ?? 0n;
+    // TODO: get rate from API
+    const rate = 144;
 
     // Calculate USD value
     const usdValue = rate ? (Number(balance) / Math.pow(10, decimals)) * Number(rate) : 0;
@@ -96,10 +88,6 @@ const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentPro
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
-
-    if (!solanaWallet) {
-        return <SolanaWalletSkeleton />;
-    }
 
     return (
         <View style={[styles.container, Platform.select({
@@ -116,7 +104,7 @@ const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentPro
                             numberOfLines={1}
                             ellipsizeMode={'tail'}
                         >
-                            {solanaWallet?.symbol}
+                            {symbol}
                         </Text>
                         {!!rate && (
                             <Text
@@ -136,7 +124,6 @@ const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentPro
                 )}
             />
             <SolanaTransactions
-                solanaWallet={solanaWallet}
                 theme={theme}
                 navigation={navigation}
                 txs={transactions}
@@ -146,18 +133,25 @@ const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentPro
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
                 loading={false}
-                ledger={isLedger}
                 header={
                     <View style={styles.content}>
-                        <SolanaIcon
-                            width={72}
-                            height={72}
-                            style={{
-                                borderRadius: 36,
-                                height: 72,
-                                width: 72
-                            }}
-                        />
+                        <View style={{
+                            width: 72, height: 72, borderRadius: 36,
+                            borderWidth: 0,
+                            backgroundColor: theme.surfaceOnBg,
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            <SolanaIcon
+                                width={48}
+                                height={48}
+                                style={{
+                                    borderRadius: 24,
+                                    height: 48,
+                                    width: 48
+                                }}
+                            />
+                        </View>
                         <View style={{ marginTop: 16, width: '100%' }}>
                             <View style={{ gap: 8, alignItems: 'center' }}>
                                 {/* address */}
@@ -165,12 +159,12 @@ const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentPro
                                     {ownerAddress.substring(0, 4)}...{ownerAddress.substring(ownerAddress.length - 4)}
                                 </Text>
                                 <ValueComponent
-                                    value={solanaWallet?.balance ?? 0n}
-                                    decimals={solanaWallet?.decimals ?? 9}
+                                    value={balance}
+                                    decimals={9}
                                     precision={4}
                                     fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
                                     centFontStyle={{ color: theme.textSecondary }}
-                                    suffix={solanaWallet?.symbol ? ` ${solanaWallet.symbol}` : ''}
+                                    suffix={symbol}
                                 />
                                 <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                     <ValueComponent
@@ -186,8 +180,6 @@ const SolanaWalletComponent = memo(({ owner, isLedger }: SolanaWalletFragmentPro
                                 navigation={navigation}
                                 isTestnet={isTestnet}
                                 address={ownerAddress}
-                                isLedger={isLedger}
-                                solanaWallet={solanaWallet}
                             />
                             {/* Placeholder for pending transactions */}
                             <View style={{ marginTop: 16 }} />
@@ -221,10 +213,7 @@ export const SolanaWalletFragment = fragment(() => {
             Platform.select({ android: { backgroundColor: theme.backgroundPrimary } })
         ]}>
             <Suspense fallback={<SolanaWalletSkeleton />}>
-                <SolanaWalletComponent
-                    owner={owner}
-                    isLedger={isLedger}
-                />
+                <SolanaWalletComponent owner={owner} />
             </Suspense>
         </View>
     );

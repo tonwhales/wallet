@@ -86,7 +86,6 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
                         theme={theme}
                         address={solanaAddress}
                         testOnly={isTestnet}
-                        isLedger={isLedger}
                     />
                 );
         }

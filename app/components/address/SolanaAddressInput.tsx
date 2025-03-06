@@ -2,7 +2,6 @@ import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImper
 import { Pressable, Image, TextInput, View, Text, LayoutChangeEvent } from "react-native"
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { Address } from "@ton/core";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { Typography } from "../styles";
@@ -103,26 +102,22 @@ export type SolanaAddressInputRef = Omit<ATextInputRef, 'setText'> & {
 }
 
 export const SolanaAddressInput = memo(forwardRef(({
-    acc,
     onFocus,
     onBlur,
     onSubmit,
     onStateChange,
     initTarget,
-    isKnown,
     index,
     onQRCodeRead,
     autoFocus,
     theme,
     navigation,
 }: {
-    acc: Address,
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
     onStateChange: (action: SolanaAddressInputState) => void,
     initTarget?: string,
-    isKnown?: boolean,
     index: number,
     onQRCodeRead: (value: string) => void,
     autoFocus?: boolean,

@@ -34,6 +34,12 @@ export type LedgerOrder = {
     }
 };
 
+export type SolanaOrder = {
+    type: 'solana';
+    target: string;
+    amount: bigint;
+}
+
 
 export function createLedgerJettonOrder(args: {
     wallet: Address,

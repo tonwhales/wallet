@@ -1,122 +1,87 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, Pressable, View } from "react-native";
-import { Address } from "@ton/core";
 import { avatarColors } from "../avatar/Avatar";
-import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputAction } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
-import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useTheme } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
-import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { AddressInputAvatar } from "./AddressInputAvatar";
 import { useDimensions } from "@react-native-community/hooks";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { Typography } from "../styles";
-import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
+import { SolanaAddressInput, SolanaAddressInputRef, SolanaAddressInputState } from "./SolanaAddressInput";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
-
-type TransferAddressInputProps = {
-    acc: Address,
-    isTestnet: boolean,
+import { isSolanaAddress, solanaAddressFromString } from "../../utils/solana/core";
+type SolanaTransferAddressInputProps = {
     index: number,
     initTarget: string,
-    domain?: string,
     onFocus: (index: number) => void,
     onSubmit: (index: number) => void,
     onQRCodeRead: (value: string) => void,
     isSelected?: boolean,
     onNext?: () => void,
-    onSearchItemSelected: (item: AddressSearchItem) => void,
-    knownWallets: { [key: string]: KnownWallet },
     navigation: TypedNavigation,
-    setAddressDomainInputState: (state: AddressInputState) => void,
-    autoFocus?: boolean,
-    isLedger?: boolean
+    setAddressInputState: (state: SolanaAddressInputState) => void,
+    autoFocus?: boolean
 }
 
-export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const { acc: account, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger } = props;
+export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransferAddressInputProps, ref: ForwardedRef<SolanaAddressInputRef>) => {
+    const { index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, navigation, setAddressInputState, autoFocus } = props;
     const theme = useTheme();
 
-    const [state, setState] = useState<AddressInputState>({
+    const [state, setState] = useState<SolanaAddressInputState>({
         input: initTarget,
         target: initTarget,
-        suffix: '',
-        domain: undefined
+        suffix: ''
     });
 
     useEffect(() => {
-        setAddressDomainInputState(state);
+        setAddressInputState(state);
     }, [state]);
 
     const [validAddress, isInvalid] = useMemo(() => {
-        if (state.target.length < 48) {
+        if (state.target.length < 44) {
             return [null, false];
         }
+        if (!isSolanaAddress(state.target)) {
+            return [null, true];
+        }
         try {
-            return [Address.parse(state.target), false]
+            return [solanaAddressFromString(state.target), false]
         } catch {
             return [null, true];
         }
     }, [state.target]);
 
     const { input: query, target } = state;
-    const isKnown: boolean = !!knownWallets[initTarget];
-    const addressBookContext = useAddressBookContext();
-    const contact = addressBookContext.asContact(initTarget);
-    const appState = useAppState();
     const dimentions = useDimensions();
     const screenWidth = dimentions.screen.width;
-    const validAddressFriendly = validAddress?.toString({ testOnly: isTestnet });
-    const [walletSettings] = useWalletSettings(validAddressFriendly);
-    const [bounceableFormat] = useBounceableWalletFormat();
-    const ledgerTransport = useLedgerTransport();
 
-    const holdersAccounts = useHoldersAccounts(account).data?.accounts ?? [];
-    const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
+    // const holdersAccounts = useHoldersAccounts(account).data?.accounts ?? [];
+    // const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
 
-    const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
+    const avatarColorHash = avatarHash(validAddress ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
-    const isSelectedLedger = useMemo(() => {
-        try {
-            if (!!ledgerTransport?.addr?.address && !!validAddress) {
-                return Address.parse(ledgerTransport.addr.address).equals(validAddress);
-            }
-            return false
-        } catch {
-            return false;
-        }
-    }, [ledgerTransport.addr?.address, validAddress]);
+    // TODO map other wallets to solana addresses
+    // const myWallets = useMemo(() => {
+    //     return appState.addresses
+    //         .map((acc, index) => ({
+    //             address: acc.address,
+    //             addressString: acc.address.toString({ testOnly: isTestnet }),
+    //             index: index
+    //         }))
+    //         .filter((acc) => !acc.address.equals(account))
+    // }, [appState.addresses]);
 
-    const myWallets = useMemo(() => {
-        return appState.addresses
-            .map((acc, index) => ({
-                address: acc.address,
-                addressString: acc.address.toString({ testOnly: isTestnet }),
-                index: index
-            }))
-            .concat(ledgerTransport.addr ? [
-                {
-                    address: Address.parse(ledgerTransport.addr.address),
-                    addressString: Address.parse(ledgerTransport.addr.address).toString({ testOnly: isTestnet }),
-                    index: -2
-                }
-            ] : [])
-            .filter((acc) => !acc.address.equals(account))
-    }, [appState.addresses, ledgerTransport.addr?.address]);
-
-    const own = !!myWallets.find((acc) => {
-        if (validAddress) {
-            return acc.address.equals(validAddress);
-        }
-    });
+    // const own = !!myWallets.find((acc) => {
+    //     if (validAddress) {
+    //         return acc.address.equals(validAddress);
+    //     }
+    // });
 
     const onFocusCallback = useCallback(() => onFocus(index), [index]);
 
@@ -130,32 +95,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             select();
         }
     }, [select, isSelected]);
-
-    const onAddressSearchItemSelected = useCallback((item: AddressSearchItem) => {
-        const friendly = item.addr.address.toString({
-            testOnly: isTestnet,
-            bounceable: item.known ? true : item.addr.isBounceable
-        });
-
-        let name = item.type !== 'unknown' ? item.title : friendly;
-
-        if (item.isLedger) {
-            name = 'Ledger';
-        }
-
-        const suff = friendly.slice(0, 4) + '...' + friendly.slice(friendly.length - 4);
-
-        (ref as RefObject<AddressDomainInputRef> | undefined)?.current?.inputAction({
-            type: InputAction.InputTarget,
-            input: name.trim(),
-            target: friendly,
-            suffix: suff
-        });
-
-        if (onSearchItemSelected) {
-            onSearchItemSelected(item);
-        }
-    }, [onSearchItemSelected]);
 
     return (
         <View>
@@ -175,14 +114,13 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     <AddressInputAvatar
                         size={46}
                         theme={theme}
-                        isOwn={own}
-                        markContact={!!contact}
-                        hash={walletSettings?.avatar}
-                        isLedger={isSelectedLedger}
-                        friendly={validAddressFriendly}
+                        isOwn={false}
+                        markContact={false}
+                        // hash={walletSettings?.avatar}
+                        friendly={target}
                         avatarColor={avatarColor}
-                        knownWallets={knownWallets}
-                        forceAvatar={!!isTargetHolders ? 'holders' : undefined}
+                        knownWallets={{}} hash={null}
+                        // forceAvatar={!!isTargetHolders ? 'holders' : undefined}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
@@ -220,36 +158,27 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         <AddressInputAvatar
                             size={46}
                             theme={theme}
-                            isOwn={own}
-                            markContact={!!contact}
-                            hash={walletSettings?.avatar}
-                            isLedger={isSelectedLedger}
-                            friendly={validAddressFriendly}
+                            isOwn={false}
+                            markContact={false}
+                            // hash={walletSettings?.avatar}
+                            friendly={target}
                             avatarColor={avatarColor}
-                            knownWallets={knownWallets}
-                            forceAvatar={isTargetHolders ? 'holders' : undefined}
+                            knownWallets={{}} hash={null}
+                            // forceAvatar={isTargetHolders ? 'holders' : undefined}
                         />
                     </View>
-                    <AddressDomainInput
+                    <SolanaAddressInput
                         onStateChange={setState}
                         index={index}
                         ref={ref}
                         initTarget={initTarget}
                         autoFocus={autoFocus}
                         onFocus={onFocusCallback}
-                        isKnown={isKnown}
                         onSubmit={onSubmit}
-                        contact={contact}
                         onQRCodeRead={onQRCodeRead}
-                        screenWidth={screenWidth * 0.75}
-                        bounceableFormat={bounceableFormat}
-                        knownWallets={knownWallets}
                         navigation={navigation}
-                        theme={theme}
-                        isTestnet={isTestnet}
-                        acc={account}
-                        onSearchItemSelected={onAddressSearchItemSelected}
-                    />
+                        theme={theme} 
+                        />
                 </View>
                 {isInvalid && (
                     <Animated.View entering={FadeIn} exiting={FadeOut}>
@@ -262,17 +191,17 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         </PerfText>
                     </Animated.View>
                 )}
-                <HoldersAccountsSearch
+                {/* <HoldersAccountsSearch
                     theme={theme}
                     onSelect={onAddressSearchItemSelected}
                     query={query}
                     holdersAccounts={holdersAccounts}
                     owner={account}
                     isLedger={isLedger}
-                />
+                /> */}
             </View>
         </View>
     );
 }));
 
-TransferAddressInput.displayName = 'TransferAddressInput';
+SolanaTransferAddressInput.displayName = 'SolanaTransferAddressInput';

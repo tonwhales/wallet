@@ -402,7 +402,7 @@ const TransactionPreview = () => {
                             >
                                 <AddressComponent
                                     address={parsedOpAddr.address}
-                                    bounceable={parsedOpAddr.isBounceable}
+                                    bounceable={bounceableFormat}
                                     end={4}
                                     testOnly={isTestnet}
                                     known={fromKnownWalletsList}

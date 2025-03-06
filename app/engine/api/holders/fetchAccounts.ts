@@ -196,7 +196,8 @@ const accountSchema = z.object({
 
   limits: accountLimitsSchema,
   cards: z.array(cardDebit),
-  createdAt: z.string().nullish()
+  createdAt: z.string().nullish(),
+  hasBeenDepositedOnce: z.boolean().nullish(),
 });
 
 export const accountsListResCodec = z.discriminatedUnion('ok', [
@@ -239,18 +240,20 @@ export async function fetchAccountsList(token: string, isTestnet: boolean) {
     return null;
   }
 
-  let parseResult = accountsListResCodec.safeParse(res.data);
+  const data = res.data;
+
+  let parseResult = accountsListResCodec.safeParse(data);
   if (!parseResult.success) {
     console.warn(JSON.stringify(parseResult.error.format()));
     throw Error("Invalid card list response");
   }
 
   if (!parseResult.data.ok) {
-    throw Error(`Error fetching card list: ${res.data.error}`);
+    throw Error(`Error fetching card list: ${parseResult.data.error}`);
   }
 
   return {
-    accounts: parseResult.data.list as GeneralHoldersAccount[],
-    prepaidCards: parseResult.data.prepaidCards as PrePaidHoldersCard[]
+    accounts: data.list as GeneralHoldersAccount[],
+    prepaidCards: data.prepaidCards as PrePaidHoldersCard[]
   };
 }

@@ -9,6 +9,7 @@ import { useLedgerTransport } from "../../fragments/ledger/components/TransportC
 import { Address } from "@ton/core";
 import { makeScreenSecure } from "../../modules/SecureScreen";
 import { useFocusEffect } from "@react-navigation/native";
+import { useScreenProtectorState } from "../../engine/hooks/settings/useScreenProtector";
 
 export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { holdersAccStatus?: HoldersAccountStatus, isLedger?: boolean }) => {
     const network = useNetwork();
@@ -18,6 +19,7 @@ export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { h
     const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address!;
     const accounts = useHoldersAccounts(address).data?.accounts;
     const prePaid = useHoldersAccounts(address).data?.prepaidCards;
+    const [isScreenProtectorEnabled] = useScreenProtectorState();
 
     const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address);
     const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address);
@@ -38,13 +40,13 @@ export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { h
     const hasPrepaid = visiblePrepaidList?.length > 0;
 
     useFocusEffect(useCallback(() => {
-        if (hasPrepaid || hasAccounts) {
-           InteractionManager.runAfterInteractions(() => makeScreenSecure())
+        if ((hasPrepaid || hasAccounts) && isScreenProtectorEnabled) {
+            InteractionManager.runAfterInteractions(() => makeScreenSecure())
         }
         return () => {
             makeScreenSecure(false)
         }
-    }, [hasPrepaid, hasAccounts]))
+    }, [hasPrepaid, hasAccounts, isScreenProtectorEnabled]))
 
     if (!hasAccounts && !hasPrepaid) {
         return null;

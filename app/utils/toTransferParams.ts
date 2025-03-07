@@ -1,11 +1,11 @@
 import { Address, toNano } from "@ton/core";
 import { PendingTransaction } from "../engine/state/pending";
 import { SimpleTransferParams } from "../fragments/secure/simpleTransfer";
-import { TransferFragmentProps } from "../fragments/secure/TransferFragment";
+import { TransferFragmentParams } from "../fragments/secure/transfer/TransferFragment";
 import { fromBnWithDecimals } from "./withDecimals";
 import { TonTransaction } from "../engine/types";
 
-export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
+export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentParams & { type: 'transfer' });
 
 // Map pending transaction obj to transfer params for navigator
 export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: boolean): RepeatTxParams | null {

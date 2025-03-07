@@ -11,10 +11,10 @@ import { KnownWallet } from "../../../../secure/KnownWallets";
 type Props = {
     commentString: string;
     isActive: boolean;
-    payload: Cell | null
+    payload?: Cell | null
     onInputFocus: (index: number) => void
     setComment: Dispatch<SetStateAction<string>>
-    known: KnownWallet;
+    known?: KnownWallet;
     commentError?: string;
     maxHeight?: number;
     isScrolling?: boolean;

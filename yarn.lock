@@ -2827,6 +2827,11 @@
   resolved "https://registry.yarnpkg.com/@solana-program/compute-budget/-/compute-budget-0.7.0.tgz#a9e30b2bb4f9d11b8b8eef926b1ce258c6382431"
   integrity sha512-/JJSE1fKO5zx7Z55Z2tLGWBDDi7tUE+xMlK8qqkHlY51KpqksMsIBzQMkG9Dqhoe2Cnn5/t3QK1nJKqW6eHzpg==
 
+"@solana-program/memo@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@solana-program/memo/-/memo-0.7.0.tgz#7f38df2b3e5ed7e771c17920594703b19cf731e4"
+  integrity sha512-3T9iUjWSYtN/5S5jzJuasD2yQfVfFAQ9yTwIE25+P9peWqz4oarn6ZQvRj/FLcBqaMLtSqLhU1hN2cyVBS6hyg==
+
 "@solana-program/system@^0.7.0":
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@solana-program/system/-/system-0.7.0.tgz#3e21c9fb31d3795eb65ba5cb663947c19b305bad"

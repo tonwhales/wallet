@@ -19,14 +19,16 @@ import { Address } from '@ton/core';
 import { Jetton } from '../../../../engine/types';
 import { HoldersAccountTarget } from '../../../../engine/hooks/holders/useHoldersAccountTrargets';
 
+import SolanaIcon from '@assets/ic-solana.svg';
+
 type Props = {
-    onAssetSelected: (selected?: {
+    onAssetSelected?: (selected?: {
         master: Address;
         wallet?: Address;
     }) => void;
-    jetton: Jetton | null;
-    isLedger: boolean;
-    isSCAM: boolean;
+    jetton?: Jetton | null;
+    isLedger?: boolean;
+    isSCAM?: boolean;
     symbol: string;
     balance: bigint;
     onAddAll: () => void;
@@ -36,9 +38,46 @@ type Props = {
     priceText?: string;
     shouldChangeJetton?: boolean;
     holdersTarget?: HoldersAccountTarget;
-    onChangeJetton: () => void;
+    onChangeJetton?: () => void;
     onInputFocus: (index: number) => void
 }
+
+const AmountIcon = memo(({ symbol, jetton }: { symbol: string, jetton?: Jetton | null }) => {
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+
+    let ic = <Image
+        source={require('@assets/ic-ton-acc.png')}
+        style={{ height: 46, width: 46 }}
+    />
+
+    if (jetton) {
+        ic = <JettonIcon
+            isTestnet={isTestnet}
+            theme={theme}
+            size={46}
+            jetton={mapJettonToMasterState(jetton, isTestnet)}
+        />
+    } else if (symbol === 'SOL') {
+        ic = <SolanaIcon
+            style={{ height: 32, width: 32 }}
+            height={32}
+            width={32}
+        />
+    }
+
+    return (
+        <View style={{
+            height: 46, width: 46,
+            justifyContent: 'center', alignItems: 'center',
+            marginRight: 12,
+            backgroundColor: theme.elevation,
+            borderRadius: 23
+        }}>
+            {ic}
+        </View>
+    );
+});
 
 export const SimpleTransferAmount = memo(forwardRef(({
     onAssetSelected,
@@ -68,7 +107,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
         setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? 9, { skipFormattingDecimals: true }, prev));
     }, [jetton?.decimals])
 
-    const onNavigateAssets = useCallback(() =>  navigation.navigateAssets({
+    const onNavigateAssets = useCallback(() => navigation.navigateAssets({
         jettonCallback: onAssetSelected,
         selectedAsset: jetton?.master,
         viewType: AssetViewType.Transfer,
@@ -78,6 +117,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
     const jettonButton = useMemo(() => (
         <Pressable
             style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+            disabled={!onAssetSelected}
             onPress={onNavigateAssets}
         >
             <View style={{
@@ -86,27 +126,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 justifyContent: 'space-between'
             }}>
                 <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
-                    <View style={{
-                        height: 46, width: 46,
-                        justifyContent: 'center', alignItems: 'center',
-                        marginRight: 12
-                    }}>
-                        {!!jetton ? (
-                            <JettonIcon
-                                isTestnet={network.isTestnet}
-                                theme={theme}
-                                size={46}
-                                jetton={mapJettonToMasterState(jetton, network.isTestnet)}
-                                backgroundColor={theme.elevation}
-                                isSCAM={isSCAM}
-                            />
-                        ) : (
-                            <Image
-                                source={require('@assets/ic-ton-acc.png')}
-                                style={{ height: 46, width: 46 }}
-                            />
-                        )}
-                    </View>
+                    <AmountIcon symbol={symbol} jetton={jetton} />
                     <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
                         <Text
                             style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
@@ -131,7 +151,9 @@ export const SimpleTransferAmount = memo(forwardRef(({
                         )}
                     </View>
                 </View>
-                <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                {onAssetSelected && (
+                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                )}
             </View>
         </Pressable>
     ), [onNavigateAssets, network.isTestnet, jetton, symbol, isSCAM])
@@ -181,7 +203,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 flexGrow: 1
             }, Typography.regular17_24, { lineHeight: undefined }]}
             suffix={priceText}
-            ticker={jetton?.symbol || 'TON'}
+            ticker={jetton?.symbol || symbol || 'TON'}
             cursorColor={theme.accent}
         />
     ), [onInputFocus, onValueChange, amountError, priceText, jetton?.symbol, amount])

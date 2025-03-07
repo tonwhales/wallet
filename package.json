@@ -33,6 +33,7 @@
     "@shopify/react-native-performance": "^4.1.2",
     "@shopify/react-native-skia": "0.1.196",
     "@solana-program/compute-budget": "^0.7.0",
+    "@solana-program/memo": "^0.7.0",
     "@solana-program/system": "^0.7.0",
     "@solana/functional": "^2.1.0",
     "@solana/kit": "^2.1.0",

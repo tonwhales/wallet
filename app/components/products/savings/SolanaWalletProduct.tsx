@@ -6,8 +6,7 @@ import { Typography } from "../../styles";
 import { PriceComponent } from "../../PriceComponent";
 import { ValueComponent } from "../../ValueComponent";
 import { ItemDivider } from "../../ItemDivider";
-import { useBounceableWalletFormat, useSelectedAccount, useSolanaAccount } from "../../../engine/hooks";
-import { t } from "../../../i18n/t";
+import { useBounceableWalletFormat, useSolanaAccount } from "../../../engine/hooks";
 import { SolanaAddress } from "../../../utils/solana/core";
 
 import SolanaIcon from '@assets/ic-solana.svg';

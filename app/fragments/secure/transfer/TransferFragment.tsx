@@ -1,52 +1,53 @@
 import * as React from 'react';
 import { Platform, View, Alert, Linking, BackHandler } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { backoff, backoffFailaible } from '../../utils/time';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
+import { backoff, backoffFailaible } from '../../../utils/time';
+import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
-import { getCurrentAddress } from '../../storage/appState';
-import { fetchConfig } from '../../engine/api/fetchConfig';
-import { t } from '../../i18n/t';
-import { fragment } from '../../fragment';
-import { ContractMetadata } from '../../engine/metadata/Metadata';
-import { Order } from './ops/Order';
-import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
-import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
-import { TransferSingle } from './components/TransferSingle';
-import { TransferBatch } from './components/TransferBatch';
-import { parseBody } from '../../engine/transactions/parseWalletTransaction';
-import { ScreenHeader } from '../../components/ScreenHeader';
-import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
+import { getCurrentAddress } from '../../../storage/appState';
+import { fetchConfig } from '../../../engine/api/fetchConfig';
+import { t } from '../../../i18n/t';
+import { fragment } from '../../../fragment';
+import { ContractMetadata } from '../../../engine/metadata/Metadata';
+import { Order } from '../ops/Order';
+import { fetchMetadata } from '../../../engine/metadata/fetchMetadata';
+import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../../utils/dns/dns';
+import { TransferSingle } from '../components/TransferSingle';
+import { TransferBatch } from '../components/TransferBatch';
+import { parseBody } from '../../../engine/transactions/parseWalletTransaction';
+import { ScreenHeader } from '../../../components/ScreenHeader';
+import { TransferSkeleton } from '../../../components/skeletons/TransferSkeleton';
 import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useBounceableWalletFormat, useClient4, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
-import { fetchSeqno } from '../../engine/api/fetchSeqno';
-import { OperationType } from '../../engine/transactions/parseMessageBody';
+import { useBounceableWalletFormat, useClient4, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../../engine/hooks';
+import { fetchSeqno } from '../../../engine/api/fetchSeqno';
+import { OperationType } from '../../../engine/transactions/parseMessageBody';
 import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal, beginCell, toNano } from '@ton/core';
-import { estimateFees } from '../../utils/estimateFees';
-import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
+import { estimateFees } from '../../../utils/estimateFees';
+import { internalFromSignRawMessage } from '../../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
-import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
-import { ReturnStrategy } from '../../engine/tonconnect/types';
-import Minimizer from '../../modules/Minimizer';
-import { warn } from '../../utils/log';
-import { clearLastReturnStrategy } from '../../engine/tonconnect/utils';
-import { parseAnyStringAddress } from '../../utils/parseAnyStringAddress';
-import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
+import { resolveBounceableTag } from '../../../utils/resolveBounceableTag';
+import { ReturnStrategy } from '../../../engine/tonconnect/types';
+import Minimizer from '../../../modules/Minimizer';
+import { warn } from '../../../utils/log';
+import { clearLastReturnStrategy } from '../../../engine/tonconnect/utils';
+import { parseAnyStringAddress } from '../../../utils/parseAnyStringAddress';
+import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
-import { useGaslessConfig } from '../../engine/hooks/jettons/useGaslessConfig';
-import { fetchGaslessEstimate, GaslessEstimate } from '../../engine/api/gasless/fetchGaslessEstimate';
-import { getQueryData } from '../../engine/utils/getQueryData';
-import { queryClient } from '../../engine/clients';
-import { Queries } from '../../engine/queries';
-import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
-import { toBnWithDecimals } from '../../utils/withDecimals';
-import { updateTargetAmount } from '../../utils/gasless/updateTargetAmount';
-import { MintlessJetton } from '../../engine/api/fetchMintlessHints';
+import { useGaslessConfig } from '../../../engine/hooks/jettons/useGaslessConfig';
+import { fetchGaslessEstimate, GaslessEstimate } from '../../../engine/api/gasless/fetchGaslessEstimate';
+import { getQueryData } from '../../../engine/utils/getQueryData';
+import { queryClient } from '../../../engine/clients';
+import { Queries } from '../../../engine/queries';
+import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
+import { toBnWithDecimals } from '../../../utils/withDecimals';
+import { updateTargetAmount } from '../../../utils/gasless/updateTargetAmount';
+import { MintlessJetton } from '../../../engine/api/fetchMintlessHints';
+import { useParams } from '../../../utils/useParams';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
-export type TransferFragmentProps = {
+export type TransferFragmentParams = {
     source?: TransferRequestSource
     text: string | null,
     order: Order,
@@ -151,7 +152,7 @@ const TransferLoaded = memo((props: ConfirmLoadedProps) => {
 export const TransferFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
-    const params: TransferFragmentProps = useRoute().params! as any;
+    const params: TransferFragmentParams = useParams();
     const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();

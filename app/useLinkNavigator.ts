@@ -7,8 +7,6 @@ import { useSelectedAccount } from './engine/hooks';
 import { InfiniteData, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { Address, Cell, fromNano, toNano } from '@ton/core';
 import { fetchAccountTransactions } from './engine/api/fetchAccountTransactions';
-import { contractMetadataQueryFn, jettonMasterContentQueryFn } from './engine/hooks/jettons/jettonsBatcher';
-import { getJettonMasterAddressFromMetadata, parseStoredMetadata } from './engine/hooks/transactions/parseStoredMetadata';
 import { AppState, getAppState } from './storage/appState';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import { ToastDuration, Toaster, useToaster } from './components/toast/ToastProvider';
@@ -17,7 +15,7 @@ import { useGlobalLoader } from './components/useGlobalLoader';
 import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
 import { createBackoff } from './utils/time';
 import { getQueryData } from './engine/utils/getQueryData';
-import { AccountStoredTransaction, SelectedAccount, StoredTransaction, TonTransaction, TransactionType } from './engine/types';
+import { AccountStoredTransaction, SelectedAccount, TonTransaction, TransactionType } from './engine/types';
 import { TonConnectAuthType } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { warn } from './utils/log';
 import { getFullConnectionsMap, getStoredConnectExtensions } from './engine/state/tonconnect';
@@ -27,7 +25,6 @@ import { transactionRpcRequestCodec } from './engine/tonconnect/codecs';
 import { sendTonConnectResponse } from './engine/api/sendTonConnectResponse';
 import { extensionKey } from './engine/hooks/dapps/useAddExtension';
 import { ConnectedApp } from './engine/hooks/dapps/useTonConnectExtenstions';
-import { TransferFragmentProps } from './fragments/secure/TransferFragment';
 import { extractDomain } from './engine/utils/extractDomain';
 import { Linking } from 'react-native';
 import { openWithInApp } from './utils/openWithInApp';
@@ -36,6 +33,7 @@ import { HoldersUserState, holdersUrl } from './engine/api/holders/fetchUserStat
 import { getIsConnectAppReady } from './engine/hooks/dapps/useIsConnectAppReady';
 import { HoldersAppParams, HoldersAppParamsType } from './fragments/holders/HoldersAppFragment';
 import { sharedStoragePersistence } from './storage/storage';
+import { TransferFragmentParams } from './fragments/secure/transfer/TransferFragment';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -226,7 +224,7 @@ function tryResolveTonconnectRequest(
                 clearFromRequests();
             };
 
-            const prepared: TransferFragmentProps = {
+            const prepared: TransferFragmentParams = {
                 text: null,
                 order: {
                     type: 'order',

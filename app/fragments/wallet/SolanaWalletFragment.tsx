@@ -11,10 +11,11 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { CurrencySymbols } from "../../utils/formatCurrency";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { SolanaTransactions } from "./views/SolanaTransactions";
 import { SolanaWalletActions } from "./views/SolanaWalletActions";
 import { isSolanaAddress, SolanaAddress, solanaAddressFromString } from "../../utils/solana/core";
+import { SolanaWalletAddress } from "../../components/address/SolanaWalletAddress";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
@@ -154,17 +155,20 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                         </View>
                         <View style={{ marginTop: 16, width: '100%' }}>
                             <View style={{ gap: 8, alignItems: 'center' }}>
-                                {/* address */}
-                                <Text style={[{ color: theme.textPrimary, textAlign: 'center' }, Typography.semiBold17_24]}>
-                                    {ownerAddress.substring(0, 4)}...{ownerAddress.substring(ownerAddress.length - 4)}
-                                </Text>
+                                <SolanaWalletAddress
+                                    address={ownerAddress}
+                                    elipsise={{ start: 4, end: 4 }}
+                                    copyOnPress
+                                    disableContextMenu
+                                    copyToastProps={{ marginBottom: 70 + bottomBarHeight }}
+                                />
                                 <ValueComponent
                                     value={balance}
                                     decimals={9}
                                     precision={4}
                                     fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
                                     centFontStyle={{ color: theme.textSecondary }}
-                                    suffix={symbol}
+                                    suffix={` ${symbol}`}
                                 />
                                 <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                     <ValueComponent
@@ -195,10 +199,6 @@ export const SolanaWalletFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const { owner } = useParams<SolanaWalletFragmentProps>();
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerSolanaWallet';
-
-    console.log('SolanaWalletFragment', owner, isLedger);
 
     const isValidAddress = isSolanaAddress(owner);
 

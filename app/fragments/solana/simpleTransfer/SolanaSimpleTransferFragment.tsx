@@ -1,16 +1,20 @@
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../../engine/hooks";
 import { useParams } from "../../../utils/useParams";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSolanaSimpleTransfer } from "./hooks/useSolanaSimpleTransfer";
-import { View, Text, ScrollView, Platform, BackHandler, Keyboard } from "react-native";
+import { ScrollView, Platform, BackHandler, Keyboard } from "react-native";
 import { fragment } from "../../../fragment";
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useRef, useCallback, useEffect, useMemo, ReactNode } from "react";
 import { SolanaAddressInputRef } from "../../../components/address/SolanaAddressInput";
 import { ATextInputRef } from "../../../components/ATextInput";
 import { SelectedInput } from "../../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { setStatusBarStyle } from "expo-status-bar";
-import { SimpleTransferAddress, SimpleTransferAmount, SimpleTransferComment, SimpleTransferFooter, SimpleTransferHeader, SimpleTransferLayout } from "../../secure/simpleTransfer/components";
+import { SimpleTransferAmount, SimpleTransferComment, SimpleTransferFooter, SimpleTransferHeader, SimpleTransferLayout } from "../../secure/simpleTransfer/components";
+import { SolanaTransferHeader } from "../../../components/transfer/SolanaTransferHeader";
+import { SolanaSimpleTransferAddress } from "./components/SolanaSimpleTransferAddress";
+import { t } from "../../../i18n/t";
+import { useSolanaSelectedAccount } from "../../../engine/hooks/solana/useSolanaSelectedAccount";
 
 export type SolanaSimpleTransferParams = {
     target?: string | null,
@@ -22,7 +26,7 @@ const SolanaSimpleTransferComponent = () => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const params: SolanaSimpleTransferParams | undefined = useParams();
-    const route = useRoute();
+    const owner = useSolanaSelectedAccount()!;
     const {
         amount,
         amountError,
@@ -31,14 +35,14 @@ const SolanaSimpleTransferComponent = () => {
         continueDisabled,
         onAddAll,
         onQRCodeRead,
-        setAddressDomainInputState,
+        setAddressInputState,
         setAmount,
         setComment,
         targetAddressValid,
         setSelectedInput,
         selectedInput,
         doSend
-    } = useSolanaSimpleTransfer({ params, route, navigation });
+    } = useSolanaSimpleTransfer({ params, navigation, owner });
 
     const [isScrolling, setIsScrolling] = useState(false);
 
@@ -77,7 +81,7 @@ const SolanaSimpleTransferComponent = () => {
     };
 
     useEffect(() => {
-        if(selectedInput === 0) {
+        if (selectedInput === 0) {
             scrollRef.current?.scrollTo({ y: 0, animated: true })
         }
     }, [selectedInput]);
@@ -91,15 +95,9 @@ const SolanaSimpleTransferComponent = () => {
             titleComponent?: ReactNode,
         }
     }>(() => {
-        const headerTitle = targetAddressValid ? {
+        const headerTitle = targetAddressValid[0] ? {
             titleComponent: (
-                <TransferHeader
-                    theme={theme}
-                    address={targetAddressValid.address}
-                    isTestnet={network.isTestnet}
-                    bounceable={targetAddressValid.isBounceable}
-                    knownWallets={knownWallets}
-                />
+                <SolanaTransferHeader address={targetAddressValid[0]} />
             )
         } : { title: t('transfer.title') };
 
@@ -113,16 +111,20 @@ const SolanaSimpleTransferComponent = () => {
             default:
                 return { selected: null, onNext: null, header: { title: t('transfer.title') } };
         }
-    }, [selectedInput, targetAddressValid, theme, network.isTestnet, knownWallets, t]);
+    }, [selectedInput, targetAddressValid, theme]);
+
+    const commentMaxHeight = selected === 'comment' ? 200 : undefined;
+
+    console.log({ continueDisabled });
 
     return (
         <SimpleTransferLayout
             ref={scrollRef}
             headerComponent={<SimpleTransferHeader {...header} />}
-            footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, continueLoading, doSend }} />}
-            addressComponent={<SimpleTransferAddress ref={addressRef} {...{ ledgerAddress, params, domain, onInputFocus, setAddressDomainInputState, onInputSubmit, onQRCodeRead, isActive: selected === 'address', onSearchItemSelected, knownWallets }} />}
-            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton }} />}
-            commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError, maxHeight: selected === 'comment' ? 200 : undefined }} />}
+            footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, doSend }} />}
+            addressComponent={<SolanaSimpleTransferAddress ref={addressRef} {...{ initTarget: params?.target, setAddressInputState, onInputSubmit, onInputFocus, onQRCodeRead, isActive: selected === 'address' }} />}
+            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ symbol: 'SOL', balance, onAddAll, onInputFocus, amount, setAmount, amountError }} />}
+            commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', onInputFocus, setComment, maxHeight: commentMaxHeight }} />}
             scrollEnabled={!selectedInput}
             nestedScrollEnabled={!selectedInput}
             selected={selected}

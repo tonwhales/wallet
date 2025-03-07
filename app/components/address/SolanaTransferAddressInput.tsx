@@ -8,13 +8,13 @@ import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 import { AddressInputAvatar } from "./AddressInputAvatar";
-import { useDimensions } from "@react-native-community/hooks";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { Typography } from "../styles";
 import { SolanaAddressInput, SolanaAddressInputRef, SolanaAddressInputState } from "./SolanaAddressInput";
+import { isSolanaAddress, solanaAddressFromString } from "../../utils/solana/core";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { isSolanaAddress, solanaAddressFromString } from "../../utils/solana/core";
+
 type SolanaTransferAddressInputProps = {
     index: number,
     initTarget: string,
@@ -42,6 +42,8 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
         setAddressInputState(state);
     }, [state]);
 
+    const { input, target } = state;
+
     const [validAddress, isInvalid] = useMemo(() => {
         if (state.target.length < 44) {
             return [null, false];
@@ -54,11 +56,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
         } catch {
             return [null, true];
         }
-    }, [state.target]);
-
-    const { input: query, target } = state;
-    const dimentions = useDimensions();
-    const screenWidth = dimentions.screen.width;
+    }, [target]);
 
     // const holdersAccounts = useHoldersAccounts(account).data?.accounts ?? [];
     // const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
@@ -96,6 +94,8 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
         }
     }, [select, isSelected]);
 
+    const shortTarget = target.slice(0, 4) + '...' + target.slice(-4);
+
     return (
         <View>
             <View
@@ -117,9 +117,10 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                         isOwn={false}
                         markContact={false}
                         // hash={walletSettings?.avatar}
-                        friendly={target}
+                        friendly={input}
                         avatarColor={avatarColor}
-                        knownWallets={{}} hash={null}
+                        knownWallets={{}}
+                        hash={null}
                         // forceAvatar={!!isTargetHolders ? 'holders' : undefined}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
@@ -127,7 +128,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                             {t('common.recipient')}
                         </PerfText>
                         <PerfText style={[{ color: theme.textPrimary, marginTop: 2 }, Typography.regular17_24]}>
-                            {target.slice(0, 4) + '...' + target.slice(-4)}
+                            {shortTarget}
                         </PerfText>
                     </View>
                     <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
@@ -161,7 +162,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                             isOwn={false}
                             markContact={false}
                             // hash={walletSettings?.avatar}
-                            friendly={target}
+                            friendly={input}
                             avatarColor={avatarColor}
                             knownWallets={{}} hash={null}
                             // forceAvatar={isTargetHolders ? 'holders' : undefined}
@@ -177,8 +178,8 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         navigation={navigation}
-                        theme={theme} 
-                        />
+                        theme={theme}
+                    />
                 </View>
                 {isInvalid && (
                     <Animated.View entering={FadeIn} exiting={FadeOut}>

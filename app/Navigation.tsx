@@ -26,7 +26,6 @@ import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
-import { TransferFragment } from './fragments/secure/TransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -108,6 +107,8 @@ import { CachedLinking } from './utils/CachedLinking';
 import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilterFragment';
 import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragment';
 import { SolanaSimpleTransferFragment } from './fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
+import { TransferFragment } from './fragments/secure/transfer/TransferFragment';
+import { SolanaTransferFragment } from './fragments/solana/transfer/SolanaTransferFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -367,6 +368,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // Solana
     modalScreen('SolanaSimpleTransfer', SolanaSimpleTransferFragment, safeArea),
+    modalScreen('SolanaTransfer', SolanaTransferFragment, safeArea),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

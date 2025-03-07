@@ -3,7 +3,7 @@ import { Cell } from '@ton/core';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
-import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
+import { TransferFragmentParams } from '../fragments/secure/transfer/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/simpleTransfer';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
@@ -32,6 +32,7 @@ import { TonTransaction } from '../engine/types';
 import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
 import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
 import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
+import { SolanaTransferParams } from '../fragments/solana/transfer/SolanaTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -103,7 +104,7 @@ export class TypedNavigation {
         this.base.popToTop();
     }
 
-    navigateTransfer(tx: TransferFragmentProps) {
+    navigateTransfer(tx: TransferFragmentParams) {
         this.navigate('Transfer', tx);
     }
 
@@ -335,13 +336,20 @@ export class TypedNavigation {
         this.navigate('TransactionsFilter', params);
     }
 
+    //
     // Solana
+    //
+
     navigateSolanaWallet(params: SolanaWalletFragmentProps) {
         this.navigate('SolanaWallet', params);
     }
 
     navigateSolanaSimpleTransfer(params: SolanaSimpleTransferParams) {
         this.navigate('SolanaSimpleTransfer', params);
+    }
+
+    navigateSolanaTransfer(params: SolanaTransferParams) {
+        this.navigate('SolanaTransfer', params);
     }
 
     navigateSolanaReceive() {

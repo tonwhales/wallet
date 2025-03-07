@@ -1,31 +1,31 @@
 import { useCallback, useMemo, useState } from "react";
 import { SelectedInput } from "../../../secure/simpleTransfer/hooks/useSimpleTransfer";
-import { ParamListBase } from "@react-navigation/native";
-import { RouteProp } from "@react-navigation/native";
 import { TypedNavigation } from "../../../../utils/useTypedNavigation";
 import { SolanaAddressInputState } from "../../../../components/address/SolanaAddressInput";
 import { fromNano, toNano } from "@ton/core";
-import { solanaAddressFromPublicKey, isSolanaAddress, solanaAddressFromString } from "../../../../utils/solana/core";
+import { solanaAddressFromPublicKey, isSolanaAddress, solanaAddressFromString, SolanaAddress } from "../../../../utils/solana/core";
 import { useSelectedAccount, useSolanaAccount } from "../../../../engine/hooks";
 import { t } from "../../../../i18n/t";
 import { formatInputAmount } from "../../../../utils/formatCurrency";
 import { SolanaSimpleTransferParams } from "../SolanaSimpleTransferFragment";
+import { usePrevious } from "../../../secure/simpleTransfer/hooks/usePrevious";
+import { SolanaOrder } from "../../../secure/ops/Order";
+import { Alert } from "react-native";
 
 type Options = {
     params: SolanaSimpleTransferParams;
-    route: RouteProp<ParamListBase>;
     navigation: TypedNavigation;
+    owner: SolanaAddress;
 }
 
-export const useSolanaSimpleTransfer = ({ params, route, navigation }: Options) => {
+export const useSolanaSimpleTransfer = ({ params, navigation, owner }: Options) => {
     const acc = useSelectedAccount();
     const accSolanaAddress = solanaAddressFromPublicKey(acc!.publicKey);
     const account = useSolanaAccount(accSolanaAddress);
-
     const hasParamsFilled = !!params?.target && !!params?.amount;
     const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
 
-    const [addressDomainInputState, setAddressDomainInputState] = useState<SolanaAddressInputState>(
+    const [addressInputState, setAddressInputState] = useState<SolanaAddressInputState>(
         {
             input: params?.target || '',
             target: params?.target || '',
@@ -33,12 +33,12 @@ export const useSolanaSimpleTransfer = ({ params, route, navigation }: Options) 
         }
     );
 
-    const { target } = addressDomainInputState;
+    const { target } = addressInputState;
 
     const [commentString, setComment] = useState(params?.comment || '');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
 
-    const targetAddressValid = useMemo(() => {
+    const targetAddressValid: [SolanaAddress | null, boolean] = useMemo(() => {
         if (target.length < 44) {
             return [null, false];
         }
@@ -70,7 +70,7 @@ export const useSolanaSimpleTransfer = ({ params, route, navigation }: Options) 
 
     const balance = account.data?.lamports || 0n;
 
-    const order = useMemo(() => {
+    const order: SolanaOrder | null = useMemo(() => {
         if (!validAmount) {
             return null;
         }
@@ -81,10 +81,11 @@ export const useSolanaSimpleTransfer = ({ params, route, navigation }: Options) 
 
         return {
             type: 'solana',
-            target: targetAddressValid,
+            target: targetAddressValid[0],
             amount: validAmount,
+            comment: commentString,
         }
-    }, [targetAddressValid, validAmount]);
+    }, [targetAddressValid, validAmount, commentString]);
 
     const amountError = useMemo(() => {
         if (amount.length === 0) {
@@ -115,13 +116,41 @@ export const useSolanaSimpleTransfer = ({ params, route, navigation }: Options) 
         // TODO
     }, []);
 
-    const doSend = useCallback(() => {
-        // TODO
-    }, []);
+    const doSendData = usePrevious({
+        owner: owner,
+        balance,
+        order
+    });
+
+    const doSend = useCallback(async () => {
+        if (!doSendData.current?.order) {
+            return;
+        }
+
+        const { order, balance } = doSendData.current;
+
+        // Check amount
+        if (balance < order.amount || balance === 0n) {
+            Alert.alert(t('common.error'), t('transfer.error.notEnoughCoins'));
+            return;
+        }
+
+        if (validAmount === 0n) {
+            const allowSendingZero = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
+                    { onPress: () => resolve(true), text: t('common.continueAnyway') },
+                    { onPress: () => resolve(false), text: t('common.cancel'), isPreferred: true }
+                ]);
+            });
+            if (!allowSendingZero) return;
+        }
+
+        navigation.navigateSolanaTransfer({ order });
+    }, [navigation, targetAddressValid, validAmount, commentString]);
 
     return {
-        addressDomainInputState,
-        setAddressDomainInputState,
+        addressInputState,
+        setAddressInputState,
         selectedInput,
         setSelectedInput,
         targetAddressValid,

@@ -44,9 +44,11 @@ import {
     createSignerFromKeyPair,
     appendTransactionMessageInstruction,
     getBase64EncodedWireTransaction,
+    pipe,
+    appendTransactionMessageInstructions,
 } from '@solana/kit';
+import { getAddMemoInstruction } from '@solana-program/memo';
 import { getTransferSolInstruction } from '@solana-program/system';
-import { pipe } from '@solana/functional';
 import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget'
 
 export const DeveloperToolsFragment = fragment(() => {
@@ -323,17 +325,21 @@ export const DeveloperToolsFragment = fragment(() => {
                                 console.log('signer', signer);
                                 console.log('solanaAddress', solanaAddress);
 
+                                const comment = 'test solana comment';
+
+                                const instructions = [
+                                    getTransferSolInstruction({
+                                        source: signer,
+                                        destination: solanaAddress,
+                                        amount: toNano(1),
+                                    }),
+                                    getAddMemoInstruction({ memo: comment }),
+                                ];
+
                                 const transactionMessage = pipe(
                                     createTransactionMessage({ version: 0 }),
                                     tx => setTransactionMessageFeePayer(solanaAddress, tx),
-                                    tx => appendTransactionMessageInstruction(
-                                        getTransferSolInstruction({
-                                            source: signer,
-                                            destination: solanaAddress,
-                                            amount: toNano(1),
-                                        }),
-                                        tx
-                                    ),
+                                    tx => appendTransactionMessageInstructions(instructions, tx),
                                     tx => setTransactionMessageLifetimeUsingBlockhash(recentBlockhash, tx),
                                 );
 

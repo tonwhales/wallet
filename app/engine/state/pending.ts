@@ -1,8 +1,8 @@
 import { atomFamily } from "recoil";
 import { Address, Cell } from "@ton/core";
 import { Jetton } from "../types";
-import { TransferEstimate } from "../../fragments/secure/TransferFragment";
 import { parseBody } from "../transactions/parseWalletTransaction";
+import { TransferEstimate } from "../../fragments/secure/transfer/TransferFragment";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell, stateInit?: Cell | null }

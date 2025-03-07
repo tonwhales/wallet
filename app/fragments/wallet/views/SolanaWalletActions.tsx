@@ -1,16 +1,18 @@
 import { memo } from "react";
-import { View } from "react-native";
+import { StyleProp, ViewStyle, View } from "react-native";
 import { ThemeType } from "../../../engine/state/theme";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { WalletActionButton, WalletActionType } from "./WalletActionButton";
 import { SolanaAddress } from "../../../utils/solana/core";
 
 export const SolanaWalletActions = memo(({
+  style,
   theme,
   navigation,
   isTestnet,
   address
 }: {
+  style?: StyleProp<ViewStyle>;
   theme: ThemeType;
   navigation: TypedNavigation;
   isTestnet: boolean;
@@ -23,7 +25,7 @@ export const SolanaWalletActions = memo(({
   const asset = { type: 'ton' as const };
 
   return (
-    <View style={{ paddingHorizontal: 16, width: '100%' }}>
+    <View style={[{ paddingHorizontal: 16, width: '100%' }, style]}>
       <View
         style={{
           marginTop: 28,

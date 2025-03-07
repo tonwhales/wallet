@@ -1,5 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { useTheme } from "../../../engine/hooks";
+import { useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
 import { useParams } from "../../../utils/useParams";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSolanaSimpleTransfer } from "./hooks/useSolanaSimpleTransfer";
@@ -14,7 +14,6 @@ import { SimpleTransferAmount, SimpleTransferComment, SimpleTransferFooter, Simp
 import { SolanaTransferHeader } from "../../../components/transfer/SolanaTransferHeader";
 import { SolanaSimpleTransferAddress } from "./components/SolanaSimpleTransferAddress";
 import { t } from "../../../i18n/t";
-import { useSolanaSelectedAccount } from "../../../engine/hooks/solana/useSolanaSelectedAccount";
 
 export type SolanaSimpleTransferParams = {
     target?: string | null,

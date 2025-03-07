@@ -10,7 +10,7 @@ export function useSolanaAccount(address: SolanaAddress) {
         queryKey: Queries.SolanaAccount(address),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        refetchInterval: 60000,
+        refetchInterval: 35 * 1000,
         queryFn: async () => {
             try {
                 console.log('querying account', address);

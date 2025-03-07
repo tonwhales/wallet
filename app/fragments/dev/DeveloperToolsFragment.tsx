@@ -13,7 +13,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback } from 'react';
-import { useSelectedAccount, useSetAppState, useSolanaAccount, useSolanaClient, useTheme } from '../../engine/hooks';
+import { useSelectedAccount, useSetAppState, useSolanaAccount, useSolanaClient, useSolanaTransactions, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
@@ -42,7 +42,6 @@ import {
     compileTransaction,
     createKeyPairFromBytes,
     createSignerFromKeyPair,
-    appendTransactionMessageInstruction,
     getBase64EncodedWireTransaction,
     pipe,
     appendTransactionMessageInstructions,
@@ -68,6 +67,10 @@ export const DeveloperToolsFragment = fragment(() => {
     const solanaClient = useSolanaClient();
     const solanaAccount = useSolanaAccount(solanaAddress);
     const setAppState = useSetAppState();
+
+    const solanaTransactions = useSolanaTransactions(solanaAddress);
+
+    console.log(JSON.stringify(solanaTransactions.data));
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);

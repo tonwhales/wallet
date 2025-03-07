@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useNetwork, usePrimaryCurrency, useSolanaAccount, useTheme } from "../../engine/hooks";
+import { useNetwork, usePrimaryCurrency, useSolanaAccount, useSolanaTransactions, useTheme } from "../../engine/hooks";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -18,16 +18,6 @@ import { isSolanaAddress, SolanaAddress, solanaAddressFromString } from "../../u
 import { SolanaWalletAddress } from "../../components/address/SolanaWalletAddress";
 
 import SolanaIcon from '@assets/ic-solana.svg';
-
-// Hook for Solana transactions - placeholder
-const useSolanaTransactions = (owner: SolanaAddress, options?: { refetchOnMount: boolean }) => {
-    return {
-        data: [], // Placeholder for transactions
-        hasNext: false,
-        next: () => { },
-        refresh: () => { },
-    };
-};
 
 export type SolanaWalletFragmentProps = {
     owner: string
@@ -60,7 +50,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
     const safeArea = useSafeAreaInsets();
     const ownerAddress = solanaAddressFromString(owner);
     const account = useSolanaAccount(ownerAddress);
-    const txs = useSolanaTransactions(ownerAddress, { refetchOnMount: true });
+    const txs = useSolanaTransactions(ownerAddress);
 
     const balance = account.data?.lamports ?? 0n;
     const symbol = "SOL";
@@ -134,6 +124,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
                 loading={false}
+                owner={ownerAddress}
                 header={
                     <View style={styles.content}>
                         <View style={{
@@ -180,6 +171,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                                 </Text>
                             </View>
                             <SolanaWalletActions
+                                style={{ paddingHorizontal: 0 }}
                                 theme={theme}
                                 navigation={navigation}
                                 isTestnet={isTestnet}

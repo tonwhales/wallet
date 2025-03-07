@@ -4,7 +4,7 @@ import { useParams } from "../../../utils/useParams";
 import { SolanaOrder } from "../../secure/ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClient, useTheme } from "../../../engine/hooks";
+import { useSolanaClient, useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -16,7 +16,6 @@ import { ToastDuration, useToaster } from "../../../components/toast/ToastProvid
 import { RoundButton } from "../../../components/RoundButton";
 import { sendSolanaTransfer } from "../../../utils/solana/sendSolanaTransfer";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { useSolanaSelectedAccount } from "../../../engine/hooks/solana/useSolanaSelectedAccount";
 import { AddressInputAvatar } from "../../../components/address/AddressInputAvatar";
 import { avatarHash } from "../../../utils/avatarHash";
 import { avatarColors } from "../../../components/avatar/Avatar";
@@ -34,6 +33,7 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
     const solanaClient = useSolanaClient();
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
+    const navigation = useTypedNavigation();
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);
@@ -52,7 +52,8 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
             order,
             sender: solanaAddress
         });
-    }, [theme, authContext, order, solanaAddress]);
+        navigation.goBack();
+    }, [theme, authContext, order, solanaAddress, navigation]);
 
     const avatarColorHash = avatarHash(order.target, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

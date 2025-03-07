@@ -334,7 +334,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "failedToReadFromImage": "Impossible de lire le code QR depuis l’image"
     },
     "products": {
-        "addNew": "Ajouter un nouveau produit",
+        "addNew": "Ajouter un produit",
         "tonConnect": {
             "errors": {
                 "connection": "Erreur de connexion",
@@ -563,7 +563,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "primaryName": "Compte principal",
                 "paymentName": "Compte de paiement {{accountIndex}}",
                 "topUp": "Recharger le compte",
-                "addNew": "Ajouter un compte"
+                "addNew": "Ajouter un compte",
+                "network": "Réseau {{networkName}}",
             },
             "pageTitles": {
                 "general": "Cartes Tonhub",

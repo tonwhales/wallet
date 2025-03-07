@@ -25,6 +25,8 @@ import java.util.List;
 import com.tonhub.wallet.modules.appearance.AppearancePackage;
 import com.tonhub.wallet.modules.navbarcolor.NavigationBarColorPackage;
 import com.tonhub.wallet.modules.store.KeyStorePackage;
+import com.tonhub.wallet.modules.webview.WebViewCachePackage;
+import com.tonhub.wallet.modules.flagsecure.FlagSecurePackage;
 
 import com.shopify.reactnativeperformance.ReactNativePerformance;
 import com.tonhub.wallet.modules.wallet.WalletPackage;
@@ -45,12 +47,9 @@ public class MainApplication extends Application implements ReactApplication {
                     packages.add(new KeyStorePackage());
                     packages.add(new NavigationBarColorPackage());
                     packages.add(new AppearancePackage());
-                    try {
-                        Class.forName("com.google.android.gms.tapandpay.TapAndPay");
-                        packages.add(new WalletPackage());
-                    } catch (ClassNotFoundException e) {
-                        // tapandpay_sdk was not added: skip WalletPackage
-                    }
+                    packages.add(new WebViewCachePackage());
+                    packages.add(new FlagSecurePackage());
+                    packages.add(new WalletPackage());
                     return packages;
                 }
 

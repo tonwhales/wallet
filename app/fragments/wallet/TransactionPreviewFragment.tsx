@@ -126,6 +126,10 @@ const TransactionPreview = () => {
     const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : null;
     const targetContract = useContractInfo(opAddress);
 
+    const isTargetBounceable = targetContract?.kind === 'wallet'
+        ? bounceableFormat 
+        : parsedOpAddr.isBounceable
+
     const repeatParams = useMemo(() => {
         return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals ?? 9);
     }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals]);
@@ -279,6 +283,8 @@ const TransactionPreview = () => {
     const symbolString = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}` : '')
     const singleAmountString = `${amountText[0]}${amountText[1]}${symbolString}`;
 
+    const fromKnownWalletsList = !!knownWallets[opAddressBounceable]
+
     return (
         <PerfView
             style={{
@@ -371,7 +377,7 @@ const TransactionPreview = () => {
                         style={[
                             {
                                 color: theme.textPrimary,
-                                paddingTop: (spam || !!contact || isOwn || !!knownWallets[opAddressBounceable]) ? 16 : 8,
+                                paddingTop: (spam || !!contact || isOwn || fromKnownWalletsList) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}
@@ -396,10 +402,10 @@ const TransactionPreview = () => {
                             >
                                 <AddressComponent
                                     address={parsedOpAddr.address}
-                                    bounceable={parsedOpAddr.isBounceable}
+                                    bounceable={isTargetBounceable}
                                     end={4}
                                     testOnly={isTestnet}
-                                    known={!!known}
+                                    known={fromKnownWalletsList}
                                 />
                             </PerfText>
                         </PerfView>
@@ -576,7 +582,7 @@ const TransactionPreview = () => {
                                     kind={kind}
                                     theme={theme}
                                     testOnly={isTestnet}
-                                    bounceableFormat={bounceableFormat}
+                                    bounceableFormat={isTargetBounceable}
                                 />
                                 <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <TxInfo

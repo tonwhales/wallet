@@ -31,7 +31,7 @@ export const PreviewFrom = memo((props: PreviewFromProps) => {
 
     const parsedAddress = Address.parseFriendly(from.address);
     const known = KnownWallets(isTestnet)[parsedAddress.address.toString({ testOnly: isTestnet })];
-    const bounceable = bounceableFormat || parsedAddress.isBounceable;
+    const bounceable = bounceableFormat !== undefined ? bounceableFormat : parsedAddress.isBounceable;
     const parsedAddressFriendly = parsedAddress.address.toString({ testOnly: isTestnet, bounceable });
 
     return (

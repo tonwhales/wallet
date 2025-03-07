@@ -2,4 +2,5 @@
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
   <string name="expo_splash_screen_status_bar_translucent" translatable="false">true</string>
   <string name="app_name">Tonhub</string>
+  <string name="default_notification_channel_id">default</string>
 </resources>

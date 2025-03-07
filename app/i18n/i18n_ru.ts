@@ -334,7 +334,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "failedToReadFromImage": "Не удалось прочитать QR-код"
     },
     "products": {
-        "addNew": "Добавить новый продукт",
+        "addNew": "Добавить продукт",
         "tonConnect": {
             "errors": {
                 "connection": "Ошибка соединения",
@@ -564,6 +564,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "paymentName": "Платежный счет {{accountIndex}}",
                 "topUp": "Пополнить счёт",
                 "addNew": "Добавить счёт",
+                "network": "Сеть {{networkName}}",
             },
             "pageTitles": {
                 "general": "Tonhub Cards",

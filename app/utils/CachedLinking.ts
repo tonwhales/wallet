@@ -7,7 +7,7 @@ import appsFlyer, { InitSDKOptions } from 'react-native-appsflyer';
 let lastLink: string | null = null;
 let listener: (((link: string) => string | null) | null) = null;
 
-function handleLinkReceived(link: string) {
+export function handleLinkReceived(link: string) {
     if (listener) {
         lastLink = listener(link);
     } else {

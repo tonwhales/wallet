@@ -13,11 +13,11 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback } from 'react';
-import { useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
-import { AppState, getAppState, setAppState } from '../../storage/appState';
+import { AppState, getAppState } from '../../storage/appState';
 import { useClearHolders } from '../../engine/hooks';
 import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
@@ -31,6 +31,7 @@ import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { Address } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -45,6 +46,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const acc = useSelectedAccount()!;
     const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
+    const setAppState = useSetAppState();
+    const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -186,6 +189,11 @@ export const DeveloperToolsFragment = fragment(() => {
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetworkAlert} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                         </View>
+                        {Platform.OS === 'android' && (
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemButton title={'Screen protector'} onPress={() => setScreenProtector(value => !value)} hint={isScreenProtectorEnabled ? 'Enabled' : 'Disabled'} />
+                            </View>
+                        )}
                     </View>
                     <View style={{
                         backgroundColor: theme.border,

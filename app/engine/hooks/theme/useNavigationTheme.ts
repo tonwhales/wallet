@@ -12,7 +12,7 @@ export function useNavigationTheme(): NavigationThemeType {
     const [themeStyle,] = useThemeStyle();
 
     useEffect(() => {
-        if (themeStyle !== ThemeStyle.System && Platform.OS === 'android') {
+        if (Platform.OS === 'android') {
             SystemUI.setBackgroundColorAsync(theme.backgroundPrimary);
         } else {
             SystemUI.setBackgroundColorAsync(null);

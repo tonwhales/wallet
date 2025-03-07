@@ -82,6 +82,12 @@ export function TransactionView(props: {
     // const verified = !!tx.verified;
     const verified = false;
 
+    // if it's a Recieved transaction or targetContract is wallet 
+    // we show the address in a format taken from Settings
+    const bounceable = targetContract?.kind === 'wallet' || !targetContract
+    ? props.bounceableFormat
+    : parsedOpAddr.isBounceable;
+
     // Operation
     const op = useMemo(() => {
         if (operation.op) {
@@ -298,7 +304,7 @@ export function TransactionView(props: {
                                     : <AddressComponent
                                         testOnly={isTestnet}
                                         address={parsedOpAddr.address}
-                                        bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
+                                        bounceable={bounceable}
                                     />
                                 }
                                 {' • '}

@@ -45,7 +45,7 @@ export async function fetchAddressInviteCheck(address: string, isTestnet: boolea
       network: isTestnet ? "ton-testnet" : "ton-mainnet",
       region: region,
       campaignId,
-      ...storedReferrerParams
+      campaignParams: storedReferrerParams
     }
   );
 

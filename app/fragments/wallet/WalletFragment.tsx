@@ -33,8 +33,8 @@ import { queryClient } from '../../engine/clients';
 import { HoldersUserState } from '../../engine/api/holders/fetchUserState';
 import { Queries } from '../../engine/queries';
 import { TonWalletFragment } from './TonWalletFragment';
-import { getCampaignId } from '../../utils/CachedLinking';
 import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
+import { getCampaignId } from '../../utils/holders/queryParamsStore';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);

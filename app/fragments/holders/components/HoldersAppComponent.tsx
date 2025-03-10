@@ -28,6 +28,7 @@ import { Image } from "expo-image";
 import { CardPlaceholder } from './CardPlaceholder';
 import { AnimatedCards } from './AnimatedCards';
 import { Address } from '@ton/core';
+import { getSearchParams } from '../../../utils/holders/queryParamsStore';
 
 export const holdersSupportUrl = 'https://t.me/Welcome_holders';
 export const supportFormUrl = 'https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN';
@@ -250,6 +251,13 @@ export const HoldersAppComponent = memo((
 
         const uri = `${endpoint}${route}`;
         const url = new URL(uri);
+
+        const storedReferrerParams = getSearchParams();
+
+        for (const [key, value] of Object.entries(storedReferrerParams)) {
+            queryParams.append(key, value);
+        }
+
         for (const [key, value] of queryParams.entries()) {
             url.searchParams.append(key, value);
         }

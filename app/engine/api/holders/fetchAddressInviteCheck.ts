@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Address } from "@ton/core";
 import { getStoreFront } from "../../../modules/StoreFront";
 import { getCountry } from 'react-native-localize';
-import { getCampaignId } from "../../../utils/CachedLinking";
+import { getCampaignId } from "../../../utils/holders/queryParamsStore";
 
 const textWithTranslations = z.object({ en: z.string(), ru: z.string() });
 

@@ -49,6 +49,7 @@ import {
 import { getAddMemoInstruction } from '@solana-program/memo';
 import { getTransferSolInstruction } from '@solana-program/system';
 import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget'
+import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -67,6 +68,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const solanaClient = useSolanaClient();
     const solanaAccount = useSolanaAccount(solanaAddress);
     const setAppState = useSetAppState();
+    const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
 
     const solanaTransactions = useSolanaTransactions(solanaAddress);
 
@@ -212,6 +214,11 @@ export const DeveloperToolsFragment = fragment(() => {
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetworkAlert} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                         </View>
+                        {Platform.OS === 'android' && (
+                            <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                <ItemButton title={'Screen protector'} onPress={() => setScreenProtector(value => !value)} hint={isScreenProtectorEnabled ? 'Enabled' : 'Disabled'} />
+                            </View>
+                        )}
                     </View>
                     <View style={{
                         backgroundColor: theme.border,

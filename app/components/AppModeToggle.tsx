@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { useTheme } from '../engine/hooks';
+import Animated, { runOnJS, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { useSelectedAccount, useTheme } from '../engine/hooks';
 import { useTranslation } from 'react-i18next';
+import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 
 const ICON_SIZE = 16;
 const GAP_BETWEEN_ICON_AND_TEXT = 4;
@@ -13,7 +14,9 @@ export const AppModeToggle = () => {
     const leftLabel = t('common.wallet')
     const rightLabel = t('common.cards')
     const theme = useTheme();
-    const [isWalletMode, setWalletMode] = useState(true);
+    const selected = useSelectedAccount();
+    const [isWalletMode, switchAppToWalletMode] = useAppMode(selected?.address);
+    const [isToggleInWalletMode, setToggleInWalletMode] = useState(isWalletMode);
     const [toggleWidth, setToggleWidth] = useState(0);
 
     useEffect(() => {
@@ -23,34 +26,37 @@ export const AppModeToggle = () => {
     }, [leftLabel, rightLabel]);
 
     const handleToggle = useCallback(() => {
-        setWalletMode(value => !value)
+        setToggleInWalletMode(value => !value)
+        
     }, []);
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
             transform: [{
-                translateX: withTiming(isWalletMode ? toggleWidth - TOGGLE_BORDER_WIDTH * 2 : 0, {}, () => {
-                    // TODO: switch mode
+                translateX: withTiming(isToggleInWalletMode ?  0 : toggleWidth - TOGGLE_BORDER_WIDTH * 2, {}, (finished) => {
+                    if (finished) {
+                        runOnJS(switchAppToWalletMode)(isToggleInWalletMode)
+                    }
                 })
             }],
         };
-    });
+    }, [isToggleInWalletMode, toggleWidth]);
 
     const leftTextStyle = useAnimatedStyle(() => {
         return {
-            color: withTiming(isWalletMode ? theme.textOnsurfaceOnDark : theme.black),
+            color: withTiming(isToggleInWalletMode ?  theme.black : theme.textSecondary),
         };
     });
 
     const rightTextStyle = useAnimatedStyle(() => {
         return {
-            color: withTiming(isWalletMode ? theme.black : theme.textOnsurfaceOnDark),
+            color: withTiming(isToggleInWalletMode ?  theme.textSecondary : theme.black),
         };
     });
 
     const walletIconStyle = useAnimatedStyle(() => {
         return {
-            tintColor: withTiming(isWalletMode ? theme.textOnsurfaceOnDark : theme.black),
+            tintColor: withTiming(isToggleInWalletMode ? theme.black : theme.iconNav),
             width: ICON_SIZE,
             height: ICON_SIZE,
         };
@@ -58,7 +64,7 @@ export const AppModeToggle = () => {
 
     const cardsIconStyle = useAnimatedStyle(() => {
         return {
-            tintColor: withTiming(isWalletMode ? theme.black : theme.textOnsurfaceOnDark),
+            tintColor: withTiming(isToggleInWalletMode ? theme.iconNav : theme.black),
             width: ICON_SIZE,
             height: ICON_SIZE,
         };
@@ -67,7 +73,6 @@ export const AppModeToggle = () => {
     return (
         <View style={styles.container}>
             <Pressable onPress={handleToggle} style={[styles.toggleContainer, { width: toggleWidth * 2, backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }]}>
-            <Animated.View style={[styles.toggle, animatedStyle, { width: toggleWidth }]} />
                 <Animated.View style={[styles.toggle, animatedStyle, { width: toggleWidth, backgroundColor: theme.white }]} />
                 <View style={styles.button}>
                     <Animated.Image
@@ -94,7 +99,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 10,
+        width: 100,
     },
     toggleContainer: {
         flexDirection: 'row',

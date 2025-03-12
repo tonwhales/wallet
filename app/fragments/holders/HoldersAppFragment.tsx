@@ -34,7 +34,7 @@ export type HoldersAppParams =
     | { type: HoldersAppParamsType.Transactions, query: { [key: string]: string | undefined } }
     | { type: HoldersAppParamsType.Topup, id: string };
 
-export const HoldersAppFragment = fragment(() => {
+export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?: HoldersAppParams }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const params = useParams<HoldersAppParams>();
@@ -74,7 +74,7 @@ export const HoldersAppFragment = fragment(() => {
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <HoldersAppComponent
                 title={t('products.holders.title')}
-                variant={params}
+                variant={initialParams || params}
                 endpoint={url}
                 accounts={holders.accounts}
                 status={holders.status}

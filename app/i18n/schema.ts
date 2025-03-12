@@ -565,7 +565,8 @@ export type LocalizationSchema = {
                 primaryName: string,
                 paymentName: string,
                 topUp: string,
-                addNew: string
+                addNew: string,
+                network: string,
             },
             pageTitles: {
                 general: string,

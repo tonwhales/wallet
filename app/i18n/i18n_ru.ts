@@ -564,7 +564,6 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "paymentName": "Платежный счет {{accountIndex}}",
                 "topUp": "Пополнить счёт",
                 "addNew": "Добавить счёт",
-                "network": "Сеть {{networkName}}",
             },
             "pageTitles": {
                 "general": "Tonhub Cards",

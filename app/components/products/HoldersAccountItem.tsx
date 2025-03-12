@@ -68,17 +68,17 @@ export const HoldersAccountItem = memo((props: {
     const isHoldersReady = useIsConnectAppReady(url, owner.toString({ testOnly: isTestnet }));
     const name = getAccountName(account.accountIndex, account.name);
     const ledgerContext = useLedgerTransport();
-
+    
     const priceAmount = useMemo(() => {
         try {
             const cryptoCurrency = account.cryptoCurrency;
-
+    
             if (!account || !account.cryptoCurrency || !account.balance) return 0n;
-
+    
             if (cryptoCurrency.ticker === 'TON') {
                 return BigInt(account.balance);
             }
-
+    
             const amount = toBnWithDecimals(account.balance, cryptoCurrency.decimals) / toNano(price?.price?.usd || 1n);
             return toBnWithDecimals(amount, cryptoCurrency.decimals);
         } catch (error) {
@@ -124,9 +124,7 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: account.id }, isTestnet, isLedger);
     }, [account, needsEnrollment, isTestnet, onOpen, isLedger, ledgerContext]);
 
-    const subtitle = t('products.holders.accounts.network', {
-        networkName: account.network.replace('-mainnet', '').replace('-testnet', '').toUpperCase()
-    });
+    const subtitle = t('products.holders.accounts.basicAccount');
 
     const renderRightAction = (!!rightActionIcon && !!rightAction)
         ? () => {
@@ -252,8 +250,8 @@ export const HoldersAccountItem = memo((props: {
                             {!(hideCardsIfEmpty && account.cards.length === 0) ? (
                                 <View
                                     style={{
-                                        height: 66, marginTop: 20, gap: 8, flexDirection: 'row',
-                                        marginLeft: 20
+                                        height: 46, marginTop: 10, gap: 8, flexDirection: 'row',
+                                        marginLeft: 78
                                     }}
                                 >
                                     {account.cards.slice(0, 5).map((card, index) => {
@@ -262,15 +260,20 @@ export const HoldersAccountItem = memo((props: {
                                                 key={`card-item-${index}`}
                                                 card={card as GeneralHoldersCard}
                                                 theme={theme}
-                                                style={{ height: 46, width: 72, borderRadius: 12 }}
-                                                coverImageStyle={{ height: 46, width: 72, borderRadius: 12 }}
-                                                cardNumberStyle={{ fontSize: 10, left: 8, bottom: 8 }}
                                             />
                                         )
                                     })}
-                                    <View style={{ height: 46, width: 72, borderRadius: 12, backgroundColor: theme.divider, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Image style={{ height: 24, width: 24, tintColor: theme.textSecondary }} source={require('@assets/ic-plus.png')} />
-                                    </View>
+                                    {account.cards.length > 4 && (
+                                        <LinearGradient
+                                            style={{ height: 30, width: 20 + 8 + 46, position: 'absolute', right: 0, top: 0 }}
+                                            colors={[
+                                                theme.style === 'light' ? 'rgba(255, 255, 255, 0)' : 'rgba(0, 0, 0, 0)',
+                                                (itemStyle as any)?.backgroundColor || theme.surfaceOnBg
+                                            ]}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 0.5, y: 0 }}
+                                        />
+                                    )}
                                 </View>
                             ) : (
                                 <View style={{ height: 20 }} />

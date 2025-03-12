@@ -25,7 +25,7 @@ const BlinkingDot = memo(() => {
     )
 });
 
-export const HeaderSyncStatus = memo(({ address, isLedger }: { address?: string, isLedger?: boolean }) => {
+export const HeaderSyncStatus = memo(({ address, isLedger, size }: { address?: string, isLedger?: boolean, size?: number }) => {
     const theme = useTheme();
     const syncState = useSyncState(address);
 
@@ -45,7 +45,7 @@ export const HeaderSyncStatus = memo(({ address, isLedger }: { address?: string,
 
     return (
         <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
+            <View style={{ backgroundColor: theme.accentGreen, width: size ?? 8, height: size ?? 8, borderRadius: typeof size === 'number' ? size / 2 : 4 }} />
         </View>
     );
 });

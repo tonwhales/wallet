@@ -203,6 +203,7 @@ export const WalletAddress = memo((props: {
                             { opacity: (pressed && props.copyOnPress) ? 0.5 : 1, }
                         ]
                     }}
+                    disabled={!props.copyOnPress}
                     onPress={props.copyOnPress ? onCopy : undefined}
                 >
                     {props.elipsise ? (

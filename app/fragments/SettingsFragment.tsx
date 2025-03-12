@@ -43,6 +43,7 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
+import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 
 const iosStoreUrl = 'https://apps.apple.com/app/apple-store/id1607656232?action=write-review';
 const androidStoreUrl = 'https://play.google.com/store/apps/details?id=com.tonhub.wallet&showAllReviews=true';
@@ -72,6 +73,7 @@ export const SettingsFragment = fragment(() => {
     const isLedger = route.name === 'LedgerSettings';
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
+    const [, switchAppToWalletMode] = useAppMode(selected?.address);
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed;
@@ -84,7 +86,8 @@ export const SettingsFragment = fragment(() => {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Accounts } }, network.isTestnet);
             return;
         }
-        navigation.navigateHolders({ type: HoldersAppParamsType.Accounts }, network.isTestnet);
+        switchAppToWalletMode(false);
+        navigation.navigateAndReplaceHome();
     }, [needsEnrollment, isHoldersReady, network.isTestnet]);
 
     const onVersionTap = useMemo(() => {

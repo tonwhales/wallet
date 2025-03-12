@@ -55,14 +55,18 @@ const WalletCard = memo(({ address }: { address: Address }) => {
         return liquidBalance + staking.total;
     }, [staking, liquidBalance]);
 
-    const balance = useMemo(() => {
+    const walletBalance = useMemo(() => {
         const accountWithStaking = (account ? account?.balance : 0n)
             + (stakingBalance || 0n)
 
+        return accountWithStaking + (specialJetton?.toTon || 0n);
+    }, [account, stakingBalance, specialJetton?.toTon]);
+
+    const cardsBalance = useMemo(() => {
         const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);
 
-        return (cardsBalance || 0n) + accountWithStaking + (specialJetton?.toTon || 0n);
-    }, [account, stakingBalance, holdersCards, specialJetton?.toTon, price?.price?.usd]);
+        return (cardsBalance || 0n);
+    }, [stakingBalance, holdersCards, price?.price?.usd]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
@@ -77,7 +81,7 @@ const WalletCard = memo(({ address }: { address: Address }) => {
             <View>
                 <AppModeToggle />
                 <PriceComponent
-                    amount={balance}
+                    amount={walletBalance}
                     style={{
                         alignSelf: 'center',
                         backgroundColor: theme.transparent,

@@ -7,6 +7,8 @@ import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { holdersUrl, HoldersUserState } from '../engine/api/holders/fetchUserState';
 import { HoldersAppParamsType } from '../fragments/holders/HoldersAppFragment';
+import { useTransactionsFilter } from '../engine/hooks/transactions/useTransactionsFilter';
+import { TransactionType } from '../engine/types';
 
 const ICON_SIZE = 16;
 const GAP_BETWEEN_ICON_AND_TEXT = 4;
@@ -26,6 +28,7 @@ export const AppModeToggle = () => {
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const [, setFilter] = useTransactionsFilter(selected!.address);
     const needsEnrollment = useMemo(() => {
         return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     }, [holdersAccStatus?.state]);
@@ -41,12 +44,13 @@ export const AppModeToggle = () => {
     }, []);
 
     const onSwitchAppMode = useCallback((isSwitchingToWallet: boolean) => {
-        if (!isSwitchingToWallet && (needsEnrollment || !isHoldersReady)) {   
+        if (!isSwitchingToWallet && (needsEnrollment || !isHoldersReady)) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
             handleToggle()
             return;
         } else {
             switchAppToWalletMode(isSwitchingToWallet);
+            setFilter((prev) => ({ ...prev, type: isSwitchingToWallet ? TransactionType.TON : TransactionType.HOLDERS }));
         }
     }, [needsEnrollment, isHoldersReady, url, isTestnet])
 

@@ -36,6 +36,7 @@ import { TonWalletFragment } from './TonWalletFragment';
 import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
 import { getCampaignId } from '../../utils/holders/queryParamsStore';
 import { AppModeToggle } from '../../components/AppModeToggle';
+import { useAppMode } from '../../engine/hooks/appstate/useAppMode';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -47,6 +48,7 @@ const WalletCard = memo(({ address }: { address: Address }) => {
     const liquidBalance = useLiquidStakingBalance(address);
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const [price] = usePrice();
+    const [isWalletMode] = useAppMode(address);
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -81,7 +83,7 @@ const WalletCard = memo(({ address }: { address: Address }) => {
             <View>
                 <AppModeToggle />
                 <PriceComponent
-                    amount={walletBalance}
+                    amount={isWalletMode ? walletBalance : cardsBalance}
                     style={{
                         alignSelf: 'center',
                         backgroundColor: theme.transparent,
@@ -90,7 +92,7 @@ const WalletCard = memo(({ address }: { address: Address }) => {
                         paddingLeft: undefined,
                         borderRadius: undefined,
                         height: undefined,
-                        marginTop: 20,
+                        marginTop: 28,
                     }}
                     textStyle={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}
                     centsTextStyle={{ color: theme.textSecondary }}

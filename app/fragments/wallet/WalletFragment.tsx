@@ -35,6 +35,7 @@ import { Queries } from '../../engine/queries';
 import { TonWalletFragment } from './TonWalletFragment';
 import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
 import { getCampaignId } from '../../utils/holders/queryParamsStore';
+import { AppModeToggle } from '../../components/AppModeToggle';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -69,11 +70,12 @@ const WalletCard = memo(({ address }: { address: Address }) => {
         <View style={{
             justifyContent: 'center',
             alignItems: 'center',
-            paddingTop: 24,
+            paddingTop: 8,
             paddingHorizontal: 16,
             backgroundColor: theme.backgroundUnchangeable
         }}>
             <View>
+                <AppModeToggle />
                 <PriceComponent
                     amount={balance}
                     style={{
@@ -84,6 +86,7 @@ const WalletCard = memo(({ address }: { address: Address }) => {
                         paddingLeft: undefined,
                         borderRadius: undefined,
                         height: undefined,
+                        marginTop: 20,
                     }}
                     textStyle={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}
                     centsTextStyle={{ color: theme.textSecondary }}

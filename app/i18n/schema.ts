@@ -51,6 +51,7 @@ export type LocalizationSchema = {
         gotIt: string,
         error: string,
         wallet: string,
+        cards: string,
         wallets: string,
         later: string,
         select: string,

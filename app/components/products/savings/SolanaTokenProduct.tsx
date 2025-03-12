@@ -6,32 +6,38 @@ import { Typography } from "../../styles";
 import { PriceComponent } from "../../PriceComponent";
 import { ValueComponent } from "../../ValueComponent";
 import { ItemDivider } from "../../ItemDivider";
-import { useSolanaAccount } from "../../../engine/hooks";
+import { SOLANA_USDC_MINT_DEVNET, SOLANA_USDC_MINT_MAINNET } from "../../../utils/solana/address";
 import { t } from "../../../i18n/t";
+import { toNano } from "@ton/core";
+import { useNetwork, useTheme } from "../../../engine/hooks";
+import { SolanaToken } from "../../../engine/api/solana/fetchSolanaTokens";
+import { WImage } from "../../WImage";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
-export const SolanaWalletProduct = memo(({
-    theme,
+export const SolanaTokenProduct = memo(({
+    token,
     address,
     testOnly,
     divider
 }: {
-    theme: ThemeType,
+    token: SolanaToken,
     address: string,
     testOnly: boolean,
     divider?: 'top' | 'bottom'
 }) => {
+    const theme = useTheme();
     const navigation = useTypedNavigation();
-    const account = useSolanaAccount(address);
 
-    const balance = account.data?.balance ?? 0n;
-    const symbol = "SOL";
-    const decimals = 9;
+    const decimals = token.decimals ?? 6;
+    const balance = token.amount ?? 0n;
+    const price = toNano(token.uiAmount ?? 0);
+    const symbol = token.symbol ?? "?";
+    const name = token.name ?? "?";
 
-    const onPress = useCallback(async () => {
-        navigation.navigateSolanaWallet({ owner: address });
-    }, [navigation, address, testOnly]);
+    const onPress = () => {
+        navigation.navigateSolanaTokenWallet({ owner: address, mint: token.address });
+    };
 
     return (
         <Pressable
@@ -46,7 +52,8 @@ export const SolanaWalletProduct = memo(({
                     padding: 20,
                     backgroundColor: theme.surfaceOnBg,
                     borderRadius: 20,
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    gap: 4
                 },
             ]}>
                 <View style={{
@@ -56,15 +63,24 @@ export const SolanaWalletProduct = memo(({
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
-                    <SolanaIcon
-                        width={32}
-                        height={32}
-                        style={{
-                            borderRadius: 16,
-                            height: 32,
-                            width: 32
-                        }}
-                    />
+                    {token.logoURI ? (
+                        <WImage
+                            src={token.logoURI}
+                            width={46}
+                            height={46}
+                            borderRadius={23}
+                        />
+                    ) : (
+                        <SolanaIcon
+                            width={32}
+                            height={32}
+                            style={{
+                                borderRadius: 16,
+                                height: 32,
+                                width: 32
+                            }}
+                        />
+                    )}
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         height: 20, width: 20, borderRadius: 10,
@@ -84,7 +100,7 @@ export const SolanaWalletProduct = memo(({
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >
-                            {'Solana'}
+                            {name}
                         </Text>
                     </View>
                     <Text
@@ -109,7 +125,7 @@ export const SolanaWalletProduct = memo(({
                         </Text>
                     </Text>
                     <PriceComponent
-                        amount={balance}
+                        amount={price}
                         style={{
                             backgroundColor: 'transparent',
                             paddingHorizontal: 0, paddingVertical: 0,
@@ -118,7 +134,7 @@ export const SolanaWalletProduct = memo(({
                         }}
                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         theme={theme}
-                        priceUSD={144}
+                        priceUSD={1}
                         hideCentsIfNull
                     />
                 </View>
@@ -128,4 +144,4 @@ export const SolanaWalletProduct = memo(({
     );
 });
 
-SolanaWalletProduct.displayName = 'SolanaWalletProduct';
+SolanaTokenProduct.displayName = 'SolanaUSDCProduct';

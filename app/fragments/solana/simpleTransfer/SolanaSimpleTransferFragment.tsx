@@ -19,6 +19,7 @@ export type SolanaSimpleTransferParams = {
     target?: string | null,
     comment?: string | null,
     amount?: bigint | null,
+    token?: string | null
 }
 
 const SolanaSimpleTransferComponent = () => {
@@ -40,8 +41,15 @@ const SolanaSimpleTransferComponent = () => {
         targetAddressValid,
         setSelectedInput,
         selectedInput,
-        doSend
-    } = useSolanaSimpleTransfer({ params, navigation, owner });
+        doSend,
+        symbol,
+        decimals,
+        logoURI
+    } = useSolanaSimpleTransfer({ params, navigation, owner, token: params?.token });
+
+    console.log({
+        targetAddressValid
+    })
 
     const [isScrolling, setIsScrolling] = useState(false);
 
@@ -102,7 +110,7 @@ const SolanaSimpleTransferComponent = () => {
 
         switch (selectedInput) {
             case SelectedInput.ADDRESS:
-                return { selected: 'address', onNext: targetAddressValid ? resetInput : null, header: { title: t('common.recipient') } };
+                return { selected: 'address', onNext: !!targetAddressValid[0] ? resetInput : null, header: { title: t('common.recipient') } };
             case SelectedInput.AMOUNT:
                 return { selected: 'amount', onNext: resetInput, header: headerTitle };
             case SelectedInput.COMMENT:
@@ -114,20 +122,18 @@ const SolanaSimpleTransferComponent = () => {
 
     const commentMaxHeight = selected === 'comment' ? 200 : undefined;
 
-    console.log({ continueDisabled });
-
     return (
         <SimpleTransferLayout
             ref={scrollRef}
             headerComponent={<SimpleTransferHeader {...header} />}
-            footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, doSend }} />}
             addressComponent={<SolanaSimpleTransferAddress ref={addressRef} {...{ initTarget: params?.target, setAddressInputState, onInputSubmit, onInputFocus, onQRCodeRead, isActive: selected === 'address' }} />}
-            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ symbol: 'SOL', balance, onAddAll, onInputFocus, amount, setAmount, amountError }} />}
+            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ symbol, decimals, balance, onAddAll, onInputFocus, amount, setAmount, amountError, logoURI }} />}
             commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', onInputFocus, setComment, maxHeight: commentMaxHeight }} />}
             scrollEnabled={!selectedInput}
             nestedScrollEnabled={!selectedInput}
             selected={selected}
             setIsScrolling={setIsScrolling}
+            footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, doSend }} />}
         />
     );
 }

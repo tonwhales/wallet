@@ -2,16 +2,19 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { useNetwork, useSolanaClient } from "..";
 import { useEffect, useRef, useState } from "react";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
+import { rpcEndpoint } from "./useSolanaClient";
 import { PublicKey } from "@solana/web3.js";
 
 const TRANSACTIONS_LENGTH = 16;
 
-export function useSolanaTransactions(address: string) {
+export function useSolanaTokenTransactions(address: string, token: string) {
     const client = useSolanaClient();
     const { isTestnet } = useNetwork();
+    const rpc = rpcEndpoint(isTestnet);
 
     const query = useInfiniteQuery({
-        queryKey: Queries.SolanaTransactions(address, isTestnet ? 'devnet' : 'mainnet'),
+        queryKey: Queries.SolanaTokenTransactions(address, token, isTestnet ? 'devnet' : 'mainnet'),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
@@ -25,12 +28,16 @@ export function useSolanaTransactions(address: string) {
             return lastSign;
         },
         queryFn: async () => {
-            const signs = await client.getSignaturesForAddress(new PublicKey(address), { limit: TRANSACTIONS_LENGTH });
+            const tokenAccount = await getAssociatedTokenAddress(
+                new PublicKey(token),
+                new PublicKey(address)
+            );
+            const signs = await client.getSignaturesForAddress(tokenAccount, { limit: TRANSACTIONS_LENGTH });
 
             const transactions = await Promise.all(signs.map(async (sign) => {
                 const tx = await client.getTransaction(sign.signature, { maxSupportedTransactionVersion: 0 });
                 return tx;
-            })) || [];
+            }));
 
             const filteredTransactions = transactions.filter((tx) => !!tx);
 
@@ -73,4 +80,4 @@ export function useSolanaTransactions(address: string) {
     }
 }
 
-export type SolanaParsedTransaction = ReturnType<typeof useSolanaTransactions>['data'][number];
+export type SolanaTokenTransaction = ReturnType<typeof useSolanaTokenTransactions>['data'][number];

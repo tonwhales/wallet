@@ -5,8 +5,6 @@ import { t } from "../../i18n/t";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, ToastProps, useToaster } from "../toast/ToastProvider";
 import { useTheme } from "../../engine/hooks";
-import { ThemeType } from "../../engine/state/theme";
-import { SolanaAddress } from "../../utils/solana/core";
 import { Typography } from "../styles";
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
@@ -16,7 +14,7 @@ export function ellipsiseAddress(src: string, params?: { start?: number, end?: n
 }
 
 export const SolanaWalletAddress = memo((props: {
-    address: SolanaAddress,
+    address: string,
     value?: string,
     style?: StyleProp<ViewStyle>,
     textStyle?: StyleProp<TextStyle>,

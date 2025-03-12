@@ -1,69 +1,90 @@
-import { appendTransactionMessageInstructions, compileTransaction, createKeyPairFromBytes, createSignerFromKeyPair, createTransactionMessage, getBase64EncodedWireTransaction, getComputeUnitEstimateForTransactionMessageFactory, pipe, prependTransactionMessageInstruction, Rpc, setTransactionMessageFeePayer, setTransactionMessageLifetimeUsingBlockhash, Signature, signTransaction } from "@solana/kit";
 import { SolanaOrder } from "../../fragments/secure/ops/Order";
 import { SolanaClient } from "../../engine/hooks/solana/useSolanaClient";
 import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { ThemeType } from "../../engine/state/theme";
-import { getTransferSolInstruction } from "@solana-program/system";
-import { SolanaAddress } from "./core";
-import { getAddMemoInstruction } from "@solana-program/memo";
-import { getSetComputeUnitLimitInstruction } from "@solana-program/compute-budget";
-
+import { Keypair, Transaction, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
+import { createTransferInstruction, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 
 type SendSolanaTransferParams = {
-    sender: SolanaAddress,
+    sender: string,
     solanaClient: SolanaClient,
     theme: ThemeType,
     authContext: AuthWalletKeysType,
     order: SolanaOrder
 }
 
-export async function sendSolanaTransfer({ solanaClient, theme, authContext, order, sender }: SendSolanaTransferParams): Promise<Signature> {
-    const lastBlockHash = await solanaClient.getLatestBlockhash().send();
-    const { target, comment, amount } = order;
-
-    const recentBlockhash = {
-        blockhash: lastBlockHash.value.blockhash,
-        lastValidBlockHeight: lastBlockHash.value.lastValidBlockHeight,
-    };
-
-    const getComputeUnitEstimateForTransactionMessage = getComputeUnitEstimateForTransactionMessageFactory({ rpc: solanaClient });
+export async function sendSolanaTransfer({ solanaClient, theme, authContext, order, sender }: SendSolanaTransferParams) {
+    const { target, comment, amount, token } = order;
+    const lastBlockHash = await solanaClient.getLatestBlockhash();
+    const mintAddress = token ? new PublicKey(token) : null;
+    const owner = new PublicKey(sender);
+    const recipient = new PublicKey(target);
 
     const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-    const privateKey = new Uint8Array(walletKeys.keyPair.secretKey);
-    const keyPair = await createKeyPairFromBytes(privateKey);
-    const signer = await createSignerFromKeyPair(keyPair);
+    const keyPair = Keypair.fromSecretKey(new Uint8Array(walletKeys.keyPair.secretKey));
 
-    const instructions: any[] = [
-        getTransferSolInstruction({
-            source: signer,
-            destination: target,
-            amount,
-        })
-    ];
+    const transaction = new Transaction();
 
-    if (comment) {
-        instructions.push(getAddMemoInstruction({ memo: comment }));
+    if (!mintAddress) {
+        transaction.add(
+            SystemProgram.transfer({
+                fromPubkey: owner,
+                toPubkey: recipient,
+                lamports: amount
+            })
+        );
+    } else {
+        const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
+            solanaClient,
+            keyPair,
+            mintAddress,
+            owner
+        );
+        const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
+            solanaClient,
+            keyPair, // Signer to pay for account creation if needed
+            mintAddress,
+            recipient
+        );
+
+        const transferInstruction = createTransferInstruction(
+            senderTokenAccount.address, // from 
+            recipientTokenAccount.address, // to
+            owner,
+            amount
+        );
+
+        transaction.add(transferInstruction);
     }
 
-    const transactionMessage = pipe(
-        createTransactionMessage({ version: 0 }),
-        tx => setTransactionMessageFeePayer(sender, tx),
-        tx => appendTransactionMessageInstructions(instructions, tx),
-        tx => setTransactionMessageLifetimeUsingBlockhash(recentBlockhash, tx),
-    );
+    if (comment) {
+        transaction.add(
+            new TransactionInstruction({
+                keys: [{ pubkey: owner, isSigner: true, isWritable: true }],
+                data: Buffer.from(comment, "utf-8"),
+                programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            })
+        );
+    }
 
-    const computeUnitEstimate = await getComputeUnitEstimateForTransactionMessage(transactionMessage);
+    transaction.feePayer = owner;
+    transaction.recentBlockhash = lastBlockHash.blockhash;
 
-    const transactionMessageWithComputeUnitLimit = prependTransactionMessageInstruction(
-        getSetComputeUnitLimitInstruction({ units: computeUnitEstimate }),
-        transactionMessage,
-    );
+    // 
+    // Sign and send
+    //
+    transaction.sign(keyPair);
+    const signature = await solanaClient.sendEncodedTransaction(transaction.serialize().toString('base64'));
 
-    // Send
-    const transaction = compileTransaction(transactionMessageWithComputeUnitLimit);
-    const signedTransaction = await signTransaction([keyPair], transaction);
-    const base64Transaction = getBase64EncodedWireTransaction(signedTransaction);
-    const sent = await solanaClient.sendTransaction(base64Transaction, { encoding: 'base64' }).send();
-
-    return sent;
+    return {
+        signature,
+        lastBlockHash,
+        tx: {
+            comment,
+            amount,
+            token,
+            target,
+            sender
+        }
+    };
 }

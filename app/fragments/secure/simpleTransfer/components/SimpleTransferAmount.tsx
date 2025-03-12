@@ -18,6 +18,7 @@ import IcChevron from '@assets/ic_chevron_forward.svg';
 import { Address } from '@ton/core';
 import { Jetton } from '../../../../engine/types';
 import { HoldersAccountTarget } from '../../../../engine/hooks/holders/useHoldersAccountTrargets';
+import { WImage } from '../../../../components/WImage';
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
@@ -39,12 +40,28 @@ type Props = {
     shouldChangeJetton?: boolean;
     holdersTarget?: HoldersAccountTarget;
     onChangeJetton?: () => void;
-    onInputFocus: (index: number) => void
+    onInputFocus: (index: number) => void,
+    decimals?: number,
+    logoURI?: string
 }
 
-const AmountIcon = memo(({ symbol, jetton }: { symbol: string, jetton?: Jetton | null }) => {
+const AmountIcon = memo(({ symbol, jetton, logoURI }: { symbol: string, jetton?: Jetton | null, logoURI?: string }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+
+    if (logoURI) {
+        return <WImage
+            src={logoURI}
+            width={46}
+            height={46}
+            borderRadius={23}
+            style={{
+                height: 46,
+                width: 46,
+                marginRight: 12
+            }}
+        />
+    }
 
     let ic = <Image
         source={require('@assets/ic-ton-acc.png')}
@@ -95,6 +112,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
     holdersTarget,
     onChangeJetton,
     onInputFocus,
+    decimals,
+    logoURI
 }: Props, ref) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -104,8 +123,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
     useImperativeHandle(ref, () => innerRef.current)
 
     const onValueChange = useCallback((newVal: string) => {
-        setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? 9, { skipFormattingDecimals: true }, prev));
-    }, [jetton?.decimals])
+        setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? decimals ?? 9, { skipFormattingDecimals: true }, prev));
+    }, [jetton?.decimals, decimals])
 
     const onNavigateAssets = useCallback(() => navigation.navigateAssets({
         jettonCallback: onAssetSelected,
@@ -126,7 +145,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 justifyContent: 'space-between'
             }}>
                 <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
-                    <AmountIcon symbol={symbol} jetton={jetton} />
+                    <AmountIcon symbol={symbol} jetton={jetton} logoURI={logoURI} />
                     <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
                         <Text
                             style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}

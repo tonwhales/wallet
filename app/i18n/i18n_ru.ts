@@ -1313,10 +1313,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "savings": {
         "ton": "Сберегательный счет в TON",
         "usdt": "Сберегательный счет в USDT",
+        "general": "Сберегательный счет в {{symbol}}"
     },
     "spending": {
         "ton": "Платеждный счет в TON",
-        "usdt": "Платеждный счет в USDT"
+        "usdt": "Платеждный счет в USDT",
+        "general": "Платеждный счет в {{symbol}}"
     }
 };
 

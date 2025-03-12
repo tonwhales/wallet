@@ -7,7 +7,7 @@ import { t } from "../../i18n/t";
 import { Typography } from "../styles";
 import { ThemeType } from "../../engine/state/theme";
 import { ATextInputRef } from "../ATextInput";
-import { isSolanaAddress, solanaAddressFromString } from "../../utils/solana/core";
+import { isSolanaAddress } from "../../utils/solana/address";
 
 export type SolanaAddressInputState = {
     input: string,
@@ -213,11 +213,10 @@ export const SolanaAddressInput = memo(forwardRef(({
             const isAddress = isSolanaAddress(value);
 
             if (isAddress) {
-                const target = solanaAddressFromString(value);
                 inputAction({
                     type: SolanaInputAction.InputTarget,
                     input: value,
-                    target
+                    target: value
                 });
 
                 return;

@@ -14,7 +14,7 @@ import { CurrencySymbols } from "../../utils/formatCurrency";
 import { useFocusEffect } from "@react-navigation/native";
 import { SolanaTransactions } from "./views/SolanaTransactions";
 import { SolanaWalletActions } from "./views/SolanaWalletActions";
-import { isSolanaAddress, SolanaAddress, solanaAddressFromString } from "../../utils/solana/core";
+import { isSolanaAddress } from "../../utils/solana/address";
 import { SolanaWalletAddress } from "../../components/address/SolanaWalletAddress";
 
 import SolanaIcon from '@assets/ic-solana.svg';
@@ -48,11 +48,10 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const ownerAddress = solanaAddressFromString(owner);
-    const account = useSolanaAccount(ownerAddress);
-    const txs = useSolanaTransactions(ownerAddress);
+    const account = useSolanaAccount(owner);
+    const txs = useSolanaTransactions(owner);
 
-    const balance = account.data?.lamports ?? 0n;
+    const balance = account.data?.balance ?? 0n;
     const symbol = "SOL";
     const decimals = 9;
 
@@ -119,12 +118,12 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                 navigation={navigation}
                 txs={transactions}
                 hasNext={txs.hasNext}
-                address={ownerAddress}
+                address={owner}
                 safeArea={safeArea}
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
                 loading={false}
-                owner={ownerAddress}
+                owner={owner}
                 header={
                     <View style={styles.content}>
                         <View style={{
@@ -147,7 +146,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                         <View style={{ marginTop: 16, width: '100%' }}>
                             <View style={{ gap: 8, alignItems: 'center' }}>
                                 <SolanaWalletAddress
-                                    address={ownerAddress}
+                                    address={owner}
                                     elipsise={{ start: 4, end: 4 }}
                                     copyOnPress
                                     disableContextMenu
@@ -175,7 +174,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                                 theme={theme}
                                 navigation={navigation}
                                 isTestnet={isTestnet}
-                                address={ownerAddress}
+                                address={owner}
                             />
                             {/* Placeholder for pending transactions */}
                             <View style={{ marginTop: 16 }} />
@@ -211,7 +210,7 @@ export const SolanaWalletFragment = fragment(() => {
     );
 });
 
-const styles = StyleSheet.create({
+export const solanaWalletFragmentStyles = StyleSheet.create({
     fragment: {
         flexGrow: 1,
         paddingTop: 32
@@ -266,3 +265,5 @@ const styles = StyleSheet.create({
         marginTop: 28
     }
 });
+
+const styles = solanaWalletFragmentStyles;

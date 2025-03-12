@@ -1,7 +1,7 @@
 import { memo, useCallback } from "react";
 import { View } from "react-native";
 import { t } from "../../../i18n/t";
-import { useDisplayableJettons, useNetwork, useTheme } from "../../../engine/hooks";
+import { useDisplayableJettons, useNetwork, useSolanaTokens, useTheme } from "../../../engine/hooks";
 import { Typography } from "../../styles";
 import { TonProductComponent } from "../TonProductComponent";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
@@ -16,17 +16,23 @@ import { CollapsibleCards } from "../../animated/CollapsibleCards";
 import { useSavingsBalance } from "../../../engine/hooks/jettons/useSavingsBalance";
 import { PriceComponent } from "../../PriceComponent";
 import { SolanaWalletProduct } from "./SolanaWalletProduct";
-import { solanaAddressFromPublicKey } from "../../../utils/solana/core";
+import { solanaAddressFromPublicKey } from "../../../utils/solana/address";
+import { SolanaTokenProduct } from "./SolanaTokenProduct";
+import { SolanaToken } from "../../../engine/api/solana/fetchSolanaTokens";
 
 enum AssetType {
     Jetton = 'jetton',
     Special = 'special',
     Ton = 'ton',
-    Solana = 'solana'
+    Solana = 'solana',
+    SolanaToken = 'solanaToken'
 }
 
 type SavingsItem = { type: AssetType.Jetton, description: string } & JettonFull
-    | { type: AssetType.Special } | { type: AssetType.Ton } | { type: AssetType.Solana };
+    | { type: AssetType.Special }
+    | { type: AssetType.Ton }
+    | { type: AssetType.Solana }
+    | { type: AssetType.SolanaToken } & SolanaToken;
 
 export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Address, isLedger?: boolean, pubKey: Buffer }) => {
     const theme = useTheme();
@@ -34,7 +40,8 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
     const savings = useDisplayableJettons(address.toString({ testOnly: isTestnet })).savings || [];
     const { totalBalance } = useSavingsBalance(address);
     const navigation = useTypedNavigation();
-    const solanaAddress = solanaAddressFromPublicKey(pubKey);
+    const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
+    const tokens = useSolanaTokens(solanaAddress);
 
     const selectParams = {
         onSelect: (h: any) => {
@@ -88,10 +95,19 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
                         testOnly={isTestnet}
                     />
                 );
+            case 'solanaToken':
+                return (
+                    <SolanaTokenProduct
+                        token={item}
+                        theme={theme}
+                        address={solanaAddress}
+                        testOnly={isTestnet}
+                    />
+                );
         }
     }, [isTestnet, theme, selectParams, isLedger, address, solanaAddress]);
 
-    const savingsItems = savings
+    const savingsItems: ({ type: AssetType.Jetton, description: string } & JettonFull)[] = savings
         .filter((s) => { // filter out zero balances
             try {
                 return BigInt(s.balance) > 0n;
@@ -100,11 +116,14 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
         })
         .map((s) => ({ type: AssetType.Jetton, ...s }));
 
+    const solanaTokens: ({ type: AssetType.SolanaToken } & SolanaToken)[] = tokens.data?.map((t) => ({ type: AssetType.SolanaToken, ...t })) ?? [];
+
     const items: SavingsItem[] = [
         { type: AssetType.Ton },
         { type: AssetType.Special },
         { type: AssetType.Solana },
-        ...savingsItems
+        ...savingsItems,
+        ...solanaTokens
     ];
 
     const renderFace = useCallback(() => {

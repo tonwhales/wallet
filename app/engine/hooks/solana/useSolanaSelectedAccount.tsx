@@ -1,12 +1,12 @@
-import { SolanaAddress, solanaAddressFromPublicKey } from "../../../utils/solana/core";
+import { solanaAddressFromPublicKey } from "../../../utils/solana/address";
 import { useSelectedAccount } from "../appstate";
 
-export function useSolanaSelectedAccount(): SolanaAddress | null {
+export function useSolanaSelectedAccount(): string | null {
     const acc = useSelectedAccount();
 
     if (!acc) {
         return null;
     }
 
-    return solanaAddressFromPublicKey(acc.publicKey);
+    return solanaAddressFromPublicKey(acc.publicKey).toString();
 }

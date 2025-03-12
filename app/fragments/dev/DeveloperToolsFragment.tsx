@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -13,7 +13,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback } from 'react';
-import { useSelectedAccount, useSetAppState, useSolanaAccount, useSolanaClient, useSolanaTransactions, useTheme } from '../../engine/hooks';
+import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
@@ -29,27 +29,14 @@ import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
-import { Address, toNano } from '@ton/core';
+import { Address, fromNano } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { solanaAddressFromPublicKey } from '../../utils/solana/core';
-import {
-    createTransactionMessage,
-    setTransactionMessageFeePayer,
-    setTransactionMessageLifetimeUsingBlockhash,
-    signTransaction,
-    getComputeUnitEstimateForTransactionMessageFactory,
-    prependTransactionMessageInstruction,
-    compileTransaction,
-    createKeyPairFromBytes,
-    createSignerFromKeyPair,
-    getBase64EncodedWireTransaction,
-    pipe,
-    appendTransactionMessageInstructions,
-} from '@solana/kit';
-import { getAddMemoInstruction } from '@solana-program/memo';
-import { getTransferSolInstruction } from '@solana-program/system';
-import { getSetComputeUnitLimitInstruction } from '@solana-program/compute-budget'
+import { SOLANA_USDC_MINT_DEVNET, SOLANA_USDC_MINT_MAINNET, solanaAddressFromPublicKey } from '../../utils/solana/address';
 import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
+import { rpcEndpoint } from '../../engine/hooks/solana/useSolanaClient';
+import { Connection, PublicKey, Keypair, Transaction } from '@solana/web3.js';
+import { getOrCreateAssociatedTokenAccount, createTransferInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { toBnWithDecimals } from '../../utils/withDecimals';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -65,14 +52,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
     const solanaAddress = solanaAddressFromPublicKey(acc.publicKey);
-    const solanaClient = useSolanaClient();
-    const solanaAccount = useSolanaAccount(solanaAddress);
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
-
-    const solanaTransactions = useSolanaTransactions(solanaAddress);
-
-    console.log(JSON.stringify(solanaTransactions.data));
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -296,86 +277,97 @@ export const DeveloperToolsFragment = fragment(() => {
                         alignItems: 'center',
                         padding: 4
                     }}>
-                        <View>
-                            <Text>
-                                {JSON.stringify(solanaAccount.data ?? 'No data')}
-                            </Text>
-                            <Text>
-                                { }
-                            </Text>
-                        </View>
-                        <ItemButton title='CHECK BALANCE' onPress={async () => {
+                        <ItemButton title='Fetch Solana token balance' onPress={async () => {
                             try {
-                                const balance = await solanaClient.getBalance(solanaAddress).send();
-                                console.log('balance', balance);
-                                const minBalance = await solanaClient.getMinimumBalanceForRentExemption(0n).send();
-                                console.log('minBalance', minBalance);
+                                const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+                                const keyPair = Keypair.fromSecretKey(new Uint8Array(walletKeys.keyPair.secretKey));
+
+                                const rpc = rpcEndpoint(isTestnet);
+                                const connection = new Connection(rpc);
+
+                                const walletAddress = keyPair.publicKey.toString();
+                                console.log('walletAddress', { walletAddress, solanaAddress });
+                                const walletPublicKey = new PublicKey(walletAddress);
+                                const usdcMintAddress = new PublicKey(isTestnet ? SOLANA_USDC_MINT_DEVNET : SOLANA_USDC_MINT_MAINNET);
+
+                                //all token accounts owned by this wallet
+                                console.log('Fetching token accounts...');
+                                const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+                                    walletPublicKey,
+                                    { programId: TOKEN_PROGRAM_ID }
+                                );
+
+                                console.log(`Found ${tokenAccounts.value.length} token accounts`);
+
+                                //find the USDC token account
+                                let usdcTokenAccount = null;
+                                let usdcBalance = 0;
+
+                                const tokenAcc = tokenAccounts.value.find(tokenAccount => tokenAccount.account.data.parsed.info.mint === usdcMintAddress.toString());
+                                console.log('tokenAcc', tokenAcc);
+
+                                if (!tokenAcc) {
+                                    Alert.alert('No USDC Found', 'This wallet does not have any USDC tokens.');
+                                    return;
+                                }
+
+                                usdcTokenAccount = tokenAcc;
+                                usdcBalance = tokenAcc.account.data.parsed.info.tokenAmount.uiAmount;
+                                console.log('usdcTokenAccount', usdcTokenAccount);
+                                console.log('usdcBalance', usdcBalance);
+
+                                //sender
+                                const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
+                                    connection,
+                                    keyPair,
+                                    usdcMintAddress,
+                                    walletPublicKey
+                                );
+
+                                //recipient
+                                const recipientAddress = new PublicKey('5CjWPNKMdWGipUX7LfRGAZ78qP85xfKpXp8iRkEfqYcb');
+                                const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
+                                    connection,
+                                    keyPair, // Signer to pay for account creation if needed
+                                    usdcMintAddress,
+                                    recipientAddress
+                                );
+
+                                //transfer instruction
+                                const transferAmount = '1'; // Transfer 0.1 USDC
+                                const decimals = 6; // USDC has 6 decimal places
+                                const tokenAmount = toBnWithDecimals(transferAmount, decimals);
+
+                                const transferInstruction = createTransferInstruction(
+                                    senderTokenAccount.address, // from 
+                                    recipientTokenAccount.address, // to
+                                    walletPublicKey,
+                                    tokenAmount
+                                );
+
+                                //create transaction
+                                const recentBlockhash = await connection.getLatestBlockhash();
+                                const transaction = new Transaction().add(transferInstruction);
+                                transaction.recentBlockhash = recentBlockhash.blockhash;
+                                transaction.feePayer = walletPublicKey;
+
+                                transaction.sign(keyPair);
+
+                                const signature = await connection.sendEncodedTransaction(transaction.serialize().toString('base64'));
+                                console.log('signature', signature);
                             } catch (error) {
-                                console.error('error', error);
+                                console.error('Error transferring USDC:', error);
                             }
                         }} />
-                        <ItemButton title='Send to Self' onPress={async () => {
+                        <ItemButton title='Fetch Solana balance' onPress={async () => {
                             try {
-                                const lastBlockHash = await solanaClient.getLatestBlockhash().send();
-
-                                const recentBlockhash = {
-                                    blockhash: lastBlockHash.value.blockhash,
-                                    lastValidBlockHeight: lastBlockHash.value.lastValidBlockHeight,
-                                };
-                                console.log({ recentBlockhash });
-
-                                const getComputeUnitEstimateForTransactionMessage = getComputeUnitEstimateForTransactionMessageFactory({ rpc: solanaClient });
-
-                                const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-                                console.log('privateKey length', walletKeys.keyPair.secretKey.length);
-                                const privateKey = new Uint8Array(walletKeys.keyPair.secretKey);
-                                const keyPair = await createKeyPairFromBytes(privateKey);
-                                const signer = await createSignerFromKeyPair(keyPair);
-
-                                console.log('signer', signer);
-                                console.log('solanaAddress', solanaAddress);
-
-                                const comment = 'test solana comment';
-
-                                const instructions = [
-                                    getTransferSolInstruction({
-                                        source: signer,
-                                        destination: solanaAddress,
-                                        amount: toNano(1),
-                                    }),
-                                    getAddMemoInstruction({ memo: comment }),
-                                ];
-
-                                const transactionMessage = pipe(
-                                    createTransactionMessage({ version: 0 }),
-                                    tx => setTransactionMessageFeePayer(solanaAddress, tx),
-                                    tx => appendTransactionMessageInstructions(instructions, tx),
-                                    tx => setTransactionMessageLifetimeUsingBlockhash(recentBlockhash, tx),
-                                );
-
-                                const computeUnitEstimate = await getComputeUnitEstimateForTransactionMessage(transactionMessage);
-                                console.log('computeUnitEstimate', computeUnitEstimate);
-
-                                const transactionMessageWithComputeUnitLimit = prependTransactionMessageInstruction(
-                                    getSetComputeUnitLimitInstruction({ units: computeUnitEstimate }),
-                                    transactionMessage,
-                                );
-
-                                const transaction = compileTransaction(transactionMessageWithComputeUnitLimit);
-                                console.log('transaction', transaction);
-
-                                // const signedTransaction = await signer.signTransactions([transaction]);
-                                const signedTransaction = await signTransaction([keyPair], transaction);
-                                console.log('signedTransaction', signedTransaction);
-
-                                const base64Transaction = getBase64EncodedWireTransaction(signedTransaction);
-
-                                // const sent = await solanaClient.sendTransaction(signedTransaction, { commitment: 'confirmed' }).send();
-                                const sent = await solanaClient.sendTransaction(base64Transaction, { encoding: 'base64' }).send();
-                                console.log('sent', sent);
-
+                                const rpc = rpcEndpoint(isTestnet);
+                                const connection = new Connection(rpc);
+                                const mint = new PublicKey(!isTestnet ? SOLANA_USDC_MINT_MAINNET : SOLANA_USDC_MINT_DEVNET);
+                                const metadata = await connection.getParsedAccountInfo(mint);
+                                console.log('metadata', JSON.stringify(metadata));
                             } catch (error) {
-                                console.error('error', error);
+                                console.error('Error transferring USDC:', error);
                             }
                         }} />
                     </View>

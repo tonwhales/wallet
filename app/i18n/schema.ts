@@ -1313,10 +1313,12 @@ export type LocalizationSchema = {
         callToAction: string,
     },
     savings: {
+        general: string,
         ton: string,
-        usdt: string,
+        usdt: string
     },
     spending: {
+        general: string,
         ton: string,
         usdt: string
     }

@@ -36,6 +36,7 @@ import { TonWalletFragment } from './TonWalletFragment';
 import { getCampaignId } from '../../utils/CachedLinking';
 import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
 import { SolanaWalletFragment } from './SolanaWalletFragment';
+import { SolanaTokenWalletFragment } from './SolanaTokenWalletFragment';
 
 const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
@@ -335,6 +336,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('LiquidStaking', LiquidStakingFragment),
     fullScreen('JettonWallet', JettonWalletFragment),
     fullScreen('SolanaWallet', SolanaWalletFragment),
+    fullScreen('SolanaTokenWallet', SolanaTokenWalletFragment),
     fullScreen('TonWallet', TonWalletFragment)
 ]
 

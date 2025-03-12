@@ -4,7 +4,7 @@ import { useParams } from "../../../utils/useParams";
 import { SolanaOrder } from "../../secure/ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClient, useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
+import { useSolanaClient, useSolanaSelectedAccount, useSolanaToken, useTheme } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -21,6 +21,7 @@ import { avatarHash } from "../../../utils/avatarHash";
 import { avatarColors } from "../../../components/avatar/Avatar";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { fromNano } from "@ton/core";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 
 export type SolanaTransferParams = {
     order: SolanaOrder
@@ -34,6 +35,7 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
+    const token = useSolanaToken(solanaAddress, order.token);
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);
@@ -57,7 +59,8 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
 
     const avatarColorHash = avatarHash(order.target, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-    const amountText = fromNano(order.amount) + ' SOL';
+    const amount = token ? fromBnWithDecimals(order.amount, token.decimals) : fromNano(order.amount);
+    const amountText = amount + ' ' + (token?.symbol ?? 'SOL');
 
     return (
         <View style={{ flexGrow: 1 }}>

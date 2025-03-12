@@ -20,7 +20,7 @@ export const SimpleTransferFooter = memo(({
     doSend,
 }: Props) => {
     const safeArea = useSafeAreaInsets();
-    
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'position' : undefined}

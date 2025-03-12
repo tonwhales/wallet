@@ -1312,11 +1312,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "TON Sparkonto",
-        "usdt": "USDT Sparkonto"
+        "usdt": "USDT Sparkonto",
+        "general": "{{symbol}} Sparkonto"
     },
     "spending": {
         "ton": "TON Ausgabenkonto",
-        "usdt": "USDT Ausgabenkonto"
+        "usdt": "USDT Ausgabenkonto",
+        "general": "{{symbol}} Ausgabenkonto"
     }
 };
 

@@ -3,25 +3,28 @@ import { SelectedInput } from "../../../secure/simpleTransfer/hooks/useSimpleTra
 import { TypedNavigation } from "../../../../utils/useTypedNavigation";
 import { SolanaAddressInputState } from "../../../../components/address/SolanaAddressInput";
 import { fromNano, toNano } from "@ton/core";
-import { solanaAddressFromPublicKey, isSolanaAddress, solanaAddressFromString, SolanaAddress } from "../../../../utils/solana/core";
-import { useSelectedAccount, useSolanaAccount } from "../../../../engine/hooks";
+import { solanaAddressFromPublicKey, isSolanaAddress } from "../../../../utils/solana/address";
+import { useSelectedAccount, useSolanaAccount, useSolanaToken } from "../../../../engine/hooks";
 import { t } from "../../../../i18n/t";
 import { formatInputAmount } from "../../../../utils/formatCurrency";
 import { SolanaSimpleTransferParams } from "../SolanaSimpleTransferFragment";
 import { usePrevious } from "../../../secure/simpleTransfer/hooks/usePrevious";
 import { SolanaOrder } from "../../../secure/ops/Order";
 import { Alert } from "react-native";
+import { toBnWithDecimals } from "../../../../utils/withDecimals";
 
 type Options = {
     params: SolanaSimpleTransferParams;
     navigation: TypedNavigation;
-    owner: SolanaAddress;
+    owner: string;
+    token?: string | null;
 }
 
-export const useSolanaSimpleTransfer = ({ params, navigation, owner }: Options) => {
+export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Options) => {
     const acc = useSelectedAccount();
-    const accSolanaAddress = solanaAddressFromPublicKey(acc!.publicKey);
+    const accSolanaAddress = solanaAddressFromPublicKey(acc!.publicKey).toString();
     const account = useSolanaAccount(accSolanaAddress);
+    const accountToken = useSolanaToken(accSolanaAddress, token);
     const hasParamsFilled = !!params?.target && !!params?.amount;
     const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
 
@@ -38,7 +41,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner }: Options) 
     const [commentString, setComment] = useState(params?.comment || '');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
 
-    const targetAddressValid: [SolanaAddress | null, boolean] = useMemo(() => {
+    const targetAddressValid: [string | null, boolean] = useMemo(() => {
         if (target.length < 44) {
             return [null, false];
         }
@@ -46,7 +49,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner }: Options) 
             return [null, true];
         }
         try {
-            return [solanaAddressFromString(target), false];
+            return [target, false];
         } catch {
             return [null, true];
         }
@@ -61,14 +64,15 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner }: Options) 
 
         try {
             const valid = amount.replace(',', '.').replaceAll(' ', '');
-            value = toNano(valid);
+            value = accountToken?.decimals ? toBnWithDecimals(valid, accountToken.decimals) : toNano(valid);
             return value;
         } catch {
             return null;
         }
-    }, [amount]);
+    }, [amount, accountToken?.decimals]);
 
-    const balance = account.data?.lamports || 0n;
+    const balanceToken = toBnWithDecimals(accountToken?.amount ?? 0n, accountToken?.decimals ?? 6);
+    const balance = token ? balanceToken : account.data?.balance || 0n;
 
     const order: SolanaOrder | null = useMemo(() => {
         if (!validAmount) {
@@ -82,10 +86,11 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner }: Options) 
         return {
             type: 'solana',
             target: targetAddressValid[0],
+            token,
             amount: validAmount,
             comment: commentString,
         }
-    }, [targetAddressValid, validAmount, commentString]);
+    }, [targetAddressValid[0], validAmount, commentString, token]);
 
     const amountError = useMemo(() => {
         if (amount.length === 0) {
@@ -109,6 +114,8 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner }: Options) 
         const formatted = formatInputAmount(amount.replace('.', ','), 9, { skipFormattingDecimals: true });
         setAmount(formatted);
     }, [balance]);
+
+    console.log('order', order);
 
     const continueDisabled = !order;
 
@@ -165,6 +172,9 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner }: Options) 
         continueDisabled,
         onAddAll,
         onQRCodeRead,
-        doSend
+        doSend,
+        symbol: accountToken?.symbol ?? 'SOL',
+        decimals: accountToken?.decimals ?? 9,
+        logoURI: accountToken?.logoURI ?? ''
     }
 }

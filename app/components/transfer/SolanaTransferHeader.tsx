@@ -1,14 +1,13 @@
 import { memo } from "react";
 import { Text } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
-import { SolanaAddress } from "../../utils/solana/core";
 import { useTheme } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 import { avatarColors } from "../avatar/Avatar";
 import { AddressInputAvatar } from "../address/AddressInputAvatar";
 import { Typography } from "../styles";
 
-export const SolanaTransferHeader = memo(({ address }: { address: SolanaAddress }) => {
+export const SolanaTransferHeader = memo(({ address }: { address: string }) => {
     const theme = useTheme();
     const addressFriendly = address;
     const avatarColorHash = avatarHash(address, avatarColors.length);

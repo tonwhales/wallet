@@ -11,7 +11,7 @@ import { AddressInputAvatar } from "./AddressInputAvatar";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { Typography } from "../styles";
 import { SolanaAddressInput, SolanaAddressInputRef, SolanaAddressInputState } from "./SolanaAddressInput";
-import { isSolanaAddress, solanaAddressFromString } from "../../utils/solana/core";
+import { isSolanaAddress } from "../../utils/solana/address";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -52,7 +52,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
             return [null, true];
         }
         try {
-            return [solanaAddressFromString(state.target), false]
+            return [state.target, false]
         } catch {
             return [null, true];
         }
@@ -121,7 +121,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                         avatarColor={avatarColor}
                         knownWallets={{}}
                         hash={null}
-                        // forceAvatar={!!isTargetHolders ? 'holders' : undefined}
+                    // forceAvatar={!!isTargetHolders ? 'holders' : undefined}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
@@ -165,7 +165,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                             friendly={input}
                             avatarColor={avatarColor}
                             knownWallets={{}} hash={null}
-                            // forceAvatar={isTargetHolders ? 'holders' : undefined}
+                        // forceAvatar={isTargetHolders ? 'holders' : undefined}
                         />
                     </View>
                     <SolanaAddressInput

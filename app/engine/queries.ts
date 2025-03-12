@@ -28,16 +28,16 @@ export const Queries = {
             ? ['transactions', 'v2', 'holders', address]
             : ['transactions', 'v2', address];
 
-            if (!!params) {
-                for (const key of Object.keys(params) as (keyof AccountTransactionsParams)[]) {
-                    const value = params[key];
-                    if (typeof value === 'string') {
-                        base.push(`${key}_${value}`);
-                    } else if (Array.isArray(value)) {
-                        base.push(`${key}_${value.join(',')}`);
-                    }
+        if (!!params) {
+            for (const key of Object.keys(params) as (keyof AccountTransactionsParams)[]) {
+                const value = params[key];
+                if (typeof value === 'string') {
+                    base.push(`${key}_${value}`);
+                } else if (Array.isArray(value)) {
+                    base.push(`${key}_${value.join(',')}`);
                 }
             }
+        }
 
         return base;
     },
@@ -91,6 +91,9 @@ export const Queries = {
     AppConfig: (network: 'mainnet' | 'testnet') => (['appConfig', network]),
 
     // Solana
-    SolanaTransactions: (address: string) => (['solana', 'transactions', address]),
-    SolanaAccount: (address: string) => (['solana', 'wallet', address]),
+    SolanaTransactions: (address: string, network: 'mainnet' | 'devnet') => (['solana', 'transactions', address, network]),
+    SolanaAccount: (address: string, network: 'mainnet' | 'devnet') => (['solana', 'wallet', address, network]),
+    SolanaTokens: (address: string, network: 'mainnet' | 'devnet') => (['solana', 'tokens', address, network]),
+    SolanaTokenAccount: (address: string, token: string ,network: 'mainnet' | 'devnet') => (['solana', token, address, network]),
+    SolanaTokenTransactions: (address: string, token: string, network: 'mainnet' | 'devnet') => (['solana', token, 'transactions', address, token, network]),
 }

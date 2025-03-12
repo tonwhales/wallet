@@ -5,7 +5,6 @@ import { EdgeInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../components/styles";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
-import { SolanaAddress } from "../../../utils/solana/core";
 import { SolanaParsedTransaction } from "../../../engine/hooks/solana/useSolanaTransactions";
 import { AddressInputAvatar } from "../../../components/address/AddressInputAvatar";
 import { avatarHash } from "../../../utils/avatarHash";
@@ -19,14 +18,14 @@ type SolanaTransactionsProps = {
   navigation: any;
   txs: SolanaParsedTransaction[];
   hasNext: boolean;
-  address: SolanaAddress;
+  address: string;
   safeArea: EdgeInsets;
   onLoadMore: () => void;
   onRefresh: () => void;
   loading: boolean;
   ledger?: boolean;
   header: ReactNode;
-  owner: SolanaAddress;
+  owner: string;
 };
 
 export const SolanaTransactions = memo(({

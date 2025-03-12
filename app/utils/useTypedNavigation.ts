@@ -33,6 +33,7 @@ import { TransactionsFilterFragmentParams } from '../fragments/wallet/Transactio
 import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
 import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 import { SolanaTransferParams } from '../fragments/solana/transfer/SolanaTransferFragment';
+import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -352,8 +353,12 @@ export class TypedNavigation {
         this.navigate('SolanaTransfer', params);
     }
 
-    navigateSolanaReceive() {
-        this.navigate('ReceiveSolana');
+    navigateSolanaReceive(token?: string) {
+        this.navigate('ReceiveSolana', { token });
+    }
+
+    navigateSolanaTokenWallet(params: SolanaTokenWalletFragmentProps) {
+        this.navigate('SolanaTokenWallet', params);
     }
 }
 

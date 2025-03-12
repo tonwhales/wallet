@@ -25,7 +25,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "yes": "Oui",
         "no": "Non",
         "amount": "Montant",
-        "today": "Aujourd’hui",
+        "today": "Aujourd'hui",
         "yesterday": "Hier",
         "comment": "Commentaire",
         "products": "Produits",
@@ -40,13 +40,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "domainOrAddressOrContact": "Adresse, domaine ou nom",
         "domain": "Domaine",
         "search": "Rechercher",
-        "termsOfService": "Conditions\u00A0d’utilisation",
+        "termsOfService": "Conditions\u00A0d'utilisation",
         "privacyPolicy": "Politique\u00A0de\u00A0confidentialité",
         "apy": "APY",
         "tx": "Transaction",
         "add": "Ajouter",
         "connect": "Connecter",
-        "gotIt": "J’ai compris",
+        "gotIt": "J'ai compris",
         "error": "Erreur",
         "wallet": "Portefeuille",
         "wallets": "Portefeuilles",
@@ -62,10 +62,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "from": "De",
         "to": "À",
         "transaction": "Transaction",
-        "somethingWentWrong": "Quelque chose s’est mal passé",
+        "somethingWentWrong": "Quelque chose s'est mal passé",
         "checkInternetConnection": "Vérifiez votre connexion internet",
         "reload": "Recharger",
-        "errorOccurred": "Une erreur s’est produite : {{error}}",
+        "errorOccurred": "Une erreur s'est produite : {{error}}",
         "recent": "Récent",
         "ok": "OK",
         "attention": "Attention",
@@ -80,7 +80,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "loading": "Chargement...",
         "notFound": "Introuvable",
         "unverified": "Non vérifié",
-        "addressBook": "Carnet d’adresses",
+        "addressBook": "Carnet d'adresses",
         "gasless": "Sans gaz",
         "address": "Adresse",
         "currencyChanged": "Devise changée",
@@ -102,7 +102,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "backupKeys": "Sauvegarder les clés",
         "holdersAccounts": "Comptes de dépenses",
         "migrateOldWallets": "Migrer les anciens portefeuilles",
-        "termsOfService": "Conditions d’utilisation",
+        "termsOfService": "Conditions d'utilisation",
         "privacyPolicy": "Politique de confidentialité",
         "developerTools": "Outils de développement",
         "spamFilter": "Filtre SPAM",
@@ -116,7 +116,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "tonhub": "Tonhub"
         },
         "telegram": "Telegram",
-        "rateApp": "Noter l’application",
+        "rateApp": "Noter l'application",
         "deleteAccount": "Supprimer le compte",
         "theme": "Thème",
         "searchEngine": "Moteur de recherche",
@@ -170,14 +170,14 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "txPreview": {
         "sendAgain": "Envoyer à nouveau",
         "blockchainFee": "Frais de réseau",
-        "blockchainFeeDescription": "Ces frais sont également appelés GAS. Ils sont requis pour qu’une transaction soit traitée avec succès dans la blockchain. Le montant dépend du travail que les validateurs doivent fournir pour inclure la transaction dans le bloc."
+        "blockchainFeeDescription": "Ces frais sont également appelés GAS. Ils sont requis pour qu'une transaction soit traitée avec succès dans la blockchain. Le montant dépend du travail que les validateurs doivent fournir pour inclure la transaction dans le bloc."
     },
     "receive": {
         "title": "Recevoir",
         "subtitle": "Envoyez uniquement des Toncoin et des jetons sur le réseau TON à cette adresse, sinon vous risquez de perdre vos fonds.",
         "share": {
             "title": "Mon adresse Tonhub",
-            "error": "Échec du partage de l’adresse, veuillez réessayer ou contacter le support"
+            "error": "Échec du partage de l'adresse, veuillez réessayer ou contacter le support"
         },
         "holdersJettonWarning": "Transférez uniquement {{symbol}} à cette adresse, si vous envoyez un autre jeton, vous le perdrez.",
         "assets": "Jetons et comptes",
@@ -191,32 +191,32 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "confirm": "Êtes-vous sûr de vouloir continuer ?",
         "error": {
             "invalidAddress": "Adresse invalide",
-            "invalidAddressMessage": "Veuillez vérifier l’adresse du destinataire",
+            "invalidAddressMessage": "Veuillez vérifier l'adresse du destinataire",
             "invalidAmount": "Montant invalide",
             "invalidDomain": "Domaine invalide",
             "invalidDomainString": "Minimum 4 caractères, maximum 126. Lettres latines (a-z), chiffres (0-9) et tiret (-) autorisés. Pas de tiret au début ou à la fin.",
             "sendingToYourself": "Vous ne pouvez pas vous envoyer de pièces à vous-même",
-            "zeroCoins": "Impossible d’envoyer zéro pièce",
-            "zeroCoinsAlert": "Vous essayez d’envoyer zéro pièce",
-            "notEnoughCoins": "Vous n’avez pas assez de fonds sur votre solde",
+            "zeroCoins": "Impossible d'envoyer zéro pièce",
+            "zeroCoinsAlert": "Vous essayez d'envoyer zéro pièce",
+            "notEnoughCoins": "Vous n'avez pas assez de fonds sur votre solde",
             "addressIsForTestnet": "Cette adresse est pour le réseau de test",
             "addressCantReceive": "Cette adresse ne peut pas recevoir de pièces",
-            "addressIsNotActive": "Ce portefeuille n’a pas d’historique",
-            "addressIsNotActiveDescription": "Aucune transaction n’a été effectuée depuis cette adresse",
+            "addressIsNotActive": "Ce portefeuille n'a pas d'historique",
+            "addressIsNotActiveDescription": "Aucune transaction n'a été effectuée depuis cette adresse",
             "invalidTransaction": "Transaction invalide",
             "invalidTransactionMessage": "Veuillez vérifier les détails de la transaction",
             "memoRequired": "Ajoutez un mémo/tag pour éviter la perte de fonds",
             "holdersMemoRequired": "Tag/MEMO",
             "memoChange": "Modifier le mémo/tag en \"{{memo}}\"",
-            "gaslessFailed": "Échec de l’envoi de la transaction",
+            "gaslessFailed": "Échec de l'envoi de la transaction",
             "gaslessFailedMessage": "Veuillez réessayer ou contacter le support",
-            "gaslessFailedEstimate": "Échec de l’estimation des frais, réessayez plus tard ou contactez le support",
-            "gaslessCooldown": "Vous ne pouvez payer les frais de réseau en jetons qu’une fois toutes les quelques minutes. Veuillez patienter ou payer les frais en TON.",
+            "gaslessFailedEstimate": "Échec de l'estimation des frais, réessayez plus tard ou contactez le support",
+            "gaslessCooldown": "Vous ne pouvez payer les frais de réseau en jetons qu'une fois toutes les quelques minutes. Veuillez patienter ou payer les frais en TON.",
             "gaslessCooldownTitle": "Attendez quelques minutes avant la prochaine transaction",
             "gaslessCooldownWait": "Je vais attendre",
             "gaslessCooldownPayTon": "Payer le gaz en TON",
             "gaslessNotEnoughFunds": "Fonds insuffisants",
-            "gaslessNotEnoughFundsMessage": "Le montant du transfert sans gaz et les frais sont supérieurs à votre solde, essayez d’envoyer un montant plus petit ou contactez le support",
+            "gaslessNotEnoughFundsMessage": "Le montant du transfert sans gaz et les frais sont supérieurs à votre solde, essayez d'envoyer un montant plus petit ou contactez le support",
             "gaslessTryLater": "Réessayez plus tard",
             "gaslessTryLaterMessage": "Vous pouvez réessayer plus tard ou contacter le support",
             "gaslessNotEnoughCoins": "{{fee}} de frais requis pour envoyer, il manque {{missing}}",
@@ -238,9 +238,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "purpose": "But de la transaction",
         "comment": "Message (facultatif)",
         "commentDescription": "Le message sera visible par tous sur la blockchain",
-        "commentRequired": "Vérifiez votre mémo/tag avant l’envoi",
+        "commentRequired": "Vérifiez votre mémo/tag avant l'envoi",
         "commentLabel": "Message",
-        "checkComment": "Vérifier avant l’envoi",
+        "checkComment": "Vérifier avant l'envoi",
         "confirmTitle": "Confirmer la transaction",
         "confirmManyTitle": "Confirmer {{count}} transactions",
         "unknown": "Opération inconnue",
@@ -276,32 +276,32 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "codeHint": "Code",
         "title": "Connexion à {{name}}",
         "message": "demande à se connecter à votre compte portefeuille {{wallet}}",
-        "hint": "Aucun fonds ne sera transféré à l’application et aucun accès à vos coins ne sera accordé.",
+        "hint": "Aucun fonds ne sera transféré à l'application et aucun accès à vos coins ne sera accordé.",
         "action": "Autoriser",
-        "expired": "Cette demande d’authentification est expirée",
-        "failed": "Échec de l’authentification",
-        "completed": "Cette demande d’authentification est déjà terminée",
-        "authorized": "Demande d’autorisation approuvée",
-        "authorizedDescription": "Vous pouvez maintenant revenir à l’application.",
+        "expired": "Cette demande d'authentification est expirée",
+        "failed": "Échec de l'authentification",
+        "completed": "Cette demande d'authentification est déjà terminée",
+        "authorized": "Demande d'autorisation approuvée",
+        "authorizedDescription": "Vous pouvez maintenant revenir à l'application.",
         "noExtensions": "Aucune extension pour le moment",
         "noApps": "Aucune application connectée pour le moment",
         "name": "Applications connectées",
         "yourWallet": "Votre portefeuille",
         "revoke": {
             "title": "Êtes-vous sûr de vouloir révoquer cette application ?",
-            "message": "Cela détruira le lien entre votre portefeuille et l’application, mais vous pourrez toujours essayer de vous reconnecter.",
+            "message": "Cela détruira le lien entre votre portefeuille et l'application, mais vous pourrez toujours essayer de vous reconnecter.",
             "action": "Révoquer"
         },
         "apps": {
             "title": "Applications de confiance",
             "delete": {
                 "title": "Supprimer cette extension ?",
-                "message": "Cela détruira le lien entre votre portefeuille et l’extension, mais vous pourrez toujours essayer de vous reconnecter."
+                "message": "Cela détruira le lien entre votre portefeuille et l'extension, mais vous pourrez toujours essayer de vous reconnecter."
             },
-            "description": "Les applications ou extensions que vous avez autorisées s’afficheront ici. Vous pouvez révoquer leur accès à tout moment.",
-            "installExtension": "Installez et ouvrez l’extension pour cette application",
+            "description": "Les applications ou extensions que vous avez autorisées s'afficheront ici. Vous pouvez révoquer leur accès à tout moment.",
+            "installExtension": "Installez et ouvrez l'extension pour cette application",
             "moreWallets": "Plus de portefeuilles ({{count}})",
-            "connectionSecureDescription": "Aucun fonds ne sera transféré à l’application et aucun accès à vos coins ne sera accordé"
+            "connectionSecureDescription": "Aucun fonds ne sera transféré à l'application et aucun accès à vos coins ne sera accordé"
         },
         "consent": "En cliquant sur Continuer, vous acceptez nos"
     },
@@ -312,8 +312,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "sign": {
         "title": "Demande de signature",
-        "message": "Demande de signature d’un message",
-        "hint": "Aucun fonds ne sera transféré à l’application et aucun accès à vos coins ne sera accordé.",
+        "message": "Demande de signature d'un message",
+        "hint": "Aucun fonds ne sera transféré à l'application et aucun accès à vos coins ne sera accordé.",
         "action": "Signer"
     },
     "migrate": {
@@ -321,17 +321,17 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "subtitle": "Si vous utilisez des portefeuilles obsolètes, vous pouvez automatiquement déplacer tous les fonds depuis vos anciennes adresses.",
         "inProgress": "Migration des anciens portefeuilles...",
         "transfer": "Transfert des coins depuis {{address}}",
-        "check": "Vérification de l’adresse {{address}}",
+        "check": "Vérification de l'adresse {{address}}",
         "keyStoreTitle": "Transition vers une nouvelle méthode de sécurité",
         "keyStoreSubtitle": "Nous voulons que vos clés soient toujours en sécurité, nous avons donc mis à jour la méthode de protection. Nous avons besoin de votre autorisation pour transférer vos clés vers un nouveau stockage sécurisé.",
         "failed": "Échec de la migration"
     },
     "qr": {
         "title": "Dirigez la caméra vers le code QR",
-        "requestingPermission": "Demande d’autorisations de la caméra...",
-        "noPermission": "Autoriser l’accès à la caméra pour scanner les codes QR",
+        "requestingPermission": "Demande d'autorisations de la caméra...",
+        "noPermission": "Autoriser l'accès à la caméra pour scanner les codes QR",
         "requestPermission": "Ouvrir les paramètres",
-        "failedToReadFromImage": "Impossible de lire le code QR depuis l’image"
+        "failedToReadFromImage": "Impossible de lire le code QR depuis l'image"
     },
     "products": {
         "addNew": "Ajouter un produit",
@@ -359,12 +359,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "groupTitle": "Demandes de transaction",
             "wrongNetwork": "Mauvais réseau",
             "wrongFrom": "Mauvais expéditeur",
-            "invalidFrom": "Adresse d’expéditeur invalide",
-            "noConnection": "L’application n’est pas connectée",
+            "invalidFrom": "Adresse d'expéditeur invalide",
+            "noConnection": "L'application n'est pas connectée",
             "expired": "Demande expirée",
             "invalidRequest": "Demande invalide",
-            "failedToReport": "La transaction est envoyée mais n’a pas pu être signalée à l’application",
-            "failedToReportCanceled": "La transaction est annulée mais n’a pas pu être signalée à l’application"
+            "failedToReport": "La transaction est envoyée mais n'a pas pu être signalée à l'application",
+            "failedToReportCanceled": "La transaction est annulée mais n'a pas pu être signalée à l'application"
         },
         "signatureRequest": {
             "title": "Signature demandée",
@@ -375,8 +375,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "TON Staking",
             "balance": "Solde staking",
             "subtitle": {
-                "join": "Gagnez jusqu’à {{apy}}% sur vos TON",
-                "joined": "Gagnez jusqu’à {{apy}}%",
+                "join": "Gagnez jusqu'à {{apy}}% sur vos TON",
+                "joined": "Gagnez jusqu'à {{apy}}%",
                 "rewards": "Intérêt estimé",
                 "apy": "~13.3% de rendement annuel sur la contribution",
                 "devPromo": "Multipliez vos pièces de test"
@@ -416,20 +416,20 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "rateTitle": "Taux de change"
             },
             "transfer": {
-                "stakingWarning": "Vous pouvez toujours déposer une nouvelle mise ou augmenter l’existante avec n’importe quel montant. Notez que le montant minimum est : {{minAmount}}",
+                "stakingWarning": "Vous pouvez toujours déposer une nouvelle mise ou augmenter l'existante avec n'importe quel montant. Notez que le montant minimum est : {{minAmount}}",
                 "depositStakeTitle": "Staking",
                 "depositStakeConfirmTitle": "Confirmer le Staking",
                 "withdrawStakeTitle": "Demande de Retrait",
                 "withdrawStakeConfirmTitle": "Confirmer le Retrait",
                 "topUpTitle": "Recharger",
                 "topUpConfirmTitle": "Confirmer la Recharge",
-                "notEnoughStaked": "malheureusement vous n’avez pas suffisamment de coins en staking",
+                "notEnoughStaked": "malheureusement vous n'avez pas suffisamment de coins en staking",
                 "confirmWithdraw": "Demander le Retrait",
                 "confirmWithdrawReady": "Retirer maintenant",
                 "restrictedTitle": "Ce Pool de Staking est restreint",
-                "restrictedMessage": "Vos fonds ne participeront pas au staking si votre adresse de portefeuille n’est pas sur la liste autorisée, mais resteront au solde du pool en attente de retrait",
-                "notEnoughCoinsFee": "Vous n’avez pas assez de TON sur le solde de votre portefeuille pour payer les frais. Veuillez noter que les {{amount}} TON de frais doivent être sur le solde principal, et non sur le solde de staking",
-                "notEnoughCoins": "Vous n’avez pas assez de fonds sur le solde de votre portefeuille pour recharger le solde de staking",
+                "restrictedMessage": "Vos fonds ne participeront pas au staking si votre adresse de portefeuille n'est pas sur la liste autorisée, mais resteront au solde du pool en attente de retrait",
+                "notEnoughCoinsFee": "Vous n'avez pas assez de TON sur le solde de votre portefeuille pour payer les frais. Veuillez noter que les {{amount}} TON de frais doivent être sur le solde principal, et non sur le solde de staking",
+                "notEnoughCoins": "Vous n'avez pas assez de fonds sur le solde de votre portefeuille pour recharger le solde de staking",
                 "ledgerSignText": "Staking : {{action}}"
             },
             "nextCycle": "Prochain cycle",
@@ -446,10 +446,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             },
             "join": {
                 "title": "Devenez validateur TON",
-                "message": "Le staking est un bien public pour l’écosystème TON. Vous pouvez aider à sécuriser le réseau et toucher des récompenses dans le processus",
+                "message": "Le staking est un bien public pour l'écosystème TON. Vous pouvez aider à sécuriser le réseau et toucher des récompenses dans le processus",
                 "buttonTitle": "Commencer à Gagner",
                 "moreAbout": "En savoir plus sur Ton Whales Staking Pool",
-                "earn": "Gagnez jusqu’à",
+                "earn": "Gagnez jusqu'à",
                 "onYourTons": "sur vos TON",
                 "apy": "13.3%",
                 "yearly": "Rendement annuel",
@@ -466,7 +466,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "profitability": "Rentabilité"
             },
             "empty": {
-                "message": "Vous n’avez aucune transaction"
+                "message": "Vous n'avez aucune transaction"
             },
             "pending": "en attente",
             "withdrawStatus": {
@@ -481,14 +481,14 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "sync": "Téléchargement des données de staking",
             "unstake": {
                 "title": "Êtes-vous sûr de vouloir demander un retrait ?",
-                "message": "Veuillez noter qu’en demandant un retrait, tous les dépôts en attente seront également retournés."
+                "message": "Veuillez noter qu'en demandant un retrait, tous les dépôts en attente seront également retournés."
             },
             "unstakeLiquid": {
                 "title": "Retirez vos wsTON",
                 "message": "Vous pouvez retirer les fonds directement après la fin du cycle ou échanger instantanément wsTON contre TON sur "
             },
             "learnMore": "Info",
-            "moreInfo": "Plus d’infos",
+            "moreInfo": "Plus d'infos",
             "calc": {
                 "yearly": "Gains annuels",
                 "monthly": "Gains mensuels",
@@ -502,7 +502,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "goToTopUp": "Aller à la Recharge"
             },
             "info": {
-                "rate": "jusqu’à 13.3%",
+                "rate": "jusqu'à 13.3%",
                 "rateTitle": "Rendement Annuel",
                 "frequency": "Toutes les 36 heures",
                 "frequencyTitle": "Fréquence des Récompenses",
@@ -513,15 +513,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawFee": "Frais de Retrait",
                 "withdrawRequestFee": "Frais de Demande de Retrait",
                 "withdrawCompleteFee": "Frais de Finalisation du Retrait",
-                "depositFeeDescription": "Montant TON qui sera déduit du dépôt pour couvrir les frais d’action de dépôt; le montant inutilisé vous sera retourné",
-                "withdrawFeeDescription": "Montant du transfert TON nécessaire pour couvrir les frais d’action de retrait; le montant inutilisé vous sera retourné",
+                "depositFeeDescription": "Montant TON qui sera déduit du dépôt pour couvrir les frais d'action de dépôt; le montant inutilisé vous sera retourné",
+                "withdrawFeeDescription": "Montant du transfert TON nécessaire pour couvrir les frais d'action de retrait; le montant inutilisé vous sera retourné",
                 "withdrawCompleteDescription": "Montant du transfert TON nécessaire pour couvrir les frais de finalisation du retrait; le montant inutilisé vous sera retourné",
                 "blockchainFee": "Frais de blockchain",
                 "cooldownTitle": "Période Simplifiée",
                 "cooldownActive": "Active",
                 "cooldownInactive": "Inactive",
                 "cooldownDescription": "Toutes les transactions prennent effet instantanément pendant cette période",
-                "cooldownAlert": "Au début de chaque cycle de staking, la Période Simplifiée est active. Pendant cette période, vous n’avez pas à attendre la fin du cycle pour retirer ou recharger – cela se fait instantanément et vous n’avez pas besoin d’envoyer une seconde transaction pour retirer, ce qui réduit de moitié les frais de retrait. Vous pouvez transférer des fonds d’un pool à un autre sans perdre les bénéfices du cycle si la Période Simplifiée est active dans les deux pools",
+                "cooldownAlert": "Au début de chaque cycle de staking, la Période Simplifiée est active. Pendant cette période, vous n'avez pas à attendre la fin du cycle pour retirer ou recharger – cela se fait instantanément et vous n'avez pas besoin d'envoyer une seconde transaction pour retirer, ce qui réduit de moitié les frais de retrait. Vous pouvez transférer des fonds d'un pool à un autre sans perdre les bénéfices du cycle si la Période Simplifiée est active dans les deux pools",
                 "lockedAlert": "Pendant le cycle de staking, les retraits et dépôts sont en attente. Toutes les transactions prennent effet à la fin du cycle"
             },
             "minAmountWarning": "Le montant minimal est {{minAmount}} TON",
@@ -634,12 +634,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "enroll": {
                 "poweredBy": "Basé sur TON, propulsé par ZenPay",
                 "description_1": "Vous seul contrôlez le smart-contract",
-                "description_2": "Personne d’autre que vous n’a accès à vos fonds",
+                "description_2": "Personne d'autre que vous n'a accès à vos fonds",
                 "description_3": "Vous possédez vraiment votre argent",
-                "moreInfo": "Plus d’infos sur ZenPay Card",
-                "buttonSub": "KYC et émission de la carte en ~5 min",
+                "moreInfo": "Plus d'infos sur ZenPay Card",
+                "buttonSub": "KYC et émission de la carte en ~5 min",
                 "failed": {
-                    "title": "Échec de l’autorisation",
+                    "title": "Échec de l'autorisation",
                     "noAppData": "Pas de données app",
                     "noDomainKey": "Pas de clé de domaine",
                     "createDomainKey": "Durant la création de la clé de domaine",
@@ -790,12 +790,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "subtitle": "Portefeuille TON simple et sécurisé",
         "subtitleDev": "Portefeuille pour développeurs",
         "createWallet": "Obtenir un nouveau portefeuille",
-        "importWallet": "J’ai déjà un portefeuille",
+        "importWallet": "J'ai déjà un portefeuille",
         "slogan": "Voici le nouveau Tonhub",
         "sloganDev": "Ceci est Ton Sandbox",
         "slide_1": {
             "title": "Protégé",
-            "subtitle": "Contrat intelligent fiable, Touch/Face ID avec code d’accès et toutes les transactions sur une blockchain décentralisée"
+            "subtitle": "Contrat intelligent fiable, Touch/Face ID avec code d'accès et toutes les transactions sur une blockchain décentralisée"
         },
         "slide_2": {
             "title": "Avec une cryptocard sympa",
@@ -803,61 +803,61 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "slide_3": {
             "title": "Rapide",
-            "subtitle": "Grâce à l’architecture unique de TON, les transactions s’effectuent en quelques secondes"
+            "subtitle": "Grâce à l'architecture unique de TON, les transactions s'effectuent en quelques secondes"
         }
     },
     "legal": {
         "title": "Mentions légales",
-        "subtitle": "J’ai lu et j’accepte ",
+        "subtitle": "J'ai lu et j'accepte ",
         "create": "Créer une sauvegarde",
-        "createSubtitle": "Conservez votre clé privée en lieu sûr et ne la partagez avec personne. C’est le seul moyen d’accéder à votre portefeuille si l’appareil est perdu.",
+        "createSubtitle": "Conservez votre clé privée en lieu sûr et ne la partagez avec personne. C'est le seul moyen d'accéder à votre portefeuille si l'appareil est perdu.",
         "privacyPolicy": "Politique de confidentialité",
-        "termsOfService": "Conditions d’utilisation"
+        "termsOfService": "Conditions d'utilisation"
     },
     "create": {
         "addNew": "Ajouter un nouveau portefeuille",
         "inProgress": "Création...",
         "backupTitle": "Votre clé de sauvegarde",
         "backupSubtitle": "Notez ces 24 mots dans le même ordre et conservez-les dans un endroit secret",
-        "okSaved": "OK, je l’ai enregistré",
+        "okSaved": "OK, je l'ai enregistré",
         "copy": "Copier dans le presse-papiers"
     },
     "import": {
         "title": "Saisissez la clé de sauvegarde",
-        "subtitle": "Veuillez restaurer l’accès à votre portefeuille en entrant les 24 mots secrets que vous avez notés lors de sa création",
+        "subtitle": "Veuillez restaurer l'accès à votre portefeuille en entrant les 24 mots secrets que vous avez notés lors de sa création",
         "fullSeedPlaceholder": "Entrez 24 mots secrets",
         "fullSeedPaste": "Ou collez la phrase de récupération complète avec chaque mot séparé par un espace"
     },
     "secure": {
         "title": "Protégez votre portefeuille",
-        "titleUnprotected": "Votre appareil n’est pas protégé",
+        "titleUnprotected": "Votre appareil n'est pas protégé",
         "subtitle": "Nous utilisons la biométrie pour authentifier les transactions et nous assurer que seul vous pouvez transférer vos coins.",
-        "subtitleUnprotected": "Il est fortement recommandé d’activer un code d’accès sur votre appareil pour protéger vos actifs.",
-        "subtitleNoBiometrics": "Il est fortement recommandé d’activer la biométrie sur votre appareil pour protéger vos actifs. Nous utilisons la biométrie pour sécuriser les transactions.",
-        "messageNoBiometrics": "Il est fortement recommandé d’activer la biométrie sur votre appareil pour protéger vos actifs.",
+        "subtitleUnprotected": "Il est fortement recommandé d'activer un code d'accès sur votre appareil pour protéger vos actifs.",
+        "subtitleNoBiometrics": "Il est fortement recommandé d'activer la biométrie sur votre appareil pour protéger vos actifs. Nous utilisons la biométrie pour sécuriser les transactions.",
+        "messageNoBiometrics": "Il est fortement recommandé d'activer la biométrie sur votre appareil pour protéger vos actifs.",
         "protectFaceID": "Activer Face ID",
         "protectTouchID": "Activer Touch ID",
         "protectBiometrics": "Activer la biométrie",
-        "protectPasscode": "Activer le code d’accès de l’appareil",
+        "protectPasscode": "Activer le code d'accès de l'appareil",
         "upgradeTitle": "Mise à niveau requise",
-        "upgradeMessage": "Veuillez autoriser l’application à accéder aux clés du portefeuille pour la mise à niveau. Aucun fonds ne sera transféré. Assurez-vous d’avoir sauvegardé vos clés.",
+        "upgradeMessage": "Veuillez autoriser l'application à accéder aux clés du portefeuille pour la mise à niveau. Aucun fonds ne sera transféré. Assurez-vous d'avoir sauvegardé vos clés.",
         "allowUpgrade": "Autoriser la mise à niveau",
         "backup": "Sauvegarder les mots secrets",
         "onLaterTitle": "Configurer plus tard",
         "onLaterMessage": "Vous pourrez configurer la protection plus tard dans les paramètres",
         "onLaterButton": "Configurer plus tard",
-        "onBiometricsError": "Erreur lors de l’authentification biométrique",
-        "lockAppWithAuth": "Authentifier lors de l’ouverture de l’application",
-        "methodPasscode": "code d’accès",
+        "onBiometricsError": "Erreur lors de l'authentification biométrique",
+        "lockAppWithAuth": "Authentifier lors de l'ouverture de l'application",
+        "methodPasscode": "code d'accès",
         "passcodeSetupDescription": "Le code PIN aide à protéger votre portefeuille contre tout accès non autorisé"
     },
     "backup": {
         "title": "Votre phrase de récupération",
-        "subtitle": "Notez ces 24 mots dans l’ordre indiqué ci-dessous et conservez-les dans un endroit sûr."
+        "subtitle": "Notez ces 24 mots dans l'ordre indiqué ci-dessous et conservez-les dans un endroit sûr."
     },
     "backupIntro": {
         "title": "Sauvegardez votre portefeuille",
-        "subtitle": "Êtes-vous sûr d’avoir enregistré vos 24 mots secrets ?",
+        "subtitle": "Êtes-vous sûr d'avoir enregistré vos 24 mots secrets ?",
         "saved": "Oui, je les ai enregistrés",
         "goToBackup": "Non, aller à la sauvegarde"
     },
@@ -871,7 +871,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "message": "Impossible de sauvegarder les données."
         },
         "title": "Oups",
-        "invalidNumber": "Ce n’est pas un nombre valide. Vérifiez votre saisie et réessayez.",
+        "invalidNumber": "Ce n'est pas un nombre valide. Vérifiez votre saisie et réessayez.",
         "codeTooManyAttempts": "Vous avez trop essayé, réessayez dans 15 minutes.",
         "codeInvalid": "Code invalide. Vérifiez et réessayez.",
         "unknown": "Erreur inconnue. Pouvez-vous essayer de redémarrer ?"
@@ -879,7 +879,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "confirm": {
         "logout": {
             "title": "Êtes-vous sûr de vouloir déconnecter votre portefeuille de cette application et supprimer toutes vos données ?",
-            "message": "Cette action supprimera tous les comptes de cet appareil. Assurez-vous d’avoir sauvegardé vos 24 mots secrets avant de continuer."
+            "message": "Cette action supprimera tous les comptes de cet appareil. Assurez-vous d'avoir sauvegardé vos 24 mots secrets avant de continuer."
         },
         "changeCurrency": "Changer la devise principale en {{currency}}"
     },
@@ -887,12 +887,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "buttonTitle": "acheter",
         "alert": {
             "title": "Comment fonctionne le paiement",
-            "message": "Remplissez les champs requis -> Sélectionnez la cryptomonnaie et indiquez l’adresse de votre portefeuille ainsi que le montant à acheter -> Procédez au paiement -> Renseignez correctement vos informations de facturation. Le paiement par carte est traité en toute sécurité par nos partenaires -> Terminez l’achat. Aucune inscription n’est requise !"
+            "message": "Remplissez les champs requis -> Sélectionnez la cryptomonnaie et indiquez l'adresse de votre portefeuille ainsi que le montant à acheter -> Procédez au paiement -> Renseignez correctement vos informations de facturation. Le paiement par carte est traité en toute sécurité par nos partenaires -> Terminez l'achat. Aucune inscription n'est requise !"
         },
         "title": "Acheter TON avec carte de crédit (USD, EUR et RUB)",
-        "description": "Vous serez redirigé vers Neocrypto. Les services de paiement sont fournis par Neocrypto, qui est une plateforme distincte appartenant à un tiers.\n\nVeuillez lire et accepter les Conditions d’utilisation de Neocrypto avant de les utiliser.",
+        "description": "Vous serez redirigé vers Neocrypto. Les services de paiement sont fournis par Neocrypto, qui est une plateforme distincte appartenant à un tiers.\n\nVeuillez lire et accepter les Conditions d'utilisation de Neocrypto avant de les utiliser.",
         "doNotShow": "Ne plus afficher pour Neocrypto",
-        "termsAndPrivacy": "J’ai lu et j’accepte ",
+        "termsAndPrivacy": "J'ai lu et j'accepte ",
         "confirm": {
             "title": "Êtes-vous sûr de vouloir fermer ce formulaire ?",
             "message": "Cette action annulera toutes vos modifications"
@@ -943,8 +943,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "disabled": "Masqué",
         "alertActive": "Marquer {{symbol}} comme actif",
         "alertDisabled": "Marquer {{symbol}} comme masqué",
-        "description": "Pour changer le statut d’un compte, maintenez enfoncé le bouton du compte sur l’écran principal ou utilisez ce menu. Le compte sera ajouté à l’écran d’accueil ou masqué.",
-        "noAccounts": "Vous n’avez pas encore de compte"
+        "description": "Pour changer le statut d'un compte, maintenez enfoncé le bouton du compte sur l'écran principal ou utilisez ce menu. Le compte sera ajouté à l'écran d'accueil ou masqué.",
+        "noAccounts": "Vous n'avez pas encore de compte"
     },
     "spamFilter": {
         "minAmount": "Montant MIN TON",
@@ -953,9 +953,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "applyConfig": "Appliquer les paramètres du filtre SPAM",
         "denyList": "Liste bloquée manuellement",
         "denyListEmpty": "Aucune adresse bloquée",
-        "unblockConfirm": "Débloquer l’adresse",
-        "blockConfirm": "Marquer l’adresse comme spam",
-        "description": "Vous pouvez facilement ajouter une adresse à la liste bloquée en cliquant sur une transaction ou une adresse et en sélectionnant « Marquer l’adresse comme spam »."
+        "unblockConfirm": "Débloquer l'adresse",
+        "blockConfirm": "Marquer l'adresse comme spam",
+        "description": "Vous pouvez facilement ajouter une adresse à la liste bloquée en cliquant sur une transaction ou une adresse et en sélectionnant « Marquer l'adresse comme spam »."
     },
     "security": {
         "title": "Sécurité",
@@ -972,8 +972,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "enterNew": "Créer un code PIN",
             "confirmNew": "Confirmer le nouveau code PIN",
             "enterCurrent": "Entrez votre code PIN",
-            "enterPrevious": "Entrez l’ancien code PIN",
-            "enterNewDescription": "La configuration d’un mot de passe ajoute une couche de sécurité supplémentaire",
+            "enterPrevious": "Entrez l'ancien code PIN",
+            "enterNewDescription": "La configuration d'un mot de passe ajoute une couche de sécurité supplémentaire",
             "changeLength": "Utiliser un code PIN de {{length}} chiffres",
             "forgotPasscode": "Code PIN oublié ?",
             "logoutAndReset": "Se déconnecter et réinitialiser le code PIN"
@@ -981,24 +981,24 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "auth": {
             "biometricsPermissionCheck": {
                 "title": "Autorisation requise",
-                "message": "Veuillez autoriser l’application à accéder à la biométrie pour l’authentification",
+                "message": "Veuillez autoriser l'application à accéder à la biométrie pour l'authentification",
                 "openSettings": "Ouvrir les réglages",
-                "authenticate": "S’authentifier avec le code d’accès"
+                "authenticate": "S'authentifier avec le code d'accès"
             },
             "biometricsSetupAgain": {
                 "title": "Nouvelles données biométriques détectées",
                 "message": "Veuillez réactiver la biométrie dans les paramètres de sécurité",
                 "setup": "Configurer",
-                "authenticate": "Continuer avec le code d’accès"
+                "authenticate": "Continuer avec le code d'accès"
             },
             "biometricsCooldown": {
                 "title": "Temporisation biométrique",
-                "message": "Veuillez réessayer plus tard, ou verrouillez et déverrouillez votre appareil avec son code d’accès pour réactiver la biométrie"
+                "message": "Veuillez réessayer plus tard, ou verrouillez et déverrouillez votre appareil avec son code d'accès pour réactiver la biométrie"
             },
             "biometricsCorrupted": {
                 "title": "Biométrie corrompue et aucun code PIN défini",
-                "message": "Votre portefeuille n’est plus disponible. Pour restaurer votre portefeuille, appuyez sur « Restaurer » (vous serez déconnecté) et saisissez vos 24 mots secrets",
-                "messageLogout": "Votre portefeuille n’est plus disponible. Pour le restaurer, appuyez sur « Déconnexion » (votre portefeuille actuel sera supprimé) et ajoutez votre portefeuille à nouveau",
+                "message": "Votre portefeuille n'est plus disponible. Pour restaurer votre portefeuille, appuyez sur « Restaurer » (vous serez déconnecté) et saisissez vos 24 mots secrets",
+                "messageLogout": "Votre portefeuille n'est plus disponible. Pour le restaurer, appuyez sur « Déconnexion » (votre portefeuille actuel sera supprimé) et ajoutez votre portefeuille à nouveau",
                 "logout": "Déconnexion",
                 "restore": "Restaurer"
             },
@@ -1015,16 +1015,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "spam": "spam",
         "offense": "contenu offensant",
         "posted": "Votre signalement a été envoyé",
-        "error": "Erreur lors de l’envoi du signalement",
+        "error": "Erreur lors de l'envoi du signalement",
         "message": "Message (obligatoire)",
         "reason": "Raison du signalement"
     },
     "review": {
-        "title": "Évaluer l’extension",
+        "title": "Évaluer l'extension",
         "rating": "note",
         "review": "Avis (facultatif)",
         "heading": "Titre",
-        "error": "Erreur lors de la publication de l’avis",
+        "error": "Erreur lors de la publication de l'avis",
         "posted": "Merci pour votre retour !",
         "postedDescription": "Votre avis sera publié après modération"
     },
@@ -1032,24 +1032,24 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Êtes-vous sûr de vouloir supprimer le compte ?",
         "action": "Supprimer le compte et toutes les données",
         "logOutAndDelete": "Se déconnecter et tout supprimer",
-        "description": "Cette action supprimera toutes les données et le portefeuille sélectionné de cet appareil et votre compte blockchain.\nVous devez transférer tous vos coins TON vers un autre portefeuille. Avant de continuer, assurez-vous d’avoir suffisamment de TON (plus de {{amount}}) pour finaliser la transaction.",
+        "description": "Cette action supprimera toutes les données et le portefeuille sélectionné de cet appareil et votre compte blockchain.\nVous devez transférer tous vos coins TON vers un autre portefeuille. Avant de continuer, assurez-vous d'avoir suffisamment de TON (plus de {{amount}}) pour finaliser la transaction.",
         "complete": "Suppression de compte terminée",
         "error": {
             "hasNfts": "Vous possédez des NFT dans votre portefeuille. Pour le supprimer, envoyez-les vers un autre portefeuille.",
-            "fetchingNfts": "Impossible de vérifier s’il y a des NFT. Assurez-vous qu’il n’y en a pas avant de supprimer le compte.",
+            "fetchingNfts": "Impossible de vérifier s'il y a des NFT. Assurez-vous qu'il n'y en a pas avant de supprimer le compte.",
             "hasUSDTBalanceTitle": "Vous avez du solde USDT dans votre portefeuille",
             "hasUSDTBalanceMessage": "Pour supprimer le compte, envoyez-le vers un autre portefeuille."
         },
         "confirm": {
             "title": "Êtes-vous sûr de vouloir supprimer votre compte et toutes les données de cette application ?",
-            "message": "Cette action supprimera votre compte et toutes les données de l’application et transférera tous vos coins TON vers l’adresse spécifiée.\nVérifiez bien l’adresse de réception. Des frais de blockchain standard seront appliqués."
+            "message": "Cette action supprimera votre compte et toutes les données de l'application et transférera tous vos coins TON vers l'adresse spécifiée.\nVérifiez bien l'adresse de réception. Des frais de blockchain standard seront appliqués."
         },
         "checkRecipient": "Vérifier le destinataire",
         "checkRecipientDescription": "Pour désactiver votre compte, vous devez transférer tous les fonds vers un autre portefeuille (adresse destinataire). Vérifiez-la soigneusement avant de continuer."
     },
     "logout": {
         "title": "Êtes-vous sûr de vouloir vous déconnecter de {{name}} ?",
-        "logoutDescription": "L’accès au portefeuille sera désactivé. Avez-vous sauvegardé votre clé privée ?"
+        "logoutDescription": "L'accès au portefeuille sera désactivé. Avez-vous sauvegardé votre clé privée ?"
     },
     "contacts": {
         "title": "Contacts",
@@ -1089,13 +1089,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "JPY": "Yen japonais"
     },
     "txActions": {
-        "addressShare": "Partager l’adresse",
-        "addressContact": "Ajouter l’adresse aux contacts",
-        "addressContactEdit": "Modifier le contact de l’adresse",
-        "addressMarkSpam": "Marquer l’adresse comme spam",
+        "addressShare": "Partager l'adresse",
+        "addressContact": "Ajouter l'adresse aux contacts",
+        "addressContactEdit": "Modifier le contact de l'adresse",
+        "addressMarkSpam": "Marquer l'adresse comme spam",
         "txShare": "Partager la transaction",
         "txRepeat": "Répéter la transaction",
-        "view": "Afficher dans l’explorateur",
+        "view": "Afficher dans l'explorateur",
         "share": {
             "address": "Adresse TON",
             "transaction": "Transaction TON"
@@ -1112,22 +1112,22 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "connectionDescriptionIOS": "Connectez votre Ledger via Bluetooth",
         "connectionHIDDescription_1": "1. Allumez votre Ledger et déverrouillez-le",
         "connectionHIDDescription_2": "2. Appuyez sur \"Continuer\"",
-        "openTheAppDescription": "Ouvrez l’application TON sur votre Ledger",
+        "openTheAppDescription": "Ouvrez l'application TON sur votre Ledger",
         "unlockLedgerDescription": "Déverrouillez votre Ledger",
         "chooseAccountDescription": "Sélectionnez le compte que vous souhaitez utiliser",
         "bluetoothScanDescription_1": "1. Allumez votre Ledger et déverrouillez-le",
         "bluetoothScanDescription_2": "2. Assurez-vous que le Bluetooth est activé",
         "bluetoothScanDescription_3": "3. Appuyez sur \"Scanner\" pour rechercher les appareils disponibles et sélectionnez le Ledger Nano X approprié",
-        "bluetoothScanDescription_3_and": "3. Appuyez sur \"Scanner\" pour rechercher les appareils disponibles (nous aurons besoin de l’accès aux données de localisation et de l’autorisation pour détecter les appareils à proximité)",
+        "bluetoothScanDescription_3_and": "3. Appuyez sur \"Scanner\" pour rechercher les appareils disponibles (nous aurons besoin de l'accès aux données de localisation et de l'autorisation pour détecter les appareils à proximité)",
         "bluetoothScanDescription_4_and": "4. Ensuite, sélectionnez le Ledger Nano X approprié",
-        "openAppVerifyAddress": "Vérifiez l’adresse du compte sélectionné puis validez-la avec l’application Ledger Ton lorsqu’on vous le demande",
+        "openAppVerifyAddress": "Vérifiez l'adresse du compte sélectionné puis validez-la avec l'application Ledger Ton lorsqu'on vous le demande",
         "devices": "Vos appareils",
         "connection": "Connexion",
         "actions": {
             "connect": "Connecter Ledger",
             "selectAccount": "Sélectionner un compte",
             "account": "Compte #{{account}}",
-            "loadAddress": "Vérifier l’adresse",
+            "loadAddress": "Vérifier l'adresse",
             "connectHid": "Connecter Ledger via USB",
             "connectBluetooth": "Connecter Ledger via Bluetooth",
             "scanBluetooth": "Scanner de nouveau",
@@ -1144,17 +1144,17 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "errors": {
             "bleTitle": "Erreur Bluetooth",
             "noDevice": "Aucun appareil trouvé",
-            "appNotOpen": "L’application Ton n’est pas ouverte sur Ledger",
+            "appNotOpen": "L'application Ton n'est pas ouverte sur Ledger",
             "openApp": "Veuillez ouvrir l'application TON sur votre Ledger",
             "turnOnBluetooth": "Veuillez activer le Bluetooth et réessayer",
             "lostConnection": "Connexion perdue avec Ledger",
             "transactionNotFound": "Transaction introuvable",
             "transactionRejected": "Transaction refusée",
             "transferFailed": "Échec du transfert",
-            "permissions": "Veuillez autoriser l’accès au Bluetooth et à la localisation",
+            "permissions": "Veuillez autoriser l'accès au Bluetooth et à la localisation",
             "unknown": "Erreur inconnue",
             "reboot": "Veuillez redémarrer votre appareil et réessayer",
-            "turnOnLocation": "Veuillez activer les services de localisation et réessayer, c’est nécessaire pour détecter les appareils à proximité",
+            "turnOnLocation": "Veuillez activer les services de localisation et réessayer, c'est nécessaire pour détecter les appareils à proximité",
             "locationServicesUnauthorized": "Services de localisation non autorisés",
             "bluetoothScanFailed": "Échec de la recherche Bluetooth",
             "unsafeTransfer": "Veuillez autoriser la signature à l'aveugle dans l'application TON Ledger",
@@ -1179,7 +1179,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "switchNetworkAlertAction": "Changer",
         "copySeed": "Copier la phrase secrète de 24 mots",
         "copySeedAlertTitle": "Copie de la phrase secrète de 24 mots dans le presse-papiers",
-        "copySeedAlertMessage": "ATTENTION ! Copier la phrase secrète de 24 mots dans le presse-papiers n’est pas sécurisé. Continuez à vos risques et périls.",
+        "copySeedAlertMessage": "ATTENTION ! Copier la phrase secrète de 24 mots dans le presse-papiers n'est pas sécurisé. Continuez à vos risques et périls.",
         "copySeedAlertAction": "Copier",
         "holdersOfflineApp": "Holders Offline App"
     },
@@ -1189,48 +1189,48 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "switchToAlertMessage": "Êtes-vous sûr de vouloir passer à ce portefeuille ?",
         "switchToAlertAction": "Basculer",
         "addNewTitle": "Ajouter un portefeuille",
-        "addNewAlertTitle": "Ajout d’un nouveau portefeuille",
+        "addNewAlertTitle": "Ajout d'un nouveau portefeuille",
         "addNewAlertMessage": "Êtes-vous sûr de vouloir ajouter ce nouveau portefeuille ?",
         "addNewAlertAction": "Ajouter",
         "alreadyExistsAlertTitle": "Le portefeuille existe déjà",
         "alreadyExistsAlertMessage": "Un portefeuille avec cette adresse existe déjà",
         "settings": {
-            "changeAvatar": "Changer l’avatar",
+            "changeAvatar": "Changer l'avatar",
             "selectAvatarTitle": "Image",
-            "selectColorTitle": "Couleur d’arrière-plan"
+            "selectColorTitle": "Couleur d'arrière-plan"
         }
     },
     "webView": {
         "checkInternetAndReload": "Veuillez vérifier votre connexion internet et recharger la page",
-        "contactSupportOrTryToReload": "Contactez l’assistance ou réessayez de recharger la page",
-        "contactSupport": "Contactez l’assistance"
+        "contactSupportOrTryToReload": "Contactez l'assistance ou réessayez de recharger la page",
+        "contactSupport": "Contactez l'assistance"
     },
     "appAuth": {
-        "description": "Pour continuer à vous connecter à l’application"
+        "description": "Pour continuer à vous connecter à l'application"
     },
     "screenCapture": {
-        "title": "Super capture d’écran, mais ce n’est pas sûr",
-        "description": "Les copies numériques non chiffrées de votre phrase secrète NE sont PAS recommandées. Cela inclut les copies sauvegardées sur un ordinateur, en ligne ou sous forme de captures d’écran",
-        "action": "OK, j’en assume le risque"
+        "title": "Super capture d'écran, mais ce n'est pas sûr",
+        "description": "Les copies numériques non chiffrées de votre phrase secrète NE sont PAS recommandées. Cela inclut les copies sauvegardées sur un ordinateur, en ligne ou sous forme de captures d'écran",
+        "action": "OK, j'en assume le risque"
     },
     "onboarding": {
-        "avatar": "C’est ici que vous pouvez changer l’avatar et le nom de vos portefeuilles",
-        "wallet": "C’est ici que vous pouvez ajouter ou basculer entre vos portefeuilles",
-        "price": "C’est ici que vous pouvez changer votre devise principale"
+        "avatar": "C'est ici que vous pouvez changer l'avatar et le nom de vos portefeuilles",
+        "wallet": "C'est ici que vous pouvez ajouter ou basculer entre vos portefeuilles",
+        "price": "C'est ici que vous pouvez changer votre devise principale"
     },
     "newAddressFormat": {
-        "title": "Format d’adresse",
-        "fragmentTitle": "Nouveau type d’adresses",
+        "title": "Format d'adresse",
+        "fragmentTitle": "Nouveau type d'adresses",
         "learnMore": "En savoir plus sur les nouvelles adresses",
         "shortDescription": "La mise à jour va rendre la blockchain TON plus sûre et stable. Tout ce qui est envoyé à votre ancienne adresse arrivera toujours sur votre portefeuille.",
         "description_0_0": "Récemment, TON ",
         "description_0_link": "a annoncé cette mise à jour",
         "description_0_1": " pour les adresses et a demandé à tous les portefeuilles de la prendre en charge.",
         "title_1": "Pourquoi ?",
-        "description_1": "La mise à jour permet de distinguer plus facilement les adresses de portefeuilles et de contrats, évitant ainsi les erreurs lors de l’envoi de transactions.",
+        "description_1": "La mise à jour permet de distinguer plus facilement les adresses de portefeuilles et de contrats, évitant ainsi les erreurs lors de l'envoi de transactions.",
         "title_2": "Que devez-vous faire ?",
-        "description_2": "Appuyez sur le bouton de l’écran précédent et autorisez-nous à afficher toutes les adresses dans le nouveau format. Vous pourrez revenir à l’ancien format dans vos réglages.",
-        "title_3": "Qu’advient-il de l’ancienne adresse ?",
+        "description_2": "Appuyez sur le bouton de l'écran précédent et autorisez-nous à afficher toutes les adresses dans le nouveau format. Vous pourrez revenir à l'ancien format dans vos réglages.",
+        "title_3": "Qu'advient-il de l'ancienne adresse ?",
         "description_3": "Tous les TON, tokens, NFT et autres actifs envoyés à votre ancienne adresse arriveront toujours sur votre portefeuille.",
         "description_4": "Les détails techniques de la mise à jour sont disponibles ici :",
         "action": "Utiliser {{format}}",
@@ -1251,14 +1251,14 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "update": {
             "title": "Mettre à jour le portefeuille vers W5",
             "subtitle_1": "Transferts USDT sans gaz",
-            "description_1": "Vous n’avez plus besoin de TON pour envoyer des USDT. Les frais sont déduits de votre solde en tokens.",
+            "description_1": "Vous n'avez plus besoin de TON pour envoyer des USDT. Les frais sont déduits de votre solde en tokens.",
             "subtitle_2": "Économisez sur les frais",
-            "description_2": "W5 permet d’augmenter considérablement le nombre d’opérations dans une seule transaction et de faire des économies sur les frais.",
+            "description_2": "W5 permet d'augmenter considérablement le nombre d'opérations dans une seule transaction et de faire des économies sur les frais.",
             "subtitle_3": "Votre phrase secrète reste inchangée",
-            "description_3": "Les portefeuilles V4 et W5 partagent la même phrase secrète. Vous pouvez toujours basculer entre les versions en sélectionnant l’adresse souhaitée en haut de l’écran principal.",
+            "description_3": "Les portefeuilles V4 et W5 partagent la même phrase secrète. Vous pouvez toujours basculer entre les versions en sélectionnant l'adresse souhaitée en haut de l'écran principal.",
             "switch_button": "Passer à W5"
         },
-        "gaslessInfo": "TON n’est pas nécessaire pour les frais de gaz en envoyant ce token : ils sont déduits directement de votre solde en tokens."
+        "gaslessInfo": "TON n'est pas nécessaire pour les frais de gaz en envoyant ce token : ils sont déduits directement de votre solde en tokens."
     },
     "browser": {
         "listings": {
@@ -1289,34 +1289,36 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             }
         },
         "alertModal": {
-            "message": "Vous êtes sur le point d’ouvrir une application web tierce. Nous ne sommes pas responsables du contenu ou de la sécurité de ces applications.",
+            "message": "Vous êtes sur le point d'ouvrir une application web tierce. Nous ne sommes pas responsables du contenu ou de la sécurité de ces applications.",
             "action": "Ouvrir"
         }
     },
     "swap": {
         "title": "DeDust.io — AMM DEX sur The Open Network",
-        "description": "Vous êtes sur le point d’utiliser un service Dedust.io opéré par un tiers indépendant, non affilié à Tonhub.\nVous devez accepter les Conditions d’utilisation et la Politique de confidentialité pour continuer.",
-        "termsAndPrivacy": "J’ai lu et j’accepte ",
+        "description": "Vous êtes sur le point d'utiliser un service Dedust.io opéré par un tiers indépendant, non affilié à Tonhub.\nVous devez accepter les Conditions d'utilisation et la Politique de confidentialité pour continuer.",
+        "termsAndPrivacy": "J'ai lu et j'accepte ",
         "dontShowTitle": "Ne plus afficher pour DeDust.io"
     },
     "mandatoryAuth": {
         "title": "Vérifiez votre sauvegarde",
-        "description": "Activez la vérification à l’ouverture du portefeuille. Cela vous aidera à protéger vos informations de carte bancaire.",
-        "alert": "Notez les 24 mots secrets dans la section Sécurité des paramètres de votre portefeuille. Cela vous aidera à récupérer l’accès si vous perdez votre téléphone ou oubliez votre code PIN.",
-        "confirmDescription": "J’ai noté mes 24 mots secrets et les ai enregistrés en lieu sûr",
+        "description": "Activez la vérification à l'ouverture du portefeuille. Cela vous aidera à protéger vos informations de carte bancaire.",
+        "alert": "Notez les 24 mots secrets dans la section Sécurité des paramètres de votre portefeuille. Cela vous aidera à récupérer l'accès si vous perdez votre téléphone ou oubliez votre code PIN.",
+        "confirmDescription": "J'ai noté mes 24 mots secrets et les ai enregistrés en lieu sûr",
         "action": "Activer",
-        "settingsDescription": "Une authentification est requise car l’application affiche des produits bancaires. Les données sensibles seront masquées jusqu’à l’activation de l’authentification."
+        "settingsDescription": "Une authentification est requise car l'application affiche des produits bancaires. Les données sensibles seront masquées jusqu'à l'activation de l'authentification."
     },
     "update": {
         "callToAction": "Mettez à jour Tonhub"
     },
     "savings": {
         "ton": "Compte d'épargne TON",
-        "usdt": "Compte d'épargne USDT"
+        "usdt": "Compte d'épargne USDT",
+        "general": "Compte d'épargne {{symbol}}"
     },
     "spending": {
         "ton": "Compte de dépenses TON",
-        "usdt": "Compte de dépenses USDT"
+        "usdt": "Compte de dépenses USDT",
+        "general": "Compte de dépenses {{symbol}}"
     }
 };
 

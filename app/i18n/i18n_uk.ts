@@ -84,7 +84,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Без газу",
         "address": "Адреса",
         "currencyChanged": "Валюта змінена",
-        "required": "обов’язково"
+        "required": "обов'язково"
     },
     "syncStatus": {
         "connecting": "Підключення",
@@ -890,7 +890,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "message": "Заповніть необхідні поля -> Виберіть криптовалюту та вкажіть адресу гаманця і суму для покупки -> Перейдіть до оформлення замовлення -> Введіть свої платіжні дані правильно. Оплата кредитною карткою безпечно обробляється нашими партнерами -> Завершіть покупку. Обліковий запис не потрібен!"
         },
         "title": "Купуйте TON за допомогою кредитної картки за USD, EUR та RUB",
-        "description": "Ви будете перенаправлені на Neocrypto. Послуги, пов’язані з платежами, надаються Neocrypto, яка є окремою платформою, що належить третій стороні\n\nБудь ласка, прочитайте та погодьтеся з Умовами обслуговування Neocrypto перед використанням їхніх послуг",
+        "description": "Ви будете перенаправлені на Neocrypto. Послуги, пов'язані з платежами, надаються Neocrypto, яка є окремою платформою, що належить третій стороні\n\nБудь ласка, прочитайте та погодьтеся з Умовами обслуговування Neocrypto перед використанням їхніх послуг",
         "doNotShow": "Більше не показувати для Neocrypto",
         "termsAndPrivacy": "Я прочитав і погоджуюся з ",
         "confirm": {
@@ -935,7 +935,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "connections": {
         "extensions": "Розширення",
-        "connections": "З’єднання"
+        "connections": "З'єднання"
     },
     "accounts": {
         "active": "Активний",
@@ -1158,7 +1158,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "locationServicesUnauthorized": "Служби місцезнаходження не авторизовані",
             "bluetoothScanFailed": "Сканування Bluetooth не вдалося",
             "unsafeTransfer": "Будь ласка, дозвольте blind sign у додатку TON Ledger",
-             "userCanceled": "Відхилено на Ledger"
+            "userCanceled": "Відхилено на Ledger"
         },
         "moreAbout": "Детальніше про Ledger",
         "verifyAddress": {
@@ -1312,11 +1312,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "TON ощадний рахунок",
-        "usdt": "USDT ощадний рахунок"
+        "usdt": "USDT ощадний рахунок",
+        "general": "{{symbol}} ощадний рахунок"
     },
     "spending": {
         "ton": "TON рахунок для витрат",
-        "usdt": "USDT рахунок для витрат"
+        "usdt": "USDT рахунок для витрат",
+        "general": "{{symbol}} рахунок для витрат"
     }
 };
 

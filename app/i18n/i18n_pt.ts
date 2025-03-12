@@ -1158,7 +1158,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "locationServicesUnauthorized": "Serviços de localização não autorizados",
             "bluetoothScanFailed": "Busca por Bluetooth falhou",
             "unsafeTransfer": "Por favor, permita a assinatura cega no aplicativo TON Ledger",
-             "userCanceled": "Rejeitado no Ledger"
+            "userCanceled": "Rejeitado no Ledger"
         },
         "moreAbout": "Mais sobre Ledger",
         "verifyAddress": {
@@ -1312,11 +1312,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "Conta poupança TON",
-        "usdt": "Conta poupança USDT"
+        "usdt": "Conta poupança USDT",
+        "general": "Conta poupança {{symbol}}"
     },
     "spending": {
         "ton": "Conta de despesas TON",
-        "usdt": "Conta de despesas USDT"
+        "usdt": "Conta de despesas USDT",
+        "general": "Conta de despesas {{symbol}}"
     }
 };
 

@@ -99,7 +99,6 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
                 return (
                     <SolanaTokenProduct
                         token={item}
-                        theme={theme}
                         address={solanaAddress}
                         testOnly={isTestnet}
                     />

@@ -149,8 +149,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
     const txs = useSolanaTokenTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
 
-    // const transactions = txs.data ?? [];
-    const transactions = [];
+    const transactions = txs.data ?? [];
 
     const onReachedEnd = useCallback(() => {
         if (txs.hasNext) {
@@ -215,7 +214,10 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
                 onRefresh={onRefresh}
                 loading={false}
                 owner={owner}
-                header={<SolanaTokenHeader mint={mint} owner={owner} />}
+                header={<SolanaTokenHeader
+                    mint={mint}
+                    owner={owner} />}
+                refreshing={false}
             />
         </View>
     );

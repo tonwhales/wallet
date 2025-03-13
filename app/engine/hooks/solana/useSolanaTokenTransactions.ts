@@ -1,20 +1,16 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
-import { useNetwork, useSolanaClient } from "..";
+import { useNetwork } from "..";
 import { useEffect, useRef, useState } from "react";
-import { getAssociatedTokenAddress } from "@solana/spl-token";
-import { rpcEndpoint } from "./useSolanaClient";
-import { PublicKey } from "@solana/web3.js";
+import { fetchSolanaTransactions, SolanaTx } from "../../api/solana/fetchSolanaTransactions";
 
 const TRANSACTIONS_LENGTH = 16;
 
-export function useSolanaTokenTransactions(address: string, token: string) {
-    const client = useSolanaClient();
+export function useSolanaTokenTransactions(address: string, mint: string) {
     const { isTestnet } = useNetwork();
-    const rpc = rpcEndpoint(isTestnet);
 
-    const query = useInfiniteQuery({
-        queryKey: Queries.SolanaTokenTransactions(address, token, isTestnet ? 'devnet' : 'mainnet'),
+    const query = useInfiniteQuery<SolanaTx[]>({
+        queryKey: Queries.SolanaTokenTransactions(address, mint, isTestnet ? 'devnet' : 'mainnet'),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
@@ -22,28 +18,31 @@ export function useSolanaTokenTransactions(address: string, token: string) {
                 return undefined;
             }
 
-            const lastSigns = last[TRANSACTIONS_LENGTH - 1]?.transaction.signatures;
-            const lastSign = lastSigns?.[lastSigns.length - 1];
-
-            return lastSign;
+            return last[TRANSACTIONS_LENGTH - 1]?.signature;
         },
-        queryFn: async () => {
-            const tokenAccount = await getAssociatedTokenAddress(
-                new PublicKey(token),
-                new PublicKey(address)
-            );
-            const signs = await client.getSignaturesForAddress(tokenAccount, { limit: TRANSACTIONS_LENGTH });
-
-            const transactions = await Promise.all(signs.map(async (sign) => {
-                const tx = await client.getTransaction(sign.signature, { maxSupportedTransactionVersion: 0 });
-                return tx;
-            }));
-
-            const filteredTransactions = transactions.filter((tx) => !!tx);
-
-            return filteredTransactions;
+        queryFn: async (ctx) => {
+            const pageParam = ctx.pageParam as (string | undefined);
+            const transactions = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
+            return transactions;
         },
-        refetchInterval: 35 * 1000
+        structuralSharing: (old, next) => {
+            const firstOld = old?.pages?.[0];
+            const firstNext = next?.pages?.[0];
+
+            if (!firstOld || !firstNext) {
+                return next;
+            }
+
+            if (firstOld.length < 1 || firstNext.length < 1) {
+                return next;
+            }
+
+            if (firstOld[0].signature === firstNext[0].signature) {
+                return next;
+            }
+
+            return next;
+        }
     });
 
     const [isRefreshing, setIsRefreshing] = useState(false);

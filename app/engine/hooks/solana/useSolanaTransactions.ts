@@ -1,16 +1,15 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
-import { useNetwork, useSolanaClient } from "..";
+import { useNetwork } from "..";
 import { useEffect, useRef, useState } from "react";
-import { PublicKey } from "@solana/web3.js";
+import { fetchSolanaTransactions, SolanaTx } from "../../api/solana/fetchSolanaTransactions";
 
 const TRANSACTIONS_LENGTH = 16;
 
 export function useSolanaTransactions(address: string) {
-    const client = useSolanaClient();
     const { isTestnet } = useNetwork();
 
-    const query = useInfiniteQuery({
+    const query = useInfiniteQuery<SolanaTx[]>({
         queryKey: Queries.SolanaTransactions(address, isTestnet ? 'devnet' : 'mainnet'),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
@@ -19,24 +18,38 @@ export function useSolanaTransactions(address: string) {
                 return undefined;
             }
 
-            const lastSigns = last[TRANSACTIONS_LENGTH - 1]?.transaction.signatures;
-            const lastSign = lastSigns?.[lastSigns.length - 1];
-
-            return lastSign;
+            return last[TRANSACTIONS_LENGTH - 1]?.signature;
         },
-        queryFn: async () => {
-            const signs = await client.getSignaturesForAddress(new PublicKey(address), { limit: TRANSACTIONS_LENGTH });
-
-            const transactions = await Promise.all(signs.map(async (sign) => {
-                const tx = await client.getTransaction(sign.signature, { maxSupportedTransactionVersion: 0 });
-                return tx;
-            })) || [];
-
-            const filteredTransactions = transactions.filter((tx) => !!tx);
-
-            return filteredTransactions;
+        queryFn: async (ctx) => {
+            const pageParam = ctx.pageParam as (string | undefined);
+            console.log('fetching transactions', pageParam);
+            try {
+                const transactions = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam });
+                console.log('transactions', transactions.length);
+                return transactions;
+            } catch (error) {
+                console.log('error', error);
+                throw error;
+            }
         },
-        refetchInterval: 35 * 1000
+        structuralSharing: (old, next) => {
+            const firstOld = old?.pages?.[0];
+            const firstNext = next?.pages?.[0];
+
+            if (!firstOld || !firstNext) {
+                return next;
+            }
+
+            if (firstOld.length < 1 || firstNext.length < 1) {
+                return next;
+            }
+
+            if (firstOld[0].signature === firstNext[0].signature) {
+                return next;
+            }
+
+            return next;
+        }
     });
 
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -72,5 +85,3 @@ export function useSolanaTransactions(address: string) {
         loading: query.isFetching || query.isRefetching,
     }
 }
-
-export type SolanaParsedTransaction = ReturnType<typeof useSolanaTransactions>['data'][number];

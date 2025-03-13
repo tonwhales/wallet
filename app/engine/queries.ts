@@ -91,9 +91,9 @@ export const Queries = {
     AppConfig: (network: 'mainnet' | 'testnet') => (['appConfig', network]),
 
     // Solana
-    SolanaTransactions: (address: string, network: 'mainnet' | 'devnet') => (['solana', 'transactions', address, network]),
     SolanaAccount: (address: string, network: 'mainnet' | 'devnet') => (['solana', 'wallet', address, network]),
-    SolanaTokens: (address: string, network: 'mainnet' | 'devnet') => (['solana', 'tokens', address, network]),
     SolanaTokenAccount: (address: string, token: string ,network: 'mainnet' | 'devnet') => (['solana', token, address, network]),
+    SolanaTokens: (address: string, network: 'mainnet' | 'devnet') => (['solana', 'tokens', address, network]),
+    SolanaTransactions: (address: string, network: 'mainnet' | 'devnet') => (['solana', 'transactions', address, network]),
     SolanaTokenTransactions: (address: string, token: string, network: 'mainnet' | 'devnet') => (['solana', token, 'transactions', address, token, network]),
 }

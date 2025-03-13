@@ -122,7 +122,8 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                 safeArea={safeArea}
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
-                loading={false}
+                loading={txs.loading}
+                refreshing={txs.refreshing}
                 owner={owner}
                 header={
                     <View style={styles.content}>
@@ -170,7 +171,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                                 </Text>
                             </View>
                             <SolanaWalletActions
-                                style={{ paddingHorizontal: 0 }}
+                                style={{ paddingHorizontal: 16 }}
                                 theme={theme}
                                 navigation={navigation}
                                 isTestnet={isTestnet}

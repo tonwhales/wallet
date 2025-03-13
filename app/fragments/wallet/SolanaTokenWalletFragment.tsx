@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useNetwork, usePrimaryCurrency, useSolanaToken, useSolanaTokenTransactions, useTheme } from "../../engine/hooks";
+import { usePrimaryCurrency, useSolanaToken, useSolanaTokenTransactions, useTheme } from "../../engine/hooks";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -54,7 +54,6 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
     const navigation = useTypedNavigation();
     const token = useSolanaToken(owner, mint);
     const bottomBarHeight = useBottomTabBarHeight();
-    const { isTestnet } = useNetwork();
 
     if (!token) {
         return null;
@@ -127,12 +126,16 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                     </View>
                 </View>
                 <SolanaWalletActions
-                    style={{ paddingHorizontal: 0 }}
                     theme={theme}
                     navigation={navigation}
-                    isTestnet={isTestnet}
                     address={owner}
-                    token={token?.address}
+                    asset={{
+                        mint: token.address,
+                        content: {
+                            icon: logoURI,
+                            name: symbol
+                        }
+                    }}
                 />
                 {/* Placeholder for pending transactions */}
                 <View style={{ marginTop: 16 }} />
@@ -215,9 +218,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
                 onRefresh={onRefresh}
                 loading={txs.loading}
                 owner={owner}
-                header={<SolanaTokenHeader
-                    mint={mint}
-                    owner={owner} />}
+                header={<SolanaTokenHeader mint={mint} owner={owner} />}
                 refreshing={txs.refreshing}
             />
         </View>

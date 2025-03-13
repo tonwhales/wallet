@@ -8,6 +8,7 @@ import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterCon
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useNetwork } from "../../../engine/hooks";
+import { ReceiveableSolanaAsset } from "../ReceiveFragment";
 
 export enum WalletActionType {
     Send = 'send',
@@ -28,7 +29,8 @@ export type ReceiveAsset = {
     type: 'ton'
 } | {
     type: 'solana',
-    token?: string
+    addr: string,
+    asset?: ReceiveableSolanaAsset;
 }
 
 export type WalletAction = {
@@ -136,7 +138,10 @@ export const WalletActionButton = memo(({
         case WalletActionType.Receive: {
             const navigate = () => {
                 if (action.asset?.type === 'solana') {
-                    navigation.navigateSolanaReceive(action.asset?.token);
+                    navigation.navigateSolanaReceive({
+                        addr: action.asset.addr,
+                        asset: action.asset.asset
+                    });
                     return;
                 }
 

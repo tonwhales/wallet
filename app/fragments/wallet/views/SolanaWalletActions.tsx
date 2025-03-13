@@ -3,21 +3,20 @@ import { StyleProp, ViewStyle, View } from "react-native";
 import { ThemeType } from "../../../engine/state/theme";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { WalletActionButton, WalletActionType } from "./WalletActionButton";
+import { ReceiveableSolanaAsset } from "../ReceiveFragment";
 
 export const SolanaWalletActions = memo(({
   style,
   theme,
   navigation,
-  isTestnet,
   address,
-  token
+  asset
 }: {
   style?: StyleProp<ViewStyle>;
   theme: ThemeType;
   navigation: TypedNavigation;
-  isTestnet: boolean;
-  address?: string;
-  token?: string;
+  address: string;
+  asset?: ReceiveableSolanaAsset;
 }) => {
   const receiveType = WalletActionType.Receive;
 
@@ -38,12 +37,12 @@ export const SolanaWalletActions = memo(({
         collapsable={false}
       >
         <WalletActionButton
-          action={{ type: receiveType, asset: { type: 'solana', token } }}
+          action={{ type: receiveType, asset: { type: 'solana', addr: address, asset } }}
           navigation={navigation}
           theme={theme}
         />
         <WalletActionButton
-          action={{ type: WalletActionType.SendSolana, token }}
+          action={{ type: WalletActionType.SendSolana, token: asset?.mint }}
           navigation={navigation}
           theme={theme}
         />

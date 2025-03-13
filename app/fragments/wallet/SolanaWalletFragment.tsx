@@ -142,7 +142,6 @@ const SolanaTransactionsHeader = memo(({ owner }: SolanaWalletFragmentProps) => 
                     style={{ paddingHorizontal: 16 }}
                     theme={theme}
                     navigation={navigation}
-                    isTestnet={isTestnet}
                     address={owner}
                 />
                 {/* Placeholder for pending transactions */}

@@ -33,6 +33,7 @@
     "@shopify/react-native-performance": "^4.1.2",
     "@shopify/react-native-skia": "0.1.196",
     "@solana/functional": "^2.1.0",
+    "@solana/pay": "^0.2.5",
     "@solana/spl-token": "^0.4.13",
     "@solana/webcrypto-ed25519-polyfill": "^2.1.0",
     "@tanstack/query-sync-storage-persister": "^4.32.6",

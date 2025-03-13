@@ -19,7 +19,7 @@ import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
 import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
 import { getCurrentAddress } from '../storage/appState';
 import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
-import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
+import { ReceiveSolanaParams, ReceiveTonParams } from '../fragments/wallet/ReceiveFragment';
 import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
 import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
 import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
@@ -292,12 +292,12 @@ export class TypedNavigation {
         this.navigate('JettonTransaction', param);
     }
 
-    navigateReceive(params?: ReceiveFragmentParams, isLedger?: boolean) {
+    navigateReceive(params?: Omit<ReceiveTonParams, 'type'>, isLedger?: boolean) {
         if (isLedger) {
-            this.navigate('LedgerReceive', params);
+            this.navigate('LedgerReceive', { ...params, type: 'ton' });
             return;
         }
-        this.navigate('Receive', params);
+        this.navigate('Receive', { ...params, type: 'ton' });
     }
 
     navigateReceiveAssets(params: ReceiveAssetsFragment, isLedger?: boolean) {
@@ -353,12 +353,12 @@ export class TypedNavigation {
         this.navigate('SolanaTransfer', params);
     }
 
-    navigateSolanaReceive(token?: string) {
-        this.navigate('ReceiveSolana', { token });
-    }
-
     navigateSolanaTokenWallet(params: SolanaTokenWalletFragmentProps) {
         this.navigate('SolanaTokenWallet', params);
+    }
+
+    navigateSolanaReceive(params: Omit<ReceiveSolanaParams, 'type'>) {
+        this.navigate('SolanaReceive', params);
     }
 }
 

@@ -13,7 +13,7 @@ import { useBounceableWalletFormat, useJettonContent } from "../../../engine/hoo
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { GaslessInfoButton } from "../../jettons/GaslessInfoButton";
-import { ReceiveableAsset } from "../../../fragments/wallet/ReceiveFragment";
+import { ReceiveableTonAsset } from "../../../fragments/wallet/ReceiveFragment";
 import { t } from "../../../i18n/t";
 
 export const SpecialJettonProduct = memo(({
@@ -29,7 +29,7 @@ export const SpecialJettonProduct = memo(({
     address: Address,
     testOnly: boolean,
     divider?: 'top' | 'bottom',
-    assetCallback?: (asset: ReceiveableAsset | null) => void
+    assetCallback?: (asset: ReceiveableTonAsset | null) => void
 }) => {
     const navigation = useTypedNavigation();
     const specialJetton = useSpecialJetton(address);

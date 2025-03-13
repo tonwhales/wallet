@@ -369,6 +369,7 @@ const navigation = (safeArea: EdgeInsets) => [
     // Solana
     modalScreen('SolanaSimpleTransfer', SolanaSimpleTransferFragment, safeArea),
     modalScreen('SolanaTransfer', SolanaTransferFragment, safeArea),
+    modalScreen('SolanaReceive', ReceiveFragment, safeArea),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

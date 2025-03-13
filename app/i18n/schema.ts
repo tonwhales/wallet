@@ -176,7 +176,8 @@ export type LocalizationSchema = {
     },
     receive: {
         title: string,
-        subtitle: string,
+        subtitleTon: string,
+        subtitleSolana: string,
         share: {
             title: string,
             error: string

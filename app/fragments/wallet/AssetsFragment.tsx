@@ -18,7 +18,7 @@ import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { ValueComponent } from "../../components/ValueComponent";
-import { ReceiveableAsset } from "./ReceiveFragment";
+import { ReceiveableTonAsset } from "./ReceiveFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
@@ -116,7 +116,7 @@ export type AssetsFragmentParams = {
     target?: string,
     includeHolders?: boolean,
     jettonCallback?: (selected?: { wallet?: Address, master: Address }) => void,
-    assetCallback?: (selected: ReceiveableAsset | null) => void,
+    assetCallback?: (selected: ReceiveableTonAsset | null) => void,
     selectedAsset?: Address | null,
     viewType: AssetViewType,
     isLedger?: boolean
@@ -223,7 +223,7 @@ export const AssetsFragment = fragment(() => {
         }
     }, [jettonCallback]);
 
-    const onAssetCallback = useCallback((selected: ReceiveableAsset | null) => {
+    const onAssetCallback = useCallback((selected: ReceiveableTonAsset | null) => {
         if (assetCallback) {
             setTimeout(() => {
                 navigation.goBack();

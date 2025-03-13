@@ -174,7 +174,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Receive",
-        "subtitle": "Send only Toncoin and tokens in TON network to this address, or you might lose your funds.",
+        "subtitleTon": "Send only Toncoin and tokens in TON network to this address, or you might lose your funds.",
+        "subtitleSolana": "Send only SOL and SPL tokens in Solana network to this address, or you might lose your funds.",
         "share": {
             "title": "My Tonhub Address",
             "error": "Failed to share address, please try again or contact support"
@@ -692,7 +693,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "do_not_honour": "We cannot perform the operation for this merchant",
                     "card_not_effective": "The transaction was declined because your card is currently blocked. To proceed, please unblock your card through the mobile app or contact customer support for help",
                     "expired_card": "Your card has reached its expiration date. Please order a new one through the mobile app",
-                    "incorrect_pin": "Looks like there’s an issue with your PIN. Please check the details and try again. If the problem persists, please contact customer support for help",
+                    "incorrect_pin": "Looks like there's an issue with your PIN. Please check the details and try again. If the problem persists, please contact customer support for help",
                     "cvc2_or_cvv2_incorrect": "The CVV is not correct. Please check the three-digit code on the back of your card and try again",
                     "incorrect_expiry_date": "The expiry date you entered is not correct. Please check the expiry date on your card or in the mobile app and try again",
                     "invalid_card_number": "The card number you entered is not correct. Please check the number on your card or in the mobile app and try again",

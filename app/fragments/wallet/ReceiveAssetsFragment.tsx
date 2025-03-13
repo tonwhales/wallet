@@ -14,7 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
-import { ReceiveableAsset } from "./ReceiveFragment";
+import { ReceiveableTonAsset } from "./ReceiveFragment";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
@@ -92,7 +92,7 @@ const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
 });
 
 export type ReceiveAssetsFragment = {
-    assetCallback?: (selected: ReceiveableAsset | null) => void,
+    assetCallback?: (selected: ReceiveableTonAsset | null) => void,
     title: string
 }
 
@@ -123,7 +123,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const isHoldersReady = useIsConnectAppReady(url);
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
 
-    const onAssetCallback = useCallback((asset: ReceiveableAsset | null) => {
+    const onAssetCallback = useCallback((asset: ReceiveableTonAsset | null) => {
         if (assetCallback) {
             setTimeout(() => {
                 navigation.goBack();

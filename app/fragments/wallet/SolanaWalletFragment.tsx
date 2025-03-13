@@ -42,18 +42,122 @@ const SolanaWalletSkeleton = memo(() => {
     );
 });
 
-const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
-    const bottomBarHeight = useBottomTabBarHeight();
-    const { isTestnet } = useNetwork();
-    const navigation = useTypedNavigation();
+const SolanaHeader = memo(({ owner }: SolanaWalletFragmentProps) => {
     const theme = useTheme();
-    const safeArea = useSafeAreaInsets();
-    const account = useSolanaAccount(owner);
-    const txs = useSolanaTransactions(owner);
+    const [currency] = usePrimaryCurrency();
+    // TODO: get rate from API
+    const rate = 144;
 
+    return (
+        <View style={styles.headerTitleComponent}>
+            <Text
+                style={[{ color: theme.textPrimary }, styles.headerTitle]}
+                numberOfLines={1}
+                ellipsizeMode={'tail'}
+            >
+                {'SOL'}
+            </Text>
+            {!!rate && (
+                <Text
+                    style={[{ color: theme.textSecondary }, styles.headerSubtitle]}
+                    numberOfLines={1}
+                    ellipsizeMode={'tail'}
+                >
+                    <ValueComponent
+                        value={BigInt(Math.round(Number(rate) * 100)) * 10n ** 7n}
+                        precision={2}
+                        suffix={CurrencySymbols[currency]?.symbol}
+                        forcePrecision
+                    />
+                </Text>
+            )}
+        </View>
+    );
+});
+
+const SolanaTransactionsHeader = memo(({ owner }: SolanaWalletFragmentProps) => {
+    const theme = useTheme();
+    const navigation = useTypedNavigation(); ``
+    const { isTestnet } = useNetwork();
+    const safeArea = useSafeAreaInsets();
+    const bottomBarHeight = useBottomTabBarHeight();
+    const account = useSolanaAccount(owner);
     const balance = account.data?.balance ?? 0n;
     const symbol = "SOL";
     const decimals = 9;
+    const [currency] = usePrimaryCurrency();
+    // TODO: get rate from API
+    const rate = 144;
+
+    // Calculate USD value
+    const usdValue = rate ? (Number(balance) / Math.pow(10, decimals)) * Number(rate) : 0;
+    const usdValueBigInt = BigInt(Math.round(usdValue * 100)) * 10n ** 7n; // Convert to nano with 9 decimals
+
+    return (
+        <View style={styles.content}>
+            <View style={{
+                width: 72, height: 72, borderRadius: 36,
+                borderWidth: 0,
+                backgroundColor: theme.surfaceOnBg,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <SolanaIcon
+                    width={48}
+                    height={48}
+                    style={{
+                        borderRadius: 24,
+                        height: 48,
+                        width: 48
+                    }}
+                />
+            </View>
+            <View style={{ marginTop: 16, width: '100%' }}>
+                <View style={{ gap: 8, alignItems: 'center' }}>
+                    <SolanaWalletAddress
+                        address={owner}
+                        elipsise={{ start: 4, end: 4 }}
+                        copyOnPress
+                        disableContextMenu
+                        copyToastProps={{ marginBottom: 70 + bottomBarHeight }}
+                    />
+                    <ValueComponent
+                        value={balance}
+                        decimals={9}
+                        precision={4}
+                        fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
+                        centFontStyle={{ color: theme.textSecondary }}
+                        suffix={` ${symbol}`}
+                    />
+                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                        <ValueComponent
+                            value={usdValueBigInt}
+                            precision={2}
+                            decimals={9}
+                            suffix={` ${CurrencySymbols[currency]?.symbol}`}
+                        />
+                    </Text>
+                </View>
+                <SolanaWalletActions
+                    style={{ paddingHorizontal: 16 }}
+                    theme={theme}
+                    navigation={navigation}
+                    isTestnet={isTestnet}
+                    address={owner}
+                />
+                {/* Placeholder for pending transactions */}
+                <View style={{ marginTop: 16 }} />
+            </View>
+        </View>
+    );
+});
+
+const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
+    const bottomBarHeight = useBottomTabBarHeight();
+    const navigation = useTypedNavigation();
+    const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
+    const txs = useSolanaTransactions(owner);
 
     const transactions = txs.data ?? [];
 
@@ -67,14 +171,6 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
         txs.refresh();
     }, [txs.refresh]);
 
-    const [currency] = usePrimaryCurrency();
-    // TODO: get rate from API
-    const rate = 144;
-
-    // Calculate USD value
-    const usdValue = rate ? (Number(balance) / Math.pow(10, decimals)) * Number(rate) : 0;
-    const usdValueBigInt = BigInt(Math.round(usdValue * 100)) * 10n ** 7n; // Convert to nano with 9 decimals
-
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
@@ -87,31 +183,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 style={styles.header}
-                titleComponent={(
-                    <View style={styles.headerTitleComponent}>
-                        <Text
-                            style={[{ color: theme.textPrimary }, styles.headerTitle]}
-                            numberOfLines={1}
-                            ellipsizeMode={'tail'}
-                        >
-                            {symbol}
-                        </Text>
-                        {!!rate && (
-                            <Text
-                                style={[{ color: theme.textSecondary }, styles.headerSubtitle]}
-                                numberOfLines={1}
-                                ellipsizeMode={'tail'}
-                            >
-                                <ValueComponent
-                                    value={BigInt(Math.round(Number(rate) * 100)) * 10n ** 7n}
-                                    precision={2}
-                                    suffix={CurrencySymbols[currency]?.symbol}
-                                    forcePrecision
-                                />
-                            </Text>
-                        )}
-                    </View>
-                )}
+                titleComponent={(<SolanaHeader owner={owner} />)}
             />
             <SolanaTransactions
                 theme={theme}
@@ -125,63 +197,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                 loading={txs.loading}
                 refreshing={txs.refreshing}
                 owner={owner}
-                header={
-                    <View style={styles.content}>
-                        <View style={{
-                            width: 72, height: 72, borderRadius: 36,
-                            borderWidth: 0,
-                            backgroundColor: theme.surfaceOnBg,
-                            justifyContent: 'center',
-                            alignItems: 'center'
-                        }}>
-                            <SolanaIcon
-                                width={48}
-                                height={48}
-                                style={{
-                                    borderRadius: 24,
-                                    height: 48,
-                                    width: 48
-                                }}
-                            />
-                        </View>
-                        <View style={{ marginTop: 16, width: '100%' }}>
-                            <View style={{ gap: 8, alignItems: 'center' }}>
-                                <SolanaWalletAddress
-                                    address={owner}
-                                    elipsise={{ start: 4, end: 4 }}
-                                    copyOnPress
-                                    disableContextMenu
-                                    copyToastProps={{ marginBottom: 70 + bottomBarHeight }}
-                                />
-                                <ValueComponent
-                                    value={balance}
-                                    decimals={9}
-                                    precision={4}
-                                    fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
-                                    centFontStyle={{ color: theme.textSecondary }}
-                                    suffix={` ${symbol}`}
-                                />
-                                <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                                    <ValueComponent
-                                        value={usdValueBigInt}
-                                        precision={2}
-                                        decimals={9}
-                                        suffix={` ${CurrencySymbols[currency]?.symbol}`}
-                                    />
-                                </Text>
-                            </View>
-                            <SolanaWalletActions
-                                style={{ paddingHorizontal: 16 }}
-                                theme={theme}
-                                navigation={navigation}
-                                isTestnet={isTestnet}
-                                address={owner}
-                            />
-                            {/* Placeholder for pending transactions */}
-                            <View style={{ marginTop: 16 }} />
-                        </View>
-                    </View>
-                }
+                header={<SolanaTransactionsHeader owner={owner} />}
             />
         </View>
     );

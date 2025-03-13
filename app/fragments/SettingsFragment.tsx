@@ -43,6 +43,8 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
+import { useAppMode } from '../engine/hooks/appstate/useAppMode';
+import { SelectedWallet } from '../components/wallet/SelectedWallet';
 
 const iosStoreUrl = 'https://apps.apple.com/app/apple-store/id1607656232?action=write-review';
 const androidStoreUrl = 'https://play.google.com/store/apps/details?id=com.tonhub.wallet&showAllReviews=true';
@@ -72,6 +74,7 @@ export const SettingsFragment = fragment(() => {
     const isLedger = route.name === 'LedgerSettings';
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
+    const [, switchAppToWalletMode] = useAppMode(selected?.address);
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed;
@@ -84,7 +87,8 @@ export const SettingsFragment = fragment(() => {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Accounts } }, network.isTestnet);
             return;
         }
-        navigation.navigateHolders({ type: HoldersAppParamsType.Accounts }, network.isTestnet);
+        switchAppToWalletMode(false);
+        navigation.navigateAndReplaceHome();
     }, [needsEnrollment, isHoldersReady, network.isTestnet]);
 
     const onVersionTap = useMemo(() => {
@@ -235,37 +239,20 @@ export const SettingsFragment = fragment(() => {
     });
 
     return (
-        <View style={{ flexGrow: 1 }}>
+        <View style={{
+            paddingTop: safeArea.top + (Platform.OS === 'ios' ? 0 : 16),
+            flexGrow: 1,
+        }}>
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <View style={{
-                marginTop: safeArea.top + (Platform.OS === 'ios' ? 0 : 16),
-                alignItems: 'center', justifyContent: 'center',
-                width: '100%',
-                paddingVertical: 6
+                height: 48,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingVertical: 6,
+                marginLeft: 16,
             }}>
-                <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-                <Pressable
-                    style={({ pressed }) => ({
-                        flexDirection: 'row',
-                        backgroundColor: theme.surfaceOnElevation,
-                        borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
-                        alignItems: 'center',
-                        opacity: pressed ? 0.8 : 1,
-                        maxWidth: '50%',
-                    })}
-                    onPress={onAccountPress}
-                >
-                    <Text
-                        style={[{
-                            color: theme.textPrimary, flexShrink: 1,
-                            marginRight: 8
-                        }, Typography.medium17_24]}
-                        ellipsizeMode='tail'
-                        numberOfLines={1}
-                    >
-                        {isLedger ? ledgerContext.ledgerName : (walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`)}
-                    </Text>
-                    <HeaderSyncStatus isLedger={isLedger} />
-                </Pressable>
+                <SelectedWallet onLightBackground />
             </View>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}

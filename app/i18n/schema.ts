@@ -51,6 +51,7 @@ export type LocalizationSchema = {
         gotIt: string,
         error: string,
         wallet: string,
+        cards: string,
         wallets: string,
         later: string,
         select: string,
@@ -138,7 +139,8 @@ export type LocalizationSchema = {
             send: string,
             buy: string,
             swap: string,
-            deposit: string
+            deposit: string,
+            payments: string,
         },
         empty: {
             message: string,

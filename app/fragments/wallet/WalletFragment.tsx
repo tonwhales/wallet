@@ -35,17 +35,21 @@ import { Queries } from '../../engine/queries';
 import { TonWalletFragment } from './TonWalletFragment';
 import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
 import { getCampaignId } from '../../utils/holders/queryParamsStore';
+import { AppModeToggle } from '../../components/AppModeToggle';
+import { useAppMode } from '../../engine/hooks/appstate/useAppMode';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 
-const WalletCard = memo(({ address }: { address: Address }) => {
+const WalletCard = memo(({ address, height, walletHeaderHeight }: { address: Address, height: number, walletHeaderHeight: number }) => {
     const account = useAccountLite(address);
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const bottomBarHeight = useBottomTabBarHeight();
     const specialJetton = useSpecialJetton(address);
     const staking = useStaking();
     const liquidBalance = useLiquidStakingBalance(address);
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const [price] = usePrice();
+    const [isWalletMode] = useAppMode(address);
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -54,28 +58,40 @@ const WalletCard = memo(({ address }: { address: Address }) => {
         return liquidBalance + staking.total;
     }, [staking, liquidBalance]);
 
-    const balance = useMemo(() => {
+    const walletBalance = useMemo(() => {
         const accountWithStaking = (account ? account?.balance : 0n)
             + (stakingBalance || 0n)
 
+        return accountWithStaking + (specialJetton?.toTon || 0n);
+    }, [account, stakingBalance, specialJetton?.toTon]);
+
+    const cardsBalance = useMemo(() => {
         const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);
 
-        return (cardsBalance || 0n) + accountWithStaking + (specialJetton?.toTon || 0n);
-    }, [account, stakingBalance, holdersCards, specialJetton?.toTon, price?.price?.usd]);
+        return (cardsBalance || 0n);
+    }, [stakingBalance, holdersCards, price?.price?.usd]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
     return (
-        <View style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingTop: 24,
-            paddingHorizontal: 16,
-            backgroundColor: theme.backgroundUnchangeable
-        }}>
+        <LinearGradient
+            style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                paddingTop: walletHeaderHeight,
+                paddingHorizontal: 16,
+                backgroundColor: theme.backgroundUnchangeable,
+                borderColor: 'white',
+                height,
+            }}
+            colors={[isWalletMode ? theme.backgroundUnchangeable : theme.cornflowerBlue, theme.backgroundUnchangeable]}
+            start={[1, 0]}
+            end={[1, 1]}
+        >
             <View>
+                <AppModeToggle />
                 <PriceComponent
-                    amount={balance}
+                    amount={isWalletMode ? walletBalance : cardsBalance}
                     style={{
                         alignSelf: 'center',
                         backgroundColor: theme.transparent,
@@ -84,6 +100,7 @@ const WalletCard = memo(({ address }: { address: Address }) => {
                         paddingLeft: undefined,
                         borderRadius: undefined,
                         height: undefined,
+                        marginTop: 28,
                     }}
                     textStyle={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}
                     centsTextStyle={{ color: theme.textSecondary }}
@@ -126,28 +143,7 @@ const WalletCard = memo(({ address }: { address: Address }) => {
                     theme={theme}
                 />
             </Pressable>
-            <View style={{ flexGrow: 1 }} />
-            <WalletAddress
-                address={address}
-                elipsise={{ start: 4, end: 4 }}
-                style={{
-                    marginTop: 16,
-                    alignSelf: 'center',
-                }}
-                textStyle={[{
-                    color: theme.textUnchangeable,
-                    opacity: 0.5,
-                    fontFamily: undefined
-                }, Typography.regular15_20]}
-                disableContextMenu
-                copyOnPress
-                copyToastProps={Platform.select({
-                    ios: { marginBottom: 24 + bottomBarHeight, },
-                    android: { marginBottom: 16, }
-                })}
-                theme={theme}
-            />
-        </View>
+        </LinearGradient>
     );
 });
 WalletCard.displayName = 'WalletCard';
@@ -163,8 +159,15 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
     const holdersStatus = useHoldersAccountStatus(addressString).data;
     const specialJetton = useSpecialJetton(address);
     const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
+    const [isWalletMode] = useAppMode(address);
+    const safeArea = useSafeAreaInsets();
 
     const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const scrollOffsetSv = useSharedValue(0)
+    const scrollHandler = useAnimatedScrollHandler((event) => {
+        scrollOffsetSv.value = event.contentOffset.y;
+    });
 
     useEffect(() => {
         if (syncState !== 'updating') {
@@ -226,11 +229,18 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
         setStatusBarStyle('light');
     });
 
+    // We use static sizes for correct header-gradient animation
+    const selectedWalletHeight = 48
+    const topPadding = safeArea.top + (Platform.OS === 'ios' ? 0 : 16)
+    const walletHeaderHeight = selectedWalletHeight + topPadding
+    const walletCardHeight = 146 + walletHeaderHeight
+
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
-            <WalletHeader address={address} />
-            <ScrollView
+            <WalletHeader address={address} walletCardHeight={walletCardHeight} height={walletHeaderHeight} scrollOffsetSv={scrollOffsetSv} />
+            <Animated.ScrollView
                 style={{ flexBasis: 0 }}
+                onScroll={scrollHandler}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                 contentInsetAdjustmentBehavior={"never"}
                 automaticallyAdjustContentInsets={false}
@@ -252,7 +262,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                 {Platform.OS === 'ios' && (
                     <View
                         style={{
-                            backgroundColor: theme.backgroundUnchangeable,
+                            backgroundColor: isWalletMode ? theme.backgroundUnchangeable : theme.cornflowerBlue,
                             height: 1000,
                             position: 'absolute',
                             top: -1000,
@@ -262,7 +272,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                     />
                 )}
                 <View collapsable={false}>
-                    <WalletCard address={address} />
+                    <WalletCard address={address} height={walletCardHeight} walletHeaderHeight={walletHeaderHeight} />
                     <WalletActions
                         theme={theme}
                         navigation={navigation}
@@ -271,7 +281,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                     />
                 </View>
                 <ProductsComponent selected={selectedAcc} />
-            </ScrollView>
+            </Animated.ScrollView>
             <VersionView />
         </View>
     );

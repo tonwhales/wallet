@@ -29,6 +29,7 @@ import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
+import { useAppMode } from "../../engine/hooks/appstate/useAppMode"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
@@ -44,6 +45,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const inviteCheck = useIsHoldersInvited(selected!.address, isTestnet);
+    const [isWalletMode] = useAppMode(selected!.address);
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
@@ -138,22 +140,24 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         )
                 )}
 
-                <HoldersChangellyBanner address={selected.address} />
+                {isWalletMode ? (
+                    <>
+                        <SavingsProduct address={selected.address} />
+                        <StakingProductComponent
+                            key={'pool'}
+                            address={selected.address}
+                        />
+                        <JettonsProductComponent owner={selected.address} key={'jettons'} />
+                        <JettonsHiddenComponent owner={selected.address} key={'jettons-hidden'} />
+                    </>
+                ) : (
+                    <>
+                        <HoldersChangellyBanner address={selected.address} />
+                        <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
+                        <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
+                    </>
+                )}
 
-                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
-
-                <SavingsProduct address={selected.address} />
-
-                <StakingProductComponent
-                    key={'pool'}
-                    address={selected.address}
-                />
-
-                <JettonsProductComponent owner={selected.address} key={'jettons'} />
-
-                <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
-
-                <JettonsHiddenComponent owner={selected.address} key={'jettons-hidden'} />
             </View>
         </View>
     );

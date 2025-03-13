@@ -22,6 +22,7 @@ import { SpecialJettonProduct } from "../../components/products/SpecialJettonPro
 import { AssetViewType } from "./AssetsFragment";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { HoldersAppParams, HoldersAppParamsType } from "../holders/HoldersAppFragment";
+import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 
 enum AssetType {
     TON = 'ton',
@@ -122,6 +123,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
+    const [isWalletMode] = useAppMode(selected?.address);
 
     const onAssetCallback = useCallback((asset: ReceiveableAsset | null) => {
         if (assetCallback) {
@@ -273,15 +275,20 @@ export const ReceiveAssetsFragment = fragment(() => {
         data: [{ type: AssetType.TON }, { type: AssetType.SPECIAL }]
     };
 
-    const itemsList: { type: 'default' | 'holders' | 'otherCoins', data: ListItem[] }[] = [
-        {
-            type: 'holders',
-            data: holdersAccounts.map((account) => ({ account, type: AssetType.HOLDERS }))
-        },
-        defaultSection
-    ];
-    if (showOtherCoins) {
-        itemsList.push({ type: 'otherCoins', data: [{ type: AssetType.OTHERCOINS }] });
+    let itemsList: { type: 'default' | 'holders' | 'otherCoins', data: ListItem[] }[] = []
+
+    if (!isWalletMode) {
+        itemsList.push(
+            {
+                type: 'holders',
+                data: holdersAccounts.map((account) => ({ account, type: AssetType.HOLDERS }))
+            })
+    } else {
+        itemsList.push(defaultSection)
+
+        if (showOtherCoins) {
+            itemsList.push({ type: 'otherCoins', data: [{ type: AssetType.OTHERCOINS }] });
+        }
     }
 
     return (

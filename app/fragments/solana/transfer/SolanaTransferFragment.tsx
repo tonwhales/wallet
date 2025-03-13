@@ -21,12 +21,11 @@ import { avatarHash } from "../../../utils/avatarHash";
 import { avatarColors } from "../../../components/avatar/Avatar";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { fromNano } from "@ton/core";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
 
 export type SolanaTransferParams = {
     order: SolanaOrder
 }
-
 
 const TransferLoaded = ({ order }: SolanaTransferParams) => {
     const theme = useTheme();
@@ -47,13 +46,19 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
     }, []);
 
     const doSend = useCallback(async () => {
-        await sendSolanaTransfer({
-            solanaClient,
-            theme,
-            authContext,
-            order,
-            sender: solanaAddress
-        });
+        try {
+            await sendSolanaTransfer({
+                solanaClient,
+                theme,
+                authContext,
+                order,
+                sender: solanaAddress
+            });
+        } catch (error) {
+            // sendAndConfirmTransaction on devnet will fail with "Subscriptions unsupported for this network"
+            // TODO: handle error
+            console.error(error);
+        }
         navigation.goBack();
     }, [theme, authContext, order, solanaAddress, navigation]);
 

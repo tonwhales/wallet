@@ -21,9 +21,16 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
             return last[TRANSACTIONS_LENGTH - 1]?.signature;
         },
         queryFn: async (ctx) => {
-            const pageParam = ctx.pageParam as (string | undefined);
-            const transactions = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
-            return transactions;
+            try {
+                const pageParam = ctx.pageParam as (string | undefined);
+                console.log({ pageParam });
+                const transactions = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
+                console.log({ transactions });
+                return transactions;
+            } catch (error) {
+                console.error(error);
+                throw error;
+            }
         },
         structuralSharing: (old, next) => {
             const firstOld = old?.pages?.[0];

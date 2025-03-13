@@ -72,7 +72,7 @@ export async function fetchSolanaTransactions(address: string, isTestnet: boolea
     const endpoint = `${whalesConnectEndpoint}/solana/transactions/${address}/${network}`;
     const url = new URL(endpoint);
     Object.entries(query).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (!!value) {
             url.searchParams.set(key, value.toString());
         }
     });

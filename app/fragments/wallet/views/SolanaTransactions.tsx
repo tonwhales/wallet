@@ -81,9 +81,9 @@ export const SolanaTransactions = memo(({
           const { fromUserAccount, toUserAccount, amount } = tx;
           const kind: 'in' | 'out' = fromUserAccount === owner ? 'out' : 'in';
           const op = kind === 'in' ? t('tx.received') : t('tx.sent');
-          const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
-          const avatarColor = avatarColors[avatarHash(fromUserAccount, avatarColors.length)];
           const address = kind === 'in' ? fromUserAccount : toUserAccount;
+          const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
+          const avatarColor = avatarColors[avatarHash(address, avatarColors.length)];
 
           return (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -119,7 +119,7 @@ export const SolanaTransactions = memo(({
                   { color: theme.textSecondary, marginRight: 8, marginTop: 2 },
                   Typography.regular15_20
                 ]}>
-                  {fromUserAccount.slice(0, 4)}...{fromUserAccount.slice(-4)}
+                  {address.slice(0, 4)}...{address.slice(-4)}
                   {' • '}
                   {formatTime(timestamp)}
                 </Text>
@@ -184,7 +184,7 @@ export const SolanaTransactions = memo(({
                   { color: theme.textSecondary, marginRight: 8, marginTop: 2 },
                   Typography.regular15_20
                 ]}>
-                  {fromUserAccount.slice(0, 4)}...{fromUserAccount.slice(-4)}
+                  {address?.slice(0, 4)}...{address?.slice(-4)}
                   {' • '}
                   {formatTime(timestamp)}
                 </Text>

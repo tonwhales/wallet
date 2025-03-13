@@ -159,7 +159,8 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
 
     const onRefresh = useCallback(() => {
         txs.refresh();
-    }, [txs.refresh]);
+        token?.refresh();
+    }, [txs.refresh, token?.refresh]);
 
     const [currency] = usePrimaryCurrency();
 
@@ -212,12 +213,12 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
                 safeArea={safeArea}
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
-                loading={false}
+                loading={txs.loading}
                 owner={owner}
                 header={<SolanaTokenHeader
                     mint={mint}
                     owner={owner} />}
-                refreshing={false}
+                refreshing={txs.refreshing}
             />
         </View>
     );

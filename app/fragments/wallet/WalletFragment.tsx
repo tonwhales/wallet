@@ -42,7 +42,6 @@ const WalletCard = memo(({ address }: { address: Address }) => {
     const account = useAccountLite(address);
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const bottomBarHeight = useBottomTabBarHeight();
     const specialJetton = useSpecialJetton(address);
     const staking = useStaking();
     const liquidBalance = useLiquidStakingBalance(address);
@@ -136,26 +135,6 @@ const WalletCard = memo(({ address }: { address: Address }) => {
                 />
             </Pressable>
             <View style={{ flexGrow: 1 }} />
-            <WalletAddress
-                address={address}
-                elipsise={{ start: 4, end: 4 }}
-                style={{
-                    marginTop: 16,
-                    alignSelf: 'center',
-                }}
-                textStyle={[{
-                    color: theme.textUnchangeable,
-                    opacity: 0.5,
-                    fontFamily: undefined
-                }, Typography.regular15_20]}
-                disableContextMenu
-                copyOnPress
-                copyToastProps={Platform.select({
-                    ios: { marginBottom: 24 + bottomBarHeight, },
-                    android: { marginBottom: 16, }
-                })}
-                theme={theme}
-            />
         </View>
     );
 });

@@ -68,19 +68,19 @@ export const AppModeToggle = () => {
 
     const leftTextStyle = useAnimatedStyle(() => {
         return {
-            color: withTiming(isToggleInWalletMode ? theme.black : theme.textSecondary),
+            color: withTiming(isToggleInWalletMode ? theme.black : theme.textUnchangeable),
         };
     });
 
     const rightTextStyle = useAnimatedStyle(() => {
         return {
-            color: withTiming(isToggleInWalletMode ? theme.textSecondary : theme.black),
+            color: withTiming(isToggleInWalletMode ? theme.textUnchangeable : theme.black),
         };
     });
 
     const walletIconStyle = useAnimatedStyle(() => {
         return {
-            tintColor: withTiming(isToggleInWalletMode ? theme.black : theme.iconNav),
+            tintColor: withTiming(isToggleInWalletMode ? theme.black : theme.iconUnchangeable),
             width: ICON_SIZE,
             height: ICON_SIZE,
         };
@@ -88,7 +88,7 @@ export const AppModeToggle = () => {
 
     const cardsIconStyle = useAnimatedStyle(() => {
         return {
-            tintColor: withTiming(isToggleInWalletMode ? theme.iconNav : theme.black),
+            tintColor: withTiming(isToggleInWalletMode ? theme.iconUnchangeable : theme.black),
             width: ICON_SIZE,
             height: ICON_SIZE,
         };

@@ -67,7 +67,7 @@ export const SelectedWallet = memo(({ onLightBackground }: { onLightBackground?:
                 onPress={onAccountPress}
                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, marginLeft: 4, flexDirection: 'row', alignItems: 'center', gap: 4 })}
             >
-                <View style={{ justifyContent: 'center' }}>
+                <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
                     <Text
                         style={[{
                             color: onLightBackground ? theme.textPrimary : theme.textOnsurfaceOnDark,

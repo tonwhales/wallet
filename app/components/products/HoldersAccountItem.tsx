@@ -263,7 +263,7 @@ export const HoldersAccountItem = memo((props: {
                                                 card={card as GeneralHoldersCard}
                                                 theme={theme}
                                                 style={{ height: 46, width: 72, borderRadius: 12 }}
-                                                coverImageStyle={{ height: 46, width: 72, borderRadius: 12 }}
+                                                coverImageStyle={{ height: 46, width: 72, borderRadius: 8 }}
                                                 cardNumberStyle={{ fontSize: 10, left: 8, bottom: 8 }}
                                             />
                                         )

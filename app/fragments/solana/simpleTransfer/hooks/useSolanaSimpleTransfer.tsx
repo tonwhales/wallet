@@ -71,8 +71,8 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
         }
     }, [amount, accountToken?.decimals]);
 
-    const balanceToken = toBnWithDecimals(accountToken?.amount ?? 0n, accountToken?.decimals ?? 6);
-    const balance = token ? balanceToken : account.data?.balance || 0n;
+    const balanceToken = BigInt(accountToken?.amount ?? 0n);
+    const balance = token ? balanceToken : (account.data?.balance || 0n);
 
     const order: SolanaOrder | null = useMemo(() => {
         if (!validAmount) {
@@ -114,8 +114,6 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
         const formatted = formatInputAmount(amount.replace('.', ','), 9, { skipFormattingDecimals: true });
         setAmount(formatted);
     }, [balance]);
-
-    console.log('order', order);
 
     const continueDisabled = !order;
 

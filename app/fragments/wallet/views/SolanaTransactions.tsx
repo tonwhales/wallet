@@ -14,7 +14,7 @@ import { formatDate, getDateKey, formatTime } from "../../../utils/dates";
 import { SolanaTx } from "../../../engine/api/solana/fetchSolanaTransactions";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 import { toNano } from "@ton/core";
-import { toBnWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 
 type SolanaTransactionsProps = {
   theme: ThemeType;
@@ -28,7 +28,10 @@ type SolanaTransactionsProps = {
   loading: boolean;
   refreshing: boolean;
   ledger?: boolean;
-  header: ReactNode;
+  header: | React.ComponentType<any>
+  | React.ReactElement
+  | null
+  | undefined;
   owner: string;
 };
 
@@ -46,7 +49,6 @@ export const SolanaTransactions = memo(({
   ledger,
   header,
   owner
-
 }: SolanaTransactionsProps) => {
 
   const { transactionsSections } = useMemo(() => {
@@ -72,8 +74,6 @@ export const SolanaTransactions = memo(({
 
   const renderItem = ({ item }: { item: SolanaTx }) => {
     const { description, type, source, fee, feePayer, signature, slot, timestamp, tokenTransfers, nativeTransfers, accountData } = item;
-
-    console.log(nativeTransfers);
 
     return (
       <View style={[styles.transactionItem, { gap: 2 }]}>
@@ -148,7 +148,7 @@ export const SolanaTransactions = memo(({
           const toAccount = accountData?.find((acc) => acc.account === toTokenAccount);
           const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === toTokenAccount)?.userAccount;
           const address = kind === 'in' ? fromUserAccount : toAddress;
-          const amount = tokenAmount;
+          const amount = fromBnWithDecimals(toNano(tokenAmount), 9);
 
           return (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -221,7 +221,7 @@ export const SolanaTransactions = memo(({
         styles.listContent,
         { paddingBottom: 86 }
       ]}
-      ListHeaderComponent={() => <>{header}</>}
+      ListHeaderComponent={header}
       ListEmptyComponent={loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={ledger} />}
       onEndReached={onLoadMore}
       initialNumToRender={16}
@@ -230,7 +230,7 @@ export const SolanaTransactions = memo(({
       stickySectionHeadersEnabled={false}
       onEndReachedThreshold={0.2}
       onRefresh={onRefresh}
-      refreshing={loading}
+      refreshing={refreshing}
     />
   );
 });

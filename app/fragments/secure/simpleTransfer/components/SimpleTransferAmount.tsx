@@ -133,6 +133,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
         isLedger
     }), [onAssetSelected, jetton?.master, isLedger])
 
+    console.log('balance', balance);
+
     const jettonButton = useMemo(() => (
         <Pressable
             style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
@@ -188,7 +190,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 <ValueComponent
                     precision={4}
                     value={balance}
-                    decimals={jetton ? jetton.decimals : undefined}
+                    decimals={jetton ? jetton.decimals : decimals}
                     suffix={jetton ? ` ${jetton.symbol}` : ''}
                 />
             </Text>
@@ -201,7 +203,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 </Text>
             </Pressable>
         </View>
-    ), [balance, jetton?.decimals, jetton?.symbol, onAddAll])
+    ), [balance, jetton?.decimals, jetton?.symbol, onAddAll, decimals])
 
     const onFocus = useCallback(() => onInputFocus(1), [])
 

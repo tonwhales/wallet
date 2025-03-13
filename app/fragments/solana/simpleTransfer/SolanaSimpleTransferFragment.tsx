@@ -47,10 +47,6 @@ const SolanaSimpleTransferComponent = () => {
         logoURI
     } = useSolanaSimpleTransfer({ params, navigation, owner, token: params?.token });
 
-    console.log({
-        targetAddressValid
-    })
-
     const [isScrolling, setIsScrolling] = useState(false);
 
     const addressRef = useRef<SolanaAddressInputRef>(null);

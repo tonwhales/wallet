@@ -109,6 +109,7 @@ import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragmen
 import { SolanaSimpleTransferFragment } from './fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 import { TransferFragment } from './fragments/secure/transfer/TransferFragment';
 import { SolanaTransferFragment } from './fragments/solana/transfer/SolanaTransferFragment';
+import { useSolanaAccountWatcher } from './engine/useSolanaAccountWatcher';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -475,6 +476,9 @@ export const Navigation = memo(() => {
 
     // Watch for holders updates
     useHoldersWatcher();
+
+    // Watch for solana account updates
+    useSolanaAccountWatcher();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>

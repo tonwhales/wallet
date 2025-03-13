@@ -22,13 +22,10 @@ export function useSolanaTransactions(address: string) {
         },
         queryFn: async (ctx) => {
             const pageParam = ctx.pageParam as (string | undefined);
-            console.log('fetching transactions', pageParam);
             try {
                 const transactions = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam });
-                console.log('transactions', transactions.length);
                 return transactions;
             } catch (error) {
-                console.log('error', error);
                 throw error;
             }
         },

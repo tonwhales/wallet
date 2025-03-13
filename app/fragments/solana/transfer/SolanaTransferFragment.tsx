@@ -59,7 +59,8 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
             // TODO: handle error
             console.error(error);
         }
-        navigation.goBack();
+        // Reset stack to root
+        navigation.popToTop();
     }, [theme, authContext, order, solanaAddress, navigation]);
 
     const avatarColorHash = avatarHash(order.target, avatarColors.length);

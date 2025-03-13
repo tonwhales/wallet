@@ -23,9 +23,7 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
         queryFn: async (ctx) => {
             try {
                 const pageParam = ctx.pageParam as (string | undefined);
-                console.log({ pageParam });
                 const transactions = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
-                console.log({ transactions });
                 return transactions;
             } catch (error) {
                 console.error(error);

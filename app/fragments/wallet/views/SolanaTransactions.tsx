@@ -1,5 +1,5 @@
 import React, { memo, ReactNode, useMemo } from "react";
-import { View, FlatList, StyleSheet, RefreshControl, Text, SectionList, SectionListData } from "react-native";
+import { View, FlatList, StyleSheet, RefreshControl, Text, SectionList, SectionListData, Pressable } from "react-native";
 import { ThemeType } from "../../../engine/state/theme";
 import { EdgeInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../components/styles";
@@ -15,10 +15,11 @@ import { SolanaTx } from "../../../engine/api/solana/fetchSolanaTransactions";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 import { toNano } from "@ton/core";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
+import { TypedNavigation } from "../../../utils/useTypedNavigation";
 
 type SolanaTransactionsProps = {
   theme: ThemeType;
-  navigation: any;
+  navigation: TypedNavigation;
   txs: SolanaTx[];
   hasNext: boolean;
   address: string;
@@ -85,8 +86,19 @@ export const SolanaTransactions = memo(({
           const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
           const avatarColor = avatarColors[avatarHash(address, avatarColors.length)];
 
+          const navigate = () => {
+            navigation.navigateSolanaTransaction({
+              owner,
+              transaction: item,
+              transfer: { data: tx, type: 'native' }
+            });
+          }
+
           return (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Pressable
+              onPress={navigate}
+              style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, flexDirection: 'row', alignItems: 'center', gap: 8 })}
+            >
               <View style={{
                 width: 48, height: 48, borderRadius: 24,
                 backgroundColor: theme.surfaceOnBg,
@@ -136,7 +148,7 @@ export const SolanaTransactions = memo(({
                   />
                 </Text>
               </View>
-            </View>
+            </Pressable>
           )
         })}
         {tokenTransfers?.map((tx, index) => {
@@ -150,8 +162,19 @@ export const SolanaTransactions = memo(({
           const address = kind === 'in' ? fromUserAccount : toAddress;
           const amount = fromBnWithDecimals(toNano(tokenAmount), 9);
 
+          const navigate = () => {
+            navigation.navigateSolanaTransaction({
+              owner,
+              transaction: item,
+              transfer: { data: tx, type: 'token' }
+            });
+          }
+
           return (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Pressable
+              onPress={navigate}
+              style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, flexDirection: 'row', alignItems: 'center', gap: 8 })}
+            >
               <View style={{
                 width: 48, height: 48, borderRadius: 24,
                 backgroundColor: theme.surfaceOnBg,
@@ -204,7 +227,7 @@ export const SolanaTransactions = memo(({
                   />
                 </Text>
               </View>
-            </View>
+            </Pressable>
           )
         })}
       </View >

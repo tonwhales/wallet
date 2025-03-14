@@ -34,6 +34,7 @@ import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragm
 import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 import { SolanaTransferParams } from '../fragments/solana/transfer/SolanaTransferFragment';
 import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
+import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -359,6 +360,10 @@ export class TypedNavigation {
 
     navigateSolanaReceive(params: Omit<ReceiveSolanaParams, 'type'>) {
         this.navigate('SolanaReceive', params);
+    }
+
+    navigateSolanaTransaction(params: SolanaTransactionPreviewParams) {
+        this.navigate('SolanaTransaction', params);
     }
 }
 

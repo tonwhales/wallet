@@ -2,6 +2,26 @@ import { z } from "zod";
 import { whalesConnectEndpoint } from "../../clients";
 import axios from "axios";
 
+const tokenTransferScheme = z.object({
+    fromTokenAccount: z.string(),
+    toTokenAccount: z.string(),
+    fromUserAccount: z.string(),
+    mint: z.string(),
+    tokenAmount: z.number(),
+    tokenStandard: z.string()
+});
+
+const nativeTransferScheme = z.object({
+    fromUserAccount: z.string(),
+    toUserAccount: z.string(),
+    amount: z.number(),
+});
+
+export type SolanaTokenTransfer = z.infer<typeof tokenTransferScheme>;
+export type SolanaNativeTransfer = z.infer<typeof nativeTransferScheme>;
+
+export type SolanaTransfer = SolanaTokenTransfer | SolanaNativeTransfer;
+
 const txScheme = z.object({
     description: z.string(),
     type: z.string(),
@@ -11,19 +31,8 @@ const txScheme = z.object({
     signature: z.string(),
     slot: z.number(),
     timestamp: z.number(),
-    tokenTransfers: z.array(z.object({
-        fromTokenAccount: z.string(),
-        toTokenAccount: z.string(),
-        fromUserAccount: z.string(),
-        mint: z.string(),
-        tokenAmount: z.number(),
-        tokenStandard: z.string()
-    })),
-    nativeTransfers: z.array(z.object({
-        fromUserAccount: z.string(),
-        toUserAccount: z.string(),
-        amount: z.number(),
-    })),
+    tokenTransfers: z.array(tokenTransferScheme),
+    nativeTransfers: z.array(nativeTransferScheme),
     accountData: z.array(z.object({
         account: z.string(),
         nativeBalanceChange: z.number(),

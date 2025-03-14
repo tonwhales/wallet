@@ -1,32 +1,26 @@
 import * as React from 'react';
-import { Alert, Platform, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Alert, Platform, RefreshControl, View } from 'react-native';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
-import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
-import { Suspense, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { WalletAddress } from '../../components/address/WalletAddress';
+import { Suspense, memo, useCallback, useEffect, useState } from 'react';
 import { WalletHeader } from './views/WalletHeader';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useAccountLite, useHoldersAccounts, useHoldersAccountStatus, useLiquidStakingBalance, useNetwork, usePrice, useSelectedAccount, useStaking, useSyncState, useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useSyncState, useTheme, useWalletCardLayoutHelper } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { Address, toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 import { PerformanceMeasureView } from '@shopify/react-native-performance';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { BlurView } from 'expo-blur';
-import { Typography } from '../../components/styles';
 import { useSpecialJetton } from '../../engine/hooks/jettons/useSpecialJetton';
 import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
 import { WalletActions } from './views/WalletActions';
-import { reduceHoldersBalances } from '../../utils/reduceHoldersBalances';
 import { VersionView } from './views/VersionView';
 import { JettonWalletFragment } from './JettonWalletFragment';
 import { queryClient } from '../../engine/clients';
@@ -35,118 +29,9 @@ import { Queries } from '../../engine/queries';
 import { TonWalletFragment } from './TonWalletFragment';
 import { mixpanelAddReferrer, mixpanelIdentify } from '../../analytics/mixpanel';
 import { getCampaignId } from '../../utils/holders/queryParamsStore';
-import { AppModeToggle } from '../../components/AppModeToggle';
 import { useAppMode } from '../../engine/hooks/appstate/useAppMode';
-import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
-
-const WalletCard = memo(({ address, height, walletHeaderHeight }: { address: Address, height: number, walletHeaderHeight: number }) => {
-    const account = useAccountLite(address);
-    const navigation = useTypedNavigation();
-    const theme = useTheme();
-    const specialJetton = useSpecialJetton(address);
-    const staking = useStaking();
-    const liquidBalance = useLiquidStakingBalance(address);
-    const holdersCards = useHoldersAccounts(address).data?.accounts;
-    const [price] = usePrice();
-    const [isWalletMode] = useAppMode(address);
-
-    const stakingBalance = useMemo(() => {
-        if (!staking && !liquidBalance) {
-            return 0n;
-        }
-        return liquidBalance + staking.total;
-    }, [staking, liquidBalance]);
-
-    const walletBalance = useMemo(() => {
-        const accountWithStaking = (account ? account?.balance : 0n)
-            + (stakingBalance || 0n)
-
-        return accountWithStaking + (specialJetton?.toTon || 0n);
-    }, [account, stakingBalance, specialJetton?.toTon]);
-
-    const cardsBalance = useMemo(() => {
-        const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);
-
-        return (cardsBalance || 0n);
-    }, [stakingBalance, holdersCards, price?.price?.usd]);
-
-    const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-
-    return (
-        <LinearGradient
-            style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                paddingTop: walletHeaderHeight,
-                paddingHorizontal: 16,
-                backgroundColor: theme.backgroundUnchangeable,
-                borderColor: 'white',
-                height,
-            }}
-            colors={[isWalletMode ? theme.backgroundUnchangeable : theme.cornflowerBlue, theme.backgroundUnchangeable]}
-            start={[1, 0]}
-            end={[1, 1]}
-        >
-            <View>
-                <AppModeToggle />
-                <PriceComponent
-                    amount={isWalletMode ? walletBalance : cardsBalance}
-                    style={{
-                        alignSelf: 'center',
-                        backgroundColor: theme.transparent,
-                        paddingHorizontal: undefined,
-                        paddingVertical: undefined,
-                        paddingLeft: undefined,
-                        borderRadius: undefined,
-                        height: undefined,
-                        marginTop: 28,
-                    }}
-                    textStyle={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}
-                    centsTextStyle={{ color: theme.textSecondary }}
-                    theme={theme}
-                />
-                {!account && (
-                    <View
-                        style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            overflow: 'hidden',
-                            borderRadius: 8,
-                        }}
-                    >
-                        {Platform.OS === 'android' ? (
-                            <View
-                                style={{
-                                    flexGrow: 1,
-                                    backgroundColor: theme.surfaceOnBg,
-                                }}
-                            />
-                        ) : (
-                            <BlurView
-                                tint={theme.style === 'dark' ? 'dark' : 'light'}
-                                style={{ flexGrow: 1 }}
-                            />
-                        )}
-                    </View>
-                )}
-            </View>
-            <Pressable
-                style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
-                onPress={navigateToCurrencySettings}
-            >
-                <PriceComponent
-                    showSign
-                    amount={toNano(1)}
-                    style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
-                    textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
-                    theme={theme}
-                />
-            </Pressable>
-        </LinearGradient>
-    );
-});
-WalletCard.displayName = 'WalletCard';
+import Animated from 'react-native-reanimated';
+import { WalletCard } from './views/WalletCard';
 
 const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount }) => {
     const network = useNetwork();
@@ -160,14 +45,10 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
     const specialJetton = useSpecialJetton(address);
     const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
     const [isWalletMode] = useAppMode(address);
-    const safeArea = useSafeAreaInsets();
 
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const scrollOffsetSv = useSharedValue(0)
-    const scrollHandler = useAnimatedScrollHandler((event) => {
-        scrollOffsetSv.value = event.contentOffset.y;
-    });
+    const { walletCardHeight, walletHeaderHeight, scrollHandler, scrollOffsetSv } = useWalletCardLayoutHelper()
 
     useEffect(() => {
         if (syncState !== 'updating') {
@@ -228,12 +109,6 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
     useFocusEffect(() => {
         setStatusBarStyle('light');
     });
-
-    // We use static sizes for correct header-gradient animation
-    const selectedWalletHeight = 48
-    const topPadding = safeArea.top + (Platform.OS === 'ios' ? 0 : 16)
-    const walletHeaderHeight = selectedWalletHeight + topPadding
-    const walletCardHeight = 146 + walletHeaderHeight
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>

@@ -103,8 +103,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
                 <PendingTransactions />
                 <PaymentOtpBanner address={selected.address} />
-                <AddressFormatUpdate />
-                <W5Banner />
+                {isWalletMode && (
+                    <>
+                        <AddressFormatUpdate />
+                        <W5Banner />
+                    </>
+                )}
                 <DappsRequests />
 
                 {(!inviteCheck && !!banners?.product) && (

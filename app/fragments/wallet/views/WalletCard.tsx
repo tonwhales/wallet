@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useStaking, useTheme } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSpecialJetton } from "../../../engine/hooks/jettons/useSpecialJetton";
@@ -40,7 +40,7 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
     const cardsBalance = useMemo(() => {
         const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);
 
-        return (cardsBalance || 0n);
+        return (cardsBalance * 10000n || 0n);
     }, [stakingBalance, holdersCards, price?.price?.usd]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
@@ -60,49 +60,47 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
             start={[1, 0]}
             end={[1, 1]}
         >
-            <View>
-                <AppModeToggle />
-                <PriceComponent
-                    amount={isWalletMode ? walletBalance : cardsBalance}
+            <AppModeToggle />
+            <PriceComponent
+                amount={isWalletMode ? walletBalance : cardsBalance}
+                style={{
+                    alignSelf: 'center',
+                    backgroundColor: theme.transparent,
+                    paddingHorizontal: undefined,
+                    paddingVertical: undefined,
+                    paddingLeft: undefined,
+                    borderRadius: undefined,
+                    height: undefined,
+                    marginTop: 28,
+                }}
+                textStyle={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}
+                centsTextStyle={{ color: theme.textSecondary }}
+                theme={theme}
+            />
+            {!account && (
+                <View
                     style={{
-                        alignSelf: 'center',
-                        backgroundColor: theme.transparent,
-                        paddingHorizontal: undefined,
-                        paddingVertical: undefined,
-                        paddingLeft: undefined,
-                        borderRadius: undefined,
-                        height: undefined,
-                        marginTop: 28,
+                        position: 'absolute',
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        overflow: 'hidden',
+                        borderRadius: 8,
                     }}
-                    textStyle={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}
-                    centsTextStyle={{ color: theme.textSecondary }}
-                    theme={theme}
-                />
-                {!account && (
-                    <View
-                        style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            overflow: 'hidden',
-                            borderRadius: 8,
-                        }}
-                    >
-                        {Platform.OS === 'android' ? (
-                            <View
-                                style={{
-                                    flexGrow: 1,
-                                    backgroundColor: theme.surfaceOnBg,
-                                }}
-                            />
-                        ) : (
-                            <BlurView
-                                tint={theme.style === 'dark' ? 'dark' : 'light'}
-                                style={{ flexGrow: 1 }}
-                            />
-                        )}
-                    </View>
-                )}
-            </View>
+                >
+                    {Platform.OS === 'android' ? (
+                        <View
+                            style={{
+                                flexGrow: 1,
+                                backgroundColor: theme.surfaceOnBg,
+                            }}
+                        />
+                    ) : (
+                        <BlurView
+                            tint={theme.style === 'dark' ? 'dark' : 'light'}
+                            style={{ flexGrow: 1 }}
+                        />
+                    )}
+                </View>
+            )}
             <Pressable
                 style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
                 onPress={navigateToCurrencySettings}

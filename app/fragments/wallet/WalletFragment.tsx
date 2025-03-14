@@ -32,7 +32,6 @@ import { getCampaignId } from '../../utils/holders/queryParamsStore';
 import { useAppMode } from '../../engine/hooks/appstate/useAppMode';
 import Animated from 'react-native-reanimated';
 import { WalletCard } from './views/WalletCard';
-import { useLedgerTransport } from '../ledger/components/TransportContext';
 
 const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount }) => {
     const network = useNetwork();

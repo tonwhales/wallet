@@ -1,11 +1,10 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, Image } from "react-native";
 import ArrowDown from '@assets/ic-arrow-down.svg';
 import { Typography } from "../styles";
 import { useNetwork, useSelectedAccount, useTheme, useWalletSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
-import { Address } from "@ton/core";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { HeaderSyncStatus } from "../../fragments/wallet/views/HeaderSyncStatus";
@@ -14,7 +13,7 @@ import { getAppState } from "../../storage/appState";
 import { avatarHash } from "../../utils/avatarHash";
 import { useTranslation } from "react-i18next";
 
-export const SelectedWallet = memo(({ onLightBackground }: { onLightBackground?: boolean }) => {
+export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLightBackground?: boolean, ledgerName?: string }) => {
     const network = useNetwork();
     const knownWallets = KnownWallets(network.isTestnet);
     const theme = useTheme();
@@ -36,6 +35,7 @@ export const SelectedWallet = memo(({ onLightBackground }: { onLightBackground?:
     return (
         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1, alignItems: 'center' }}>
             <Pressable
+                disabled={!!ledgerName}
                 style={({ pressed }) => {
                     return {
                         opacity: pressed ? 0.5 : 1,
@@ -49,17 +49,24 @@ export const SelectedWallet = memo(({ onLightBackground }: { onLightBackground?:
                     borderRadius: 16,
                     marginRight: 8
                 }}>
-                    <Avatar
-                        id={address.toString({ testOnly: network.isTestnet })}
-                        size={32}
-                        borderWidth={0}
-                        hash={walletSettings?.avatar}
-                        theme={theme}
-                        knownWallets={knownWallets}
-                        backgroundColor={avatarColor}
-                    />
+                    {ledgerName ? (
+                        <Image
+                            style={{ width: 32, height: 32 }}
+                            source={require('@assets/ledger_device.png')}
+                        />
+                    ) : (
+                        <Avatar
+                            id={address.toString({ testOnly: network.isTestnet })}
+                            size={32}
+                            borderWidth={0}
+                            hash={walletSettings?.avatar}
+                            theme={theme}
+                            knownWallets={knownWallets}
+                            backgroundColor={avatarColor}
+                        />
+                    )}
                     <View style={{ position: 'absolute', top: -4, right: -4 }}>
-                        <HeaderSyncStatus size={12} />
+                        <HeaderSyncStatus size={12} isLedger={!!ledgerName}/>
                     </View>
                 </View>
             </Pressable>
@@ -76,7 +83,7 @@ export const SelectedWallet = memo(({ onLightBackground }: { onLightBackground?:
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
-                        {walletSettings?.name || `${network.isTestnet ? '[test]' : ''} ${t('common.wallet')} ${currentWalletIndex + 1}`}
+                        {ledgerName || walletSettings?.name || `${network.isTestnet ? '[test]' : ''} ${t('common.wallet')} ${currentWalletIndex + 1}`}
                     </Text>
                     <WalletAddress
                         address={address}

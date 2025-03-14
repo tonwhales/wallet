@@ -230,10 +230,6 @@ export const SettingsFragment = fragment(() => {
 
     }, [hasHoldersProducts]);
 
-    const onAccountPress = useCallback(() => {
-        navigation.navigate('AccountSelector');
-    }, []);
-
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
@@ -252,7 +248,7 @@ export const SettingsFragment = fragment(() => {
                 paddingVertical: 6,
                 marginLeft: 16,
             }}>
-                <SelectedWallet onLightBackground />
+                <SelectedWallet onLightBackground ledgerName={isLedger ? ledgerContext.ledgerName : undefined} />
             </View>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}

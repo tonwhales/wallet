@@ -83,7 +83,7 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
-                        {ledgerName || walletSettings?.name || `${network.isTestnet ? '[test]' : ''} ${t('common.wallet')} ${currentWalletIndex + 1}`}
+                        {ledgerName || walletSettings?.name || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`}
                     </Text>
                     <WalletAddress
                         address={address}

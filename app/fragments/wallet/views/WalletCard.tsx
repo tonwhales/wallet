@@ -40,7 +40,7 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
     const cardsBalance = useMemo(() => {
         const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);
 
-        return (cardsBalance * 10000n || 0n);
+        return (cardsBalance || 0n);
     }, [stakingBalance, holdersCards, price?.price?.usd]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);

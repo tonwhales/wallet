@@ -1,8 +1,9 @@
 import { Linking, Platform } from "react-native";
 import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
-import { sharedStoragePersistence } from "../storage/storage";
 import appsFlyer, { InitSDKOptions } from 'react-native-appsflyer';
+import { resolveSearchParams } from "./holders/resolveSearchParams";
+import { processSearchParams } from "./holders/queryParamsStore";
 
 let lastLink: string | null = null;
 let listener: (((link: string) => string | null) | null) = null;
@@ -15,57 +16,23 @@ export function handleLinkReceived(link: string) {
     }
 }
 
-function checkForCampaignId(uri: string) {
-    try {
-        const url = new URL(uri);
-        const campaignId = url.searchParams.get('campaignId')
-        if (campaignId) {
-            storeCampaignId(campaignId);
-        }
-    } catch { }
+function resolveAndProcessLink(link: string) {
+    const params = resolveSearchParams(link);
+    processSearchParams(params);
+    handleLinkReceived(link);
 }
 
 // Fetch initial
 (async () => {
     let url = await Linking.getInitialURL();
     if (url) {
-        checkForCampaignId(url);
-        handleLinkReceived(url);
+        resolveAndProcessLink(url);
     }
 })();
 
-const branchCampaignKey = 'branch-campaign';
-const campaignKey = 'campaignId-key';
-
-function clearBranchCampaignId() {
-    sharedStoragePersistence.delete(branchCampaignKey);
-}
-
-export function getCampaignId(): string | undefined {
-    const branch = sharedStoragePersistence.getString(branchCampaignKey);
-    if (branch) {
-        clearBranchCampaignId();
-        storeCampaignId(branch);
-        return branch;
-    }
-    return sharedStoragePersistence.getString(campaignKey);
-}
-
-export function storeCampaignId(campaignId: string) {
-    sharedStoragePersistence.set(campaignKey, campaignId);
-}
-
 function handleAttribution(deepLink: string) {
     const uri = `https://tonhub.com/${deepLink}`;
-    const url = new URL(uri);
-
-    const campaignId = url.searchParams.get('campaignId');
-
-    if (campaignId) {
-        storeCampaignId(campaignId);
-    }
-
-    handleLinkReceived(url.toString());
+    resolveAndProcessLink(uri);
 }
 
 appsFlyer.onDeepLink(res => {
@@ -89,8 +56,7 @@ appsFlyer.initSdk(appsFlyerConfig);
 
 // Subscribe for links
 Linking.addEventListener('url', (e) => {
-    checkForCampaignId(e.url);
-    handleLinkReceived(e.url);
+    resolveAndProcessLink(e.url);
 });
 
 const holdersPushDataSchema = z.object({

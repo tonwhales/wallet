@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Address } from "@ton/core";
 import { getStoreFront } from "../../../modules/StoreFront";
 import { getCountry } from 'react-native-localize';
-import { getCampaignId } from "../../../utils/CachedLinking";
+import { getCampaignId, getSearchParams } from "../../../utils/holders/queryParamsStore";
 
 const textWithTranslations = z.object({ en: z.string(), ru: z.string() });
 
@@ -36,6 +36,7 @@ export async function fetchAddressInviteCheck(address: string, isTestnet: boolea
   const storeFrontCode = getStoreFront();
   const region = { countryCode, storeFrontCode };
   const campaignId = getCampaignId();
+  const storedReferrerParams = getSearchParams();
 
   let res = await axios.post(
     `https://${endpoint}/v2/invite/wallet/check/v2`,
@@ -43,7 +44,8 @@ export async function fetchAddressInviteCheck(address: string, isTestnet: boolea
       wallet: formattedAddress,
       network: isTestnet ? "ton-testnet" : "ton-mainnet",
       region: region,
-      campaignId
+      campaignId,
+      campaignParams: storedReferrerParams
     }
   );
 

@@ -46,7 +46,6 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
     const specialJetton = useSpecialJetton(address);
     const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
     const [isWalletMode] = useAppMode(address);
-    const safeArea = useSafeAreaInsets();
 
     const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -174,10 +173,6 @@ const skeleton = (
 export const WalletFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
-    const ledgerContext = useLedgerTransport();
-    useEffect(() => {
-        ledgerContext?.setAddr({ address: 'EQDSUWCZ-o3pqV4-0Fb2NtgykQcb1Hz4cnXJEnKUozspkuUK' })
-    }, [])
 
     useEffect(() => {
         if (!selectedAcc) {

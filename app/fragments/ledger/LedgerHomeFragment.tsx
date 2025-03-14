@@ -5,7 +5,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { t } from "../../i18n/t";
 import { View, Platform, RefreshControl } from "react-native";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
-import { useHoldersAccountStatus, useLiquidStakingBalance, useNetwork, useStaking, useSyncState, useTheme, useWalletCardLayoutHelper } from "../../engine/hooks";
+import { useHoldersAccountStatus, useNetwork, useSyncState, useTheme, useWalletCardLayoutHelper } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
@@ -26,6 +26,7 @@ import { WalletActions } from "../wallet/views/WalletActions";
 import { JettonWalletFragment } from "../wallet/JettonWalletFragment";
 import Animated from "react-native-reanimated";
 import { WalletCard } from "../wallet/views/WalletCard";
+import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -50,7 +51,7 @@ export const LedgerHomeFragment = fragment(() => {
     const specialJetton = useSpecialJetton(address!);
     const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
     const { walletCardHeight, walletHeaderHeight, scrollHandler, scrollOffsetSv } = useWalletCardLayoutHelper()
-
+    const [isWalletMode] = useAppMode(address);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
 
@@ -133,7 +134,7 @@ export const LedgerHomeFragment = fragment(() => {
                 {Platform.OS === 'ios' && (
                     <View
                         style={{
-                            backgroundColor: theme.backgroundUnchangeable,
+                            backgroundColor: isWalletMode ? theme.backgroundUnchangeable : theme.cornflowerBlue,
                             height: 1000,
                             position: 'absolute',
                             top: -1000,

@@ -92,7 +92,7 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
                             <View
                                 style={{
                                     flexGrow: 1,
-                                    backgroundColor: theme.surfaceOnBg,
+                                    backgroundColor: theme.backgroundUnchangeable,
                                 }}
                             />
                         ) : (

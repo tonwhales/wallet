@@ -89,7 +89,7 @@ export const SettingsFragment = fragment(() => {
         }
         switchAppToWalletMode(false);
         navigation.navigateAndReplaceHome();
-    }, [needsEnrollment, isHoldersReady, network.isTestnet]);
+    }, [needsEnrollment, isHoldersReady, network.isTestnet, switchAppToWalletMode]);
 
     const onVersionTap = useMemo(() => {
         let count = 0;

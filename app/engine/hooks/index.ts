@@ -18,3 +18,4 @@ export { useSyncState } from './useSyncState';
 export { useAppVisible } from './useAppVisible';
 export { useIsV5Added as useV5IsAdded } from './useIsV5Added';
 export * from './useSecureScreen';
+export * from './wallet'

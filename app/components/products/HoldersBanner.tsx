@@ -364,7 +364,6 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
     const { content, onPress: onClick, id, isSettings, address } = props;
     const selectedAccount = useSelectedAccount();
     const appConfig = useAppConfig();
-    const theme = useTheme();
 
     const trackViews = appConfig?.features?.trackViews;
     const wallet = selectedAccount?.addressString;
@@ -404,13 +403,6 @@ export const HoldersBanner = memo((props: { onPress?: () => void, isSettings?: b
 
     return (
         <View style={{ marginTop: 16 }}>
-            {!isSettings && (
-                <View style={{ paddingHorizontal: 16, marginBottom: 14 }}>
-                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
-                        {t('products.holders.accounts.title')}
-                    </Text>
-                </View>
-            )}
             <Animated.View
                 entering={FadeInUp}
                 exiting={FadeOutDown}

@@ -17,6 +17,7 @@ import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAcc
 import { TransactionType } from "../../engine/types";
 import { HoldersAppFragment, HoldersAppParamsType } from "../holders/HoldersAppFragment";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
+import { HoldersSettings } from "../holders/components/HoldersSettings";
 
 const Tab = createBottomTabNavigator();
 
@@ -105,12 +106,7 @@ export const LedgerAppFragment = fragment(() => {
                 <Tab.Screen
                     options={{ title: t('home.more') }}
                     name={'LedgerSettings'}
-                    component={isWalletMode ? SettingsFragment : HoldersAppFragment}
-                    initialParams={{
-                        type: HoldersAppParamsType.Path,
-                        path: '/user/settings',
-                        query: {}
-                    }}
+                    component={isWalletMode ? SettingsFragment : HoldersSettings}
                 />
             </Tab.Navigator>
             <HintsPrefetcher address={addressString} />

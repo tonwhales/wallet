@@ -1,9 +1,9 @@
 import { memo } from "react";
 import { StyleProp, ViewStyle, View } from "react-native";
-import { ThemeType } from "../../../engine/state/theme";
-import { TypedNavigation } from "../../../utils/useTypedNavigation";
-import { WalletActionButton, WalletActionType } from "./WalletActionButton";
-import { ReceiveableSolanaAsset } from "../ReceiveFragment";
+import { ThemeType } from "../../../../engine/state/theme";
+import { TypedNavigation } from "../../../../utils/useTypedNavigation";
+import { WalletActionButton, WalletActionType } from "../WalletActionButton";
+import { ReceiveableSolanaAsset } from "../../ReceiveFragment";
 
 export const SolanaWalletActions = memo(({
   style,

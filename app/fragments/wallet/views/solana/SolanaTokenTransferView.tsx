@@ -1,18 +1,18 @@
 import React, { memo } from "react";
 import { View, StyleSheet, Text, Pressable } from "react-native";
-import { Typography } from "../../../components/styles";
-import { AddressInputAvatar } from "../../../components/address/AddressInputAvatar";
-import { avatarHash } from "../../../utils/avatarHash";
-import { avatarColors } from "../../../components/avatar/Avatar";
-import { t } from "../../../i18n/t";
-import { ValueComponent } from "../../../components/ValueComponent";
-import { formatTime } from "../../../utils/dates";
+import { Typography } from "../../../../components/styles";
+import { AddressInputAvatar } from "../../../../components/address/AddressInputAvatar";
+import { avatarHash } from "../../../../utils/avatarHash";
+import { avatarColors } from "../../../../components/avatar/Avatar";
+import { t } from "../../../../i18n/t";
+import { ValueComponent } from "../../../../components/ValueComponent";
+import { formatTime } from "../../../../utils/dates";
 import { toNano } from "@ton/core";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
-import { SolanaAccountData, SolanaTokenTransfer, SolanaTransaction } from "../../../engine/api/solana/fetchSolanaTransactions";
-import { useTheme } from "../../../engine/hooks/theme";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useSolanaToken } from "../../../engine/hooks";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../../../utils/withDecimals";
+import { SolanaAccountData, SolanaTokenTransfer, SolanaTransaction } from "../../../../engine/api/solana/fetchSolanaTransactions";
+import { useTheme } from "../../../../engine/hooks/theme";
+import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
+import { useSolanaToken } from "../../../../engine/hooks";
 
 export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, item }: { transfer: SolanaTokenTransfer, owner: string, accountData: SolanaAccountData, item: SolanaTransaction }) => {
   const { fromUserAccount, toTokenAccount, tokenAmount, mint } = transfer;

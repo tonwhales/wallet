@@ -11,7 +11,9 @@ import { AddressInputAvatar } from "./AddressInputAvatar";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { Typography } from "../styles";
 import { SolanaAddressInput, SolanaAddressInputRef, SolanaAddressInputState } from "./SolanaAddressInput";
-import { isSolanaAddress } from "../../utils/solana/address";
+import { isSolanaAddress, solanaAddressFromPublicKey } from "../../utils/solana/address";
+import { useAppState } from "../../engine/hooks";
+import { SolanaInputAction } from "./SolanaAddressInput";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -20,7 +22,6 @@ type SolanaTransferAddressInputProps = {
     initTarget: string,
     onFocus: (index: number) => void,
     onSubmit: (index: number) => void,
-    onQRCodeRead: (value: string) => void,
     isSelected?: boolean,
     onNext?: () => void,
     navigation: TypedNavigation,
@@ -29,8 +30,9 @@ type SolanaTransferAddressInputProps = {
 }
 
 export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransferAddressInputProps, ref: ForwardedRef<SolanaAddressInputRef>) => {
-    const { index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, navigation, setAddressInputState, autoFocus } = props;
+    const { index, initTarget, onFocus, onSubmit, isSelected, navigation, setAddressInputState, autoFocus } = props;
     const theme = useTheme();
+    const appState = useAppState();
 
     const [state, setState] = useState<SolanaAddressInputState>({
         input: initTarget,
@@ -58,30 +60,33 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
         }
     }, [target]);
 
-    // const holdersAccounts = useHoldersAccounts(account).data?.accounts ?? [];
-    // const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
-
     const avatarColorHash = avatarHash(validAddress ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
-    // TODO map other wallets to solana addresses
-    // const myWallets = useMemo(() => {
-    //     return appState.addresses
-    //         .map((acc, index) => ({
-    //             address: acc.address,
-    //             addressString: acc.address.toString({ testOnly: isTestnet }),
-    //             index: index
-    //         }))
-    //         .filter((acc) => !acc.address.equals(account))
-    // }, [appState.addresses]);
+    const myWallets = useMemo(() => {
+        return appState.addresses.map((acc, index) => {
+            const pubKey = acc.publicKey;
+            return solanaAddressFromPublicKey(pubKey);
+        });
+    }, [appState.addresses]);
 
-    // const own = !!myWallets.find((acc) => {
-    //     if (validAddress) {
-    //         return acc.address.equals(validAddress);
-    //     }
-    // });
+    const own = !!myWallets.find((acc) => {
+        if (validAddress) {
+            return validAddress === acc.toString();
+        }
+    });
 
     const onFocusCallback = useCallback(() => onFocus(index), [index]);
+
+    const onQRCodeRead = useCallback((value: string) => {
+        if (isSolanaAddress(value)) {
+            (ref as RefObject<SolanaAddressInputRef>)?.current?.inputAction({
+                type: SolanaInputAction.InputTarget,
+                input: value,
+                target: value
+            });
+        }
+    }, []);
 
     const select = useCallback(() => {
         (ref as RefObject<ATextInputRef>)?.current?.focus();
@@ -192,14 +197,6 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                         </PerfText>
                     </Animated.View>
                 )}
-                {/* <HoldersAccountsSearch
-                    theme={theme}
-                    onSelect={onAddressSearchItemSelected}
-                    query={query}
-                    holdersAccounts={holdersAccounts}
-                    owner={account}
-                    isLedger={isLedger}
-                /> */}
             </View>
         </View>
     );

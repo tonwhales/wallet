@@ -121,10 +121,6 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
 
     const continueDisabled = !order;
 
-    const onQRCodeRead = useCallback((src: string) => {
-        // TODO
-    }, []);
-
     const doSendData = usePrevious({
         owner: owner,
         balance,
@@ -173,7 +169,6 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
         amountError,
         continueDisabled,
         onAddAll,
-        onQRCodeRead,
         doSend,
         symbol: accountToken?.symbol ?? 'SOL',
         decimals: accountToken?.decimals ?? 9,

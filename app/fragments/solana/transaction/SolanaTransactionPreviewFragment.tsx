@@ -185,7 +185,7 @@ const SolanaTransactionPreview = fragment(() => {
                         </PerfView>
                     </Pressable>
                     <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                    <SolanaTxInfo {...transaction} />
+                    <SolanaTxInfo signature={transaction.signature} />
                 </ItemGroup>
             </ScrollView>
             {!!transferParams && (

@@ -34,7 +34,6 @@ const SolanaSimpleTransferComponent = () => {
         commentString,
         continueDisabled,
         onAddAll,
-        onQRCodeRead,
         setAddressInputState,
         setAmount,
         setComment,
@@ -122,7 +121,7 @@ const SolanaSimpleTransferComponent = () => {
         <SimpleTransferLayout
             ref={scrollRef}
             headerComponent={<SimpleTransferHeader {...header} />}
-            addressComponent={<SolanaSimpleTransferAddress ref={addressRef} {...{ initTarget: params?.target, setAddressInputState, onInputSubmit, onInputFocus, onQRCodeRead, isActive: selected === 'address' }} />}
+            addressComponent={<SolanaSimpleTransferAddress ref={addressRef} {...{ initTarget: params?.target, setAddressInputState, onInputSubmit, onInputFocus, isActive: selected === 'address' }} />}
             amountComponent={<SimpleTransferAmount ref={amountRef} {...{ symbol, decimals, balance, onAddAll, onInputFocus, amount, setAmount, amountError, logoURI }} />}
             commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', onInputFocus, setComment, maxHeight: commentMaxHeight }} />}
             scrollEnabled={!selectedInput}

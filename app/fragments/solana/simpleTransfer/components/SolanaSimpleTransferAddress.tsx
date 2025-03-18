@@ -8,7 +8,6 @@ type Props = {
     onInputFocus: (index: number) => void
     setAddressInputState: Dispatch<SetStateAction<SolanaAddressInputState>>;
     onInputSubmit: () => void
-    onQRCodeRead: (src: string) => void;
     isActive: boolean;
 }
 
@@ -17,7 +16,6 @@ export const SolanaSimpleTransferAddress = memo(forwardRef(({
     onInputFocus,
     setAddressInputState,
     onInputSubmit,
-    onQRCodeRead,
     isActive
 }: Props, ref) => {
     const navigation = useTypedNavigation();
@@ -32,7 +30,6 @@ export const SolanaSimpleTransferAddress = memo(forwardRef(({
             onFocus={onInputFocus}
             setAddressInputState={setAddressInputState}
             onSubmit={onInputSubmit}
-            onQRCodeRead={onQRCodeRead}
             isSelected={isActive}
             navigation={navigation}
             autoFocus={isActive}

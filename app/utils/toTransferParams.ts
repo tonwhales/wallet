@@ -4,6 +4,7 @@ import { SimpleTransferParams } from "../fragments/secure/simpleTransfer";
 import { TransferFragmentParams } from "../fragments/secure/transfer/TransferFragment";
 import { fromBnWithDecimals } from "./withDecimals";
 import { TonTransaction } from "../engine/types";
+import { SolanaSimpleTransferParams } from "../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment";
 
 export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentParams & { type: 'transfer' });
 

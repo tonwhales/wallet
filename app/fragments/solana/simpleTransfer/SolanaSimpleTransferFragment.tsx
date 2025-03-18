@@ -18,7 +18,7 @@ import { t } from "../../../i18n/t";
 export type SolanaSimpleTransferParams = {
     target?: string | null,
     comment?: string | null,
-    amount?: bigint | null,
+    amount?: string | null,
     token?: string | null
 }
 

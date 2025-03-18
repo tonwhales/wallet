@@ -17,6 +17,23 @@ const nativeTransferScheme = z.object({
     amount: z.number(),
 });
 
+const accountDataScheme = z.array(z.object({
+    account: z.string(),
+    nativeBalanceChange: z.number(),
+    tokenBalanceChanges: z.array(z.object({
+        userAccount: z.string(),
+        tokenAccount: z.string(),
+        rawTokenAmount: z.object({
+            amount: z.number().optional(),
+            decimals: z.number().optional(),
+            uiAmount: z.number().optional(),
+            uiAmountString: z.string().optional(),
+        }).optional(),
+    })),
+}));
+
+export type SolanaAccountData = z.infer<typeof accountDataScheme>;
+
 export type SolanaTokenTransfer = z.infer<typeof tokenTransferScheme>;
 export type SolanaNativeTransfer = z.infer<typeof nativeTransferScheme>;
 
@@ -33,20 +50,7 @@ const txScheme = z.object({
     timestamp: z.number(),
     tokenTransfers: z.array(tokenTransferScheme),
     nativeTransfers: z.array(nativeTransferScheme),
-    accountData: z.array(z.object({
-        account: z.string(),
-        nativeBalanceChange: z.number(),
-        tokenBalanceChanges: z.array(z.object({
-            userAccount: z.string(),
-            tokenAccount: z.string(),
-            rawTokenAmount: z.object({
-                amount: z.number().optional(),
-                decimals: z.number().optional(),
-                uiAmount: z.number().optional(),
-                uiAmountString: z.string().optional(),
-            }).optional(),
-        })),
-    })),
+    accountData: accountDataScheme,
     transactionError: z.string().nullable(),
     instructions: z.array(z.object({
         accounts: z.array(z.string()),

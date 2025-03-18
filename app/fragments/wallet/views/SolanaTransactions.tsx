@@ -1,5 +1,5 @@
-import React, { memo, ReactNode, useMemo } from "react";
-import { View, FlatList, StyleSheet, RefreshControl, Text, SectionList, SectionListData, Pressable } from "react-native";
+import React, { memo, useCallback, useMemo } from "react";
+import { View, StyleSheet, Text, SectionList, SectionListData, Pressable } from "react-native";
 import { ThemeType } from "../../../engine/state/theme";
 import { EdgeInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../components/styles";
@@ -13,9 +13,8 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { formatDate, getDateKey, formatTime } from "../../../utils/dates";
 import { SolanaTransaction } from "../../../engine/api/solana/fetchSolanaTransactions";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
-import { toNano } from "@ton/core";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
+import { SolanaTokenTransferView } from "./SolanaTokenTransferView";
 
 type SolanaTransactionsProps = {
   theme: ThemeType;
@@ -73,7 +72,7 @@ export const SolanaTransactions = memo(({
     <TransactionsSectionHeader theme={theme} title={section.section.title} />
   );
 
-  const renderItem = ({ item }: { item: SolanaTransaction }) => {
+  const renderItem = useCallback(({ item }: { item: SolanaTransaction }) => {
     const { description, type, source, fee, feePayer, signature, slot, timestamp, tokenTransfers, nativeTransfers, accountData } = item;
 
     return (
@@ -152,87 +151,17 @@ export const SolanaTransactions = memo(({
           )
         })}
         {tokenTransfers?.map((tx, index) => {
-          const { fromUserAccount, toTokenAccount, tokenAmount, } = tx;
-          const kind: 'in' | 'out' = fromUserAccount === owner ? 'out' : 'in';
-          const op = kind === 'in' ? t('tx.received') : t('tx.sent');
-          const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
-          const avatarColor = avatarColors[avatarHash(fromUserAccount, avatarColors.length)];
-          const toAccount = accountData?.find((acc) => acc.account === toTokenAccount);
-          const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === toTokenAccount)?.userAccount;
-          const address = kind === 'in' ? fromUserAccount : toAddress;
-          const amount = fromBnWithDecimals(toNano(tokenAmount), 9);
-
-          const navigate = () => {
-            navigation.navigateSolanaTransaction({
-              owner,
-              transaction: item,
-              transfer: { data: tx, type: 'token' }
-            });
-          }
-
-          return (
-            <Pressable
-              onPress={navigate}
-              style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, flexDirection: 'row', alignItems: 'center', gap: 8 })}
-            >
-              <View style={{
-                width: 48, height: 48, borderRadius: 24,
-                backgroundColor: theme.surfaceOnBg,
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                <AddressInputAvatar
-                  size={46}
-                  theme={theme}
-                  isOwn={false}
-                  markContact={false}
-                  friendly={address}
-                  avatarColor={avatarColor}
-                  knownWallets={{}}
-                  hash={null}
-                />
-              </View>
-              <View style={{ flex: 1, marginRight: 4 }}>
-                <Text
-                  style={[
-                    { color: theme.textPrimary, flexShrink: 1 },
-                    Typography.semiBold17_24
-                  ]}
-                  ellipsizeMode={'tail'}
-                  numberOfLines={1}
-                >
-                  {op}
-                </Text>
-                <Text style={[
-                  { color: theme.textSecondary, marginRight: 8, marginTop: 2 },
-                  Typography.regular15_20
-                ]}>
-                  {address?.slice(0, 4)}...{address?.slice(-4)}
-                  {' • '}
-                  {formatTime(timestamp)}
-                </Text>
-              </View>
-              <View>
-                <Text style={[{ color: amountColor, marginRight: 2 }, Typography.semiBold17_24]}
-                  numberOfLines={1}>
-                  {kind === 'in' ? '+' : '-'}
-                  <ValueComponent
-                    precision={2}
-                    // TODO: get decimals from token
-                    decimals={6}
-                    value={toBnWithDecimals(amount, 6)}
-                    // TODO: get symbol from token
-                    suffix=" USDC"
-                    centFontStyle={{ fontSize: 15 }}
-                  />
-                </Text>
-              </View>
-            </Pressable>
-          )
+          return <SolanaTokenTransferView
+            key={index}
+            transfer={tx}
+            owner={owner}
+            accountData={accountData}
+            item={item}
+          />
         })}
       </View >
     );
-  };
+  }, [navigation, owner, theme]);
 
   return (
     <SectionList

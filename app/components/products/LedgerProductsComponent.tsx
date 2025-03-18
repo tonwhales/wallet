@@ -20,6 +20,7 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { HoldersProductComponent } from "./HoldersProductComponent";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent";
+import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 
 export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
     const theme = useTheme();
@@ -32,6 +33,7 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
     const isHoldersReady = useIsConnectAppReady(url);
     const inviteCheck = useIsHoldersInvited(address, testOnly);
     const ledgerContext = useLedgerTransport();
+    const [isWalletMode] = useAppMode(address);
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
@@ -107,33 +109,34 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
                             />
                         )
                 )}
-
-                <HoldersProductComponent
-                    holdersAccStatus={holdersAccStatus}
-                    isLedger
-                />
-
-                <SavingsProduct
-                    address={address}
-                    isLedger
-                />
-
-                <View style={{ marginTop: 4 }}>
-                    <StakingProductComponent
-                        isLedger
-                        address={address}
-                    />
-                </View>
-                <LedgerJettonsProductComponent
-                    address={address}
-                    testOnly={testOnly}
-                />
+                {isWalletMode ? (
+                    <>
+                        <SavingsProduct
+                            address={address}
+                            isLedger
+                        />
+                        <StakingProductComponent
+                            isLedger
+                            address={address}
+                        />
+                        <LedgerJettonsProductComponent
+                            address={address}
+                            testOnly={testOnly}
+                        />
+                    </>
+                ) : (
+                    <>
+                        <HoldersProductComponent
+                            holdersAccStatus={holdersAccStatus}
+                            isLedger
+                        />
+                        <HoldersHiddenProductComponent
+                            holdersAccStatus={holdersAccStatus}
+                            isLedger
+                        />
+                    </>
+                )}
             </View>
-
-            <HoldersHiddenProductComponent
-                holdersAccStatus={holdersAccStatus}
-                isLedger
-            />
         </View>
     );
 });

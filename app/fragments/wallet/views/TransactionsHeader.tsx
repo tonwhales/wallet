@@ -16,49 +16,6 @@ type TransactionsHeaderProps = {
     address: string | Address
 }
 
-const TypeChip = ({ address }: { address: string | Address }) => {
-    const { isTestnet } = useNetwork();
-    const theme = useTheme();
-    const navigation = useTypedNavigation();
-    const addressString = typeof address === 'string' ? address : address.toString({ testOnly: isTestnet });
-    const [filters, setFilter] = useTransactionsFilter(addressString);
-
-    const title = !!filters?.type ? t(`transactions.filter.${filters.type}`) : t('transactions.filter.any');
-    const color = (!filters?.type || filters.type === TransactionType.ANY) ? theme.surfaceOnBg : theme.accent;
-    const isActive = !!filters?.type && filters?.type !== TransactionType.ANY;
-    const textColor = isActive ? theme.textUnchangeable : theme.textPrimary;
-    const tintColor = isActive ? theme.textUnchangeable : theme.iconPrimary;
-
-    const openFilter = () => {
-        navigation.navigateTransactionsFilter({ address: addressString, type: 'type' });
-    }
-    const clear = () => {
-        setFilter((prev) => ({ ...prev, type: TransactionType.ANY }));
-    }
-
-    return (
-        <Pressable
-            style={[styles.chip, { backgroundColor: color }]}
-            onPress={openFilter}
-        >
-            <Image style={{ height: 16, width: 16, tintColor }} source={require('@assets/ic-funnel.png')} />
-            <Text style={[Typography.medium15_20, { color: textColor }]}>{title}</Text>
-            {isActive && (
-                <Pressable
-                    style={[styles.clear, { marginRight: -8 }]}
-                    onPress={clear}
-                    hitSlop={4}
-                >
-                    <Image
-                        style={styles.clear}
-                        source={require('@assets/ic-filter-clear.png')}
-                    />
-                </Pressable>
-            )}
-        </Pressable>
-    );
-}
-
 const HoldersChip = ({ address }: { address: string | Address }) => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
@@ -118,9 +75,8 @@ const TransactionsFilter = ({ address }: { address: string | Address }) => {
         <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ padding: 16, flexDirection: 'row', gap: 8 }}
+            contentContainerStyle={{ paddingHorizontal: 16, flexDirection: 'row', gap: 8 }}
         >
-            <TypeChip address={address} />
             <HoldersChip address={address} />
         </ScrollView>
     );
@@ -161,6 +117,7 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 16,
         gap: 6, justifyContent: 'center', alignItems: 'center',
+        marginVertical: 16
     },
     clear: {
         height: 20, width: 20,

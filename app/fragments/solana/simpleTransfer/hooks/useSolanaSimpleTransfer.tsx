@@ -86,11 +86,15 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
         return {
             type: 'solana',
             target: targetAddressValid[0],
-            token,
+            token: accountToken ? {
+                mint: accountToken.address,
+                symbol: accountToken.symbol,
+                decimals: accountToken.decimals
+            } : null,
             amount: validAmount,
             comment: commentString,
         }
-    }, [targetAddressValid[0], validAmount, commentString, token]);
+    }, [targetAddressValid[0], validAmount, commentString, accountToken]);
 
     const amountError = useMemo(() => {
         if (amount.length === 0) {

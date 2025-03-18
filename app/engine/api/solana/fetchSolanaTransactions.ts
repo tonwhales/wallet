@@ -70,13 +70,13 @@ const txScheme = z.object({
     })),
 });
 
-export type SolanaTx = z.infer<typeof txScheme>;
+export type SolanaTransaction = z.infer<typeof txScheme>;
 
 const txResponseScheme = z.array(txScheme);
 
 export type SolanaTransactionsQuery = { limit?: number, before?: string, until?: string, commitment?: string, source?: string, type?: string, mint?: string };
 
-export async function fetchSolanaTransactions(address: string, isTestnet: boolean, query: SolanaTransactionsQuery) {
+export async function fetchSolanaTransactions(address: string, isTestnet: boolean, query: SolanaTransactionsQuery): Promise<SolanaTransaction[]> {
     const network = isTestnet ? "devnet" : "mainnet";
     const endpoint = `${whalesConnectEndpoint}/solana/transactions/${address}/${network}`;
     const url = new URL(endpoint);

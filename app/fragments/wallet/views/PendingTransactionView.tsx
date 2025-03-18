@@ -51,7 +51,7 @@ export const PendingTransactionView = memo(({
     const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
-    
+
     const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
         if (targetContract?.kind === 'dedust-vault') {
             return 'dedust';
@@ -152,7 +152,6 @@ export const PendingTransactionView = memo(({
                             avatarId={targetFriendly ?? 'batch'}
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={knownWallets}
-                            theme={theme}
                             forceAvatar={forceAvatar}
                         />
                     ) : (

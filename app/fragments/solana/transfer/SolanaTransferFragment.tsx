@@ -4,7 +4,7 @@ import { useParams } from "../../../utils/useParams";
 import { SolanaOrder } from "../../secure/ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClient, useSolanaSelectedAccount, useSolanaToken, useTheme } from "../../../engine/hooks";
+import { useSolanaClient, useSolanaSelectedAccount, useSolanaToken, useTheme, useNetwork, usePendingSolanaTransactions, useRegisterPendingSolana } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -34,7 +34,8 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
-    const token = useSolanaToken(solanaAddress, order.token);
+    const token = useSolanaToken(solanaAddress, order.token?.mint);
+    const registerPending = useRegisterPendingSolana(solanaAddress);
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);
@@ -47,13 +48,14 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
 
     const doSend = useCallback(async () => {
         try {
-            await sendSolanaTransfer({
+            const pending = await sendSolanaTransfer({
                 solanaClient,
                 theme,
                 authContext,
                 order,
                 sender: solanaAddress
             });
+            registerPending(pending);
         } catch (error) {
             // sendAndConfirmTransaction on devnet will fail with "Subscriptions unsupported for this network"
             // TODO: handle error
@@ -61,7 +63,7 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
         }
         // Reset stack to root
         navigation.popToTop();
-    }, [theme, authContext, order, solanaAddress, navigation]);
+    }, [theme, authContext, order, solanaAddress, navigation, registerPending]);
 
     const avatarColorHash = avatarHash(order.target, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -128,14 +130,6 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
                         </View>
                     </ItemGroup>
 
-                    {/* {!!holdersOp && (
-                        <HoldersOpView
-                            theme={theme}
-                            op={holdersOp}
-                            targetKind={targetContract?.kind}
-                        />
-                    )} */}
-
                     <ItemGroup style={{ marginBottom: 16 }}>
                         <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                             <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
@@ -143,15 +137,6 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
                             </Text>
                             <View style={{ alignItems: 'center', flexDirection: 'row', }}>
                                 <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                    {/* {!!from.name && (
-                                        <Text
-                                            style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.regular17_24]}
-                                            numberOfLines={1}
-                                            ellipsizeMode={'tail'}
-                                        >
-                                            {from.name + ' '}
-                                        </Text>
-                                    )} */}
                                     <Text style={{ color: theme.textPrimary }}>
                                         <SolanaWalletAddress
                                             address={solanaAddress}

@@ -103,7 +103,7 @@ export const SolanaWalletAddress = memo((props: {
 
     return (
         <>
-            {!props.disableContextMenu && (
+            {!props.disableContextMenu ? (
                 <ContextMenu
                     actions={[
                         { title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined },
@@ -164,13 +164,12 @@ export const SolanaWalletAddress = memo((props: {
                         )}
                     </View>
                 </ContextMenu>
-            )}
-            {props.disableContextMenu && (
+            ) : (
                 <Pressable
                     style={({ pressed }) => {
                         return [
                             props.style,
-                            { opacity: (pressed && props.copyOnPress) ? 0.5 : 1, }
+                            { opacity: (pressed && props.copyOnPress) ? 0.5 : 1 }
                         ]
                     }}
                     onPress={props.copyOnPress ? onCopy : undefined}

@@ -3,6 +3,7 @@ import { Address, Cell } from "@ton/core";
 import { Jetton } from "../types";
 import { parseBody } from "../transactions/parseWalletTransaction";
 import { TransferEstimate } from "../../fragments/secure/transfer/TransferFragment";
+import { Blockhash } from "@solana/web3.js";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell, stateInit?: Cell | null }
@@ -93,5 +94,31 @@ export function ledgerOrderToPendingTransactionBody(payload: LedgerTransferPaylo
 
 export const pendingTransactionsState = atomFamily<PendingTransaction[], string>({
     key: "pendingTransactionsState",
+    default: (address) => [],
+});
+
+export type PendingSolanaTransaction = {
+    id: string,
+    time: number,
+    status: PendingTransactionStatus,
+    lastBlockHash: {
+        blockhash: Blockhash,
+        lastValidBlockHeight: number
+    },
+    tx: {
+        comment?: string | null,
+        amount: bigint,
+        token: {
+            mint: string,
+            symbol: string,
+            decimals: number
+        } | null | undefined,
+        target: string,
+        sender: string
+    }
+}
+
+export const pendingSolanaTransactionsState = atomFamily<PendingSolanaTransaction[], string>({
+    key: "pendingSolanaTransactionsState",
     default: (address) => [],
 });

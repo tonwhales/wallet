@@ -35,7 +35,6 @@ export function useSolanaAccountWatcher() {
                         return queryKey[0] === 'solana' && queryKey[1] === address.toString();
                     },
                 });
-                console.log('message', JSON.stringify(data));
             });
         }
 

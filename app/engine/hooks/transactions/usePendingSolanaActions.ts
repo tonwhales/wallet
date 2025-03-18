@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
-import { usePendingTransactions } from "..";
+import { usePendingSolanaTransactions } from "..";
 import { PendingTransactionStatus } from "../../state/pending";
 
-export function usePendingActions(address: string, isTestnet: boolean) {
-    const [pending, setPending] = usePendingTransactions(address, isTestnet);
+export function usePendingSolanaActions(address: string, isTestnet: boolean) {
+    const [pending, setPending] = usePendingSolanaTransactions(address, isTestnet);
     const setPendingRef = useRef(setPending);
 
     useEffect(() => {
@@ -19,16 +19,24 @@ export function usePendingActions(address: string, isTestnet: boolean) {
         });
     }, []);
 
-    const markAsTimedOut = useCallback((id: string) => {
+    const setStatus = (id: string, status: PendingTransactionStatus) => {
         setPendingRef.current((prev) => {
             return prev.map((tx) => {
                 if (tx.id === id) {
-                    return { ...tx, status: PendingTransactionStatus.TimedOut };
+                    return { ...tx, status };
                 }
                 return tx;
             });
         });
+    };
+
+    const markAsTimedOut = useCallback((id: string) => {
+        setStatus(id, PendingTransactionStatus.TimedOut);
     }, []);
 
-    return { state: pending, remove, markAsTimedOut };
+    const markAsSent = useCallback((id: string) => {
+        setStatus(id, PendingTransactionStatus.Sent);
+    }, []);
+
+    return { state: pending, remove, markAsTimedOut, markAsSent };
 }

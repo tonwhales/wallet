@@ -11,7 +11,7 @@ import { avatarColors } from "../../../components/avatar/Avatar";
 import { t } from "../../../i18n/t";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { formatDate, getDateKey, formatTime } from "../../../utils/dates";
-import { SolanaTx } from "../../../engine/api/solana/fetchSolanaTransactions";
+import { SolanaTransaction } from "../../../engine/api/solana/fetchSolanaTransactions";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 import { toNano } from "@ton/core";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
@@ -20,7 +20,7 @@ import { TypedNavigation } from "../../../utils/useTypedNavigation";
 type SolanaTransactionsProps = {
   theme: ThemeType;
   navigation: TypedNavigation;
-  txs: SolanaTx[];
+  txs: SolanaTransaction[];
   hasNext: boolean;
   address: string;
   safeArea: EdgeInsets;
@@ -53,7 +53,7 @@ export const SolanaTransactions = memo(({
 }: SolanaTransactionsProps) => {
 
   const { transactionsSections } = useMemo(() => {
-    const sectioned = new Map<string, { title: string, data: SolanaTx[] }>();
+    const sectioned = new Map<string, { title: string, data: SolanaTransaction[] }>();
     for (let i = 0; i < txs.length; i++) {
       const tx = txs[i];
       const time = tx.timestamp;
@@ -73,7 +73,7 @@ export const SolanaTransactions = memo(({
     <TransactionsSectionHeader theme={theme} title={section.section.title} />
   );
 
-  const renderItem = ({ item }: { item: SolanaTx }) => {
+  const renderItem = ({ item }: { item: SolanaTransaction }) => {
     const { description, type, source, fee, feePayer, signature, slot, timestamp, tokenTransfers, nativeTransfers, accountData } = item;
 
     return (

@@ -133,8 +133,6 @@ export const SimpleTransferAmount = memo(forwardRef(({
         isLedger
     }), [onAssetSelected, jetton?.master, isLedger])
 
-    console.log('balance', balance);
-
     const jettonButton = useMemo(() => (
         <Pressable
             style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}

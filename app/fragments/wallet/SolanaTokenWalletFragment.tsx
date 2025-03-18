@@ -20,6 +20,7 @@ import { solanaWalletFragmentStyles } from "./SolanaWalletFragment";
 import { toNano } from "@ton/core";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
+import { PendingSolanaTransactions } from "./views/PendingSolanaTransactions";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
@@ -137,7 +138,11 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                         }
                     }}
                 />
-                {/* Placeholder for pending transactions */}
+                <PendingSolanaTransactions
+                    address={owner}
+                    viewType="main"
+                    filter={(tx) => tx.tx.token?.mint === mint}
+                />
                 <View style={{ marginTop: 16 }} />
             </View>
         </View>

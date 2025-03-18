@@ -74,41 +74,12 @@ export class SolanaAccountWatcher extends EventEmitter {
                 logger.warn(e);
                 return;
             }
-
-            // TODO: validate message
-            console.log('solana-acc message', ev.data);
-            //
+            
             this.emit('message', parsed);
 
             // Reset WS failures counter
             this.#wsFailures = 0;
             this.#wsConnected = true;
-
-            // Process
-            // if (!this.#cursor) {
-            //     logger.log('Session started from #' + parsed.seqno);
-            //     this.#cursor = { first: { seqno: parsed.seqno }, current: { seqno: parsed.seqno } };
-            //     this.emit('new_session', { seqno: parsed.seqno });
-            // } else {
-
-            //     if (parsed.seqno <= this.#cursor.current.seqno) {
-            //         // Old block
-            //         if (parsed.seqno !== this.#cursor.current.seqno) {
-            //             logger.warn('Ignoring block index. Received #' + parsed.seqno + ', current cursor #' + this.#cursor.current.seqno);
-            //         }
-            //     } else if (parsed.seqno > this.#cursor.current.seqno + 1) {
-            //         // Hole detected
-            //         logger.warn('Session lost. Restarting from #' + parsed.seqno);
-            //         this.#cursor = { first: { seqno: parsed.seqno }, current: { seqno: parsed.seqno } };
-            //         this.emit('new_session', { seqno: parsed.seqno });
-
-            //     } else {
-            //         // Sequental
-            //         logger.log('Valid block #' + parsed.seqno);
-            //         this.#cursor.current = { seqno: parsed.seqno };
-            //         this.emit('block', parsed);
-            //     }
-            // }
 
             // Lock release
             if (this.#connectingLock) {

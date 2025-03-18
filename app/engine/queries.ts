@@ -96,4 +96,5 @@ export const Queries = {
     SolanaTokens: (address: string, network: 'mainnet' | 'devnet') => (['solana', address, 'tokens', network]),
     SolanaTransactions: (address: string, network: 'mainnet' | 'devnet') => (['solana', address, 'transactions', network]),
     SolanaTokenTransactions: (address: string, mint: string, network: 'mainnet' | 'devnet') => (['solana', address, 'transactions', mint, network]),
+    SolanaTransactionStatus: (signature: string, network: 'mainnet' | 'devnet') => (['solana', 'transaction', signature, network])
 }

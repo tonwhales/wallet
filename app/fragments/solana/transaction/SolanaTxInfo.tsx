@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo } from "react";
 import { Platform, Pressable, Share, Image } from "react-native";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import * as ScreenCapture from 'expo-screen-capture';
-import { SolanaTx } from "../../../engine/api/solana/fetchSolanaTransactions";
+import { SolanaTransaction } from "../../../engine/api/solana/fetchSolanaTransactions";
 import { useNetwork, useTheme } from "../../../engine/hooks";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { t } from "../../../i18n/t";
@@ -12,7 +12,7 @@ import { PerfView } from "../../../components/basic/PerfView";
 import { PerfText } from "../../../components/basic/PerfText";
 import { Typography } from "../../../components/styles";
 
-export const SolanaTxInfo = memo((solanaTx: SolanaTx) => {
+export const SolanaTxInfo = memo((solanaTx: SolanaTransaction) => {
     const { showActionSheetWithOptions } = useActionSheet();
     const { isTestnet } = useNetwork();
     const toaster = useToaster();

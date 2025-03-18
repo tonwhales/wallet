@@ -1,6 +1,6 @@
 import { View, Text, Platform, ScrollView, Pressable } from "react-native";
 import { fragment } from "../../../fragment";
-import { SolanaTransfer, SolanaTx, SolanaTokenTransfer, SolanaNativeTransfer } from "../../../engine/api/solana/fetchSolanaTransactions";
+import { SolanaTransfer, SolanaTransaction, SolanaTokenTransfer, SolanaNativeTransfer } from "../../../engine/api/solana/fetchSolanaTransactions";
 import { useTheme } from "../../../engine/hooks/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -27,7 +27,7 @@ import { useParams } from "../../../utils/useParams";
 
 export type SolanaTransactionPreviewParams = {
     owner: string;
-    transaction: SolanaTx;
+    transaction: SolanaTransaction;
     transfer: { data: SolanaTransfer, type: 'token' | 'native' };
 }
 
@@ -45,7 +45,7 @@ type SolanaTxPreview = {
     address: string | undefined;
 }
 
-function transferInfo(params: { type: 'token' | 'native', transfer: SolanaTransfer, transaction: SolanaTx, owner: string }): SolanaTxPreview {
+function transferInfo(params: { type: 'token' | 'native', transfer: SolanaTransfer, transaction: SolanaTransaction, owner: string }): SolanaTxPreview {
     const { type, transfer, transaction, owner } = params;
     const accountData = transaction.accountData;
     const dateStr = `${formatDate(transaction.timestamp, 'MMMM dd, yyyy')} • ${formatTime(transaction.timestamp)}`;
@@ -98,9 +98,6 @@ const SolanaTransactionPreview = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const toaster = useToaster();
     const { owner, transaction, transfer } = useParams<SolanaTransactionPreviewParams>();
-
-    console.log({ transfer });
-
     const { data, type } = transfer;
     const { op, amount, kind, from, to, dateStr, decimals, symbol, mint, comment, address } = transferInfo({ type, transfer: data, transaction, owner });
 
@@ -145,8 +142,13 @@ const SolanaTransactionPreview = fragment(() => {
                     overflow: 'hidden',
                     justifyContent: 'center', alignItems: 'center'
                 }}>
-                    <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
-
+                    <PerfView
+                        style={{
+                            backgroundColor: theme.divider,
+                            position: 'absolute',
+                            top: 0, left: 0, right: 0, height: 54
+                        }}
+                    />
                     <View style={{
                         width: 48, height: 48, borderRadius: 24,
                         backgroundColor: theme.surfaceOnBg,
@@ -177,13 +179,6 @@ const SolanaTransactionPreview = fragment(() => {
                     >
                         {op}
                     </PerfText>
-                    {/* <PerfText
-                        style={[{ color: theme.textSecondary, marginTop: 2 }, Typography.regular15_20]}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                    >
-                        {t(operation.op.res, operation.op.options)}
-                    </PerfText> */}
                     <>
                         <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
                             <Text

@@ -35,6 +35,7 @@ import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/S
 import { SolanaTransferParams } from '../fragments/solana/transfer/SolanaTransferFragment';
 import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
 import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
+import { PendingSolanaTransaction } from '../engine/state/pending';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -364,6 +365,10 @@ export class TypedNavigation {
 
     navigateSolanaTransaction(params: SolanaTransactionPreviewParams) {
         this.navigate('SolanaTransaction', params);
+    }
+
+    navigatePendingSolanaTransaction(params: PendingSolanaTransaction) {
+        this.navigate('PendingSolanaTransaction', params);
     }
 }
 

@@ -16,6 +16,7 @@ import { SolanaTransactions } from "./views/SolanaTransactions";
 import { SolanaWalletActions } from "./views/SolanaWalletActions";
 import { isSolanaAddress } from "../../utils/solana/address";
 import { SolanaWalletAddress } from "../../components/address/SolanaWalletAddress";
+import { PendingSolanaTransactions } from "./views/PendingSolanaTransactions";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
@@ -78,8 +79,6 @@ const SolanaHeader = memo(({ owner }: SolanaWalletFragmentProps) => {
 const SolanaTransactionsHeader = memo(({ owner }: SolanaWalletFragmentProps) => {
     const theme = useTheme();
     const navigation = useTypedNavigation(); ``
-    const { isTestnet } = useNetwork();
-    const safeArea = useSafeAreaInsets();
     const bottomBarHeight = useBottomTabBarHeight();
     const account = useSolanaAccount(owner);
     const balance = account.data?.balance ?? 0n;
@@ -144,8 +143,10 @@ const SolanaTransactionsHeader = memo(({ owner }: SolanaWalletFragmentProps) => 
                     navigation={navigation}
                     address={owner}
                 />
-                {/* Placeholder for pending transactions */}
-                <View style={{ marginTop: 16 }} />
+                <PendingSolanaTransactions
+                    address={owner}
+                    viewType="main"
+                />
             </View>
         </View>
     );
@@ -157,6 +158,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const txs = useSolanaTransactions(owner);
+    const account = useSolanaAccount(owner);
 
     const transactions = txs.data ?? [];
 
@@ -168,7 +170,8 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
 
     const onRefresh = useCallback(() => {
         txs.refresh();
-    }, [txs.refresh]);
+        account.refetch();
+    }, [txs.refresh, account.refetch]);
 
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');

@@ -37,7 +37,11 @@ export type LedgerOrder = {
 export type SolanaOrder = {
     type: 'solana';
     target: string;
-    token?: string | null;
+    token?: {
+        mint: string;
+        symbol: string;
+        decimals: number;
+    } | null;
     amount: bigint;
     comment: string | null;
 }

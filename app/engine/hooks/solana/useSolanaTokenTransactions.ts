@@ -2,14 +2,14 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { useNetwork } from "..";
 import { useEffect, useRef, useState } from "react";
-import { fetchSolanaTransactions, SolanaTx } from "../../api/solana/fetchSolanaTransactions";
+import { fetchSolanaTransactions, SolanaTransaction } from "../../api/solana/fetchSolanaTransactions";
 
 const TRANSACTIONS_LENGTH = 16;
 
 export function useSolanaTokenTransactions(address: string, mint: string) {
     const { isTestnet } = useNetwork();
 
-    const query = useInfiniteQuery<SolanaTx[]>({
+    const query = useInfiniteQuery<SolanaTransaction[]>({
         queryKey: Queries.SolanaTokenTransactions(address, mint, isTestnet ? 'devnet' : 'mainnet'),
         refetchOnMount: true,
         refetchOnWindowFocus: true,

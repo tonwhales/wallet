@@ -42,7 +42,6 @@ export const TxAvatar = memo((
                 kind={kind}
                 address={parsedAddressFriendly}
                 avatarId={parsedAddressFriendly}
-                theme={theme}
                 knownWallets={knownWallets}
                 forceAvatar={forceAvatar}
             />

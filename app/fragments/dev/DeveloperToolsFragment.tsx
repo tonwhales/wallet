@@ -29,14 +29,10 @@ import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
 import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
-import { Address, fromNano } from '@ton/core';
+import { Address } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { SOLANA_USDC_MINT_DEVNET, SOLANA_USDC_MINT_MAINNET, solanaAddressFromPublicKey } from '../../utils/solana/address';
+import { solanaAddressFromPublicKey } from '../../utils/solana/address';
 import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
-import { rpcEndpoint } from '../../engine/hooks/solana/useSolanaClient';
-import { Connection, PublicKey, Keypair, Transaction } from '@solana/web3.js';
-import { getOrCreateAssociatedTokenAccount, createTransferInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { toBnWithDecimals } from '../../utils/withDecimals';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -268,108 +264,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
-                    </View>
-                    <View style={{
-                        backgroundColor: theme.border,
-                        borderRadius: 14,
-                        overflow: 'hidden',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 4
-                    }}>
-                        <ItemButton title='Fetch Solana token balance' onPress={async () => {
-                            try {
-                                const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
-                                const keyPair = Keypair.fromSecretKey(new Uint8Array(walletKeys.keyPair.secretKey));
-
-                                const rpc = rpcEndpoint(isTestnet);
-                                const connection = new Connection(rpc);
-
-                                const walletAddress = keyPair.publicKey.toString();
-                                console.log('walletAddress', { walletAddress, solanaAddress });
-                                const walletPublicKey = new PublicKey(walletAddress);
-                                const usdcMintAddress = new PublicKey(isTestnet ? SOLANA_USDC_MINT_DEVNET : SOLANA_USDC_MINT_MAINNET);
-
-                                //all token accounts owned by this wallet
-                                console.log('Fetching token accounts...');
-                                const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-                                    walletPublicKey,
-                                    { programId: TOKEN_PROGRAM_ID }
-                                );
-
-                                console.log(`Found ${tokenAccounts.value.length} token accounts`);
-
-                                //find the USDC token account
-                                let usdcTokenAccount = null;
-                                let usdcBalance = 0;
-
-                                const tokenAcc = tokenAccounts.value.find(tokenAccount => tokenAccount.account.data.parsed.info.mint === usdcMintAddress.toString());
-                                console.log('tokenAcc', tokenAcc);
-
-                                if (!tokenAcc) {
-                                    Alert.alert('No USDC Found', 'This wallet does not have any USDC tokens.');
-                                    return;
-                                }
-
-                                usdcTokenAccount = tokenAcc;
-                                usdcBalance = tokenAcc.account.data.parsed.info.tokenAmount.uiAmount;
-                                console.log('usdcTokenAccount', usdcTokenAccount);
-                                console.log('usdcBalance', usdcBalance);
-
-                                //sender
-                                const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
-                                    connection,
-                                    keyPair,
-                                    usdcMintAddress,
-                                    walletPublicKey
-                                );
-
-                                //recipient
-                                const recipientAddress = new PublicKey('5CjWPNKMdWGipUX7LfRGAZ78qP85xfKpXp8iRkEfqYcb');
-                                const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
-                                    connection,
-                                    keyPair, // Signer to pay for account creation if needed
-                                    usdcMintAddress,
-                                    recipientAddress
-                                );
-
-                                //transfer instruction
-                                const transferAmount = '1'; // Transfer 0.1 USDC
-                                const decimals = 6; // USDC has 6 decimal places
-                                const tokenAmount = toBnWithDecimals(transferAmount, decimals);
-
-                                const transferInstruction = createTransferInstruction(
-                                    senderTokenAccount.address, // from 
-                                    recipientTokenAccount.address, // to
-                                    walletPublicKey,
-                                    tokenAmount
-                                );
-
-                                //create transaction
-                                const recentBlockhash = await connection.getLatestBlockhash();
-                                const transaction = new Transaction().add(transferInstruction);
-                                transaction.recentBlockhash = recentBlockhash.blockhash;
-                                transaction.feePayer = walletPublicKey;
-
-                                transaction.sign(keyPair);
-
-                                const signature = await connection.sendEncodedTransaction(transaction.serialize().toString('base64'));
-                                console.log('signature', signature);
-                            } catch (error) {
-                                console.error('Error transferring USDC:', error);
-                            }
-                        }} />
-                        <ItemButton title='Fetch Solana balance' onPress={async () => {
-                            try {
-                                const rpc = rpcEndpoint(isTestnet);
-                                const connection = new Connection(rpc);
-                                const mint = new PublicKey(!isTestnet ? SOLANA_USDC_MINT_MAINNET : SOLANA_USDC_MINT_DEVNET);
-                                const metadata = await connection.getParsedAccountInfo(mint);
-                                console.log('metadata', JSON.stringify(metadata));
-                            } catch (error) {
-                                console.error('Error transferring USDC:', error);
-                            }
-                        }} />
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

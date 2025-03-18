@@ -23,6 +23,38 @@ cd ../../../repository
 
 sed -i '' "s/$line/$rep/g" assets/keys.json
 
+# Replace the Helius API Key in the keys.json file
+line="HELIUS_API_KEY"
+rep="$HELIUS_API_KEY"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+# Replace the Mixpanel keys in the keys.json file
+line="MIXPANEL_PROD"
+rep="$MIXPANEL_PROD"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="MIXPANEL_DEV"
+rep="$MIXPANEL_DEV"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="MIXPANEL_SANDBOX"
+rep="$MIXPANEL_SANDBOX"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="MIXPANEL_HOLDERS_PROD"
+rep="$MIXPANEL_HOLDERS_PROD"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="MIXPANEL_HOLDERS_STAGE"
+rep="$MIXPANEL_HOLDERS_STAGE"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
 # go back to the ios folder
 cd ios/wallet
 

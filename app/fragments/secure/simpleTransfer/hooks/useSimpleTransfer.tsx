@@ -271,7 +271,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
                 }
 
                 if (tx.address) {
-                    const bounceable = tx.isBounceable ?? true;
+                    const bounceable = tx.isBounceable === false ? false : true;
                     mTarget = tx.address.toString({ testOnly: network.isTestnet, bounceable });
                 }
 

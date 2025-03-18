@@ -425,8 +425,10 @@ async function resolveAndNavigateToJettonTransfer(
 
     hideloader();
 
+    const bounceable = resolved.isBounceable === false ? false : true;
+
     navigation.navigateSimpleTransfer({
-        target: resolved.address.toString({ testOnly: isTestnet }),
+        target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
         comment: resolved.comment,
         amount: resolved.amount,
         stateInit: null,
@@ -586,7 +588,7 @@ export function useLinkNavigator(
     const handler = useCallback(async (resolved: ResolvedUrl) => {
         switch (resolved.type) {
             case 'transaction': {
-                const bounceable = resolved.isBounceable ?? true;
+                const bounceable = resolved.isBounceable === false ? false : true;
                 if (resolved.payload) {
                     navigation.navigateTransfer({
                         order: {

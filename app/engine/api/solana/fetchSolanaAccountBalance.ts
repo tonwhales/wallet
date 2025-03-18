@@ -11,7 +11,6 @@ export const fetchSolanaAccountBalance = async (address: string, isTestnet: bool
     const network = isTestnet ? 'devnet' : 'mainnet';
     const url = `${whalesConnectEndpoint}/solana/${address}/${network}`;
     const res = await axios.get(url);
-
     const result = solanaBalanceResponseSchema.safeParse(res.data);
 
     if (!result.success) {

@@ -27,6 +27,7 @@ import { HoldersBanner } from "./HoldersBanner"
 import { SavingsProduct } from "./savings/SavingsProduct"
 import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
+import { useAppMode } from "../../engine/hooks/appstate/useAppMode"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -44,6 +45,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const inviteCheck = useIsHoldersInvited(selected!.address, isTestnet);
+    const [isWalletMode] = useAppMode(selected!.address);
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
@@ -101,8 +103,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
                 <PendingTransactions />
                 <PaymentOtpBanner address={selected.address} />
-                <AddressFormatUpdate />
-                <W5Banner />
+                {isWalletMode && (
+                    <>
+                        <AddressFormatUpdate />
+                        <W5Banner />
+                    </>
+                )}
                 <DappsRequests />
 
                 {(!inviteCheck && !!banners?.product) && (
@@ -138,22 +144,27 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         )
                 )}
 
-                <HoldersChangellyBanner address={selected.address} />
+                {isWalletMode ? (
+                    <>
+                        <SavingsProduct
+                            address={selected.address}
+                            pubKey={selected.publicKey}
+                        />
+                        <StakingProductComponent
+                            key={'pool'}
+                            address={selected.address}
+                        />
+                        <JettonsProductComponent owner={selected.address} key={'jettons'} />
+                        <JettonsHiddenComponent owner={selected.address} key={'jettons-hidden'} />
+                    </>
+                ) : (
+                    <>
+                        <HoldersChangellyBanner address={selected.address} />
+                        <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
+                        <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
+                    </>
+                )}
 
-                <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
-
-                <SavingsProduct address={selected.address} pubKey={selected.publicKey} />
-
-                <StakingProductComponent
-                    key={'pool'}
-                    address={selected.address}
-                />
-
-                <JettonsProductComponent owner={selected.address} key={'jettons'} />
-
-                <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
-
-                <JettonsHiddenComponent owner={selected.address} key={'jettons-hidden'} />
             </View>
         </View>
     );

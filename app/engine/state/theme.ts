@@ -57,7 +57,8 @@ export type ThemeType = {
     black: string,
 
     cardBackground: string,
-    warning: string
+    warning: string,
+    cornflowerBlue: string
 };
 
 export const baseTheme: ThemeType = {
@@ -107,7 +108,8 @@ export const baseTheme: ThemeType = {
     black: 'black',
 
     cardBackground: '#181524',
-    warning: '#FF9A50'
+    warning: '#FF9A50',
+    cornflowerBlue: '#3F3A83'
 }
 
 export const darkTheme: ThemeType = {

@@ -16,7 +16,7 @@ import DeviceInfo from 'react-native-device-info';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
-import { useConnectPendingRequests, useNetwork, useTheme } from '../engine/hooks';
+import { useConnectPendingRequests, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../components/styles';
@@ -24,8 +24,9 @@ import { TonTransaction } from '../engine/types';
 import { useParams } from '../utils/useParams';
 import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentParams } from './secure/transfer/TransferFragment';
-import { HoldersAppParams } from './holders/HoldersAppFragment';
+import { HoldersAppFragment, HoldersAppParams, HoldersAppParamsType } from './holders/HoldersAppFragment';
 import { shouldLockApp } from '../components/SessionWatcher';
+import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 
 const Tab = createBottomTabNavigator();
 
@@ -53,6 +54,8 @@ export const HomeFragment = fragment(() => {
     const { navigateTo } = useParams<HomeFragmentProps>();
     const navigation = useTypedNavigation();
     const [tonconnectRequests] = useConnectPendingRequests();
+    const selected = useSelectedAccount();
+    const [isWalletMode] = useAppMode(selected?.address);
     const linkNavigator = useLinkNavigator(
         network.isTestnet,
         { marginBottom: Platform.select({ ios: 32 + 64, android: 16 }) },
@@ -209,15 +212,22 @@ export const HomeFragment = fragment(() => {
                         name={'Transactions'}
                         component={TransactionsFragment}
                     />
-                    <Tab.Screen
-                        options={{ title: t('home.browser') }}
-                        name={'Browser'}
-                        component={BrowserFragment}
-                    />
+                    {isWalletMode && (
+                        <Tab.Screen
+                            options={{ title: t('home.browser') }}
+                            name={'Browser'}
+                            component={BrowserFragment}
+                        />
+                    )}
                     <Tab.Screen
                         options={{ title: t('home.more') }}
                         name={'More'}
-                        component={SettingsFragment}
+                        component={isWalletMode ? SettingsFragment : HoldersAppFragment}
+                        initialParams={{
+                            type: HoldersAppParamsType.Path,
+                            path: '/user/settings',
+                            query: {}
+                        }}
                     />
                 </Tab.Navigator>
             </View>

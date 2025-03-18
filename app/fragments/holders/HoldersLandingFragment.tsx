@@ -27,6 +27,7 @@ import { AnimatedCards } from './components/AnimatedCards';
 import { useRoute } from '@react-navigation/native';
 import { Typography } from '../../components/styles';
 import { Image } from 'expo-image';
+import { getSearchParams } from '../../utils/holders/queryParamsStore';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
@@ -166,6 +167,12 @@ export const HoldersLandingFragment = fragment(() => {
             theme: 'holders',
             'theme-style': theme.style === 'dark' ? 'dark' : 'light',
         });
+
+        const storedReferrerParams = getSearchParams();
+
+        for (const [key, value] of Object.entries(storedReferrerParams)) {
+            queryParams.append(key, value);
+        }
 
         const url = `${endpoint}/about?${queryParams.toString()}`;
         const initialRoute = `/about?${queryParams.toString()}`;

@@ -50,6 +50,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "error": "Error",
         "wallet": "Billetera",
         "wallets": "Billeteras",
+        "cards": "Tarjetas",
         "later": "Más tarde",
         "select": "Seleccionar",
         "show": "Mostrar",
@@ -136,7 +137,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "send": "Enviar",
             "buy": "Comprar",
             "swap": "Intercambiar",
-            "deposit": "Depositar"
+            "deposit": "Depositar",
+            "payments": "Pagos",
         },
         "empty": {
             "message": "No tienes transacciones",

@@ -5,7 +5,7 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LedgerNavigationStack } from "./LedgerHomeFragment";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
@@ -15,6 +15,8 @@ import { PendingTxsWatcher } from "../../components/PendingTxsWatcher";
 import { Address } from "@ton/core";
 import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
 import { TransactionType } from "../../engine/types";
+import { HoldersAppFragment, HoldersAppParamsType } from "../holders/HoldersAppFragment";
+import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,6 +30,8 @@ export const LedgerAppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
     const { isTestnet: testOnly } = useNetwork();
+    const selected = useSelectedAccount();
+    const [isWalletMode] = useAppMode(selected?.address);
 
     if (!ledgerContext.addr) {
         navigation.navigateAndReplaceAll('Home')
@@ -67,7 +71,7 @@ export const LedgerAppFragment = fragment(() => {
                     tabBarInactiveTintColor: theme.iconPrimary,
                     headerShown: false,
                     header: undefined,
-                    unmountOnBlur: true,
+                    unmountOnBlur: false,
                     tabBarIcon: ({ focused }) => {
                         let source = require('@assets/ic-home.png');
 
@@ -101,7 +105,12 @@ export const LedgerAppFragment = fragment(() => {
                 <Tab.Screen
                     options={{ title: t('home.more') }}
                     name={'LedgerSettings'}
-                    component={SettingsFragment}
+                    component={isWalletMode ? SettingsFragment : HoldersAppFragment}
+                    initialParams={{
+                        type: HoldersAppParamsType.Path,
+                        path: '/user/settings',
+                        query: {}
+                    }}
                 />
             </Tab.Navigator>
             <HintsPrefetcher address={addressString} />

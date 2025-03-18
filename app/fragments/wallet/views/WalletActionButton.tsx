@@ -7,8 +7,10 @@ import { Typography } from "../../../components/styles";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
-import { useNetwork } from "../../../engine/hooks";
 import { ReceiveableSolanaAsset } from "../ReceiveFragment";
+import { useHoldersAccounts, useNetwork, useSelectedAccount } from "../../../engine/hooks";
+import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
+import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
 
 export enum WalletActionType {
     Send = 'send',
@@ -74,6 +76,10 @@ export const WalletActionButton = memo(({
 }) => {
     const { isTestnet } = useNetwork();
     const ledgerContext = useLedgerTransport();
+    const selected = useSelectedAccount();
+    const [isWalletMode] = useAppMode(selected?.address);
+    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address!;
+    const accounts = useHoldersAccounts(address).data?.accounts;
 
     switch (action.type) {
         case WalletActionType.Buy: {
@@ -104,10 +110,19 @@ export const WalletActionButton = memo(({
         }
         case WalletActionType.Send: {
             let navigate = () => {
-                navigation.navigateSimpleTransfer(
-                    { ...nullTransfer, jetton: action.jetton },
-                    { ledger: isLedger }
-                );
+                if (isWalletMode) {
+                    navigation.navigateSimpleTransfer(
+                        { ...nullTransfer, jetton: action.jetton },
+                        { ledger: isLedger }
+                    );
+                } else {
+                    const accountId = accounts?.[0]?.id;
+                    if (accountId) {
+                        const path = `/transfer/${accounts}`;
+                        const navParams: HoldersAppParams = { type: HoldersAppParamsType.Path, path, query: {} };
+                        navigation.navigateHolders(navParams, isTestnet);
+                    }
+                }
             }
 
             if (isLedger && !(ledgerContext.tonTransport && !ledgerContext.isReconnectLedger)) {
@@ -129,7 +144,7 @@ export const WalletActionButton = memo(({
                             <Image source={require('@assets/ic_send.png')} />
                         </View>
                         <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
-                            {t('wallet.actions.send')}
+                            {isWalletMode ? t('wallet.actions.send') : t('wallet.actions.payments')}
                         </Text>
                     </View>
                 </Pressable>

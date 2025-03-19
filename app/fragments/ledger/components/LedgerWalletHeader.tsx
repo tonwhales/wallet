@@ -27,7 +27,7 @@ export const LedgerWalletHeader = memo(({ address, height, walletCardHeight, scr
             let res = resolveUrl(src, isTestnet);
 
             if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
-                const bounceable = res.isBounceable === false ? false : true;
+                const bounceable = res.isBounceable ?? true;
                 if (res.type === 'transaction') {
                     if (res.payload) {
                         // TODO: implement

@@ -6,6 +6,7 @@ export function valueText(props: {
     value: bigint | string,
     precision?: number,
     decimals?: number | null,
+    forcePrecision?: boolean,
 }) {
     let t: string;
     const { decimalSeparator } = getNumberFormatSettings();
@@ -45,7 +46,7 @@ export function valueText(props: {
     r = parts.join(' ');
 
     const precision = !!props.decimals
-        ? r.length > 1 ? 2 : props.decimals
+        ? r.length > 1 && !props.forcePrecision ? 2 : props.decimals
         : props.precision
             ? props.precision
             : r.length > 2 ? 2 : p[1].length

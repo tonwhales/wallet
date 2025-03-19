@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, { runOnJS, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
+import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
@@ -29,6 +29,8 @@ export const AppModeToggle = () => {
     const isHoldersReady = useIsConnectAppReady(url);
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const [, setFilter] = useTransactionsFilter(selected!.address);
+    const holdersAccounts = useHoldersAccounts(selected!.address).data;
+
     const needsEnrollment = useMemo(() => {
         return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     }, [holdersAccStatus?.state]);
@@ -44,7 +46,7 @@ export const AppModeToggle = () => {
     }, []);
 
     const onSwitchAppMode = useCallback((isSwitchingToWallet: boolean) => {
-        if (!isSwitchingToWallet && (needsEnrollment || !isHoldersReady)) {
+        if (!isSwitchingToWallet && ((needsEnrollment || !isHoldersReady) && !holdersAccounts?.accounts.length)) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
             handleToggle()
             return;
@@ -52,7 +54,7 @@ export const AppModeToggle = () => {
             switchAppToWalletMode(isSwitchingToWallet);
             setFilter((prev) => ({ ...prev, type: isSwitchingToWallet ? TransactionType.TON : TransactionType.HOLDERS }));
         }
-    }, [needsEnrollment, isHoldersReady, url, isTestnet])
+    }, [needsEnrollment, isHoldersReady, url, isTestnet, holdersAccounts?.accounts])
 
     const animatedStyle = useAnimatedStyle(() => {
         return {

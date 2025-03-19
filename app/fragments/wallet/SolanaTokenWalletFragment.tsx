@@ -21,6 +21,7 @@ import { toNano } from "@ton/core";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
 import { PendingSolanaTransactions } from "./views/PendingSolanaTransactions";
+import { ReceiveableSolanaAsset } from "./ReceiveFragment";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
@@ -156,6 +157,13 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
     const safeArea = useSafeAreaInsets();
     const txs = useSolanaTokenTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
+    const asset: ReceiveableSolanaAsset = {
+        mint: mint,
+        content: {
+            icon: token?.logoURI,
+            name: token?.symbol
+        }
+    }
 
     const transactions = txs.data ?? [];
 
@@ -217,12 +225,12 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
                 navigation={navigation}
                 txs={transactions}
                 hasNext={txs.hasNext}
-                address={owner}
                 safeArea={safeArea}
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
                 loading={txs.loading}
                 owner={owner}
+                asset={asset}
                 header={<SolanaTokenHeader mint={mint} owner={owner} />}
                 refreshing={txs.refreshing}
             />

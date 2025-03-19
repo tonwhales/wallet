@@ -64,6 +64,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                     refreshing: txs.refreshing
                 }}
                 holdersAccStatus={holdersAccStatus}
+                isWalletTab={true}
             />
         </View>
     );

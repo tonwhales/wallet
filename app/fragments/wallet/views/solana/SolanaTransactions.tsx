@@ -4,20 +4,20 @@ import { ThemeType } from "../../../../engine/state/theme";
 import { EdgeInsets } from "react-native-safe-area-context";
 import { Typography } from "../../../../components/styles";
 import { TransactionsSkeleton } from "../../../../components/skeletons/TransactionsSkeleton";
-import { TransactionsEmptyState } from "../TransactionsEmptyStateView";
+import { TransactionsEmptyState, TransactionsEmptyStateType } from "../TransactionsEmptyStateView";
 import { formatDate, getDateKey } from "../../../../utils/dates";
 import { SolanaTransaction } from "../../../../engine/api/solana/fetchSolanaTransactions";
 import { TransactionsSectionHeader } from "../TransactionsSectionHeader";
 import { TypedNavigation } from "../../../../utils/useTypedNavigation";
 import { SolanaTokenTransferView } from "./SolanaTokenTransferView";
 import { SolanaNativeTransferView } from "./SolanaNativeTransferView";
+import { ReceiveableSolanaAsset } from "../../ReceiveFragment";
 
 type SolanaTransactionsProps = {
   theme: ThemeType;
   navigation: TypedNavigation;
   txs: SolanaTransaction[];
   hasNext: boolean;
-  address: string;
   safeArea: EdgeInsets;
   onLoadMore: () => void;
   onRefresh: () => void;
@@ -29,6 +29,7 @@ type SolanaTransactionsProps = {
   | null
   | undefined;
   owner: string;
+  asset?: ReceiveableSolanaAsset;
 };
 
 export const SolanaTransactions = memo(({
@@ -36,7 +37,6 @@ export const SolanaTransactions = memo(({
   navigation,
   txs,
   hasNext,
-  address,
   safeArea,
   onLoadMore,
   onRefresh,
@@ -44,7 +44,8 @@ export const SolanaTransactions = memo(({
   refreshing,
   ledger,
   header,
-  owner
+  owner,
+  asset
 }: SolanaTransactionsProps) => {
 
   const { transactionsSections } = useMemo(() => {
@@ -105,7 +106,14 @@ export const SolanaTransactions = memo(({
         { paddingBottom: 86 }
       ]}
       ListHeaderComponent={header}
-      ListEmptyComponent={loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={ledger} />}
+      ListEmptyComponent={loading
+        ? <TransactionsSkeleton />
+        : <TransactionsEmptyState
+          type={TransactionsEmptyStateType.Solana}
+          addr={owner}
+          asset={asset}
+        />
+      }
       onEndReached={onLoadMore}
       initialNumToRender={16}
       scrollEventThrottle={50}

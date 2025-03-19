@@ -192,7 +192,6 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
                 navigation={navigation}
                 txs={transactions}
                 hasNext={txs.hasNext}
-                address={owner}
                 safeArea={safeArea}
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}

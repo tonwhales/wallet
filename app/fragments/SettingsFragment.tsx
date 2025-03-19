@@ -111,34 +111,9 @@ export const SettingsFragment = fragment(() => {
         };
     }, []);
 
-    const redirectToStore = () => {
+    const onRateApp = async () => {
         const storeUrl = Platform.OS === 'android' ? androidStoreUrl : iosStoreUrl;
         Linking.openURL(storeUrl);
-    }
-
-    const onRateApp = async () => {
-        if (Platform.OS === 'android') {
-            redirectToStore();
-            return;
-        }
-
-        try {
-            const isStoreReviewAvailable = await StoreReview.isAvailableAsync();
-
-            if (!isStoreReviewAvailable) {
-                redirectToStore();
-                return;
-            }
-            const hasAction = await StoreReview.hasAction();
-
-            if (!hasAction) {
-                redirectToStore();
-                return;
-            }
-            await StoreReview.requestReview();
-        } catch (error) {
-            redirectToStore();
-        }
     };
 
     const onSupport = useCallback(() => {

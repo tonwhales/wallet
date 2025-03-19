@@ -27,6 +27,7 @@ import { TransferFragmentParams } from './secure/transfer/TransferFragment';
 import { HoldersAppFragment, HoldersAppParams, HoldersAppParamsType } from './holders/HoldersAppFragment';
 import { shouldLockApp } from '../components/SessionWatcher';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
+import { HoldersSettings } from './holders/components/HoldersSettings';
 
 const Tab = createBottomTabNavigator();
 
@@ -222,12 +223,7 @@ export const HomeFragment = fragment(() => {
                     <Tab.Screen
                         options={{ title: t('home.more') }}
                         name={'More'}
-                        component={isWalletMode ? SettingsFragment : HoldersAppFragment}
-                        initialParams={{
-                            type: HoldersAppParamsType.Path,
-                            path: '/user/settings',
-                            query: {}
-                        }}
+                        component={isWalletMode ? SettingsFragment : HoldersSettings}
                     />
                 </Tab.Navigator>
             </View>

@@ -423,8 +423,10 @@ async function resolveAndNavigateToJettonTransfer(
 
     hideloader();
 
+    const bounceable = resolved.isBounceable ?? true;
+
     navigation.navigateSimpleTransfer({
-        target: resolved.address.toString({ testOnly: isTestnet }),
+        target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
         comment: resolved.comment,
         amount: resolved.amount,
         stateInit: null,

@@ -127,7 +127,7 @@ const TransactionPreview = () => {
     const targetContract = useContractInfo(opAddress);
 
     const isTargetBounceable = targetContract?.kind === 'wallet'
-        ? bounceableFormat 
+        ? bounceableFormat
         : parsedOpAddr.isBounceable
 
     const repeatParams = useMemo(() => {
@@ -266,7 +266,8 @@ const TransactionPreview = () => {
     const amountText = valueText({
         value: item.amount,
         precision: 9,
-        decimals
+        decimals,
+        forcePrecision: kind === 'out'
     });
 
     const amountColor = kind === 'in'

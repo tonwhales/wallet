@@ -78,11 +78,11 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                 />
             </ScrollView>
             <View style={{
-                height: 48,
+                height: 56,
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingVertical: 6,
+                paddingBottom: 8,
                 paddingHorizontal: 16,
             }}>
                 <SelectedWallet />

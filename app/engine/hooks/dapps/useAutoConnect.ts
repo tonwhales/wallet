@@ -1,4 +1,4 @@
-import { CONNECT_EVENT_ERROR_CODES, ConnectEvent } from "@tonconnect/protocol";
+import { CONNECT_EVENT_ERROR_CODES, ConnectEvent, ConnectItemReply } from "@tonconnect/protocol";
 import { useAppConnections } from "./useAppConnections";
 import { extensionKey } from "./useAddExtension";
 import { useConnectApp } from "./useConnectApp";
@@ -39,7 +39,7 @@ export function useAutoConnect(address?: string): (endpoint: string) => Promise<
             const event: ConnectEvent = {
                 event: 'connect',
                 payload: {
-                    items: injectedConnection.replyItems,
+                    items: injectedConnection.replyItems as ConnectItemReply[],
                     device: tonConnectDeviceInfo,
                 },
                 id: 0,

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { useConnectApp } from './useConnectApp';
-import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
+import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, ConnectItemReply, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
 import { getAppManifest } from '../../getters/getAppManifest';
 import { TonConnectAuthResult, TonConnectAuthType } from '../../../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { useSaveAppConnection } from './useSaveAppConnection';
@@ -17,6 +17,10 @@ import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonc
 import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
+
+type SolanaInjectedBridge = {
+    sendSolanaTransaction: (transaction: string) => Promise<void>;
+}
 
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string, isLedger?: boolean): any {
     const saveAppConnection = useSaveAppConnection();
@@ -41,7 +45,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
         return Boolean(connectEvent && connectEvent.event === 'connect');
     }, [app, connectEvent]);
 
-    const bridgeObject = useMemo((): TonConnectInjectedBridge => {
+    const bridgeObject = useMemo((): TonConnectInjectedBridge & SolanaInjectedBridge => {
         return {
             deviceInfo: tonConnectDeviceInfo,
             protocolVersion: CURRENT_PROTOCOL_VERSION,
@@ -83,7 +87,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                 resolve({
                                     event: 'connect',
                                     payload: {
-                                        items: result.replyItems,
+                                        items: result.replyItems as ConnectItemReply[],
                                         device: tonConnectDeviceInfo,
                                     },
                                     id: requestId
@@ -101,7 +105,6 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                             request,
                             callback
                         });
-
                     });
                     setConnectEvent(event);
                     return event;
@@ -243,6 +246,15 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                         },
                         id: request.id.toString(),
                     });
+                });
+            },
+
+            sendSolanaTransaction: async (transaction: string) => {
+                navigation.navigateSolanaTransfer({
+                    order: {
+                        type: 'solana-transaction',
+                        transaction: transaction,
+                    }
                 });
             }
         };

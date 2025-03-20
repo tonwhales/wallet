@@ -17,7 +17,7 @@ import { extractDomain } from "../../utils/extractDomain";
 import { CHAIN, ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
 import { getTimeSec } from "../../../utils/getTimeSec";
 import { authParamsFromLedgerProof } from "../../../utils/holders/authParamsFromLedgerProof";
-import { AccountKeyParam, fetchUserToken } from "../../api/holders/fetchUserToken";
+import { AccountKeyParam, fetchUserToken, TonAuthRequest, TonSolanaAuthRequest } from "../../api/holders/fetchUserToken";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { handleLedgerSignError } from "../../../utils/ledger/handleLedgerSignError";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -130,7 +130,7 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
 
                         const proof = (replyItems.find((item) => item.name === 'ton_proof') as TonProofItemReplySuccess | undefined);
 
-                        const tokenParams: AccountKeyParam = authParamsFromLedgerProof(
+                        const tokenParams: TonAuthRequest = authParamsFromLedgerProof(
                             Address.parse(rawAddress),
                             proof!,
                             publicKey,
@@ -158,7 +158,7 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
                             }]
                         });
 
-                        const token = await fetchUserToken(tokenParams, isTestnet, storedInviteId);
+                        const token = await fetchUserToken(tokenParams, isTestnet);
                         setHoldersToken(addressString!, token);
                     }
                     return { type: 'success' };

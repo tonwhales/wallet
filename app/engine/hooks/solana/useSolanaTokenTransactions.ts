@@ -10,7 +10,7 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
     const { isTestnet } = useNetwork();
 
     const query = useInfiniteQuery<SolanaTransaction[]>({
-        queryKey: Queries.SolanaTokenTransactions(address, mint, isTestnet ? 'devnet' : 'mainnet'),
+        queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').TokenTransactions(mint),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
@@ -23,8 +23,14 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
         queryFn: async (ctx) => {
             try {
                 const pageParam = ctx.pageParam as (string | undefined);
-                const transactions = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
-                return transactions;
+                const sliceFirst = !!pageParam;
+                let txs = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
+
+                if (sliceFirst) {
+                    txs = txs.slice(1);
+                }
+
+                return txs;
             } catch (error) {
                 console.error(error);
                 throw error;
@@ -42,11 +48,38 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
                 return next;
             }
 
-            if (firstOld[0].signature === firstNext[0].signature) {
+            // If first elements are equal
+            if (firstOld[0]?.signature === firstNext[0]?.signature) {
                 return next;
             }
 
-            return next;
+            // Something changed, rebuild the list
+            let offset = firstNext.findIndex(a => a.signature === firstOld![0].signature && a.signature === firstOld![0].signature);
+
+            // If not found, we need to invalidate the whole list
+            if (offset === -1) {
+                return {
+                    pageParams: [next.pageParams[0]],
+                    pages: [next.pages[0]],
+                };
+            }
+
+            // If found, we need to shift pages and pageParams
+            let pages: SolanaTransaction[][] = [next.pages[0]];
+            let pageParams: (string | undefined)[] = [next.pageParams[0] as any];
+            let tail = old!.pages[0].slice(TRANSACTIONS_LENGTH - offset);
+            let nextPageParams = next.pages[0][next.pages[0].length - 1].signature;
+
+            for (let page of old!.pages.slice(1)) {
+                let newPage = tail.concat(page.slice(0, TRANSACTIONS_LENGTH - 1 - offset));
+                pageParams.push(nextPageParams);
+                pages.push(newPage);
+
+                tail = page.slice(TRANSACTIONS_LENGTH - 1 - offset);
+                nextPageParams = newPage[newPage.length - 1].signature;
+            }
+
+            return { pages, pageParams };
         }
     });
 

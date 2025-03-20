@@ -7,7 +7,7 @@ export function useSolanaTokens(address: string) {
     const { isTestnet } = useNetwork();
 
     const tokens = useQuery({
-        queryKey: Queries.SolanaTokens(address, isTestnet ? 'devnet' : 'mainnet'),
+        queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').Tokens(),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
         queryFn: () => fetchSolanaTokens(address, isTestnet)

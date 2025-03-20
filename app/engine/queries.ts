@@ -90,11 +90,15 @@ export const Queries = {
 
     AppConfig: (network: 'mainnet' | 'testnet') => (['appConfig', network]),
 
+    //
     // Solana
-    SolanaAccount: (address: string, network: 'mainnet' | 'devnet') => (['solana', address, 'wallet', network]),
-    SolanaTokenAccount: (address: string, token: string, network: 'mainnet' | 'devnet') => (['solana', address, token, 'wallet', network]),
-    SolanaTokens: (address: string, network: 'mainnet' | 'devnet') => (['solana', address, 'tokens', network]),
-    SolanaTransactions: (address: string, network: 'mainnet' | 'devnet') => (['solana', address, 'transactions', network]),
-    SolanaTokenTransactions: (address: string, mint: string, network: 'mainnet' | 'devnet') => (['solana', address, 'transactions', mint, network]),
-    SolanaTransactionStatus: (signature: string, network: 'mainnet' | 'devnet') => (['solana', 'transaction', signature, network])
+    //
+    SolanaAccount: (address: string, network: 'mainnet' | 'devnet') => ({
+        All: () => (['solana', address, network]),
+        Wallet: () => (['solana', address, network, 'wallet']),
+        Tokens: () => (['solana', address, network, 'tokens']),
+        Transactions: () => (['solana', address, network, 'transactions']),
+        TokenTransactions: (mint: string) => (['solana', address, network, 'transactions', mint]),
+        TransactionStatus: (signature: string) => (['solana',address,  network, 'transaction', signature])
+    }),
 }

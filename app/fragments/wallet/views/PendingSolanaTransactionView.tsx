@@ -32,7 +32,7 @@ export const PendingSolanaTransactionView = memo(({
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const status = useSolanaTransactionStatus(transaction.id, isTestnet ? 'devnet' : 'mainnet');
+    const status = useSolanaTransactionStatus(address, transaction.id, isTestnet ? 'devnet' : 'mainnet');
     const { markAsTimedOut, remove } = usePendingSolanaActions(address, isTestnet);
 
     const statusText = useMemo(() => {

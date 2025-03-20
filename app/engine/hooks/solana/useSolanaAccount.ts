@@ -7,7 +7,7 @@ export function useSolanaAccount(address: string) {
     const { isTestnet } = useNetwork();
 
     const account = useQuery({
-        queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet'),
+        queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').Wallet(),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
         queryFn: () => fetchSolanaAccountBalance(address, isTestnet)

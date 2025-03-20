@@ -1,45 +1,61 @@
-import { useEffect } from "react";
-import { wsEndpoint } from "./hooks/solana/useSolanaClient";
+import { useEffect, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { useAppVisible, useNetwork, useSolanaSelectedAccount } from "./hooks";
-import { SolanaAccountWatcher } from "./SolanaAccountWatcher";
-import { queryClient } from "./clients";
+import { queryClient, whalesConnectEndpoint } from "./clients";
+import { createLogger, warn } from "../utils/log";
+import EventSource, { MessageEvent } from 'react-native-sse';
+import { Queries } from "./queries";
+
+const logger = createLogger('solana-account-watcher');
 
 export function useSolanaAccountWatcher() {
+    const [session, setSession] = useState(0);
     const account = useSolanaSelectedAccount();
     const { isTestnet } = useNetwork();
     const appStateVisible = useAppVisible();
 
+    const isInactive = appStateVisible !== 'active' && appStateVisible !== 'inactive';
     useEffect(() => {
-        if (!account) {
+        if (!account || isInactive) {
             return;
         }
 
-        const isActive = appStateVisible === 'active';
+
         const address = new PublicKey(account);
 
-        let watcher: SolanaAccountWatcher | undefined;
+        const network = isTestnet ? 'devnet' : 'mainnet';
+        const url = `${whalesConnectEndpoint}/solana/account/${address}/${network}`;
 
-        if (isActive) {
-            const endpoint = wsEndpoint(isTestnet);
-            watcher = new SolanaAccountWatcher(endpoint, address.toString());
+        let watcher: EventSource | null = new EventSource(url);
+        watcher.addEventListener('message', (event) => {
+            logger.log('new event: ' + (event as MessageEvent).type);
+            queryClient.invalidateQueries(Queries.SolanaAccount(address.toString(), network).All());
+        });
 
-            watcher.on('message', (data) => {
-                if (data.method !== 'accountNotification') {
-                    return;
-                }
+        watcher.addEventListener('open', () => {
+            logger.log('sse connect: opened');
+        });
 
-                queryClient.invalidateQueries({
-                    predicate: (query) => {
-                        const queryKey = query.queryKey as string[];
-                        return queryKey[0] === 'solana' && queryKey[1] === address.toString();
-                    },
-                });
-            });
-        }
+        watcher.addEventListener('close', () => {
+            logger.log('sse connect: closed');
+        });
+
+        watcher.addEventListener('error', (event) => {
+            warn('sse connect: error' + JSON.stringify(event));
+            // set new session to force close connection & reconnect on error
+            if (session < 1000) { // limit to 1000 reconnects (to avoid infinite loop)
+                setSession(session + 1);
+            }
+        });
 
         return () => {
-            watcher?.stop();
+            if (watcher) {
+                watcher.removeAllEventListeners();
+                watcher.close();
+                watcher = null;
+
+                logger.log('sse close');
+            }
         };
-    }, [account, isTestnet, appStateVisible]);
+    }, [account, isTestnet, isInactive, session]);
 }

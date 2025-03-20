@@ -1,4 +1,4 @@
-import { useTonconnectWatcher } from "../engine/tonconnectWatcher";
+import { useTonconnectWatcher } from "../engine/useTonconnectWatcher";
 
 export const TonconnectWatcher = () => {
     // Watch for TonConnect requests

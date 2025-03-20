@@ -14,7 +14,7 @@ type SendSolanaTransferParams = {
     order: SolanaOrder
 }
 
-export async function sendSolanaTransfer({ solanaClient, theme, authContext, order, sender }: SendSolanaTransferParams): Promise<PendingSolanaTransaction> {
+export async function sendSolanaTransaction({ solanaClient, theme, authContext, order, sender }: SendSolanaTransferParams): Promise<PendingSolanaTransaction> {
     const { target, comment, amount, token } = order;
     const lastBlockHash = await solanaClient.getLatestBlockhash();
     const mintAddress = token ? new PublicKey(token.mint) : null;
@@ -41,6 +41,10 @@ export async function sendSolanaTransfer({ solanaClient, theme, authContext, ord
             mintAddress,
             owner
         );
+
+        // TODO: check if recipient is token account
+        // and just use it instead of creating a new one
+
         const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
             solanaClient,
             keyPair, // Signer to pay for account creation if needed
@@ -69,6 +73,9 @@ export async function sendSolanaTransfer({ solanaClient, theme, authContext, ord
     }
 
     transaction.feePayer = owner;
+
+
+    // ^
     transaction.recentBlockhash = lastBlockHash.blockhash;
 
     // 

@@ -1,10 +1,10 @@
-import { Platform, ScrollView, View, Text, Pressable } from "react-native";
+import { Platform, ScrollView, View, Text, Pressable, Alert } from "react-native";
 import { fragment } from "../../../fragment";
 import { useParams } from "../../../utils/useParams";
 import { SolanaOrder } from "../../secure/ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClient, useSolanaSelectedAccount, useSolanaToken, useTheme, useNetwork, usePendingSolanaTransactions, useRegisterPendingSolana } from "../../../engine/hooks";
+import { useSolanaClient, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -14,7 +14,7 @@ import { useCallback } from "react";
 import { copyText } from "../../../utils/copyText";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { RoundButton } from "../../../components/RoundButton";
-import { sendSolanaTransfer } from "../../../utils/solana/sendSolanaTransfer";
+import { sendSolanaTransaction } from "../../../utils/solana/sendSolanaTransaction";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressInputAvatar } from "../../../components/address/AddressInputAvatar";
 import { avatarHash } from "../../../utils/avatarHash";
@@ -22,18 +22,46 @@ import { avatarColors } from "../../../components/avatar/Avatar";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { fromNano } from "@ton/core";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { Transaction } from "@solana/web3.js";
+import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
 
 export type SolanaTransferParams = {
+    type: 'order';
     order: SolanaOrder
+} | {
+    type: 'transaction';
+    transaction: string;
 }
 
-const TransferLoaded = ({ order }: SolanaTransferParams) => {
+type TransferLoadedParams = {
+    type: 'order';
+    order: SolanaOrder
+} | {
+    type: 'instructions';
+    instructions: ReturnType<typeof parseTransactionInstructions>;
+}
+
+function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams {
+    if (order.type === 'order') {
+        return order;
+    }
+
+    const transaction = Transaction.from(Buffer.from(order.transaction, 'base64'));
+
+    return {
+        type: 'instructions',
+        instructions: parseTransactionInstructions(transaction.instructions)
+    };
+}
+
+const TransferOrder = (order: SolanaOrder) => {
     const theme = useTheme();
     const toaster = useToaster();
     const solanaClient = useSolanaClient();
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
+
     const token = useSolanaToken(solanaAddress, order.token?.mint);
     const registerPending = useRegisterPendingSolana(solanaAddress);
 
@@ -48,7 +76,7 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
 
     const doSend = useCallback(async () => {
         try {
-            const pending = await sendSolanaTransfer({
+            const pending = await sendSolanaTransaction({
                 solanaClient,
                 theme,
                 authContext,
@@ -57,9 +85,8 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
             });
             registerPending(pending);
         } catch (error) {
-            // sendAndConfirmTransaction on devnet will fail with "Subscriptions unsupported for this network"
-            // TODO: handle error
-            console.error(error);
+            // TODO: humanize error ui
+            Alert.alert('Error', (error as Error).message);
         }
         // Reset stack to root
         navigation.popToTop();
@@ -95,12 +122,10 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
                                     theme={theme}
                                     isOwn={false}
                                     markContact={false}
-                                    // hash={walletSettings?.avatar}
                                     friendly={order.target}
                                     avatarColor={avatarColor}
                                     knownWallets={{}}
                                     hash={null}
-                                // forceAvatar={!!isTargetHolders ? 'holders' : undefined}
                                 />
                             </View>
                         </View>
@@ -197,6 +222,23 @@ const TransferLoaded = ({ order }: SolanaTransferParams) => {
             </View>
         </View>
     );
+}
+
+const TransferInstructions = (instructions: ReturnType<typeof parseTransactionInstructions>) => {
+    return (
+        <View style={{ flexGrow: 1 }}>
+
+        </View>
+    );
+}
+
+const TransferLoaded = (params: SolanaTransferParams) => {
+    const transfer = paramsToTransfer(params);
+
+    if (transfer.type === 'order') {
+        return <TransferOrder {...transfer.order} />
+    }
+    return <TransferInstructions {...transfer.instructions} />;
 }
 
 export const SolanaTransferFragment = fragment(() => {

@@ -150,7 +150,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
             if (!allowSendingZero) return;
         }
 
-        navigation.navigateSolanaTransfer({ order });
+        navigation.navigateSolanaTransfer({ type: 'order', order });
     }, [navigation, targetAddressValid, validAmount, commentString]);
 
     return {

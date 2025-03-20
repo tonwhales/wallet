@@ -163,9 +163,6 @@ export const PendingSolanaTransactionView = memo(({
                     </Text>
                 </View>
             </Pressable>
-            {!last && !single && (
-                <ItemDivider />
-            )}
         </Animated.View>
     )
 });

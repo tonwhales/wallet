@@ -46,7 +46,7 @@ export function useSolanaTransferInfo(params: { type: 'token' | 'native', transf
             amount,
             kind,
             from: tokenTransfer.fromUserAccount,
-            to: tokenTransfer.toTokenAccount,
+            to: toAddress!,
             dateStr,
             decimals: decimals ?? 6,
             symbol: symbol ?? 'USDC',

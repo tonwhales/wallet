@@ -96,3 +96,5 @@ export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, ite
     </Pressable>
   )
 });
+
+SolanaTokenTransferView.displayName = 'SolanaTokenTransferView';

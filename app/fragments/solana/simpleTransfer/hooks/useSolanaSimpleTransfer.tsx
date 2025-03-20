@@ -11,7 +11,7 @@ import { SolanaSimpleTransferParams } from "../SolanaSimpleTransferFragment";
 import { usePrevious } from "../../../secure/simpleTransfer/hooks/usePrevious";
 import { SolanaOrder } from "../../../secure/ops/Order";
 import { Alert } from "react-native";
-import { toBnWithDecimals } from "../../../../utils/withDecimals";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../../../utils/withDecimals";
 
 type Options = {
     params: SolanaSimpleTransferParams;
@@ -114,10 +114,10 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
     }, [validAmount, balance, amount]);
 
     const onAddAll = useCallback(() => {
-        const amount = fromNano(balance);
-        const formatted = formatInputAmount(amount.replace('.', ','), 9, { skipFormattingDecimals: true });
+        const amount = fromBnWithDecimals(balance, accountToken?.decimals ?? 9);
+        const formatted = formatInputAmount(amount.replace('.', ','), accountToken?.decimals ?? 9, { skipFormattingDecimals: true });
         setAmount(formatted);
-    }, [balance]);
+    }, [balance, accountToken?.decimals]);
 
     const continueDisabled = !order;
 

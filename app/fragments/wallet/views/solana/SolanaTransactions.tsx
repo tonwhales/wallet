@@ -55,6 +55,7 @@ export const SolanaTransactions = memo(({
       const time = tx.timestamp;
       const timeKey = getDateKey(time);
       const section = sectioned.get(timeKey);
+
       if (section) {
         section.data.push(tx);
       } else {
@@ -76,7 +77,7 @@ export const SolanaTransactions = memo(({
       <View style={[styles.transactionItem, { gap: 2 }]}>
         {nativeTransfers?.map((tx, index) => {
           return <SolanaNativeTransferView
-            key={index}
+            key={`${signature}-${index}`}
             transfer={tx}
             owner={owner}
             item={item}
@@ -84,7 +85,7 @@ export const SolanaTransactions = memo(({
         })}
         {tokenTransfers?.map((tx, index) => {
           return <SolanaTokenTransferView
-            key={index}
+            key={`${tx.mint}-${signature}-${index}`}
             transfer={tx}
             owner={owner}
             accountData={accountData}
@@ -93,12 +94,12 @@ export const SolanaTransactions = memo(({
         })}
       </View >
     );
-  }, [navigation, owner, theme]);
+  }, [navigation, owner]);
 
   return (
     <SectionList
       sections={transactionsSections}
-      keyExtractor={(item) => item.slot.toString()}
+      keyExtractor={(item) => `${item.signature}`}
       renderItem={renderItem}
       renderSectionHeader={renderSectionHeader}
       contentContainerStyle={[
@@ -157,4 +158,6 @@ const styles = StyleSheet.create({
   transactionText: {
     ...Typography.regular15_20,
   }
-}); 
+});
+
+SolanaTransactions.displayName = 'SolanaTransactions';

@@ -85,4 +85,6 @@ export const SolanaNativeTransferView = memo(({ transfer, owner, item }: { trans
             </View>
         </Pressable>
     )
-})
+});
+
+SolanaNativeTransferView.displayName = 'SolanaNativeTransferView';

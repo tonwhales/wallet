@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { useAppVisible, useNetwork, useSolanaSelectedAccount } from "./hooks";
 import { queryClient, whalesConnectEndpoint } from "./clients";
@@ -14,12 +14,13 @@ export function useSolanaAccountWatcher() {
     const { isTestnet } = useNetwork();
     const appStateVisible = useAppVisible();
 
+    const sessionTimeout = useRef<NodeJS.Timeout | null>(null);
+
     const isInactive = appStateVisible !== 'active' && appStateVisible !== 'inactive';
     useEffect(() => {
         if (!account || isInactive) {
             return;
         }
-
 
         const address = new PublicKey(account);
 
@@ -28,7 +29,7 @@ export function useSolanaAccountWatcher() {
 
         let watcher: EventSource | null = new EventSource(url);
         watcher.addEventListener('message', (event) => {
-            logger.log('new event: ' + (event as MessageEvent).type);
+            logger.log('sse new event: ' + (event as MessageEvent).type);
             queryClient.invalidateQueries(Queries.SolanaAccount(address.toString(), network).All());
         });
 
@@ -44,11 +45,21 @@ export function useSolanaAccountWatcher() {
             warn('sse connect: error' + JSON.stringify(event));
             // set new session to force close connection & reconnect on error
             if (session < 1000) { // limit to 1000 reconnects (to avoid infinite loop)
-                setSession(session + 1);
+                if (sessionTimeout.current) {
+                    return;
+                }
+                sessionTimeout.current = setTimeout(() => {
+                    setSession(session + 1);
+                }, 5000);
             }
         });
 
         return () => {
+            if (sessionTimeout.current) {
+                clearTimeout(sessionTimeout.current);
+                sessionTimeout.current = null;
+            }
+
             if (watcher) {
                 watcher.removeAllEventListeners();
                 watcher.close();

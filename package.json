@@ -15,6 +15,7 @@
   "dependencies": {
     "@babel/plugin-proposal-private-methods": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
+    "@coral-xyz/anchor": "^0.31.0",
     "@craftzdog/react-native-buffer": "^6.0.5",
     "@dedust/sdk": "^0.8.6",
     "@expo/react-native-action-sheet": "^4.0.1",
@@ -49,6 +50,7 @@
     "axios": "^0.24.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "bn.js": "^5.2.0",
+    "bs58": "^6.0.0",
     "buffer": "^6.0.3",
     "color": "^4.2.3",
     "date-fns": "^2.28.0",

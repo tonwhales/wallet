@@ -104,7 +104,7 @@ export const LedgerAppFragment = fragment(() => {
                     component={TransactionsFragment}
                 />
                 <Tab.Screen
-                    options={{ title: t('home.more') }}
+                    options={{ title: t('home.settings') }}
                     name={'LedgerSettings'}
                     component={isWalletMode ? SettingsFragment : HoldersSettings}
                 />

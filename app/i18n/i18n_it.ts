@@ -96,7 +96,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "home": "Home",
         "history": "Cronologia",
         "browser": "Browser",
-        "more": "Altro"
+        "settings": "Impostazioni"
     },
     "settings": {
         "title": "Altro",

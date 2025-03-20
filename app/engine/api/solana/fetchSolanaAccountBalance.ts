@@ -9,8 +9,8 @@ const solanaBalanceResponseSchema = z.object({
 
 export const fetchSolanaAccountBalance = async (address: string, isTestnet: boolean) => {
     const network = isTestnet ? 'devnet' : 'mainnet';
-    const url = `${whalesConnectEndpoint}/solana/${address}/${network}`;
-    const res = await axios.get(url);
+    const url = `${whalesConnectEndpoint}/solana/account/${network}`;
+    const res = await axios.post(url, { address });
     const result = solanaBalanceResponseSchema.safeParse(res.data);
 
     if (!result.success) {

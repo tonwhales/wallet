@@ -29,9 +29,8 @@ export type SolanaToken = z.infer<typeof solanaTokenResponseSchema>[number];
 
 export const fetchSolanaTokens = async (address: string, isTestnet: boolean) => {
     const network = isTestnet ? 'devnet' : 'mainnet';
-    const url = `${whalesConnectEndpoint}/solana/tokens/${address}/${network}`;
-    const res = await axios.get(url);
-
+    const url = `${whalesConnectEndpoint}/solana/tokens/${network}`;
+    const res = await axios.post(url, { address });
     const result = solanaTokenResponseSchema.safeParse(res.data);
 
     if (!result.success) {

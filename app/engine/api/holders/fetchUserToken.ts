@@ -53,6 +53,69 @@ const tonconnectV2Key = z.object({
     config: tonconnectV2Config,
 });
 
+const tonconnectV2SolanaConfig = z.object({
+    address: z.string(),
+    proof: z.object({
+        timestamp: z.number(),
+        domain: z.object({
+            lengthBytes: z.number(),
+            value: z.string(),
+        }),
+        signature: z.string(),
+        payload: z.string(),
+        publicKey: z.string(),
+    }),
+});
+
+export const tonconnectV2TonConfig = z.object({
+    address: z.string(),
+    proof: z.object({
+        timestamp: z.number(),
+        domain: z.object({
+            lengthBytes: z.number(),
+            value: z.string(),
+        }),
+        signature: z.string(),
+        payload: z.string(),
+        walletStateInit: z.string().optional().nullable(),
+        publicKey: z.string().optional().nullable(),
+    }),
+});
+
+export type TonConnectV2TonConfig = z.infer<typeof tonconnectV2TonConfig>;
+export type TonConnectV2SolanaConfig = z.infer<typeof tonconnectV2SolanaConfig>;
+
+const tonAuthRequestCodec = z.object({
+    inviteId: z.string().optional(),
+    stack: z.literal('ton'),
+    network: z.union([z.literal('ton-mainnet'), z.literal('ton-testnet')]),
+    key: z.object({
+        kind: z.literal('tonconnect-v2'),
+        wallet: z.literal('tonhub'),
+        config: tonconnectV2TonConfig,
+    }),
+});
+
+const solanaAuthRequestCodec = z.object({
+    stack: z.literal('solana'),
+    network: z.union([z.literal('solana-mainnet'), z.literal('solana-devnet')]),
+    key: z.object({
+        kind: z.literal('tonconnect-v2'),
+        wallet: z.literal('tonhub'),
+        config: tonconnectV2SolanaConfig,
+    }),
+});
+
+export type TonAuthRequest = z.infer<typeof tonAuthRequestCodec>;
+export type SolanaAuthRequest = z.infer<typeof solanaAuthRequestCodec>;
+
+const tonSolanaAuthRequestCodec = z.tuple([
+    tonAuthRequestCodec,
+    solanaAuthRequestCodec,
+]);
+
+export type TonSolanaAuthRequest = z.infer<typeof tonSolanaAuthRequestCodec>;
+
 const tonhubLedgerConfig = z.object({
     address: z.string(),
     proof: z.object({
@@ -74,14 +137,10 @@ const keys = z.union([tonXKey, tonXLiteKey, tonconnectV2Key, tonhubLedgerKey]);
 
 export type AccountKeyParam = z.infer<typeof keys>;
 
-export async function fetchUserToken(key: AccountKeyParam, isTestnet: boolean, inviteId?: string): Promise<string> {
+export async function fetchUserToken(requestParams: TonSolanaAuthRequest | TonAuthRequest, isTestnet: boolean): Promise<string> {
     const endpoint = holdersEndpoint(isTestnet);
-    const requestParams = {
-        stack: 'ton',
-        network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
-        key: key,
-        inviteId
-    };
+
+    console.log('fetching user token', { params: requestParams, endpoint });
 
     const url = `https://${endpoint}/v2/user/wallet/connect`;
 
@@ -89,6 +148,8 @@ export async function fetchUserToken(key: AccountKeyParam, isTestnet: boolean, i
         url,
         requestParams
     );
+
+    console.log('fetching user token', JSON.stringify(res.data));
 
     if (!res.data.ok) {
         throw Error('Failed to fetch user token');

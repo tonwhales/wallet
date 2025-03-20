@@ -82,13 +82,7 @@ export type SolanaTransactionsQuery = { limit?: number, before?: string, until?:
 
 export async function fetchSolanaTransactions(address: string, isTestnet: boolean, query: SolanaTransactionsQuery): Promise<SolanaTransaction[]> {
     const network = isTestnet ? "devnet" : "mainnet";
-    const endpoint = `${whalesConnectEndpoint}/solana/transactions/${address}/${network}`;
-    const url = new URL(endpoint);
-    Object.entries(query).forEach(([key, value]) => {
-        if (!!value) {
-            url.searchParams.set(key, value.toString());
-        }
-    });
-    const response = await axios.get(url.toString());
+    const url = `${whalesConnectEndpoint}/solana/transactions/${network}`;
+    const response = await axios.post(url, { address, ...query });
     return txResponseScheme.parse(response.data);
 }

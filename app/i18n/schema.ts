@@ -142,6 +142,7 @@ export type LocalizationSchema = {
             swap: string,
             deposit: string,
             payments: string,
+            scan: string,
         },
         empty: {
             message: string,

@@ -1,5 +1,5 @@
-import { memo } from "react";
-import { Pressable, View, Image, Text, StyleSheet } from "react-native";
+import { memo, useCallback } from "react";
+import { Pressable, View, Image, Text, StyleSheet, Platform } from "react-native";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { ThemeType } from "../../../engine/state/theme";
 import { t } from "../../../i18n/t";
@@ -10,6 +10,9 @@ import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useHoldersAccounts, useNetwork, useSelectedAccount } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
+import { resolveUrl } from "../../../utils/resolveUrl";
+import { useLinkNavigator } from "../../../useLinkNavigator";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export enum WalletActionType {
     Send = 'send',
@@ -17,6 +20,7 @@ export enum WalletActionType {
     Deposit = 'deposit',
     Buy = 'buy',
     Swap = 'swap',
+    Scan = 'scan',
 };
 
 export type ReceiveAsset = {
@@ -42,6 +46,8 @@ export type WalletAction = {
     asset?: ReceiveAsset
 } | {
     type: WalletActionType.Swap
+} | {
+    type: WalletActionType.Scan
 }
 
 const nullTransfer = {
@@ -71,6 +77,20 @@ export const WalletActionButton = memo(({
     const [isWalletMode] = useAppMode(selected?.address);
     const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address!;
     const accounts = useHoldersAccounts(address).data?.accounts;
+    const bottomBarHeight = useBottomTabBarHeight();
+    const linkNavigator = useLinkNavigator(isTestnet, { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) });
+
+    const onQRCodeRead = (src: string) => {
+        try {
+            let res = resolveUrl(src, isTestnet);
+            if (res) {
+                linkNavigator(res);
+            }
+        } catch (error) {
+            // Ignore
+        }
+    };
+    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
 
     switch (action.type) {
         case WalletActionType.Buy: {
@@ -251,6 +271,31 @@ export const WalletActionButton = memo(({
                         </View>
                         <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
                             {t('wallet.actions.swap')}
+                        </Text>
+                    </View>
+                </Pressable>
+            );
+        }
+        case WalletActionType.Scan: {
+            return (
+                <Pressable
+                    onPress={openScanner}
+                    style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
+                >
+                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{
+                            backgroundColor: theme.accent,
+                            width: 32, height: 32,
+                            borderRadius: 16,
+                            alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <Image
+                                source={require('@assets/ic-scan-main.png')}
+
+                            />
+                        </View>
+                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
+                            {t('wallet.actions.scan')}
                         </Text>
                     </View>
                 </Pressable>

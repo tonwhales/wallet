@@ -3,11 +3,8 @@ import { memo, useCallback } from "react";
 import { Pressable, View, Image, Platform, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { resolveUrl } from "../../../utils/resolveUrl";
-import { useLinkNavigator } from "../../../useLinkNavigator";
-import { useNetwork, useTheme } from "../../../engine/hooks";
+import { useTheme } from "../../../engine/hooks";
 import { Address, toNano } from "@ton/core";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { SelectedWallet } from "../../../components/wallet/SelectedWallet";
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,25 +14,10 @@ import { PriceComponent } from "../../../components/PriceComponent";
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOffsetSv }: { address: Address, height: number, walletCardHeight: number, scrollOffsetSv: SharedValue<number> }) => {
-    const network = useNetwork();
     const theme = useTheme();
-    const bottomBarHeight = useBottomTabBarHeight();
-    const linkNavigator = useLinkNavigator(network.isTestnet, { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) });
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [isWalletMode] = useAppMode(address);
-
-    const onQRCodeRead = (src: string) => {
-        try {
-            let res = resolveUrl(src, network.isTestnet);
-            if (res) {
-                linkNavigator(res);
-            }
-        } catch (error) {
-            // Ignore
-        }
-    };
-    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [

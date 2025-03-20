@@ -140,6 +140,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "swap": "Intercambiar",
             "deposit": "Depositar",
             "payments": "Pagos",
+            "scan": "Escanear",
         },
         "empty": {
             "message": "No tienes transacciones",

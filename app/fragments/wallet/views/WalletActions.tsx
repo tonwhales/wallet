@@ -8,6 +8,7 @@ import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 import { Jetton } from "../../../engine/types";
 import { Address } from "@ton/core";
 import { useHoldersAccounts } from "../../../engine/hooks";
+import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 
 type Asset = {
     type: 'jetton',
@@ -34,6 +35,7 @@ export const WalletActions = memo(({
     const showBuy = isNeocryptoAvailable() && !isLedger;
     const appConfig = useAppConfig();
     const holdersAccounts = useHoldersAccounts(address).data;
+    const [isWalletMode] = useAppMode(address);
     const holdersAccountsCount = holdersAccounts?.accounts?.length ?? 0;
     const receiveType = holdersAccountsCount > 0 ? WalletActionType.Deposit : WalletActionType.Receive;
     // TODO: rm platfrom check after review
@@ -120,6 +122,14 @@ export const WalletActions = memo(({
                     theme={theme}
                     isLedger={isLedger}
                 />
+                {isWalletMode && (
+                    <WalletActionButton
+                        action={{ type: WalletActionType.Scan }}
+                        navigation={navigation}
+                        theme={theme}
+                        isLedger={isLedger}
+                    />
+                )}
             </View>
         </View>
     );

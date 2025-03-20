@@ -139,7 +139,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "buy": "Купити",
             "swap": "Обміняти",
             "deposit": "Депозит",
-            "payments": "Платежі"
+            "payments": "Платежі",
+            "scan": "Сканувати"
         },
         "empty": {
             "message": "У вас немає транзакцій",

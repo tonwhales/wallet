@@ -13,8 +13,6 @@ export const Splash = memo(({ hide }: { hide: boolean }) => {
     const onStarted = useCallback(() => {
         setTimeout(() => {
             SplashScreen.hideAsync();
-            // apply themed nav bar color after splash screen is hidden
-            changeNavBarColor(theme.style === 'dark' ? '#1C1C1E' : 'white');
         }, 100)
     }, []);
 

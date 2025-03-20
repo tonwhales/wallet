@@ -16,6 +16,7 @@ function usePlatformColorScheme() {
 
 function useForegroundColorScheme() {
     const colorScheme = usePlatformColorScheme();
+    const style = useRecoilValue(themeStyleState);
     const [currentColorScheme, setCurrentColorScheme] = useState(colorScheme);
     const onColorSchemeChange = useRef<NodeJS.Timeout>();
 
@@ -26,7 +27,11 @@ function useForegroundColorScheme() {
             clearTimeout(onColorSchemeChange.current);
         }
         onColorSchemeChange.current = setTimeout(() => {
-            changeNavBarColor(colorScheme === 'dark' ? '#1C1C1E' : '#F7F8F9');
+            if(style === ThemeStyle.System) {
+                changeNavBarColor(colorScheme === 'dark' ? '#1C1C1E' : '#F7F8F9');
+            } else {
+                changeNavBarColor(style === ThemeStyle.Dark ? '#1C1C1E' : '#F7F8F9');
+            }
             setCurrentColorScheme(colorScheme);
         }, 300);
     }, [colorScheme]);

@@ -1,6 +1,5 @@
-import { memo, useCallback, useEffect, useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useStaking, useTheme } from "../../../engine/hooks";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSpecialJetton } from "../../../engine/hooks/jettons/useSpecialJetton";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { reduceHoldersBalances } from "../../../utils/reduceHoldersBalances";
@@ -17,7 +16,6 @@ import { useTranslation } from "react-i18next";
 
 export const WalletCard = memo(({ address, height, walletHeaderHeight }: { address: Address, height: number, walletHeaderHeight: number }) => {
     const account = useAccountLite(address);
-    const navigation = useTypedNavigation();
     const theme = useTheme();
     const specialJetton = useSpecialJetton(address);
     const staking = useStaking();
@@ -47,8 +45,6 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
 
         return (cardsBalance || 0n);
     }, [stakingBalance, holdersCards, price?.price?.usd]);
-
-    const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
     return (
         <LinearGradient
@@ -109,18 +105,6 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
                     </View>
                 )}
             </View>
-            {/* <Pressable
-                style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
-                onPress={navigateToCurrencySettings}
-            >
-                <PriceComponent
-                    showSign
-                    amount={toNano(1)}
-                    style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
-                    textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
-                    theme={theme}
-                />
-            </Pressable> */}
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
                 {!isWalletMode && (
                     <Text style={[{

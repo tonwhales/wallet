@@ -6,12 +6,13 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { useNetwork, useTheme } from "../../../engine/hooks";
-import { Address } from "@ton/core";
+import { Address, toNano } from "@ton/core";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { SelectedWallet } from "../../../components/wallet/SelectedWallet";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import { PriceComponent } from "../../../components/PriceComponent";
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
@@ -49,6 +50,8 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
     const containerAnimatedStyle = useAnimatedStyle(() => ({
         backgroundColor: scrollOffsetSv.value <= 0 ? 'transparent' : theme.backgroundUnchangeable,
     }))
+
+    const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
     return (
         <Animated.View
@@ -89,21 +92,15 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                     {isWalletMode && (
                         <Pressable
-                            style={({ pressed }) => ({
-                                opacity: pressed ? 0.5 : 1,
-                                backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
-                                height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
-                                borderRadius: 16
-                            })}
-                            onPress={openScanner}
+                            style={{ flexDirection: 'row', alignItems: 'center' }}
+                            onPress={navigateToCurrencySettings}
                         >
-                            <Image
-                                source={require('@assets/ic-scan-main.png')}
-                                style={{
-                                    height: 22,
-                                    width: 22,
-                                    tintColor: theme.iconUnchangeable
-                                }}
+                            <PriceComponent
+                                showSign
+                                amount={toNano(1)}
+                                style={{ backgroundColor: 'transparent' }}
+                                textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
+                                theme={theme}
                             />
                         </Pressable>
                     )}

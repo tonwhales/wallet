@@ -132,6 +132,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "wallet": {
         "sync": "Wallet-Daten herunterladen",
         "balanceTitle": "Ton-Guthaben",
+        "owner": "Eigentümer",
         "actions": {
             "receive": "Empfangen",
             "send": "Senden",

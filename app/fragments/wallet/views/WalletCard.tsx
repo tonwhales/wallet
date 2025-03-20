@@ -8,9 +8,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { AppModeToggle } from "../../../components/AppModeToggle";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { Typography } from "../../../components/styles";
-import { Platform, Pressable, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { BlurView } from "expo-blur";
-import { Address, toNano } from "@ton/core";
+import { Address } from "@ton/core";
+import { WalletAddress } from "../../../components/address/WalletAddress";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useTranslation } from "react-i18next";
 
 export const WalletCard = memo(({ address, height, walletHeaderHeight }: { address: Address, height: number, walletHeaderHeight: number }) => {
     const account = useAccountLite(address);
@@ -22,6 +25,8 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
+    const bottomBarHeight = useBottomTabBarHeight();
+    const { t } = useTranslation();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -104,7 +109,7 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
                     </View>
                 )}
             </View>
-            <Pressable
+            {/* <Pressable
                 style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
                 onPress={navigateToCurrencySettings}
             >
@@ -115,7 +120,34 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
                     textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
                     theme={theme}
                 />
-            </Pressable>
+            </Pressable> */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
+                {!isWalletMode && (
+                    <Text style={[{
+                        color: theme.textUnchangeable,
+                        opacity: 0.5,
+                        fontFamily: undefined
+                    }, Typography.regular15_20]}>{`${t('wallet.owner')}: `}</Text>
+                )}
+                <WalletAddress
+                    address={address}
+                    elipsise={{ start: 6, end: 6 }}
+                    textStyle={[{
+                        color: theme.textUnchangeable,
+                        opacity: 0.5,
+                        fontFamily: undefined
+                    }, Typography.regular15_20]}
+                    disableContextMenu
+                    copyOnPress
+                    copyToastProps={Platform.select({
+                        ios: { marginBottom: 24 + bottomBarHeight, },
+                        android: { marginBottom: 16, }
+                    })}
+                    theme={theme}
+                    withCopyIcon
+                />
+            </View>
+
         </LinearGradient>
     );
 });

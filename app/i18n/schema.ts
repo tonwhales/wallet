@@ -134,6 +134,7 @@ export type LocalizationSchema = {
     wallet: {
         sync: string,
         balanceTitle: string,
+        owner: string,
         actions: {
             receive: string,
             send: string,

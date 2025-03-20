@@ -85,17 +85,6 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                     >
                         {ledgerName || walletSettings?.name || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`}
                     </Text>
-                    {/* <WalletAddress
-                        address={address}
-                        elipsise={{ start: 4, end: 4 }}
-                        textStyle={[Typography.regular13_18, {
-                            color: onLightBackground ? theme.textPrimary : theme.textUnchangeable,
-                            opacity: 0.5,
-                            fontFamily: undefined,
-                        }]}
-                        disableContextMenu
-                        theme={theme}
-                    /> */}
                 </View>
                 <ArrowDown
                     height={16}

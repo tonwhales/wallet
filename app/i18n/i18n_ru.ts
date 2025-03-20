@@ -145,7 +145,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "receive": "Получить TON",
             "description": "Совершите первую транзакцию"
         },
-        "pendingTransactions": "Ожидают отправки"
+        "pendingTransactions": "Ожидают отправки",
+        "owner": "Владелец",
     },
     "transactions": {
         "title": "Транзакции",

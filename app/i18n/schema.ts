@@ -1338,6 +1338,7 @@ export type LocalizationSchema = {
             systemTransfer: string,
             createAccount: string,
             tokenTransfer: string,
+            depositCard: string,
         }
     }
 };

@@ -1324,6 +1324,20 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "ton": "Платеждный счет в TON",
         "usdt": "Платеждный счет в USDT",
         "general": "Платеждный счет в {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Создание связанного аккаунта токена",
+            "transfer": "Перевод",
+            "approve": "Подтверждение",
+            "mintTo": "Выпуск токенов",
+            "burn": "Сжигание токенов",
+            "unknown": "Неизвестная инструкция",
+            "systemTransfer": "Перевод SOL",
+            "createAccount": "Создание аккаунта",
+            "tokenTransfer": "Перевод токена",
+            "depositCard": "Пополнение карты"
+        }
     }
 };
 

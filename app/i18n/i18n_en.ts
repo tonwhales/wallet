@@ -1324,6 +1324,20 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "ton": "TON spending account",
         "usdt": "USDT spending account",
         "general": "{{symbol}} spending account"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Create associated token account",
+            "transfer": "Transfer",
+            "approve": "Approve",
+            "mintTo": "Mint tokens",
+            "burn": "Burn tokens",
+            "unknown": "Unknown instruction",
+            "systemTransfer": "SOL transfer",
+            "createAccount": "Create account",
+            "tokenTransfer": "Token transfer",
+            "depositCard": "Deposit to card"
+        }
     }
 };
 

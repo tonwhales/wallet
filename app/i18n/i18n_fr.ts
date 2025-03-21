@@ -147,7 +147,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Effectuez votre première transaction"
         },
         "pendingTransactions": "Transactions en attente",
-         "owner": "Propriétaire",
+        "owner": "Propriétaire",
     },
     "transactions": {
         "title": "Transactions",
@@ -1324,6 +1324,20 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "ton": "Compte de dépenses TON",
         "usdt": "Compte de dépenses USDT",
         "general": "Compte de dépenses {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Créer un compte de jeton associé",
+            "transfer": "Transférer",
+            "approve": "Approuver",
+            "mintTo": "Créer des jetons",
+            "burn": "Brûler des jetons",
+            "unknown": "Instruction inconnue",
+            "systemTransfer": "Transfert de SOL",
+            "createAccount": "Créer un compte",
+            "tokenTransfer": "Transfert de jeton",
+            "depositCard": "Dépôt sur carte"
+        }
     }
 };
 

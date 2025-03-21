@@ -9,6 +9,7 @@ export function useSolanaTransactionStatus(owner: string, signature: string, net
     return useQuery({
         queryKey: Queries.SolanaAccount(owner, network).TransactionStatus(signature),
         queryFn: () => fetchSolanaTransactionStatus(signature, network),
-        cacheTime: 60 * 1000
+        cacheTime: 60 * 1000,
+        refetchInterval: 5000,
     });
 }

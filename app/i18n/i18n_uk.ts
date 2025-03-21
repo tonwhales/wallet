@@ -1321,9 +1321,23 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "general": "{{symbol}} ощадний рахунок"
     },
     "spending": {
-        "ton": "TON рахунок для витрат",
-        "usdt": "USDT рахунок для витрат",
-        "general": "{{symbol}} рахунок для витрат"
+        "ton": "Рахунок витрат TON",
+        "usdt": "Рахунок витрат USDT",
+        "general": "Рахунок витрат {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Створення пов'язаного облікового запису токена",
+            "transfer": "Переказ",
+            "approve": "Підтвердження",
+            "mintTo": "Випуск токенів",
+            "burn": "Спалювання токенів",
+            "unknown": "Невідома інструкція",
+            "systemTransfer": "Переказ SOL",
+            "createAccount": "Створення облікового запису",
+            "tokenTransfer": "Переказ токена",
+            "depositCard": "Поповнення картки"
+        }
     }
 };
 

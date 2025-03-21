@@ -1321,9 +1321,23 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "general": "Cuenta de ahorro {{symbol}}"
     },
     "spending": {
-        "ton": "Cuenta de gastos TON",
-        "usdt": "Cuenta de gastos USDT",
-        "general": "Cuenta de gastos {{symbol}}"
+        "ton": "Cuenta de gasto TON",
+        "usdt": "Cuenta de gasto USDT",
+        "general": "Cuenta de gasto {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Crear cuenta de token asociada",
+            "transfer": "Transferir",
+            "approve": "Aprobar",
+            "mintTo": "Acuñar tokens",
+            "burn": "Quemar tokens",
+            "unknown": "Instrucción desconocida",
+            "systemTransfer": "Transferencia de SOL",
+            "createAccount": "Crear cuenta",
+            "tokenTransfer": "Transferencia de token",
+            "depositCard": "Depositar en tarjeta"
+        }
     }
 };
 

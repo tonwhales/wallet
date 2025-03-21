@@ -111,7 +111,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 Linking.openURL(url);
                 return;
             }
-            
+
             let pageDomain = extractDomain(url);
 
             const isAwsDomain = pageDomain === '.amazonaws.com' || pageDomain.endsWith('.amazonaws.com');
@@ -121,7 +121,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 Linking.openURL(url);
                 return;
             }
-            
+
             if (isSafeDomain(pageDomain)) {
                 openWithInApp(url);
                 return;

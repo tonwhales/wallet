@@ -96,7 +96,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "home": "Головна",
         "history": "Історія",
         "browser": "Браузер",
-        "more": "Більше"
+        "settings": "Налаштування"
     },
     "settings": {
         "title": "Більше",
@@ -132,13 +132,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "wallet": {
         "sync": "Завантаження даних гаманця",
         "balanceTitle": "Баланс TON",
+        "owner": "Власник",
         "actions": {
             "receive": "Отримати",
             "send": "Надіслати",
             "buy": "Купити",
             "swap": "Обміняти",
             "deposit": "Депозит",
-            "payments": "Платежі"
+            "payments": "Платежі",
+            "scan": "Сканувати"
         },
         "empty": {
             "message": "У вас немає транзакцій",

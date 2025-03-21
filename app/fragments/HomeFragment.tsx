@@ -221,7 +221,7 @@ export const HomeFragment = fragment(() => {
                         />
                     )}
                     <Tab.Screen
-                        options={{ title: t('home.more') }}
+                        options={{ title: t('home.settings') }}
                         name={'More'}
                         component={isWalletMode ? SettingsFragment : HoldersSettings}
                     />

@@ -2,9 +2,13 @@ import { Address } from "@ton/core";
 import { useNetwork } from "../network";
 import { useRecoilState } from "recoil";
 import { AppMode, walletsAppModesAtom } from "../../state/walletsAppModes";
+import { useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
 
-export function useAppMode(address?: string | Address | null): [boolean, (value: boolean) => void] {
+export function useAppMode(_address?: string | Address | null, options?: { isLedger?: boolean }): [boolean, (value: boolean) => void] {
     const { isTestnet } = useNetwork();
+    const ledgerContext = useLedgerTransport();
+    const address = options?.isLedger ? Address.parse(ledgerContext.addr!.address) : _address!;
+
     const addressString = address instanceof Address
         ? address.toString({ testOnly: isTestnet })
         : address;

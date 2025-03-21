@@ -94,7 +94,7 @@ const TransactionPreview = () => {
     const ownWalletSettings = walletsSettings[address?.toString({ testOnly: isTestnet }) ?? ''];
     const opAddressWalletSettings = walletsSettings[opAddressBounceable];
 
-    const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
+    const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddressBounceable, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
     const contact = addressBook.asContact(opAddressBounceable);

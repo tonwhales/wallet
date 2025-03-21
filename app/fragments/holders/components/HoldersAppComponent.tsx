@@ -195,7 +195,7 @@ export const HoldersAppComponent = memo((
     const [lang] = useLanguage();
     const [currency] = usePrimaryCurrency();
     const url = holdersUrl(isTestnet);
-    const { onSupport } = useSupport()
+    const { onSupport } = useSupport({ isLedger });
 
     const source = useMemo(() => {
         const queryParams = new URLSearchParams({

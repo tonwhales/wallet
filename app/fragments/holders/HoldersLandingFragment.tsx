@@ -41,7 +41,7 @@ export const HoldersLandingFragment = fragment(() => {
     const [lang] = useLanguage();
     const route = useRoute();
     const isLedger = route.name === 'LedgerHoldersLanding';
-    const { onSupport } = useSupport();
+    const { onSupport } = useSupport({ isLedger });
 
     const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 

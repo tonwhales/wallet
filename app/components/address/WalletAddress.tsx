@@ -9,6 +9,7 @@ import { ToastDuration, ToastProps, useToaster } from "../toast/ToastProvider";
 import { useAddToDenyList, useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { ThemeType } from "../../engine/state/theme";
+import CopyIcon from '@assets/ic-copy.svg';
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
     return src.slice(0, params?.start ?? 10)
@@ -32,6 +33,7 @@ export const WalletAddress = memo((props: {
     copyToastProps?: Omit<ToastProps, 'message' | 'type' | 'duration'>,
     bounceable?: boolean,
     theme: ThemeType,
+    withCopyIcon?: boolean,
 }) => {
     const toaster = useToaster();
     const network = useNetwork();
@@ -200,7 +202,7 @@ export const WalletAddress = memo((props: {
                     style={({ pressed }) => {
                         return [
                             props.style,
-                            { opacity: (pressed && props.copyOnPress) ? 0.5 : 1, }
+                            { opacity: (pressed && props.copyOnPress) ? 0.5 : 1, flexDirection: 'row', alignItems: 'center' }
                         ]
                     }}
                     disabled={!props.copyOnPress}
@@ -260,7 +262,11 @@ export const WalletAddress = memo((props: {
                             >
                                 {friendlyAddress.slice(friendlyAddress.length / 2, friendlyAddress.length)}
                             </Text>
+
                         </>
+                    )}
+                    {props.withCopyIcon && (
+                        <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={theme.iconPrimary} />
                     )}
                 </Pressable>
             )}

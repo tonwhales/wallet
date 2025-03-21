@@ -1,6 +1,5 @@
-import { memo, useCallback, useEffect, useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useStaking, useTheme } from "../../../engine/hooks";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSpecialJetton } from "../../../engine/hooks/jettons/useSpecialJetton";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { reduceHoldersBalances } from "../../../utils/reduceHoldersBalances";
@@ -8,13 +7,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import { AppModeToggle } from "../../../components/AppModeToggle";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { Typography } from "../../../components/styles";
-import { Platform, Pressable, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { BlurView } from "expo-blur";
-import { Address, toNano } from "@ton/core";
+import { Address } from "@ton/core";
+import { WalletAddress } from "../../../components/address/WalletAddress";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useTranslation } from "react-i18next";
 
-export const WalletCard = memo(({ address, height, walletHeaderHeight }: { address: Address, height: number, walletHeaderHeight: number }) => {
+export const WalletCard = memo(({ address, height, walletHeaderHeight, isLedger }: { address: Address, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
     const account = useAccountLite(address);
-    const navigation = useTypedNavigation();
     const theme = useTheme();
     const specialJetton = useSpecialJetton(address);
     const staking = useStaking();
@@ -22,6 +23,8 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
+    const bottomBarHeight = useBottomTabBarHeight();
+    const { t } = useTranslation();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -43,8 +46,6 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
         return (cardsBalance || 0n);
     }, [stakingBalance, holdersCards, price?.price?.usd]);
 
-    const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-
     return (
         <LinearGradient
             style={{
@@ -60,7 +61,7 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
             start={[1, 0]}
             end={[1, 1]}
         >
-            <AppModeToggle />
+            <AppModeToggle isLedger={isLedger} />
             <View>
                 <PriceComponent
                     amount={isWalletMode ? walletBalance : cardsBalance}
@@ -104,18 +105,33 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
                     </View>
                 )}
             </View>
-            <Pressable
-                style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
-                onPress={navigateToCurrencySettings}
-            >
-                <PriceComponent
-                    showSign
-                    amount={toNano(1)}
-                    style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
-                    textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
+                {!isWalletMode && (
+                    <Text style={[{
+                        color: theme.textUnchangeable,
+                        opacity: 0.5,
+                        fontFamily: undefined
+                    }, Typography.regular15_20]}>{`${t('wallet.owner')}: `}</Text>
+                )}
+                <WalletAddress
+                    address={address}
+                    elipsise={{ start: 6, end: 6 }}
+                    textStyle={[{
+                        color: theme.textUnchangeable,
+                        opacity: 0.5,
+                        fontFamily: undefined
+                    }, Typography.regular15_20]}
+                    disableContextMenu
+                    copyOnPress
+                    copyToastProps={Platform.select({
+                        ios: { marginBottom: 24 + bottomBarHeight, },
+                        android: { marginBottom: 16, }
+                    })}
                     theme={theme}
+                    withCopyIcon
                 />
-            </Pressable>
+            </View>
+
         </LinearGradient>
     );
 });

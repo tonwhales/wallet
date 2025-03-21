@@ -96,7 +96,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "home": "Startseite",
         "history": "Verlauf",
         "browser": "Browser",
-        "more": "Mehr"
+        "settings": "Einstellungen"
     },
     "settings": {
         "title": "Mehr",
@@ -132,6 +132,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "wallet": {
         "sync": "Wallet-Daten herunterladen",
         "balanceTitle": "Ton-Guthaben",
+        "owner": "Eigentümer",
         "actions": {
             "receive": "Empfangen",
             "send": "Senden",
@@ -139,6 +140,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "swap": "Tauschen",
             "deposit": "Einzahlen",
             "payments": "Zahlungen",
+            "scan": "Scannen",
         },
         "empty": {
             "message": "Sie haben keine Transaktionen",

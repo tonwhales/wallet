@@ -74,7 +74,7 @@ export const SettingsFragment = fragment(() => {
     const isLedger = route.name === 'LedgerSettings';
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
-    const [, switchAppToWalletMode] = useAppMode(selected?.address);
+    const [, switchAppToWalletMode] = useAppMode(selected?.address, { isLedger });
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed;
@@ -111,34 +111,9 @@ export const SettingsFragment = fragment(() => {
         };
     }, []);
 
-    const redirectToStore = () => {
+    const onRateApp = async () => {
         const storeUrl = Platform.OS === 'android' ? androidStoreUrl : iosStoreUrl;
         Linking.openURL(storeUrl);
-    }
-
-    const onRateApp = async () => {
-        if (Platform.OS === 'android') {
-            redirectToStore();
-            return;
-        }
-
-        try {
-            const isStoreReviewAvailable = await StoreReview.isAvailableAsync();
-
-            if (!isStoreReviewAvailable) {
-                redirectToStore();
-                return;
-            }
-            const hasAction = await StoreReview.hasAction();
-
-            if (!hasAction) {
-                redirectToStore();
-                return;
-            }
-            await StoreReview.requestReview();
-        } catch (error) {
-            redirectToStore();
-        }
     };
 
     const onSupport = useCallback(() => {
@@ -241,11 +216,11 @@ export const SettingsFragment = fragment(() => {
         }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <View style={{
-                height: 48,
+                height: 56,
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingVertical: 6,
+                paddingBottom: 8,
                 marginLeft: 16,
             }}>
                 <SelectedWallet onLightBackground ledgerName={isLedger ? ledgerContext.ledgerName : undefined} />

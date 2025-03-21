@@ -37,7 +37,7 @@ export function extractWebViewQueryAPIParams(url: string): QueryAPIParams {
         if (params.has(QueryAPI.OpenUrl)) {
             const queryValue = params.get(QueryAPI.OpenUrl);
             if (queryValue) {
-                openUrl = queryValue;
+                openUrl = decodeURIComponent(queryValue);
             }
         }
 

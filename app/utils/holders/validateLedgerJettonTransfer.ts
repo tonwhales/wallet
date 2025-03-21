@@ -14,7 +14,7 @@ export function validateLedgerJettonTransfer(msg: SignRawMessage): LedgerOrder |
     try {
         const slice = p.beginParse();
         const op = slice.loadUint(32);
-        
+
         if (op !== OperationType.JettonTransfer) {
             return null;
         }

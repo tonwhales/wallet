@@ -144,7 +144,7 @@ export function parseSystemInstruction(instruction: TransactionInstruction) {
 
             return {
                 program: 'System Program',
-                name: 'transfer',
+                name: 'systemTransfer',
                 programId: SYSTEM_PROGRAM_ID,
                 accounts: [
                     { name: 'from', pubkey: fromAccount, isSigner: true, isWritable: true },
@@ -215,7 +215,7 @@ export function parseTokenInstruction(instruction: TransactionInstruction) {
 
             return {
                 program: 'Token Program',
-                name: 'transfer',
+                name: 'tokenTransfer',
                 programId: TOKEN_PROGRAM_ID,
                 accounts: [
                     { name: 'source', pubkey: source, isSigner: false, isWritable: true },
@@ -293,7 +293,7 @@ export function parseInstruction(instruction: TransactionInstruction) {
         default:
             // For unknown programs, return basic info
             return {
-                name: 'Unknown Program',
+                name: 'unknown',
                 program: 'Unknown Program',
                 programId,
                 data: instruction.data,

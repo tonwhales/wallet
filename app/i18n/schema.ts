@@ -1326,6 +1326,19 @@ export type LocalizationSchema = {
         general: string,
         ton: string,
         usdt: string
+    },
+    solana: {
+        instructions: {
+            createAssociatedTokenAccount: string,
+            transfer: string,
+            approve: string,
+            mintTo: string,
+            burn: string,
+            unknown: string,
+            systemTransfer: string,
+            createAccount: string,
+            tokenTransfer: string,
+        }
     }
 };
 

@@ -251,78 +251,121 @@ const TransferInstructionView = (params: { instruction: ParsedTransactionInstruc
         return null;
     }
 
+    switch (op) {
+        case 'depositCard':
+            from = instruction.accounts?.find((account: any) => account.name === 'Signer')?.pubkey.toString() ?? '';
+            to = instruction.accounts?.find((account: any) => account.name === 'Card')?.pubkey.toString() ?? '';
+            break;
+        case 'updateCardLimits':
+            from = instruction.accounts?.find((account: any) => account.name === 'Signer')?.pubkey.toString() ?? '';
+            to = instruction.accounts?.find((account: any) => account.name === 'Card')?.pubkey.toString() ?? '';
+            break;
+    }
+
     return (
-        <View style={{ gap: 16 }}>
-            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
-                    {'Operation'}
-                </Text>
-                <View style={{ alignItems: 'center', flexDirection: 'row', }}>
-                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                        <Text style={{ color: theme.textPrimary }}>
-                            {t('solana.instructions.' + op)}
+        <>
+            <ItemGroup style={{ marginBottom: 16, marginTop: 16 }}>
+                <View style={{ gap: 16 }}>
+                    <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                        <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
+                            {'Operation'}
                         </Text>
-                    </Text>
-                </View>
-            </View>
-            <ItemDivider marginHorizontal={10} marginVertical={0} />
-            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
-                    {'Description'}
-                </Text>
-                <View style={{ alignItems: 'center', flexDirection: 'row', }}>
-                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                        <Text style={{ color: theme.textPrimary }}>
-                            {description}
-                        </Text>
-                    </Text>
-                </View>
-            </View>
-            {!!instruction.args && (
-                <>
+                        <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                            <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                {t('solana.instructions.' + op)}
+                            </Text>
+                        </View>
+                    </View>
                     <ItemDivider marginHorizontal={10} marginVertical={0} />
                     <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                         <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
-                            {'Arguments'}
+                            {'Description'}
                         </Text>
-                        <View style={{ gap: 4 }}>
-                            {(instruction.args as any[]).map((arg, index) => {
-                                const isObject = typeof arg === 'object';
-
-                                if (arg.name === 'cardSeed' || arg.name === 'newSeqno' || arg.name === 'rootSeed') {
-                                    return null;
-                                }
-
-                                if (isObject) {
-                                    return (
-                                        <View key={index}>
-                                            {Object.entries(arg).map(([key, value]) => {
-                                                if (key === 'type') {
-                                                    return null;
-                                                }
-                                                return (
-                                                    <Text key={key} style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                                        {`${key}: ${value}`}
-                                                    </Text>
-                                                )
-                                            })}
-                                        </View>
-                                    )
-                                }
-
-                                return (
-                                    <View key={index}>
-                                        <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                            {`${arg}`}
-                                        </Text>
-                                    </View>
-                                )
-                            })}
+                        <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                            <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                {description}
+                            </Text>
                         </View>
                     </View>
-                </>
+                </View>
+            </ItemGroup>
+            {(from && to) && (
+                <ItemGroup style={{ marginBottom: 16 }}>
+                    <View style={{ gap: 16 }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                            <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
+                                {'From'}
+                            </Text>
+                            <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                    {from}
+                                </Text>
+                            </View>
+                        </View>
+                        <ItemDivider marginHorizontal={10} marginVertical={0} />
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                            <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
+                                {'To'}
+                            </Text>
+                            <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                    {to}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                </ItemGroup>
             )}
-        </View>
+
+            {!!instruction.args && (
+                <ItemGroup style={{ marginBottom: 16 }}>
+                    <View style={{ gap: 16 }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                            <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
+                                {'Arguments'}
+                            </Text>
+                            <View style={{ gap: 4 }}>
+                                {(instruction.args as any[]).map((arg, index) => {
+                                    const isObject = typeof arg === 'object';
+
+                                    if (arg.name === 'cardSeed' || arg.name === 'newSeqno' || arg.name === 'rootSeed') {
+                                        return null;
+                                    }
+
+                                    if (isObject) {
+                                        return (
+                                            <View key={index}>
+                                                {Object.entries(arg).map(([key, value]) => {
+                                                    if (key === 'type') {
+                                                        return null;
+                                                    }
+                                                    return (
+                                                        <Text key={key} style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                                            {`${key}: ${value}`}
+                                                        </Text>
+                                                    )
+                                                })}
+                                                {(index !== 0 && index !== (instruction.args as any[]).length - 1) && (
+                                                    <ItemDivider marginHorizontal={0} marginVertical={8} />
+                                                )}
+                                            </View>
+                                        )
+                                    }
+
+                                    return (
+                                        <View key={index}>
+                                            <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                                {`${arg}`}
+                                            </Text>
+                                        </View>
+                                    )
+                                })}
+                            </View>
+                        </View>
+                    </View>
+                </ItemGroup>
+            )}
+        </>
     )
 }
 
@@ -368,11 +411,14 @@ const TransferInstructions = (params: {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
-                    <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
-                        {params.instructions.map((instruction, index) => (
-                            <TransferInstructionView key={index} instruction={instruction} />
-                        ))}
-                    </ItemGroup>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
+                            {'Solana Transaction'}
+                        </Text>
+                    </View>
+                    {params.instructions.map((instruction, index) => (
+                        <TransferInstructionView key={index} instruction={instruction} />
+                    ))}
                     <View style={{ height: 54 }} />
                 </View>
             </ScrollView>

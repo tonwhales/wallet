@@ -110,7 +110,8 @@ function getHoldersInstructionDescription(name: string, args: any): string {
         case 'issueCard':
             return 'Issue a new card';
         case 'depositCard':
-            return `Deposit ${args.amount ? (Number(args.amount) / LAMPORTS_PER_SOL).toFixed(9) : ''} tokens to card`;
+            const amount = args.find((arg: any) => arg.name === 'amount').data;
+            return `Deposit ${amount ? Number(amount) : ''} tokens to card`;
         case 'closeCard':
             return 'Close a card';
         case 'refund':

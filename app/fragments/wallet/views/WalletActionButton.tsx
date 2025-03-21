@@ -74,13 +74,13 @@ export const WalletActionButton = memo(({
     const { isTestnet } = useNetwork();
     const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
-    const [isWalletMode] = useAppMode(selected?.address);
+    const [isWalletMode] = useAppMode(selected?.address, { isLedger });
     const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address!;
     const accounts = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
     const linkNavigator = useLinkNavigator(isTestnet, { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) });
 
-    const onQRCodeRead = (src: string) => {
+    const onQRCodeRead = useCallback((src: string) => {
         try {
             let res = resolveUrl(src, isTestnet);
             if (res) {
@@ -89,8 +89,58 @@ export const WalletActionButton = memo(({
         } catch (error) {
             // Ignore
         }
-    };
-    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
+    }, [isTestnet, linkNavigator]);
+    
+    const onLedgerQRCodeRead = useCallback((src: string) => {
+        try {
+            let res = resolveUrl(src, isTestnet);
+
+            if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
+                const bounceable = res.isBounceable ?? true;
+                if (res.type === 'transaction') {
+                    if (res.payload) {
+                        // TODO: implement
+                        // navigation.navigateLedgerSignTransfer({
+                        //     order: {
+                        //         target: res.address.toString({ testOnly: network.isTestnet }),
+                        //         amount: res.amount || 0n,
+                        //         amountAll: false,
+                        //         stateInit: res.stateInit,
+                        //         payload: {
+                        //             type: 'unsafe',
+                        //             message: new CellMessage(res.payload),
+                        //         },
+                        //     },
+                        //     text: res.comment
+                        // });
+                    } else {
+                        navigation.navigateSimpleTransfer({
+                            target: res.address.toString({ testOnly: isTestnet, bounceable }),
+                            comment: res.comment,
+                            amount: res.amount,
+                            stateInit: res.stateInit,
+                            jetton: null,
+                            callback: null
+                        }, { ledger: true });
+                    }
+                    return;
+                }
+
+                navigation.navigateSimpleTransfer({
+                    target: res.address.toString({ testOnly: isTestnet, bounceable }),
+                    comment: res.comment,
+                    amount: res.amount,
+                    stateInit: null,
+                    jetton: res.jettonMaster,
+                    callback: null
+                }, { ledger: true });
+            }
+        } catch {
+            // Ignore
+        }
+    }, [isTestnet, linkNavigator]);
+
+    const openScanner = useCallback(() => navigation.navigateScanner({ callback: isLedger ? onLedgerQRCodeRead : onQRCodeRead }), [isLedger, onLedgerQRCodeRead, onQRCodeRead]);
 
     switch (action.type) {
         case WalletActionType.Buy: {
@@ -136,7 +186,7 @@ export const WalletActionButton = memo(({
                 }
             }
 
-            if (isLedger && !(ledgerContext.tonTransport && !ledgerContext.isReconnectLedger)) {
+            if (isWalletMode && isLedger && !(ledgerContext.tonTransport && !ledgerContext.isReconnectLedger)) {
                 navigate = ledgerContext.onShowLedgerConnectionError;
             }
 

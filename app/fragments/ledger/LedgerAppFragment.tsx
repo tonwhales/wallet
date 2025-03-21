@@ -32,7 +32,7 @@ export const LedgerAppFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const { isTestnet: testOnly } = useNetwork();
     const selected = useSelectedAccount();
-    const [isWalletMode] = useAppMode(selected?.address);
+    const [isWalletMode] = useAppMode(selected?.address, { isLedger: true });
 
     if (!ledgerContext.addr) {
         navigation.navigateAndReplaceAll('Home')

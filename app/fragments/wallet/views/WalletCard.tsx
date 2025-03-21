@@ -14,7 +14,7 @@ import { WalletAddress } from "../../../components/address/WalletAddress";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useTranslation } from "react-i18next";
 
-export const WalletCard = memo(({ address, height, walletHeaderHeight }: { address: Address, height: number, walletHeaderHeight: number }) => {
+export const WalletCard = memo(({ address, height, walletHeaderHeight, isLedger }: { address: Address, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
     const account = useAccountLite(address);
     const theme = useTheme();
     const specialJetton = useSpecialJetton(address);
@@ -61,7 +61,7 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight }: { addre
             start={[1, 0]}
             end={[1, 1]}
         >
-            <AppModeToggle />
+            <AppModeToggle isLedger={isLedger} />
             <View>
                 <PriceComponent
                     amount={isWalletMode ? walletBalance : cardsBalance}

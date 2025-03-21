@@ -35,7 +35,7 @@ export const WalletActions = memo(({
     const showBuy = isNeocryptoAvailable() && !isLedger;
     const appConfig = useAppConfig();
     const holdersAccounts = useHoldersAccounts(address).data;
-    const [isWalletMode] = useAppMode(address);
+    const [isWalletMode] = useAppMode(address, { isLedger });
     const holdersAccountsCount = holdersAccounts?.accounts?.length ?? 0;
     const receiveType = holdersAccountsCount > 0 ? WalletActionType.Deposit : WalletActionType.Receive;
     // TODO: rm platfrom check after review

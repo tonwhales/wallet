@@ -184,7 +184,7 @@ export function parseSystemInstruction(instruction: TransactionInstruction) {
         default:
             return {
                 program: 'System Program',
-                name: `instruction-${instructionTypeIndex}`,
+                name: `system-instruction-${instructionTypeIndex}`,
                 programId: SYSTEM_PROGRAM_ID,
                 data: instruction.data,
                 description: 'Unknown System Program instruction'

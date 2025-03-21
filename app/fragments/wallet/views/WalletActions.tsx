@@ -33,11 +33,15 @@ export const WalletActions = memo(({
     isLedger?: boolean,
 }) => {
     const showBuy = isNeocryptoAvailable() && !isLedger;
+    const appConfig = useAppConfig();
     const holdersAccounts = useHoldersAccounts(address).data;
     const [isWalletMode] = useAppMode(address, { isLedger });
     const holdersAccountsCount = holdersAccounts?.accounts?.length ?? 0;
     const receiveType = holdersAccountsCount > 0 ? WalletActionType.Deposit : WalletActionType.Receive;
- 
+    // TODO: rm platfrom check after review
+    // dont show swap on ios until the issue with review is resolved
+    const showSwap = appConfig?.features?.swap && Platform.OS === 'android' && !isLedger;
+
     let asset: ReceiveAsset | undefined = undefined;
     let jetton: Jetton | undefined = undefined;
 
@@ -104,6 +108,14 @@ export const WalletActions = memo(({
                     theme={theme}
                     isLedger={isLedger}
                 />
+                {!isTestnet && showSwap && isWalletMode && (
+                    <WalletActionButton
+                        action={{ type: WalletActionType.Swap }}
+                        navigation={navigation}
+                        theme={theme}
+                        isLedger={isLedger}
+                    />
+                )}
                 <WalletActionButton
                     action={{ type: WalletActionType.Send, jetton: jetton?.wallet }}
                     navigation={navigation}

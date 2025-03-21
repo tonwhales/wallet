@@ -55,7 +55,7 @@ export const LedgerHomeFragment = fragment(() => {
     const specialJetton = useSpecialJetton(address!);
     const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
     const { walletCardHeight, walletHeaderHeight, scrollHandler, scrollOffsetSv } = useWalletCardLayoutHelper()
-    const [isWalletMode] = useAppMode(address);
+    const [isWalletMode] = useAppMode(address, { isLedger: true });
     const [isRefreshing, setIsRefreshing] = useState(false);
 
 
@@ -148,7 +148,7 @@ export const LedgerHomeFragment = fragment(() => {
                     />
                 )}
                 <View collapsable={false}>
-                    <WalletCard address={address!} height={walletCardHeight} walletHeaderHeight={walletHeaderHeight} />
+                    <WalletCard address={address!} height={walletCardHeight} walletHeaderHeight={walletHeaderHeight} isLedger={true} />
                     <WalletActions
                         theme={theme}
                         navigation={navigation}

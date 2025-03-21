@@ -123,7 +123,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
-    const [isWalletMode] = useAppMode(selected?.address);
+    const [isWalletMode] = useAppMode(selected?.address, { isLedger });
 
     const onAssetCallback = useCallback((asset: ReceiveableTonAsset | null) => {
         if (assetCallback) {

@@ -33,7 +33,7 @@ export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: Led
     const isHoldersReady = useIsConnectAppReady(url);
     const inviteCheck = useIsHoldersInvited(address, testOnly);
     const ledgerContext = useLedgerTransport();
-    const [isWalletMode] = useAppMode(address);
+    const [isWalletMode] = useAppMode(address, { isLedger: true });
 
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;

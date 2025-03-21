@@ -44,20 +44,20 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                 onPress={() => navigation.navigate('WalletSettings')}
             >
                 <View style={{
-                    width: 32, height: 32,
+                    width: 48, height: 48,
                     backgroundColor: theme.accent,
-                    borderRadius: 16,
-                    marginRight: 8
+                    borderRadius: 24,
+                    marginRight: 12
                 }}>
                     {ledgerName ? (
                         <Image
-                            style={{ width: 32, height: 32 }}
+                            style={{ width: 48, height: 48 }}
                             source={require('@assets/ledger_device.png')}
                         />
                     ) : (
                         <Avatar
                             id={address.toString({ testOnly: network.isTestnet })}
-                            size={32}
+                            size={48}
                             borderWidth={0}
                             hash={walletSettings?.avatar}
                             theme={theme}
@@ -65,7 +65,7 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                             backgroundColor={avatarColor}
                         />
                     )}
-                    <View style={{ position: 'absolute', top: -4, right: -4 }}>
+                    <View style={{ position: 'absolute', top: -1, right: -1 }}>
                         <HeaderSyncStatus size={12} isLedger={!!ledgerName}/>
                     </View>
                 </View>
@@ -85,17 +85,6 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                     >
                         {ledgerName || walletSettings?.name || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`}
                     </Text>
-                    <WalletAddress
-                        address={address}
-                        elipsise={{ start: 4, end: 4 }}
-                        textStyle={[Typography.regular13_18, {
-                            color: onLightBackground ? theme.textPrimary : theme.textUnchangeable,
-                            opacity: 0.5,
-                            fontFamily: undefined,
-                        }]}
-                        disableContextMenu
-                        theme={theme}
-                    />
                 </View>
                 <ArrowDown
                     height={16}

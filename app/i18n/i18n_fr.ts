@@ -96,7 +96,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "home": "Accueil",
         "history": "Historique",
         "browser": "Navigateur",
-        "more": "Plus"
+        "settings": "Paramètres"
     },
     "settings": {
         "title": "Plus",
@@ -138,14 +138,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "buy": "Acheter",
             "swap": "Échanger",
             "deposit": "Déposer",
-            "payments": "Paiements"
+            "payments": "Paiements",
+            "scan": "Scanner"
         },
         "empty": {
             "message": "Aucune transaction",
             "receive": "Recevoir TON",
             "description": "Effectuez votre première transaction"
         },
-        "pendingTransactions": "Transactions en attente"
+        "pendingTransactions": "Transactions en attente",
+         "owner": "Propriétaire",
     },
     "transactions": {
         "title": "Transactions",

@@ -98,8 +98,8 @@ export type LocalizationSchema = {
         home: string,
         history: string,
         browser: string,
-        more: string
-    }
+        settings: string
+    },
     settings: {
         title: string,
         backupKeys: string,
@@ -134,6 +134,7 @@ export type LocalizationSchema = {
     wallet: {
         sync: string,
         balanceTitle: string,
+        owner: string,
         actions: {
             receive: string,
             send: string,
@@ -141,6 +142,7 @@ export type LocalizationSchema = {
             swap: string,
             deposit: string,
             payments: string,
+            scan: string,
         },
         empty: {
             message: string,
@@ -788,7 +790,7 @@ export type LocalizationSchema = {
                 }
             }
         }
-    }
+    },
     welcome: {
         title: string,
         titleDev: string,
@@ -865,7 +867,7 @@ export type LocalizationSchema = {
         subtitle: string,
         saved: string,
         goToBackup: string,
-    }
+    },
     errors: {
         incorrectWords: {
             title: string,
@@ -1247,7 +1249,7 @@ export type LocalizationSchema = {
     changelly: {
         bannerTitle: string,
         bannerDescription: string
-    }
+    },
     w5: {
         banner: {
             title: string,
@@ -1264,7 +1266,7 @@ export type LocalizationSchema = {
             switch_button: string,
         },
         gaslessInfo: string
-    }
+    },
     browser: {
         listings: {
             categories: {

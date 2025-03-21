@@ -96,7 +96,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "home": "Главная",
         "history": "История",
         "browser": "Браузер",
-        "more": "Еще"
+        "settings": "Настройки"
     },
     "settings": {
         "title": "Ещё",
@@ -138,14 +138,16 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "buy": "Купить",
             "swap": "Обмен",
             "deposit": "Пополнить",
-            "payments": "Платежи"
+            "payments": "Платежи",
+            "scan": "Сканировать"
         },
         "empty": {
             "message": "У вас нет транзакций",
             "receive": "Получить TON",
             "description": "Совершите первую транзакцию"
         },
-        "pendingTransactions": "Ожидают отправки"
+        "pendingTransactions": "Ожидают отправки",
+        "owner": "Владелец",
     },
     "transactions": {
         "title": "Транзакции",

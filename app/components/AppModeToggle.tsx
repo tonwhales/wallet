@@ -9,27 +9,31 @@ import { holdersUrl, HoldersUserState } from '../engine/api/holders/fetchUserSta
 import { HoldersAppParamsType } from '../fragments/holders/HoldersAppFragment';
 import { useTransactionsFilter } from '../engine/hooks/transactions/useTransactionsFilter';
 import { TransactionType } from '../engine/types';
+import { useLedgerTransport } from '../fragments/ledger/components/TransportContext';
+import { Address } from '@ton/core';
 
 const ICON_SIZE = 16;
 const GAP_BETWEEN_ICON_AND_TEXT = 4;
 const TOGGLE_BORDER_WIDTH = 2
 
-export const AppModeToggle = () => {
+export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
     const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const leftLabel = t('common.wallet')
     const rightLabel = t('common.cards')
     const theme = useTheme();
     const selected = useSelectedAccount();
-    const [isWalletMode, switchAppToWalletMode] = useAppMode(selected?.address);
+    const [isWalletMode, switchAppToWalletMode] = useAppMode(selected?.address, { isLedger });
+    const ledgerContext = useLedgerTransport();
+    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address!;
     const [isToggleInWalletMode, setToggleInWalletMode] = useState(isWalletMode);
     const [toggleWidth, setToggleWidth] = useState(0);
     const { isTestnet } = useNetwork();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
-    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const [, setFilter] = useTransactionsFilter(selected!.address);
-    const holdersAccounts = useHoldersAccounts(selected!.address).data;
+    const holdersAccStatus = useHoldersAccountStatus(address).data;
+    const [, setFilter] = useTransactionsFilter(address);
+    const holdersAccounts = useHoldersAccounts(address).data;
 
     const needsEnrollment = useMemo(() => {
         return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;

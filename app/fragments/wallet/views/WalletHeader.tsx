@@ -3,38 +3,21 @@ import { memo, useCallback } from "react";
 import { Pressable, View, Image, Platform, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { resolveUrl } from "../../../utils/resolveUrl";
-import { useLinkNavigator } from "../../../useLinkNavigator";
-import { useNetwork, useTheme } from "../../../engine/hooks";
-import { Address } from "@ton/core";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useTheme } from "../../../engine/hooks";
+import { Address, toNano } from "@ton/core";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { SelectedWallet } from "../../../components/wallet/SelectedWallet";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import { PriceComponent } from "../../../components/PriceComponent";
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOffsetSv }: { address: Address, height: number, walletCardHeight: number, scrollOffsetSv: SharedValue<number> }) => {
-    const network = useNetwork();
     const theme = useTheme();
-    const bottomBarHeight = useBottomTabBarHeight();
-    const linkNavigator = useLinkNavigator(network.isTestnet, { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) });
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [isWalletMode] = useAppMode(address);
-
-    const onQRCodeRead = (src: string) => {
-        try {
-            let res = resolveUrl(src, network.isTestnet);
-            if (res) {
-                linkNavigator(res);
-            }
-        } catch (error) {
-            // Ignore
-        }
-    };
-    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [
@@ -49,6 +32,8 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
     const containerAnimatedStyle = useAnimatedStyle(() => ({
         backgroundColor: scrollOffsetSv.value <= 0 ? 'transparent' : theme.backgroundUnchangeable,
     }))
+
+    const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
     return (
         <Animated.View
@@ -78,32 +63,26 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                 />
             </ScrollView>
             <View style={{
-                height: 48,
+                height: 56,
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingVertical: 6,
+                paddingBottom: 8,
                 paddingHorizontal: 16,
             }}>
                 <SelectedWallet />
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                     {isWalletMode && (
                         <Pressable
-                            style={({ pressed }) => ({
-                                opacity: pressed ? 0.5 : 1,
-                                backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
-                                height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
-                                borderRadius: 16
-                            })}
-                            onPress={openScanner}
+                            style={{ flexDirection: 'row', alignItems: 'center' }}
+                            onPress={navigateToCurrencySettings}
                         >
-                            <Image
-                                source={require('@assets/ic-scan-main.png')}
-                                style={{
-                                    height: 22,
-                                    width: 22,
-                                    tintColor: theme.iconUnchangeable
-                                }}
+                            <PriceComponent
+                                showSign
+                                amount={toNano(1)}
+                                style={{ backgroundColor: 'transparent' }}
+                                textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
+                                theme={theme}
                             />
                         </Pressable>
                     )}

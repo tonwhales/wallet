@@ -32,7 +32,7 @@ export const LedgerAppFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const { isTestnet: testOnly } = useNetwork();
     const selected = useSelectedAccount();
-    const [isWalletMode] = useAppMode(selected?.address);
+    const [isWalletMode] = useAppMode(selected?.address, { isLedger: true });
 
     if (!ledgerContext.addr) {
         navigation.navigateAndReplaceAll('Home')
@@ -104,7 +104,7 @@ export const LedgerAppFragment = fragment(() => {
                     component={TransactionsFragment}
                 />
                 <Tab.Screen
-                    options={{ title: t('home.more') }}
+                    options={{ title: t('home.settings') }}
                     name={'LedgerSettings'}
                     component={isWalletMode ? SettingsFragment : HoldersSettings}
                 />

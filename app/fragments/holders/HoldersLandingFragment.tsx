@@ -10,7 +10,7 @@ import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount } from '../../engine/hooks';
+import { useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount, useSupport } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -35,13 +35,13 @@ export const HoldersLandingFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
-    const { showActionSheetWithOptions } = useActionSheet();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const [currency] = usePrimaryCurrency();
     const [lang] = useLanguage();
     const route = useRoute();
     const isLedger = route.name === 'LedgerHoldersLanding';
+    const { onSupport } = useSupport();
 
     const { endpoint, onEnrollType, inviteId } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams, inviteId?: string }>();
 
@@ -217,32 +217,6 @@ export const HoldersLandingFragment = fragment(() => {
         trackEvent(MixpanelEvent.HoldersReload, { route: source.url }, isTestnet);
         setRenderKey(renderKey + 1);
     }, [renderKey, isTestnet]);
-
-    const onSupport = useCallback(() => {
-        const tonhubOptions = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
-        const cancelButtonIndex = 0;
-
-        const tonhubSupportSheet = () => {
-            showActionSheetWithOptions({
-                options: tonhubOptions,
-                title: t('settings.support.title'),
-                cancelButtonIndex,
-            }, (selectedIndex?: number) => {
-                switch (selectedIndex) {
-                    case 1:
-                        openWithInApp('https://t.me/WhalesSupportBot');
-                        break;
-                    case 2:
-                        openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
-                        break;
-                    default:
-                        break;
-                }
-            });
-        }
-
-        tonhubSupportSheet();
-    }, []);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>

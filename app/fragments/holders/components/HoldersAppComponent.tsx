@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams, HoldersAppParamsType } from '../HoldersAppFragment';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useDAppBridge, useLanguage, usePrimaryCurrency } from '../../../engine/hooks';
+import { useDAppBridge, useLanguage, usePrimaryCurrency, useSupport } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { HoldersUserState, holdersUrl } from '../../../engine/api/holders/fetchUserState';
@@ -195,7 +195,7 @@ export const HoldersAppComponent = memo((
     const [lang] = useLanguage();
     const [currency] = usePrimaryCurrency();
     const url = holdersUrl(isTestnet);
-    const { showActionSheetWithOptions } = useActionSheet();
+    const { onSupport } = useSupport({ isLedger });
 
     const source = useMemo(() => {
         const queryParams = new URLSearchParams({
@@ -402,39 +402,6 @@ export const HoldersAppComponent = memo((
         setRenderKey(renderKey + 1);
     }, [renderKey, isTestnet]);
 
-    const onSupport = useCallback(() => {
-        const tonhubOptions = [
-            t('common.cancel'),
-            t('settings.support.telegram'),
-            t('settings.support.form'),
-            t('settings.support.holders')
-        ];
-        const cancelButtonIndex = 0;
-
-        const tonhubSupportSheet = () => {
-            showActionSheetWithOptions({
-                options: tonhubOptions,
-                title: t('settings.support.title'),
-                cancelButtonIndex,
-            }, (selectedIndex?: number) => {
-                switch (selectedIndex) {
-                    case 1:
-                        openWithInApp(holdersSupportUrl);
-                        break;
-                    case 2:
-                        openWithInApp(supportFormUrl);
-                        break;
-                    case 3:
-                        openWithInApp(holdersSupportWebUrl);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        }
-
-        tonhubSupportSheet();
-    }, []);
 
     return (
         <View

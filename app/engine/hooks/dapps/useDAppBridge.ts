@@ -251,10 +251,8 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
 
             sendSolanaTransaction: async (transaction: string) => {
                 navigation.navigateSolanaTransfer({
-                    order: {
-                        type: 'solana-transaction',
-                        transaction: transaction,
-                    }
+                    type: 'transaction',
+                    transaction,
                 });
             }
         };

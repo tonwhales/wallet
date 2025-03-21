@@ -11,7 +11,6 @@ import { Avatar } from "../../../components/avatar/Avatar";
 import { Typography } from "../../../components/styles";
 import { formatTime } from "../../../utils/dates";
 import { ValueComponent } from "../../../components/ValueComponent";
-import { ItemDivider } from "../../../components/ItemDivider";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { SOLANA_TRANSACTION_PROCESSING_TIMEOUT } from "../../../engine/hooks/solana/useSolanaTransactionStatus";
 
@@ -28,6 +27,11 @@ export const PendingSolanaTransactionView = memo(({
     viewType?: 'history' | 'main' | 'jetton-history',
     address: string
 }) => {
+    if (!transaction.tx) {
+        // TODO: show instructions mapped to ui elements
+        return null;
+    }
+
     const { target, amount, token } = transaction.tx;
     const theme = useTheme();
     const { isTestnet } = useNetwork();

@@ -293,6 +293,7 @@ export function parseInstruction(instruction: TransactionInstruction) {
         default:
             // For unknown programs, return basic info
             return {
+                name: 'Unknown Program',
                 program: 'Unknown Program',
                 programId,
                 data: instruction.data,
@@ -309,6 +310,8 @@ export function parseTransactionInstructions(instructions: TransactionInstructio
         parseInstruction(instruction)
     ).filter(Boolean);
 }
+
+export type ParsedTransactionInstruction = ReturnType<typeof parseTransactionInstructions>[number];
 
 /**
  * Helper to shorten addresses for display

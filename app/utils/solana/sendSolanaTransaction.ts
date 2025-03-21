@@ -6,7 +6,7 @@ import { Keypair, Transaction, PublicKey, SystemProgram, TransactionInstruction 
 import { createTransferInstruction, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../engine/state/pending";
 
-type SendSolanaTransferParams = {
+type SendSolanaOrderParams = {
     sender: string,
     solanaClient: SolanaClient,
     theme: ThemeType,
@@ -14,7 +14,7 @@ type SendSolanaTransferParams = {
     order: SolanaOrder
 }
 
-export async function sendSolanaTransaction({ solanaClient, theme, authContext, order, sender }: SendSolanaTransferParams): Promise<PendingSolanaTransaction> {
+export async function sendSolanaOrder({ solanaClient, theme, authContext, order, sender }: SendSolanaOrderParams): Promise<PendingSolanaTransaction> {
     const { target, comment, amount, token } = order;
     const lastBlockHash = await solanaClient.getLatestBlockhash();
     const mintAddress = token ? new PublicKey(token.mint) : null;

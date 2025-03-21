@@ -14,7 +14,7 @@ import { useCallback } from "react";
 import { copyText } from "../../../utils/copyText";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { RoundButton } from "../../../components/RoundButton";
-import { sendSolanaTransaction } from "../../../utils/solana/sendSolanaTransaction";
+import { sendSolanaOrder } from "../../../utils/solana/sendSolanaTransaction";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressInputAvatar } from "../../../components/address/AddressInputAvatar";
 import { avatarHash } from "../../../utils/avatarHash";
@@ -23,15 +23,24 @@ import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAdd
 import { fromNano } from "@ton/core";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { Transaction } from "@solana/web3.js";
-import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
+import { parseTransactionInstructions, ParsedTransactionInstruction } from "../../../utils/solana/parseInstructions";
+import { signAndSendSolanaTransaction } from "../../../utils/solana/signAndSendSolanaTransaction";
+import { WalletResponse } from "@tonconnect/protocol";
 
-export type SolanaTransferParams = {
+type SolanaOrderTransferParams = {
     type: 'order';
     order: SolanaOrder
-} | {
+}
+
+type SolanaTransactionTransferParams = {
     type: 'transaction';
     transaction: string;
 }
+
+export type SolanaTransferParams = (SolanaOrderTransferParams | SolanaTransactionTransferParams) & {
+    callback?: (response: WalletResponse<'sendTransaction'>) => void
+};
+
 
 type TransferLoadedParams = {
     type: 'order';
@@ -76,7 +85,7 @@ const TransferOrder = (order: SolanaOrder) => {
 
     const doSend = useCallback(async () => {
         try {
-            const pending = await sendSolanaTransaction({
+            const pending = await sendSolanaOrder({
                 solanaClient,
                 theme,
                 authContext,
@@ -224,10 +233,100 @@ const TransferOrder = (order: SolanaOrder) => {
     );
 }
 
-const TransferInstructions = (instructions: ReturnType<typeof parseTransactionInstructions>) => {
+const TransferInstructionView = (params: { instruction: ParsedTransactionInstruction }) => {
+    // TODO: map instruction ui elements with instruction args
+    const { instruction } = params;
+    const theme = useTheme();
+    const op = instruction?.name;
+    const description = instruction?.description;
+    const program = instruction?.program;
+
+    return (
+        <View>
+            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
+                    {'Operation'}
+                </Text>
+                <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                        <Text style={{ color: theme.textPrimary }}>
+                            {op}
+                        </Text>
+                    </Text>
+                </View>
+            </View>
+            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                <Text style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
+                    {'Description'}
+                </Text>
+                <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                        <Text style={{ color: theme.textPrimary }}>
+                            {description}
+                        </Text>
+                    </Text>
+                </View>
+            </View>
+        </View>
+    )
+}
+
+const TransferInstructions = (params: {
+    instructions: ReturnType<typeof parseTransactionInstructions>;
+    transaction: string;
+    callback?: (response: WalletResponse<'sendTransaction'>) => void
+}) => {
+    const theme = useTheme();
+    const toaster = useToaster();
+    const solanaClient = useSolanaClient();
+    const authContext = useKeysAuth();
+    const solanaAddress = useSolanaSelectedAccount()!;
+    const navigation = useTypedNavigation();
+    const transaction = Transaction.from(Buffer.from(params.transaction, 'base64'));
+
+    const registerPending = useRegisterPendingSolana(solanaAddress);
+
+    const doSend = useCallback(async () => {
+        try {
+            const pending = await signAndSendSolanaTransaction({
+                solanaClient,
+                theme,
+                authContext,
+                transaction
+            });
+            registerPending(pending);
+        } catch (error) {
+            // TODO: humanize error ui
+            Alert.alert('Error', (error as Error).message);
+        }
+    }, [theme, authContext, params, solanaAddress, navigation, registerPending]);
+
     return (
         <View style={{ flexGrow: 1 }}>
-
+            <ScrollView
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                contentInsetAdjustmentBehavior="never"
+                keyboardShouldPersistTaps="always"
+                keyboardDismissMode="none"
+                automaticallyAdjustContentInsets={false}
+                alwaysBounceVertical={false}
+            >
+                <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
+                    <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
+                        {params.instructions.map((instruction, index) => (
+                            <TransferInstructionView key={index} instruction={instruction} />
+                        ))}
+                    </ItemGroup>
+                    <View style={{ height: 54 }} />
+                </View>
+            </ScrollView>
+            <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+                <RoundButton
+                    title={t('common.confirm')}
+                    action={doSend}
+                />
+            </View>
         </View>
     );
 }
@@ -238,7 +337,14 @@ const TransferLoaded = (params: SolanaTransferParams) => {
     if (transfer.type === 'order') {
         return <TransferOrder {...transfer.order} />
     }
-    return <TransferInstructions {...transfer.instructions} />;
+
+    return (
+        <TransferInstructions
+            instructions={transfer.instructions}
+            transaction={(params as SolanaTransactionTransferParams).transaction}
+            callback={params.callback}
+        />
+    );
 }
 
 export const SolanaTransferFragment = fragment(() => {

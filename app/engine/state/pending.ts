@@ -4,6 +4,7 @@ import { Jetton } from "../types";
 import { parseBody } from "../transactions/parseWalletTransaction";
 import { TransferEstimate } from "../../fragments/secure/transfer/TransferFragment";
 import { Blockhash } from "@solana/web3.js";
+import { ParsedTransactionInstruction } from "../../utils/solana/parseInstructions";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell, stateInit?: Cell | null }
@@ -105,7 +106,7 @@ export type PendingSolanaTransaction = {
         blockhash: Blockhash,
         lastValidBlockHeight: number
     },
-    tx: {
+    tx?: {
         comment?: string | null,
         amount: bigint,
         token: {
@@ -115,7 +116,8 @@ export type PendingSolanaTransaction = {
         } | null | undefined,
         target: string,
         sender: string
-    }
+    },
+    instructions?: ParsedTransactionInstruction[]
 }
 
 export const pendingSolanaTransactionsState = atomFamily<PendingSolanaTransaction[], string>({

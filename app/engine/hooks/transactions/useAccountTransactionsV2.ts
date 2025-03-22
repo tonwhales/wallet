@@ -35,7 +35,6 @@ export function useAccountTransactionsV2(
 
     let raw = useInfiniteQuery<AccountStoredTransaction[]>({
         queryKey: Queries.TransactionsV2(account, !!token, params),
-        refetchOnMount: options.refetchOnMount,
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
             if (!last || allPages.length < 1 || !last[TRANSACTIONS_LENGTH - 2]) {
@@ -264,6 +263,12 @@ export function useAccountTransactionsV2(
             }
         }
     }, [raw.isRefetching]);
+
+    useEffect(() => {
+        if (options.refetchOnMount) {
+            raw.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        }
+    }, [options.refetchOnMount]);
 
     return {
         data: raw.data?.pages.flat() || null,

@@ -7,5 +7,6 @@ export type PriceState = {
 }
 
 export async function fetchPrice(): Promise<PriceState> {
-    return ((await axios.get('https://connect.tonhubapi.com/v2/price', { method: 'GET' })).data as PriceState);
+    const res = await axios.get('https://connect.tonhubapi.com/v2/price', { method: 'GET' });
+    return res.data as PriceState;
 };

@@ -30,7 +30,32 @@ export function useSolanaAccountWatcher() {
         let watcher: EventSource | null = new EventSource(url);
         watcher.addEventListener('message', (event) => {
             logger.log('sse new event: ' + (event as MessageEvent).type);
-            queryClient.invalidateQueries(Queries.SolanaAccount(address.toString(), network).All());
+            queryClient.invalidateQueries({
+                predicate: (query) => {
+                    const base = Queries.SolanaAccount(address.toString(), network).All();
+                    if (
+                        query.queryKey.length === base.length && query.queryKey.every((value, index) => value === base[index])
+                        && query.queryKey[3] !== 'transactions'
+                    ) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            queryClient.invalidateQueries({
+                predicate: (query) => {
+                    const base = Queries.SolanaAccount(address.toString(), network).All();
+                    if (
+                        query.queryKey.length === base.length && query.queryKey.every((value, index) => value === base[index])
+                        && query.queryKey[3] === 'transactions'
+                    ) {
+                        return true;
+                    }
+                    return false;
+                },
+                refetchPage: (last, index, allPages) => index == 0,
+            });
         });
 
         watcher.addEventListener('open', () => {

@@ -100,7 +100,7 @@ export const PendingSolanaTransactionView = memo(({
                         <PendingTransactionAvatar
                             kind={'out'}
                             address={target}
-                            avatarId={target ?? 'batch'}
+                            avatarId={target ?? ''}
                             style={{ backgroundColor: theme.backgroundPrimary }}
                             knownWallets={{}}
                         />

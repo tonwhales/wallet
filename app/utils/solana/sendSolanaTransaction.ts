@@ -42,7 +42,7 @@ export async function sendSolanaOrder({ solanaClient, theme, authContext, order,
             owner
         );
 
-        // TODO: check if recipient is token account
+        // TODO: *solana* check if recipient is token account
         // and just use it instead of creating a new one
 
         const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(

@@ -12,6 +12,9 @@ import { TypedNavigation } from "../../../../utils/useTypedNavigation";
 import { SolanaTokenTransferView } from "./SolanaTokenTransferView";
 import { SolanaNativeTransferView } from "./SolanaNativeTransferView";
 import { ReceiveableSolanaAsset } from "../../ReceiveFragment";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { ReAnimatedCircularProgress } from "../../../../components/CircularProgress/ReAnimatedCircularProgress";
+import { SolanaTransactionView } from "./SolanaTransactionView";
 
 type SolanaTransactionsProps = {
   theme: ThemeType;
@@ -47,7 +50,7 @@ export const SolanaTransactions = memo(({
   owner,
   asset
 }: SolanaTransactionsProps) => {
-
+  const bottomBarHeight = useBottomTabBarHeight();
   const { transactionsSections } = useMemo(() => {
     const sectioned = new Map<string, { title: string, data: SolanaTransaction[] }>();
     for (let i = 0; i < txs.length; i++) {
@@ -71,30 +74,38 @@ export const SolanaTransactions = memo(({
   );
 
   const renderItem = useCallback(({ item }: { item: SolanaTransaction }) => {
-    const { description, type, source, fee, feePayer, signature, slot, timestamp, tokenTransfers, nativeTransfers, accountData } = item;
-
     return (
-      <View style={[styles.transactionItem, { gap: 2 }]}>
-        {nativeTransfers?.map((tx, index) => {
-          return <SolanaNativeTransferView
-            key={`${signature}-${index}`}
-            transfer={tx}
-            owner={owner}
-            item={item}
-          />
-        })}
-        {tokenTransfers?.map((tx, index) => {
-          return <SolanaTokenTransferView
-            key={`${tx.mint}-${signature}-${index}`}
-            transfer={tx}
-            owner={owner}
-            accountData={accountData}
-            item={item}
-          />
-        })}
-      </View >
+      <SolanaTransactionView
+        item={item}
+        owner={owner}
+        asset={asset}
+      />
     );
-  }, [navigation, owner]);
+  }, [owner, asset]);
+
+  const ListEmptyComponent = useMemo(() => {
+    if (loading) {
+      return <TransactionsSkeleton />;
+    }
+    return <TransactionsEmptyState type={TransactionsEmptyStateType.Solana} addr={owner} asset={asset} />;
+  }, [loading, owner, asset]);
+
+  const ListFooterComponent = useMemo(() => {
+    if (hasNext) {
+      return (
+        <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+          <ReAnimatedCircularProgress
+            size={24}
+            color={theme.iconPrimary}
+            reverse
+            infinitRotate
+            progress={0.8}
+          />
+        </View>
+      );
+    }
+    return null;
+  }, [hasNext, theme]);
 
   return (
     <SectionList
@@ -102,19 +113,11 @@ export const SolanaTransactions = memo(({
       keyExtractor={(item) => `${item.signature}`}
       renderItem={renderItem}
       renderSectionHeader={renderSectionHeader}
-      contentContainerStyle={[
-        styles.listContent,
-        { paddingBottom: 86 }
-      ]}
+      contentInset={{ bottom: bottomBarHeight }}
+      contentContainerStyle={styles.listContent}
       ListHeaderComponent={header}
-      ListEmptyComponent={loading
-        ? <TransactionsSkeleton />
-        : <TransactionsEmptyState
-          type={TransactionsEmptyStateType.Solana}
-          addr={owner}
-          asset={asset}
-        />
-      }
+      ListEmptyComponent={ListEmptyComponent}
+      ListFooterComponent={ListFooterComponent}
       onEndReached={onLoadMore}
       initialNumToRender={16}
       scrollEventThrottle={50}

@@ -11,6 +11,7 @@ export function useSavingsBalance(addr: string | Address) {
     const { savings } = useDisplayableJettons(addressString);
     const specialJetton = useSpecialJetton(address);
     const accountLite = useAccountLite(address);
+    // TODO: *solana* add solana balance
 
     let totalBalance = 0;
 
@@ -29,7 +30,7 @@ export function useSavingsBalance(addr: string | Address) {
         }
     }, 0);
     totalBalance += savingTotal;
-    
+
     // TON balance
     const tonBalance = accountLite?.balance ?? 0n;
     let tonTotal = 0;

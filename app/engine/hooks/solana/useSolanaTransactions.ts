@@ -11,7 +11,6 @@ export function useSolanaTransactions(address: string) {
 
     const query = useInfiniteQuery<SolanaTransaction[]>({
         queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').Transactions(),
-        refetchOnMount: true,
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
             if (!last || allPages.length < 1 || !last[TRANSACTIONS_LENGTH - 2]) {
@@ -21,10 +20,9 @@ export function useSolanaTransactions(address: string) {
             return last[TRANSACTIONS_LENGTH - 1]?.signature;
         },
         queryFn: async (ctx) => {
-            const pageParam = ctx.pageParam as (string | undefined);
             try {
-                const transactions = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam });
-                return transactions;
+                const pageParam = ctx.pageParam as (string | undefined);
+                return await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam });
             } catch (error) {
                 throw error;
             }
@@ -96,6 +94,10 @@ export function useSolanaTransactions(address: string) {
         }
     }, [query.isRefetching]);
 
+    useEffect(() => {
+        query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+    }, []);
+
     return {
         data: query.data?.pages.flat() || [],
         hasNext: query.hasNextPage || false,
@@ -104,7 +106,10 @@ export function useSolanaTransactions(address: string) {
                 query.fetchNextPage();
             }
         },
-        refresh: query.refetch,
+        refresh: () => {
+            setIsRefreshing(true);
+            query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        },
         refreshing: isRefreshing,
         loading: query.isFetching || query.isRefetching,
     }

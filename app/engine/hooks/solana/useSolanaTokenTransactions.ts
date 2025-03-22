@@ -11,7 +11,6 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
 
     const query = useInfiniteQuery<SolanaTransaction[]>({
         queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').TokenTransactions(mint),
-        refetchOnMount: true,
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
             if (!last || allPages.length < 1 || !last[TRANSACTIONS_LENGTH - 2]) {
@@ -23,14 +22,7 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
         queryFn: async (ctx) => {
             try {
                 const pageParam = ctx.pageParam as (string | undefined);
-                const sliceFirst = !!pageParam;
-                let txs = await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
-
-                if (sliceFirst) {
-                    txs = txs.slice(1);
-                }
-
-                return txs;
+                return await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
             } catch (error) {
                 console.error(error);
                 throw error;
@@ -80,7 +72,8 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
             }
 
             return { pages, pageParams };
-        }
+        },
+        staleTime: 1000 * 5
     });
 
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -103,6 +96,11 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
         }
     }, [query.isRefetching]);
 
+    // Refetch only first page on mount instead of refetching all pages (in case of token transactions it would search through all transactions to find token transfers)
+    useEffect(() => {
+        query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+    }, []);
+
     return {
         data: query.data?.pages.flat() || [],
         hasNext: query.hasNextPage || false,
@@ -111,7 +109,10 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
                 query.fetchNextPage();
             }
         },
-        refresh: query.refetch,
+        refresh: () => {
+            setIsRefreshing(true);
+            query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        },
         refreshing: isRefreshing,
         loading: query.isFetching || query.isRefetching,
     }

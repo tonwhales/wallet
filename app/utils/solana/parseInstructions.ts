@@ -277,9 +277,7 @@ export function parseAssociatedTokenInstruction(instruction: TransactionInstruct
  * Main function to parse any Solana instruction
  */
 export function parseInstruction(instruction: TransactionInstruction) {
-    console.log(instruction);
     const programId = instruction.programId.toString();
-    console.log(programId, holdersIdl.address);
 
     // Check for known program IDs
     switch (programId) {

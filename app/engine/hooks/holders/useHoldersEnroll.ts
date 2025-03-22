@@ -127,8 +127,6 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                 const stateInitCell = beginCell().store(storeStateInit({ code: initialCode, data: initialData })).endCell();
                 const stateInitStr = stateInitCell.toBoc({ idx: false }).toString('base64');
 
-                console.log('creating reply items buildeer');
-
                 const replyBuilder = new ConnectReplyBuilder(
                     {
                         items: [{ name: 'ton_addr' }, { name: 'ton_proof', payload: 'ton-proof-any' }, { name: 'solana_proof', payload: 'solana-proof-any' }],
@@ -146,8 +144,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                         stateInitStr,
                         isTestnet
                     );
-                } catch (e) {
-                    console.log('error', e);
+                } catch {
                     return { type: 'error', error: HoldersEnrollErrorType.ReplyItemsFailed };
                 }
 
@@ -222,8 +219,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                     const token = await fetchUserToken(requestParams, isTestnet);
 
                     setHoldersToken(acc.address.toString({ testOnly: isTestnet }), token);
-                } catch (e) {
-                    console.log('error', e);
+                } catch {
                     deleteHoldersToken(acc.address.toString({ testOnly: isTestnet }));
                     return { type: 'error', error: HoldersEnrollErrorType.FetchTokenFailed };
                 }

@@ -95,7 +95,7 @@ const TransferOrder = (order: SolanaOrder) => {
             });
             registerPending(pending);
         } catch (error) {
-            // TODO: humanize error ui
+            // TODO: *solana* humanize error ui
             Alert.alert('Error', (error as Error).message);
         }
         // Reset stack to root
@@ -235,7 +235,7 @@ const TransferOrder = (order: SolanaOrder) => {
 }
 
 const TransferInstructionView = (params: { instruction: ParsedTransactionInstruction }) => {
-    // TODO: map instruction ui elements with instruction args
+    // TODO: *solana* map instruction ui elements with instruction args
     const { instruction } = params;
     const theme = useTheme();
     const op = instruction?.name;
@@ -394,7 +394,7 @@ const TransferInstructions = (params: {
             });
             registerPending(pending);
         } catch (error) {
-            // TODO: humanize error ui
+            // TODO: *solana* humanize error ui
             Alert.alert('Error', (error as Error).message);
         }
     }, [theme, authContext, params, solanaAddress, navigation, registerPending]);

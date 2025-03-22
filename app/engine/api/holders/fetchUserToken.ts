@@ -140,16 +140,12 @@ export type AccountKeyParam = z.infer<typeof keys>;
 export async function fetchUserToken(requestParams: TonSolanaAuthRequest | TonAuthRequest, isTestnet: boolean): Promise<string> {
     const endpoint = holdersEndpoint(isTestnet);
 
-    console.log('fetching user token', { params: requestParams, endpoint });
-
     const url = `https://${endpoint}/v2/user/wallet/connect`;
 
     const res = await axios.post(
         url,
         requestParams
     );
-
-    console.log('fetching user token', JSON.stringify(res.data));
 
     if (!res.data.ok) {
         throw Error('Failed to fetch user token');

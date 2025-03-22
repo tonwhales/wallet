@@ -276,7 +276,7 @@ export const ReceiveFragment = fragment(() => {
 
     const navigateToExchanges = () => {
         if (!isTon) {
-            // TODO: add solana exchanges when will be implemented on web
+            // TODO: *solana* add solana exchanges when will be implemented on web
             return;
         }
 

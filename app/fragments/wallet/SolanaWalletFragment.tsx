@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useNetwork, usePrimaryCurrency, useSolanaAccount, useSolanaTransactions, useTheme } from "../../engine/hooks";
+import { useNetwork, usePrice, usePrimaryCurrency, useSolanaAccount, useSolanaTransactions, useTheme } from "../../engine/hooks";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -43,11 +43,10 @@ const SolanaWalletSkeleton = memo(() => {
     );
 });
 
-const SolanaHeader = memo(({ owner }: SolanaWalletFragmentProps) => {
+const SolanaHeader = memo(() => {
     const theme = useTheme();
-    const [currency] = usePrimaryCurrency();
-    // TODO: get rate from API
-    const rate = 144;
+    const [, currency, solanaPrice] = usePrice();
+    const rate = solanaPrice.price.usd;
 
     return (
         <View style={styles.headerTitleComponent}>
@@ -84,9 +83,8 @@ const SolanaTransactionsHeader = memo(({ owner }: SolanaWalletFragmentProps) => 
     const balance = account.data?.balance ?? 0n;
     const symbol = "SOL";
     const decimals = 9;
-    const [currency] = usePrimaryCurrency();
-    // TODO: get rate from API
-    const rate = 144;
+    const [, currency, solanaPrice] = usePrice();
+    const rate = solanaPrice.price.usd;
 
     // Calculate USD value
     const usdValue = rate ? (Number(balance) / Math.pow(10, decimals)) * Number(rate) : 0;
@@ -185,7 +183,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 style={styles.header}
-                titleComponent={(<SolanaHeader owner={owner} />)}
+                titleComponent={<SolanaHeader />}
             />
             <SolanaTransactions
                 theme={theme}

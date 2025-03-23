@@ -1,15 +1,13 @@
-import { memo, useCallback } from "react";
-import { ThemeType } from "../../../engine/state/theme";
+import { memo } from "react";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Pressable, View, Image, Text } from "react-native";
 import { Typography } from "../../styles";
 import { PriceComponent } from "../../PriceComponent";
 import { ValueComponent } from "../../ValueComponent";
 import { ItemDivider } from "../../ItemDivider";
-import { SOLANA_USDC_MINT_DEVNET, SOLANA_USDC_MINT_MAINNET } from "../../../utils/solana/address";
 import { t } from "../../../i18n/t";
 import { toNano } from "@ton/core";
-import { useNetwork, useTheme } from "../../../engine/hooks";
+import { useTheme } from "../../../engine/hooks";
 import { SolanaToken } from "../../../engine/api/solana/fetchSolanaTokens";
 import { WImage } from "../../WImage";
 
@@ -53,7 +51,7 @@ export const SolanaTokenProduct = memo(({
                     backgroundColor: theme.surfaceOnBg,
                     borderRadius: 20,
                     overflow: 'hidden',
-                    gap: 4
+                    gap: 12
                 },
             ]}>
                 <View style={{
@@ -87,13 +85,18 @@ export const SolanaTokenProduct = memo(({
                         position: 'absolute', right: -2, bottom: -2,
                         backgroundColor: theme.surfaceOnBg
                     }}>
-                        <Image
-                            source={require('@assets/ic-verified.png')}
-                            style={{ height: 20, width: 20 }}
+                        <SolanaIcon
+                            width={10}
+                            height={10}
+                            style={{
+                                borderRadius: 5,
+                                height: 10,
+                                width: 10
+                            }}
                         />
                     </View>
                 </View>
-                <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                <View style={{ flexShrink: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Text
                             style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
@@ -102,6 +105,10 @@ export const SolanaTokenProduct = memo(({
                         >
                             {name}
                         </Text>
+                        <Image
+                            source={require('@assets/ic-verified.png')}
+                            style={{ height: 20, width: 20 }}
+                        />
                     </View>
                     <Text
                         numberOfLines={1}

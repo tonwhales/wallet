@@ -22,6 +22,7 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
 import { PendingSolanaTransactions } from "./views/PendingSolanaTransactions";
 import { ReceiveableSolanaAsset } from "./ReceiveFragment";
+import { Image } from "expo-image";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
@@ -76,24 +77,28 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>
-                {logoURI ? (
-                    <WImage
-                        src={logoURI}
-                        width={72}
-                        height={72}
-                        borderRadius={36}
-                    />
-                ) : (
+                <WImage
+                    src={logoURI}
+                    width={72}
+                    height={72}
+                    borderRadius={36}
+                />
+                <View style={{
+                    justifyContent: 'center', alignItems: 'center',
+                    height: 30, width: 30, borderRadius: 15,
+                    position: 'absolute', right: -2, bottom: -2,
+                    backgroundColor: theme.surfaceOnBg
+                }}>
                     <SolanaIcon
-                        width={32}
-                        height={32}
+                        width={16}
+                        height={16}
                         style={{
-                            borderRadius: 16,
-                            height: 32,
-                            width: 32
+                            borderRadius: 8,
+                            height: 16,
+                            width: 16
                         }}
                     />
-                )}
+                </View>
             </View>
             <View style={{ marginTop: 16, width: '100%' }}>
                 <View style={{ gap: 8, alignItems: 'center', justifyContent: 'center' }}>
@@ -196,13 +201,19 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
                 style={styles.header}
                 titleComponent={(
                     <View style={styles.headerTitleComponent}>
-                        <Text
-                            style={[{ color: theme.textPrimary }, styles.headerTitle]}
-                            numberOfLines={1}
-                            ellipsizeMode={'tail'}
-                        >
-                            {token?.symbol}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Text
+                                style={[{ color: theme.textPrimary }, styles.headerTitle]}
+                                numberOfLines={1}
+                                ellipsizeMode={'tail'}
+                            >
+                                {token?.symbol}
+                            </Text>
+                            <Image
+                                source={require('@assets/ic-verified.png')}
+                                style={{ height: 20, width: 20 }}
+                            />
+                        </View>
                         {!!rate && (
                             <Text
                                 style={[{ color: theme.textSecondary }, styles.headerSubtitle]}

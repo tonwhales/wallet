@@ -65,17 +65,6 @@ export const SolanaWalletProduct = memo(({
                             width: 32
                         }}
                     />
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        height: 20, width: 20, borderRadius: 10,
-                        position: 'absolute', right: -2, bottom: -2,
-                        backgroundColor: theme.surfaceOnBg
-                    }}>
-                        <Image
-                            source={require('@assets/ic-verified.png')}
-                            style={{ height: 20, width: 20 }}
-                        />
-                    </View>
                 </View>
                 <View style={{ marginLeft: 12, flexShrink: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -86,6 +75,10 @@ export const SolanaWalletProduct = memo(({
                         >
                             {'Solana'}
                         </Text>
+                        <Image
+                            source={require('@assets/ic-verified.png')}
+                            style={{ height: 20, width: 20 }}
+                        />
                     </View>
                     <Text
                         numberOfLines={1}

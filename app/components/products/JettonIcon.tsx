@@ -12,14 +12,16 @@ export const JettonIcon = memo(({
     theme,
     isTestnet,
     backgroundColor,
-    isSCAM
+    isSCAM,
+    hideVerified
 }: {
     size: number,
     jetton: JettonMasterState & { address: string },
     theme: ThemeType,
     isTestnet: boolean,
     backgroundColor?: string,
-    isSCAM?: boolean
+    isSCAM?: boolean,
+    hideVerified?: boolean
 }) => {
     const knownJettons = useKnownJettons(isTestnet);
     const knownJettonMasters = knownJettons?.masters ?? {};
@@ -48,7 +50,7 @@ export const JettonIcon = memo(({
                             }}
                         />
                     )}
-                    {isKnown0 && (
+                    {!hideVerified && isKnown0 && (
                         <View style={{
                             justifyContent: 'center', alignItems: 'center',
                             height: 10, width: 10, borderRadius: 5,
@@ -80,7 +82,7 @@ export const JettonIcon = memo(({
                             }}
                         />
                     )}
-                    {isKnown1 && (
+                    {!hideVerified && isKnown1 && (
                         <View style={{
                             justifyContent: 'center', alignItems: 'center',
                             height: 10, width: 10, borderRadius: 5,
@@ -113,17 +115,19 @@ export const JettonIcon = memo(({
                 borderRadius={size}
             />
             {isKnown ? (
-                <View style={{
-                    justifyContent: 'center', alignItems: 'center',
-                    height: knownSize, width: knownSize, borderRadius: knownSize,
-                    position: 'absolute', right: -icMargin, bottom: -icMargin,
-                    backgroundColor: theme.surfaceOnBg
-                }}>
-                    <Image
-                        source={require('@assets/ic-verified.png')}
-                        style={{ height: knownSize, width: knownSize }}
-                    />
-                </View>
+                !hideVerified && (
+                    <View style={{
+                        justifyContent: 'center', alignItems: 'center',
+                        height: knownSize, width: knownSize, borderRadius: knownSize,
+                        position: 'absolute', right: -icMargin, bottom: -icMargin,
+                        backgroundColor: theme.surfaceOnBg
+                    }}>
+                        <Image
+                            source={require('@assets/ic-verified.png')}
+                            style={{ height: knownSize, width: knownSize }}
+                        />
+                    </View>
+                )
             ) : (
                 isSCAM && (
                     <View style={{

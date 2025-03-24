@@ -18,6 +18,7 @@ import { TransactionType } from "../../engine/types";
 import { HoldersAppFragment, HoldersAppParamsType } from "../holders/HoldersAppFragment";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { HoldersSettings } from "../holders/components/HoldersSettings";
+import { HoldersTransactionsFragment } from "../wallet/HoldersTransactionsFragment";
 
 const Tab = createBottomTabNavigator();
 
@@ -101,7 +102,7 @@ export const LedgerAppFragment = fragment(() => {
                 <Tab.Screen
                     options={{ title: t('home.history') }}
                     name={'LedgerTransactions'}
-                    component={TransactionsFragment}
+                    component={isWalletMode ? TransactionsFragment : HoldersTransactionsFragment}
                 />
                 <Tab.Screen
                     options={{ title: t('home.settings') }}

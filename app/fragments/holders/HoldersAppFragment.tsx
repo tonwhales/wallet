@@ -21,7 +21,8 @@ export enum HoldersAppParamsType {
     Invite = 'invite',
     Transactions = 'transactions',
     Path = 'path',
-    Topup = 'topup'
+    Topup = 'topup',
+    Settings = 'settings'
 }
 
 export type HoldersAppParams =
@@ -32,7 +33,8 @@ export type HoldersAppParams =
     | { type: HoldersAppParamsType.Invite }
     | { type: HoldersAppParamsType.Path, path: string, query: { [key: string]: string | undefined } }
     | { type: HoldersAppParamsType.Transactions, query: { [key: string]: string | undefined } }
-    | { type: HoldersAppParamsType.Topup, id: string };
+    | { type: HoldersAppParamsType.Topup, id: string }
+    | { type: HoldersAppParamsType.Settings };
 
 export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?: HoldersAppParams }) => {
     const theme = useTheme();

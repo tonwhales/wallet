@@ -24,10 +24,11 @@ import { TonTransaction } from '../engine/types';
 import { useParams } from '../utils/useParams';
 import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from './secure/TransferFragment';
-import { HoldersAppFragment, HoldersAppParams, HoldersAppParamsType } from './holders/HoldersAppFragment';
+import { HoldersAppParams } from './holders/HoldersAppFragment';
 import { shouldLockApp } from '../components/SessionWatcher';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { HoldersSettings } from './holders/components/HoldersSettings';
+import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
 
 const Tab = createBottomTabNavigator();
 
@@ -211,7 +212,7 @@ export const HomeFragment = fragment(() => {
                     <Tab.Screen
                         options={{ title: t('home.history') }}
                         name={'Transactions'}
-                        component={TransactionsFragment}
+                        component={isWalletMode ? TransactionsFragment : HoldersTransactionsFragment}
                     />
                     {isWalletMode && (
                         <Tab.Screen

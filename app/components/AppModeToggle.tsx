@@ -51,14 +51,14 @@ export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
 
     const onSwitchAppMode = useCallback((isSwitchingToWallet: boolean) => {
         if (!isSwitchingToWallet && ((needsEnrollment || !isHoldersReady) && !holdersAccounts?.accounts.length)) {
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create } }, isTestnet);
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create }, isLedger }, isTestnet);
             handleToggle()
             return;
         } else {
             switchAppToWalletMode(isSwitchingToWallet);
             setFilter((prev) => ({ ...prev, type: isSwitchingToWallet ? TransactionType.TON : TransactionType.HOLDERS }));
         }
-    }, [needsEnrollment, isHoldersReady, url, isTestnet, holdersAccounts?.accounts])
+    }, [needsEnrollment, isHoldersReady, url, isTestnet, holdersAccounts?.accounts, isLedger])
 
     const animatedStyle = useAnimatedStyle(() => {
         return {

@@ -111,7 +111,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 Linking.openURL(url);
                 return;
             }
+
             let pageDomain = extractDomain(url);
+
             if (isSafeDomain(pageDomain)) {
                 openWithInApp(url);
                 return;

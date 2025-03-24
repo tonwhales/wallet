@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { Item } from '../../components/Item';
 import { fragment } from '../../fragment';
 import { getApplicationKey, getBiometricsState, getPasscodeState, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
@@ -10,6 +10,9 @@ import { useLocalStorageStatus, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { copyText } from '../../utils/copyText';
+import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
+import { t } from '../../i18n/t';
 function loadStorageState() {
     const biometricsState = getBiometricsState();
     const passcodeState = getPasscodeState();
@@ -24,6 +27,7 @@ export const DevStorageFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const [localStorageStatus] = useLocalStorageStatus();
     const insets = useSafeAreaInsets();
+    const toaster = useToaster();
 
     let [value, setValue] = React.useState('');
 
@@ -43,6 +47,17 @@ export const DevStorageFragment = fragment(() => {
     }, []);
     let ref = loadKeyStorageRef();
     let kind = loadKeyStorageType();
+
+    const onCopy = () => {
+        copyText(localStorageStatus.keys.join('\n '));
+        toaster.show(
+            {
+                message: t('common.copied'),
+                type: 'default',
+                duration: ToastDuration.SHORT,
+            }
+        );
+    }
 
     return (
         <ScrollView style={{ flexGrow: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom }}>
@@ -110,12 +125,12 @@ export const DevStorageFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"LocalStorage size"} hint={localStorageStatus.totalSizeBytes?.toString() ?? 'Not set'} />
                     </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                    <TouchableOpacity onPress={onCopy} style={{ marginHorizontal: 16, width: '100%' }}>
                         <Text style={{ marginHorizontal: 16, fontSize: 10, color: theme.textSecondary }}>
                             {localStorageStatus.error}
                             {localStorageStatus.keys.join('\n ')}
                         </Text>
-                    </View>
+                    </TouchableOpacity>
                 </ItemGroup>
             </View>
         </ScrollView>

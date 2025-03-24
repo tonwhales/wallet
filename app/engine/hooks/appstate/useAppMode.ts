@@ -7,7 +7,9 @@ import { useLedgerTransport } from "../../../fragments/ledger/components/Transpo
 export function useAppMode(_address?: string | Address | null, options?: { isLedger?: boolean }): [boolean, (value: boolean) => void] {
     const { isTestnet } = useNetwork();
     const ledgerContext = useLedgerTransport();
-    const address = options?.isLedger ? Address.parse(ledgerContext.addr!.address) : _address!;
+
+    const ledgerAddress = ledgerContext.addr?.address ? Address.parse(ledgerContext.addr?.address) : null;
+    const address = options?.isLedger ? ledgerAddress : _address;
 
     const addressString = address instanceof Address
         ? address.toString({ testOnly: isTestnet })

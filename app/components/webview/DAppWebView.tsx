@@ -27,6 +27,7 @@ import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountSta
 import { getCurrentAddress } from "../../storage/appState";
 import { WebViewSourceUri } from "react-native-webview/lib/WebViewTypes";
 import { holdersUrl } from "../../engine/api/holders/fetchUserState";
+import { useLocalStorageStatus } from "../../engine/hooks/webView/useLocalStorageStatus";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -73,6 +74,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const navigation = useTypedNavigation();
     const toaster = useToaster();
     const markRefIdShown = useMarkBannerHidden();
+    const [, updateLocalStorageStatus] = useLocalStorageStatus();
 
     const [loaded, setLoaded] = useState(false);
 
@@ -183,6 +185,17 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             let processed = false;
 
             if (!parsed?.data?.name) {
+                return;
+            }
+ 
+            if (parsed.data.name === 'localStorageStatus') {
+                console.log('localStorageStatus', parsed.data);
+                updateLocalStorageStatus({
+                    isAvailable: parsed.data.isAvailable,
+                    keys: parsed.data.keys,
+                    totalSizeBytes: parsed.data.totalSizeBytes,
+                    error: parsed.data.error
+                });
                 return;
             }
 
@@ -428,7 +441,8 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         props.onMessage,
         ref,
         navigation, toaster,
-        props.onClose, props.onEnroll
+        props.onClose, props.onEnroll,
+        updateLocalStorageStatus
     ]);
 
     const onHardwareBackPress = useCallback(() => {
@@ -523,6 +537,56 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
     }, []);
 
+    const checkLocalStorageScript = `
+        (() => {
+            try {
+                // Проверка доступности localStorage
+                localStorage.setItem('localStorageTest', 'test');
+                const result = localStorage.getItem('localStorageTest');
+                localStorage.removeItem('localStorageTest');
+                
+                const keys = [];
+                let totalSize = 0;
+                
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key !== null) {
+                        keys.push(key);
+                        const valueSize = (localStorage.getItem(key) || '').length * 2;
+                        const keySize = key.length * 2;
+                        totalSize += keySize + valueSize;
+                    }
+                }
+                
+                // Преобразование в МБ
+                const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
+                
+                window.ReactNativeWebView.postMessage(
+                    JSON.stringify({
+                        data: {
+                            name: 'localStorageStatus',
+                            isAvailable: result === 'test',
+                            keys: keys,
+                            totalSizeBytes: totalSize // Размер в байтах
+                        }
+                    })
+                );
+            } catch (error) {
+                window.ReactNativeWebView.postMessage(
+                    JSON.stringify({
+                        data: {
+                            name: 'localStorageStatus',
+                            isAvailable: false,
+                            keys: [],
+                            totalSizeBytes: 0,
+                            error: error.message
+                        }
+                    })
+                );
+            }
+        })();
+`;
+
     return (
         <View style={{
             flex: 1,
@@ -540,6 +604,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     },
                     Platform.select({ android: { marginTop: 8 } })
                 ]}
+                injectedJavaScript={checkLocalStorageScript}
                 startInLoadingState={true}
                 autoManageStatusBarEnabled={false}
                 allowFileAccessFromFileURLs={false}

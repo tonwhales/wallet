@@ -114,14 +114,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
             let pageDomain = extractDomain(url);
 
-            const isAwsDomain = pageDomain === '.amazonaws.com' || pageDomain.endsWith('.amazonaws.com');
-            const hasHoldersSubdomain = url.split('.amazonaws.com')[0].includes('holders-certificates');
-
-            if (isAwsDomain && hasHoldersSubdomain) {
-                Linking.openURL(url);
-                return;
-            }
-
             if (isSafeDomain(pageDomain)) {
                 openWithInApp(url);
                 return;

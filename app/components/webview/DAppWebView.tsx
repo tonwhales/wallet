@@ -540,7 +540,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const checkLocalStorageScript = `
         (() => {
             try {
-                // Проверка доступности localStorage
                 localStorage.setItem('localStorageTest', 'test');
                 const result = localStorage.getItem('localStorageTest');
                 localStorage.removeItem('localStorageTest');
@@ -558,7 +557,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     }
                 }
                 
-                // Преобразование в МБ
                 const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
                 
                 window.ReactNativeWebView.postMessage(

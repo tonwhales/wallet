@@ -1,7 +1,8 @@
-import { Address, Cell, fromNano, toNano } from "@ton/core";
+import { Cell, fromNano, toNano } from "@ton/core";
 import { LedgerOrder } from "../../fragments/secure/ops/Order";
 import { SignRawMessage } from "../../engine/tonconnect/types";
 import { OperationType } from "../../engine/transactions/parseMessageBody";
+import { TonPayloadFormat } from "@ton-community/ton-ledger";
 
 export function validateLedgerJettonTransfer(msg: SignRawMessage): LedgerOrder | null {
     if (!msg.payload) {
@@ -13,6 +14,7 @@ export function validateLedgerJettonTransfer(msg: SignRawMessage): LedgerOrder |
     try {
         const slice = p.beginParse();
         const op = slice.loadUint(32);
+
         if (op !== OperationType.JettonTransfer) {
             return null;
         }
@@ -28,20 +30,7 @@ export function validateLedgerJettonTransfer(msg: SignRawMessage): LedgerOrder |
             forwardPayload = slice.loadMaybeRef() ?? slice.asCell();
         }
 
-        const payload: {
-            type: 'jetton-transfer';
-            queryId: bigint | null;
-            amount: bigint;
-            destination: Address;
-            responseDestination: Address;
-            customPayload: Cell | null;
-            forwardAmount: bigint;
-            forwardPayload: Cell | null;
-            knownJetton: {
-                jettonId: number;
-                workchain: number;
-            } | null;
-        } = {
+        const payload: TonPayloadFormat = {
             type: 'jetton-transfer',
             queryId,
             amount,

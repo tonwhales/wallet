@@ -36,12 +36,12 @@ export type HoldersAppParams =
     | { type: HoldersAppParamsType.Topup, id: string }
     | { type: HoldersAppParamsType.Settings };
 
-export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?: HoldersAppParams }) => {
+export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?: HoldersAppParams & { ledger?: boolean } }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const params = useParams<HoldersAppParams>();
     const route = useRoute();
-    const isLedger = route.name === 'LedgerHolders';
+    const isLedger = route.name === 'LedgerHolders' || initialParams?.ledger;
     const acc = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : null;

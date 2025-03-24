@@ -108,7 +108,7 @@ export const WalletActions = memo(({
                     theme={theme}
                     isLedger={isLedger}
                 />
-                {!isTestnet && showSwap && (
+                {!isTestnet && showSwap && isWalletMode && (
                     <WalletActionButton
                         action={{ type: WalletActionType.Swap }}
                         navigation={navigation}

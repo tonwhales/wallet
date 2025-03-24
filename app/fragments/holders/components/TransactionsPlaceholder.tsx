@@ -1,15 +1,14 @@
 import { memo, useEffect } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { Platform, View, Text } from "react-native";
-import { } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, Easing, Extrapolation, interpolate } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "../../../engine/hooks";
 import { RoundButton } from "../../../components/RoundButton";
+import { Typography } from "../../../components/styles";
 import { t } from "../../../i18n/t";
 import { Image } from "expo-image";
-import { Typography } from "../../../components/styles";
-import { useTheme } from "../../../engine/hooks";
 
-export const AccountPlaceholder = memo(({
+export const TransactionsPlaceholder = memo(({
     onReload,
     onSupport,
     showClose
@@ -55,79 +54,60 @@ export const AccountPlaceholder = memo(({
     return (
         <View style={[
             { flexGrow: 1, width: '100%' },
-            Platform.select({
-                ios: { paddingTop: safeArea.top - 8 },
-                android: { paddingTop: safeArea.top }
-            })
+            Platform.select({ android: { paddingTop: safeArea.top } })
         ]}>
-            <View
-                style={[
-                    {
-                        backgroundColor: theme.backgroundUnchangeable,
-                        position: 'absolute', top: 0, left: 0, right: 0
-                    },
-                    Platform.select({
-                        ios: { height: safeArea.top - 8 },
-                        android: { height: safeArea.top }
-                    }),
-                ]}
-            />
-            <Animated.View style={[{
-                backgroundColor: theme.backgroundUnchangeable,
-                borderBottomLeftRadius: 20,
-                borderBottomRightRadius: 20,
-                paddingTop: 8
-            }, animatedStyles]}>
-                <View style={[
-                    {
-                        height: 44,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingHorizontal: 16,
-                        width: '100%'
-                    },
-                ]}>
+            <Animated.View style={[{ paddingHorizontal: 16 }, animatedStyles]}>
+                <View style={{
+                    height: 44,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    width: '100%'
+                }}>
                     <View style={{
                         width: 32, height: 32,
-                        backgroundColor: '#1c1c1e',
+                        backgroundColor: theme.surfaceOnBg,
                         borderRadius: 16,
                         opacity: showClose ? 0 : 1
                     }} />
                     <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                         <View style={{
-                            backgroundColor: '#1c1c1e',
+                            backgroundColor: theme.surfaceOnBg,
                             height: 28, width: 132,
                             borderRadius: 20
                         }} />
                     </View>
-                    <View style={{
-                        width: 32, height: 32,
-                        backgroundColor: '#1c1c1e',
-                        borderRadius: 16
-                    }} />
+                    <View style={{ width: 32, height: 32, borderRadius: 16 }} />
                 </View>
                 <View
                     style={{
-                        height: 28,
-                        width: 78,
-                        backgroundColor: '#1c1c1e',
+                        marginTop: 16,
+                        height: 120,
+                        width: '100%',
+                        backgroundColor: theme.surfaceOnBg,
                         borderRadius: 20,
-                        marginTop: 20 + 38 + 20,
                         alignSelf: 'center'
                     }}
                 />
                 <View
                     style={{
+                        marginTop: 22,
+                        height: 32,
+                        width: 118,
                         backgroundColor: theme.surfaceOnBg,
-                        height: 96,
-                        borderRadius: 20,
-                        marginTop: 24,
-                        marginHorizontal: 16,
-                        marginBottom: - 48
+                        borderRadius: 20
                     }}
                 />
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 12, alignItems: 'center', marginLeft: 2 }}>
+                    <View style={{ height: 46, width: 46, backgroundColor: theme.surfaceOnBg, borderRadius: 23 }} />
+                    <View style={{ height: 32, width: 132, backgroundColor: theme.surfaceOnBg, borderRadius: 20 }} />
+                </View>
+                {!showClose && (
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 32, alignItems: 'center', marginLeft: 2 }}>
+                        <View style={{ height: 46, width: 46, backgroundColor: theme.surfaceOnBg, borderRadius: 23 }} />
+                        <View style={{ height: 32, width: 144, backgroundColor: theme.surfaceOnBg, borderRadius: 20 }} />
+                    </View>
+                )}
             </Animated.View>
-
             {showClose && (
                 <View style={{
                     flexGrow: 1,
@@ -167,5 +147,5 @@ export const AccountPlaceholder = memo(({
                 </View>
             )}
         </View>
-    );
-});
+    )
+})

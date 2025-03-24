@@ -1,5 +1,4 @@
 import { memo, useEffect } from "react";
-import { ThemeType } from "../../../engine/state/theme";
 import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform, View } from "react-native";
@@ -8,21 +7,20 @@ import { Image } from "expo-image"; import Animated, { Easing, Extrapolation, in
 import { t } from "../../../i18n/t";
 import { RoundButton } from "../../../components/RoundButton";
 import { Typography } from "../../../components/styles";
+import { useTheme } from "../../../engine/hooks";
 
 export const CardPlaceholder = memo(({
-    theme,
     onReload,
     onSupport,
     showClose
 }: {
-    theme: ThemeType,
     onReload?: () => void,
     onSupport?: () => void,
     showClose?: boolean
 }) => {
+    const theme = useTheme();
     const dimensions = useDimensions();
     const safeArea = useSafeAreaInsets();
-
     const animation = useSharedValue(0);
 
     useEffect(() => {

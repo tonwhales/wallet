@@ -45,6 +45,7 @@ import IcTheme from '@assets/settings/ic-theme.svg';
 import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { SelectedWallet } from '../components/wallet/SelectedWallet';
+import { useSupport } from '../engine/hooks/support/useSupport';
 
 const iosStoreUrl = 'https://apps.apple.com/app/apple-store/id1607656232?action=write-review';
 const androidStoreUrl = 'https://play.google.com/store/apps/details?id=com.tonhub.wallet&showAllReviews=true';
@@ -55,10 +56,7 @@ export const SettingsFragment = fragment(() => {
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const bottomBarHeight = useBottomTabBarHeight();
-    const { showActionSheetWithOptions } = useActionSheet();
-    const currentWalletIndex = getAppState().selected;
     const selected = useSelectedAccount();
-    const [walletSettings] = useWalletSettings(selected?.address);
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const [, currency] = usePrice();
@@ -74,8 +72,8 @@ export const SettingsFragment = fragment(() => {
     const isLedger = route.name === 'LedgerSettings';
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
-    const [, switchAppToWalletMode] = useAppMode(selected?.address, { isLedger });
-
+    const [, switchAppToWalletMode] = useAppMode(selected?.address);
+    const { onSupport } = useSupport({ isLedger });
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed;
     const holdersBanner: HoldersBannerType = !!inviteCheck?.settingsBanner ? { type: 'custom', banner: inviteCheck.settingsBanner } : { type: 'built-in' };
@@ -115,95 +113,6 @@ export const SettingsFragment = fragment(() => {
         const storeUrl = Platform.OS === 'android' ? androidStoreUrl : iosStoreUrl;
         Linking.openURL(storeUrl);
     };
-
-    const onSupport = useCallback(() => {
-        const tonhubOptions = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
-        const cancelButtonIndex = 0;
-        const holdersUrl = resolveHoldersUrl(network.isTestnet);
-
-        const tonhubSupportSheet = () => {
-            showActionSheetWithOptions({
-                options: tonhubOptions,
-                title: t('settings.support.title'),
-                cancelButtonIndex,
-            }, (selectedIndex?: number) => {
-                switch (selectedIndex) {
-                    case 1:
-                        openWithInApp('https://t.me/WhalesSupportBot');
-                        break;
-                    case 2:
-                        openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
-                        break;
-                    default:
-                        break;
-                }
-            });
-        }
-
-        if (!hasHoldersProducts) {
-            tonhubSupportSheet();
-            return;
-        }
-
-        const holdersOptions = [t('common.cancel'), t('settings.support.holders'), t('settings.support.tonhub')];
-
-        const queryCache = queryClient.getQueryCache();
-        const address = selected!.address.toString({ testOnly: network.isTestnet });
-        const status = getQueryData<HoldersAccountStatus>(queryCache, Queries.Holders(address).Status());
-        const token = status?.state === HoldersUserState.Ok ? status.token : getHoldersToken(address);
-        const accountsStatus = getQueryData<HoldersAccounts>(queryCache, Queries.Holders(address).Cards(!!token ? 'private' : 'public'));
-
-        const initialState = {
-            ...status
-                ? {
-                    user: {
-                        status: {
-                            state: status.state,
-                            kycStatus: status.state === 'need-kyc' ? status.kycStatus : null,
-                            suspended: (status as { suspended: boolean | undefined }).suspended === true,
-                        },
-                        token
-                    }
-                }
-                : { address },
-            ...accountsStatus?.type === 'private'
-                ? { accountsList: accountsStatus.accounts, prepaidCards: accountsStatus.prepaidCards }
-                : {},
-        };
-
-        const holdersSupportSheet = () => {
-            showActionSheetWithOptions({
-                options: holdersOptions,
-                title: t('settings.support.title'),
-                cancelButtonIndex,
-            }, (selectedIndex?: number) => {
-                switch (selectedIndex) {
-                    case 1:
-                        navigation.navigateDAppWebView({
-                            url: `${holdersUrl}/support`,
-                            fullScreen: true,
-                            webViewProps: {
-                                injectedJavaScriptBeforeContentLoaded: `
-                                (() => {
-                                    window.initialState = ${JSON.stringify(initialState)};
-                                })();
-                                `,
-                            },
-                            useQueryAPI: true
-                        });
-                        break;
-                    case 2:
-                        tonhubSupportSheet();
-                        break;
-                    default:
-                        break;
-                }
-            });
-        };
-
-        holdersSupportSheet();
-
-    }, [hasHoldersProducts]);
 
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');

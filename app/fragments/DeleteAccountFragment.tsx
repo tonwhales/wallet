@@ -16,9 +16,8 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { fetchSeqno } from "../engine/api/fetchSeqno";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
-import { openWithInApp } from "../utils/openWithInApp";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { useAccountLite, useClient4, useNetwork, useSelectedAccount, useTheme } from "../engine/hooks";
+import { useAccountLite, useClient4, useNetwork, useSelectedAccount, useSupport, useTheme } from "../engine/hooks";
 import { beginCell, internal, storeMessage, external, Address, SendMode, toNano } from "@ton/core";
 import { getLastBlock } from "../engine/accountWatcher";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
@@ -36,6 +35,7 @@ export const DeleteAccountFragment = fragment(() => {
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
     const { showActionSheetWithOptions } = useActionSheet();
+    const { onSupport } = useSupport();
     const tresuresAddress = Address.parse(
         network.isTestnet
             ? 'kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1'
@@ -254,28 +254,6 @@ export const DeleteAccountFragment = fragment(() => {
             }
         });
     }, [onDeleteAccount]);
-
-    const onSupport = useCallback(() => {
-        const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
-        const cancelButtonIndex = 0;
-
-        showActionSheetWithOptions({
-            options,
-            title: t('settings.support.title'),
-            cancelButtonIndex,
-        }, (selectedIndex?: number) => {
-            switch (selectedIndex) {
-                case 1:
-                    openWithInApp('https://t.me/WhalesSupportBot');
-                    break;
-                case 2:
-                    openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
-                    break;
-                default:
-                    break;
-            }
-        });
-    }, []);
 
     return (
         <View style={{

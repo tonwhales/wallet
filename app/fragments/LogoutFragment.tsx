@@ -9,7 +9,7 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";
-import { useAppState, useTheme, useWalletSettings } from "../engine/hooks";
+import { useAppState, useSupport, useTheme, useWalletSettings } from "../engine/hooks";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 import { StatusBar } from "expo-status-bar";
 import { getAppState } from "../storage/appState";
@@ -33,34 +33,13 @@ export const LogoutFragment = fragment(() => {
     const appState = useAppState();
     const address = appState.addresses[appState.selected]?.address;
     const [walletSettings] = useWalletSettings(address);
+    const { onSupport } = useSupport();
 
     const accountName = walletSettings?.name || `${t('common.wallet')} ${appState.selected + 1}`;
     const shortAccountName = accountName.length > 16 ? `${accountName.slice(0, 8)}...${accountName.slice(accountName.length - 6)}` : accountName;
 
     const { showActionSheetWithOptions } = useActionSheet();
     const onAccountDeleted = useDeleteCurrentAccount();
-
-    const onSupport = useCallback(() => {
-        const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
-        const cancelButtonIndex = 0;
-
-        showActionSheetWithOptions({
-            options,
-            title: t('settings.support.title'),
-            cancelButtonIndex,
-        }, (selectedIndex?: number) => {
-            switch (selectedIndex) {
-                case 1:
-                    openWithInApp('https://t.me/WhalesSupportBot');
-                    break;
-                case 2:
-                    openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
-                    break;
-                default:
-                    break;
-            }
-        });
-    }, []);
 
     const [isShown, setIsShown] = useState(false);
 

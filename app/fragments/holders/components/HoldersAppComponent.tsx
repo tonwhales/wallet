@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams, HoldersAppParamsType } from '../HoldersAppFragment';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useDAppBridge, useLanguage, usePrimaryCurrency } from '../../../engine/hooks';
+import { useDAppBridge, useLanguage, usePrimaryCurrency, useSupport } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { HoldersUserState, holdersUrl } from '../../../engine/api/holders/fetchUserState';
@@ -20,15 +20,14 @@ import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppWebView';
 import { HoldersAccounts } from '../../../engine/hooks/holders/useHoldersAccounts';
-import { openWithInApp } from '../../../utils/openWithInApp';
-import { t } from '../../../i18n/t';
-import { useActionSheet } from '@expo/react-native-action-sheet';
 import { AccountPlaceholder } from './AccountPlaceholder';
 import { Image } from "expo-image";
 import { CardPlaceholder } from './CardPlaceholder';
 import { AnimatedCards } from './AnimatedCards';
 import { Address } from '@ton/core';
 import { getSearchParams } from '../../../utils/holders/queryParamsStore';
+import { TransactionsPlaceholder } from './TransactionsPlaceholder';
+import { SettingsPlaceholder } from './SettingsPlaceholder';
 
 export const holdersSupportUrl = 'https://t.me/Welcome_holders';
 export const supportFormUrl = 'https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN';
@@ -96,29 +95,42 @@ export const HoldersLoader = memo(({
     }, []);
 
     const placeholder = useMemo(() => {
-        if (type === HoldersAppParamsType.Account) {
-            return (
-                <AccountPlaceholder
-                    theme={theme}
-                    showClose={showClose}
-                    onReload={onReload}
-                    onSupport={onSupport}
-                />
-            );
+        switch (type) {
+            case HoldersAppParamsType.Account:
+                return (
+                    <AccountPlaceholder
+                        showClose={showClose}
+                        onReload={onReload}
+                        onSupport={onSupport}
+                    />
+                );
+            case HoldersAppParamsType.Prepaid:
+                return (
+                    <CardPlaceholder
+                        showClose={showClose}
+                        onReload={onReload}
+                        onSupport={onSupport}
+                    />
+                );
+            case HoldersAppParamsType.Transactions:
+                return (
+                    <TransactionsPlaceholder
+                        showClose={showClose}
+                        onReload={onReload}
+                        onSupport={onSupport}
+                    />
+                );
+            case HoldersAppParamsType.Settings:
+                return (
+                    <SettingsPlaceholder
+                        showClose={showClose}
+                        onReload={onReload}
+                        onSupport={onSupport}
+                    />
+                );
+            default:
+                return <AnimatedCards />;
         }
-
-        if (type === HoldersAppParamsType.Prepaid) {
-            return (
-                <CardPlaceholder
-                    theme={theme}
-                    showClose={showClose}
-                    onReload={onReload}
-                    onSupport={onSupport}
-                />
-            );
-        }
-
-        return <AnimatedCards />;
     }, [type, theme, showClose, onReload, onSupport]);
 
     return (
@@ -195,7 +207,7 @@ export const HoldersAppComponent = memo((
     const [lang] = useLanguage();
     const [currency] = usePrimaryCurrency();
     const url = holdersUrl(isTestnet);
-    const { showActionSheetWithOptions } = useActionSheet();
+    const { onSupport } = useSupport({ isLedger });
 
     const source = useMemo(() => {
         const queryParams = new URLSearchParams({
@@ -246,6 +258,9 @@ export const HoldersAppComponent = memo((
                 break;
             case HoldersAppParamsType.Accounts:
                 route = '/accounts';
+                break;
+            case HoldersAppParamsType.Settings:
+                route = '/user/settings';
                 break;
         }
 
@@ -402,39 +417,6 @@ export const HoldersAppComponent = memo((
         setRenderKey(renderKey + 1);
     }, [renderKey, isTestnet]);
 
-    const onSupport = useCallback(() => {
-        const tonhubOptions = [
-            t('common.cancel'),
-            t('settings.support.telegram'),
-            t('settings.support.form'),
-            t('settings.support.holders')
-        ];
-        const cancelButtonIndex = 0;
-
-        const tonhubSupportSheet = () => {
-            showActionSheetWithOptions({
-                options: tonhubOptions,
-                title: t('settings.support.title'),
-                cancelButtonIndex,
-            }, (selectedIndex?: number) => {
-                switch (selectedIndex) {
-                    case 1:
-                        openWithInApp(holdersSupportUrl);
-                        break;
-                    case 2:
-                        openWithInApp(supportFormUrl);
-                        break;
-                    case 3:
-                        openWithInApp(holdersSupportWebUrl);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        }
-
-        tonhubSupportSheet();
-    }, []);
 
     return (
         <View
@@ -454,7 +436,7 @@ export const HoldersAppComponent = memo((
                 loader={(p) => (
                     <HoldersLoader
                         type={
-                            variant.type === HoldersAppParamsType.Transactions || variant.type === HoldersAppParamsType.Path
+                            variant.type === HoldersAppParamsType.Path
                                 ? HoldersAppParamsType.Account
                                 : variant.type
                         }

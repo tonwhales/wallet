@@ -12,7 +12,7 @@ import { AddressInputAvatar } from "../../../components/address/AddressInputAvat
 import { PerfText } from "../../../components/basic/PerfText";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { t } from "../../../i18n/t";
-import { SolanaTxInfo } from "./SolanaTxInfo";
+import { SolanaTxInfo } from "./components/SolanaTxInfo";
 import { avatarColors } from "../../../components/avatar/Avatar";
 import { avatarHash } from "../../../utils/avatarHash";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";

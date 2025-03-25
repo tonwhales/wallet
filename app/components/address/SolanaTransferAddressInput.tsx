@@ -70,7 +70,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
         });
     }, [appState.addresses]);
 
-    const own = !!myWallets.find((acc) => {
+    const isOwn = !!myWallets.find((acc) => {
         if (validAddress) {
             return validAddress === acc.toString();
         }
@@ -119,14 +119,10 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                     <AddressInputAvatar
                         size={46}
                         theme={theme}
-                        isOwn={false}
+                        isOwn={isOwn}
                         markContact={false}
-                        // hash={walletSettings?.avatar}
                         friendly={input}
                         avatarColor={avatarColor}
-                        knownWallets={{}}
-                        hash={null}
-                    // forceAvatar={!!isTargetHolders ? 'holders' : undefined}
                     />
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
@@ -166,11 +162,8 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
                             theme={theme}
                             isOwn={false}
                             markContact={false}
-                            // hash={walletSettings?.avatar}
                             friendly={input}
                             avatarColor={avatarColor}
-                            knownWallets={{}} hash={null}
-                        // forceAvatar={isTargetHolders ? 'holders' : undefined}
                         />
                     </View>
                     <SolanaAddressInput

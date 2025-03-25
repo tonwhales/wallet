@@ -85,7 +85,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Без газу",
         "address": "Адреса",
         "currencyChanged": "Валюта змінена",
-        "required": "обов'язково"
+        "required": "обов'язково",
+        "operation": "Операція",
+        "description": "Опис"
     },
     "syncStatus": {
         "connecting": "Підключення",
@@ -1328,15 +1330,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "solana": {
         "instructions": {
             "createAssociatedTokenAccount": "Створення пов'язаного облікового запису токена",
-            "transfer": "Переказ",
-            "approve": "Підтвердження",
-            "mintTo": "Випуск токенів",
-            "burn": "Спалювання токенів",
             "unknown": "Невідома інструкція",
             "systemTransfer": "Переказ SOL",
             "createAccount": "Створення облікового запису",
             "tokenTransfer": "Переказ токена",
-            "depositCard": "Поповнення картки"
+            "depositCard": "Поповнення картки",
+            "updateCardLimits": "Оновити ліміти картки"
         }
     }
 };

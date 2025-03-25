@@ -7,3 +7,4 @@ export { useSolanaTokenTransactions } from './useSolanaTokenTransactions';
 export { useSolanaTokens } from './useSolanaTokens';
 export { useSolanaTransactionStatus } from './useSolanaTransactionStatus';
 export { useSolanaTransferInfo } from './useSolanaTransferInfo';
+export { useSolanaTransferInstruction } from './useSolanaTransferInstruction';

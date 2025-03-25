@@ -12,6 +12,53 @@ const SYSTEM_PROGRAM_ID = SystemProgram.programId.toString();
 const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
 
+// {
+//     "name": "newOnetime",
+//     "type": "u64"
+//   },
+//   {
+//     "name": "newDaily",
+//     "type": "u64"
+//   },
+//   {
+//     "name": "newMonthly",
+//     "type": "u64"
+//   },
+
+export type SolanaInstructionAccounts = {
+    name?: string;
+    pubkey: PublicKey;
+    isSigner: boolean;
+    isWritable: boolean;
+}
+
+export type HoldersLimitsInstruction = {
+    program: 'Holders',
+    programId: string,
+    name: 'updateCardLimits',
+    accounts: SolanaInstructionAccounts[] | undefined,
+    args: {
+        name: 'newOnetime' | 'newDaily' | 'newMonthly';
+        data: string;
+    }[],
+    description: string;
+}
+
+export type HoldersDepositInstruction = {
+    program: 'Holders',
+    programId: string,
+    name: 'depositCard',
+    accounts: SolanaInstructionAccounts[],
+    args: {
+        name: 'amount';
+        data: string;
+    }[],
+    description: string;
+}
+
+export type HoldersInstructionName = 'updateCardLimits' | 'depositCard';
+export type InstructionName = HoldersInstructionName | 'systemTransfer' | 'createAccount' | 'tokenTransfer' | 'createAssociatedTokenAccount' | 'unknown';
+
 /**
  * Parse a holders program instruction using the IDL
  */
@@ -46,8 +93,7 @@ export function parseHoldersInstruction(instruction: TransactionInstruction) {
             programId: instruction.programId.toString(),
             name: decoded.name,
             accounts: formatted?.accounts,
-            args: formatted?.args,
-            description: getHoldersInstructionDescription(decoded.name, formatted?.args)
+            args: formatted?.args
         };
     } catch (error) {
         console.error('Error parsing holders instruction:', error);
@@ -98,29 +144,6 @@ function parseHoldersInstructionWithDiscriminator(instruction: TransactionInstru
         rawArgs: instruction.data.slice(8),
         description: `Holders ${idlInstruction.name} operation`
     };
-}
-
-/**
- * Generate human-readable description for holders instructions
- */
-function getHoldersInstructionDescription(name: string, args: any): string {
-    switch (name) {
-        case 'initialize':
-            return 'Initialize a new holders root account';
-        case 'issueCard':
-            return 'Issue a new card';
-        case 'depositCard':
-            const amount = args.find((arg: any) => arg.name === 'amount').data;
-            return `Deposit ${amount ? Number(amount) : ''} tokens to card`;
-        case 'closeCard':
-            return 'Close a card';
-        case 'refund':
-            return `Refund ${args.amount ? (Number(args.amount) / LAMPORTS_PER_SOL).toFixed(9) : ''} tokens`;
-        case 'withdrawFromTreasure':
-            return `Withdraw ${args.amount ? (Number(args.amount) / LAMPORTS_PER_SOL).toFixed(9) : ''} tokens from treasure`;
-        default:
-            return `Holders ${name} operation`;
-    }
 }
 
 /**

@@ -88,6 +88,8 @@ export type LocalizationSchema = {
         address: string,
         currencyChanged: string,
         required: string,
+        operation: string,
+        description: string,
     },
     syncStatus: {
         connecting: string,
@@ -1329,16 +1331,13 @@ export type LocalizationSchema = {
     },
     solana: {
         instructions: {
+            depositCard: string,
+            updateCardLimits: string,
             createAssociatedTokenAccount: string,
-            transfer: string,
-            approve: string,
-            mintTo: string,
-            burn: string,
-            unknown: string,
             systemTransfer: string,
             createAccount: string,
             tokenTransfer: string,
-            depositCard: string,
+            unknown: string,
         }
     }
 };

@@ -24,10 +24,10 @@ export const AddressInputAvatar = memo(({
     friendly?: string,
     isOwn: boolean,
     markContact: boolean,
-    hash: number | null
+    hash?: number | null,
     isLedger?: boolean,
     avatarColor: string,
-    knownWallets: { [key: string]: KnownWallet },
+    knownWallets?: { [key: string]: KnownWallet },
     forceAvatar?: ForcedAvatarType
 }) => {
 

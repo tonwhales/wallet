@@ -342,7 +342,6 @@ const PendingTxPreview = () => {
                 </PerfView>
                 {!!holdersOp && (
                     <HoldersOpView
-                        theme={theme}
                         op={holdersOp}
                         targetKind={targetContract?.kind}
                     />

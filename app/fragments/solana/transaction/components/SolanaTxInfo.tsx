@@ -2,14 +2,14 @@ import { memo, useCallback, useEffect } from "react";
 import { Platform, Pressable, Share, Image } from "react-native";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import * as ScreenCapture from 'expo-screen-capture';
-import { useNetwork, useTheme } from "../../../engine/hooks";
-import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
-import { t } from "../../../i18n/t";
-import { openWithInApp } from "../../../utils/openWithInApp";
-import { copyText } from "../../../utils/copyText";
-import { PerfView } from "../../../components/basic/PerfView";
-import { PerfText } from "../../../components/basic/PerfText";
-import { Typography } from "../../../components/styles";
+import { useNetwork, useTheme } from "../../../../engine/hooks";
+import { ToastDuration, useToaster } from "../../../../components/toast/ToastProvider";
+import { t } from "../../../../i18n/t";
+import { openWithInApp } from "../../../../utils/openWithInApp";
+import { copyText } from "../../../../utils/copyText";
+import { PerfView } from "../../../../components/basic/PerfView";
+import { PerfText } from "../../../../components/basic/PerfText";
+import { Typography } from "../../../../components/styles";
 
 export const SolanaTxInfo = memo(({ signature }: { signature: string }) => {
     const { showActionSheetWithOptions } = useActionSheet();

@@ -441,7 +441,6 @@ export const TransferSingleView = memo(({
 
                     {!!holdersOp && (
                         <HoldersOpView
-                            theme={theme}
                             op={holdersOp}
                             targetKind={targetContract?.kind}
                         />

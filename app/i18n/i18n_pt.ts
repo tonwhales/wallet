@@ -85,7 +85,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Sem gas",
         "address": "Endereço",
         "currencyChanged": "Moeda alterada",
-        "required": "obrigatório"
+        "required": "obrigatório",
+        "operation": "Operação",
+        "description": "Descrição"
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -1328,15 +1330,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "solana": {
         "instructions": {
             "createAssociatedTokenAccount": "Criar conta de token associada",
-            "transfer": "Transferir",
-            "approve": "Aprovar",
-            "mintTo": "Cunhar tokens",
-            "burn": "Queimar tokens",
             "unknown": "Instrução desconhecida",
             "systemTransfer": "Transferência de SOL",
             "createAccount": "Criar conta",
             "tokenTransfer": "Transferência de token",
-            "depositCard": "Depósito no cartão"
+            "depositCard": "Depósito no cartão",
+            "updateCardLimits": "Atualizar limites do cartão"
         }
     }
 };

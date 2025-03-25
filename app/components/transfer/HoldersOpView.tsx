@@ -1,5 +1,4 @@
 import { memo } from "react";
-import { ThemeType } from "../../engine/state/theme";
 import { PerfView } from "../basic/PerfView";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
@@ -9,6 +8,7 @@ import { ItemGroup } from "../ItemGroup";
 import { ContractKind } from "../../engine/api/fetchContractInfo";
 import { toNano } from "@ton/core";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { useTheme } from "../../engine/hooks";
 
 export type HoldersOp = {
     type: 'topUp';
@@ -26,12 +26,14 @@ function formatAmount(amount: string | null | undefined, type: 'USDT' | 'TON'): 
     if (!amount) {
         return null;
     }
-    
+
     // convert back to nano and format with decimals
     return `${fromBnWithDecimals(toNano(amount), type === 'USDT' ? 6 : 9)} ${type}`;
 }
 
-export const HoldersOpView = memo(({ theme, op, targetKind }: { theme: ThemeType, op: HoldersOp, targetKind?: ContractKind }) => {
+export const HoldersOpView = memo(({ op, targetKind }: { op: HoldersOp, targetKind?: ContractKind }) => {
+    const theme = useTheme();
+
     if (op.type === 'jettonTopUp') { // Jetton account top up (amount is shown in the Tx preview title)
         return null;
     }
@@ -66,7 +68,7 @@ export const HoldersOpView = memo(({ theme, op, targetKind }: { theme: ThemeType
                     {t('known.holders.limitsTitle')}
                 </PerfText>
                 {!!onetime && (
-                    <>
+                    <PerfView>
                         <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
                             <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
                                 {t('known.holders.limitsOneTime')}
@@ -78,10 +80,10 @@ export const HoldersOpView = memo(({ theme, op, targetKind }: { theme: ThemeType
                         {(!!op.daily || !!op.monthly) && (
                             <ItemDivider marginHorizontal={0} />
                         )}
-                    </>
+                    </PerfView>
                 )}
                 {!!daily && (
-                    <>
+                    <PerfView>
                         <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>
                             <PerfText style={[{ color: theme.textPrimary }, Typography.regular15_20]}>
                                 {t('known.holders.limitsDaily')}
@@ -93,7 +95,7 @@ export const HoldersOpView = memo(({ theme, op, targetKind }: { theme: ThemeType
                         {!!op.monthly && (
                             <ItemDivider marginHorizontal={0} />
                         )}
-                    </>
+                    </PerfView>
                 )}
                 {!!monthly && (
                     <PerfView style={{ justifyContent: 'space-between', flexDirection: 'row', width: '100%' }}>

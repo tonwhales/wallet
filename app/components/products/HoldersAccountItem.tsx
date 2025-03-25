@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useMemo, useRef } from "react";
-import { View, Pressable, StyleProp, ViewStyle, Text } from "react-native";
+import React, { memo, useCallback, useMemo, useRef, ReactNode } from "react";
+import { View, Pressable, StyleProp, ViewStyle, Text, ScrollView as RNScrollView } from "react-native";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
@@ -9,7 +9,7 @@ import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUser
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
-import { Swipeable, TouchableOpacity } from "react-native-gesture-handler";
+import { Swipeable, TouchableOpacity, ScrollView } from "react-native-gesture-handler";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { toBnWithDecimals } from "../../utils/withDecimals";
@@ -30,6 +30,86 @@ export enum HoldersItemContentType {
     NAVIGATION = 'navigation'
 }
 
+const CardItem = memo(({
+    card,
+    theme,
+    interactive,
+    onCardPress
+}: {
+    card: GeneralHoldersCard,
+    theme: any,
+    interactive: boolean,
+    onCardPress: (id: string) => void
+}) => {
+    const cardComponent = (
+        <HoldersAccountCard
+            key={`card-item-${card.id}`}
+            card={card}
+            theme={theme}
+            style={{ height: 46, width: 72, borderRadius: 12 }}
+            coverImageStyle={{ height: 46, width: 72, borderRadius: 8 }}
+            cardNumberStyle={{ fontSize: 10, left: 8, bottom: 8 }}
+        />
+    );
+
+    if (!interactive) return cardComponent;
+
+    return (
+        <TouchableOpacity
+            key={`card-wrapper-${card.id}`}
+            activeOpacity={0.5}
+            onPress={() => onCardPress(card.id)}
+        >
+            {cardComponent}
+        </TouchableOpacity>
+    );
+});
+
+const AddCardButton = memo(({
+    interactive,
+    theme,
+    onCreateCardPress
+}: {
+    interactive: boolean,
+    theme: any,
+    onCreateCardPress: () => void
+}) => {
+    const content = (
+        <Image
+            style={{ height: 24, width: 24, tintColor: theme.textSecondary }}
+            source={require('@assets/ic-plus.png')}
+        />
+    );
+
+    if (!interactive) {
+        return <View style={{
+            height: 46,
+            width: 72,
+            borderRadius: 12,
+            backgroundColor: theme.divider,
+            justifyContent: 'center',
+            alignItems: 'center'
+        }}>{content}</View>;
+    }
+
+    return (
+        <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={onCreateCardPress}
+            style={{
+                height: 46,
+                width: 72,
+                borderRadius: 12,
+                backgroundColor: theme.divider,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}
+        >
+            {content}
+        </TouchableOpacity>
+    );
+});
+
 export const HoldersAccountItem = memo((props: {
     owner: Address,
     account: GeneralHoldersAccount,
@@ -48,7 +128,8 @@ export const HoldersAccountItem = memo((props: {
     onOpen?: () => void,
     content?: { type: HoldersItemContentType.SELECT, isSelected: boolean } | { type: HoldersItemContentType.BALANCE } | { type: HoldersItemContentType.NAVIGATION },
     addressDescription?: boolean,
-    isLedger?: boolean
+    isLedger?: boolean,
+    cardsClickable?: boolean
 }) => {
     const {
         owner, account, holdersAccStatus,
@@ -56,7 +137,7 @@ export const HoldersAccountItem = memo((props: {
         style, itemStyle,
         onBeforeOpen, onOpen,
         hideCardsIfEmpty,
-        isTestnet, isLedger
+        isTestnet, isLedger, cardsClickable
     } = props;
     const [price] = usePrice();
     const master = account?.cryptoCurrency?.tokenContract || undefined;
@@ -102,63 +183,95 @@ export const HoldersAccountItem = memo((props: {
         return false;
     }, [holdersAccStatus, isHoldersReady]);
 
-    const onPress = useCallback(() => {
-        // Close full list modal (holders navigations is below it in the other nav stack)
+    const checkEnrollmentAndPrepareNavigation = useCallback(() => {
         onBeforeOpen?.();
 
         if (onOpen) {
             onOpen();
-            return;
+            return { shouldReturn: true };
         }
 
         if (needsEnrollment) {
             if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
                 ledgerContext.onShowLedgerConnectionError();
-                return;
+                return { shouldReturn: true };
             }
-            const onEnrollType: HoldersAppParams = { type: HoldersAppParamsType.Account, id: account.id };
-            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType, isLedger }, isTestnet);
-            return;
+
+            const onEnrollType: HoldersAppParams = {
+                type: HoldersAppParamsType.Account,
+                id: account.id
+            };
+
+            navigation.navigateHoldersLanding({
+                endpoint: url,
+                onEnrollType,
+                isLedger
+            }, isTestnet);
+
+            return { shouldReturn: true };
         }
 
-        navigation.navigateHolders({ type: HoldersAppParamsType.Account, id: account.id }, isTestnet, isLedger);
-    }, [account, needsEnrollment, isTestnet, onOpen, isLedger, ledgerContext]);
+        return { shouldReturn: false };
+    }, [needsEnrollment, isLedger, ledgerContext, account.id, navigation, url, isTestnet, onBeforeOpen, onOpen]);
 
-    const subtitle = t('products.holders.accounts.network', {
-        networkName: account.network.replace('-mainnet', '').replace('-testnet', '').toUpperCase()
-    });
+    const onPress = useCallback(() => {
+        const { shouldReturn } = checkEnrollmentAndPrepareNavigation();
+        if (shouldReturn) return;
 
-    const renderRightAction = (!!rightActionIcon && !!rightAction)
-        ? () => {
-            return (
-                <Pressable
-                    style={[
-                        {
-                            padding: 20,
-                            justifyContent: 'center', alignItems: 'center',
-                            borderRadius: 20,
-                            backgroundColor: theme.accent,
-                            marginLeft: 10
-                        }
-                    ]}
-                    onPress={() => {
-                        swipableRef.current?.close();
-                        if (rightAction) {
-                            rightAction(account);
-                        }
-                    }}
-                >
-                    {rightActionIcon}
-                </Pressable>
-            )
-        }
-        : undefined;
+        navigation.navigateHolders({
+            type: HoldersAppParamsType.Account,
+            id: account.id
+        }, isTestnet, isLedger);
+    }, [checkEnrollmentAndPrepareNavigation, account.id, isTestnet, isLedger, navigation]);
+
+    const onCardPress = useCallback((id: string) => {
+        const { shouldReturn } = checkEnrollmentAndPrepareNavigation();
+        if (shouldReturn) return;
+
+        navigation.navigateHolders({
+            type: HoldersAppParamsType.Card,
+            id
+        }, isTestnet);
+    }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation]);
+
+    const onCreateCardPress = useCallback(() => {
+        const { shouldReturn } = checkEnrollmentAndPrepareNavigation();
+        if (shouldReturn) return;
+
+        navigation.navigateHolders({
+            type: HoldersAppParamsType.Create
+        }, isTestnet);
+    }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation]);
+
+    const renderRightAction = useCallback(() => {
+        if (!rightActionIcon || !rightAction) return undefined;
+
+        return () => (
+            <Pressable
+                style={[
+                    {
+                        padding: 20,
+                        justifyContent: 'center', alignItems: 'center',
+                        borderRadius: 20,
+                        backgroundColor: theme.accent,
+                        marginLeft: 10
+                    }
+                ]}
+                onPress={() => {
+                    swipableRef.current?.close();
+                    rightAction(account);
+                }}
+            >
+                {rightActionIcon}
+            </Pressable>
+        );
+    }, [rightActionIcon, rightAction, theme.accent, account]);
 
     const contentView = useMemo(() => {
         switch (content?.type) {
             case HoldersItemContentType.SELECT:
                 return (
-                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'flex-end' }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                         <View style={{
                             justifyContent: 'center', alignItems: 'center',
                             height: 24, width: 24,
@@ -173,7 +286,7 @@ export const HoldersAccountItem = memo((props: {
                 );
             case HoldersItemContentType.BALANCE:
                 return (
-                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                             <ValueComponent
                                 value={account.balance}
@@ -204,94 +317,158 @@ export const HoldersAccountItem = memo((props: {
         }
     }, [content, account.balance, account.cryptoCurrency, priceAmount, theme]);
 
+    const cardsList = useMemo(() => {
+        const ScrollViewComponent = !cardsClickable ? RNScrollView : ScrollView;
+
+        return (
+            <View style={{ flex: 1 }}>
+                <ScrollViewComponent
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{
+                        height: 66,
+                        gap: 8,
+                        paddingRight: 20
+                    }}
+                >
+                    {account.cards.slice(0, 5).map((card) => (
+                        <CardItem
+                            key={card.id}
+                            card={card as GeneralHoldersCard}
+                            theme={theme}
+                            interactive={!!cardsClickable}
+                            onCardPress={onCardPress}
+                        />
+                    ))}
+                    <AddCardButton
+                        interactive={!!cardsClickable}
+                        theme={theme}
+                        onCreateCardPress={onCreateCardPress}
+                    />
+                </ScrollViewComponent>
+                <LinearGradient
+                    style={{
+                        height: 66,
+                        width: 40,
+                        position: 'absolute',
+                        right: 0,
+                        top: 0
+                    }}
+                    colors={[
+                        ((itemStyle as any)?.backgroundColor || theme.surfaceOnBg) + '00',
+                        (itemStyle as any)?.backgroundColor || theme.surfaceOnBg
+                    ]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0.7, y: 0 }}
+                />
+            </View>
+        );
+    }, [cardsClickable, theme, onCreateCardPress]);
+
+    const accountInfo = useMemo(() => (
+        <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center' }}>
+            {resolveHoldersIcon(
+                { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker }
+            )}
+            <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                <PerfText
+                    style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                    ellipsizeMode="tail"
+                    numberOfLines={1}
+                >
+                    {name}
+                </PerfText>
+                {props.addressDescription && !!props.account.address && (
+                    <PerfText
+                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                    >
+                        <PerfText style={{ flexShrink: 1 }}>
+                            <AddressComponent
+                                bounceable={true}
+                                address={props.account.address}
+                                testOnly={isTestnet}
+                            />
+                        </PerfText>
+                    </PerfText>
+                )}
+            </View>
+        </View>
+    ), [jettonMasterContent?.icon, account.cryptoCurrency?.ticker, theme.textPrimary, theme.textSecondary, name, props.addressDescription, props.account.address, isTestnet]);
+
+    const navigationIcon = useMemo(() => (
+        content?.type === HoldersItemContentType.NAVIGATION ? (
+            <View style={{
+                justifyContent: 'center', alignItems: 'flex-end',
+                position: 'absolute', right: 20,
+                top: 0, bottom: 0
+            }}>
+                <Image
+                    source={require('@assets/ic-chevron-right.png')}
+                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                />
+            </View>
+        ) : null
+    ), [content?.type, theme.iconPrimary]);
+
+    const cardsAndBalanceSection = useMemo(() => (
+        <View style={{ flexDirection: 'row', flexGrow: 1, paddingHorizontal: 20 }}>
+            {cardsList}
+            {cardsClickable ? (
+                <TouchableOpacity onPress={onPress} activeOpacity={0.5}>
+                    {contentView}
+                </TouchableOpacity>
+            ) : contentView}
+        </View>
+    ), [cardsList, cardsClickable, contentView, onPress]);
+
+    const holdersAccountCard = useMemo(() => {
+        if (!cardsClickable) {
+            return (
+                <TouchableOpacity onPress={onPress} activeOpacity={0.5} style={{ flexGrow: 1 }}>
+                    <View style={[{
+                        borderRadius: 20,
+                        overflow: 'hidden',
+                        flexGrow: 1,
+                        paddingVertical: 20,
+                        backgroundColor: theme.surfaceOnBg
+                    },
+                        itemStyle]}>
+                        {cardsAndBalanceSection}
+                        {accountInfo}
+                        {navigationIcon}
+                    </View>
+                </TouchableOpacity>
+            );
+        } else {
+            return (
+                <View style={[{
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    flexGrow: 1,
+                    paddingVertical: 20,
+                    backgroundColor: theme.surfaceOnBg
+                },
+                    itemStyle]}>
+                    {cardsAndBalanceSection}
+                    <TouchableOpacity onPress={onPress} activeOpacity={0.5}>
+                        {accountInfo}
+                        {navigationIcon}
+                    </TouchableOpacity>
+                </View>
+            );
+        }
+    }, [cardsClickable, onPress, cardsAndBalanceSection, accountInfo, navigationIcon]);
+
     return (
         <Swipeable
             ref={swipableRef}
             containerStyle={[{ flex: 1 }, style]}
             useNativeAnimations={true}
-            renderRightActions={renderRightAction}
+            renderRightActions={renderRightAction()}
         >
-            <View>
-                <View style={[{ borderRadius: 20, overflow: 'hidden', flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }, itemStyle]}>
-                    <TouchableOpacity
-                        onPress={onPress}
-                        activeOpacity={0.5}
-                    >
-                        <View style={{ flexGrow: 1 }}>
-                            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
-                                {resolveHoldersIcon(
-                                    { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker },
-                                    theme
-                                )}
-                                <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                                    <PerfText
-                                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                                        ellipsizeMode="tail"
-                                        numberOfLines={1}
-                                    >
-                                        {name}
-                                    </PerfText>
-                                    <PerfText
-                                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                        numberOfLines={1}
-                                        ellipsizeMode={'tail'}
-                                    >
-                                        <PerfText style={{ flexShrink: 1 }}>
-                                            {props.addressDescription && !!props.account.address ? (
-                                                <AddressComponent
-                                                    bounceable={true}
-                                                    address={props.account.address}
-                                                    testOnly={isTestnet}
-                                                />
-                                            ) : (subtitle)}
-                                        </PerfText>
-                                    </PerfText>
-                                </View>
-                                {contentView}
-                            </View>
-                            {!(hideCardsIfEmpty && account.cards.length === 0) ? (
-                                <View
-                                    style={{
-                                        height: 66, marginTop: 20, gap: 8, flexDirection: 'row',
-                                        marginLeft: 20
-                                    }}
-                                >
-                                    {account.cards.slice(0, 5).map((card, index) => {
-                                        return (
-                                            <HoldersAccountCard
-                                                key={`card-item-${index}`}
-                                                card={card as GeneralHoldersCard}
-                                                theme={theme}
-                                                style={{ height: 46, width: 72, borderRadius: 12 }}
-                                                coverImageStyle={{ height: 46, width: 72, borderRadius: 8 }}
-                                                cardNumberStyle={{ fontSize: 10, left: 8, bottom: 8 }}
-                                            />
-                                        )
-                                    })}
-                                    <View style={{ height: 46, width: 72, borderRadius: 12, backgroundColor: theme.divider, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Image style={{ height: 24, width: 24, tintColor: theme.textSecondary }} source={require('@assets/ic-plus.png')} />
-                                    </View>
-                                </View>
-                            ) : (
-                                <View style={{ height: 20 }} />
-                            )}
-                        </View>
-                        {content?.type === HoldersItemContentType.NAVIGATION && (
-                            <View style={{
-                                justifyContent: 'center', alignItems: 'flex-end',
-                                paddingBottom: 20,
-                                position: 'absolute', right: 20,
-                                top: 0, bottom: 0
-                            }}>
-                                <Image
-                                    source={require('@assets/ic-chevron-right.png')}
-                                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
-                                />
-                            </View>
-                        )}
-                    </TouchableOpacity>
-                </View>
-            </View>
+            {holdersAccountCard}
         </Swipeable>
     );
 });

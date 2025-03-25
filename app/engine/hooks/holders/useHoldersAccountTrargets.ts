@@ -2,6 +2,7 @@ import { Address } from "@ton/core";
 import { useMemo } from "react";
 import { useHoldersAccounts } from "./useHoldersAccounts";
 import { GeneralHoldersAccount } from "../../api/holders/fetchAccounts";
+import { hasDirectDeposit } from "../../../utils/holders/hasDirectDeposit";
 
 export type HoldersAccountTarget = {
     address: Address,
@@ -34,34 +35,37 @@ export function useHoldersAccountTrargets(address: string | Address): HoldersAcc
 
     const readyAccounts = useMemo(() => {
         const isPrivate = data?.type === 'private';
-        return (data?.accounts ?? []).filter((item) => {
-            if (!item.address) {
-                return false;
-            }
+        const accountsWithDeposit = data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
 
-            try {
-                Address.parse(item.address);
-            } catch {
-                return false;
-            }
+        return accountsWithDeposit
+            .filter((item) => {
+                if (!item.address) {
+                    return false;
+                }
 
-            return true;
-        }).map((item) => {
-            let memo: string | undefined = undefined;
+                try {
+                    Address.parse(item.address);
+                } catch {
+                    return false;
+                }
 
-            if (isPrivate && item.cryptoCurrency.ticker === 'TON') {
-                memo = 'Top Up';
-            }
+                return true;
+            }).map((item) => {
+                let memo: string | undefined = undefined;
 
-            return {
-                address: Address.parse(item.address!),
-                memo,
-                name: item.name,
-                accountIndex: item.accountIndex,
-                jettonMaster: item.cryptoCurrency.tokenContract,
-                symbol: item.cryptoCurrency.ticker
-            };
-        });
+                if (isPrivate && item.cryptoCurrency.ticker === 'TON') {
+                    memo = 'Top Up';
+                }
+
+                return {
+                    address: Address.parse(item.address!),
+                    memo,
+                    name: item.name,
+                    accountIndex: item.accountIndex,
+                    jettonMaster: item.cryptoCurrency.tokenContract,
+                    symbol: item.cryptoCurrency.ticker
+                };
+            });
     }, [data?.accounts, data?.type]);
 
     return readyAccounts;

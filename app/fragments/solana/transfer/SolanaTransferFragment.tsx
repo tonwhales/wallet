@@ -24,7 +24,6 @@ import { fromNano } from "@ton/core";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { Transaction } from "@solana/web3.js";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
-import { WalletResponse } from "@tonconnect/protocol";
 import { TransferInstructions } from "./components/TransferInstructions";
 
 type SolanaOrderTransferParams = {
@@ -38,7 +37,7 @@ type SolanaTransactionTransferParams = {
 }
 
 export type SolanaTransferParams = (SolanaOrderTransferParams | SolanaTransactionTransferParams) & {
-    callback?: (response: WalletResponse<'sendTransaction'>) => void
+    callback?: (ok: boolean, signature: string | null) => void
 };
 
 

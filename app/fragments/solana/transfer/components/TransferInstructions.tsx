@@ -15,7 +15,7 @@ import { SolanaTransferFees } from "./SolanaTransferFees";
 export const TransferInstructions = (params: {
     instructions: ReturnType<typeof parseTransactionInstructions>;
     transaction: string;
-    callback?: (response: WalletResponse<'sendTransaction'>) => void
+    callback?: (ok: boolean, signature: string | null) => void
 }) => {
     const theme = useTheme();
     const solanaClient = useSolanaClient();
@@ -34,6 +34,10 @@ export const TransferInstructions = (params: {
                 authContext,
                 transaction
             });
+
+            if (params.callback) {
+                params.callback(true, pending.id);
+            }
             registerPending(pending);
         } catch (error) {
             // TODO: *solana* humanize error ui

@@ -250,9 +250,32 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
             },
 
             sendSolanaTransaction: async (transaction: string) => {
-                navigation.navigateSolanaTransfer({
-                    type: 'transaction',
-                    transaction,
+                return new Promise<WalletResponse<any>>((resolve) => {
+                    const callback = (ok: boolean, signature: string | null) => {
+                        if (!ok) {
+                            resolve({
+                                error: {
+                                    code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                                    message: 'User rejected',
+                                },
+                                id: requestId.toString(),
+                            });
+                            return;
+                        }
+
+                        resolve({
+                            result: signature,
+                            id: requestId.toString(),
+                        });
+                    };
+
+                    // TODO: *solana* check if transaction is valid
+
+                    navigation.navigateSolanaTransfer({
+                        type: 'transaction',
+                        transaction,
+                        callback
+                    });
                 });
             }
         };

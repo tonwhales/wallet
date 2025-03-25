@@ -101,4 +101,5 @@ export const Queries = {
         TokenTransactions: (mint: string) => (['solana', address, network, 'transactions', mint]),
         TransactionStatus: (signature: string) => (['solana',address,  network, 'transaction', signature])
     }),
+    SolanaTransactionFees: (network: 'mainnet' | 'testnet', tx: string) => (['solana', 'transactionFees', network, tx])
 }

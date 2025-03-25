@@ -33,8 +33,6 @@ import { Address } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { solanaAddressFromPublicKey } from '../../utils/solana/address';
 import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
-import { parseTransactionInstructions } from '../../utils/solana/parseInstructions';
-import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();

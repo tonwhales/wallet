@@ -10,6 +10,7 @@ import { RoundButton } from "../../../../components/RoundButton";
 import { signAndSendSolanaTransaction } from "../../../../utils/solana/signAndSendSolanaTransaction";
 import { useCallback } from "react";
 import { t } from "../../../../i18n/t";
+import { SolanaTransferFees } from "./SolanaTransferFees";
 
 export const TransferInstructions = (params: {
     instructions: ReturnType<typeof parseTransactionInstructions>;
@@ -51,7 +52,7 @@ export const TransferInstructions = (params: {
                 automaticallyAdjustContentInsets={false}
                 alwaysBounceVertical={false}
             >
-                <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
+                <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column', gap: 16 }}>
                     {params.instructions.map((instruction, index) => (
                         <TransferInstructionView
                             key={index}
@@ -59,6 +60,7 @@ export const TransferInstructions = (params: {
                             owner={solanaAddress}
                         />
                     ))}
+                    <SolanaTransferFees tx={transaction} />
                     <View style={{ height: 54 }} />
                 </View>
             </ScrollView>

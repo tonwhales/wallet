@@ -8,3 +8,4 @@ export { useSolanaTokens } from './useSolanaTokens';
 export { useSolanaTransactionStatus } from './useSolanaTransactionStatus';
 export { useSolanaTransferInfo } from './useSolanaTransferInfo';
 export { useSolanaTransferInstruction } from './useSolanaTransferInstruction';
+export { useSolanaTransactionFees } from './useSolanaTransactionFees';

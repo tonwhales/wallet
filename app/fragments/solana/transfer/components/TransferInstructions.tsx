@@ -1,4 +1,3 @@
-import { WalletResponse } from "@tonconnect/protocol";
 import { parseTransactionInstructions } from "../../../../utils/solana/parseInstructions";
 import { useRegisterPendingSolana, useSolanaClient, useSolanaSelectedAccount, useTheme } from "../../../../engine/hooks";
 import { useKeysAuth } from "../../../../components/secure/AuthWalletKeys";
@@ -8,7 +7,7 @@ import { Alert, ScrollView, View } from "react-native";
 import { TransferInstructionView } from "./TransferInstructionView";
 import { RoundButton } from "../../../../components/RoundButton";
 import { signAndSendSolanaTransaction } from "../../../../utils/solana/signAndSendSolanaTransaction";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { t } from "../../../../i18n/t";
 import { SolanaTransferFees } from "./SolanaTransferFees";
 
@@ -26,6 +25,8 @@ export const TransferInstructions = (params: {
 
     const registerPending = useRegisterPendingSolana(solanaAddress);
 
+    const ref = useRef<string | null>(null);
+
     const doSend = useCallback(async () => {
         try {
             const pending = await signAndSendSolanaTransaction({
@@ -34,16 +35,17 @@ export const TransferInstructions = (params: {
                 authContext,
                 transaction
             });
-
-            if (params.callback) {
-                params.callback(true, pending.id);
-            }
+            ref.current = pending.id;
             registerPending(pending);
         } catch (error) {
             // TODO: *solana* humanize error ui
             Alert.alert('Error', (error as Error).message);
         }
     }, [theme, authContext, params, solanaAddress, navigation, registerPending]);
+
+    useEffect(() => {
+        params.callback?.(!!ref.current, ref.current);
+    }, []);
 
     return (
         <View style={{ flexGrow: 1 }}>

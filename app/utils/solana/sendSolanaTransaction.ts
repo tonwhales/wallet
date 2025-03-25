@@ -73,9 +73,6 @@ export async function sendSolanaOrder({ solanaClient, theme, authContext, order,
     }
 
     transaction.feePayer = owner;
-
-
-    // ^
     transaction.recentBlockhash = lastBlockHash.blockhash;
 
     // 

@@ -163,6 +163,7 @@ export const HoldersAccounts = memo(({
             renderFace={renderFace}
             itemHeight={152}
             theme={theme}
+            alwaysExpanded
             limitConfig={{
                 maxItems: 4,
                 fullList: { type: 'holders-accounts' }

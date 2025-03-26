@@ -59,6 +59,7 @@ type CollapsibleCardsProps<T> = {
     initialCollapsed?: boolean,
     limitConfig?: CollapsibleCardsLimitConfig,
     action?: React.ReactNode
+    alwaysExpanded?: boolean
 };
 
 const CollapsibleCardsComponent = <T,>({
@@ -70,15 +71,14 @@ const CollapsibleCardsComponent = <T,>({
     theme,
     initialCollapsed = true,
     limitConfig,
-    action
+    action,
+    alwaysExpanded = false
 }: CollapsibleCardsProps<T>) => {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
-    const [collapsed, setCollapsed] = useState(initialCollapsed);
-
+    const [collapsed, setCollapsed] = useState(!alwaysExpanded && initialCollapsed);
+    const progress = useSharedValue(alwaysExpanded || initialCollapsed ? 0 : 1);
     const toggle = () => setCollapsed((prev) => !prev);
-
-    const progress = useSharedValue(initialCollapsed ? 0 : 1);
 
     useEffect(() => {
         progress.value = withTiming(collapsed ? 0 : 1, {
@@ -271,7 +271,7 @@ const CollapsibleCardsComponent = <T,>({
                         <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                             {title}
                         </Text>
-                        <View style={{
+                        {!alwaysExpanded && (<View style={{
                             flexDirection: 'row', alignItems: 'center',
                             backgroundColor: theme.surfaceOnBg,
                             paddingVertical: 8, paddingHorizontal: 6,
@@ -290,6 +290,7 @@ const CollapsibleCardsComponent = <T,>({
                                 </Text>
                             </Animated.View>
                         </View>
+                        )}
                     </View>
                     {action}
                 </Pressable>

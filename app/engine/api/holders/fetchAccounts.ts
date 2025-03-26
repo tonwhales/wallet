@@ -168,36 +168,68 @@ const cardPrepaid = cardSchema.and(
   }),
 );
 
-const cryptoCurrencyTicker = z.union([
-  z.literal('TON'),
-  z.literal('USDT'),
-  z.literal('EURT'),
+const brandSchema = z.union([
+  z.literal('HOLDERS'),
+  z.literal('TONHUB'),
+  z.literal('TONKEEPER'),
+  z.literal('CARDBOT'),
+]);
+
+const cryptoCurrencySchema = z.object({
+  decimals: z.number(),
+  ticker: z.string(),
+  tokenContract: z.string().optional(),
+});
+
+export const invoiceSchema = z.object({
+  id: z.string(),
+  expiresAt: z.number().nullable(),
+  cryptoAccountId: z.string(),
+  cryptoCurrency: cryptoCurrencySchema,
+  params: z.object({
+    kind: z.enum(['crypto', 'crypto_fiat']),
+    cryptoAmount: z.string().nullable(),
+    cryptoAmountNano: z.string(),
+    fiatAmount: z.string().nullable(),
+    fiatCurrency: z.string().nullable(),
+    rate: z.string().nullable(),
+    fees: z.string().optional(),
+  }),
+  purpose: z.any(),
+});
+
+export const cryptoAccountStatusSchema = z.enum([
+  'PENDING_CONTRACT',
+  'ACTIVE',
+  'SUSPENDED',
+  'MANUALLY_CLOSED',
+  'CLOSED',
 ]);
 
 const accountSchema = z.object({
   id: z.string(),
-  accountIndex: z.number(),
+  createdAt: z.string().nullish(),
   address: z.string().nullish(),
   name: z.string().nullish(),
+  accountIndex: z.number(),
+  contractSeed: z.string().nullish(),
   seed: z.string().nullable(),
-  state: z.string(),
+  state: cryptoAccountStatusSchema,
   balance: z.string(),
   tzOffset: z.number(),
   contract: z.string(),
+  prepaidOnly: z.boolean(),
   partner: z.string(),
   network: networksSchema,
+  brand: brandSchema,
+  isLatestContract: z.boolean(),
   ownerAddress: z.string(),
-
-  cryptoCurrency: z.object({
-    decimals: z.number(),
-    ticker: cryptoCurrencyTicker,
-    tokenContract: z.string().nullish()
-  }),
-
+  cryptoCurrency: cryptoCurrencySchema,
   limits: accountLimitsSchema,
-  cards: z.array(cardDebit),
-  createdAt: z.string().nullish(),
+  invoices: invoiceSchema.array(),
+  totalDebtCryptoAmountNano: z.string(),
   hasBeenDepositedOnce: z.boolean().nullish(),
+  cards: z.array(cardDebit),
 });
 
 export const accountsListResCodec = z.discriminatedUnion('ok', [

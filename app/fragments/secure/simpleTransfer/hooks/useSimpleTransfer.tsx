@@ -87,9 +87,14 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const { target, domain } = addressDomainInputState;
 
     const [commentString, setComment] = useState(params?.comment || '');
-    const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
-    const [stateInit] = useState<Cell | null>(params?.stateInit || null);
     const [selectedJetton, setJetton] = useState<Address | null>(params?.jetton || null);
+    const jetton = useJetton({
+        owner: address?.toString({ testOnly: network.isTestnet }),
+        wallet: selectedJetton?.toString({ testOnly: network.isTestnet })
+    });
+    const [amount, setAmount] = useState(params?.amount ? fromBnWithDecimals(fromNano(params.amount), jetton?.decimals ?? 9) : '');
+    
+    const [stateInit] = useState<Cell | null>(params?.stateInit || null);
     const estimationRef = useRef<bigint | null>(null);
 
     // custom payload
@@ -98,10 +103,6 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const forwardAmount = params.forwardAmount ?? null;
     const feeAmount = params.feeAmount ?? null;
 
-    const jetton = useJetton({
-        owner: address?.toString({ testOnly: network.isTestnet }),
-        wallet: selectedJetton?.toString({ testOnly: network.isTestnet })
-    });
 
     const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons
         .map((j) => Address.parse(j.master_id))

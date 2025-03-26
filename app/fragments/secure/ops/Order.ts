@@ -12,6 +12,9 @@ export type Order = {
         amountAll: boolean;
         payload: Cell | null;
         stateInit: Cell | null;
+        extraCurrency?: {
+            [k: number]: bigint;
+        }
     }[],
     app?: {
         domain: string,

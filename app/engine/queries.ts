@@ -58,6 +58,7 @@ export const Queries = {
 
     Hints: (address: string) => (['hints', address]),
     HintsFull: (address: string) => (['hints', 'full', address]),
+    HintsExtra: (address: string) => (['hints', 'extra', address]),
     Mintless: (address: string) => (['mintless', address]),
     Cloud: (address: string) => ({
         Key: (key: string) => ['cloud', address, key]

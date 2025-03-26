@@ -1,7 +1,7 @@
 import { Pressable, View, Text, Platform, useWindowDimensions } from "react-native";
 import { ItemSwitch } from "../Item";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useExtraCurrencyHints, useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,6 +21,8 @@ import { LoadingIndicator } from "../LoadingIndicator";
 import { filterHint, getHintFull, HintsFilter } from "../../utils/jettons/hintSortFilter";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
+import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
+import { ExtraCurrencyProductItem } from "./ExtraCurrencyProductItem";
 
 const EmptyListItem = memo(() => {
     const theme = useTheme();
@@ -109,28 +111,47 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
 
     const [filter, setFilter] = useState<HintsFilter[] | null>(null);
     const jettons: JettonFull[] = useHintsFull(addressStr).data?.hints ?? [];
-    const [filteredJettons, setFilteredJettons] = useState(jettons);
+    const extraCurrencies: ExtraCurrencyHint[] = useExtraCurrencyHints(addressStr).data ?? [];
+    const initData = [
+        ...extraCurrencies.map((e) => ({ ...e, type: 'extra' })),
+        ...jettons.map((j) => ({ ...j, type: 'jetton' })),
+    ];
+    const [filteredJettons, setFilteredJettons] = useState(initData);
 
     useEffect(() => {
         if (filter !== null) {
             const filterFn = filterHint(filter);
-            const filtered = jettons.filter((j) => filterFn(getHintFull(j, testOnly)));
+            const filtered = initData.filter((j) => j.type !== 'jetton' || filterFn(getHintFull(j as JettonFull, testOnly)));
             setFilteredJettons(filtered);
         }
-    }, [jettons, filter, testOnly]);
+    }, [initData, filter, testOnly]);
 
-    const renderItem = useCallback(({ item }: { item: JettonFull }) => {
-        return (
-            <JettonProductItem
-                card
-                last
-                hint={item}
-                itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
-                ledger={isLedger}
-                owner={selected!.address}
-                jettonViewType={AssetViewType.Default}
-            />
-        );
+    const renderItem = useCallback(({ item }: { item: JettonFull & { type: 'jetton' } | ExtraCurrencyHint & { type: 'extra' } }) => {
+        if (item.type === 'jetton') {
+            return (
+                <JettonProductItem
+                    card
+                    last
+                    hint={item as JettonFull}
+                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
+                    ledger={isLedger}
+                    owner={selected!.address}
+                    jettonViewType={AssetViewType.Default}
+                />
+            );
+        } else {
+            return (
+                <ExtraCurrencyProductItem
+                    card
+                    last
+                    currency={item as ExtraCurrencyHint}
+                    owner={selected!.address}
+                    jettonViewType={AssetViewType.Default}
+                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
+                    ledger={isLedger}
+                />
+            )
+        }
     }, [theme, isLedger, selected]);
 
     return (
@@ -161,7 +182,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                 }
             />
             <FlashList
-                data={filteredJettons}
+                data={filteredJettons as (JettonFull & { type: 'jetton' } | ExtraCurrencyHint & { type: 'extra' })[]}
                 renderItem={renderItem}
                 // to see less blank space
                 estimatedItemSize={80}

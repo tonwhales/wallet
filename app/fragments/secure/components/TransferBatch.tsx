@@ -92,7 +92,6 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
     }, []);
 
     const {
-        text,
         order,
         fees,
         callback,
@@ -295,13 +294,13 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                 value: i.message.amount,
                 init: internalStateInit,
                 body: i.message.payload,
-                bounce
+                bounce,
+                extracurrency: i.message.extraCurrency
             });
 
             if (msg) {
                 messages.push(msg);
             }
-
         }
 
         const account = getAccountLite(selected.addressString);
@@ -316,6 +315,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
             );
             return;
         }
+
         if (totalAmount === 0n) {
             let allowSeingZero = await new Promise((resolve) => {
                 Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
@@ -334,7 +334,6 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                 return;
             }
         }
-
 
         // Read key
         let walletKeys: WalletKeys;

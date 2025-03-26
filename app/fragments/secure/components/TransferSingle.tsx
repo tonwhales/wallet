@@ -354,7 +354,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     value: order.messages[0].amount,
                     init: internalStateInit,
                     bounce,
-                    body
+                    body,
+                    extracurrency: order.messages[0].extraCurrency
                 });
 
                 const transferParams = {

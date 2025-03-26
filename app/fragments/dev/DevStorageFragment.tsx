@@ -108,7 +108,7 @@ export const DevStorageFragment = fragment(() => {
                     </View>
                 </ItemGroup>
                 <View style={{ marginHorizontal: 16, marginBottom: 16, width: '100%' }}>
-                    <Text style={Typography.semiBold15_20}>Web View Local Storage</Text>
+                    <Text style={[Typography.semiBold15_20, { color: theme.textPrimary }]} >Web View Local Storage</Text>
                 </View>
                 <ItemGroup style={{
                     marginBottom: 16,
@@ -118,12 +118,23 @@ export const DevStorageFragment = fragment(() => {
                     alignItems: 'center',
                     flexShrink: 1,
                 }}>
+                    {localStorageStatus.lastChecked === 0 && (
+                        <View style={{ marginHorizontal: 16, marginBottom: 16, width: '100%' }}>
+                            <Text style={[Typography.semiBold15_20, { color: theme.textPrimary, marginLeft: 16 }]} >Open Holders account first to check status</Text>
+                        </View>
+                    )}
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <Item title={"LocalStorage available"} hint={localStorageStatus.isAvailable ? 'Yes' : 'No'} />
+                        <Item title={"LocalStorage object"} hint={localStorageStatus.isObjectAvailable ? 'Available' : 'Not available'} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"LocalStorage Read/Write"} hint={localStorageStatus.isAvailable ? 'Available' : 'Not available'} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Item title={"LocalStorage size"} hint={localStorageStatus.totalSizeBytes?.toString() ?? 'Not set'} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <Item title={"Keys amount"} hint={localStorageStatus.keys.length?.toString() ?? 'No keys'} />
                     </View>
                     <TouchableOpacity onPress={onCopy} style={{ marginHorizontal: 16, width: '100%' }}>
                         <Text style={{ marginHorizontal: 16, fontSize: 10, color: theme.textSecondary }}>

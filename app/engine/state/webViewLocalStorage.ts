@@ -2,6 +2,7 @@ import { atom } from "recoil";
 
 export interface LocalStorageStatus {
     isAvailable: boolean;
+    isObjectAvailable?: boolean;
     keys: string[];
     totalSizeBytes?: number;
     error?: string;

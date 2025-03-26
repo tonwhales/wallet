@@ -28,6 +28,7 @@ import { getCurrentAddress } from "../../storage/appState";
 import { WebViewSourceUri } from "react-native-webview/lib/WebViewTypes";
 import { holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { useLocalStorageStatus } from "../../engine/hooks/webView/useLocalStorageStatus";
+import { checkLocalStorageScript } from "./utils/checkLocalStorageScript";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -181,9 +182,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             }
  
             if (parsed.data.name === 'localStorageStatus') {
-                console.log('localStorageStatus', parsed.data);
                 updateLocalStorageStatus({
                     isAvailable: parsed.data.isAvailable,
+                    isObjectAvailable: parsed.data.isObjectAvailable,
                     keys: parsed.data.keys,
                     totalSizeBytes: parsed.data.totalSizeBytes,
                     error: parsed.data.error
@@ -528,54 +529,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             setTimeout(() => setLoaded(true), 200);
         }
     }, []);
-
-    const checkLocalStorageScript = `
-        (() => {
-            try {
-                localStorage.setItem('localStorageTest', 'test');
-                const result = localStorage.getItem('localStorageTest');
-                localStorage.removeItem('localStorageTest');
-                
-                const keys = [];
-                let totalSize = 0;
-                
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key !== null) {
-                        keys.push(key);
-                        const valueSize = (localStorage.getItem(key) || '').length * 2;
-                        const keySize = key.length * 2;
-                        totalSize += keySize + valueSize;
-                    }
-                }
-                
-                const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
-                
-                window.ReactNativeWebView.postMessage(
-                    JSON.stringify({
-                        data: {
-                            name: 'localStorageStatus',
-                            isAvailable: result === 'test',
-                            keys: keys,
-                            totalSizeBytes: totalSize // Размер в байтах
-                        }
-                    })
-                );
-            } catch (error) {
-                window.ReactNativeWebView.postMessage(
-                    JSON.stringify({
-                        data: {
-                            name: 'localStorageStatus',
-                            isAvailable: false,
-                            keys: [],
-                            totalSizeBytes: 0,
-                            error: error.message
-                        }
-                    })
-                );
-            }
-        })();
-`;
 
     return (
         <View style={{

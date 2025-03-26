@@ -417,7 +417,7 @@ export const HoldersAppComponent = memo((
                     showKeyboardAccessoryView: false,
                     lockScroll: true
                 }}
-                webviewDebuggingEnabled={true}
+                webviewDebuggingEnabled={isTestnet}
                 loader={(p) => (
                     <HoldersLoader
                         type={

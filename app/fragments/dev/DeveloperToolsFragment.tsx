@@ -267,7 +267,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
                     </View>
-                    <WebView webviewDebuggingEnabled={true} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
+                    <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

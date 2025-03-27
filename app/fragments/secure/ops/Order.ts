@@ -147,6 +147,9 @@ export function createOrder(args: {
         domain: string,
         title: string,
         url: string
+    },
+    extraCurrency?: {
+        [k: number]: bigint;
     }
 }) {
     return {
@@ -155,7 +158,8 @@ export function createOrder(args: {
             amount: args.amount,
             amountAll: args.amountAll,
             payload: args.payload,
-            stateInit: args.stateInit
+            stateInit: args.stateInit,
+            extraCurrency: args.extraCurrency
         }],
         domain: args.domain,
         app: args.app
@@ -174,6 +178,9 @@ export function createSimpleOrder(args: {
         domain: string,
         title: string,
         url: string
+    },
+    extraCurrency?: {
+        [k: number]: bigint;
     }
 }): Order {
 
@@ -195,7 +202,8 @@ export function createSimpleOrder(args: {
             amount: args.amount,
             amountAll: args.amountAll,
             stateInit: args.stateInit,
-            app: args.app
+            app: args.app,
+            extraCurrency: args.extraCurrency
         })
     };
 }

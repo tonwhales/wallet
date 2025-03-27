@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, BackHandler, Keyboard, Alert } from "react-native";
+import { Platform, BackHandler, Keyboard } from "react-native";
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { Cell, Address } from '@ton/core';
 import { setStatusBarStyle } from 'expo-status-bar';
@@ -31,7 +31,8 @@ export type SimpleTransferParams = {
         domain: string,
         title: string,
         url: string,
-    }
+    },
+    extraCurrencyId?: number
 }
 
 const SimpleTransferComponent = () => {
@@ -73,7 +74,9 @@ const SimpleTransferComponent = () => {
         targetAddressValid,
         setSelectedInput,
         selectedInput,
-        doSend
+        doSend,
+        selectedAsset,
+        extraCurrency
     } = useSimpleTransfer({ params, route, navigation });
 
     const [isScrolling, setIsScrolling] = useState(false);
@@ -126,7 +129,7 @@ const SimpleTransferComponent = () => {
     };
 
     useEffect(() => {
-        if(selectedInput === 0) {
+        if (selectedInput === 0) {
             scrollRef.current?.scrollTo({ y: 0, animated: true })
         }
     }, [selectedInput])
@@ -170,7 +173,7 @@ const SimpleTransferComponent = () => {
             headerComponent={<SimpleTransferHeader {...header} />}
             footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, continueLoading, doSend }} />}
             addressComponent={<SimpleTransferAddress ref={addressRef} {...{ ledgerAddress, params, domain, onInputFocus, setAddressDomainInputState, onInputSubmit, onQRCodeRead, isActive: selected === 'address', onSearchItemSelected, knownWallets }} />}
-            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton }} />}
+            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton, selectedAsset, extraCurrency }} />}
             commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError, maxHeight: selected === 'comment' ? 200 : undefined }} />}
             feesComponent={estimation ? <SimpleTransferFees {...{ estimation, estimationPrice }} /> : null}
             scrollEnabled={!selectedInput}

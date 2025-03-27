@@ -80,19 +80,14 @@ export const ExtraCurrencyProductItem = memo((props: ExtraCurrencyProductItemPro
             return;
         }
 
-        // TODO: *extra-currency*
-        // navigation.navigate(
-        //     props.ledger ? 'LedgerSimpleTransfer' : 'SimpleTransfer',
-        //     {
-        //         amount: null,
-        //         target: null,
-        //         comment: null,
-        //         jetton: hint.walletAddress.address,
-        //         stateInit: null,
-        //         job: null,
-        //         callback: null
-        //     }
-        // );
+        navigation.navigateSimpleTransfer({
+            amount: null,
+            target: null,
+            comment: null,
+            jetton: null,
+            stateInit: null,
+            callback: null
+        }, { ledger });
     }, [currency, ledger, selectParams?.onSelect]);
 
     return (

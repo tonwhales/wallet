@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useAccountLite, useCloudValue, useDisplayableJettons, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAccountLite, useCloudValue, useDisplayableJettons, useExtraCurrencyHints, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -24,11 +24,15 @@ import { HoldersAccountItem, HoldersItemContentType } from "../../components/pro
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
 import { getSpecialJetton } from "../../secure/KnownWallets";
+import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
+import { SimpleTransferAsset } from "../secure/simpleTransfer/hooks/useSimpleTransfer";
+import { ExtraCurrencyProductItem } from "../../components/products/ExtraCurrencyProductItem";
 
 import IcCheck from "@assets/ic-check.svg";
 
 type ListItem =
     { type: 'jetton', hint: JettonFull }
+    | { type: 'extraCurrency', currency: ExtraCurrencyHint }
     | { type: 'ton' }
     | { type: 'holders', account: GeneralHoldersAccount };
 
@@ -115,9 +119,9 @@ const TonAssetItem = memo((params: {
 export type AssetsFragmentParams = {
     target?: string,
     includeHolders?: boolean,
-    jettonCallback?: (selected?: { wallet?: Address, master: Address }) => void,
+    simpleTransferAssetCallback?: (selected?: SimpleTransferAsset) => void,
     assetCallback?: (selected: ReceiveableAsset | null) => void,
-    selectedAsset?: Address | null,
+    selectedAsset?: SimpleTransferAsset | null,
     viewType: AssetViewType,
     isLedger?: boolean
 }
@@ -131,7 +135,7 @@ export const AssetsFragment = fragment(() => {
     const selected = useSelectedAccount();
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
-    const { target, jettonCallback, assetCallback, selectedAsset, viewType, includeHolders, isLedger } = useParams<AssetsFragmentParams>();
+    const { target, simpleTransferAssetCallback, assetCallback, selectedAsset, viewType, includeHolders, isLedger } = useParams<AssetsFragmentParams>();
 
     const title = viewType === AssetViewType.Receive
         ? t('receive.assets')
@@ -154,6 +158,7 @@ export const AssetsFragment = fragment(() => {
     const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
     const account = useAccountLite(owner);
     const hints = useHintsFull(owner.toString({ testOnly: isTestnet })).data?.hints ?? [];
+    const extraCurrencies = useExtraCurrencyHints(owner.toString({ testOnly: isTestnet })).data ?? [];
 
     const itemsList = useMemo(() => {
         const filtered: ListItem[] = hints
@@ -179,12 +184,17 @@ export const AssetsFragment = fragment(() => {
                 hint: h
             }));
 
+        const extraCurrenciesList: ListItem[] = extraCurrencies.map((c) => ({
+            type: 'extraCurrency',
+            currency: c
+        }));
+
         const holders: ListItem[] = includeHolders ? holdersAccounts.map((h) => ({
             type: 'holders',
             account: h
         })) : [];
 
-        let items: ListItem[] = [...holders, ...filtered];
+        let items: ListItem[] = [...holders, ...extraCurrenciesList, ...filtered];
 
         if (!isJettonsReceiveRoute) {
             items = [{ type: 'ton' }, ...items];
@@ -212,16 +222,16 @@ export const AssetsFragment = fragment(() => {
         }
 
         return items;
-    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute]);
+    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute, extraCurrencies]);
 
-    const onJettonCallback = useCallback((selected?: { wallet?: Address, master: Address }) => {
-        if (jettonCallback) {
+    const onJettonCallback = useCallback((selected?: SimpleTransferAsset) => {
+        if (simpleTransferAssetCallback) {
             setTimeout(() => {
                 navigation.goBack();
-                jettonCallback(selected);
+                simpleTransferAssetCallback(selected);
             }, 10);
         }
-    }, [jettonCallback]);
+    }, [simpleTransferAssetCallback]);
 
     const onAssetCallback = useCallback((selected: ReceiveableAsset | null) => {
         if (assetCallback) {
@@ -233,8 +243,9 @@ export const AssetsFragment = fragment(() => {
     }, [assetCallback]);
 
     const onJettonSelected = useCallback((hint: JettonFull) => {
-        if (jettonCallback) {
+        if (simpleTransferAssetCallback) {
             onJettonCallback({
+                type: 'jetton',
                 wallet: Address.parse(hint.walletAddress.address),
                 master: Address.parse(hint.jetton.address)
             });
@@ -270,8 +281,28 @@ export const AssetsFragment = fragment(() => {
         });
     }, [onJettonCallback, onAssetCallback]);
 
+    const onExtraCurrencySelected = useCallback((currency: ExtraCurrencyHint) => {
+        if (simpleTransferAssetCallback) {
+            setTimeout(() => {
+                navigation.goBack();
+                simpleTransferAssetCallback({ type: 'extraCurrency', id: currency.preview.id });
+            }, 10);
+            return;
+        }
+
+        navigation.navigateSimpleTransfer({
+            amount: null,
+            target: target,
+            comment: null,
+            jetton: null,
+            stateInit: null,
+            callback: null,
+            extraCurrencyId: currency.preview.id
+        });
+    }, [simpleTransferAssetCallback]);
+
     const onTonSelected = useCallback(() => {
-        if (jettonCallback) {
+        if (simpleTransferAssetCallback) {
             onJettonCallback();
             return;
         } else if (assetCallback) {
@@ -307,7 +338,6 @@ export const AssetsFragment = fragment(() => {
         }
         if (assetCallback) {
             const name = getAccountName(target.accountIndex, target.name);
-
 
             onAssetCallback({
                 address: Address.parse(target.address),
@@ -351,7 +381,9 @@ export const AssetsFragment = fragment(() => {
 
                 if (item.account.address) {
                     try {
-                        isSelected = selectedAsset?.equals(Address.parse(item.account.address)) ?? false;
+                        if (selectedAsset?.type === 'address') {
+                            isSelected = selectedAsset.address.equals(Address.parse(item.account.address));
+                        }
                     } catch { }
                 }
 
@@ -374,11 +406,26 @@ export const AssetsFragment = fragment(() => {
                         hint={item.hint}
                         owner={owner}
                         onSelect={onJettonSelected}
-                        hideSelection={!jettonCallback && !assetCallback}
-                        selected={selectedAsset}
+                        hideSelection={!simpleTransferAssetCallback && !assetCallback}
+                        selected={selectedAsset?.type === 'jetton' ? selectedAsset.master : null}
                         isTestnet={isTestnet}
                         theme={theme}
                         jettonViewType={viewType}
+                    />
+                );
+            case 'extraCurrency':
+                return (
+                    <ExtraCurrencyProductItem
+                        card
+                        currency={item.currency}
+                        owner={owner}
+                        selectParams={{
+                            onSelect: onExtraCurrencySelected,
+                            selectedFn: (currency) => selectedAsset?.type === 'extraCurrency' && selectedAsset.id === currency.preview.id
+                        }}
+                        selected={selectedAsset?.type === 'extraCurrency' && selectedAsset.id === item.currency.preview.id}
+                        jettonViewType={viewType}
+                        itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                     />
                 );
             default:
@@ -386,15 +433,15 @@ export const AssetsFragment = fragment(() => {
                     <TonAssetItem
                         balance={account?.balance ?? 0n}
                         onTonSelected={onTonSelected}
-                        selectable={!!jettonCallback || !!assetCallback}
-                        isSelected={!selectedAsset || (selectedAsset === owner)}
+                        selectable={!!simpleTransferAssetCallback || !!assetCallback}
+                        isSelected={!selectedAsset || (selectedAsset.type === 'address' && selectedAsset.address.equals(owner))}
                         viewType={viewType}
                     />
                 );
         }
     }, [
         selectedAsset, owner, isTestnet, theme, viewType, account?.balance, owner, holdersAccStatus,
-        onJettonSelected, onTonSelected, onHoldersSelected,
+        onJettonSelected, onTonSelected, onHoldersSelected, onExtraCurrencySelected
     ]);
 
     const renderSectionHeader = useCallback(({ section }: { section: { type: string, data: ListItem[] } }) => {

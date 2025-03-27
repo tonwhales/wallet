@@ -150,7 +150,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                     itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
                     ledger={isLedger}
                 />
-            )
+            );
         }
     }, [theme, isLedger, selected]);
 

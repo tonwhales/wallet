@@ -419,6 +419,7 @@ export const LiquidStakingFragment = fragment(() => {
                                 theme={theme}
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
+                                owner={memberAddress!.toString({ testOnly: network.isTestnet })}
                             />
                         )}
                         {/* TODO */}

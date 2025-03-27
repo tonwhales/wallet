@@ -15,16 +15,16 @@ import { AssetViewType } from '../../../wallet/AssetsFragment';
 import { PressableChip } from '../../../../components/PressableChip';
 import { AmountInput } from '../../../../components/input/AmountInput';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { Address } from '@ton/core';
 import { Jetton } from '../../../../engine/types';
 import { HoldersAccountTarget } from '../../../../engine/hooks/holders/useHoldersAccountTrargets';
+import { SimpleTransferAsset } from '../hooks/useSimpleTransfer';
+import { ExtraCurrencyHint } from '../../../../engine/api/fetchExtraCurrencyHints';
+import { WImage } from '../../../../components/WImage';
 
 type Props = {
-    onAssetSelected: (selected?: {
-        master: Address;
-        wallet?: Address;
-    }) => void;
+    onAssetSelected: (selected?: SimpleTransferAsset) => void;
     jetton: Jetton | null;
+    extraCurrency?: ExtraCurrencyHint | null;
     isLedger: boolean;
     isSCAM: boolean;
     symbol: string;
@@ -37,12 +37,14 @@ type Props = {
     shouldChangeJetton?: boolean;
     holdersTarget?: HoldersAccountTarget;
     onChangeJetton: () => void;
-    onInputFocus: (index: number) => void
+    onInputFocus: (index: number) => void;
+    selectedAsset: SimpleTransferAsset | null
 }
 
 export const SimpleTransferAmount = memo(forwardRef(({
     onAssetSelected,
     jetton,
+    extraCurrency,
     isLedger,
     isSCAM,
     symbol,
@@ -56,6 +58,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
     holdersTarget,
     onChangeJetton,
     onInputFocus,
+    selectedAsset,
 }: Props, ref) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -68,73 +71,91 @@ export const SimpleTransferAmount = memo(forwardRef(({
         setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? 9, { skipFormattingDecimals: true }, prev));
     }, [jetton?.decimals])
 
-    const onNavigateAssets = useCallback(() =>  navigation.navigateAssets({
-        jettonCallback: onAssetSelected,
-        selectedAsset: jetton?.master,
-        viewType: AssetViewType.Transfer,
-        isLedger
-    }), [onAssetSelected, jetton?.master, isLedger])
+    const onNavigateAssets = useCallback(() => {
+        navigation.navigateAssets({
+            simpleTransferAssetCallback: onAssetSelected,
+            selectedAsset,
+            viewType: AssetViewType.Transfer,
+            isLedger
+        });
+    }, [onAssetSelected, jetton?.master, isLedger, selectedAsset])
 
-    const jettonButton = useMemo(() => (
-        <Pressable
-            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-            onPress={onNavigateAssets}
-        >
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-            }}>
-                <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
-                    <View style={{
-                        height: 46, width: 46,
-                        justifyContent: 'center', alignItems: 'center',
-                        marginRight: 12
-                    }}>
-                        {!!jetton ? (
-                            <JettonIcon
-                                isTestnet={network.isTestnet}
-                                theme={theme}
-                                size={46}
-                                jetton={mapJettonToMasterState(jetton, network.isTestnet)}
-                                backgroundColor={theme.elevation}
-                                isSCAM={isSCAM}
-                            />
-                        ) : (
-                            <Image
-                                source={require('@assets/ic-ton-acc.png')}
-                                style={{ height: 46, width: 46 }}
-                            />
-                        )}
-                    </View>
-                    <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
-                        <Text
-                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                            numberOfLines={2}
-                            ellipsizeMode={'tail'}
-                        >
-                            {symbol}
-                        </Text>
-                        {isSCAM && (
+    const assetButton = useMemo(() => {
+        let icon = <Image
+            source={require('@assets/ic-ton-acc.png')}
+            style={{ height: 46, width: 46 }}
+        />;
+
+        if (selectedAsset?.type === 'extraCurrency') {
+            icon = <WImage
+                src={extraCurrency?.preview?.image}
+                style={{ height: 46, width: 46 }}
+                height={46}
+                width={46}
+                borderRadius={23}
+            />;
+        }
+
+        if (selectedAsset?.type === 'jetton' && jetton) {
+            icon = <JettonIcon
+                isTestnet={network.isTestnet}
+                theme={theme}
+                size={46}
+                jetton={mapJettonToMasterState(jetton, network.isTestnet)}
+                backgroundColor={theme.elevation}
+                isSCAM={isSCAM}
+            />;
+        }
+
+        return (
+            <Pressable
+                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                onPress={onNavigateAssets}
+            >
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
+                        <View style={{
+                            height: 46, width: 46,
+                            justifyContent: 'center', alignItems: 'center',
+                            marginRight: 12
+                        }}>
+                            {icon}
+                        </View>
+                        <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
                             <Text
-                                style={{ flexShrink: 1 }}
-                                numberOfLines={4}
+                                style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                numberOfLines={2}
                                 ellipsizeMode={'tail'}
                             >
-                                <Text
-                                    style={[{ color: theme.accentRed }, Typography.regular15_20]}
-                                    selectable={false}
-                                >
-                                    {'SCAM'}
-                                </Text>
+                                {symbol}
                             </Text>
-                        )}
+                            {isSCAM && (
+                                <Text
+                                    style={{ flexShrink: 1 }}
+                                    numberOfLines={4}
+                                    ellipsizeMode={'tail'}
+                                >
+                                    <Text
+                                        style={[{ color: theme.accentRed }, Typography.regular15_20]}
+                                        selectable={false}
+                                    >
+                                        {'SCAM'}
+                                    </Text>
+                                </Text>
+                            )}
+                        </View>
                     </View>
+                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
                 </View>
-                <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
-            </View>
-        </Pressable>
-    ), [onNavigateAssets, network.isTestnet, jetton, symbol, isSCAM])
+            </Pressable>
+        );
+    }, [onNavigateAssets, network.isTestnet, jetton, symbol, isSCAM]);
+
+    const decimals = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.decimals : jetton?.decimals;
 
     const valueComponent = useMemo(() => (
         <View style={{
@@ -147,8 +168,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 <ValueComponent
                     precision={4}
                     value={balance}
-                    decimals={jetton ? jetton.decimals : undefined}
-                    suffix={jetton ? ` ${jetton.symbol}` : ''}
+                    decimals={decimals}
+                    suffix={symbol ? ` ${symbol}` : ''}
                 />
             </Text>
             <Pressable
@@ -181,10 +202,10 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 flexGrow: 1
             }, Typography.regular17_24, { lineHeight: undefined }]}
             suffix={priceText}
-            ticker={jetton?.symbol || 'TON'}
+            ticker={symbol || 'TON'}
             cursorColor={theme.accent}
         />
-    ), [onInputFocus, onValueChange, amountError, priceText, jetton?.symbol, amount])
+    ), [onInputFocus, onValueChange, amountError, priceText, symbol, amount])
 
     const amountErrorLabel = useMemo(() => amountError && (
         <Animated.View
@@ -221,7 +242,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 padding: 20
             }}
         >
-            {jettonButton}
+            {assetButton}
             <ItemDivider marginHorizontal={0} />
             {valueComponent}
             {amountInput}

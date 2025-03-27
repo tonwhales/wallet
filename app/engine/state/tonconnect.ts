@@ -36,6 +36,19 @@ const tonProofItemReplyCodec = z.union([
   tonProofItemReplyErrorCodec,
 ]);
 
+const solanaProofItemReplyCodec = z.object({
+  name: z.literal('solana_proof'),
+  proof: z.object({
+    timestamp: z.number(),
+    domain: z.object({
+      lengthBytes: z.number(),
+      value: z.string(),
+    }),
+    signature: z.string(),
+    payload: z.string(),
+  }),
+});
+
 const connectItemReplyCodec = z.union([
   z.object({
     name: z.literal('ton_addr'),
@@ -45,6 +58,7 @@ const connectItemReplyCodec = z.union([
     publicKey: z.string(),
   }),
   tonProofItemReplyCodec,
+  solanaProofItemReplyCodec,
 ]);
 
 const appConnectionCodec = z.union([

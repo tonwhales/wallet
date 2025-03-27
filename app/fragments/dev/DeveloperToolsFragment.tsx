@@ -265,14 +265,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
-                        <Item title={"Navigate to Deposit"} onPress={async () => {
-                            const transaction = 'AAEABAgV685/4vTk4rVi2drldi18uYOn1cNXrL64Kqe4VwRolMYcRKm/+iq9/s5qs63jL9sEqPhU1QtCfm+AcLamP+tuhrZ1S16unPcK4e/0U2yGpSeoX/dScZSj/9XSfyjMKNKcw4su1tVAm/iIXSHkpydMNsut6fU7jdWp2SnS3CIpcuCBImUwCqN1r3d+std9tzPy9wih0K/B6ar2qFIcq5BAO0Qss5EhV/E6kz0BNCgtAytf/s0Botvxt3kGCN8ALqcG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqS+Yf/1M0SgI0HJ0waCmMI8NiYO+FNlGWRF2o4ZOiFHBNgk+JFSEWBTj1JCAwXhrG98re5/2lr7geWCJp0K4RBkBBwcABAUBAgMGUN2DbzTs13jkWXyTX6VgXIDp0y1s5sz7l4vo/u9Lufu7dxfRfHN3UM7qSXYB0jsJu8PaBCV946MzHlJVsvIhjatilvuw3uYEM6CGAQAAAAAA';
-                            navigation.navigateSolanaTransfer({ type: 'transaction', transaction })
-                        }} />
-                        <Item title={"Navigate to change limits"} onPress={async () => {
-                            const transaction = 'AAEABQjDZNTsPQlcKbggl5p4Q6RUlfxU8uY36Ra7LEe7EXHs0wT6GaijxqGW6A6ZmsiolIsZLWyakmW6LsLz3p6YdFHT/PXEC1S8TExac+4uhCIxeFdFO+Q9nyX3ZukDpnfIYsXwyuSU1Z4gm9n5Hn0NCynIRZ+hxfO9unHTaxpdgXQAjTtELLORIVfxOpM9ATQoLQMrX/7NAaLb8bd5BgjfAC6n5Ji0yjLn7AMij+/WhFP9t/F8Wr6dXRB78dcr1IMB9jgG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqS+Yf/1M0SgI0HJ0waCmMI8NiYO+FNlGWRF2o4ZOiFHB7zNPWlujj0hVGY7ZzyXI3PIiAMXsq7LtLxmhdzVKlPQBBwcAAwQFAQIGZIuIYnijENjFTmYRErZwl2ZDCJFe+V6DaRX9d2oF6xAIEuiv1sEct0/5TVDfripmAer7X2hjjEMs1MvaUelbs3Iv7i4OZjMSNoCWmAAAAAAAAOH1BQAAAAAA4fUFAAAAAAEAAAA=AAEABQjDZNTsPQlcKbggl5p4Q6RUlfxU8uY36Ra7LEe7EXHs0wT6GaijxqGW6A6ZmsiolIsZLWyakmW6LsLz3p6YdFHT/PXEC1S8TExac+4uhCIxeFdFO+Q9nyX3ZukDpnfIYsXwyuSU1Z4gm9n5Hn0NCynIRZ+hxfO9unHTaxpdgXQAjTtELLORIVfxOpM9ATQoLQMrX/7NAaLb8bd5BgjfAC6n5Ji0yjLn7AMij+/WhFP9t/F8Wr6dXRB78dcr1IMB9jgG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqS+Yf/1M0SgI0HJ0waCmMI8NiYO+FNlGWRF2o4ZOiFHB7zNPWlujj0hVGY7ZzyXI3PIiAMXsq7LtLxmhdzVKlPQBBwcAAwQFAQIGZIuIYnijENjFTmYRErZwl2ZDCJFe+V6DaRX9d2oF6xAIEuiv1sEct0/5TVDfripmAer7X2hjjEMs1MvaUelbs3Iv7i4OZjMSNoCWmAAAAAAAAOH1BQAAAAAA4fUFAAAAAAEAAAA=';
-                            navigation.navigateSolanaTransfer({ type: 'transaction', transaction })
-                        }} />
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

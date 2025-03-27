@@ -220,7 +220,7 @@ export const HoldersAccountItem = memo((props: {
                         <View style={{ flexGrow: 1 }}>
                             <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                                 {resolveHoldersIcon(
-                                    { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker },
+                                    { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker, network: account.network },
                                     theme
                                 )}
                                 <View style={{ marginLeft: 12, flexShrink: 1 }}>

@@ -15,6 +15,17 @@ export type HoldersAccounts = {
     prepaidCards?: PrePaidHoldersCard[]
 }
 
+const networkFilter = (account: GeneralHoldersAccount) => {
+    switch (account.network) {
+        case 'ton-testnet':
+        case 'ton-mainnet':
+        case 'solana':
+            return true;
+        default:
+            return false;
+    }
+}
+
 export function useHoldersAccounts(address: string | Address | undefined) {
     let { isTestnet } = useNetwork();
     let status = useHoldersAccountStatus(address).data;
@@ -63,16 +74,18 @@ export function useHoldersAccounts(address: string | Address | undefined) {
                     type = 'public';
                 }
 
-                const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet')) ?? [];
+                const filtered = accounts?.filter((a) => networkFilter(a)) ?? [];
 
-                return { accounts: filtered.map((a) => {
-                    try {
-                        BigInt(a.balance);
-                        return { ...a, balance: a.balance };
-                    } catch (error) {
-                        return { ...a, balance: '0' }
-                    }
-                }), type, prepaidCards } as HoldersAccounts;
+                return {
+                    accounts: filtered.map((a) => {
+                        try {
+                            BigInt(a.balance);
+                            return { ...a, balance: a.balance };
+                        } catch (error) {
+                            return { ...a, balance: '0' }
+                        }
+                    }), type, prepaidCards
+                } as HoldersAccounts;
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
                     deleteHoldersToken(addressString!);

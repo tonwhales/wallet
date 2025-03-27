@@ -30,23 +30,25 @@ export function resolveHoldersIcon(
     theme: ThemeType
 ) {
 
+    const holdersIc = params.holdersIc ? (
+        <View style={{
+            justifyContent: 'center', alignItems: 'center',
+            height: 20, width: 20, borderRadius: 10,
+            position: 'absolute', right: -2, bottom: -2,
+            backgroundColor: theme.surfaceOnElevation
+        }}>
+            <Image
+                source={require('@assets/ic-holders-accounts.png')}
+                style={{ height: 20, width: 20 }}
+            />
+        </View>
+    ) : null;
+
     if (params.ticker === 'USDT') {
         return (
             <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
                 {usdtIcon}
-                {params.holdersIc && (
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        height: 20, width: 20, borderRadius: 10,
-                        position: 'absolute', right: -2, bottom: -2,
-                        backgroundColor: theme.surfaceOnElevation
-                    }}>
-                        <Image
-                            source={require('@assets/ic-holders-accounts.png')}
-                            style={{ height: 20, width: 20 }}
-                        />
-                    </View>
-                )}
+                {holdersIc}
             </View>
         );
     }
@@ -60,19 +62,19 @@ export function resolveHoldersIcon(
                     height={46}
                     borderRadius={46}
                 />
-                {params.holdersIc && (
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        height: 20, width: 20, borderRadius: 10,
-                        position: 'absolute', right: -2, bottom: -2,
-                        backgroundColor: theme.surfaceOnElevation
-                    }}>
-                        <Image
-                            source={require('@assets/ic-holders-accounts.png')}
-                            style={{ height: 20, width: 20 }}
-                        />
-                    </View>
-                )}
+                {holdersIc}
+            </View>
+        );
+    }
+
+    if (params.ticker === 'USDC') {
+        return (
+            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
+                <Image
+                    source={require('@assets/ic-usdc.png')}
+                    style={{ width: 46, height: 46 }}
+                />
+                {holdersIc}
             </View>
         );
     }
@@ -80,19 +82,7 @@ export function resolveHoldersIcon(
     return (
         <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
             {tonIcon}
-            {params.holdersIc && (
-                <View style={{
-                    justifyContent: 'center', alignItems: 'center',
-                    height: 20, width: 20, borderRadius: 10,
-                    position: 'absolute', right: -2, bottom: -2,
-                    backgroundColor: theme.surfaceOnElevation
-                }}>
-                    <Image
-                        source={require('@assets/ic-holders-accounts.png')}
-                        style={{ height: 20, width: 20 }}
-                    />
-                </View>
-            )}
+            {holdersIc}
         </View>
     );
 }

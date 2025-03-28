@@ -31,7 +31,8 @@ export type SimpleTransferParams = {
         domain: string,
         title: string,
         url: string,
-    }
+    },
+    unknownDecimals?: boolean,
 }
 
 const SimpleTransferComponent = () => {

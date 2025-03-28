@@ -636,7 +636,7 @@ const TransactionPreview = () => {
                         style={{ flexGrow: 1 }}
                         onPress={() => {
                             if (repeatParams.type === 'simple') {
-                                navigation.navigateSimpleTransfer(repeatParams);
+                                navigation.navigateSimpleTransfer(repeatParams, { ledger: isLedger });
                             } else {
                                 navigation.navigateTransfer(repeatParams);
                             }

@@ -2,7 +2,7 @@ import { parseTransactionInstructions } from "../../../../utils/solana/parseInst
 import { useRegisterPendingSolana, useSolanaClient, useSolanaSelectedAccount, useTheme } from "../../../../engine/hooks";
 import { useKeysAuth } from "../../../../components/secure/AuthWalletKeys";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
-import { Transaction } from "@solana/web3.js";
+import { Message, PublicKey, Transaction } from "@solana/web3.js";
 import { Alert, ScrollView, View } from "react-native";
 import { TransferInstructionView } from "./TransferInstructionView";
 import { RoundButton } from "../../../../components/RoundButton";
@@ -10,6 +10,7 @@ import { signAndSendSolanaTransaction } from "../../../../utils/solana/signAndSe
 import { useCallback, useEffect, useRef } from "react";
 import { t } from "../../../../i18n/t";
 import { SolanaTransferFees } from "./SolanaTransferFees";
+import { warn } from "../../../../utils/log";
 
 export const TransferInstructions = (params: {
     instructions: ReturnType<typeof parseTransactionInstructions>;
@@ -22,6 +23,14 @@ export const TransferInstructions = (params: {
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
     const transaction = Transaction.from(Buffer.from(params.transaction, 'base64'));
+
+    if (!transaction.feePayer) {
+        try {
+            transaction.feePayer = new PublicKey(solanaAddress);
+        } catch {
+            warn('Invalid fee payer');
+        }
+    }
 
     const registerPending = useRegisterPendingSolana(solanaAddress);
 

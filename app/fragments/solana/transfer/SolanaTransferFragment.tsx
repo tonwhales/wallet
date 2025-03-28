@@ -22,7 +22,7 @@ import { avatarColors } from "../../../components/avatar/Avatar";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { fromNano } from "@ton/core";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
-import { Transaction } from "@solana/web3.js";
+import { Message, Transaction } from "@solana/web3.js";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
 import { TransferInstructions } from "./components/TransferInstructions";
 
@@ -49,17 +49,21 @@ type TransferLoadedParams = {
     instructions: ReturnType<typeof parseTransactionInstructions>;
 }
 
-function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams {
+function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | null {
     if (order.type === 'order') {
         return order;
     }
 
-    const transaction = Transaction.from(Buffer.from(order.transaction, 'base64'));
+    try {
+        const transaction = Transaction.from(Buffer.from(order.transaction, 'base64'));
+        return {
+            type: 'instructions',
+            instructions: parseTransactionInstructions(transaction.instructions)
+        };
+    } catch {
+        return null;
+    }
 
-    return {
-        type: 'instructions',
-        instructions: parseTransactionInstructions(transaction.instructions)
-    };
 }
 
 const TransferOrder = (order: SolanaOrder) => {
@@ -231,7 +235,13 @@ const TransferOrder = (order: SolanaOrder) => {
 }
 
 const TransferLoaded = (params: SolanaTransferParams) => {
+    const navigation = useTypedNavigation();
     const transfer = paramsToTransfer(params);
+
+    if (!transfer) {
+        navigation.goBack();
+        return;
+    }
 
     if (transfer.type === 'order') {
         return <TransferOrder {...transfer.order} />

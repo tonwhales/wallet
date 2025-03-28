@@ -8,7 +8,7 @@ import { ConnectReplyBuilder, ExtendedConnectItemReply, SolanaProofItemReply } f
 import { holdersUrl } from "../../api/holders/fetchUserState";
 import { getAppManifest } from "../../getters/getAppManifest";
 import { AppManifest } from "../../api/fetchManifest";
-import { ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
+import { TonProofItemReplySuccess } from "@tonconnect/protocol";
 import { useAppConnections, useConnectApp, useNetwork, useSaveAppConnection } from "..";
 import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
 import { TonConnectBridgeType } from "../../tonconnect/types";
@@ -17,6 +17,7 @@ import { useWalletVersion } from "../useWalletVersion";
 import { getInviteId } from "../../../useLinkNavigator";
 import { LedgerWallet } from "../../../fragments/ledger/components/TransportContext";
 import { PublicKey } from "@solana/web3.js";
+
 export type HoldersEnrollParams = {
     acc: {
         address: Address;

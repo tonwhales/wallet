@@ -84,14 +84,14 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus, isLedger 
                         collapsed={collapsedAccounts}
                         // re-map to add height correction for accounts with no cards
                         items={hiddenAccountsList.map((item) => {
-                            return { ...item, height: item.cards.length > 0 ? 122 : 86 }
+                            return { ...item, height: 126 }
                         })}
-                        itemHeight={122}
+                        itemHeight={126}
                         style={{ gap: 16, paddingHorizontal: 16 }}
                         renderItem={(item, index) => {
                             return (
                                 <HoldersAccountItem
-                                owner={address!}
+                                    owner={address!}
                                     key={`card-${index}`}
                                     account={item}
                                     first={index === 0}
@@ -106,6 +106,7 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus, isLedger 
                                     hideCardsIfEmpty
                                     content={{ type: HoldersItemContentType.BALANCE }}
                                     isLedger={isLedger}
+                                    cardsClickable
                                 />
                             )
                         }}

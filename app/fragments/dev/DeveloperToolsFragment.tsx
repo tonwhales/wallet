@@ -12,7 +12,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
@@ -32,6 +32,8 @@ import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { Address } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
+import WebView from 'react-native-webview';
+import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -48,6 +50,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const holdersStatus = useHoldersAccountStatus(acc.address);
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
+    const webViewRef = useRef<WebView>(null);
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -57,6 +60,7 @@ export const DeveloperToolsFragment = fragment(() => {
         queryClient.invalidateQueries();
         storageQuery.clearAll();
         storagePersistence.clearAll();
+        webViewRef.current?.injectJavaScript('localStorage.clear(); true;');
         setHiddenBanners([]);
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
@@ -263,6 +267,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
                     </View>
+                    <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Pressable, View, useWindowDimensions, Image, Text } from "react-native";
+import { Pressable, View, useWindowDimensions, Text } from "react-native";
 import { useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Typography } from "../styles";
@@ -9,6 +9,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 import { WalletVersions } from "../../engine/types";
+import { Image } from "expo-image";
 
 const bannerId = 'bounceable-format-update';
 

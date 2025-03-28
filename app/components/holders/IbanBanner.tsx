@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from "react";
-import { Pressable, View, useWindowDimensions, Image, Text } from "react-native";
-import { useTheme, useSelectedAccount, useIsConnectAppReady, useHoldersAccountStatus, useNetwork, useHoldersAccounts } from "../../engine/hooks";
+import { Pressable, View, useWindowDimensions, Text } from "react-native";
+import { useTheme, useSelectedAccount, useHoldersAccountStatus, useNetwork, useHoldersAccounts } from "../../engine/hooks";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Typography } from "../styles";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
@@ -12,6 +12,7 @@ import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUser
 import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { Address } from "@ton/core";
+import { Image } from "expo-image";
 const bannerId = 'iban-promo';
 
 export const IbanBanner = memo(({ isLedger }: { isLedger?: boolean }) => {
@@ -36,10 +37,11 @@ export const IbanBanner = memo(({ isLedger }: { isLedger?: boolean }) => {
     }, [holdersAccStatus?.state]);
 
     const onBannerPress = useCallback(() => {
-        if (!accounts[0].id) {
+        if (!accounts[0]?.id) {
             return;
         }
-        const path = `/account/${!accounts[0].id}?iban-open=true`;
+        
+        const path = `/account/${accounts[0].id}?iban-open=true`;
         const navParams: HoldersAppParams = { type: HoldersAppParamsType.Path, path, query: {} };
 
         if (needsEnrollment) {
@@ -52,7 +54,7 @@ export const IbanBanner = memo(({ isLedger }: { isLedger?: boolean }) => {
         }
 
         navigation.navigateHolders(navParams, isTestnet, isLedger);
-    }, [isTestnet, navigation]);
+    }, [isTestnet, navigation, accounts[0]?.id, isLedger, needsEnrollment, ledgerContext.ledgerConnection, ledgerContext.tonTransport]);
 
     if (hiddenBanners.includes(`${bannerId}-${address}`) || !ibanPromo?.enabled || accounts.length === 0) {
         return null;

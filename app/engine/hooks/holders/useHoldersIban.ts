@@ -37,7 +37,6 @@ export function useHoldersIban(address: string | Address | undefined) {
         enabled: !!addressString,
         refetchOnWindowFocus: true,
         refetchOnMount: true,
-        refetchInterval: 1000 * 60,
         staleTime: 1000 * 60 * 60
     });
 }

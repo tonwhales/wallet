@@ -105,6 +105,7 @@ export const HoldersLoader = memo(({
                     />
                 );
             case HoldersAppParamsType.Prepaid:
+            case HoldersAppParamsType.Card:
                 return (
                     <CardPlaceholder
                         showClose={showClose}

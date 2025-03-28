@@ -144,6 +144,11 @@ const cardStatusSchema = z.union([
   z.literal('CLOSED'),
 ]);
 
+const cardPaymentSchema = z.union([
+  z.literal('visa'),
+  z.literal('mc'),
+]);
+
 const cardSchema = z.object({
   id: z.string(),
   status: cardStatusSchema,
@@ -157,7 +162,8 @@ const cardSchema = z.object({
   updatedAt: z.string(),
   createdAt: z.string(),
   provider: z.string().nullish(),
-  kind: z.string().nullish()
+  kind: z.string().nullish(),
+  schema: cardPaymentSchema
 });
 
 const cardDebit = cardSchema.and(z.object({ type: z.literal('DEBIT') }),);

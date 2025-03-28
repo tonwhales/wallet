@@ -144,6 +144,7 @@ export const HoldersAccounts = memo(({
                 hideCardsIfEmpty
                 content={{ type: HoldersItemContentType.BALANCE }}
                 isLedger={isLedger}
+                cardsClickable
             />
         )
     }, [rightAction, owner, isTestnet, holdersAccStatus, isLedger]);
@@ -157,11 +158,11 @@ export const HoldersAccounts = memo(({
             title={t('products.holders.accounts.title')}
             // re-map to add height correction for accounts with no cards
             items={accs.map((item) => {
-                return { ...item, height: item.cards.length > 0 ? 152 : 86 }
+                return { ...item, height: 126 }
             })}
             renderItem={renderItem}
             renderFace={renderFace}
-            itemHeight={152}
+            itemHeight={126}
             theme={theme}
             alwaysExpanded
             limitConfig={{

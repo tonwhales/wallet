@@ -63,6 +63,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             hideCardsIfEmpty
                             owner={Address.parse(addressStr)}
                             content={{ type: HoldersItemContentType.BALANCE }}
+                            cardsClickable
                         />
                     );
                 },

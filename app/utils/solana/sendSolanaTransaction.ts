@@ -82,6 +82,7 @@ export async function sendSolanaOrder({ solanaClient, theme, authContext, order,
     const signature = await solanaClient.sendEncodedTransaction(transaction.serialize().toString('base64'));
 
     return {
+        type: 'tx',
         id: signature,
         time: Math.floor(Date.now() / 1000),
         status: PendingTransactionStatus.Pending,

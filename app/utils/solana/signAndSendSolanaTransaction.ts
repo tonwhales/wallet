@@ -28,6 +28,7 @@ export async function signAndSendSolanaTransaction({ solanaClient, theme, authCo
     const signature = await solanaClient.sendEncodedTransaction(transaction.serialize().toString('base64'));
 
     return {
+        type: 'instructions',
         id: signature,
         time: Math.floor(Date.now() / 1000),
         status: PendingTransactionStatus.Pending,

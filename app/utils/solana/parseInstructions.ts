@@ -12,19 +12,6 @@ const SYSTEM_PROGRAM_ID = SystemProgram.programId.toString();
 const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
 
-// {
-//     "name": "newOnetime",
-//     "type": "u64"
-//   },
-//   {
-//     "name": "newDaily",
-//     "type": "u64"
-//   },
-//   {
-//     "name": "newMonthly",
-//     "type": "u64"
-//   },
-
 export type SolanaInstructionAccounts = {
     name?: string;
     pubkey: PublicKey;

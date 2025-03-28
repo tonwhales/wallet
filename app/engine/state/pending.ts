@@ -98,7 +98,8 @@ export const pendingTransactionsState = atomFamily<PendingTransaction[], string>
     default: (address) => [],
 });
 
-export type PendingSolanaTransaction = {
+export type PendingSolanaTransactionInstructions = {
+    type: 'instructions',
     id: string,
     time: number,
     status: PendingTransactionStatus,
@@ -106,7 +107,19 @@ export type PendingSolanaTransaction = {
         blockhash: Blockhash,
         lastValidBlockHeight: number
     },
-    tx?: {
+    instructions: ParsedTransactionInstruction[]
+} 
+
+export type PendingSolanaTransactionTx = {
+    type: 'tx',
+    id: string,
+    time: number,
+    status: PendingTransactionStatus,
+    lastBlockHash: {
+        blockhash: Blockhash,
+        lastValidBlockHeight: number
+    },
+    tx: {
         comment?: string | null,
         amount: bigint,
         token: {
@@ -117,8 +130,9 @@ export type PendingSolanaTransaction = {
         target: string,
         sender: string
     },
-    instructions?: ParsedTransactionInstruction[]
 }
+
+export type PendingSolanaTransaction = PendingSolanaTransactionInstructions | PendingSolanaTransactionTx;
 
 export const pendingSolanaTransactionsState = atomFamily<PendingSolanaTransaction[], string>({
     key: "pendingSolanaTransactionsState",

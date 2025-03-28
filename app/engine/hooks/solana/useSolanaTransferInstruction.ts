@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { HoldersDepositInstruction, HoldersLimitsInstruction, ParsedTransactionInstruction } from "../../../utils/solana/parseInstructions";
 import { useSolanaToken } from "./useSolanaToken";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { SOLANA_USDC_MINT_DEVNET } from "../../../utils/solana/address";
 
 export function useSolanaTransferInstruction(instruction: ParsedTransactionInstruction, owner: string) {
@@ -81,7 +81,7 @@ export function useSolanaTransferInstruction(instruction: ParsedTransactionInstr
         }
 
         if (!!solanaToken) {
-            return toBnWithDecimals(amount, solanaToken.decimals);
+            return BigInt(amount);
         }
 
         return BigInt(amount);

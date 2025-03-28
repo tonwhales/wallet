@@ -367,6 +367,7 @@ export class TypedNavigation {
         this.navigate('SolanaTransaction', params);
     }
 
+    // TODO: *solana* implement PendingSolanaTransaction fragment
     navigatePendingSolanaTransaction(params: PendingSolanaTransaction) {
         this.navigate('PendingSolanaTransaction', params);
     }

@@ -1323,6 +1323,12 @@ export type LocalizationSchema = {
     spending: {
         ton: string,
         usdt: string
+    },
+    iban: {
+        banner: {
+            title: string,
+            description: string
+        }
     }
 };
 

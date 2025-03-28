@@ -21,6 +21,7 @@ import { HoldersProductComponent } from "./HoldersProductComponent";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
+import { IbanBanner } from "../holders/IbanBanner";
 
 export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string, testOnly: boolean }) => {
     const theme = useTheme();
@@ -76,6 +77,9 @@ export const LedgerProductsComponent = memo(({ addr, testOnly }: { addr: string,
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
                 <PendingTransactions address={address.toString({ testOnly })} />
+                {!isWalletMode && (
+                    <IbanBanner isLedger={true} />
+                )}
 
                 {(!inviteCheck && !!banners?.product) && (
                     <View style={{ paddingHorizontal: 16, marginTop: 16 }}>

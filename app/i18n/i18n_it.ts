@@ -1321,6 +1321,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     "spending": {
         "ton": "Conto di spesa TON",
         "usdt": "Conto di spesa USDT"
+    },
+    "iban": {
+        "banner": {
+            "title": "Depositi tramite IBAN",
+            "description": "Ottieni accesso anticipato"
+        }
     }
 };
 

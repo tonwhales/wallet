@@ -238,9 +238,10 @@ export const HoldersAccountItem = memo((props: {
         if (shouldReturn) return;
 
         navigation.navigateHolders({
-            type: HoldersAppParamsType.Create
+            type: HoldersAppParamsType.CreateCard,
+            id: account.id
         }, isTestnet);
-    }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation]);
+    }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation, account.id]);
 
     const renderRightAction = useCallback(() => {
         if (!rightActionIcon || !rightAction) return undefined;

@@ -234,6 +234,9 @@ export const HoldersAppComponent = memo((
             case HoldersAppParamsType.Card:
                 route = `/card/${variant.id}`;
                 break;
+            case HoldersAppParamsType.CreateCard:
+                route = `/create/product/${variant.id}`;
+                break;
             case HoldersAppParamsType.Transactions:
                 route = `/transactions`;
                 for (const [key, value] of Object.entries(variant.query)) {

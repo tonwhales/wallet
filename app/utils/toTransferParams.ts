@@ -81,10 +81,6 @@ export function previewToTransferParams(
     decimals?: number
 ): RepeatTxParams | null {
 
-    if (isLedger) {
-        return null
-    }
-
     if (tx.base.parsed.kind === 'in') {
         return null
     }

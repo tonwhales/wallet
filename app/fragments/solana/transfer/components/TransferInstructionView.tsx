@@ -124,7 +124,7 @@ export const TransferInstructionView = (params: { instruction: ParsedTransaction
                 </ItemGroup>
             )}
 
-            {!!limits && (<HoldersSolanaLimitsView {...limits} />)}
+            {!!limits && (<HoldersSolanaLimitsView {...limits} mint={mint} owner={owner} />)}
         </View>
     );
 }

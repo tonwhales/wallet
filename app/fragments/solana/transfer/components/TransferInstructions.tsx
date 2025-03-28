@@ -14,7 +14,7 @@ import { warn } from "../../../../utils/log";
 
 export const TransferInstructions = (params: {
     instructions: ReturnType<typeof parseTransactionInstructions>;
-    transaction: string;
+    transaction: Transaction;
     callback?: (ok: boolean, signature: string | null) => void
 }) => {
     const theme = useTheme();
@@ -22,7 +22,7 @@ export const TransferInstructions = (params: {
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
-    const transaction = Transaction.from(Buffer.from(params.transaction, 'base64'));
+    const { transaction, instructions, callback } = params;
 
     if (!transaction.feePayer) {
         try {
@@ -50,10 +50,11 @@ export const TransferInstructions = (params: {
             // TODO: *solana* humanize error ui
             Alert.alert('Error', (error as Error).message);
         }
+        navigation.goBack();
     }, [theme, authContext, params, solanaAddress, navigation, registerPending]);
 
     useEffect(() => {
-        params.callback?.(!!ref.current, ref.current);
+        callback?.(!!ref.current, ref.current);
     }, []);
 
     return (
@@ -68,7 +69,7 @@ export const TransferInstructions = (params: {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column', gap: 16 }}>
-                    {params.instructions.map((instruction, index) => (
+                    {instructions.map((instruction, index) => (
                         <TransferInstructionView
                             key={index}
                             instruction={instruction}

@@ -23,8 +23,6 @@ export const PendingSolanaTransactionsList = memo((
         address: string
     }
 ) => {
-    const theme = useTheme();
-
     return (
         <View style={[{ overflow: 'hidden', borderRadius: 20 }, style]}>
             {txs.map((tx, i) => (

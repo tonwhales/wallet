@@ -5,33 +5,41 @@ import { Typography } from "../styles";
 import { t } from "../../i18n/t";
 import { ItemDivider } from "../ItemDivider";
 import { ItemGroup } from "../ItemGroup";
-import { toNano } from "@ton/core";
-import { fromBnWithDecimals } from "../../utils/withDecimals";
-import { useTheme } from "../../engine/hooks";
+import { useSolanaToken, useTheme } from "../../engine/hooks";
+import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 
-function formatAmount(amount: string | null | undefined): string | null {
-    if (!amount) {
+function formatAmount(amount: string | null | undefined, token: SolanaToken | null): string | null {
+    try {
+        if (!amount) {
+            return null;
+        }
+
+        return `${Number(amount) / 10 ** (token?.decimals ?? 6)} ${token?.symbol ?? 'USDC'}`;
+    } catch {
         return null;
     }
-
-    return `${fromBnWithDecimals(toNano(amount), 6)} USDC`;
 }
 
 export const HoldersSolanaLimitsView = memo(({
     onetime,
     daily,
-    monthly
+    monthly,
+    mint,
+    owner
 }: {
     onetime?: string | null;
     daily?: string | null;
     monthly?: string | null;
+    mint?: string | null;
+    owner: string;
 }) => {
     const theme = useTheme();
+    const token = useSolanaToken(owner, mint);
 
     // We have no jetton address so are forced to use built-in decimals (6 for USDC)
-    const _onetime = formatAmount(onetime);
-    const _daily = formatAmount(daily);
-    const _monthly = formatAmount(monthly);
+    const _onetime = formatAmount(onetime, token);
+    const _daily = formatAmount(daily, token);
+    const _monthly = formatAmount(monthly, token);
 
     return (
         <ItemGroup>

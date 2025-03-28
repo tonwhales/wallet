@@ -47,6 +47,7 @@ export function useSolanaTransferInstruction(instruction: ParsedTransactionInstr
 
                 from = update.accounts?.find((account: any) => account.name === 'Signer')?.pubkey.toString() ?? '';
                 to = update.accounts?.find((account: any) => account.name === 'Card')?.pubkey.toString() ?? '';
+                mint = update.accounts?.find((account: any) => account.name === 'Token Mint')?.pubkey.toString() ?? '';
 
                 isHoldersOp = true;
                 limits = {

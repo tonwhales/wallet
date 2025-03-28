@@ -47,6 +47,7 @@ type TransferLoadedParams = {
 } | {
     type: 'instructions';
     instructions: ReturnType<typeof parseTransactionInstructions>;
+    transaction: Transaction;
 }
 
 function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | null {
@@ -55,10 +56,12 @@ function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | n
     }
 
     try {
-        const transaction = Transaction.from(Buffer.from(order.transaction, 'base64'));
+        const message = Message.from(Buffer.from(order.transaction, 'base64'));
+        const transaction = Transaction.populate(message);
         return {
             type: 'instructions',
-            instructions: parseTransactionInstructions(transaction.instructions)
+            instructions: parseTransactionInstructions(transaction.instructions),
+            transaction
         };
     } catch {
         return null;
@@ -250,7 +253,7 @@ const TransferLoaded = (params: SolanaTransferParams) => {
     return (
         <TransferInstructions
             instructions={transfer.instructions}
-            transaction={(params as SolanaTransactionTransferParams).transaction}
+            transaction={transfer.transaction}
             callback={params.callback}
         />
     );

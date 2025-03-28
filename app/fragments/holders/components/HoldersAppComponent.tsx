@@ -105,6 +105,7 @@ export const HoldersLoader = memo(({
                     />
                 );
             case HoldersAppParamsType.Prepaid:
+            case HoldersAppParamsType.Card:
                 return (
                     <CardPlaceholder
                         showClose={showClose}
@@ -233,6 +234,9 @@ export const HoldersAppComponent = memo((
                 break;
             case HoldersAppParamsType.Card:
                 route = `/card/${variant.id}`;
+                break;
+            case HoldersAppParamsType.CreateCard:
+                route = `/create/product/${variant.id}`;
                 break;
             case HoldersAppParamsType.Transactions:
                 route = `/transactions`;

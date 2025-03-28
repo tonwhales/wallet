@@ -18,6 +18,7 @@ export enum HoldersAppParamsType {
     Accounts = 'accounts',
     Prepaid = 'prepaid',
     Card = 'card',
+    CreateCard = 'createCard',
     Create = 'create',
     Invite = 'invite',
     Transactions = 'transactions',
@@ -31,6 +32,7 @@ export type HoldersAppParams =
     | { type: HoldersAppParamsType.Accounts }
     | { type: HoldersAppParamsType.Prepaid, id: string }
     | { type: HoldersAppParamsType.Card, id: string }
+    | { type: HoldersAppParamsType.CreateCard, id: string }
     | { type: HoldersAppParamsType.Create }
     | { type: HoldersAppParamsType.Invite }
     | { type: HoldersAppParamsType.Path, path: string, query: { [key: string]: string | undefined } }

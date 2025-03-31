@@ -105,6 +105,7 @@ export const HoldersLoader = memo(({
                     />
                 );
             case HoldersAppParamsType.Prepaid:
+            case HoldersAppParamsType.Card:
                 return (
                     <CardPlaceholder
                         showClose={showClose}
@@ -143,7 +144,7 @@ export const HoldersLoader = memo(({
                 },
                 animatedStyles,
                 Platform.select({
-                    ios: { paddingTop: (type === HoldersAppParamsType.Account || type === HoldersAppParamsType.Prepaid) ? 0 : safeArea.top },
+                    ios: { paddingTop: (type === HoldersAppParamsType.Account || type === HoldersAppParamsType.Prepaid || type === HoldersAppParamsType.Card) ? 0 : safeArea.top },
                     android: { paddingTop: 0 }
                 }),
             ]}
@@ -230,6 +231,12 @@ export const HoldersAppComponent = memo((
                 break;
             case HoldersAppParamsType.Prepaid:
                 route = `/card-prepaid/${variant.id}`;
+                break;
+            case HoldersAppParamsType.Card:
+                route = `/card/${variant.id}`;
+                break;
+            case HoldersAppParamsType.CreateCard:
+                route = `/create/product/${variant.id}`;
                 break;
             case HoldersAppParamsType.Transactions:
                 route = `/transactions`;

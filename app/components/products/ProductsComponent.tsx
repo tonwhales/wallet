@@ -28,6 +28,7 @@ import { SavingsProduct } from "./savings/SavingsProduct"
 import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode"
+import { IbanBanner } from "../holders/IbanBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -103,11 +104,13 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
                 <PendingTransactions />
                 <PaymentOtpBanner address={selected.address} />
-                {isWalletMode && (
+                {isWalletMode ? (
                     <>
                         <AddressFormatUpdate />
                         <W5Banner />
                     </>
+                ) : (
+                    <IbanBanner />
                 )}
                 <DappsRequests />
 

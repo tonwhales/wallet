@@ -1,40 +1,36 @@
 import { Image } from 'expo-image';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { WImage } from '../../components/WImage';
+import SolanaIcon from '@assets/ic-solana.svg';
 import { ThemeType } from '../../engine/state/theme';
 
-import SolanaIcon from '@assets/ic-solana.svg';
+const ICON_SIZE = 24;
+const ICON_RADIUS = ICON_SIZE / 2;
 
-const usdtIcon = (
-    <Image
-        source={require('@assets/known/ic-usdt.png')}
-        style={{
-            borderRadius: 23,
-            height: 46,
-            width: 46
-        }}
-    />
-);
+const styles = StyleSheet.create({
+    container: {
+        width: ICON_SIZE,
+        height: ICON_SIZE,
+        borderRadius: ICON_RADIUS,
+        borderWidth: 0
+    },
+    icon: {
+        width: ICON_SIZE,
+        height: ICON_SIZE,
+        borderRadius: ICON_RADIUS
+    }
+});
 
-const tonIcon = (
-    <Image
-        source={require('@assets/ic-ton-acc.png')}
-        style={{
-            borderRadius: 23,
-            height: 46,
-            width: 46
-        }}
-    />
-);
+const usdtIcon = <Image source={require('@assets/known/ic-usdt.png')} style={styles.icon} />;
+const tonIcon = <Image source={require('@assets/ic-ton-acc.png')} style={styles.icon} />;
+const usdcIcon = <Image source={require('@assets/ic-usdc.png')} style={styles.icon} />;
 
-export function resolveHoldersIcon(
-    params: { image?: string | null, ticker?: string, holdersIc?: boolean, network?: string },
-    theme: ThemeType
-) {
+export function resolveHoldersIcon({ image, ticker, network, holdersIc }: { image?: string | null, ticker?: string, network?: string, holdersIc?: boolean }, theme: ThemeType) {
+    let content;
 
-    const isSolana = params.network === 'solana';
+    const isSolana = network === 'solana';
 
-    const networkIcon = isSolana ? (
+    let networkIcon: React.ReactNode | null = isSolana ? (
         <View style={{
             justifyContent: 'center', alignItems: 'center',
             height: 20, width: 20, borderRadius: 10,
@@ -69,7 +65,7 @@ export function resolveHoldersIcon(
         </View>
     );
 
-    const holdersIc = params.holdersIc ? (
+    const holders = holdersIc ? (
         <View style={{
             justifyContent: 'center', alignItems: 'center',
             height: 20, width: 20, borderRadius: 10,
@@ -83,48 +79,22 @@ export function resolveHoldersIcon(
         </View>
     ) : null;
 
-    if (params.ticker === 'USDT') {
-        return (
-            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
-                {usdtIcon}
-                {holdersIc}
-                {networkIcon}
-            </View>
-        );
-    }
-
-    if (params.image) {
-        return (
-            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
-                <WImage
-                    src={params.image}
-                    width={46}
-                    height={46}
-                    borderRadius={46}
-                />
-                {holdersIc}
-                {networkIcon}
-            </View>
-        );
-    }
-
-    if (params.ticker === 'USDC') {
-        return (
-            <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
-                <Image
-                    source={require('@assets/ic-usdc.png')}
-                    style={{ width: 46, height: 46 }}
-                />
-                {holdersIc}
-                {networkIcon}
-            </View>
-        );
+    if (ticker === 'USDT') {
+        content = usdtIcon;
+    } else if (ticker === 'USDC') {
+        content = usdcIcon;
+    } else if (image) {
+        content = <WImage src={image} width={ICON_SIZE} height={ICON_SIZE} borderRadius={ICON_SIZE} />;
+    } else {
+        networkIcon = null;
+        content = tonIcon;
     }
 
     return (
-        <View style={{ width: 46, height: 46, borderRadius: 46 / 2, borderWidth: 0 }}>
-            {tonIcon}
-            {holdersIc}
+        <View style={styles.container}>
+            {content}
+            {holders}
+            {networkIcon}
         </View>
     );
 }

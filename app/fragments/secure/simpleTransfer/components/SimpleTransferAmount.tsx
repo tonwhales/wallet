@@ -15,19 +15,18 @@ import { AssetViewType } from '../../../wallet/AssetsFragment';
 import { PressableChip } from '../../../../components/PressableChip';
 import { AmountInput } from '../../../../components/input/AmountInput';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { Address } from '@ton/core';
 import { Jetton } from '../../../../engine/types';
 import { HoldersAccountTarget } from '../../../../engine/hooks/holders/useHoldersAccountTrargets';
+import { SimpleTransferAsset } from '../hooks/useSimpleTransfer';
+import { ExtraCurrencyHint } from '../../../../engine/api/fetchExtraCurrencyHints';
 import { WImage } from '../../../../components/WImage';
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
 type Props = {
-    onAssetSelected?: (selected?: {
-        master: Address;
-        wallet?: Address;
-    }) => void;
+    onAssetSelected?: (selected?: SimpleTransferAsset) => void;
     jetton?: Jetton | null;
+    extraCurrency?: ExtraCurrencyHint | null;
     isLedger?: boolean;
     isSCAM?: boolean;
     symbol: string;
@@ -39,10 +38,11 @@ type Props = {
     priceText?: string;
     shouldChangeJetton?: boolean;
     holdersTarget?: HoldersAccountTarget;
+    decimals?: number;
+    logoURI?: string;
     onChangeJetton?: () => void;
-    onInputFocus: (index: number) => void,
-    decimals?: number,
-    logoURI?: string
+    onInputFocus: (index: number) => void;
+    selectedAsset?: SimpleTransferAsset | null;
 }
 
 const AmountIcon = memo(({ symbol, jetton, logoURI }: { symbol: string, jetton?: Jetton | null, logoURI?: string }) => {
@@ -99,6 +99,7 @@ const AmountIcon = memo(({ symbol, jetton, logoURI }: { symbol: string, jetton?:
 export const SimpleTransferAmount = memo(forwardRef(({
     onAssetSelected,
     jetton,
+    extraCurrency,
     isLedger,
     isSCAM,
     symbol,
@@ -113,7 +114,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
     onChangeJetton,
     onInputFocus,
     decimals,
-    logoURI
+    logoURI,
+    selectedAsset
 }: Props, ref) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -126,56 +128,64 @@ export const SimpleTransferAmount = memo(forwardRef(({
         setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? decimals ?? 9, { skipFormattingDecimals: true }, prev));
     }, [jetton?.decimals, decimals])
 
-    const onNavigateAssets = useCallback(() => navigation.navigateAssets({
-        jettonCallback: onAssetSelected,
-        selectedAsset: jetton?.master,
-        viewType: AssetViewType.Transfer,
-        isLedger
-    }), [onAssetSelected, jetton?.master, isLedger])
+    const onNavigateAssets = useCallback(() => {
+        navigation.navigateAssets({
+            simpleTransferAssetCallback: onAssetSelected,
+            selectedAsset,
+            viewType: AssetViewType.Transfer,
+            isLedger
+        });
+    }, [onAssetSelected, jetton?.master, isLedger, selectedAsset])
 
-    const jettonButton = useMemo(() => (
-        <Pressable
-            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-            disabled={!onAssetSelected}
-            onPress={onNavigateAssets}
-        >
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-            }}>
-                <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
-                    <AmountIcon symbol={symbol} jetton={jetton} logoURI={logoURI} />
-                    <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
-                        <Text
-                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                            numberOfLines={2}
-                            ellipsizeMode={'tail'}
-                        >
-                            {symbol}
-                        </Text>
-                        {isSCAM && (
+    const assetButton = useMemo(() => {
+        const icUrl = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.image : logoURI;
+
+        return (
+            <Pressable
+                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                onPress={onNavigateAssets}
+            >
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
+                        <AmountIcon symbol={symbol} jetton={jetton} logoURI={icUrl} />
+
+                        <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
                             <Text
-                                style={{ flexShrink: 1 }}
-                                numberOfLines={4}
+                                style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                numberOfLines={2}
                                 ellipsizeMode={'tail'}
                             >
-                                <Text
-                                    style={[{ color: theme.accentRed }, Typography.regular15_20]}
-                                    selectable={false}
-                                >
-                                    {'SCAM'}
-                                </Text>
+                                {symbol}
                             </Text>
-                        )}
+                            {isSCAM && (
+                                <Text
+                                    style={{ flexShrink: 1 }}
+                                    numberOfLines={4}
+                                    ellipsizeMode={'tail'}
+                                >
+                                    <Text
+                                        style={[{ color: theme.accentRed }, Typography.regular15_20]}
+                                        selectable={false}
+                                    >
+                                        {'SCAM'}
+                                    </Text>
+                                </Text>
+                            )}
+                        </View>
                     </View>
+                    {onAssetSelected && (
+                        <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                    )}
                 </View>
-                {onAssetSelected && (
-                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
-                )}
-            </View>
-        </Pressable>
-    ), [onNavigateAssets, network.isTestnet, jetton, symbol, isSCAM])
+            </Pressable>
+        );
+    }, [onNavigateAssets, network.isTestnet, jetton, symbol, isSCAM]);
+
+    const _decimals = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.decimals : decimals;
 
     const valueComponent = useMemo(() => (
         <View style={{
@@ -188,8 +198,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 <ValueComponent
                     precision={4}
                     value={balance}
-                    decimals={jetton ? jetton.decimals : decimals}
-                    suffix={jetton ? ` ${jetton.symbol}` : ''}
+                    decimals={_decimals}
+                    suffix={symbol ? ` ${symbol}` : ''}
                 />
             </Text>
             <Pressable
@@ -222,10 +232,10 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 flexGrow: 1
             }, Typography.regular17_24, { lineHeight: undefined }]}
             suffix={priceText}
-            ticker={jetton?.symbol || symbol || 'TON'}
+            ticker={symbol || 'TON'}
             cursorColor={theme.accent}
         />
-    ), [onInputFocus, onValueChange, amountError, priceText, jetton?.symbol, amount])
+    ), [onInputFocus, onValueChange, amountError, priceText, symbol, amount])
 
     const amountErrorLabel = useMemo(() => amountError && (
         <Animated.View
@@ -262,7 +272,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 padding: 20
             }}
         >
-            {jettonButton}
+            {assetButton}
             <ItemDivider marginHorizontal={0} />
             {valueComponent}
             {amountInput}

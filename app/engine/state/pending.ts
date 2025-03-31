@@ -1,5 +1,5 @@
 import { atomFamily } from "recoil";
-import { Address, Cell } from "@ton/core";
+import { Address, Cell, ExtraCurrency } from "@ton/core";
 import { Jetton } from "../types";
 import { parseBody } from "../transactions/parseWalletTransaction";
 import { TransferEstimate } from "../../fragments/secure/transfer/TransferFragment";
@@ -7,15 +7,20 @@ import { Blockhash } from "@solana/web3.js";
 import { ParsedTransactionInstruction } from "../../utils/solana/parseInstructions";
 
 export type PendingTransactionBody =
-    | { type: 'payload', cell: Cell, stateInit?: Cell | null }
-    | { type: 'comment', comment: string }
+    | { type: 'payload', cell: Cell, stateInit?: Cell | null, extraCurrency?: { [k: number]: bigint } }
+    | { type: 'comment', comment: string, extraCurrency?: { [k: number]: bigint } }
     | {
         type: 'token',
         amount: bigint,
         jetton: Jetton,
         target: Address,
         bounceable?: boolean,
-        comment: string | null
+        comment: string | null,
+        extraCurrency?: { [k: number]: bigint }
+    }
+    | {
+        type: 'extra-currency',
+        extraCurrency: ExtraCurrency,
     }
     | { type: 'batch' };
 

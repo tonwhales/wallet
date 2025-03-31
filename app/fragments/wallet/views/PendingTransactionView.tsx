@@ -19,6 +19,7 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { ItemDivider } from "../../../components/ItemDivider";
 import { View, Text } from "react-native";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
+import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
 
 export const PendingTransactionView = memo(({
     tx,
@@ -27,7 +28,8 @@ export const PendingTransactionView = memo(({
     single,
     viewType = 'main',
     bounceableFormat,
-    txTimeout
+    txTimeout,
+    owner
 }: {
     tx: PendingTransaction,
     first?: boolean,
@@ -35,7 +37,8 @@ export const PendingTransactionView = memo(({
     single?: boolean,
     viewType?: 'history' | 'main' | 'jetton-history',
     bounceableFormat?: boolean,
-    txTimeout: number
+    txTimeout: number,
+    owner: string
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -51,6 +54,7 @@ export const PendingTransactionView = memo(({
     const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
+    const extraCurrencyMap = useExtraCurrencyMap((tx.body as any)?.extraCurrency, owner);
 
     const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
         if (targetContract?.kind === 'dedust-vault') {
@@ -221,18 +225,35 @@ export const PendingTransactionView = memo(({
                     )}
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                    <Text
-                        style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
-                        numberOfLines={1}
-                    >
-                        {'-'}
-                        <ValueComponent
-                            value={amount}
-                            decimals={(body?.type === 'token' && body.jetton.decimals) ? body.jetton.decimals : undefined}
-                            precision={3}
-                        />
-                        {(body?.type === 'token' && !!body.jetton?.symbol) ? ` ${body.jetton.symbol}` : ' TON'}
-                    </Text>
+                    {amount !== 0n && (
+                        <Text
+                            style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
+                            numberOfLines={1}
+                        >
+                            {'-'}
+                            <ValueComponent
+                                value={amount}
+                                decimals={(body?.type === 'token' && body.jetton.decimals) ? body.jetton.decimals : undefined}
+                                precision={4}
+                            />
+                            {(body?.type === 'token' && !!body.jetton?.symbol) ? ` ${body.jetton.symbol}` : ' TON'}
+                        </Text>
+                    )}
+                    {!!extraCurrencyMap && Object.entries(extraCurrencyMap).map(([id, extraCurrency]) => (
+                        <Text
+                            key={`extra-currency-${id}`}
+                            style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
+                            numberOfLines={1}
+                        >
+                            {'-'}
+                            <ValueComponent
+                                value={extraCurrency.amount}
+                                decimals={extraCurrency.preview.decimals}
+                                precision={3}
+                            />
+                            {` ${extraCurrency.preview.symbol}`}
+                        </Text>
+                    ))}
                     {tx.body?.type !== 'token' && (
                         <PriceComponent
                             amount={amount}

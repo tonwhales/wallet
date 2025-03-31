@@ -1336,6 +1336,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "tokenTransfer": "Token-Überweisung",
             "depositCard": "Einzahlung auf Karte",
             "updateCardLimits": "Kartenlimits aktualisieren"
+        },
+    },
+    "iban": {
+        "banner": {
+            "title": "Einzahlungen per IBAN",
+            "description": "Erhalten Sie frühen Zugang"
         }
     }
 };

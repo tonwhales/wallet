@@ -4,7 +4,7 @@ import { SimpleTransferParams } from "../fragments/secure/simpleTransfer";
 import { TransferFragmentParams } from "../fragments/secure/transfer/TransferFragment";
 import { fromBnWithDecimals } from "./withDecimals";
 import { TonTransaction } from "../engine/types";
-import { SolanaSimpleTransferParams } from "../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment";
+import { JettonMasterState } from "../engine/metadata/fetchJettonMasterContent";
 
 export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentParams & { type: 'transfer' });
 
@@ -28,7 +28,7 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
             comment: tx.body.comment,
             amount: toNano(amount),
             stateInit: null,
-            jetton: tx.body.jetton.wallet,
+            asset: { type: 'jetton', master: tx.body.jetton.master, wallet: tx.body.jetton.wallet },
             callback: null
         };
     }
@@ -57,7 +57,7 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
             comment: tx.body.comment,
             amount: -tx.amount,
             stateInit: null,
-            jetton: null,
+            asset: null,
             callback: null
         };
     }
@@ -68,7 +68,7 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
         comment: null,
         amount: -tx.amount,
         stateInit: null,
-        jetton: null,
+        asset: null,
         callback: null
     };
 }
@@ -79,12 +79,8 @@ export function previewToTransferParams(
     isTestnet: boolean,
     bounceableFormat: boolean,
     isLedger: boolean,
-    decimals?: number
+    jettonMasterContent?: JettonMasterState & { address: string }
 ): RepeatTxParams | null {
-
-    if (isLedger) {
-        return null
-    }
 
     if (tx.base.parsed.kind === 'in') {
         return null
@@ -100,15 +96,16 @@ export function previewToTransferParams(
             const bounceable = bounceableFormat ? true : opAddr.isBounceable;
             const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
             const comment = operation.comment;
-            const amount = fromBnWithDecimals(item.amount, decimals);
-            const jetton = Address.parse(tx.base.parsed.resolvedAddress);
+            const amount = fromBnWithDecimals(item.amount, jettonMasterContent?.decimals ?? 9);
+            const jettonWallet = Address.parse(tx.base.parsed.resolvedAddress);
+            const jettonMaster = jettonMasterContent?.address ? Address.parse(jettonMasterContent.address) : undefined;
 
             return {
                 type: 'simple',
                 target,
                 comment,
                 amount: toNano(amount),
-                jetton,
+                asset: { type: 'jetton', master: jettonMaster, wallet: jettonWallet },
                 stateInit: null,
                 callback: null
             }
@@ -128,7 +125,7 @@ export function previewToTransferParams(
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
             amount: BigInt(tx.base.parsed.amount) > 0n ? BigInt(tx.base.parsed.amount) : -BigInt(tx.base.parsed.amount),
             stateInit: null,
-            jetton: null,
+            asset: null,
             callback: null
         }
     }

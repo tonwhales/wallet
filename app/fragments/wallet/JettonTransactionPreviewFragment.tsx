@@ -15,7 +15,7 @@ import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useKnownJettons, useNetwork, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useNetwork, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
@@ -212,6 +212,30 @@ const JettonTransactionPreview = () => {
     const buffTxHash = Buffer.from(tx.trace_id, 'base64');
     const txHash = buffTxHash.toString('base64');
 
+    const onRepeatTx = useCallback(() => {
+        const txAmount = toNano(fromBnWithDecimals(amount, decimals));
+        const isNeg = amount < 0n;
+        let jettonMaster;
+        let jettonWallet;
+
+        try {
+            jettonMaster = Address.parse(master);
+        } catch {}
+
+        try {
+            jettonWallet = Address.parse(wallet);
+        } catch {}
+
+        navigation.navigateSimpleTransfer({
+            target: destinationAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat }),
+            comment: comment,
+            amount: isNeg ? -txAmount : txAmount,
+            stateInit: null,
+            asset: { type: 'jetton', master: jettonMaster, wallet: jettonWallet },
+            callback: null
+        });
+    }, []);
+
     return (
         <PerfView
             style={{
@@ -388,18 +412,7 @@ const JettonTransactionPreview = () => {
                     <RoundButton
                         title={t('txPreview.sendAgain')}
                         style={{ flexGrow: 1 }}
-                        onPress={() => {
-                            const txAmount = toNano(fromBnWithDecimals(amount, decimals));
-                            const isNeg = amount < 0n;
-                            navigation.navigateSimpleTransfer({
-                                target: destinationAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat }),
-                                comment: comment,
-                                amount: isNeg ? -txAmount : txAmount,
-                                stateInit: null,
-                                jetton: Address.parse(wallet),
-                                callback: null
-                            });
-                        }}
+                        onPress={onRepeatTx}
                     />
                 </PerfView>
             )}

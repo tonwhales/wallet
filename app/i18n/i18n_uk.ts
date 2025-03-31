@@ -1337,6 +1337,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "depositCard": "Поповнення картки",
             "updateCardLimits": "Оновити ліміти картки"
         }
+    },
+    "iban": {
+        "banner": {
+            "title": "Поповнення через IBAN",
+            "description": "Отримайте ранній доступ"
+        }
     }
 };
 

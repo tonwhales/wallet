@@ -12,8 +12,8 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback } from 'react';
-import { useSelectedAccount, useSetAppState, useTheme, useSolanaClient } from '../../engine/hooks';
+import { useCallback, useRef } from 'react';
+import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
@@ -31,8 +31,9 @@ import { useSetHiddenBanners } from '../../engine/hooks/banners/useHiddenBanners
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { Address } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { solanaAddressFromPublicKey } from '../../utils/solana/address';
 import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
+import WebView from 'react-native-webview';
+import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -47,10 +48,9 @@ export const DeveloperToolsFragment = fragment(() => {
     const acc = useSelectedAccount()!;
     const accounts = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
-    const solanaClient = useSolanaClient();
-    const solanaAddress = solanaAddressFromPublicKey(acc.publicKey);
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
+    const webViewRef = useRef<WebView>(null);
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -60,6 +60,7 @@ export const DeveloperToolsFragment = fragment(() => {
         queryClient.invalidateQueries();
         storageQuery.clearAll();
         storagePersistence.clearAll();
+        webViewRef.current?.injectJavaScript('localStorage.clear(); true;');
         setHiddenBanners([]);
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
@@ -266,6 +267,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
                     </View>
+                    <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

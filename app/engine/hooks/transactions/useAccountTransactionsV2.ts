@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { Address } from '@ton/core';
-import { AccountStoredTransaction, HoldersStoredTransaction, HoldersTransaction, HoldersTx, StoredTransaction, TonTransaction, TonTx, TransactionType } from '../../types';
+import { AccountStoredTransaction, HoldersTransaction, StoredTransaction, TonTransaction, TransactionType } from '../../types';
 import { useClient4, useHoldersAccountStatus, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
 import { log } from '../../../utils/log';

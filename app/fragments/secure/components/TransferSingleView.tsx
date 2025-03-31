@@ -10,7 +10,7 @@ import { LedgerOrder, Order } from "../ops/Order";
 import { KnownWallets } from "../../../secure/KnownWallets";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { Address, fromNano, toNano } from "@ton/core";
+import { Address, ExtraCurrency, fromNano, toNano } from "@ton/core";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings, useVerifyJetton } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
@@ -34,6 +34,7 @@ import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/Force
 import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
 import { ItemSwitch } from "../../../components/Item";
 import { Image } from 'expo-image';
+import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
@@ -112,7 +113,8 @@ export const TransferSingleView = memo(({
     contact,
     failed,
     isGasless,
-    onSetUseGasless
+    onSetUseGasless,
+    extraCurrency
 }: {
     operation: StoredOperation,
     order: Order | LedgerOrder,
@@ -139,7 +141,8 @@ export const TransferSingleView = memo(({
     contact?: AddressContact | null,
     failed: boolean,
     isGasless?: boolean,
-    onSetUseGasless?: (useGasless: boolean) => void
+    onSetUseGasless?: (useGasless: boolean) => void,
+    extraCurrency?: ExtraCurrency | null
 }) => {
     const toaster = useToaster();
     const navigation = useTypedNavigation();
@@ -153,7 +156,9 @@ export const TransferSingleView = memo(({
     const [price, currency] = usePrice();
     const [bounceableFormat] = useBounceableWalletFormat();
     const holdersUrl = resolveHoldersUrl(isTestnet);
+    const fromAddress = isLedger ? Address.parse(ledgerTransport.addr!.address) : selected!.address;
     const targetContract = useContractInfo(target.address.toString({ testOnly: isTestnet }));
+    const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, fromAddress.toString({ testOnly: isTestnet }));
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
@@ -231,7 +236,6 @@ export const TransferSingleView = memo(({
 
     }, [operation.op?.res, targetContract?.kind, isTargetLedger]);
 
-    const fromAddress = isLedger ? Address.parse(ledgerTransport.addr!.address) : selected!.address;
     const name = isLedger
         ? 'Ledger'
         : `${t('common.wallet')} ${appState.addresses.findIndex((a) => fromAddress?.equals(a.address)) + 1}`;
@@ -271,13 +275,23 @@ export const TransferSingleView = memo(({
 
     const amountText = useMemo(() => {
         const decimals = jetton?.decimals ?? 9;
-        const textArr = valueText(
-            jettonAmountString
-                ? { value: toBnWithDecimals(jettonAmountString, decimals), decimals }
-                : { value: amount, decimals: 9 }
-        );
+        const value = jettonAmountString ? toBnWithDecimals(jettonAmountString, decimals) : amount;
+
+        if (!value) return null;
+
+        const textArr = valueText({ value, decimals });
+
         return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jetton?.symbol ?? ''}`
     }, [amount, jettonAmountString, jetton]);
+
+    const extraCurrencyTextMap = useMemo(() => {
+        if (!extraCurrencyMap || order.type !== 'order') return null;
+
+        return Object.entries(extraCurrencyMap).map(([id, extraCurrency]) => {
+            const amount = order.messages[0].extraCurrency?.[Number(id)] ?? 0n;
+            return `-${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${extraCurrency.preview.symbol}`;
+        });
+    }, [extraCurrencyMap, order]);
 
     const { isSCAM: isSCAMJetton } = useVerifyJetton({
         ticker: jetton?.symbol,
@@ -404,21 +418,36 @@ export const TransferSingleView = memo(({
                             </Text>
                         </View>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text
-                                minimumFontScale={0.4}
-                                adjustsFontSizeToFit={true}
-                                numberOfLines={1}
-                                style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold27_32]}
-                            >
-                                {amountText + (isSCAMJetton ? ' • ' : '')}
-                            </Text>
+                            {!!amountText && (
+                                <Text
+                                    minimumFontScale={0.4}
+                                    adjustsFontSizeToFit={true}
+                                    numberOfLines={1}
+                                    style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold27_32]}
+                                >
+                                    {amountText + (isSCAMJetton ? ' • ' : '')}
+                                </Text>
+                            )}
+                            {!!extraCurrencyTextMap && (
+                                extraCurrencyTextMap.map((text, index) => (
+                                    <Text
+                                        key={`extra-currency-${index}`}
+                                        minimumFontScale={0.4}
+                                        adjustsFontSizeToFit={true}
+                                        numberOfLines={1}
+                                        style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold27_32]}
+                                    >
+                                        {text}
+                                    </Text>
+                                ))
+                            )}
                             {isSCAMJetton && (
                                 <Text style={[{ color: theme.accentRed }, Typography.semiBold27_32]}>
                                     {'SCAM'}
                                 </Text>
                             )}
                         </View>
-                        {!jettonAmountString && (
+                        {!!amountText && !jettonAmountString && (
                             <PriceComponent
                                 amount={amount}
                                 style={{

@@ -1339,6 +1339,12 @@ export type LocalizationSchema = {
             tokenTransfer: string,
             unknown: string,
         }
+    },
+    iban: {
+        banner: {
+            title: string,
+            description: string
+        }
     }
 };
 

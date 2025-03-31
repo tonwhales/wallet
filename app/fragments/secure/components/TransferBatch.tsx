@@ -92,7 +92,6 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
     }, []);
 
     const {
-        text,
         order,
         fees,
         callback,
@@ -295,13 +294,13 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                 value: i.message.amount,
                 init: internalStateInit,
                 body: i.message.payload,
-                bounce
+                bounce,
+                extracurrency: i.message.extraCurrency
             });
 
             if (msg) {
                 messages.push(msg);
             }
-
         }
 
         const account = getAccountLite(selected.addressString);
@@ -316,6 +315,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
             );
             return;
         }
+
         if (totalAmount === 0n) {
             let allowSeingZero = await new Promise((resolve) => {
                 Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
@@ -334,7 +334,6 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                 return;
             }
         }
-
 
         // Read key
         let walletKeys: WalletKeys;
@@ -512,6 +511,8 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         )
     }
 
+    const showInternals = internals.length <= 4;
+
     return (
         <>
             <ScrollView
@@ -587,12 +588,10 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                     </View>
                                     <Text
                                         key={`jetton-amount-${index}`}
-                                        style={{
-                                            fontWeight: '600',
-                                            fontSize: 17, lineHeight: 24,
+                                        style={[{
                                             color: theme.textPrimary,
                                             marginLeft: 16
-                                        }}
+                                        }, Typography.semiBold17_24]}
                                     >
                                         {'-' + fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster?.decimals) + ' ' + value[1].jettonMaster?.symbol}
                                     </Text>
@@ -644,11 +643,10 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                         paddingLeft: 0, height: undefined, paddingVertical: 0,
                                         marginLeft: 6
                                     }}
-                                    textStyle={{
-                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                    textStyle={[{
                                         color: theme.textSecondary,
                                         flexShrink: 1
-                                    }}
+                                    }, Typography.regular17_24]}
                                     theme={theme}
                                 />
                             </View>
@@ -674,11 +672,10 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                         paddingLeft: 0, height: undefined, paddingVertical: 0,
                                         marginLeft: 6
                                     }}
-                                    textStyle={{
-                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                    textStyle={[{
                                         color: theme.textSecondary,
                                         flexShrink: 1
-                                    }}
+                                    }, Typography.regular17_24]}
                                     theme={theme}
                                 />
                             </View>
@@ -706,11 +703,10 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                                                 paddingLeft: 0, height: undefined, paddingVertical: 0,
                                                 marginLeft: 6
                                             }}
-                                            textStyle={{
-                                                fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                            textStyle={[{
                                                 color: theme.textSecondary,
                                                 flexShrink: 1
-                                            }}
+                                            }, Typography.regular17_24]}
                                             theme={theme}
                                         />
                                     </View>
@@ -744,28 +740,28 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                             </>
                         )}
                     </ItemCollapsible>
-
-                    {internals.map((i, index) => {
+                    {!showInternals && (
+                        <View style={{ marginTop: 16 }}>
+                            <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                {`${t('tx.batch')} (${internals.length})`}
+                            </Text>
+                        </View>
+                    )}
+                    {showInternals && internals.map((i, index) => {
                         const known = knownWallets[i.message.addr.address.toString({ testOnly: isTestnet })];
                         return (
                             <ItemCollapsible
                                 key={`internal-${index}`}
                                 style={{ marginTop: 16 }}
-                                titleStyle={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}
+                                titleStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                 title={t('common.transaction') + ` #${index + 1}`}
                             >
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: theme.textSecondary,
-                                    }}>
+                                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                                         {t('common.amount')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                                        <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                                             {i.jettonAmount
                                                 ? fromNano(i.jettonAmount) + (i.jettonMaster?.symbol ?? '')
                                                 : fromNano(i.message.amount) + ' TON'

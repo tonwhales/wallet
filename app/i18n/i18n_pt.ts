@@ -1337,6 +1337,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "depositCard": "Depósito no cartão",
             "updateCardLimits": "Atualizar limites do cartão"
         }
+    },
+    "iban": {
+        "banner": {
+            "title": "Depósitos via IBAN",
+            "description": "Obtenha acesso antecipado"
+        }
     }
 };
 

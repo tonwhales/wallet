@@ -48,6 +48,7 @@ export const Queries = {
         Notifications: (id: string) => ['holders', address, 'events', id],
         Invite: () => ['holders', address, 'invite', 'v2'],
         OTP: () => ['holders-otp', address],
+        Iban: () => ['holders', address, 'iban'],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
@@ -58,6 +59,7 @@ export const Queries = {
 
     Hints: (address: string) => (['hints', address]),
     HintsFull: (address: string) => (['hints', 'full', address]),
+    HintsExtra: (address: string) => (['hints', 'extra', address]),
     Mintless: (address: string) => (['mintless', address]),
     Cloud: (address: string) => ({
         Key: (key: string) => ['cloud', address, key]

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Pressable, View, useWindowDimensions, Image, Text } from "react-native";
+import { Pressable, View, useWindowDimensions, Text } from "react-native";
 import { useTheme, useV5IsAdded } from "../../engine/hooks";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Typography } from "../styles";
@@ -11,6 +11,7 @@ import { WalletVersions } from "../../engine/types";
 import { useWalletVersion } from "../../engine/hooks/useWalletVersion";
 
 import W5LabelIcon from '@assets/ic-w5-label.svg';
+import { Image } from "expo-image";
 
 const bannerId = 'w5r1';
 

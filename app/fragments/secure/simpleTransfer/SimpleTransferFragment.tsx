@@ -12,7 +12,7 @@ import { useNetwork, useTheme } from '../../../engine/hooks';
 import { AddressSearchItem } from '../../../components/address/AddressSearch';
 import { AddressDomainInputRef } from '../../../components/address/AddressDomainInput';
 import { SimpleTransferLayout, SimpleTransferAmount, SimpleTransferAddress, SimpleTransferComment, SimpleTransferFees, SimpleTransferHeader, SimpleTransferFooter } from './components';
-import { SelectedInput, useSimpleTransfer } from './hooks/useSimpleTransfer';
+import { SelectedInput, SimpleTransferAsset, useSimpleTransfer } from './hooks/useSimpleTransfer';
 import { t } from '../../../i18n/t';
 import { TransferHeader } from '../../../components/transfer/TransferHeader';
 
@@ -24,7 +24,7 @@ export type SimpleTransferParams = {
     feeAmount?: bigint | null,
     forwardAmount?: bigint | null,
     stateInit?: Cell | null,
-    jetton?: Address | null,
+    asset?: SimpleTransferAsset | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
     app?: {
@@ -32,7 +32,8 @@ export type SimpleTransferParams = {
         title: string,
         url: string,
     },
-    extraCurrencyId?: number
+    extraCurrencyId?: number,
+    unknownDecimals?: boolean
 }
 
 const SimpleTransferComponent = () => {

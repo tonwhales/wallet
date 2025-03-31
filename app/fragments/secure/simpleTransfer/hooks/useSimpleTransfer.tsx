@@ -27,10 +27,11 @@ import { LedgerOrder, Order } from '../../ops/Order';
 import { Alert, Keyboard, Platform } from 'react-native';
 import { contractFromPublicKey } from '../../../../engine/contractFromPublicKey';
 import { useExtraCurrency } from '../../../../engine/hooks/jettons/useExtraCurrency';
+import { SimpleTransferParams } from '../SimpleTransferFragment';
 
 export type SimpleTransferAsset = {
     type: 'jetton';
-    master: Address;
+    master?: Address;
     wallet?: Address;
 } | {
     type: 'extraCurrency';
@@ -38,24 +39,6 @@ export type SimpleTransferAsset = {
 } | {
     type: 'address';
     address: Address;
-}
-
-export type SimpleTransferParams = {
-    target?: string | null,
-    comment?: string | null,
-    amount?: bigint | null,
-    payload?: Cell | null,
-    feeAmount?: bigint | null,
-    forwardAmount?: bigint | null,
-    stateInit?: Cell | null,
-    asset?: SimpleTransferAsset | null,
-    callback?: ((ok: boolean, result: Cell | null) => void) | null,
-    back?: number,
-    app?: {
-        domain: string,
-        title: string,
-        url: string,
-    }
 }
 
 type Options = {
@@ -103,7 +86,8 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const [selectedAsset, setSelectedAsset] = useState<SimpleTransferAsset | null>(params?.asset || null);
     const jetton = useJetton({
         owner: address?.toString({ testOnly: network.isTestnet }),
-        wallet: selectedAsset?.type === 'jetton' ? selectedAsset.master.toString({ testOnly: network.isTestnet }) : undefined
+        master: selectedAsset?.type === 'jetton' ? selectedAsset.master : undefined,
+        wallet: selectedAsset?.type === 'jetton' ? selectedAsset.wallet : undefined
     });
     const extraCurrency = useExtraCurrency(
         selectedAsset?.type === 'extraCurrency' ? selectedAsset.id : null,
@@ -112,8 +96,24 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
 
     const decimals = extraCurrency?.preview.decimals ?? jetton?.decimals ?? 9;
     const symbol = extraCurrency?.preview.symbol ?? jetton?.symbol ?? 'TON';
-    const [amount, setAmount] = useState(params?.amount ? fromBnWithDecimals(fromNano(params.amount), decimals) : '');
 
+    // if we navigate here from the link, we don't send amount with the correct decimals because we cannot get jetton info there
+    // that's why we send an amount with unknownDecimals = true and fetch jetton info here
+    const [amount, setAmount] = useState(() => {
+        if (!params?.amount) {
+            return '';
+        }
+
+        if (params?.unknownDecimals) {
+            return fromBnWithDecimals(
+                fromNano(params.amount),
+                decimals
+            );
+        }
+
+        return fromNano(params.amount);
+    });
+    
     const [stateInit] = useState<Cell | null>(params?.stateInit || null);
     const estimationRef = useRef<bigint | null>(null);
 
@@ -311,7 +311,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
                     comment: mComment,
                     amount: mAmount,
                     stateInit: mStateInit,
-                    jetton: mJetton
+                    asset: mJetton ? { type: 'jetton', master: mJetton } : null
                 }, { ledger: isLedger, replace: true });
             }
         }

@@ -20,3 +20,4 @@ export { useIsV5Added as useV5IsAdded } from './useIsV5Added';
 export * from './useSecureScreen';
 export * from './wallet'
 export * from './support';
+export { useLocalStorageStatus } from "./webView/useLocalStorageStatus";

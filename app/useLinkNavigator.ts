@@ -437,6 +437,7 @@ async function resolveAndNavigateToJettonTransfer(
         payload: resolved.payload,
         feeAmount: resolved.feeAmount,
         forwardAmount: resolved.forwardAmount,
+        unknownDecimals: true,
     });
 }
 

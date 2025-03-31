@@ -9,7 +9,7 @@ import { useParams } from '../../utils/useParams';
 import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount, useSupport } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
@@ -21,7 +21,6 @@ import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnr
 import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
-import { useActionSheet } from '@expo/react-native-action-sheet';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { AnimatedCards } from './components/AnimatedCards';
 import { useRoute } from '@react-navigation/native';
@@ -47,9 +46,17 @@ export const HoldersLandingFragment = fragment(() => {
 
     const domain = extractDomain(endpoint);
     const [confirmOnLedger, setConfirmOnLedger] = useState(false);
+    const isComponentMounted = useRef(true);
+
     const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
     const ledgerEnroll = useHoldersLedgerEnroll({ inviteId, setConfirming: setConfirmOnLedger });
     const authenticate = isLedger ? ledgerEnroll : enroll;
+
+    useEffect(() => {
+        return () => {
+            isComponentMounted.current = false;
+        };
+    }, []);
 
     // Anim
     const isAuthenticating = useRef(false);
@@ -96,8 +103,10 @@ export const HoldersLandingFragment = fragment(() => {
             const res = await authenticate();
 
             if (res.type === 'success') {
-                // Navigate to continue
-                navigation.navigateHolders(onEnrollType, isTestnet, isLedger, true);
+                if (isComponentMounted.current) {
+                    // Navigate to continue
+                    navigation.navigateHolders(onEnrollType, isTestnet, isLedger, true);
+                }
                 isAuthenticating.current = false;
                 return;
             }

@@ -48,6 +48,7 @@ export const Queries = {
         Notifications: (id: string) => ['holders', address, 'events', id],
         Invite: () => ['holders', address, 'invite', 'v2'],
         OTP: () => ['holders-otp', address],
+        Iban: () => ['holders', address, 'iban'],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

@@ -23,6 +23,7 @@ import { WImage } from "../../components/WImage";
 import { PendingSolanaTransactions } from "./views/PendingSolanaTransactions";
 import { ReceiveableSolanaAsset } from "./ReceiveFragment";
 import { Image } from "expo-image";
+import { PendingSolanaTransaction } from "../../engine/state/pending";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
@@ -67,6 +68,13 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
     const decimals = token.decimals ?? 6;
     const price = toNano(token.uiAmount ?? 0);
     const logoURI = token.logoURI ?? '';
+
+    const solanaFilter = useCallback((tx: PendingSolanaTransaction) => {
+        if (tx.type === 'tx') {
+            return tx.tx?.token?.mint === mint;
+        }
+        return false;
+    }, [mint]);
 
     return (
         <View style={styles.content}>
@@ -147,7 +155,7 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                 <PendingSolanaTransactions
                     address={owner}
                     viewType="main"
-                    filter={(tx) => tx.tx?.token?.mint === mint}
+                    filter={solanaFilter}
                 />
                 <View style={{ marginTop: 16 }} />
             </View>

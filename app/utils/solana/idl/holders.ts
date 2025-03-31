@@ -7,7 +7,7 @@ import { Idl } from "@coral-xyz/anchor";
  * IDL can be found at `target/idl/holders.json`.
  */
 export const holdersIdl: Idl = {
-  "address": "4Co2woPDqhNfG5H7PLvkzUFDMLiuk4PkGyPNdaqEmzyW",
+  "address": "6bES2dKy1ee13HQ4uW4ycw4Kw4od9ziZeWMyAxVySYEd",
   "metadata": {
     "name": "holders",
     "version": "0.1.0",

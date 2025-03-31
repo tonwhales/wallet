@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { useConnectApp } from './useConnectApp';
 import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, ConnectItemReply, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';

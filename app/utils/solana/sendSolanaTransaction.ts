@@ -5,6 +5,7 @@ import { ThemeType } from "../../engine/state/theme";
 import { Keypair, Transaction, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { createTransferInstruction, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../engine/state/pending";
+import { isPublicKeyATA } from "./isPublicKeyATA";
 
 type SendSolanaOrderParams = {
     sender: string,
@@ -45,16 +46,28 @@ export async function sendSolanaOrder({ solanaClient, theme, authContext, order,
         // TODO: *solana* check if recipient is token account
         // and just use it instead of creating a new one
 
-        const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
+        const isATA = await isPublicKeyATA({
             solanaClient,
-            keyPair, // Signer to pay for account creation if needed
-            mintAddress,
-            recipient
-        );
+            address: recipient,
+            mint: mintAddress
+        });
+
+        let recipientAddress: PublicKey;
+
+        if (!isATA) {
+            recipientAddress = (await getOrCreateAssociatedTokenAccount(
+                solanaClient,
+                keyPair,
+                mintAddress,
+                recipient
+            )).address;
+        } else {
+            recipientAddress = recipient;
+        }
 
         const transferInstruction = createTransferInstruction(
             senderTokenAccount.address, // from 
-            recipientTokenAccount.address, // to
+            recipientAddress, // to
             owner,
             amount
         );

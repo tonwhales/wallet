@@ -134,7 +134,7 @@ const TransactionPreview = () => {
         wallet: resolvedAddressString,
     });
     const jettonMaster = jetton?.master ?? null;
-    const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : null;
+    const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : undefined;
     const targetContract = useContractInfo(opAddress);
 
     const isTargetBounceable = targetContract?.kind === 'wallet'
@@ -142,8 +142,8 @@ const TransactionPreview = () => {
         : parsedOpAddr.isBounceable
 
     const repeatParams = useMemo(() => {
-        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals ?? 9);
-    }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals]);
+        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent);
+    }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent]);
 
     let op: string;
 

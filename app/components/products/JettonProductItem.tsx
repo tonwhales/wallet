@@ -341,7 +341,11 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
         navigation.navigateSimpleTransfer({
             amount: null,
             comment: null,
-            jetton: Address.parse(hint.walletAddress.address),
+            asset: {
+                type: 'jetton',
+                master: Address.parse(hint.jetton.address),
+                wallet: Address.parse(hint.walletAddress.address)
+            },
             stateInit: null,
             callback: null
         }, { ledger: props.ledger });

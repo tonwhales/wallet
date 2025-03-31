@@ -13,6 +13,7 @@ import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersApp
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { SimpleTransferAsset } from "../../secure/simpleTransfer/hooks/useSimpleTransfer";
 
 export enum WalletActionType {
     Send = 'send',
@@ -37,7 +38,7 @@ export type WalletAction = {
     type: WalletActionType.Buy
 } | {
     type: WalletActionType.Send,
-    jetton?: Address
+    jettonWallet?: Address
 } | {
     type: WalletActionType.Receive,
     asset?: ReceiveAsset
@@ -90,7 +91,7 @@ export const WalletActionButton = memo(({
             // Ignore
         }
     }, [isTestnet, linkNavigator]);
-    
+
     const onLedgerQRCodeRead = useCallback((src: string) => {
         try {
             let res = resolveUrl(src, isTestnet);
@@ -119,7 +120,7 @@ export const WalletActionButton = memo(({
                             comment: res.comment,
                             amount: res.amount,
                             stateInit: res.stateInit,
-                            jetton: null,
+                            asset: null,
                             callback: null
                         }, { ledger: true });
                     }
@@ -131,7 +132,7 @@ export const WalletActionButton = memo(({
                     comment: res.comment,
                     amount: res.amount,
                     stateInit: null,
-                    jetton: res.jettonMaster,
+                    asset: { type: 'jetton', master: res.jettonMaster },
                     callback: null
                 }, { ledger: true });
             }
@@ -172,8 +173,9 @@ export const WalletActionButton = memo(({
         case WalletActionType.Send: {
             let navigate = () => {
                 if (isWalletMode) {
+                    const asset: SimpleTransferAsset | null = action.jettonWallet ? { type: 'jetton', wallet: action.jettonWallet } : null;
                     navigation.navigateSimpleTransfer(
-                        { ...nullTransfer, jetton: action.jetton },
+                        { ...nullTransfer, asset },
                         { ledger: isLedger }
                     );
                 } else {

@@ -84,7 +84,7 @@ export const ExtraCurrencyProductItem = memo((props: ExtraCurrencyProductItemPro
             amount: null,
             target: null,
             comment: null,
-            jetton: null,
+            asset: { type: 'extraCurrency', id: currency.preview.id },
             stateInit: null,
             callback: null
         }, { ledger });

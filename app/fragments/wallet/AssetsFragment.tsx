@@ -258,28 +258,19 @@ export const AssetsFragment = fragment(() => {
             return;
         }
 
-        if (isLedger) {
-            navigation.replace('LedgerSimpleTransfer', {
-                amount: null,
-                target: target,
-                comment: null,
-                jetton: Address.parse(hint.walletAddress.address),
-                stateInit: null,
-                job: null,
-                callback: null
-            });
-            return;
-        }
-
         navigation.navigateSimpleTransfer({
             amount: null,
             target: target,
             comment: null,
-            jetton: Address.parse(hint.walletAddress.address),
+            asset: {
+                type: 'jetton',
+                master: Address.parse(hint.jetton.address),
+                wallet: Address.parse(hint.walletAddress.address)
+            },
             stateInit: null,
             callback: null
-        });
-    }, [onJettonCallback, onAssetCallback]);
+        }, { ledger: isLedger, replace: isLedger });
+    }, [onJettonCallback, onAssetCallback, isLedger]);
 
     const onExtraCurrencySelected = useCallback((currency: ExtraCurrencyHint) => {
         if (simpleTransferAssetCallback) {
@@ -294,12 +285,12 @@ export const AssetsFragment = fragment(() => {
             amount: null,
             target: target,
             comment: null,
-            jetton: null,
+            asset: { type: 'extraCurrency', id: currency.preview.id },
             stateInit: null,
             callback: null,
             extraCurrencyId: currency.preview.id
-        });
-    }, [simpleTransferAssetCallback]);
+        }, { ledger: isLedger, replace: isLedger });
+    }, [simpleTransferAssetCallback, isLedger]);
 
     const onTonSelected = useCallback(() => {
         if (simpleTransferAssetCallback) {
@@ -310,26 +301,14 @@ export const AssetsFragment = fragment(() => {
             return;
         }
 
-        if (isLedger) {
-            navigation.replace('LedgerSimpleTransfer', {
-                amount: null,
-                target: target,
-                stateInit: null,
-                comment: null,
-                jetton: null,
-                callback: null
-            });
-            return;
-        }
-
         navigation.navigateSimpleTransfer({
             amount: null,
             target: target,
             stateInit: null,
             comment: null,
-            jetton: null,
+            asset: null,
             callback: null
-        });
+        }, { ledger: isLedger, replace: isLedger });
     }, [isLedger, onJettonCallback, onAssetCallback]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
@@ -347,20 +326,7 @@ export const AssetsFragment = fragment(() => {
             return;
         }
 
-        if (isLedger) {
-            if (!target.address) {
-                return;
-            }
-
-            navigation.replace('LedgerSimpleTransfer', {
-                amount: null,
-                target: target.address,
-                comment: null,
-                jetton: null,
-                stateInit: null,
-                job: null,
-                callback: null
-            });
+        if (isLedger && !target.address) {
             return;
         }
 
@@ -368,11 +334,11 @@ export const AssetsFragment = fragment(() => {
             amount: null,
             target: target.address,
             comment: null,
-            jetton: null,
+            asset: null,
             stateInit: null,
             callback: null
-        });
-    }, [onJettonCallback, onAssetCallback, isTestnet]);
+        }, { ledger: isLedger, replace: isLedger });
+    }, [onJettonCallback, onAssetCallback, isTestnet, isLedger]);
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {

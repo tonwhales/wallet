@@ -34,6 +34,9 @@ export interface SignRawMessage {
   amount: string; // (decimal string): number of nanocoins to send.
   payload?: string; // (string base64, optional): raw one-cell BoC encoded in Base64.
   stateInit?: string; // (string base64, optional): raw once-cell BoC encoded in Base64.
+  extra_currency?: {
+    [k: number]: string;
+  }
 }
 
 export type SignRawParams = {

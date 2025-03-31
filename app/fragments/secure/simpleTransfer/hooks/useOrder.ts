@@ -30,6 +30,7 @@ type Options = {
     feeAmount: bigint | null;
     forwardAmount: bigint | null;
     payload: Cell | null;
+    extraCurrencyId?: number | null;
 }
 
 export const useOrder = (options: Options) => {
@@ -52,7 +53,8 @@ export const useOrder = (options: Options) => {
             forwardAmount,
             payload,
             validAmount,
-            commentString
+            commentString,
+            extraCurrencyId
         } = options
 
         const accountLite = useAccountLite(address);
@@ -136,6 +138,17 @@ export const useOrder = (options: Options) => {
                     stateInit: stateInitCell
                 }, network.isTestnet);
             }
+
+            let amount = (validAmount === accountLite?.balance) ? toNano('0') : validAmount;
+            let extraCurrency;
+            if (extraCurrencyId) {
+                extraCurrency = {
+                    [extraCurrencyId]: validAmount
+                }
+                amount = toNano('0');
+            }
+            
+            const amountAll = validAmount === accountLite?.balance && !extraCurrency;
     
             // Resolve order
             return createSimpleOrder({
@@ -143,10 +156,11 @@ export const useOrder = (options: Options) => {
                 domain: domain,
                 text: commentString,
                 payload: payload,
-                amount: (validAmount === accountLite?.balance) ? toNano('0') : validAmount,
+                amount,
                 amountAll: validAmount === accountLite?.balance,
                 stateInit,
-                app: app
+                app,
+                extraCurrency
             });
     
         }, [validAmount, target, domain, commentString, stateInit, jetton, app, acc, ledgerAddress, known, jettonPayload]);

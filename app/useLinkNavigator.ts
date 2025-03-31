@@ -379,7 +379,7 @@ async function resolveAndNavigateToJettonTransfer(
     const { resolved, isTestnet, selected, queryClient, toaster, loader, navigation, toastProps } = params;
     const hideloader = loader.show();
 
-    let jettonWalletAddress = queryClient.getQueryData<string | null>(Queries.Account(selected.addressString).JettonWallet());
+    let jettonWalletAddress = queryClient.getQueryData<StoredJettonWallet | null>(Queries.Account(selected.addressString).JettonWallet())?.address;
 
     if (!jettonWalletAddress) {
         try {
@@ -432,7 +432,7 @@ async function resolveAndNavigateToJettonTransfer(
         comment: resolved.comment,
         amount: resolved.amount,
         stateInit: null,
-        jetton: Address.parse(jettonWalletAddress),
+        asset: { type: 'jetton', master: resolved.jettonMaster, wallet: Address.parse(jettonWalletAddress) },
         callback: null,
         payload: resolved.payload,
         feeAmount: resolved.feeAmount,
@@ -611,7 +611,7 @@ export function useLinkNavigator(
                         comment: resolved.comment,
                         amount: resolved.amount,
                         stateInit: resolved.stateInit,
-                        jetton: null,
+                        asset: null,
                         callback: null
                     });
                 }

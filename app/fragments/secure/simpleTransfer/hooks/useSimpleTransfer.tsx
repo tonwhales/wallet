@@ -26,7 +26,20 @@ import { TypedNavigation } from '../../../../utils/useTypedNavigation';
 import { LedgerOrder, Order } from '../../ops/Order';
 import { Alert, Keyboard, Platform } from 'react-native';
 import { contractFromPublicKey } from '../../../../engine/contractFromPublicKey';
+import { useExtraCurrency } from '../../../../engine/hooks/jettons/useExtraCurrency';
 import { SimpleTransferParams } from '../SimpleTransferFragment';
+
+export type SimpleTransferAsset = {
+    type: 'jetton';
+    master?: Address;
+    wallet?: Address;
+} | {
+    type: 'extraCurrency';
+    id: number;
+} | {
+    type: 'address';
+    address: Address;
+}
 
 type Options = {
     params: SimpleTransferParams;
@@ -70,11 +83,19 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const { target, domain } = addressDomainInputState;
 
     const [commentString, setComment] = useState(params?.comment || '');
-    const [selectedJetton, setJetton] = useState<Address | null>(params?.jetton || null);
+    const [selectedAsset, setSelectedAsset] = useState<SimpleTransferAsset | null>(params?.asset || null);
     const jetton = useJetton({
         owner: address?.toString({ testOnly: network.isTestnet }),
-        wallet: selectedJetton?.toString({ testOnly: network.isTestnet })
+        master: selectedAsset?.type === 'jetton' ? selectedAsset.master : undefined,
+        wallet: selectedAsset?.type === 'jetton' ? selectedAsset.wallet : undefined
     });
+    const extraCurrency = useExtraCurrency(
+        selectedAsset?.type === 'extraCurrency' ? selectedAsset.id : null,
+        address?.toString({ testOnly: network.isTestnet })
+    );
+
+    const decimals = extraCurrency?.preview.decimals ?? jetton?.decimals ?? 9;
+    const symbol = extraCurrency?.preview.symbol ?? jetton?.symbol ?? 'TON';
 
     // if we navigate here from the link, we don't send amount with the correct decimals because we cannot get jetton info there
     // that's why we send an amount with unknownDecimals = true and fetch jetton info here
@@ -86,7 +107,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         if (params?.unknownDecimals) {
             return fromBnWithDecimals(
                 fromNano(params.amount),
-                jetton?.decimals ?? 9
+                decimals
             );
         }
 
@@ -102,12 +123,9 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const forwardAmount = params.forwardAmount ?? null;
     const feeAmount = params.feeAmount ?? null;
 
-
     const hasGaslessTransfer = gaslessConfig?.data?.gas_jettons
         .map((j) => Address.parse(j.master_id))
         .some((j) => jetton?.master && j.equals(jetton.master));
-
-    const symbol = jetton ? jetton.symbol : 'TON';
 
     const { data: jettonPayload, loading: isJettonPayloadLoading } = useJettonPayload(
         address?.toString({ testOnly: network.isTestnet }),
@@ -126,28 +144,21 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     }, [target]);
 
     const validAmount = useMemo(() => {
-        let value: bigint | null = null;
-
         if (!amount) {
             return null;
         }
 
         try {
             const valid = amount.replace(',', '.').replaceAll(' ', '');
-            // Manage jettons with decimals
-            if (jetton) {
-                value = toBnWithDecimals(valid, jetton?.decimals ?? 9);
-            } else {
-                value = toNano(valid);
-            }
-            return value;
+            // Manage jettons/extra currencies with decimals
+            return toBnWithDecimals(valid, decimals);
         } catch {
             return null;
         }
-    }, [amount, jetton]);
+    }, [amount, decimals]);
 
     const priceText = useMemo(() => {
-        if (!price || jetton || !validAmount) {
+        if (!price || jetton || !validAmount || extraCurrency) {
             return undefined;
         }
 
@@ -159,7 +170,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
             currency,
             isNeg
         );
-    }, [jetton, validAmount, price, currency]);
+    }, [jetton, validAmount, price, currency, extraCurrency]);
 
     const { isSCAM } = useVerifyJetton({
         ticker: jetton?.symbol,
@@ -167,14 +178,14 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     });
 
     const balance = useMemo(() => {
-        let value: bigint;
         if (jetton) {
-            value = jetton.balance;
+            return jetton.balance;
+        } else if (extraCurrency) {
+            return BigInt(extraCurrency.amount);
         } else {
-            value = accountLite?.balance || 0n;
+            return accountLite?.balance || 0n;
         }
-        return value;
-    }, [jetton, accountLite?.balance, isLedger]);
+    }, [jetton?.balance, extraCurrency?.amount, accountLite?.balance]);
 
     // Resolve known wallets params
     const known = knownWallets[targetAddressValid?.address.toString({ testOnly: network.isTestnet }) ?? ''];
@@ -198,7 +209,8 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         feeAmount,
         forwardAmount,
         payload,
-    })
+        extraCurrencyId: selectedAsset?.type === 'extraCurrency' ? selectedAsset.id : null
+    });
 
     const estimation = useEstimation({
         ledgerAddress,
@@ -209,7 +221,8 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         hasGaslessTransfer,
         jettonPayload,
         estimationRef,
-    })
+        extraCurrencyId: selectedAsset?.type === 'extraCurrency' ? selectedAsset.id : null
+    });
 
     const estimationPrice = useMemo(() => {
         if (!estimation || !price || !validAmount) {
@@ -298,26 +311,35 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
                     comment: mComment,
                     amount: mAmount,
                     stateInit: mStateInit,
-                    jetton: mJetton
+                    asset: mJetton ? { type: 'jetton', master: mJetton } : null
                 }, { ledger: isLedger, replace: true });
             }
         }
     }, []);
 
     const onAddAll = useCallback(() => {
-        const amount = jetton
-            ? fromBnWithDecimals(balance, jetton?.decimals)
-            : fromNano(balance);
-        const formatted = formatInputAmount(amount.replace('.', ','), jetton?.decimals ?? 9, { skipFormattingDecimals: true });
+        const amount = fromBnWithDecimals(balance, decimals);
+        const formatted = formatInputAmount(amount.replace('.', ','), decimals, { skipFormattingDecimals: true });
         setAmount(formatted);
-    }, [balance, jetton]);
+    }, [balance, decimals]);
 
-    const onAssetSelected = useCallback((selected?: { master: Address, wallet?: Address }) => {
-        if (selected && selected.wallet) {
-            setJetton(selected.wallet);
+    const onAssetSelected = useCallback((selected?: SimpleTransferAsset) => {
+        if (selected?.type === 'extraCurrency') {
+            setSelectedAsset({ type: 'extraCurrency', id: selected.id });
             return;
         }
-        setJetton(null);
+
+        if (selected?.type === 'address') {
+            setSelectedAsset({ type: 'address', address: selected.address });
+            return;
+        }
+
+        if (selected && selected.wallet) {
+            setSelectedAsset({ type: 'jetton', master: selected.master, wallet: selected.wallet });
+            return;
+        }
+
+        setSelectedAsset(null);
     }, []);
 
     const holdersTarget = holdersAccounts?.find((a) => targetAddressValid?.address.equals(a.address));
@@ -330,7 +352,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
 
     const onChangeJetton = useCallback(() => {
         if (holdersTarget?.symbol === 'TON') {
-            setJetton(null);
+            setSelectedAsset(null);
             return;
         }
 
@@ -352,7 +374,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
 
             try {
                 const wallet = Address.parse(hint.walletAddress.address)
-                setJetton(wallet);
+                setSelectedAsset({ type: 'jetton', master: wallet });
             } catch { }
         }
     }, [holdersTargetJetton, holdersTarget?.symbol, jetton?.wallet]);
@@ -455,7 +477,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
             return;
         }
 
-         // Load contract
+        // Load contract
         const contract = await contractFromPublicKey(publicKey!, walletVersion, network.isTestnet);
 
         // Check if transfering to yourself
@@ -544,8 +566,10 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         accountLite,
         stateInit,
         targetAddressValid,
-        selectedInput, 
+        selectedInput,
         setSelectedInput,
-        doSend
+        doSend,
+        selectedAsset,
+        extraCurrency
     }
 }

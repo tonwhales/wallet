@@ -29,6 +29,7 @@ import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
 import { valueText } from "../../../components/ValueComponent";
+import { useExtraCurrency } from "../../../engine/hooks/jettons/useExtraCurrency";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -227,7 +228,10 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             return;
         }
 
-        if (!order.messages[0].amountAll && order.messages[0].amount === BigInt(0)) {
+        if (
+            !order.messages[0].amountAll && order.messages[0].amount === BigInt(0)
+            && !(order.messages[0].extraCurrency ? Object.values(order.messages[0].extraCurrency).some(amount => amount > 0n) : false)
+        ) {
             let allowSeingZero = await new Promise((resolve) => {
                 Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
                     {
@@ -304,7 +308,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                         to: message.address,
                         value: BigInt(message.amount),
                         body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
-                        init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null,
+                        init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null
                     })
                 })
             });
@@ -354,7 +358,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     value: order.messages[0].amount,
                     init: internalStateInit,
                     bounce,
-                    body
+                    body,
+                    extracurrency: order.messages[0].extraCurrency
                 });
 
                 const transferParams = {
@@ -406,12 +411,34 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             amount = BigInt(-1) * account!.balance;
         }
 
-        let body: PendingTransactionBody | null = order.messages[0].payload
-            ? { type: 'payload', cell: order.messages[0].payload, stateInit: order.messages[0].stateInit }
-            : (text && text.length > 0
-                ? { type: 'comment', comment: text }
-                : null
-            );
+        // let body: PendingTransactionBody | null = order.messages[0].payload
+        //     ? { type: 'payload', cell: order.messages[0].payload, stateInit: order.messages[0].stateInit, extraCurrency: order.messages[0].extraCurrency }
+        //     : (text && text.length > 0
+        //         ? { type: 'comment', comment: text, extraCurrency: order.messages[0].extraCurrency }
+        //         : null
+        //     );
+
+        let body: PendingTransactionBody | null = null;
+
+        if (order.messages[0].payload) {
+            body = {
+                type: 'payload',
+                cell: order.messages[0].payload,
+                stateInit: order.messages[0].stateInit,
+                extraCurrency: order.messages[0].extraCurrency
+            }
+        } else if (text && text.length > 0) {
+            body = {
+                type: 'comment',
+                comment: text,
+                extraCurrency: order.messages[0].extraCurrency
+            }
+        } else if (order.messages[0].extraCurrency) {
+            body = {
+                type: 'extra-currency',
+                extraCurrency: order.messages[0].extraCurrency
+            }
+        }
 
         if (jettonTarget && jetton && jettonAmountString) {
             body = {
@@ -421,6 +448,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 bounceable: jettonTarget.bounceable,
                 amount: toBnWithDecimals(jettonAmountString, jetton.decimals ?? 9),
                 comment: text,
+                extraCurrency: order.messages[0].extraCurrency
             }
         }
 
@@ -436,7 +464,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             blockSeqno: lastBlock,
             body: body,
             time: Math.floor(Date.now() / 1000),
-            hash: msg.hash(),
+            hash: msg.hash()
         });
 
         if (props.source?.type === 'tonconnect' && !!props.source?.returnStrategy) {
@@ -481,11 +509,12 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             text={text}
             known={known}
             isSpam={spam}
-            isWithStateInit={!!order.messages[0].stateInit}
+            isWithStateInit={!!order.messages[0]?.stateInit}
             contact={contact}
             failed={failed}
             isGasless={isGasless}
             onSetUseGasless={setUseGasless}
+            extraCurrency={order.messages[0]?.extraCurrency}
         />
     );
 });

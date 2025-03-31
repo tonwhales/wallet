@@ -22,6 +22,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import IcCheck from "@assets/ic-check.svg";
+import SolanaIcon from '@assets/ic-solana.svg';
+
+const solanaIc = <SolanaIcon width={10} height={10} style={{ borderRadius: 8, height: 16, width: 16 }} />;
+const tonIc = <Image source={require('@assets/ic-ton-acc.png')} style={{ borderRadius: 10, height: 20, width: 20 }} />;
 
 export enum HoldersItemContentType {
     BALANCE = 'balance',
@@ -364,20 +368,40 @@ export const HoldersAccountItem = memo((props: {
         );
     }, [cardsClickable, theme, onCreateCardPress]);
 
+    const isSolana = account.network === 'solana';
+    const isTonCurrency = account.cryptoCurrency?.ticker === 'TON';
+
+    let networkIcon: React.ReactNode | null = null
+
+    if (isSolana) {
+        networkIcon = solanaIc;
+    } else if (!isTonCurrency) {
+        networkIcon = tonIc;
+    }
+
     const accountInfo = useMemo(() => (
-        <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             {resolveHoldersIcon(
-                { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker, network: account.network },
-                theme
+                { image: jettonMasterContent?.icon, ticker: account.cryptoCurrency?.ticker }
             )}
-            <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                <PerfText
-                    style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                    ellipsizeMode="tail"
-                    numberOfLines={1}
-                >
-                    {name}
-                </PerfText>
+            <View style={{ flexShrink: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <PerfText
+                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                    >
+                        {name}
+                    </PerfText>
+                    {!!networkIcon && <View style={{
+                        height: 20, width: 20,
+                        borderRadius: 10,
+                        backgroundColor: theme.divider,
+                        justifyContent: 'center', alignItems: 'center'
+                    }}>
+                        {networkIcon}
+                    </View>}
+                </View>
                 {props.addressDescription && !!props.account.address && (
                     <PerfText
                         style={[{ color: theme.textSecondary }, Typography.regular15_20]}

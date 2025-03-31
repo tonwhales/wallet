@@ -43,9 +43,6 @@ export async function sendSolanaOrder({ solanaClient, theme, authContext, order,
             owner
         );
 
-        // TODO: *solana* check if recipient is token account
-        // and just use it instead of creating a new one
-
         const isATA = await isPublicKeyATA({
             solanaClient,
             address: recipient,

@@ -174,11 +174,7 @@ const cardPrepaid = cardSchema.and(
   }),
 );
 
-const cryptoCurrencyTicker = z.union([
-  z.literal('TON'),
-  z.literal('USDT'),
-  z.literal('EURT'),
-]);
+const cryptoCurrencyTicker = z.string();
 
 const accountSchema = z.object({
   id: z.string(),

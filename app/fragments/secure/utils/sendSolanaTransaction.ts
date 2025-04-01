@@ -1,11 +1,11 @@
-import { SolanaOrder } from "../../fragments/secure/ops/Order";
-import { SolanaClient } from "../../engine/hooks/solana/useSolanaClient";
-import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
-import { ThemeType } from "../../engine/state/theme";
+import { SolanaOrder } from "../ops/Order";
+import { SolanaClient } from "../../../engine/hooks/solana/useSolanaClient";
+import { AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
+import { ThemeType } from "../../../engine/state/theme";
 import { Keypair, Transaction, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { createTransferInstruction, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
-import { PendingSolanaTransaction, PendingTransactionStatus } from "../../engine/state/pending";
-import { isPublicKeyATA } from "./isPublicKeyATA";
+import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
+import { isPublicKeyATA } from "../../../utils/solana/isPublicKeyATA";
 
 type SendSolanaOrderParams = {
     sender: string,

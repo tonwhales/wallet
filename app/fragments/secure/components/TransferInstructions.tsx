@@ -1,16 +1,16 @@
-import { parseTransactionInstructions } from "../../../../utils/solana/parseInstructions";
-import { useRegisterPendingSolana, useSolanaClient, useSolanaSelectedAccount, useTheme } from "../../../../engine/hooks";
-import { useKeysAuth } from "../../../../components/secure/AuthWalletKeys";
-import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
+import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
+import { useRegisterPendingSolana, useSolanaClient, useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
+import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Message, PublicKey, Transaction } from "@solana/web3.js";
 import { Alert, ScrollView, View } from "react-native";
-import { TransferInstructionView } from "./TransferInstructionView";
-import { RoundButton } from "../../../../components/RoundButton";
-import { signAndSendSolanaTransaction } from "../../../../utils/solana/signAndSendSolanaTransaction";
+import { TransferInstructionView } from "../../solana/transfer/components/TransferInstructionView";
+import { RoundButton } from "../../../components/RoundButton";
+import { signAndSendSolanaTransaction } from "../utils/signAndSendSolanaTransaction";
 import { useCallback, useEffect, useRef } from "react";
-import { t } from "../../../../i18n/t";
-import { SolanaTransferFees } from "./SolanaTransferFees";
-import { warn } from "../../../../utils/log";
+import { t } from "../../../i18n/t";
+import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
+import { warn } from "../../../utils/log";
 
 export const TransferInstructions = (params: {
     instructions: ReturnType<typeof parseTransactionInstructions>;

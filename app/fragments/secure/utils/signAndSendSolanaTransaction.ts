@@ -1,9 +1,9 @@
-import { SolanaClient } from "../../engine/hooks/solana/useSolanaClient";
-import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
-import { ThemeType } from "../../engine/state/theme";
+import { SolanaClient } from "../../../engine/hooks/solana/useSolanaClient";
+import { AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
+import { ThemeType } from "../../../engine/state/theme";
 import { Keypair, Transaction } from "@solana/web3.js";
-import { PendingSolanaTransaction, PendingTransactionStatus } from "../../engine/state/pending";
-import { parseTransactionInstructions } from "./parseInstructions";
+import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
+import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
 
 type SignAndSendSolanaTransactionParams = {
     solanaClient: SolanaClient,

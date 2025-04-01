@@ -1,7 +1,7 @@
 import { Platform, ScrollView, View, Text, Pressable, Alert } from "react-native";
 import { fragment } from "../../../fragment";
 import { useParams } from "../../../utils/useParams";
-import { SolanaOrder } from "../../secure/ops/Order"
+import { SolanaOrder } from "../ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useSolanaClient, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana } from "../../../engine/hooks";
@@ -14,7 +14,7 @@ import { useCallback } from "react";
 import { copyText } from "../../../utils/copyText";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { RoundButton } from "../../../components/RoundButton";
-import { sendSolanaOrder } from "../../../utils/solana/sendSolanaTransaction";
+import { sendSolanaOrder } from "../utils/sendSolanaTransaction";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressInputAvatar } from "../../../components/address/AddressInputAvatar";
 import { avatarHash } from "../../../utils/avatarHash";
@@ -24,7 +24,7 @@ import { fromNano } from "@ton/core";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { Message, Transaction } from "@solana/web3.js";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
-import { TransferInstructions } from "./components/TransferInstructions";
+import { TransferInstructions } from "../components/TransferInstructions";
 
 type SolanaOrderTransferParams = {
     type: 'order';

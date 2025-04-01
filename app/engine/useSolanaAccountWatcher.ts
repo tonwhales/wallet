@@ -3,7 +3,6 @@ import { PublicKey } from "@solana/web3.js";
 import { useAppVisible, useNetwork, useSolanaSelectedAccount } from "./hooks";
 import { queryClient, whalesConnectEndpoint } from "./clients";
 import { createLogger, warn } from "../utils/log";
-import EventSource, { MessageEvent } from 'react-native-sse';
 import { Queries } from "./queries";
 
 const logger = createLogger('solana-account-watcher');
@@ -14,62 +13,88 @@ export function useSolanaAccountWatcher() {
     const { isTestnet } = useNetwork();
     const appStateVisible = useAppVisible();
 
+    const websocketRef = useRef<WebSocket | null>(null);
     const sessionTimeout = useRef<NodeJS.Timeout | null>(null);
 
     const isInactive = appStateVisible !== 'active' && appStateVisible !== 'inactive';
+
     useEffect(() => {
         if (!account || isInactive) {
             return;
         }
 
         const address = new PublicKey(account);
-
         const network = isTestnet ? 'devnet' : 'mainnet';
-        const url = `${whalesConnectEndpoint}/solana/account/${address}/${network}`;
 
-        let watcher: EventSource | null = new EventSource(url);
-        watcher.addEventListener('message', (event) => {
-            logger.log('sse new event: ' + event);
-            queryClient.invalidateQueries({
-                predicate: (query) => {
-                    const base = Queries.SolanaAccount(address.toString(), network).All();
-                    if (
-                        query.queryKey.length === base.length && query.queryKey.every((value, index) => value === base[index])
-                        && query.queryKey[3] !== 'transactions'
-                    ) {
-                        return true;
-                    }
-                    return false;
+        const wsEndpoint = whalesConnectEndpoint.replace('https://', 'wss://').replace('http://', 'ws://');
+        const wsUrl = `${wsEndpoint}/solana/${network}/account/${address}/ws`;
+
+        logger.log(`Opening WebSocket connection to: ${wsUrl}`);
+
+        const ws = new WebSocket(wsUrl);
+        websocketRef.current = ws;
+
+        ws.onopen = () => {
+            logger.log('WebSocket connection opened');
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            // ignore heartbeat
+            if (data.event === 'message') {
+                const result = data.data.result;
+                const slot = result.context.slot;
+                // const lamports = result.value.lamports;
+                // const owner = result.value.owner;
+                // const executable = result.value.executable;
+                // const rentEpoch = result.value.rentEpoch;
+
+                if (!slot) {
+                    return;
                 }
-            });
 
-            queryClient.invalidateQueries({
-                predicate: (query) => {
-                    const base = Queries.SolanaAccount(address.toString(), network).All();
-                    if (
-                        query.queryKey.length === base.length && query.queryKey.every((value, index) => value === base[index])
-                        && query.queryKey[3] === 'transactions'
-                    ) {
-                        return true;
+                logger.log(`[sol] account ${address.toString()} updated at slot ${slot}`);
+
+                queryClient.invalidateQueries({
+                    predicate: (query) => {
+                        const base = Queries.SolanaAccount(address.toString(), network).All();
+                        if (
+                            query.queryKey.length === base.length &&
+                            query.queryKey.every((value, index) => value === base[index]) &&
+                            query.queryKey[3] !== 'transactions'
+                        ) {
+                            return true;
+                        }
+                        return false;
                     }
-                    return false;
-                },
-                refetchPage: (last, index, allPages) => index == 0,
-            });
-        });
+                });
 
-        watcher.addEventListener('open', () => {
-            logger.log('sse connect: opened');
-        });
+                queryClient.invalidateQueries({
+                    predicate: (query) => {
+                        const base = Queries.SolanaAccount(address.toString(), network).All();
+                        if (
+                            query.queryKey.length === base.length &&
+                            query.queryKey.every((value, index) => value === base[index]) &&
+                            query.queryKey[3] === 'transactions'
+                        ) {
+                            return true;
+                        }
+                        return false;
+                    },
+                    refetchPage: (last, index, allPages) => index === 0,
+                });
+            }
+        };
 
-        watcher.addEventListener('close', () => {
-            logger.log('sse connect: closed');
-        });
+        ws.onclose = () => {
+            logger.log('WebSocket connection closed');
+        };
 
-        watcher.addEventListener('error', (event) => {
-            warn('sse connect: error' + JSON.stringify(event));
-            // set new session to force close connection & reconnect on error
-            if (session < 1000) { // limit to 1000 reconnects (to avoid infinite loop)
+        ws.onerror = (error) => {
+            warn('WebSocket error: ' + JSON.stringify(error));
+
+            if (session < 1000) {
                 if (sessionTimeout.current) {
                     return;
                 }
@@ -77,7 +102,7 @@ export function useSolanaAccountWatcher() {
                     setSession(session + 1);
                 }, 5000);
             }
-        });
+        };
 
         return () => {
             if (sessionTimeout.current) {
@@ -85,12 +110,10 @@ export function useSolanaAccountWatcher() {
                 sessionTimeout.current = null;
             }
 
-            if (watcher) {
-                watcher.removeAllEventListeners();
-                watcher.close();
-                watcher = null;
-
-                logger.log('sse close');
+            if (websocketRef.current && websocketRef.current.readyState !== WebSocket.CLOSED) {
+                websocketRef.current.close();
+                websocketRef.current = null;
+                logger.log('WebSocket connection closed on cleanup');
             }
         };
     }, [account, isTestnet, isInactive, session]);

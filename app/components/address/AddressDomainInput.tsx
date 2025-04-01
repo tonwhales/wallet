@@ -185,6 +185,7 @@ export const AddressDomainInput = memo(forwardRef(({
     theme,
     isTestnet,
     navigation,
+    solanaAddress,
 }: {
     acc: Address,
     onFocus?: (index: number) => void,
@@ -204,6 +205,7 @@ export const AddressDomainInput = memo(forwardRef(({
     theme: ThemeType,
     isTestnet: boolean,
     navigation: TypedNavigation,
+    solanaAddress?: string,
 }, ref: ForwardedRef<AddressDomainInputRef>) => {
     const client = useClient4(isTestnet);
     const netConfig = useConfig();
@@ -391,9 +393,10 @@ export const AddressDomainInput = memo(forwardRef(({
     }, [valueNotEmpty]);
 
     const openAddressBook = () => {
-        navigation.navigate('AddressBook', {
+        navigation.navigateAddressBook({
             account: acc.toString({ testOnly: isTestnet }),
-            onSelected: onSearchItemSelected
+            onSelected: onSearchItemSelected,
+            solanaAddress: solanaAddress
         });
     };
 

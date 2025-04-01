@@ -46,15 +46,30 @@ export const accountsListPublicSchema = z.union([
   }),
 ]);
 
-export async function fetchAccountsPublic(address: string | Address, isTestnet: boolean) {
+export async function fetchAccountsPublic({ address, solanaAddress, isTestnet }: { address: string | Address, isTestnet: boolean, solanaAddress?: string }) {
   const endpoint = holdersEndpoint(isTestnet);
+  const addressString = (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address;
+  const body = solanaAddress ? {
+    walletKind: 'tonhub',
+    wallets: [
+      {
+        network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
+        address: addressString
+      },
+      {
+        network: 'solana',
+        address: solanaAddress
+      }
+    ]
+  } : {
+    walletKind: 'tonhub',
+    network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
+    address: addressString
+  };
+
   const res = await axios.post(
     `https://${endpoint}/v2/public/accounts`,
-    {
-      walletKind: 'tonhub',
-      network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
-      address: (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address
-    },
+    body,
     {
       headers: {
         "Content-Type": "application/json",

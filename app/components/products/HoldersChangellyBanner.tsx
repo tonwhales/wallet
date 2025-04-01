@@ -15,11 +15,11 @@ import { HoldersAppParams, HoldersAppParamsType } from "../../fragments/holders/
 
 const bannerId = 'holders-changelly-banner';
 
-export const HoldersChangellyBanner = memo(({ address }: { address: Address }) => {
+export const HoldersChangellyBanner = memo(({ address, solanaAddress }: { address: Address, solanaAddress?: string }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const accounts = useHoldersAccounts(address).data?.accounts ?? [];
+    const accounts = useHoldersAccounts(address, solanaAddress).data?.accounts ?? [];
     const holdersAccStatus = useHoldersAccountStatus(address).data;
     const dimentions = useWindowDimensions();
     const hiddenBanners = useHiddenBanners();

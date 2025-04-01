@@ -108,7 +108,7 @@ import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilte
 import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragment';
 import { SolanaSimpleTransferFragment } from './fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 import { TransferFragment } from './fragments/secure/transfer/TransferFragment';
-import { SolanaTransferFragment } from './fragments/solana/transfer/SolanaTransferFragment';
+import { SolanaTransferFragment } from './fragments/secure/transfer/SolanaTransferFragment';
 import { useSolanaAccountWatcher } from './engine/useSolanaAccountWatcher';
 import { SolanaTransactionPreviewFragment } from './fragments/solana/transaction/SolanaTransactionPreviewFragment';
 

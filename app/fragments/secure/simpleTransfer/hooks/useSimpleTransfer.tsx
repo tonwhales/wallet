@@ -4,7 +4,7 @@ import { t } from '../../../../i18n/t';
 import { KnownWallets } from '../../../../secure/KnownWallets';
 import { useLinkNavigator } from "../../../../useLinkNavigator";
 import { formatCurrency, formatInputAmount } from '../../../../utils/formatCurrency';
-import { useAccountLite, useJetton, useNetwork, usePrice, useSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
+import { useAccountLite, useJetton, useNetwork, usePrice, useSelectedAccount, useSolanaSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../../../utils/withDecimals';
 import { fromNano, Cell, Address, toNano } from '@ton/core';
 import { useWalletVersion } from '../../../../engine/hooks/useWalletVersion';
@@ -58,6 +58,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const knownWallets = KnownWallets(network.isTestnet);
     const isLedger = route.name === 'LedgerSimpleTransfer';
     const acc = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const [price, currency] = usePrice();
     const gaslessConfig = useGaslessConfig();
     const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
@@ -69,7 +70,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const address = isLedger ? ledgerAddress! : acc!.address;
 
     const accountLite = useAccountLite(address);
-    const holdersAccounts = useHoldersAccountTrargets(address!);
+    const holdersAccounts = useHoldersAccountTrargets(address!, solanaAddress);
 
     const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
         {

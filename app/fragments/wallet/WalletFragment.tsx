@@ -10,7 +10,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useSyncState, useTheme, useWalletCardLayoutHelper } from '../../engine/hooks';
+import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSyncState, useTheme, useWalletCardLayoutHelper } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { SelectedAccount } from '../../engine/types';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
@@ -35,7 +35,7 @@ import { WalletCard } from './views/WalletCard';
 import { SolanaTokenWalletFragment } from './SolanaTokenWalletFragment';
 import { SolanaWalletFragment } from './SolanaWalletFragment';
 
-const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount }) => {
+const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & { solanaAddress: string } }) => {
     const network = useNetwork();
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -174,6 +174,7 @@ const skeleton = (
 export const WalletFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
 
     useEffect(() => {
         if (!selectedAcc) {
@@ -200,9 +201,9 @@ export const WalletFragment = fragment(() => {
                 interactive={selectedAcc !== undefined}
                 screenName={'Wallet'}
             >
-                {!selectedAcc ? (skeleton) : (
+                {(!selectedAcc || !solanaAddress) ? (skeleton) : (
                     <Suspense fallback={skeleton}>
-                        <WalletComponent selectedAcc={selectedAcc} />
+                        <WalletComponent selectedAcc={{ ...selectedAcc, solanaAddress }} />
                     </Suspense>
                 )}
             </PerformanceMeasureView>

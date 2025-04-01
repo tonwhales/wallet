@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo } from "react"
 import { InteractionManager, View } from "react-native";
-import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
 import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
 import { HoldersAccounts } from "./HoldersAccounts";
 import { HoldersCards } from "./HoldersCards";
@@ -17,8 +17,8 @@ export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { h
     const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
     const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address!;
-    const accounts = useHoldersAccounts(address).data?.accounts;
-    const prePaid = useHoldersAccounts(address).data?.prepaidCards;
+    const solanaAddress = useSolanaSelectedAccount()!;
+    const { accounts, prepaidCards } = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data ?? {};
     const [isScreenProtectorEnabled] = useScreenProtectorState();
 
     const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address);
@@ -31,10 +31,10 @@ export const HoldersProductComponent = memo(({ holdersAccStatus, isLedger }: { h
     }, [hiddenAccounts, accounts]);
 
     const visiblePrepaidList = useMemo(() => {
-        return (prePaid ?? []).filter((item) => {
+        return (prepaidCards ?? []).filter((item) => {
             return !hiddenPrepaidCards.includes(item.id);
         });
-    }, [hiddenPrepaidCards, prePaid]);
+    }, [hiddenPrepaidCards, prepaidCards]);
 
     const hasAccounts = visibleAccountsList?.length > 0;
     const hasPrepaid = visiblePrepaidList?.length > 0;

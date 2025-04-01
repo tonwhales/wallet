@@ -32,7 +32,7 @@ import { TonTransaction } from '../engine/types';
 import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
 import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
 import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
-import { SolanaTransferParams } from '../fragments/solana/transfer/SolanaTransferFragment';
+import { SolanaTransferParams } from '../fragments/secure/transfer/SolanaTransferFragment';
 import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
 import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
 import { PendingSolanaTransaction } from '../engine/state/pending';

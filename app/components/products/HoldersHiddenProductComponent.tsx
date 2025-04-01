@@ -3,7 +3,7 @@ import { View, Pressable, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { HoldersAccountItem, HoldersItemContentType } from "./HoldersAccountItem";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
-import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { useHoldersHiddenPrepaidCards } from "../../engine/hooks/holders/useHoldersHiddenPrepaidCards";
 import { HoldersPrepaidCard } from "./HoldersPrepaidCard";
@@ -24,11 +24,11 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus, isLedger 
     const theme = useTheme();
     const network = useNetwork();
     const selected = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
     const address = isLedger ? ledgerAddress : selected!.address;
-    const accounts = useHoldersAccounts(address).data?.accounts;
-    const prePaid = useHoldersAccounts(address).data?.prepaidCards;
+    const { accounts, prepaidCards } = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data ?? {};
 
     const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address!);
     const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address!);
@@ -40,10 +40,10 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus, isLedger 
     }, [hiddenAccounts, accounts]);
 
     const hiddenPrepaidList = useMemo(() => {
-        return (prePaid ?? []).filter((item) => {
+        return (prepaidCards ?? []).filter((item) => {
             return hiddenPrepaidCards.includes(item.id);
         });
-    }, [hiddenPrepaidCards, prePaid]);
+    }, [hiddenPrepaidCards, prepaidCards]);
 
     const [collapsedAccounts, setCollapsedAccounts] = useState(true);
     const [collapsedPrepaid, setCollapsedPrepaid] = useState(true);

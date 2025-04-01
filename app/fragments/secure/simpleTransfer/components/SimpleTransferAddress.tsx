@@ -1,6 +1,6 @@
 import { Dispatch, forwardRef, memo, SetStateAction, useImperativeHandle, useRef } from 'react';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
-import { useNetwork, useSelectedAccount } from '../../../../engine/hooks';
+import { useNetwork, useSelectedAccount, useSolanaSelectedAccount } from '../../../../engine/hooks';
 import { TransferAddressInput } from '../../../../components/address/TransferAddressInput';
 import { Address } from '@ton/core';
 import { SimpleTransferParams } from '../SimpleTransferFragment';
@@ -38,6 +38,7 @@ export const SimpleTransferAddress = memo(forwardRef(({
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const acc = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const innerRef = useRef(null)
     useImperativeHandle(ref, () => innerRef.current)
 
@@ -46,6 +47,7 @@ export const SimpleTransferAddress = memo(forwardRef(({
             index={0}
             ref={innerRef}
             acc={ledgerAddress ?? acc!.address}
+            solanaAddress={solanaAddress}
             initTarget={params?.target || ''}
             domain={domain}
             isTestnet={network.isTestnet}

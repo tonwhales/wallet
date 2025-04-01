@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from "react";
 import { Pressable, View, useWindowDimensions, Text } from "react-native";
-import { useTheme, useSelectedAccount, useHoldersAccountStatus, useNetwork, useHoldersAccounts } from "../../engine/hooks";
+import { useTheme, useSelectedAccount, useHoldersAccountStatus, useNetwork, useHoldersAccounts, useSolanaSelectedAccount } from "../../engine/hooks";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Typography } from "../styles";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
@@ -23,12 +23,13 @@ export const IbanBanner = memo(({ isLedger }: { isLedger?: boolean }) => {
     const hiddenBanners = useHiddenBanners();
     const markBannerHidden = useMarkBannerHidden();
     const selected = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
     const address = isLedger ? ledgerAddress : selected?.address;
     const url = holdersUrl(isTestnet);
     const holdersAccStatus = useHoldersAccountStatus(address).data;
-    const accounts = useHoldersAccounts(address).data?.accounts ?? [];
+    const accounts = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data?.accounts ?? [];
 
     const { data: ibanPromo } = useHoldersIban(address);
 

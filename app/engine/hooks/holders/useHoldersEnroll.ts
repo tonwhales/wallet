@@ -26,6 +26,7 @@ export type HoldersEnrollParams = {
         secretKeyEnc: Buffer;
         utilityKey: Buffer;
     },
+    solanaAddress?: string | undefined,
     domain: string,
     authContext: AuthWalletKeysType,
     authStyle?: AuthParams | undefined,
@@ -53,7 +54,7 @@ export enum HoldersEnrollErrorType {
 
 export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType } | { type: 'success' };
 
-export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: HoldersEnrollParams) {
+export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solanaAddress }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
     const version = useWalletVersion();
     const saveAppConnection = useSaveAppConnection();
@@ -234,7 +235,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
         //
 
         try {
-            await onHoldersEnroll(acc.address.toString({ testOnly: isTestnet }), isTestnet);
+            await onHoldersEnroll({ account: acc.address.toString({ testOnly: isTestnet }), isTestnet, solanaAddress });
         } catch {
             console.warn(HoldersEnrollErrorType.AfterEnrollFailed);
         }

@@ -169,7 +169,7 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
             })();
 
             try {
-                await onHoldersEnroll(addressString!, isTestnet);
+                await onHoldersEnroll({ account: addressString!, isTestnet });
             } catch {
                 console.warn(HoldersEnrollErrorType.AfterEnrollFailed);
             }

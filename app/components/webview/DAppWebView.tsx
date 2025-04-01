@@ -347,7 +347,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             id = parsed.id;
             data = parsed.data;
         } catch (e) {
-            warn(e);
+            warn(`handleWebViewMessage error: ${e}`);
             return;
         }
 

@@ -29,7 +29,7 @@ export function useSolanaAccountWatcher() {
 
         let watcher: EventSource | null = new EventSource(url);
         watcher.addEventListener('message', (event) => {
-            logger.log('sse new event: ' + (event as MessageEvent).type);
+            logger.log('sse new event: ' + event);
             queryClient.invalidateQueries({
                 predicate: (query) => {
                     const base = Queries.SolanaAccount(address.toString(), network).All();

@@ -465,7 +465,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
     } catch (e) {
         // Ignore
-        warn(e);
+        warn(`resolveUrl error: ${e}`);
     }
 
     return null;

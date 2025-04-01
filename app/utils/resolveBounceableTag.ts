@@ -7,8 +7,8 @@ export async function resolveBounceableTag(address: Address, options: { testOnly
         const contractInfo = await fetchContractInfo(address.toString({ testOnly: options.testOnly }));
         const bounceableContract = contractInfo?.kind !== 'wallet';
         return bounceableContract ? true : options.bounceableFormat;
-    } catch (error) {
-        warn(error);
+    } catch (e) {
+        warn(`resolveBounceableTag error: ${e}`);
         return true;
     }
 }

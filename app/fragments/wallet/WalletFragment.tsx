@@ -39,7 +39,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
     const network = useNetwork();
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const address = selectedAcc.address;
+    const { address, solanaAddress } = selectedAcc;
     const addressString = address.toString({ testOnly: network.isTestnet });
     const bottomBarHeight = useBottomTabBarHeight();
     const syncState = useSyncState(addressString);
@@ -92,6 +92,13 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
                     return true;
                 }
 
+                if (
+                    query.queryKey[0] === 'solana'
+                    && query.queryKey[1] === solanaAddress
+                ) {
+                    return true;
+                }
+
                 const token = (
                     !!holdersStatus &&
                     holdersStatus.state === HoldersUserState.Ok
@@ -106,7 +113,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
                 return false;
             }
         });
-    }, [network, addressString, holdersStatus, specialJettonWallet]);
+    }, [network, addressString, holdersStatus, specialJettonWallet, solanaAddress]);
 
     useFocusEffect(() => {
         setStatusBarStyle('light');

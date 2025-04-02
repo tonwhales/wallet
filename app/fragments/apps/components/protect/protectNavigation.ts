@@ -36,5 +36,20 @@ export function protectNavigation(url: string, app: string) {
         return true;
     }
 
+    if (
+        pageDomain === 'holders.io'
+        || pageDomain.endsWith('.holders.io')
+    ) {
+        return true;
+    }
+
+    // To account for intercom articles redirects
+    if (
+        pageDomain === 'intercom-sheets.com'
+        || pageDomain.endsWith('.intercom-sheets.com')
+    ) {
+        return true;
+    }
+
     return false;
 }

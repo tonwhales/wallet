@@ -121,7 +121,8 @@ export const WalletActionButton = memo(({
                             amount: res.amount,
                             stateInit: res.stateInit,
                             asset: null,
-                            callback: null
+                            callback: null,
+                            unknownDecimals: true,
                         }, { ledger: true });
                     }
                     return;
@@ -133,7 +134,8 @@ export const WalletActionButton = memo(({
                     amount: res.amount,
                     stateInit: null,
                     asset: { type: 'jetton', master: res.jettonMaster },
-                    callback: null
+                    callback: null,
+                    unknownDecimals: true,
                 }, { ledger: true });
             }
         } catch {

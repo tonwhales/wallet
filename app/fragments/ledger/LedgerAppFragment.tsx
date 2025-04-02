@@ -100,12 +100,12 @@ export const LedgerAppFragment = fragment(() => {
                     component={LedgerNavigationStack}
                 />
                 <Tab.Screen
-                    options={{ title: t('home.history') }}
+                    options={{ title: t('home.history'), unmountOnBlur: !isWalletMode }}
                     name={'LedgerTransactions'}
                     component={isWalletMode ? TransactionsFragment : HoldersTransactionsFragment}
                 />
                 <Tab.Screen
-                    options={{ title: t('home.settings') }}
+                    options={{ title: t('home.settings'), unmountOnBlur: !isWalletMode }}
                     name={'LedgerSettings'}
                     component={isWalletMode ? SettingsFragment : HoldersSettings}
                 />

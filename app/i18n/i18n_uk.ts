@@ -1162,7 +1162,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "locationServicesUnauthorized": "Служби місцезнаходження не авторизовані",
             "bluetoothScanFailed": "Сканування Bluetooth не вдалося",
             "unsafeTransfer": "Будь ласка, дозвольте blind sign у додатку TON Ledger",
-             "userCanceled": "Відхилено на Ledger"
+            "userCanceled": "Відхилено на Ledger",
+            "updateApp": "Будь ласка, оновіть додаток TON на вашому Ledger до останньої версії"
         },
         "moreAbout": "Детальніше про Ledger",
         "verifyAddress": {

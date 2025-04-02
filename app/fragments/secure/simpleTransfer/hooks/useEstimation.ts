@@ -28,6 +28,7 @@ type Options = {
         stateInit?: string | null;
     } | null;
     estimationRef: MutableRefObject<bigint | null>;
+    extraCurrencyId?: number | null;
 }
 
 export const useEstimation = (options: Options) => {
@@ -40,6 +41,7 @@ export const useEstimation = (options: Options) => {
         jettonPayload,
         estimationRef,
         commentString,
+        extraCurrencyId
     } = options
 
     const ledgerContext = useLedgerTransport();
@@ -92,12 +94,17 @@ export const useEstimation = (options: Options) => {
 
                     const body = comment(commentString);
 
+                    const extraCurrency = extraCurrencyId ? {
+                        [extraCurrencyId]: 0n
+                    } : null;
+
                     intMessage = internal({
                         to: address,
                         value: 0n,
                         init: internalStateInit,
                         bounce: false,
                         body,
+                        extracurrency: extraCurrency
                     });
 
                     const state = await backoff('transfer', () => client.getAccount(block.last.seqno, address));
@@ -116,6 +123,7 @@ export const useEstimation = (options: Options) => {
                             init: internalStateInit,
                             bounce: false,
                             body,
+                            extracurrency: order.messages[0].extraCurrency
                         });
 
                         const state = await backoff('transfer', () => client.getAccount(block.last.seqno, Address.parse(order.messages[0].target)));
@@ -131,12 +139,17 @@ export const useEstimation = (options: Options) => {
 
                         const body = order.payload ? resolveLedgerPayload(order.payload) : comment(commentString);
 
+                        const extraCurrency = extraCurrencyId ? {
+                            [extraCurrencyId]: 0n
+                        } : null;
+
                         intMessage = internal({
                             to: address,
                             value: 0n,
                             init: internalStateInit,
                             bounce: false,
                             body,
+                            extracurrency: extraCurrency
                         });
 
                         const state = await backoff('transfer', () => client.getAccount(block.last.seqno, address));
@@ -190,7 +203,7 @@ export const useEstimation = (options: Options) => {
         return () => {
             ended = true;
         }
-    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion, supportsGaslessTransfer, jettonPayload?.customPayload, jettonPayload?.stateInit]);
+    }, [order, accountLite, client, config, commentString, ledgerAddress, walletVersion, supportsGaslessTransfer, jettonPayload?.customPayload, jettonPayload?.stateInit, extraCurrencyId]);
 
     return estimation
 }

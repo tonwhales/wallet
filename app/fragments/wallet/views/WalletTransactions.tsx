@@ -119,7 +119,7 @@ export const WalletTransactions = memo((props: {
         const bounceable = bounceableFormat ? true : opAddr.isBounceable;
         const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
 
-        let jetton = null;
+        let jetton: Address | undefined = undefined;
 
         if (item.kind === 'token') {
             const queryCache = queryClient.getQueryCache();
@@ -152,7 +152,7 @@ export const WalletTransactions = memo((props: {
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
             amount: amount < 0n ? -amount : amount,
             stateInit: null,
-            jetton: jetton,
+            asset: { type: 'jetton', master: jetton },
             callback: null
         });
     }, [navigation, isTestnet, bounceableFormat]);

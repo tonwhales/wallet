@@ -11,16 +11,21 @@ import { Toaster } from "../../../components/toast/ToastProvider";
 import { getCurrentAddress } from "../../../storage/appState";
 import { t } from "../../../i18n/t";
 
+export type OrderMessage = {
+  amount: bigint,
+  target: string,
+  amountAll: boolean,
+  payload: Cell | null,
+  stateInit: Cell | null,
+  extraCurrency?: {
+    [k: number]: bigint;
+  }
+}
+
 export type PreparedConnectRequest = {
   request: SendTransactionRequest,
   sessionCrypto: SessionCrypto,
-  messages: {
-    amount: bigint,
-    target: string,
-    amountAll: boolean,
-    payload: Cell | null,
-    stateInit: Cell | null
-  }[],
+  messages: OrderMessage[],
   app: ConnectedApp | null,
   network?: CHAIN,
   from?: string
@@ -133,13 +138,16 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
 
     const messages = [];
     for (const message of params.messages) {
+      const extraCurrency = message.extra_currency ? Object.fromEntries(Object.entries(message.extra_currency).map(([key, value]) => [key, BigInt(value)])) : undefined;
+
       try {
         const msg = {
           amount: toNano(fromNano(message.amount)),
           target: message.address,
           amountAll: false,
           payload: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0] : null,
-          stateInit: message.stateInit ? Cell.fromBoc(Buffer.from(message.stateInit, 'base64'))[0] : null
+          stateInit: message.stateInit ? Cell.fromBoc(Buffer.from(message.stateInit, 'base64'))[0] : null,
+          extraCurrency
         }
         messages.push(msg);
       } catch (error) {

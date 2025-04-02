@@ -338,18 +338,17 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
             return;
         }
 
-        navigation.navigate(
-            props.ledger ? 'LedgerSimpleTransfer' : 'SimpleTransfer',
-            {
-                amount: null,
-                target: null,
-                comment: null,
-                jetton: hint.walletAddress.address,
-                stateInit: null,
-                job: null,
-                callback: null
-            }
-        );
+        navigation.navigateSimpleTransfer({
+            amount: null,
+            comment: null,
+            asset: {
+                type: 'jetton',
+                master: Address.parse(hint.jetton.address),
+                wallet: Address.parse(hint.walletAddress.address)
+            },
+            stateInit: null,
+            callback: null
+        }, { ledger: props.ledger });
     }, [hint, props.ledger, props.selectParams?.onSelect]);
 
     if (!hint) {

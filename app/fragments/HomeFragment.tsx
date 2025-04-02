@@ -16,7 +16,7 @@ import DeviceInfo from 'react-native-device-info';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
-import { useConnectPendingRequests, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
+import { useConnectPendingRequests, useLinksSubscription, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../components/styles';
@@ -50,7 +50,6 @@ export type HomeFragmentProps = {
 };
 
 export const HomeFragment = fragment(() => {
-    const network = useNetwork();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const { navigateTo } = useParams<HomeFragmentProps>();
@@ -58,34 +57,11 @@ export const HomeFragment = fragment(() => {
     const [tonconnectRequests] = useConnectPendingRequests();
     const selected = useSelectedAccount();
     const [isWalletMode] = useAppMode(selected?.address);
-    const linkNavigator = useLinkNavigator(
-        network.isTestnet,
-        { marginBottom: Platform.select({ ios: 32 + 64, android: 16 }) },
-        TonConnectAuthType.Link
-    );
 
     const [curve, setCurve] = useState<number | undefined>(undefined);
 
     // Subscribe for links
-    useEffect(() => {
-        return CachedLinking.setListener((link: string) => {
-            // persist link in memory to reuse after app auth
-            if (shouldLockApp()) {
-                return link;
-            }
-
-            let resolved = resolveUrl(link, network.isTestnet);
-            if (resolved) {
-                try {
-                    SplashScreen.hideAsync();
-                } catch (e) {
-                    // Ignore
-                }
-                linkNavigator(resolved);
-            }
-            return null;
-        });
-    }, []);
+    useLinksSubscription();
 
     const onBlur = useCallback(() => {
         // Setting backdrop screens curve to device curve if we are navigating 
@@ -210,7 +186,7 @@ export const HomeFragment = fragment(() => {
                         component={WalletNavigationStack}
                     />
                     <Tab.Screen
-                        options={{ title: t('home.history') }}
+                        options={{ title: t('home.history'), unmountOnBlur: !isWalletMode }}
                         name={'Transactions'}
                         component={isWalletMode ? TransactionsFragment : HoldersTransactionsFragment}
                     />
@@ -222,7 +198,7 @@ export const HomeFragment = fragment(() => {
                         />
                     )}
                     <Tab.Screen
-                        options={{ title: t('home.settings') }}
+                        options={{ title: t('home.settings'), unmountOnBlur: !isWalletMode }}
                         name={'More'}
                         component={isWalletMode ? SettingsFragment : HoldersSettings}
                     />

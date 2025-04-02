@@ -192,7 +192,7 @@ export const JettonWalletTransactions = memo((props: {
             comment: comment,
             amount: amount < 0n ? -amount : amount,
             stateInit: null,
-            jetton: jetton.wallet,
+            asset: { type: 'jetton', master: jetton.master, wallet: jetton.wallet },
             callback: null
         });
     }, [navigation, isTestnet, bounceableFormat, jetton]);

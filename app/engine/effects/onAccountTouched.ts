@@ -62,14 +62,11 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
 
     queryClient.invalidateQueries(Queries.Account(address).All());
     queryClient.invalidateQueries(Queries.HintsFull(address));
+    queryClient.invalidateQueries(Queries.HintsExtra(address));
     queryClient.invalidateQueries({
         queryKey: Queries.TransactionsV2(address, !!token),
         refetchPage: (last, index, allPages) => index == 0,
     });
-    // queryClient.invalidateQueries({
-    //     queryKey: Queries.Transactions(address),
-    //     refetchPage: (last, index, allPages) => index == 0,
-    // });
     queryClient.invalidateQueries({
         predicate: (query) => {
             const queryKey = query.queryKey as string[];

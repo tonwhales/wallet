@@ -117,7 +117,7 @@ export const WalletActions = memo(({
                     />
                 )}
                 <WalletActionButton
-                    action={{ type: WalletActionType.Send, jetton: jetton?.wallet }}
+                    action={{ type: WalletActionType.Send, jettonWallet: jetton?.wallet }}
                     navigation={navigation}
                     theme={theme}
                     isLedger={isLedger}

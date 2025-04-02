@@ -5,7 +5,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { t } from "../../i18n/t";
 import { View, Platform, RefreshControl } from "react-native";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
-import { useHoldersAccountStatus, useNetwork, useSyncState, useTheme, useWalletCardLayoutHelper } from "../../engine/hooks";
+import { useHoldersAccountStatus, useLinksSubscription, useNetwork, useSyncState, useTheme, useWalletCardLayoutHelper } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
@@ -54,6 +54,8 @@ export const LedgerHomeFragment = fragment(() => {
     const [isWalletMode] = useAppMode(address, { isLedger: true });
     const [isRefreshing, setIsRefreshing] = useState(false);
 
+    // Subscribe for links
+    useLinksSubscription({ isLedger: true });
 
     useEffect(() => {
         if (syncState !== 'updating') {

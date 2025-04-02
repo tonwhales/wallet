@@ -102,7 +102,7 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                     amount: src.value,
                     stateInit: src.stateInit ? src.stateInit : null,
                     comment: src.text ? src.text : null,
-                    jetton: null,
+                    asset: null,
                     callback: callback!,
                     back: 1,
                     app: {

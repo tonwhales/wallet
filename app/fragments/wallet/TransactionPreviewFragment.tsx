@@ -41,6 +41,9 @@ import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAv
 import { isTxSPAM } from "../../utils/spam/isTxSPAM";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 import { TonTransaction } from "../../engine/types";
+import { extraCurrencyFromTransaction } from "../../utils/extraCurrencyFromTransaction";
+import { useExtraCurrencyMap } from "../../engine/hooks/jettons/useExtraCurrencyMap";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -88,6 +91,14 @@ const TransactionPreview = () => {
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
     const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
+    const amount = BigInt(item.amount);
+    const isOutgoing = kind === 'out';
+    const extraCurrency = extraCurrencyFromTransaction(tx);
+    const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, address?.toString({ testOnly: isTestnet }));
+    const extraCurrencies = Object.entries(extraCurrencyMap ?? {}).map(([, extraCurrency]) => {
+        const amount = extraCurrency.amount;
+        return `-${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${extraCurrency.preview.symbol}`;
+    });
 
     const preparedMessages = usePeparedMessages(messages, isTestnet);
     const [walletsSettings] = useWalletsSettings();
@@ -123,7 +134,7 @@ const TransactionPreview = () => {
         wallet: resolvedAddressString,
     });
     const jettonMaster = jetton?.master ?? null;
-    const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : null;
+    const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : undefined;
     const targetContract = useContractInfo(opAddress);
 
     const isTargetBounceable = targetContract?.kind === 'wallet'
@@ -131,8 +142,8 @@ const TransactionPreview = () => {
         : parsedOpAddr.isBounceable
 
     const repeatParams = useMemo(() => {
-        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals ?? 9);
-    }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent?.decimals]);
+        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent);
+    }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent]);
 
     let op: string;
 
@@ -267,10 +278,10 @@ const TransactionPreview = () => {
         value: item.amount,
         precision: 9,
         decimals,
-        forcePrecision: kind === 'out'
+        forcePrecision: isOutgoing
     });
 
-    const amountColor = kind === 'in'
+    const amountColor = !isOutgoing
         ? spam
             ? theme.textPrimary
             : theme.accentGreen
@@ -452,7 +463,7 @@ const TransactionPreview = () => {
                                     );
                                 })}
                             </PerfView>
-                        ) : (
+                        ) : (amount ?
                             <>
                                 <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
                                     <Text
@@ -481,13 +492,26 @@ const TransactionPreview = () => {
                                             paddingLeft: 0
                                         }}
                                         theme={theme}
-                                        prefix={kind === 'in' ? '+' : ''}
+                                        prefix={!isOutgoing ? '+' : ''}
                                         textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
-                                        amount={BigInt(item.amount)}
+                                        amount={amount}
                                     />
                                 )}
                             </>
-                        )
+                            : null)
+                    )}
+                    {!!extraCurrencies && (
+                        extraCurrencies.map((text, index) => (
+                            <Text
+                                key={`extra-currency-${index}`}
+                                minimumFontScale={0.4}
+                                adjustsFontSizeToFit={true}
+                                numberOfLines={1}
+                                style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold27_32]}
+                            >
+                                {text}
+                            </Text>
+                        ))
                     )}
                 </PerfView>
                 {!!holdersOp && (

@@ -10,3 +10,4 @@ export { useAppState } from './useAppState';
 export { useWalletsSettings } from './useWalletsSettings';
 export { useWalletSettings } from './useWalletSettings';
 export { useBounceableWalletFormat } from './useBounceableWalletFormat';
+export { useLinksSubscription } from './useLinksSubscription';

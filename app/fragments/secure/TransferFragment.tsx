@@ -68,6 +68,9 @@ export type OrderMessage = {
     amountAll: boolean,
     payload: Cell | null,
     stateInit: Cell | null,
+    extraCurrency?: {
+        [k: number]: bigint;
+    }
 }
 
 export type TransferEstimate = {

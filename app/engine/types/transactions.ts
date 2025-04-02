@@ -1,9 +1,13 @@
-import { AccountStatus, Address, Cell } from '@ton/core';
+import { AccountStatus, Address, Cell, ExtraCurrency } from '@ton/core';
 import { LocalizedResources } from '../../i18n/schema';
 
 export type StoredAddressExternal = {
     bits: number;
     data: string;
+};
+
+export type ExtraCurrencyT = {
+    [k: number]: string;
 };
 
 export type StoredMessageInfo = {
@@ -18,6 +22,7 @@ export type StoredMessageInfo = {
     createdLt: string;
     fwdFee: string;
     ihrFee: string;
+    extraCurrency?: ExtraCurrencyT;
 } | {
     type: 'external-in';
     dest: string;

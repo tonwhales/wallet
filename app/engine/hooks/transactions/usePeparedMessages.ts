@@ -103,14 +103,19 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean)
                     jettonAmount = BigInt(operation.items[0].amount);
                 }
 
+                let amountString: string = '';
+                if (jettonAmount) {
+                    amountString = `${fromBnWithDecimals(jettonAmount, jettonMaster?.decimals)} ${jettonMaster?.symbol}`;
+                } else if (amount) {
+                    amountString = fromNano(amount) + ' TON';
+                }
+
                 return {
                     type,
                     address,
                     addressString,
                     metadata,
-                    amountString: jettonAmount
-                        ? `${fromBnWithDecimals(jettonAmount, jettonMaster?.decimals)} ${jettonMaster?.symbol}`
-                        : fromNano(amount) + ' TON',
+                    amountString,
                     jettonMaster,
                     amount: jettonAmount ? null : amount,
                     gas,

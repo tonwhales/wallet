@@ -10,3 +10,4 @@ export { useVerifyJetton } from './useVerifyJetton';
 export { useJetton } from './useJetton';
 export { useHintsFull } from './useHintsFull';
 export { useDisplayableJettons } from './useDisplayableJettons';
+export { useExtraCurrencyHints } from './useExtraCurrencyHints';

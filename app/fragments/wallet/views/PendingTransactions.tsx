@@ -19,12 +19,14 @@ export const PendingTransactionsList = memo((
         theme,
         txs,
         style,
-        viewType = 'main'
+        viewType = 'main',
+        owner
     }: {
         theme: ThemeType,
         txs: PendingTransaction[],
         style?: StyleProp<ViewStyle>,
-        viewType?: 'history' | 'main' | 'jetton-history'
+        viewType?: 'history' | 'main' | 'jetton-history',
+        owner: string
     }
 ) => {
     const [bounceableFormat] = useBounceableWalletFormat();
@@ -48,6 +50,7 @@ export const PendingTransactionsList = memo((
                     viewType={viewType}
                     bounceableFormat={bounceableFormat}
                     txTimeout={appConfig.txTimeout}
+                    owner={owner}
                 />
             ))}
         </View>
@@ -135,6 +138,7 @@ export const PendingTransactions = memo(({
                 txs={pendingTxs}
                 viewType={viewType}
                 style={listStyle}
+                owner={addr}
             />
         </View>
     );

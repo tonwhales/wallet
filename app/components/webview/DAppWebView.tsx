@@ -29,6 +29,8 @@ import { WebViewSourceUri } from "react-native-webview/lib/WebViewTypes";
 import { holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { useLocalStorageStatus } from "../../engine/hooks/webView/useLocalStorageStatus";
 import { checkLocalStorageScript } from "./utils/checkLocalStorageScript";
+import { isAllowedDomain, protectNavigation } from "../../fragments/apps/components/protect/protectNavigation";
+import { ScreenHeader } from "../ScreenHeader";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -76,6 +78,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const toaster = useToaster();
     const markRefIdShown = useMarkBannerHidden();
     const [, updateLocalStorageStatus] = useLocalStorageStatus();
+    const [currentUrl, setCurrentUrl] = useState<string | undefined>(undefined);
+    const shouldShowHeaderNavigation = useMemo(() => {
+        if (!currentUrl) {
+            return false;
+        }
+        return isAllowedDomain(extractDomain(currentUrl));
+    }, [currentUrl]);
 
     const [loaded, setLoaded] = useState(false);
 
@@ -180,7 +189,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             if (!parsed?.data?.name) {
                 return;
             }
- 
+
             if (parsed.data.name === 'localStorageStatus') {
                 updateLocalStorageStatus({
                     isAvailable: parsed.data.isAvailable,
@@ -537,6 +546,22 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             // add padding for status bar if content shoudln't be under it
             paddingTop: props.useStatusBar ? undefined : safeArea.top
         }}>
+            {shouldShowHeaderNavigation && (
+                <Animated.View
+                    entering={FadeInDown}
+                    exiting={FadeOutDown}
+                    style={{ height: 88 }}
+                >
+                    <ScreenHeader
+                        style={{ paddingTop: 32, paddingHorizontal: 16 }}
+                        onBackPressed={() => {
+                            if (!!ref) {
+                                (ref as RefObject<WebView>).current?.goBack();
+                            }
+                        }}
+                    />
+                </Animated.View>
+            )}
             <WebView
                 ref={ref}
                 style={[
@@ -573,6 +598,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     }
                 }}
                 onNavigationStateChange={(event: WebViewNavigation) => {
+                    setCurrentUrl(event.url);
                     props.onNavigationStateChange?.(event);
                     // Searching for supported query
                     onNavigation(event.url);

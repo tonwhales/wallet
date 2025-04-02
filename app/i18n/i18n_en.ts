@@ -1163,7 +1163,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bluetoothScanFailed": "Bluetooth scan failed",
             "unsafeTransfer": "Please, allow blind sign in TON Ledger app",
             "userCanceled": "Rejected on Ledger",
-            "updateApp": "Please, update the TON app on your Ledger to the latest version"
+            "updateApp": "Please update the TON app in Ledger Live to the latest version"
         },
         "moreAbout": 'More about Ledger',
         "verifyAddress": {

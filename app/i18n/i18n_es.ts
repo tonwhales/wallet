@@ -1213,7 +1213,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bluetoothScanFailed": "Escaneo de Bluetooth fallido",
             "unsafeTransfer": "Por favor, permite la firma ciega en la aplicación TON Ledger",
             "userCanceled": "Rechazado en Ledger",
-            "updateApp": "Por favor, actualice la aplicación TON en su Ledger a la última versión"
+            "updateApp": "Por favor, actualice la aplicación TON en Ledger Live a la última versión"
         },
         "moreAbout": "Más sobre Ledger",
         "verifyAddress": {

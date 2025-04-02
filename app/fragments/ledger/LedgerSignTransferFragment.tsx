@@ -25,7 +25,7 @@ import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useI
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { fromBnWithDecimals } from '../../utils/withDecimals';
-import { Address, Cell, SendMode, WalletContractV4, beginCell, external, internal, storeMessage, storeMessageRelaxed } from '@ton/ton';
+import { Address, Cell, SendMode, WalletContractV4, beginCell, external, fromNano, internal, storeMessage, storeMessageRelaxed } from '@ton/ton';
 import { estimateFees } from '../../utils/estimateFees';
 import { TransferSingleView } from '../secure/components/TransferSingleView';
 import { RoundButton } from '../../components/RoundButton';
@@ -131,6 +131,20 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const doSend = useCallback(async () => {
         const value: bigint = order.amount;
         const address: Address = target.address;
+
+        // Check amount for gas
+        if (!order.amountAll && account!.balance < order.amount) {
+            const diff = order.amount - account!.balance;
+            const diffString = fromNano(diff);
+            Alert.alert(
+                t('transfer.error.notEnoughGasTitle'),
+                t('transfer.error.notEnoughGasMessage', { diff: diffString }),
+            );
+            if (!!callback) {
+                callback(false, null);
+            }
+            return;
+        }
 
         const contract = await contractFromPublicKey(addr.publicKey, WalletVersions.v4R2, isTestnet);
         const source = WalletContractV4.create({ workchain: 0, publicKey: addr.publicKey });

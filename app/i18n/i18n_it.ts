@@ -232,7 +232,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "ledgerErrorConnectionTitle": "Ledger non è connesso",
             "ledgerErrorConnectionMessage": "Per favore, collega Ledger e riprova",
             "notEnoughGasTitle": "TON insufficienti per coprire la commissione del gas",
-            "notEnoughGasMessage": "Ricarica il tuo portafoglio con TON (almeno {{diff}} TON in più è necessario) e riprova"
+            "notEnoughGasMessage": "Ricarica il tuo portafoglio con TON (almeno {{diff}} TON in più è necessario) e riprova",
         },
         "changeJetton": "Passa a {{symbol}}",
         "sendAll": "Max",
@@ -271,7 +271,20 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "Stai cercando di inviare più token di quelli che possiedi",
         "aboutFees": "Informazioni sulle commissioni",
         "aboutFeesDescription": "Le commissioni per le transazioni sulla blockchain dipendono da diversi fattori, come la congestione della rete, la dimensione della transazione, il prezzo del gas e i parametri di configurazione della blockchain. Maggiore è la domanda di elaborazione delle transazioni sulla blockchain o maggiore è la dimensione della transazione (messaggio/commento), maggiori saranno le commissioni.",
-        "gaslessTransferSwitch": "Paga la commissione del gas in {{symbol}}"
+        "gaslessTransferSwitch": "Paga la commissione del gas in {{symbol}}",
+        "solana": {
+            "error": {
+                "title": "Errore nella transazione Solana",
+                "networkRequestFailed": "Errore di rete, riprova più tardi o contatta l'assistenza",
+                "connectionTimeout": "Timeout della connessione, riprova più tardi o contatta l'assistenza",
+                "connectionRefused": "Connessione rifiutata, riprova più tardi o contatta l'assistenza",
+                "connectionReset": "Connessione reimpostata, riprova più tardi o contatta l'assistenza",
+                "insufficientLamports": "Fondi SOL insufficienti",
+                "insufficientLamportsWithAmount": "Fondi SOL insufficienti, sono necessari {{amount}} in più",
+                "insufficientTokenFunds": "Fondi token insufficienti",
+                "rateLimited": "Stiamo riscontrando una forte domanda, riprova più tardi o contatta l'assistenza"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Verifica telefono",

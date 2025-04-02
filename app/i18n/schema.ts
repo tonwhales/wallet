@@ -273,7 +273,20 @@ export type LocalizationSchema = {
         notEnoughJettonsMessage: string,
         aboutFees: string,
         aboutFeesDescription: string,
-        gaslessTransferSwitch: string
+        gaslessTransferSwitch: string,
+        solana: {
+            error: {
+                title: string,
+                networkRequestFailed: string,
+                connectionTimeout: string,
+                connectionRefused: string,
+                connectionReset: string,
+                insufficientLamports: string,
+                insufficientLamportsWithAmount: string,
+                insufficientTokenFunds: string,
+                rateLimited: string
+            }
+        }
     },
     auth: {
         phoneVerify: string,

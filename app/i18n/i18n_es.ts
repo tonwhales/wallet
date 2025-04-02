@@ -271,7 +271,20 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "Estás intentando enviar más tokens de los que tienes",
         "aboutFees": "Sobre las tarifas",
         "aboutFeesDescription": "Las tarifas para transacciones en la blockchain dependen de varios factores, como la congestión de la red, el tamaño de la transacción, el precio del gas y los parámetros de configuración de la blockchain. Cuanto mayor sea la demanda de procesamiento de transacciones en la blockchain o mayor sea el tamaño de la transacción (mensaje/comentario), mayores serán las tarifas.",
-        "gaslessTransferSwitch": "Pagar tarifa de gas en {{symbol}}"
+        "gaslessTransferSwitch": "Pagar tarifa de gas en {{symbol}}",
+        "solana": {
+            "error": {
+                "title": "Error en la transacción de Solana",
+                "networkRequestFailed": "Error de red, inténtelo de nuevo más tarde o contacte con soporte",
+                "connectionTimeout": "Tiempo de conexión agotado, inténtelo de nuevo más tarde o contacte con soporte",
+                "connectionRefused": "Conexión rechazada, inténtelo de nuevo más tarde o contacte con soporte",
+                "connectionReset": "Conexión restablecida, inténtelo de nuevo más tarde o contacte con soporte",
+                "insufficientLamports": "Fondos SOL insuficientes",
+                "insufficientLamportsWithAmount": "Fondos SOL insuficientes, se necesita {{amount}} más",
+                "insufficientTokenFunds": "Fondos de token insuficientes",
+                "rateLimited": "Estamos experimentando una alta demanda, inténtelo de nuevo más tarde o contacte con soporte"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Verificar teléfono",

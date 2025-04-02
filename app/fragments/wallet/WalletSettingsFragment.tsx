@@ -19,10 +19,15 @@ import { Typography } from "../../components/styles";
 import { RoundButton } from "../../components/RoundButton";
 import { KnownWallets } from "../../secure/KnownWallets";
 import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated";
+import { useRoute } from "@react-navigation/native";
+import { useLedgerTransport } from "../ledger/components/TransportContext";
+import { Address } from "@ton/ton";
 
 const PLATFORM_IOS = Platform.OS === 'ios'
 
 export const WalletSettingsFragment = fragment(() => {
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerWalletSettings';
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
@@ -30,7 +35,9 @@ export const WalletSettingsFragment = fragment(() => {
     const appState = getAppState();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
-    const address = selected!.address;
+    const ledgerContext = useLedgerTransport();
+    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address;
+
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
     const [bounceableFormat,] = useBounceableWalletFormat();
@@ -50,7 +57,7 @@ export const WalletSettingsFragment = fragment(() => {
         : avatarHash(address.toString({ testOnly: isTestnet }), avatarImages.length);
     const initColorHash = walletSettings.color ?? avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);
 
-    const [name, setName] = useState(walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`);
+    const [name, setName] = useState(walletSettings?.name ?? (isLedger ? ledgerContext.ledgerName : `${t('common.wallet')} ${appState.selected + 1}`));
     const [avatar, setAvatar] = useState(initHash);
     const [selectedColor, setColor] = useState(initColorHash);
 
@@ -66,20 +73,22 @@ export const WalletSettingsFragment = fragment(() => {
         if (hasChanges) {
             setSettings({
                 name: name.trim(),
-                avatar,
+                avatar: isLedger ? null : avatar,
                 color: selectedColor
             });
             navigation.goBack();
         }
-    }, [hasChanges, setSettings]);
+    }, [hasChanges, setSettings, isLedger]);
 
     const onChangeAvatar = useCallback(() => {
         const callback = (hash: number, color: number) => {
-            setAvatar(hash);
+            if(!isLedger) {
+                setAvatar(hash);
+            }
             setColor(color);
         };
-        navigation.navigate('AvatarPicker', { callback, hash: avatar, initColor: initColorHash });
-    }, []);
+        navigation.navigate('AvatarPicker', { callback, hash: avatar, initColor: selectedColor, isLedger });
+    }, [isLedger, selectedColor, avatar]);
 
     const onInputNameFocus = () => {
         setIsInputNameFocus(true)
@@ -159,32 +168,33 @@ export const WalletSettingsFragment = fragment(() => {
 
                     <Animated.View style={animAvatarStyles}
                         onLayout={(e) => setAvatarHeight(e.nativeEvent.layout.height)}>
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1,
-                                    justifyContent: 'center', alignItems: 'center'
-                                }
-                            }}
-                            disabled={isInputNameFocus}
-                            onPress={onChangeAvatar}
-                        >
-                            <Avatar
-                                size={100}
-                                borderColor={theme.surfaceOnElevation}
-                                hash={avatar}
-                                theme={theme}
-                                knownWallets={knownWallets}
-                                id={address.toString({ testOnly: isTestnet })}
-                                backgroundColor={avatarColors[selectedColor]}
-                            />
-                            <Text style={[
-                                { color: theme.accent, marginTop: 12 },
-                                Typography.medium17_24
-                            ]}>
-                                {t('wallets.settings.changeAvatar')}
-                            </Text>
-                        </Pressable>
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.5 : 1,
+                                        justifyContent: 'center', alignItems: 'center'
+                                    }
+                                }}
+                                disabled={isInputNameFocus}
+                                onPress={onChangeAvatar}
+                            >
+                                <Avatar
+                                    size={100}
+                                    borderColor={theme.surfaceOnElevation}
+                                    hash={avatar}
+                                    theme={theme}
+                                    knownWallets={knownWallets}
+                                    id={address.toString({ testOnly: isTestnet })}
+                                    backgroundColor={avatarColors[selectedColor]}
+                                    isLedger={isLedger}
+                                />
+                                <Text style={[
+                                    { color: theme.accent, marginTop: 12 },
+                                    Typography.medium17_24
+                                ]}>
+                                    {t('wallets.settings.changeAvatar')}
+                                </Text>
+                            </Pressable>
                     </Animated.View>
 
                     <Animated.View style={[{

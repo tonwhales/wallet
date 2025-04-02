@@ -18,7 +18,8 @@ export const PendingTransactionAvatar = memo(({
     kind,
     knownWallets,
     theme,
-    forceAvatar
+    forceAvatar,
+    isLedger
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
@@ -26,7 +27,8 @@ export const PendingTransactionAvatar = memo(({
     kind: 'in' | 'out',
     knownWallets: { [key: string]: KnownWallet },
     theme: ThemeType,
-    forceAvatar?: ForcedAvatarType
+    forceAvatar?: ForcedAvatarType,
+    isLedger?: boolean
 }) => {
     const [walletSettings] = useWalletSettings(address);
     const avatarColorHash = walletSettings?.color ?? avatarHash(avatarId, avatarColors.length);
@@ -73,6 +75,7 @@ export const PendingTransactionAvatar = memo(({
                         backgroundColor={avatarColor}
                         theme={theme}
                         knownWallets={knownWallets}
+                        isLedger={isLedger}
                     />
                 )}
             </View>

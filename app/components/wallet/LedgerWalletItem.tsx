@@ -4,10 +4,13 @@ import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
-import { useTheme } from "../../engine/hooks";
+import { useNetwork, useTheme, useWalletSettings } from "../../engine/hooks";
 import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import IcCheck from "@assets/ic-check.svg";
+import { Avatar, avatarColors } from "../avatar/Avatar";
+import { KnownWallets } from "../../secure/KnownWallets";
+import { avatarHash } from "../../utils/avatarHash";
 
 interface Props {
     ledgerWallet: LedgerWallet;
@@ -20,12 +23,18 @@ export const LedgerWalletItem = memo(({ ledgerWallet, onSelect, selected, index 
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
+    const address = Address.parse(ledgerWallet.address);
+    const { isTestnet } = useNetwork();
+    const knownWallets = KnownWallets(isTestnet);
+    const [walletSettings] = useWalletSettings(address);
+    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const handleSelectLedger = useCallback(() => {
         if (!!onSelect) {
             if (!!ledgerWallet) {
                 try {
-                    onSelect(Address.parse(ledgerWallet.address));
+                    onSelect(address);
                 } catch (error) {
                     Alert.alert(t('transfer.error.invalidAddress'));
                 }
@@ -44,9 +53,14 @@ export const LedgerWalletItem = memo(({ ledgerWallet, onSelect, selected, index 
             onPress={handleSelectLedger}
         >
             <View style={styles.imageContainer}>
-                <Image
-                    style={styles.image}
-                    source={require('@assets/ledger_device.png')}
+                <Avatar
+                    borderWidth={0}
+                    id={address.toString({ testOnly: isTestnet })}
+                    size={46}
+                    theme={theme}
+                    backgroundColor={avatarColor}
+                    knownWallets={knownWallets}
+                    isLedger={true}
                 />
             </View>
             <View style={styles.textContainer}>
@@ -54,7 +68,7 @@ export const LedgerWalletItem = memo(({ ledgerWallet, onSelect, selected, index 
                     style={[styles.titleText, { color: theme.textPrimary }]}
                     numberOfLines={1}
                 >
-                    {t('hardwareWallet.ledger')} {index + 1}
+                    {walletSettings?.name ?? `${t('hardwareWallet.ledger')} ${index + 1}`}
                 </Text>
                 <Text style={styles.subtitleText}>
                     {ellipsiseAddress(ledgerWallet.address)}

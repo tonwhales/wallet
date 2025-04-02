@@ -138,19 +138,17 @@ export function TransactionView(props: {
         if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
+    }, [targetContract, holdersOp, ledgerAddresses, opAddress]);
 
-        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+    const isLedgerTarget = useMemo(() => {
+        return !!ledgerAddresses?.find((addr) => {
             try {
                 return Address.parse(opAddress)?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-
-        if (isLedgerTarget) {
-            return 'ledger';
-        }
-    }, [targetContract, holdersOp, ledgerAddresses, opAddress]);
+    }, [ledgerAddresses, opAddress]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -221,6 +219,7 @@ export function TransactionView(props: {
                             time={tx.base.time}
                             status={parsed.status}
                             knownWallets={knownWallets}
+                            ledger={isLedgerTarget}
                         />
                     );
                 })}
@@ -265,6 +264,7 @@ export function TransactionView(props: {
                         knownWallets={knownWallets}
                         forceAvatar={forcedAvatar}
                         verified={verified}
+                        isLedger={isLedgerTarget}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>

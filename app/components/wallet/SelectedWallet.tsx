@@ -12,6 +12,8 @@ import { WalletAddress } from "../address/WalletAddress";
 import { getAppState } from "../../storage/appState";
 import { avatarHash } from "../../utils/avatarHash";
 import { useTranslation } from "react-i18next";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { Address } from "@ton/ton";
 
 export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLightBackground?: boolean, ledgerName?: string }) => {
     const network = useNetwork();
@@ -20,8 +22,9 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
     const navigation = useTypedNavigation();
     const { t } = useTranslation();
     const selected = useSelectedAccount();
-    const address = selected!.address || getAppState().addresses[0].address;
-
+    const isLedger = !!ledgerName;
+    const ledgerContext = useLedgerTransport();
+    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : (selected!.address || getAppState().addresses[0].address);
     const currentWalletIndex = getAppState().addresses.findIndex((w) => w.address.equals(address));
     const [walletSettings] = useWalletSettings(address);
 
@@ -35,13 +38,12 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
     return (
         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1, alignItems: 'center' }}>
             <Pressable
-                disabled={!!ledgerName}
                 style={({ pressed }) => {
                     return {
                         opacity: pressed ? 0.5 : 1,
                     }
                 }}
-                onPress={() => navigation.navigate('WalletSettings')}
+                onPress={() => navigation.navigate(ledgerName ? 'LedgerWalletSettings' : 'WalletSettings')}
             >
                 <View style={{
                     width: 48, height: 48,
@@ -49,12 +51,6 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                     borderRadius: 24,
                     marginRight: 12
                 }}>
-                    {ledgerName ? (
-                        <Image
-                            style={{ width: 48, height: 48 }}
-                            source={require('@assets/ledger_device.png')}
-                        />
-                    ) : (
                         <Avatar
                             id={address.toString({ testOnly: network.isTestnet })}
                             size={48}
@@ -63,10 +59,10 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                             theme={theme}
                             knownWallets={knownWallets}
                             backgroundColor={avatarColor}
+                            isLedger={isLedger}
                         />
-                    )}
                     <View style={{ position: 'absolute', top: -1, right: -1 }}>
-                        <HeaderSyncStatus size={12} isLedger={!!ledgerName}/>
+                        <HeaderSyncStatus size={12} isLedger={isLedger}/>
                     </View>
                 </View>
             </Pressable>
@@ -83,7 +79,7 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
-                        {ledgerName || walletSettings?.name || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`}
+                        {walletSettings?.name || ledgerName || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`}
                     </Text>
                 </View>
                 <ArrowDown

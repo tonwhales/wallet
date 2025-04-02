@@ -47,7 +47,7 @@ export const BleDevice = memo(({ onSelect, device }: { onSelect: (device: any) =
                     height: 44,
                     marginRight: 12,
                 }}
-                source={require('@assets/ledger_device.png')}
+                source={require('@assets/ledger_device_common.png')}
             />
             <Text style={{
                 fontSize: 18,

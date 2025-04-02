@@ -87,14 +87,16 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
     const isSelectedLedger = useMemo(() => {
         try {
-            if (!!ledgerTransport?.addr?.address && !!validAddress) {
-                return Address.parse(ledgerTransport.addr.address).equals(validAddress);
+            if (ledgerTransport.wallets.length > 0 && validAddress) {
+                return ledgerTransport.wallets.some(wallet => {
+                    return Address.parse(wallet.address).equals(validAddress);
+                });
             }
-            return false
+            return false;
         } catch {
             return false;
         }
-    }, [ledgerTransport.addr?.address, validAddress]);
+    }, [ledgerTransport.wallets, validAddress]);
 
     const myWallets = useMemo(() => {
         return appState.addresses
@@ -140,7 +142,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
 
         let name = item.type !== 'unknown' ? item.title : friendly;
 
-        if (item.isLedger) {
+        if (item.isLedger && !item.title) {
             name = 'Ledger';
         }
 

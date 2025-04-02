@@ -318,6 +318,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('LedgerProductsList', ProductsListFragment, safeArea),
     modalScreen('LedgerSignData', LedgerSignDataFragment, safeArea),
+    modalScreen('LedgerWalletSettings', WalletSettingsFragment, safeArea),
 
     // Ledger Holders
     genericScreen('LedgerHoldersLanding', HoldersLandingFragment, safeArea, true, 0),

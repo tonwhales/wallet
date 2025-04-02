@@ -186,7 +186,7 @@ export const HomeFragment = fragment(() => {
                         component={WalletNavigationStack}
                     />
                     <Tab.Screen
-                        options={{ title: t('home.history') }}
+                        options={{ title: t('home.history'), unmountOnBlur: !isWalletMode }}
                         name={'Transactions'}
                         component={isWalletMode ? TransactionsFragment : HoldersTransactionsFragment}
                     />
@@ -198,7 +198,7 @@ export const HomeFragment = fragment(() => {
                         />
                     )}
                     <Tab.Screen
-                        options={{ title: t('home.settings') }}
+                        options={{ title: t('home.settings'), unmountOnBlur: !isWalletMode }}
                         name={'More'}
                         component={isWalletMode ? SettingsFragment : HoldersSettings}
                     />

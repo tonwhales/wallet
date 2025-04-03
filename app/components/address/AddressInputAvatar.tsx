@@ -41,13 +41,6 @@ export const AddressInputAvatar = memo(({
                 icProps={{ isOwn }}
             />
         );
-    } else if (isLedger) {
-        avatar = (
-            <Image
-                source={require('@assets/ledger_device.png')}
-                style={{ height: size, width: size }}
-            />
-        );
     } else if (friendly) {
         avatar = (
             <Animated.View entering={FadeIn} exiting={FadeOut}>
@@ -63,6 +56,7 @@ export const AddressInputAvatar = memo(({
                     markContact={markContact}
                     icProps={{ isOwn }}
                     borderWidth={0}
+                    isLedger={isLedger}
                 />
             </Animated.View>
         );

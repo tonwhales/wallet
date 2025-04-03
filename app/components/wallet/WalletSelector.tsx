@@ -22,7 +22,6 @@ type Item = {
 
 export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address) => void }) => {
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
     const prevScreen = useNavigationState((state) => state.routes[state.index - 1]?.name);
     const { isTestnet } = useNetwork();
     const [bounceableFormat] = useBounceableWalletFormat();
@@ -50,21 +49,6 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
         }
     }, [ledgerContext, bounceableFormat]);
 
-    const onLedgerSelect = useCallback(async () => {
-        if (!!onSelect) {
-            if (!!ledgerContext.addr?.address) {
-                try {
-                    onSelect(Address.parse(ledgerContext.addr?.address));
-                } catch (error) {
-                    Alert.alert(t('transfer.error.invalidAddress'));
-                }
-            } else {
-                Alert.alert(t('transfer.error.invalidAddress'));
-            }
-            return;
-        }
-        navigation.navigateLedgerApp();
-    }, [onSelect, ledgerContext]);
 
     const renderItem = useCallback(({ item, index }: { item: Item, index: number }) => {
         if (item.type === 'ledger') {
@@ -103,7 +87,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                 knownWallets={knownWallets}
             />
         )
-    }, [isPrevScreenLedger, onLedgerSelect, onSelect, appState.selected, bounceableFormat, isTestnet, knownWallets, ledgerContext.wallets, connectedLedgerAddress]);
+    }, [isPrevScreenLedger, onSelect, appState.selected, bounceableFormat, isTestnet, knownWallets, ledgerContext.wallets, connectedLedgerAddress]);
 
     const items: Item[] = useMemo(() => {
         const walletItems: Item[] = appState.addresses.map(account => ({

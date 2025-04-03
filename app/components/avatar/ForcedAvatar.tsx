@@ -4,7 +4,7 @@ import { PerfView } from "../basic/PerfView";
 import { useTheme } from "../../engine/hooks";
 import { AvatarIcProps, resolveAvatarIc } from "./Avatar";
 
-export type ForcedAvatarType = 'dedust' | 'holders' | 'ledger';
+export type ForcedAvatarType = 'dedust' | 'holders';
 
 export const ForcedAvatar = memo(({
     type,
@@ -60,12 +60,6 @@ export const ForcedAvatar = memo(({
             img = <Image
                 source={require('@assets/ic-holders-accounts.png')}
                 style={{ width: size, height: size, borderRadius: size / 2 }}
-            />
-            break;
-        case 'ledger':
-            img = <Image
-                source={require('@assets/ledger_device.png')}
-                style={{ height: size, width: size, borderRadius: size / 2 }}
             />
             break;
     }

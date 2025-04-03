@@ -9,7 +9,7 @@ import { t } from "../../../i18n/t";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { Pressable } from "react-native";
 import { PendingTransactionAvatar } from "../../../components/avatar/PendingTransactionAvatar";
-import { Avatar } from "../../../components/avatar/Avatar";
+import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { Typography } from "../../../components/styles";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { Address } from "@ton/core";
@@ -20,6 +20,7 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { View, Text } from "react-native";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
+import { avatarHash } from "../../../utils/avatarHash";
 
 export const PendingTransactionView = memo(({
     tx,
@@ -76,19 +77,17 @@ export const PendingTransactionView = memo(({
                 return 'holders';
             }
         }
+    }, [tx.address, tx.body, targetContract?.kind, ledgerAddresses]);
 
-        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+    const isLedgerTarget = useMemo(() => {
+        return !!ledgerAddresses?.find((addr) => {
             try {
                 return tx.address?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-
-        if (isLedgerTarget) {
-            return 'ledger';
-        }
-    }, [tx.address, tx.body, targetContract?.kind, ledgerAddresses]);
+    }, [ledgerAddresses, tx.address]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -99,7 +98,13 @@ export const PendingTransactionView = memo(({
         if (!!contact) { // Resolve contact known wallet
             known = { name: contact.name }
         }
+        if (!!settings?.name) {
+            known = { name: settings.name }
+        }
     }
+
+    const avatarColorHash = settings?.color ?? avatarHash(targetFriendly ?? '', avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const status = useMemo(() => {
         if (tx.status === 'timed-out') {
@@ -120,7 +125,8 @@ export const PendingTransactionView = memo(({
         navigation.navigatePendingTx({
             transaction: tx,
             timedOut: tx.status === 'timed-out',
-            forceAvatar
+            forceAvatar,
+            isLedgerTarget
         });
     }, [forceAvatar]);
 
@@ -158,6 +164,7 @@ export const PendingTransactionView = memo(({
                             knownWallets={knownWallets}
                             theme={theme}
                             forceAvatar={forceAvatar}
+                            isLedger={isLedgerTarget}
                         />
                     ) : (
                         forceAvatar ? (
@@ -172,9 +179,9 @@ export const PendingTransactionView = memo(({
                                 id={targetFriendly ?? 'batch'}
                                 theme={theme}
                                 knownWallets={knownWallets}
-                                backgroundColor={theme.backgroundPrimary}
-                                hashColor
+                                backgroundColor={avatarColor ?? theme.backgroundPrimary}
                                 icProps={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
+                                isLedger={isLedgerTarget}
                             />
                         )
                     )}

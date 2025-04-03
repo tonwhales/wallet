@@ -28,6 +28,7 @@ import { Alert, Keyboard, Platform } from 'react-native';
 import { contractFromPublicKey } from '../../../../engine/contractFromPublicKey';
 import { useExtraCurrency } from '../../../../engine/hooks/jettons/useExtraCurrency';
 import { SimpleTransferParams } from '../SimpleTransferFragment';
+import { useLedgerTransport } from '../../../ledger/components/TransportContext';
 
 export type SimpleTransferAsset = {
     type: 'jetton';
@@ -70,6 +71,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
 
     const accountLite = useAccountLite(address);
     const holdersAccounts = useHoldersAccountTrargets(address!);
+    const ledgerTransport = useLedgerTransport();
 
     const [addressDomainInputState, setAddressDomainInputState] = useState<AddressInputState>(
         {
@@ -532,6 +534,19 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         });
     }, []);
 
+    const isTargetLedger = useMemo(() => {
+        try {
+            if (ledgerTransport.wallets.length > 0 && targetAddressValid?.address) {
+                return ledgerTransport.wallets.some(wallet => {
+                    return Address.parse(wallet.address).equals(targetAddressValid.address);
+                });
+            }
+            return false
+        } catch {
+            return false;
+        }
+    }, [ledgerTransport.wallets, targetAddressValid?.address]);
+
     return {
         acc,
         amount,
@@ -570,6 +585,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         setSelectedInput,
         doSend,
         selectedAsset,
-        extraCurrency
+        extraCurrency,
+        isTargetLedger
     }
 }

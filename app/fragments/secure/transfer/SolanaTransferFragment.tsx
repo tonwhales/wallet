@@ -14,7 +14,7 @@ import { useCallback } from "react";
 import { copyText } from "../../../utils/copyText";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { RoundButton } from "../../../components/RoundButton";
-import { sendSolanaOrder } from "../utils/sendSolanaTransaction";
+import { signAndSendSolanaOrder } from "../utils/signAndSendSolanaOrder";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressInputAvatar } from "../../../components/address/AddressInputAvatar";
 import { avatarHash } from "../../../utils/avatarHash";
@@ -91,7 +91,7 @@ const TransferOrder = (order: SolanaOrder) => {
 
     const doSend = useCallback(async () => {
         try {
-            const pending = await sendSolanaOrder({
+            const pending = await signAndSendSolanaOrder({
                 solanaClient,
                 theme,
                 authContext,
@@ -100,8 +100,7 @@ const TransferOrder = (order: SolanaOrder) => {
             });
             registerPending(pending);
         } catch (error) {
-            // TODO: *solana* humanize error ui
-            Alert.alert('Error', (error as Error).message);
+            Alert.alert(t('transfer.solana.error.title'), (error as Error).message);
         }
         // Reset stack to root
         navigation.popToTop();

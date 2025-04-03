@@ -4,7 +4,7 @@ import { ThemeType } from "../../../engine/state/theme";
 import { BlockhashWithExpiryBlockHeight, Keypair, Transaction } from "@solana/web3.js";
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
-import { failableSolanaBackoff, mapSolanaError } from "./sendSolanaTransaction";
+import { failableSolanaBackoff, mapSolanaError } from "./signAndSendSolanaOrder";
 
 type SignAndSendSolanaTransactionParams = {
     solanaClient: SolanaClient,

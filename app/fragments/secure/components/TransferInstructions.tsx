@@ -47,8 +47,7 @@ export const TransferInstructions = (params: {
             ref.current = pending.id;
             registerPending(pending);
         } catch (error) {
-            // TODO: *solana* humanize error ui
-            Alert.alert('Error', (error as Error).message);
+            Alert.alert(t('transfer.solana.error.title'), (error as Error).message);
         }
         navigation.goBack();
     }, [theme, authContext, params, solanaAddress, navigation, registerPending]);

@@ -89,6 +89,14 @@ export function useSolanaAccountWatcher() {
 
         ws.onclose = () => {
             logger.log('WebSocket connection closed');
+            if (session < 1000) {
+                if (sessionTimeout.current) {
+                    return;
+                }
+                sessionTimeout.current = setTimeout(() => {
+                    setSession(session + 1);
+                }, 5000);
+            }
         };
 
         ws.onerror = (error) => {

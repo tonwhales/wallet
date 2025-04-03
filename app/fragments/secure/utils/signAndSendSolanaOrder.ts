@@ -95,7 +95,7 @@ export function mapSolanaError(error: any) {
     return mapNetworkError(error);
 }
 
-export async function sendSolanaOrder({ solanaClient, theme, authContext, order, sender }: SendSolanaOrderParams): Promise<PendingSolanaTransaction> {
+export async function signAndSendSolanaOrder({ solanaClient, theme, authContext, order, sender }: SendSolanaOrderParams): Promise<PendingSolanaTransaction> {
     const { target, comment, amount, token } = order;
     const mintAddress = token ? new PublicKey(token.mint) : null;
     const owner = new PublicKey(sender);

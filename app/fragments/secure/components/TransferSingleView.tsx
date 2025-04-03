@@ -51,7 +51,8 @@ const TxAvatar = memo(({
     markContact,
     theme,
     knownWallets,
-    forceAvatar
+    forceAvatar,
+    isLedger
 }: {
     address: string,
     hash?: number | null,
@@ -62,7 +63,8 @@ const TxAvatar = memo(({
     markContact: boolean
     theme: ThemeType,
     knownWallets: { [key: string]: KnownWallet },
-    forceAvatar?: ForcedAvatarType
+    forceAvatar?: ForcedAvatarType,
+    isLedger?: boolean
 }) => {
 
     if (forceAvatar) {
@@ -90,6 +92,7 @@ const TxAvatar = memo(({
             icProps={{ position: 'bottom' }}
             theme={theme}
             knownWallets={knownWallets}
+            isLedger={isLedger}
         />
     );
 });
@@ -205,20 +208,18 @@ export const TransferSingleView = memo(({
 
     const isTargetLedger = useMemo(() => {
         try {
-            if (!!ledgerTransport?.addr?.address) {
-                return Address.parse(ledgerTransport.addr.address).equals(target.address);
+            if (ledgerTransport.wallets.length > 0 && target.address) {
+                return ledgerTransport.wallets.some(wallet => {
+                    return Address.parse(wallet.address).equals(target.address);
+                });
             }
             return false
         } catch {
             return false;
         }
-    }, [ledgerTransport.addr?.address, target.address]);
+    }, [ledgerTransport.wallets, target.address]);
 
     const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
-        if (isTargetLedger) {
-            return 'ledger';
-        }
-
         if (targetContract?.kind === 'dedust-vault') {
             return 'dedust';
         }
@@ -247,13 +248,9 @@ export const TransferSingleView = memo(({
 
     const to = {
         address: target.address,
-        name:
-            isTargetLedger
-                ? 'Ledger'
-                : targetWalletSettings?.name
-                || known?.name
-                || target.domain
-                || null
+        name: (isTargetLedger && !targetWalletSettings?.name)
+            ? 'Ledger'
+            : targetWalletSettings?.name || known?.name || target.domain || null
     }
 
     const onCopyAddress = useCallback((address: string) => {
@@ -399,6 +396,7 @@ export const TransferSingleView = memo(({
                                     theme={theme}
                                     knownWallets={knownWallets}
                                     forceAvatar={forceAvatar}
+                                    isLedger={isTargetLedger}
                                 />
                             </View>
                         </View>
@@ -414,7 +412,7 @@ export const TransferSingleView = memo(({
                                     testOnly={isTestnet}
                                     known={!!known && !contact}
                                 />
-                                {isTargetLedger && ' (Ledger)'}
+                                {isTargetLedger && (targetWalletSettings?.name ? ` (${targetWalletSettings?.name})` : ' (Ledger)')}
                             </Text>
                         </View>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>

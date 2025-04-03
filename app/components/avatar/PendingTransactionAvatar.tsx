@@ -5,7 +5,6 @@ import { Avatar, avatarColors } from "./Avatar";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { useTheme, useWalletSettings } from "../../engine/hooks";
-import { ThemeType } from "../../engine/state/theme";
 import { Image } from "expo-image";
 import { ForcedAvatar, ForcedAvatarType } from "./ForcedAvatar";
 
@@ -17,7 +16,8 @@ export const PendingTransactionAvatar = memo(({
     address,
     kind,
     knownWallets,
-    forceAvatar
+    forceAvatar,
+    isLedger
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
@@ -25,6 +25,7 @@ export const PendingTransactionAvatar = memo(({
     kind: 'in' | 'out',
     knownWallets: { [key: string]: KnownWallet },
     forceAvatar?: ForcedAvatarType
+    isLedger?: boolean
 }) => {
     const theme = useTheme();
     const [walletSettings] = useWalletSettings(address);
@@ -72,6 +73,7 @@ export const PendingTransactionAvatar = memo(({
                         backgroundColor={avatarColor}
                         theme={theme}
                         knownWallets={knownWallets}
+                        isLedger={isLedger}
                     />
                 )}
             </View>

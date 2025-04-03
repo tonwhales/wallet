@@ -272,8 +272,6 @@ export const LedgerSelectAccountFragment = fragment(() => {
             // Restart new search, we are navigating back to the search screen
             if (lastConnectionType === 'ble') {
                 ledgerContext.startBleSearch();
-            } else if (lastConnectionType === 'hid') {
-                ledgerContext.startHIDSearch();
             }
         }
     }, [ledgerContext.ledgerConnection?.type]);

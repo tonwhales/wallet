@@ -62,17 +62,9 @@ export const AddressSearchItemView = memo(({
             theme={theme}
             knownWallets={knownWallets}
             backgroundColor={avatarColor}
+            isLedger={item.isLedger}
         />
     );
-
-    if (item.isLedger) {
-        avatar = (
-            <Image
-                style={{ width: 46, height: 46 }}
-                source={require('@assets/ledger_device.png')}
-            />
-        );
-    }
 
     if (item.type === 'holders') {
         avatar = (
@@ -101,7 +93,7 @@ export const AddressSearchItemView = memo(({
                         ellipsizeMode={'tail'}
                         numberOfLines={1}
                     >
-                        {item.isLedger ? 'Ledger' : item.title}
+                        {item.title}
                     </Text>
                     <Text
                         style={[{ color: theme.textSecondary }, Typography.regular15_20]}

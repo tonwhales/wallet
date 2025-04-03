@@ -1181,6 +1181,7 @@ export type LocalizationSchema = {
             bluetoothScanFailed: string,
             unsafeTransfer: string,
             userCanceled: string,
+            updateApp: string,
         },
         moreAbout: string,
         verifyAddress: {

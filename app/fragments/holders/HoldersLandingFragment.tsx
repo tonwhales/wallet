@@ -263,7 +263,7 @@ export const HoldersLandingFragment = fragment(() => {
                             <View style={{ flexDirection: 'row', flex: 1, flexShrink: 1, paddingLeft: 12, paddingRight: 16, paddingVertical: 8, backgroundColor: theme.surfaceOnElevation, borderRadius: 62, gap: 4, alignItems: 'center' }}>
                                 <Image
                                     style={{ width: 46, height: 46 }}
-                                    source={require('@assets/ledger_device.png')}
+                                    source={require('@assets/ledger_device_common.png')}
                                 />
                                 <View style={{ flexShrink: 1 }}>
                                     <Text style={[Typography.semiBold20_28, { color: theme.textPrimary, textAlign: 'center', flexShrink: 1 }]}>

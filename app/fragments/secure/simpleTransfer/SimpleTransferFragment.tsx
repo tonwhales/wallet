@@ -77,7 +77,8 @@ const SimpleTransferComponent = () => {
         selectedInput,
         doSend,
         selectedAsset,
-        extraCurrency
+        extraCurrency,
+        isTargetLedger
     } = useSimpleTransfer({ params, route, navigation });
 
     const [isScrolling, setIsScrolling] = useState(false);
@@ -152,6 +153,7 @@ const SimpleTransferComponent = () => {
                     isTestnet={network.isTestnet}
                     bounceable={targetAddressValid.isBounceable}
                     knownWallets={knownWallets}
+                    isLedger={isTargetLedger}
                 />
             )
         } : { title: t('transfer.title') };

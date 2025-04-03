@@ -97,7 +97,9 @@ const TransactionPreview = () => {
     const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, address?.toString({ testOnly: isTestnet }));
     const extraCurrencies = Object.entries(extraCurrencyMap ?? {}).map(([, extraCurrency]) => {
         const amount = extraCurrency.amount;
-        return `-${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${extraCurrency.preview.symbol}`;
+        const symbol = extraCurrency.preview.symbol;
+        const sign = isOutgoing ? '-' : '+';
+        return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
     });
 
     const preparedMessages = usePeparedMessages(messages, isTestnet);
@@ -137,6 +139,8 @@ const TransactionPreview = () => {
     const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : undefined;
     const targetContract = useContractInfo(opAddress);
 
+    console.log({ opAddress, mentioned: tx.base.parsed.mentioned });
+
     const isTargetBounceable = targetContract?.kind === 'wallet'
         ? bounceableFormat
         : parsedOpAddr.isBounceable
@@ -171,19 +175,17 @@ const TransactionPreview = () => {
         } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
+    }, [targetContract, ledgerAddresses, opAddress]);
 
-        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+    const isLedgerTarget = useMemo(() => {
+        return !!ledgerAddresses?.find((addr) => {
             try {
                 return Address.parse(opAddress)?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-
-        if (isLedgerTarget) {
-            return 'ledger';
-        }
-    }, [targetContract, ledgerAddresses, opAddress]);
+    }, [ledgerAddresses, opAddress]);
 
     const holdersOp = useMemo<null | HoldersOp>(
         () => {
@@ -382,6 +384,7 @@ const TransactionPreview = () => {
                                 theme={theme}
                                 knownWallets={knownWallets}
                                 hash={opAddressWalletSettings?.avatar}
+                                isLedger={isLedgerTarget}
                             />
                         )
                     )}
@@ -507,7 +510,7 @@ const TransactionPreview = () => {
                                 minimumFontScale={0.4}
                                 adjustsFontSizeToFit={true}
                                 numberOfLines={1}
-                                style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold27_32]}
+                                style={[{ color: amountColor, marginTop: 12 }, Typography.semiBold27_32]}
                             >
                                 {text}
                             </Text>

@@ -123,6 +123,7 @@ export function PreparedMessageView(props: {
                         markContact={!!contact}
                         avatarColor={avatarColor}
                         knownWallets={props.knownWallets}
+                        isLedger={props.ledger}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>

@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { valueText } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Avatar } from "../../components/avatar/Avatar";
+import { Avatar, avatarColors } from "../../components/avatar/Avatar";
 import { t } from "../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -16,7 +16,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -37,11 +37,13 @@ import { HoldersOp, HoldersOpView } from "../../components/transfer/HoldersOpVie
 import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAvatar";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { avatarHash } from "../../utils/avatarHash";
 
 export type PendingTxPreviewParams = {
     transaction: PendingTransaction;
     timedOut?: boolean;
     forceAvatar?: ForcedAvatarType;
+    isLedgerTarget?: boolean;
 }
 
 const PendingTxPreview = () => {
@@ -95,6 +97,9 @@ const PendingTxPreview = () => {
     const knownWallet = knownWallets[opAddress ?? ''];
     const contact = addressBook.asContact(opAddress);
     const isSpam = addressBook.isDenyAddress(opAddress);
+    const [targetWalletSettings] = useWalletSettings(opAddress);
+    const avatarColorHash = targetWalletSettings?.color ?? avatarHash(opAddress ?? '', avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     let dateStr = `${formatDate(tx.time, 'MMMM dd, yyyy')} • ${formatTime(tx.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
@@ -132,6 +137,9 @@ const PendingTxPreview = () => {
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
+    }
+    if (!!targetWalletSettings?.name) {
+        known = { name: targetWalletSettings.name }
     }
 
     const participants = useMemo(() => {
@@ -250,7 +258,7 @@ const PendingTxPreview = () => {
                             verified={verified}
                             borderWidth={2.5}
                             borderColor={theme.surfaceOnElevation}
-                            backgroundColor={theme.elevation}
+                            backgroundColor={avatarColor ?? theme.elevation}
                             markContact={!!contact}
                             icProps={{
                                 isOwn: isOwn,
@@ -260,7 +268,7 @@ const PendingTxPreview = () => {
                             }}
                             theme={theme}
                             knownWallets={knownWallets}
-                            hashColor
+                            isLedger={params.isLedgerTarget}
                         />
                     )}
                     <PerfText

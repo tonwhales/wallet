@@ -587,6 +587,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         doSend,
         selectedAsset,
         extraCurrency,
-        isTargetLedger
+        isTargetLedger,
+        decimals
     }
 }

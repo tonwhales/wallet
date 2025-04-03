@@ -78,7 +78,8 @@ const SimpleTransferComponent = () => {
         doSend,
         selectedAsset,
         extraCurrency,
-        isTargetLedger
+        isTargetLedger,
+        decimals
     } = useSimpleTransfer({ params, route, navigation });
 
     const [isScrolling, setIsScrolling] = useState(false);
@@ -176,7 +177,7 @@ const SimpleTransferComponent = () => {
             headerComponent={<SimpleTransferHeader {...header} />}
             footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, continueLoading, doSend }} />}
             addressComponent={<SimpleTransferAddress ref={addressRef} {...{ ledgerAddress, params, domain, onInputFocus, setAddressDomainInputState, onInputSubmit, onQRCodeRead, isActive: selected === 'address', onSearchItemSelected, knownWallets }} />}
-            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton, selectedAsset, extraCurrency }} />}
+            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton, selectedAsset, extraCurrency, decimals }} />}
             commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError, maxHeight: selected === 'comment' ? 200 : undefined }} />}
             feesComponent={estimation ? <SimpleTransferFees {...{ estimation, estimationPrice }} /> : null}
             scrollEnabled={!selectedInput}

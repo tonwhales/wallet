@@ -96,13 +96,13 @@ const SolanaTransactionPreview = fragment(() => {
                         }}
                     />
                     <View style={{
-                        width: 48, height: 48, borderRadius: 24,
+                        width: 68, height: 68, borderRadius: 34,
                         backgroundColor: theme.surfaceOnBg,
                         justifyContent: 'center',
                         alignItems: 'center'
                     }}>
                         <AddressInputAvatar
-                            size={46}
+                            size={68}
                             theme={theme}
                             isOwn={false}
                             markContact={false}

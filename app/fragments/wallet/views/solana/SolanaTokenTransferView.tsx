@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { View, StyleSheet, Text, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { Typography } from "../../../../components/styles";
 import { AddressInputAvatar } from "../../../../components/address/AddressInputAvatar";
 import { avatarHash } from "../../../../utils/avatarHash";
@@ -20,10 +20,10 @@ export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, ite
   const theme = useTheme();
   const op = kind === 'in' ? t('tx.received') : t('tx.sent');
   const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
-  const avatarColor = avatarColors[avatarHash(fromUserAccount, avatarColors.length)];
   const toAccount = accountData?.find((acc) => acc.account === toTokenAccount);
-  const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === toTokenAccount)?.userAccount;
+  const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === toTokenAccount)?.userAccount ?? fromUserAccount;
   const address = kind === 'in' ? fromUserAccount : toAddress;
+  const avatarColor = avatarColors[avatarHash(address, avatarColors.length)];
   const amount = fromBnWithDecimals(toNano(tokenAmount), 9);
   const navigation = useTypedNavigation();
   const tokenInfo = useSolanaToken(owner, mint);

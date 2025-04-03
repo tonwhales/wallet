@@ -37,7 +37,7 @@ export function useSolanaTransferInfo(params: { type: 'token' | 'native', transf
         const kind: 'in' | 'out' = tokenTransfer.fromUserAccount === owner ? 'out' : 'in';
         const op = kind === 'in' ? t('tx.received') : t('tx.sent');
         const toAccount = accountData?.find((acc) => acc.account === tokenTransfer.toTokenAccount);
-        const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === tokenTransfer.toTokenAccount)?.userAccount;
+        const toAddress = toAccount?.tokenBalanceChanges.find((change) => change.tokenAccount === tokenTransfer.toTokenAccount)?.userAccount ?? tokenTransfer.fromUserAccount;
         const address = kind === 'in' ? tokenTransfer.fromUserAccount : toAddress;
         const amount = fromBnWithDecimals(toNano(tokenTransfer.tokenAmount), 9);
 

@@ -139,8 +139,6 @@ const TransactionPreview = () => {
     const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : undefined;
     const targetContract = useContractInfo(opAddress);
 
-    console.log({ opAddress, mentioned: tx.base.parsed.mentioned });
-
     const isTargetBounceable = targetContract?.kind === 'wallet'
         ? bounceableFormat
         : parsedOpAddr.isBounceable

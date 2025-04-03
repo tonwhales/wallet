@@ -81,7 +81,9 @@ export function TransactionView(props: {
     const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, own.toString({ testOnly: isTestnet }));
     const extraCurrencies = Object.entries(extraCurrencyMap ?? {}).map(([, extraCurrency]) => {
         const amount = extraCurrency.amount;
-        return `-${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${extraCurrency.preview.symbol}`;
+        const symbol = extraCurrency.preview.symbol;
+        const sign = isOutgoing ? '-' : '+';
+        return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
     });
 
     const walletSettings = props.walletsSettings[parsedAddressFriendly];
@@ -385,7 +387,7 @@ export function TransactionView(props: {
                                 minimumFontScale={0.4}
                                 adjustsFontSizeToFit={true}
                                 numberOfLines={1}
-                                style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold17_24]}
+                                style={[{ color: amountColor, marginTop: 12 }, Typography.semiBold17_24]}
                             >
                                 {text}
                             </PerfText>

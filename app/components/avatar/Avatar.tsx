@@ -167,11 +167,11 @@ export const Avatar = memo((props: {
     icProps?: AvatarIcProps,
     theme: ThemeType,
     hashColor?: { hash: number } | boolean,
-    knownWallets: { [key: string]: KnownWallet },
+    knownWallets?: { [key: string]: KnownWallet },
     isLedger?: boolean
 }) => {
     const { theme, address, hashColor, icProps, size, showSpambadge, spam, markContact, verified, dontShowVerified, borderColor, borderWidth, image, isLedger } = props
-    const known = address ? props.knownWallets[address] : undefined;
+    const known = address ? props.knownWallets?.[address] : undefined;
     const hash = (props.hash !== undefined && props.hash !== null)
         ? props.hash
         : avatarHash(props.id, avatarImages.length);

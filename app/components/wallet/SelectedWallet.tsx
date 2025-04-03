@@ -35,6 +35,8 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
         navigation.navigate('AccountSelector');
     }, []);
 
+    const walletName = walletSettings?.name || ledgerName || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`;
+
     return (
         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1, alignItems: 'center' }}>
             <Pressable
@@ -79,7 +81,7 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
-                        {walletSettings?.name || ledgerName || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`}
+                        {walletName}
                     </Text>
                 </View>
                 <ArrowDown

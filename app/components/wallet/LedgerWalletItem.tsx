@@ -1,16 +1,16 @@
 import React, { memo, useCallback } from "react";
-import { Pressable, View, Text, StyleSheet, Image, Alert } from "react-native";
+import { Pressable, View, Text, StyleSheet, Alert } from "react-native";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
 import { useNetwork, useTheme, useWalletSettings } from "../../engine/hooks";
 import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
-
-import IcCheck from "@assets/ic-check.svg";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { avatarHash } from "../../utils/avatarHash";
+
+import IcCheck from "@assets/ic-check.svg";
 
 interface Props {
     ledgerWallet: LedgerWallet;

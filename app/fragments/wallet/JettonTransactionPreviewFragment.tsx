@@ -108,7 +108,7 @@ const JettonTransactionPreview = () => {
         } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
-    }, [targetContract, ledgerAddresses, opAddress]);
+    }, [targetContract?.kind, ledgerAddresses, opAddress]);
 
     const isLedgerTarget = useMemo(() => {
         return !!ledgerAddresses?.find((addr) => {

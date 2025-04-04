@@ -1349,6 +1349,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "createAccount": "Creare account",
             "tokenTransfer": "Trasferimento token",
             "depositCard": "Deposito su carta",
+            "closeCard": "Chiudere carta",
             "updateCardLimits": "Aggiornare i limiti della carta"
         }
     },

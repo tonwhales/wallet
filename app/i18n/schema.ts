@@ -1347,6 +1347,7 @@ export type LocalizationSchema = {
         instructions: {
             depositCard: string,
             updateCardLimits: string,
+            closeCard: string,
             createAssociatedTokenAccount: string,
             systemTransfer: string,
             createAccount: string,

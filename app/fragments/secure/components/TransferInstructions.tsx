@@ -11,7 +11,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { t } from "../../../i18n/t";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
 import { warn } from "../../../utils/log";
-import { SolanaTransactionAppHeader } from "../transfer/SolanaTransferFragment";
+import { SolanaTransactionAppHeader } from "../transfer/SolanaTransactionAppHeader";
 import { SolanaOrderApp } from "../ops/Order";
 
 export const TransferInstructions = (params: {

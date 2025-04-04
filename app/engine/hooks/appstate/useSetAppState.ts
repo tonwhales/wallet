@@ -1,5 +1,5 @@
 import { useRecoilCallback } from 'recoil';
-import { AppState, setAppState } from '../../../storage/appState';
+import { AppState, clearLedgerSelected, setAppState } from '../../../storage/appState';
 import { appStateAtom } from '../../state/appState';
 import { onAccountTouched } from '../../effects/onAccountTouched';
 
@@ -28,6 +28,11 @@ export function useSetAppState() {
 
             // Update
             setAppState(temp, isTestnet);
+            
+            // if useSetAppState is called it means that we are currently 
+            // using standard wallet, not the Ledger one. That's why we clear
+            // the Ledger selected state
+            clearLedgerSelected()
 
             // Update queries for new selected
             if (newSelectedAddress) {

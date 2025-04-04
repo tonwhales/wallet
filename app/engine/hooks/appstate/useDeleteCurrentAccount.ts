@@ -1,5 +1,5 @@
 import { mixpanelFlush, mixpanelReset } from "../../../analytics/mixpanel";
-import { getAppState } from "../../../storage/appState";
+import { clearLedgerSelected, getAppState } from "../../../storage/appState";
 import { BiometricsState, PasscodeState } from '../../../storage/secureStorage';
 import { storage, storagePersistence } from "../../../storage/storage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -60,6 +60,7 @@ export function useDeleteCurrentAccount() {
             setAppState({ addresses: [], selected: -1 }, isTestnet);
             setPasscodeState(PasscodeState.NotSet);
             setBiometricsState(BiometricsState.NotSet);
+            clearLedgerSelected();
 
             navigation.navigateAndReplaceAll('Welcome');
         }

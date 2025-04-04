@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Image, Platform, StyleSheet } from "react-native";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -15,10 +15,10 @@ import { PendingTxsWatcher } from "../../components/PendingTxsWatcher";
 import { Address } from "@ton/core";
 import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
 import { TransactionType } from "../../engine/types";
-import { HoldersAppFragment, HoldersAppParamsType } from "../holders/HoldersAppFragment";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { HoldersSettings } from "../holders/components/HoldersSettings";
 import { HoldersTransactionsFragment } from "../wallet/HoldersTransactionsFragment";
+import { getLedgerSelected } from "../../storage/appState";
 
 const Tab = createBottomTabNavigator();
 
@@ -27,7 +27,7 @@ const PrefetchTransactions = ({ address }: { address: string }) => {
     return null;
 }
 
-export const LedgerAppFragment = fragment(() => {
+export const LedgerAppComponent = () => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
@@ -114,4 +114,25 @@ export const LedgerAppFragment = fragment(() => {
             <PendingTxsWatcher address={addressString} />
         </View>
     );
+}
+
+export const LedgerAppFragment = fragment(() => {
+    const ledgerContext = useLedgerTransport();
+
+    useEffect(() => {
+        const ledgerSelected = getLedgerSelected();
+        
+        if (ledgerSelected) {
+            const ledgerWallet = ledgerContext.wallets.find((wallet) => wallet.address === ledgerSelected);
+            if (ledgerWallet) {
+                ledgerContext.setAddr(ledgerWallet);
+            }
+        }
+    }, [ledgerContext.wallets]);
+
+    if (!ledgerContext.addr) {
+        return null;
+    }
+    return <LedgerAppComponent />
+    
 })

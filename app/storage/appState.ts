@@ -388,3 +388,18 @@ export function getLedgerWallets(): LedgerWallet[] {
         return [];
     }
 }
+
+// The idea behind this logic is to store the address of the Ledger wallet whenever we select it
+// So we could start the app with the Ledger wallet if it was the latest selected
+export function setLedgerSelected(address: string) {
+    storage.set('app_ledger_selected', address);
+}
+
+export function getLedgerSelected() {
+    return storage.getString('app_ledger_selected');
+}
+
+// We remove the stored address of the Ledger wallet when we select the standard wallet
+export function clearLedgerSelected() {
+    storage.delete('app_ledger_selected');
+}

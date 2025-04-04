@@ -6,8 +6,8 @@ import { HoldersUserState, fetchUserState } from "../api/holders/fetchUserState"
 import { fetchAccountsPublic, fetchAccountsList } from "../api/holders/fetchAccounts";
 import { updateProvisioningCredentials } from "../holders/updateProvisioningCredentials";
 
-export async function onHoldersEnroll(account: string, isTestnet: boolean) {
-    let address = Address.parse(account).toString({ testOnly: isTestnet });
+export async function onHoldersEnroll({account, isTestnet, solanaAddress}: {account: string, isTestnet: boolean, solanaAddress?: string}) {
+    const address = Address.parse(account).toString({ testOnly: isTestnet });
 
     const token = getHoldersToken(address);
 
@@ -35,7 +35,7 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
             // fetch apple pay credentials and update provisioning credentials cache
             await updateProvisioningCredentials(address, isTestnet);
         } else {
-            accounts = await fetchAccountsPublic(address, isTestnet);
+            accounts = await fetchAccountsPublic({ address, isTestnet, solanaAddress });
             type = 'public';
         }
 

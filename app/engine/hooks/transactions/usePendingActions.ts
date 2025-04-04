@@ -10,7 +10,7 @@ export function usePendingActions(address: string, isTestnet: boolean) {
         setPendingRef.current = setPending;
     }, [setPending]);
 
-    const removePending = useCallback((ids: string[]) => {
+    const remove = useCallback((ids: string[]) => {
         if (ids.length === 0) {
             return;
         }
@@ -30,5 +30,5 @@ export function usePendingActions(address: string, isTestnet: boolean) {
         });
     }, []);
 
-    return { state: pending, removePending, markAsTimedOut };
+    return { state: pending, remove, markAsTimedOut };
 }

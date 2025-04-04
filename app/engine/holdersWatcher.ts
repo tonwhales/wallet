@@ -4,16 +4,17 @@ import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
 import { HoldersUserState } from "./api/holders/fetchUserState";
 import { useNetwork } from "./hooks/network/useNetwork";
 import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
-import { useHoldersAccounts } from "./hooks";
+import { useHoldersAccounts, useSolanaSelectedAccount } from "./hooks";
 import { Queries } from "./queries";
 import { queryClient } from "./clients";
 
 export function useHoldersWatcher() {
     const account = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const { isTestnet } = useNetwork();
     const accAddressString = account?.address.toString({ testOnly: isTestnet }) ?? '';
     const status = useHoldersAccountStatus(accAddressString);
-    const cards = useHoldersAccounts(accAddressString);
+    const cards = useHoldersAccounts(accAddressString, solanaAddress);
     const otpKey = Queries.Holders(accAddressString).OTP();
 
     const token = (

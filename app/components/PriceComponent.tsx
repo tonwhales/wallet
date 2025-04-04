@@ -48,6 +48,10 @@ export const PriceComponent = memo((
         const priceInUSD = priceUSD ?? price.price.usd;
         const rates = price.price.rates;
 
+        if (!priceInUSD || !rates) {
+            return '';
+        }
+
         const formattedAmount = parseFloat(fromNano(abs)) * priceInUSD * rates[currencyCode || currency];
         const decimals = (amount === 0n && hideCentsIfNull) ? 0 : 2;
 

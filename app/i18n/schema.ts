@@ -88,6 +88,8 @@ export type LocalizationSchema = {
         address: string,
         currencyChanged: string,
         required: string,
+        operation: string,
+        description: string,
     },
     syncStatus: {
         connecting: string,
@@ -180,7 +182,8 @@ export type LocalizationSchema = {
     },
     receive: {
         title: string,
-        subtitle: string,
+        subtitleTon: string,
+        subtitleSolana: string,
         share: {
             title: string,
             error: string
@@ -270,7 +273,20 @@ export type LocalizationSchema = {
         notEnoughJettonsMessage: string,
         aboutFees: string,
         aboutFeesDescription: string,
-        gaslessTransferSwitch: string
+        gaslessTransferSwitch: string,
+        solana: {
+            error: {
+                title: string,
+                networkRequestFailed: string,
+                connectionTimeout: string,
+                connectionRefused: string,
+                connectionReset: string,
+                insufficientLamports: string,
+                insufficientLamportsWithAmount: string,
+                insufficientTokenFunds: string,
+                rateLimited: string
+            }
+        }
     },
     auth: {
         phoneVerify: string,
@@ -1318,12 +1334,26 @@ export type LocalizationSchema = {
         callToAction: string,
     },
     savings: {
-        ton: string,
-        usdt: string,
-    },
-    spending: {
+        general: string,
         ton: string,
         usdt: string
+    },
+    spending: {
+        general: string,
+        ton: string,
+        usdt: string
+    },
+    solana: {
+        instructions: {
+            depositCard: string,
+            updateCardLimits: string,
+            closeCard: string,
+            createAssociatedTokenAccount: string,
+            systemTransfer: string,
+            createAccount: string,
+            tokenTransfer: string,
+            unknown: string,
+        }
     },
     iban: {
         banner: {

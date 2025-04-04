@@ -74,7 +74,7 @@ export const PendingTransactions = memo(({
     const account = useSelectedAccount();
     const network = useNetwork();
     const addr = address ?? account?.addressString ?? '';
-    const { state: pending, removePending } = usePendingActions(addr, network.isTestnet);
+    const { state: pending, remove } = usePendingActions(addr, network.isTestnet);
     const txs = useAccountTransactionsV2(addr, undefined, { type: TransactionType.TON }).data;
     const lastTxs = (txs as TonStoredTransaction[])?.slice(-1)?.[0]?.data;
     const lastTxsSeqno = lastTxs?.base.parsed.seqno;
@@ -82,7 +82,7 @@ export const PendingTransactions = memo(({
 
     useEffect(() => {
         if (!!lastTxsSeqno) {
-            removePending(pending.filter((tx) => tx.seqno < lastTxsSeqno).map((tx) => tx.id));
+            remove(pending.filter((tx) => tx.seqno < lastTxsSeqno).map((tx) => tx.id));
         }
     }, [lastTxsSeqno, pending]);
 
@@ -104,7 +104,7 @@ export const PendingTransactions = memo(({
                 .filter((tx) => tx.status !== 'pending')
                 .map((tx) => tx.id);
 
-            removePending(toRemove);
+            remove(toRemove);
         }, 15 * 1000);
 
         return () => {

@@ -12,7 +12,7 @@ export const PressableChip = memo(({
     text,
     textStyle
 }: {
-    onPress: () => void,
+    onPress?: () => void,
     style?: StyleProp<ViewStyle>,
     text: string,
     textStyle?: StyleProp<TextStyle>

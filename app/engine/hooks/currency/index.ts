@@ -1,3 +1,3 @@
-export { usePriceQuery } from './usePrice';
+export { usePriceQuery } from './usePriceQuery';
 export { usePrimaryCurrency } from './usePrimaryCurrency';
 export { usePrice } from '../../PriceContext';

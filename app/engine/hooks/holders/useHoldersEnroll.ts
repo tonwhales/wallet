@@ -1,30 +1,22 @@
 import { Address, beginCell, storeStateInit } from "@ton/core";
 import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
-import { AccountKeyParam, fetchUserToken } from "../../api/holders/fetchUserToken";
+import { fetchUserToken, TonSolanaAuthRequest } from "../../api/holders/fetchUserToken";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { WalletKeys } from "../../../storage/walletKeys";
-import { ConnectReplyBuilder } from "../../tonconnect/ConnectReplyBuilder";
+import { ConnectReplyBuilder, ExtendedConnectItemReply, SolanaProofItemReply } from "../../tonconnect/ConnectReplyBuilder";
 import { holdersUrl } from "../../api/holders/fetchUserState";
 import { getAppManifest } from "../../getters/getAppManifest";
 import { AppManifest } from "../../api/fetchManifest";
-import { CHAIN, ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
+import { TonProofItemReplySuccess } from "@tonconnect/protocol";
 import { useAppConnections, useConnectApp, useNetwork, useSaveAppConnection } from "..";
 import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
 import { TonConnectBridgeType } from "../../tonconnect/types";
 import { extensionKey } from "../dapps/useAddExtension";
 import { useWalletVersion } from "../useWalletVersion";
 import { getInviteId } from "../../../useLinkNavigator";
-import { LedgerWallet, useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
-import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
-import { extractDomain } from "../../utils/extractDomain";
-import { WalletVersions } from "../../types";
-import { getTimeSec } from "../../../utils/getTimeSec";
-import { warn } from "../../../utils/log";
-import { Alert } from "react-native";
-import { t } from "../../../i18n/t";
-import { normalizeUrl } from "../../../utils/resolveUrl";
-import { authParamsFromLedgerProof } from "../../../utils/holders/authParamsFromLedgerProof";
+import { LedgerWallet } from "../../../fragments/ledger/components/TransportContext";
+import { PublicKey } from "@solana/web3.js";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -34,6 +26,7 @@ export type HoldersEnrollParams = {
         secretKeyEnc: Buffer;
         utilityKey: Buffer;
     },
+    solanaAddress?: string | undefined,
     domain: string,
     authContext: AuthWalletKeysType,
     authStyle?: AuthParams | undefined,
@@ -61,7 +54,7 @@ export enum HoldersEnrollErrorType {
 
 export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType } | { type: 'success' };
 
-export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: HoldersEnrollParams) {
+export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solanaAddress }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
     const version = useWalletVersion();
     const saveAppConnection = useSaveAppConnection();
@@ -138,13 +131,13 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
 
                 const replyBuilder = new ConnectReplyBuilder(
                     {
-                        items: [{ name: 'ton_addr' }, { name: 'ton_proof', payload: 'ton-proof-any' }],
+                        items: [{ name: 'ton_addr' }, { name: 'ton_proof', payload: 'ton-proof-any' }, { name: 'solana_proof', payload: 'solana-proof-any' }],
                         manifestUrl
                     },
                     manifest
                 );
 
-                let replyItems: ConnectItemReply[];
+                let replyItems: ExtendedConnectItemReply[];
                 try {
                     replyItems = replyBuilder.createReplyItems(
                         acc.address.toString({ testOnly: isTestnet, urlSafe: true, bounceable: true }),
@@ -175,27 +168,57 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
                 });
 
                 try {
-                    const proof = (replyItems.find((item) => item.name === 'ton_proof') as TonProofItemReplySuccess | undefined);
+                    const tonProof = (replyItems.find((item) => item.name === 'ton_proof') as TonProofItemReplySuccess | undefined);
+                    const solanaProof = (replyItems.find((item) => item.name === 'solana_proof') as SolanaProofItemReply | undefined);
 
-                    if (!proof) {
+                    if (!tonProof || !solanaProof) {
                         return { type: 'error', error: HoldersEnrollErrorType.NoProof };
                     }
 
-                    let token = await fetchUserToken({
-                        kind: 'tonconnect-v2',
-                        wallet: 'tonhub',
-                        config: {
-                            address: acc.address.toRawString(),
-                            proof: {
-                                timestamp: proof.proof.timestamp,
-                                domain: proof.proof.domain,
-                                signature: proof.proof.signature,
-                                payload: proof.proof.payload,
-                                publicKey: walletKeys.keyPair.publicKey.toString('hex'),
-                                walletStateInit: stateInitStr
+                    const solanaPublicKey = new PublicKey(walletKeys.keyPair.publicKey);
+
+                    const requestParams: TonSolanaAuthRequest = [
+                        {
+                            stack: 'ton',
+                            network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
+                            key: {
+                                kind: 'tonconnect-v2',
+                                wallet: 'tonhub',
+                                config: {
+                                    address: acc.address.toRawString(),
+                                    proof: {
+                                        timestamp: tonProof.proof.timestamp,
+                                        domain: tonProof.proof.domain,
+                                        signature: tonProof.proof.signature,
+                                        payload: tonProof.proof.payload,
+                                        publicKey: walletKeys.keyPair.publicKey.toString('hex'),
+                                        walletStateInit: stateInitStr
+                                    }
+                                }
+                            },
+                            inviteId
+                        },
+                        {
+                            stack: 'solana',
+                            network: isTestnet ? 'solana-devnet' : 'solana-mainnet',
+                            key: {
+                                kind: 'tonconnect-v2',
+                                wallet: 'tonhub',
+                                config: {
+                                    address: solanaPublicKey.toBase58(),
+                                    proof: {
+                                        timestamp: solanaProof.proof.timestamp,
+                                        domain: solanaProof.proof.domain,
+                                        signature: solanaProof.proof.signature,
+                                        payload: solanaProof.proof.payload,
+                                        publicKey: solanaPublicKey.toBase58()
+                                    }
+                                }
                             }
                         }
-                    }, isTestnet, inviteId || storedInviteId);
+                    ];
+
+                    const token = await fetchUserToken(requestParams, isTestnet);
 
                     setHoldersToken(acc.address.toString({ testOnly: isTestnet }), token);
                 } catch {
@@ -212,7 +235,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId }: Hold
         //
 
         try {
-            await onHoldersEnroll(acc.address.toString({ testOnly: isTestnet }), isTestnet);
+            await onHoldersEnroll({ account: acc.address.toString({ testOnly: isTestnet }), isTestnet, solanaAddress });
         } catch {
             console.warn(HoldersEnrollErrorType.AfterEnrollFailed);
         }

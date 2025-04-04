@@ -9,6 +9,12 @@ nacl.setPRNG((x, n) => {
   x.set(randomBytes);
 });
 
+// install crypto polyfill for @solana
+import { install } from 'react-native-quick-crypto';
+import { install as installSolana } from '@solana/webcrypto-ed25519-polyfill';
+install();
+installSolana();
+
 // Navigation
 import 'react-native-gesture-handler';
 

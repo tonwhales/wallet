@@ -10,7 +10,7 @@ import { HoldersAppParams, HoldersAppParamsType } from './HoldersAppFragment';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
-import { useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount, useSupport } from '../../engine/hooks';
+import { useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount, useSolanaAccount, useSolanaSelectedAccount, useSupport } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -30,6 +30,7 @@ import { getSearchParams } from '../../utils/holders/queryParamsStore';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useSelectedAccount()!;
+    const solanaAddress = useSolanaSelectedAccount()!;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
@@ -48,7 +49,7 @@ export const HoldersLandingFragment = fragment(() => {
     const [confirmOnLedger, setConfirmOnLedger] = useState(false);
     const isComponentMounted = useRef(true);
 
-    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
+    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 }, solanaAddress: isLedger ? undefined : solanaAddress });
     const ledgerEnroll = useHoldersLedgerEnroll({ inviteId, setConfirming: setConfirmOnLedger });
     const authenticate = isLedger ? ledgerEnroll : enroll;
 

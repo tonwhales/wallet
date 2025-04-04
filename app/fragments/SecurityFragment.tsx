@@ -6,7 +6,7 @@ import { fragment } from "../fragment"
 import { t } from "../i18n/t"
 import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { useAppState, useHasHoldersProducts, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
+import { useAppState, useHasHoldersProducts, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../engine/hooks';
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
@@ -37,7 +37,8 @@ export const SecurityFragment = fragment(() => {
     const setBiometricsState = useSetBiometricsState();
     const selectedAddress = useSelectedAccount()!.address.toString({ testOnly: isTestnet });
     const selectedAccountIndex = useAppState().selected;
-    const accHasHoldersProducts = useHasHoldersProducts(selectedAddress);
+    const solanaAddress = useSolanaSelectedAccount()!;
+    const accHasHoldersProducts = useHasHoldersProducts(selectedAddress, solanaAddress);
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [lockAppWithAuthState, setLockAppWithAuthState] = useLockAppWithAuthState();
 

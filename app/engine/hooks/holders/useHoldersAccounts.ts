@@ -15,7 +15,18 @@ export type HoldersAccounts = {
     prepaidCards?: PrePaidHoldersCard[]
 }
 
-export function useHoldersAccounts(address: string | Address | undefined) {
+const networkFilter = (account: GeneralHoldersAccount) => {
+    switch (account.network) {
+        case 'ton-testnet':
+        case 'ton-mainnet':
+        case 'solana':
+            return true;
+        default:
+            return false;
+    }
+}
+
+export function useHoldersAccounts(address: string | Address | undefined, solanaAddress?: string) {
     let { isTestnet } = useNetwork();
     let status = useHoldersAccountStatus(address).data;
 
@@ -59,20 +70,22 @@ export function useHoldersAccounts(address: string | Address | undefined) {
                     // fetch apple pay credentials and update provisioning credentials cache
                     await updateProvisioningCredentials(addressString!, isTestnet);
                 } else {
-                    accounts = await fetchAccountsPublic(addressString!, isTestnet);
+                    accounts = await fetchAccountsPublic({ address: addressString!, isTestnet, solanaAddress });
                     type = 'public';
                 }
 
-                const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet')) ?? [];
+                const filtered = accounts?.filter((a) => networkFilter(a)) ?? [];
 
-                return { accounts: filtered.map((a) => {
-                    try {
-                        BigInt(a.balance);
-                        return { ...a, balance: a.balance };
-                    } catch (error) {
-                        return { ...a, balance: '0' }
-                    }
-                }), type, prepaidCards } as HoldersAccounts;
+                return {
+                    accounts: filtered.map((a) => {
+                        try {
+                            BigInt(a.balance);
+                            return { ...a, balance: a.balance };
+                        } catch (error) {
+                            return { ...a, balance: '0' }
+                        }
+                    }), type, prepaidCards
+                } as HoldersAccounts;
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
                     deleteHoldersToken(addressString!);

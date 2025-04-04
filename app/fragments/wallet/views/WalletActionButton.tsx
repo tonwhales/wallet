@@ -7,6 +7,7 @@ import { Typography } from "../../../components/styles";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
+import { ReceiveableSolanaAsset } from "../ReceiveFragment";
 import { useHoldersAccounts, useNetwork, useSelectedAccount } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
@@ -17,6 +18,7 @@ import { SimpleTransferAsset } from "../../secure/simpleTransfer/hooks/useSimple
 
 export enum WalletActionType {
     Send = 'send',
+    SendSolana = 'sendSolana',
     Receive = 'receive',
     Deposit = 'deposit',
     Buy = 'buy',
@@ -32,6 +34,10 @@ export type ReceiveAsset = {
     }
 } | {
     type: 'ton'
+} | {
+    type: 'solana',
+    addr: string,
+    asset?: ReceiveableSolanaAsset;
 }
 
 export type WalletAction = {
@@ -47,6 +53,9 @@ export type WalletAction = {
     asset?: ReceiveAsset
 } | {
     type: WalletActionType.Swap
+} | {
+    type: WalletActionType.SendSolana,
+    token?: string
 } | {
     type: WalletActionType.Scan
 }
@@ -217,6 +226,14 @@ export const WalletActionButton = memo(({
         }
         case WalletActionType.Receive: {
             const navigate = () => {
+                if (action.asset?.type === 'solana') {
+                    navigation.navigateSolanaReceive({
+                        addr: action.asset.addr,
+                        asset: action.asset.asset
+                    });
+                    return;
+                }
+
                 if (!!action.asset) {
                     const address = isLedger ? ledgerContext.addr?.address : undefined;
                     let addr = undefined;
@@ -325,6 +342,32 @@ export const WalletActionButton = memo(({
                         </View>
                         <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
                             {t('wallet.actions.swap')}
+                        </Text>
+                    </View>
+                </Pressable>
+            );
+        }
+        case WalletActionType.SendSolana: {
+            const navigate = () => {
+                navigation.navigateSolanaSimpleTransfer({ token: action.token });
+            }
+
+            return (
+                <Pressable
+                    onPress={navigate}
+                    style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
+                >
+                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{
+                            backgroundColor: theme.accent,
+                            width: 32, height: 32,
+                            borderRadius: 16,
+                            alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <Image source={require('@assets/ic_send.png')} />
+                        </View>
+                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
+                            {t('wallet.actions.send')}
                         </Text>
                     </View>
                 </Pressable>

@@ -23,7 +23,7 @@ import { Typography } from '../components/styles';
 import { TonTransaction } from '../engine/types';
 import { useParams } from '../utils/useParams';
 import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
-import { TransferFragmentProps } from './secure/TransferFragment';
+import { TransferFragmentParams } from './secure/transfer/TransferFragment';
 import { HoldersAppParams } from './holders/HoldersAppFragment';
 import { shouldLockApp } from '../components/SessionWatcher';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
@@ -38,7 +38,7 @@ export type HomeFragmentProps = {
         transaction: TonTransaction
     } | {
         type: 'tonconnect-request',
-        request: TransferFragmentProps
+        request: TransferFragmentParams
     } | {
         type: 'holders-landing',
         endpoint: string;

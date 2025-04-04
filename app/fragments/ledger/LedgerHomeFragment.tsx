@@ -35,14 +35,18 @@ export const LedgerHomeFragment = fragment(() => {
     const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
 
-    const address = useMemo(() => {
+    const wallet = useMemo(() => {
         if (!ledgerContext?.addr) {
             return null;
         }
         try {
-            return Address.parse(ledgerContext.addr.address);
-        } catch { }
+            Address.parse(ledgerContext.addr.address);
+            return ledgerContext.addr;
+        } catch {
+            return null;
+        }
     }, [ledgerContext?.addr?.address]);
+    const address = wallet ? Address.parse(wallet?.address) : null;
     const addressFriendly = address?.toString({ testOnly: isTestnet });
 
     const syncState = useSyncState(addressFriendly);
@@ -154,10 +158,12 @@ export const LedgerHomeFragment = fragment(() => {
                         isLedger={true}
                     />
                 </View>
-                <LedgerProductsComponent
-                    testOnly={isTestnet}
-                    addr={address!.toString({ testOnly: isTestnet })}
-                />
+                {!!wallet && (
+                    <LedgerProductsComponent
+                        testOnly={isTestnet}
+                        wallet={wallet}
+                    />
+                )}
             </Animated.ScrollView>
         </View>
     );

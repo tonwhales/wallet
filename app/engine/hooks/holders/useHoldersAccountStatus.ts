@@ -29,6 +29,19 @@ function migrateHoldersToken(addressString: string) {
     return true;
 }
 
+// Migrate holders token from ton to ton+solana
+// user will be prompted to re-enroll
+const solanaMigrationKey = 'holders-token-solana';
+function migrateHoldersSolanaToken(address: string) {
+    const key = `${solanaMigrationKey}-${address}`;
+    if (storage.getBoolean(key)) {
+        return false;
+    }
+    deleteHoldersToken(address);
+    storage.set(key, true);
+    return true;
+}
+
 export function deleteHoldersToken(address: string) {
     // clean up provisioning credentials cache for this address
     removeProvisioningCredentials(address);
@@ -44,6 +57,12 @@ export function getHoldersToken(address: string) {
     if (migrateHoldersToken(address)) {
         return null;
     }
+
+    // Migate to solana
+    if (migrateHoldersSolanaToken(address)) {
+        return null;
+    }
+
     return storage.getString(`holders-jwt-${address}`);
 }
 

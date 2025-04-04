@@ -11,7 +11,7 @@ type Props = {
     addressComponent: ReactNode;
     amountComponent: ReactNode;
     commentComponent: ReactNode;
-    feesComponent: ReactNode;
+    feesComponent?: ReactNode;
     scrollEnabled: boolean;
     nestedScrollEnabled: boolean;
     selected: "address" | "amount" | "comment" | null;

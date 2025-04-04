@@ -8,7 +8,7 @@ import { ThemeType } from "../../../engine/state/theme";
 import { Jetton } from '../../../engine/types';
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
-import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
+import { TransactionsEmptyState, TransactionsEmptyStateType } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
@@ -99,7 +99,7 @@ export const JettonWalletTransactions = memo((props: {
     theme: ThemeType,
     jetton: Jetton
 }) => {
-    const {theme, navigation, address, ledger, jetton, txs, header, loading, hasNext, sectionedListProps, onLoadMore, onRefresh } = props;
+    const { theme, navigation, address, ledger, jetton, txs, header, loading, hasNext, sectionedListProps, onLoadMore, onRefresh } = props;
     const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
@@ -302,7 +302,19 @@ export const JettonWalletTransactions = memo((props: {
                     />
                 </View>
             ) : null}
-            ListEmptyComponent={loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
+            ListEmptyComponent={loading
+                ? <TransactionsSkeleton />
+                : <TransactionsEmptyState
+                    type={TransactionsEmptyStateType.Ton}
+                    asset={{
+                        content: {
+                            icon: props.jetton.icon,
+                            name: props.jetton.name
+                        },
+                        address: props.jetton.master
+                    }}
+                />
+            }
             renderItem={(item) => (
                 <JettonTransactionListItem
                     {...item}

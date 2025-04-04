@@ -10,7 +10,7 @@ export function resolveLink(link: string) {
         new URL(temp);
         resolved = temp;
     } catch (e) {
-        warn(e);
+        warn(`resolveLink error: ${e}`);
     }
     return resolved;
 }

@@ -36,9 +36,9 @@ export const HeaderSyncStatus = memo(({ address, isLedger, size }: { address?: s
     if (syncState === 'connecting') {
         return (
             <NoConnection
-                height={16}
-                width={16}
-                style={{ height: 16, width: 16 }}
+                height={size ?? 8}
+                width={size ?? 8}
+                style={{ height: size ?? 8, width: size ?? 8 }}
             />
         );
     }

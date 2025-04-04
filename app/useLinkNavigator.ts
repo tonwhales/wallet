@@ -7,8 +7,6 @@ import { useSelectedAccount } from './engine/hooks';
 import { InfiniteData, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { Address, Cell, fromNano, toNano } from '@ton/core';
 import { fetchAccountTransactions } from './engine/api/fetchAccountTransactions';
-import { contractMetadataQueryFn, jettonMasterContentQueryFn } from './engine/hooks/jettons/jettonsBatcher';
-import { getJettonMasterAddressFromMetadata, parseStoredMetadata } from './engine/hooks/transactions/parseStoredMetadata';
 import { AppState, getAppState } from './storage/appState';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import { ToastDuration, Toaster, useToaster } from './components/toast/ToastProvider';
@@ -17,7 +15,7 @@ import { useGlobalLoader } from './components/useGlobalLoader';
 import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
 import { createBackoff } from './utils/time';
 import { getQueryData } from './engine/utils/getQueryData';
-import { AccountStoredTransaction, SelectedAccount, StoredTransaction, TonTransaction, TransactionType } from './engine/types';
+import { AccountStoredTransaction, SelectedAccount, TonTransaction, TransactionType } from './engine/types';
 import { TonConnectAuthType } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { warn } from './utils/log';
 import { getFullConnectionsMap, getStoredConnectExtensions } from './engine/state/tonconnect';
@@ -27,7 +25,6 @@ import { transactionRpcRequestCodec } from './engine/tonconnect/codecs';
 import { sendTonConnectResponse } from './engine/api/sendTonConnectResponse';
 import { extensionKey } from './engine/hooks/dapps/useAddExtension';
 import { ConnectedApp } from './engine/hooks/dapps/useTonConnectExtenstions';
-import { TransferFragmentProps } from './fragments/secure/TransferFragment';
 import { extractDomain } from './engine/utils/extractDomain';
 import { Linking } from 'react-native';
 import { openWithInApp } from './utils/openWithInApp';
@@ -36,8 +33,15 @@ import { HoldersUserState, holdersUrl } from './engine/api/holders/fetchUserStat
 import { getIsConnectAppReady } from './engine/hooks/dapps/useIsConnectAppReady';
 import { HoldersAppParams, HoldersAppParamsType } from './fragments/holders/HoldersAppFragment';
 import { sharedStoragePersistence } from './storage/storage';
+import { TransferFragmentParams } from './fragments/secure/transfer/TransferFragment';
 import { useLedgerTransport } from './fragments/ledger/components/TransportContext';
-
+import { TransferRequestURL } from '@solana/pay';
+import { TransactionRequestURL } from '@solana/pay';
+import { z } from 'zod';
+import axios from 'axios';
+import { SolanaOrderApp } from './fragments/secure/ops/Order';
+import { solanaAddressFromPublicKey } from './utils/solana/address';
+import { Transaction } from '@solana/web3.js';
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
 function tryResolveTonconnectRequest(
@@ -227,7 +231,7 @@ function tryResolveTonconnectRequest(
                 clearFromRequests();
             };
 
-            const prepared: TransferFragmentProps = {
+            const prepared: TransferFragmentParams = {
                 text: null,
                 order: {
                     type: 'order',
@@ -546,6 +550,95 @@ function resolveAndNavigateToHolders(params: HoldersTransactionResolveParams | H
     }
 }
 
+const solanaAppDataShema = z.object({
+    label: z.string(),
+    icon: z.string()
+});
+
+const solanaTransactionSchema = z.object({
+    transaction: z.string(),
+    message: z.string()
+});
+
+async function resolveTransactionRequestURL(request: TransactionRequestURL, navigation: TypedNavigation, selected: SelectedAccount) {
+    const link = request.link;
+    const getRes = await axios.get(link.toString());
+
+    const data = getRes.data;
+    const parsed = solanaAppDataShema.safeParse(data);
+
+    let solanaAppData: SolanaOrderApp | undefined;
+
+    if (parsed.success) {
+        let domain: string | undefined;
+        try {
+            domain = extractDomain(link.toString());
+        } catch { }
+
+        solanaAppData = {
+            label: parsed.data.label,
+            image: parsed.data.icon,
+            domain
+        };
+    }
+
+    const solanaAddress = solanaAddressFromPublicKey(selected.publicKey);
+    const postRes = await axios.post(link.toString(), {
+        account: solanaAddress.toString()
+    });
+
+    const postData = postRes.data;
+    const postParsed = solanaTransactionSchema.safeParse(postData);
+
+    if (postParsed.success) {
+        if (solanaAppData) {
+            solanaAppData.message = postParsed.data.message;
+        }
+        try {
+            const transaction = postParsed.data.transaction;
+            Transaction.from(Buffer.from(transaction, 'base64'));
+            navigation.navigateSolanaTransfer({
+                type: 'transaction',
+                transaction,
+                app: solanaAppData
+            });
+        } catch { }
+    }
+}
+
+async function resolveAndNavigateToSolanaTransfer(params: {
+    selected: SelectedAccount | null,
+    navigation: TypedNavigation,
+    isTestnet: boolean,
+    request: TransactionRequestURL | TransferRequestURL
+}) {
+    const { selected, navigation, request } = params;
+
+    if (!!(request as unknown as any).link) {
+        const transaction = request as TransactionRequestURL;
+        if (selected) {
+            resolveTransactionRequestURL(transaction, navigation, selected);
+        }
+    } else {
+        const transfer = request as TransferRequestURL;
+        navigation.navigateSolanaTransfer({
+            type: 'order',
+            order: {
+                type: 'solana',
+                target: transfer.recipient.toString(),
+                comment: transfer.memo ?? null,
+                amount: BigInt(transfer.amount?.toString() ?? '0'),
+                token: transfer.splToken ? { mint: transfer.splToken.toString() } : null,
+                reference: transfer.reference,
+                app: {
+                    label: transfer.label,
+                    message: transfer.message
+                }
+            },
+        });
+    }
+}
+
 function resolveHoldersInviteLink(params: {
     navigation: TypedNavigation,
     isTestnet: boolean,
@@ -744,6 +837,15 @@ export function useLinkNavigator(
                     isTestnet,
                     inviteId: resolved.inviteId
                 })
+                break;
+            }
+            case 'solana-transfer': {
+                resolveAndNavigateToSolanaTransfer({
+                    selected,
+                    navigation,
+                    isTestnet,
+                    request: resolved.request
+                });
                 break;
             }
         }

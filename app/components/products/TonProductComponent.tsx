@@ -55,26 +55,21 @@ export const TonProductComponent = memo(({
                             width: 46
                         }}
                     />
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        height: 20, width: 20, borderRadius: 10,
-                        position: 'absolute', right: -2, bottom: -2,
-                        backgroundColor: theme.surfaceOnBg
-                    }}>
+                </View>
+                <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text
+                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {'TON'}
+                        </Text>
                         <Image
                             source={require('@assets/ic-verified.png')}
                             style={{ height: 20, width: 20 }}
                         />
                     </View>
-                </View>
-                <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                    <Text
-                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {'TON'}
-                    </Text>
                     <Text
                         numberOfLines={1}
                         ellipsizeMode={'tail'}

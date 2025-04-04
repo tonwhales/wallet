@@ -590,6 +590,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_LINK_SCHEMA = ton;
+				BUNDLE_SOL_SCHEMA = solana;
 				BUNDLE_TC_SCHEMA = tc;
 				BUNDLE_TH_SCHEMA = tonhub;
 				CLANG_ENABLE_MODULES = YES;
@@ -647,6 +648,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUNDLE_DOMAIN = tonhub.com;
 				BUNDLE_LINK_SCHEMA = ton;
+				BUNDLE_SOL_SCHEMA = solana;
 				BUNDLE_TC_SCHEMA = tc;
 				BUNDLE_TH_SCHEMA = tonhub;
 				CLANG_ENABLE_MODULES = YES;
@@ -1266,6 +1268,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconTestNet;
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
+				BUNDLE_SOL_SCHEMA = solana;
 				BUNDLE_TC_SCHEMA = "tc-test";
 				BUNDLE_TH_SCHEMA = "tonhub-test";
 				CLANG_ENABLE_MODULES = YES;
@@ -1389,6 +1392,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconTestNet;
 				BUNDLE_DOMAIN = test.tonhub.com;
 				BUNDLE_LINK_SCHEMA = "ton-test";
+				BUNDLE_SOL_SCHEMA = solana;
 				BUNDLE_TC_SCHEMA = "tc-test";
 				BUNDLE_TH_SCHEMA = "tonhub-test";
 				CLANG_ENABLE_MODULES = YES;

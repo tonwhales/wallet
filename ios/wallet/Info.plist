@@ -38,6 +38,7 @@
 				<string>$(BUNDLE_TC_SCHEMA)</string>
 				<string>$(BUNDLE_LINK_SCHEMA)</string>
 				<string>$(BUNDLE_TH_SCHEMA)</string>
+				<string>$(BUNDLE_SOL_SCHEMA)</string>
 			</array>
 		</dict>
 	</array>

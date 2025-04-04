@@ -28,7 +28,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
     const autoConnect = useAutoConnect(address);
     const removeInjectedConnection = useRemoveInjectedConnection(address);
     const onDisconnect = useDisconnectApp(address);
-    
+
     const account = address ?? getCurrentAddress().addressString;
     const handleLedgerRequest = useHoldersLedgerTonconnectHandler();
 
@@ -272,8 +272,8 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                     // TODO: *solana* check if transaction is valid
 
                     navigation.navigateSolanaTransfer({
-                        type: 'transaction',
-                        transaction,
+                        type: 'message',
+                        message: transaction,
                         callback
                     });
                 });

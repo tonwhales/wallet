@@ -1,7 +1,7 @@
 import { Platform, ScrollView, View, Text, Pressable, Alert } from "react-native";
 import { fragment } from "../../../fragment";
 import { useParams } from "../../../utils/useParams";
-import { SolanaOrder } from "../ops/Order"
+import { SolanaOrder, SolanaOrderApp } from "../ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useSolanaClient, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana } from "../../../engine/hooks";
@@ -25,18 +25,25 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { Message, Transaction } from "@solana/web3.js";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
 import { TransferInstructions } from "../components/TransferInstructions";
+import { WImage } from "../../../components/WImage";
 
 type SolanaOrderTransferParams = {
     type: 'order';
     order: SolanaOrder
 }
 
+type SolanaMessageTransferParams = {
+    type: 'message';
+    message: string;
+}
+
 type SolanaTransactionTransferParams = {
     type: 'transaction';
     transaction: string;
+    app?: SolanaOrderApp;
 }
 
-export type SolanaTransferParams = (SolanaOrderTransferParams | SolanaTransactionTransferParams) & {
+export type SolanaTransferParams = (SolanaOrderTransferParams | SolanaMessageTransferParams | SolanaTransactionTransferParams) & {
     callback?: (ok: boolean, signature: string | null) => void
 };
 
@@ -48,25 +55,54 @@ type TransferLoadedParams = {
     type: 'instructions';
     instructions: ReturnType<typeof parseTransactionInstructions>;
     transaction: Transaction;
+    app?: SolanaOrderApp;
 }
 
 function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | null {
-    if (order.type === 'order') {
-        return order;
+    switch (order.type) {
+        case 'order':
+            return order;
+        case 'message':
+            try {
+                const message = Message.from(Buffer.from(order.message, 'base64'));
+                const transaction = Transaction.populate(message);
+                return {
+                    type: 'instructions',
+                    instructions: parseTransactionInstructions(transaction.instructions),
+                    transaction
+                };
+            } catch {
+                return null;
+            }
+        case 'transaction':
+            try {
+                const transaction = Transaction.from(Buffer.from(order.transaction, 'base64'));
+                return {
+                    type: 'instructions',
+                    instructions: parseTransactionInstructions(transaction.instructions),
+                    transaction,
+                    app: order.app
+                };
+            } catch {
+                return null;
+            }
+        default:
+            return null;
     }
+}
 
-    try {
-        const message = Message.from(Buffer.from(order.transaction, 'base64'));
-        const transaction = Transaction.populate(message);
-        return {
-            type: 'instructions',
-            instructions: parseTransactionInstructions(transaction.instructions),
-            transaction
-        };
-    } catch {
-        return null;
-    }
-
+const OrderAppHeader = ({ order }: { order: SolanaOrderApp }) => {
+    const theme = useTheme();
+    return (
+        <ItemGroup style={{ marginTop: 16, paddingHorizontal: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                {order.image && <WImage src={order.image} width={24} height={24} borderRadius={12} />}
+                {order.domain && <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>{t('transfer.requestsToSign', { app: order.domain })}</Text>}
+            </View>
+            {order.message && <Text style={[{ color: theme.textSecondary }, Typography.regular17_24]}>{order.message}</Text>}
+            {order.label && <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>{order.label}</Text>}
+        </ItemGroup>
+    );
 }
 
 const TransferOrder = (order: SolanaOrder) => {
@@ -123,6 +159,7 @@ const TransferOrder = (order: SolanaOrder) => {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
+                    {order.app && <OrderAppHeader order={order.app} />}
                     <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
                         <View style={{
                             backgroundColor: theme.divider,

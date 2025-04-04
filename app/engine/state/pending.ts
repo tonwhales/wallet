@@ -129,8 +129,8 @@ export type PendingSolanaTransactionTx = {
         amount: bigint,
         token: {
             mint: string,
-            symbol: string,
-            decimals: number
+            symbol?: string,
+            decimals?: number
         } | null | undefined,
         target: string,
         sender: string

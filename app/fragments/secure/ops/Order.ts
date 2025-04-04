@@ -2,6 +2,7 @@ import { Address, beginCell, Cell, comment, fromNano, toNano } from "@ton/core";
 import { OperationType } from "../../../engine/transactions/parseMessageBody";
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
 import { SignRawMessage } from "../../../engine/tonconnect/types";
+import { PublicKey } from "@solana/web3.js";
 
 export type Order = {
     type: 'order';
@@ -37,16 +38,25 @@ export type LedgerOrder = {
     }
 };
 
+export type SolanaOrderApp = {
+    domain?: string;
+    image?: string | null;
+    label?: string | null;
+    message?: string | null;
+}
+
 export type SolanaOrder = {
     type: 'solana';
     target: string;
     token?: {
         mint: string;
-        symbol: string;
-        decimals: number;
+        symbol?: string;
+        decimals?: number;
     } | null;
     amount: bigint;
     comment: string | null;
+    app?: SolanaOrderApp;
+    reference?: PublicKey[] | null;
 }
 
 

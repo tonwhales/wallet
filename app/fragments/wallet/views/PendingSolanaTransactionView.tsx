@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo } from "react";
 import { View, Text } from "react-native";
-import { PendingSolanaTransaction, PendingSolanaTransactionInstructions } from "../../../engine/state/pending";
-import { useNetwork, usePendingSolanaActions, useSolanaTransactionStatus, useSolanaTransferInstruction, useTheme } from "../../../engine/hooks";
+import { PendingSolanaTransaction, PendingSolanaTransactionInstructions, PendingSolanaTransactionTx } from "../../../engine/state/pending";
+import { useNetwork, usePendingSolanaActions, useSolanaToken, useSolanaTransactionStatus, useTheme } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { t } from "../../../i18n/t";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
@@ -167,29 +167,27 @@ const PendingInstructionsView = memo(({
     );
 });
 
-export const PendingSolanaTransactionView = memo(({
-    transaction,
-    last,
-    single,
-    viewType = 'main',
-    address
-}: {
-    transaction: PendingSolanaTransaction,
-    last?: boolean,
-    single?: boolean,
-    viewType?: 'history' | 'main' | 'jetton-history',
-    address: string
-}) => {
-
-    if (transaction.type === 'instructions') {
-        return <PendingInstructionsView transaction={transaction} address={address} />;
+const PendingTxView = memo((
+    {
+        transaction,
+        last,
+        single,
+        viewType = 'main',
+        address
+    }: {
+        transaction: PendingSolanaTransactionTx,
+        last?: boolean,
+        single?: boolean,
+        viewType?: 'history' | 'main' | 'jetton-history',
+        address: string
     }
-
+) => {
     const { target, amount, token } = transaction.tx;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const status = useSolanaTransactionStatus(address, transaction.id, isTestnet ? 'devnet' : 'mainnet');
+    const tokenData = useSolanaToken(address, token?.mint);
     const { markAsTimedOut, remove } = usePendingSolanaActions(address, isTestnet);
 
     const statusText = useMemo(() => {
@@ -223,6 +221,9 @@ export const PendingSolanaTransactionView = memo(({
     const onOpen = useCallback(() => {
         navigation.navigatePendingSolanaTransaction(transaction);
     }, [transaction]);
+
+    const symbol = token?.symbol ?? tokenData?.symbol ?? 'SOL';
+    const decimals = token?.decimals ?? tokenData?.decimals ?? 9;
 
     return (
         <Animated.View
@@ -312,8 +313,8 @@ export const PendingSolanaTransactionView = memo(({
                         {'-'}
                         <ValueComponent
                             value={amount}
-                            decimals={token?.decimals}
-                            suffix={token?.symbol ? ` ${token.symbol}` : ' SOL'}
+                            decimals={decimals}
+                            suffix={` ${symbol}`}
                             precision={2}
                             centFontStyle={{ fontSize: 15 }}
                         />
@@ -322,5 +323,24 @@ export const PendingSolanaTransactionView = memo(({
             </Pressable>
         </Animated.View>
     )
+});
+
+export const PendingSolanaTransactionView = memo(({
+    transaction,
+    last,
+    single,
+    viewType = 'main',
+    address
+}: {
+    transaction: PendingSolanaTransaction,
+    last?: boolean,
+    single?: boolean,
+    viewType?: 'history' | 'main' | 'jetton-history',
+    address: string
+}) => {
+    if (transaction.type === 'instructions') {
+        return <PendingInstructionsView transaction={transaction} address={address} />;
+    }
+    return <PendingTxView transaction={transaction} address={address} />;
 });
 PendingSolanaTransactionView.displayName = 'PendingSolanaTransactionView';

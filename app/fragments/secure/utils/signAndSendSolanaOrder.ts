@@ -81,7 +81,7 @@ export function mapTransferError(error: SendTransactionError) {
                     return new SendSolanaTransactionError(t('transfer.solana.error.insufficientTokenFunds'));
                 }
             }
-            return new SendSolanaTransactionError(t('transfer.solana.error.insufficientLamports'));
+            return new SendSolanaTransactionError(logs.join('\n'));
         }
     }
 
@@ -96,7 +96,7 @@ export function mapSolanaError(error: any) {
 }
 
 export async function signAndSendSolanaOrder({ solanaClient, theme, authContext, order, sender }: SendSolanaOrderParams): Promise<PendingSolanaTransaction> {
-    const { target, comment, amount, token } = order;
+    const { target, comment, amount, token, reference } = order;
     const mintAddress = token ? new PublicKey(token.mint) : null;
     const owner = new PublicKey(sender);
     const recipient = new PublicKey(target);
@@ -113,13 +113,17 @@ export async function signAndSendSolanaOrder({ solanaClient, theme, authContext,
     }
 
     if (!mintAddress) { // generic solana transfer
-        transaction.add(
-            SystemProgram.transfer({
-                fromPubkey: owner,
-                toPubkey: recipient,
-                lamports: amount
-            })
-        );
+        const instruction = SystemProgram.transfer({
+            fromPubkey: owner,
+            toPubkey: recipient,
+            lamports: amount
+        });
+
+        if (reference) {
+            instruction.keys.push(...reference.map(ref => ({ pubkey: ref, isSigner: false, isWritable: true })));
+        }
+
+        transaction.add(instruction);
     } else { // token transfer
         let senderTokenAccount: Account;
 
@@ -164,6 +168,10 @@ export async function signAndSendSolanaOrder({ solanaClient, theme, authContext,
             owner,
             amount
         );
+
+        if (reference) {
+            transferInstruction.keys.push(...reference.map(ref => ({ pubkey: ref, isSigner: false, isWritable: true })));
+        }
 
         transaction.add(transferInstruction);
     }

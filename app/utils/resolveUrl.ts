@@ -5,6 +5,7 @@ import { SupportedDomains } from "./SupportedDomains";
 import isValid from 'is-valid-domain';
 import { ConnectPushQuery, ConnectQrQuery } from "../engine/tonconnect/types";
 import { setLastReturnStrategy } from "../engine/tonconnect/utils";
+import { parseURL, TransactionRequestURL, TransferRequestURL } from "@solana/pay";
 
 export enum ResolveUrlError {
     InvalidAddress = 'InvalidAddress',
@@ -17,7 +18,8 @@ export enum ResolveUrlError {
     InvalidJettonAmounts = 'InvalidJettonAmounts',
     InvalidInappUrl = 'InvalidInappUrl',
     InvalidExternalUrl = 'InvalidExternalUrl',
-    InvalidHoldersPath = 'InvalidHoldersPath'
+    InvalidHoldersPath = 'InvalidHoldersPath',
+    InvalidSolanaTransferUrl = 'InvalidSolanaTransferUrl'
 }
 
 export type ResolvedTonTxUrl = {
@@ -84,6 +86,9 @@ export type ResolvedUrl = ResolvedTxUrl
     } | {
         type: 'holders-invite',
         inviteId: string
+    } | {
+        type: 'solana-transfer',
+        request: TransactionRequestURL | TransferRequestURL
     }
 
 export function isUrl(str: string): boolean {
@@ -248,6 +253,19 @@ function resolveTransferUrl(url: Url<Record<string, string | undefined>>): Resol
     }
 }
 
+export function resolveSolanaTransferUrl(url: Url<Record<string, string | undefined>>): ResolvedUrl {
+    const parsed = parseURL(url.toString());
+
+    if (!parsed) {
+        return { type: 'error', error: ResolveUrlError.InvalidSolanaTransferUrl };
+    }
+
+    return {
+        type: 'solana-transfer',
+        request: parsed
+    }
+}
+
 export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
     // Try address parsing
@@ -268,6 +286,10 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
     // Parse url
     try {
         const url = new Url(src, true);
+
+        if (url.protocol.toLowerCase() === 'solana:') {
+            return resolveSolanaTransferUrl(url);
+        }
 
         const isTonUrl = url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:';
         const isHttpUrl = url.protocol.toLowerCase() === 'http:' || url.protocol.toLowerCase() === 'https:';

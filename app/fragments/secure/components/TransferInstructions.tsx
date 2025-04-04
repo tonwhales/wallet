@@ -2,7 +2,7 @@ import { parseTransactionInstructions } from "../../../utils/solana/parseInstruc
 import { useRegisterPendingSolana, useSolanaClient, useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { Message, PublicKey, Transaction } from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { Alert, ScrollView, View } from "react-native";
 import { TransferInstructionView } from "../../solana/transfer/components/TransferInstructionView";
 import { RoundButton } from "../../../components/RoundButton";

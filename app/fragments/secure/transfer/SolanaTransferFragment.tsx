@@ -91,16 +91,16 @@ function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | n
     }
 }
 
-const OrderAppHeader = ({ order }: { order: SolanaOrderApp }) => {
+export const SolanaTransactionAppHeader = ({ order }: { order: SolanaOrderApp }) => {
     const theme = useTheme();
     return (
         <ItemGroup style={{ marginTop: 16, paddingHorizontal: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 {order.image && <WImage src={order.image} width={24} height={24} borderRadius={12} />}
-                {order.domain && <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>{t('transfer.requestsToSign', { app: order.domain })}</Text>}
+                {order.label && <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>{order.label}</Text>}
             </View>
+            {order.domain && <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>{t('transfer.requestsToSign', { app: order.domain })}</Text>}
             {order.message && <Text style={[{ color: theme.textSecondary }, Typography.regular17_24]}>{order.message}</Text>}
-            {order.label && <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>{order.label}</Text>}
         </ItemGroup>
     );
 }
@@ -159,7 +159,7 @@ const TransferOrder = (order: SolanaOrder) => {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
-                    {order.app && <OrderAppHeader order={order.app} />}
+                    {order.app && <SolanaTransactionAppHeader order={order.app} />}
                     <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
                         <View style={{
                             backgroundColor: theme.divider,
@@ -291,6 +291,7 @@ const TransferLoaded = (params: SolanaTransferParams) => {
             instructions={transfer.instructions}
             transaction={transfer.transaction}
             callback={params.callback}
+            app={transfer.app}
         />
     );
 }

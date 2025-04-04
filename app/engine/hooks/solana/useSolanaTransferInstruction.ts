@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { HoldersDepositInstruction, HoldersLimitsInstruction, ParsedTransactionInstruction } from "../../../utils/solana/parseInstructions";
+import { HoldersCloseCardInstruction, HoldersDepositInstruction, HoldersLimitsInstruction, ParsedTransactionInstruction } from "../../../utils/solana/parseInstructions";
 import { useSolanaToken } from "./useSolanaToken";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { SOLANA_USDC_MINT_DEVNET } from "../../../utils/solana/address";
@@ -55,7 +55,15 @@ export function useSolanaTransferInstruction(instruction: ParsedTransactionInstr
                     daily: update.args?.find((arg: any) => arg.name === 'newDaily')?.data,
                     monthly: update.args?.find((arg: any) => arg.name === 'newMonthly')?.data,
                 };
+                break;
+            case 'closeCard':
+                const close = instruction as unknown as HoldersCloseCardInstruction;
 
+                from = close.accounts?.find((account: any) => account.name === 'Signer')?.pubkey.toString() ?? '';
+                to = close.accounts?.find((account: any) => account.name === 'Card')?.pubkey.toString() ?? '';
+                mint = close.accounts?.find((account: any) => account.name === 'Token Mint')?.pubkey.toString() ?? '';
+
+                isHoldersOp = true;
                 break;
         }
 

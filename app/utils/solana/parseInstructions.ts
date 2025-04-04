@@ -43,7 +43,15 @@ export type HoldersDepositInstruction = {
     description: string;
 }
 
-export type HoldersInstructionName = 'updateCardLimits' | 'depositCard';
+export type HoldersCloseCardInstruction = {
+    program: 'Holders',
+    programId: string,
+    name: 'closeCard',
+    accounts: SolanaInstructionAccounts[],
+    description: string;
+}
+
+export type HoldersInstructionName = 'updateCardLimits' | 'depositCard' | 'closeCard';
 export type InstructionName = HoldersInstructionName | 'systemTransfer' | 'createAccount' | 'tokenTransfer' | 'createAssociatedTokenAccount' | 'unknown';
 
 /**

@@ -11,11 +11,14 @@ import { useCallback, useEffect, useRef } from "react";
 import { t } from "../../../i18n/t";
 import { SolanaTransferFees } from "../../solana/transfer/components/SolanaTransferFees";
 import { warn } from "../../../utils/log";
+import { SolanaTransactionAppHeader } from "../transfer/SolanaTransferFragment";
+import { SolanaOrderApp } from "../ops/Order";
 
 export const TransferInstructions = (params: {
     instructions: ReturnType<typeof parseTransactionInstructions>;
     transaction: Transaction;
-    callback?: (ok: boolean, signature: string | null) => void
+    callback?: (ok: boolean, signature: string | null) => void,
+    app?: SolanaOrderApp
 }) => {
     const theme = useTheme();
     const solanaClient = useSolanaClient();
@@ -68,6 +71,7 @@ export const TransferInstructions = (params: {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column', gap: 16 }}>
+                    {params.app && <SolanaTransactionAppHeader order={params.app} />}
                     {instructions.map((instruction, index) => (
                         <TransferInstructionView
                             key={index}

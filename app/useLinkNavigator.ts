@@ -556,7 +556,8 @@ const solanaAppDataShema = z.object({
 });
 
 const solanaTransactionSchema = z.object({
-    transaction: z.string()
+    transaction: z.string(),
+    message: z.string()
 });
 
 async function resolveTransactionRequestURL(request: TransactionRequestURL, navigation: TypedNavigation, selected: SelectedAccount) {
@@ -590,6 +591,9 @@ async function resolveTransactionRequestURL(request: TransactionRequestURL, navi
     const postParsed = solanaTransactionSchema.safeParse(postData);
 
     if (postParsed.success) {
+        if (solanaAppData) {
+            solanaAppData.message = postParsed.data.message;
+        }
         try {
             const transaction = postParsed.data.transaction;
             Transaction.from(Buffer.from(transaction, 'base64'));

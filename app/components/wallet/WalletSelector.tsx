@@ -52,7 +52,13 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
 
     const renderItem = useCallback(({ item, index }: { item: Item, index: number }) => {
         if (item.type === 'ledger') {
-            const selected = (item.address.address === connectedLedgerAddress) && isPrevScreenLedger;
+            let selected = false;
+            try {
+                const itemAddress = Address.parse(item.address.address).toString({ testOnly: isTestnet, bounceable: bounceableFormat });
+                selected = (itemAddress === connectedLedgerAddress) && isPrevScreenLedger;
+            } catch {
+                selected = false;
+            }
 
             return (
                 <LedgerWalletItem

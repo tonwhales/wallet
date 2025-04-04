@@ -4,7 +4,7 @@ import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
-import { useNetwork, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useBounceableWalletFormat, useNetwork, useTheme, useWalletSettings } from "../../engine/hooks";
 import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { KnownWallets } from "../../secure/KnownWallets";
@@ -27,6 +27,7 @@ export const LedgerWalletItem = memo(({ ledgerWallet, onSelect, selected, index 
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
     const [walletSettings] = useWalletSettings(address);
+    const [bounceableFormat] = useBounceableWalletFormat();
     const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
@@ -71,7 +72,7 @@ export const LedgerWalletItem = memo(({ ledgerWallet, onSelect, selected, index 
                     {walletSettings?.name ?? `${t('hardwareWallet.ledger')} ${index + 1}`}
                 </Text>
                 <Text style={styles.subtitleText}>
-                    {ellipsiseAddress(ledgerWallet.address)}
+                    {ellipsiseAddress(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }))}
                 </Text>
             </View>
             <View

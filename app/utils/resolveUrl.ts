@@ -253,9 +253,8 @@ function resolveTransferUrl(url: Url<Record<string, string | undefined>>): Resol
     }
 }
 
-export function resolveSolanaTransferUrl(url: Url<Record<string, string | undefined>>): ResolvedUrl {
-    const parsed = parseURL(url.toString());
-
+export function resolveSolanaTransferUrl(url: string): ResolvedUrl {
+    const parsed = parseURL(url);
     if (!parsed) {
         return { type: 'error', error: ResolveUrlError.InvalidSolanaTransferUrl };
     }
@@ -288,7 +287,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
         const url = new Url(src, true);
 
         if (url.protocol.toLowerCase() === 'solana:') {
-            return resolveSolanaTransferUrl(url);
+            return resolveSolanaTransferUrl(src);
         }
 
         const isTonUrl = url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:';

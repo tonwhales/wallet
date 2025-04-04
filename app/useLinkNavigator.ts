@@ -561,8 +561,6 @@ const solanaTransactionSchema = z.object({
 
 async function resolveTransactionRequestURL(request: TransactionRequestURL, navigation: TypedNavigation, selected: SelectedAccount) {
     const link = request.link;
-
-    console.log('resolveTransactionRequestURL', link.toString());
     const getRes = await axios.get(link.toString());
 
     const data = getRes.data;

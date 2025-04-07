@@ -411,13 +411,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             amount = BigInt(-1) * account!.balance;
         }
 
-        // let body: PendingTransactionBody | null = order.messages[0].payload
-        //     ? { type: 'payload', cell: order.messages[0].payload, stateInit: order.messages[0].stateInit, extraCurrency: order.messages[0].extraCurrency }
-        //     : (text && text.length > 0
-        //         ? { type: 'comment', comment: text, extraCurrency: order.messages[0].extraCurrency }
-        //         : null
-        //     );
-
         let body: PendingTransactionBody | null = null;
 
         if (order.messages[0].payload) {

@@ -440,7 +440,10 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         target,
         validAmount,
         walletVersion,
-        callback: params?.callback
+        callback: params?.callback,
+        tonTransport: ledgerTransport.tonTransport,
+        isReconnectLedger: ledgerTransport.isReconnectLedger,
+        onShowLedgerConnectionError: ledgerTransport.onShowLedgerConnectionError,
     });
 
     const doSend = useCallback(async () => {
@@ -459,7 +462,10 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
             target,
             validAmount,
             walletVersion,
-            callback
+            callback,
+            tonTransport,
+            isReconnectLedger,
+            onShowLedgerConnectionError
         } = doSendData.current;
 
         if (validAmount === null || validAmount < 0n) {
@@ -520,6 +526,10 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         if (Platform.OS === 'ios') Keyboard.dismiss();
 
         if (isLedger) {
+            if (!(tonTransport && !isReconnectLedger)) {
+                onShowLedgerConnectionError()
+                return;
+            }
             navigation.replace('LedgerSignTransfer', { text: null, order: order as LedgerOrder });
             return;
         }

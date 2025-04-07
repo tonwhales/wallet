@@ -81,7 +81,9 @@ export function TransactionView(props: {
     const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, own.toString({ testOnly: isTestnet }));
     const extraCurrencies = Object.entries(extraCurrencyMap ?? {}).map(([, extraCurrency]) => {
         const amount = extraCurrency.amount;
-        return `-${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${extraCurrency.preview.symbol}`;
+        const symbol = extraCurrency.preview.symbol;
+        const sign = isOutgoing ? '-' : '+';
+        return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
     });
 
     const walletSettings = props.walletsSettings[parsedAddressFriendly];
@@ -138,19 +140,17 @@ export function TransactionView(props: {
         if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
+    }, [targetContract, holdersOp, ledgerAddresses, opAddress]);
 
-        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+    const isLedgerTarget = useMemo(() => {
+        return !!ledgerAddresses?.find((addr) => {
             try {
                 return Address.parse(opAddress)?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-
-        if (isLedgerTarget) {
-            return 'ledger';
-        }
-    }, [targetContract, holdersOp, ledgerAddresses, opAddress]);
+    }, [ledgerAddresses, opAddress]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -221,6 +221,7 @@ export function TransactionView(props: {
                             time={tx.base.time}
                             status={parsed.status}
                             knownWallets={knownWallets}
+                            ledger={isLedgerTarget}
                         />
                     );
                 })}
@@ -265,6 +266,7 @@ export function TransactionView(props: {
                         knownWallets={knownWallets}
                         forceAvatar={forcedAvatar}
                         verified={verified}
+                        isLedger={isLedgerTarget}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>
@@ -385,7 +387,7 @@ export function TransactionView(props: {
                                 minimumFontScale={0.4}
                                 adjustsFontSizeToFit={true}
                                 numberOfLines={1}
-                                style={[{ color: theme.textPrimary, marginTop: 12 }, Typography.semiBold17_24]}
+                                style={[{ color: amountColor, marginTop: 12 }, Typography.semiBold17_24]}
                             >
                                 {text}
                             </PerfText>

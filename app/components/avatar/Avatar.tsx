@@ -44,6 +44,7 @@ export const avatarImages = [
 const myWalletSource = require('@assets/ic-my-wallet.png');
 const verifiedSource = require('@assets/ic-verified.png');
 const contactSource = require('@assets/ic-contact.png');
+const ledgerSource = require('@assets/ledger_device.png');
 
 export const avatarColors = [
     '#C07DF4',
@@ -166,9 +167,10 @@ export const Avatar = memo((props: {
     icProps?: AvatarIcProps,
     theme: ThemeType,
     hashColor?: { hash: number } | boolean,
-    knownWallets: { [key: string]: KnownWallet }
+    knownWallets: { [key: string]: KnownWallet },
+    isLedger?: boolean
 }) => {
-    const { theme, address, hashColor, icProps, size, showSpambadge, spam, markContact, verified, dontShowVerified, borderColor, borderWidth, image } = props
+    const { theme, address, hashColor, icProps, size, showSpambadge, spam, markContact, verified, dontShowVerified, borderColor, borderWidth, image, isLedger } = props
     const known = address ? props.knownWallets[address] : undefined;
     const hash = (props.hash !== undefined && props.hash !== null)
         ? props.hash
@@ -179,11 +181,19 @@ export const Avatar = memo((props: {
     // resolve image
     let img: ReactNode;
 
-    if (props.image) {
+    if (image) {
         img = (
             <ExpoImage
                 source={{ uri: props.image }}
                 style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
+            />
+        );
+    } else if (isLedger) {
+        img = (
+            <ExpoImage
+                source={ledgerSource}
+                contentFit="contain"
+                style={{ width: props.size * 0.7, height: props.size * 0.7 }}
             />
         );
     } else if (!known || (!known.ic) && imgSource) {
@@ -231,25 +241,6 @@ export const Avatar = memo((props: {
 
     let isSpam = showSpambadge && spam;
     let ic = resolveAvatarIc({ markContact, verified, dontShowVerified, icProps, isSpam, icPosition, icSize, known: !!known, icOutline }, theme);
-
-    if (image) {
-        img = (
-            <ExpoImage
-                source={{ uri: image }}
-                style={{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden' }}
-            />
-        );
-    } else if (!known || (!known.ic) && imgSource) {
-        const animalSize = size + 8
-        img = (
-            <ExpoImage
-                source={imgSource}
-                style={{ width: animalSize, height: animalSize, borderRadius: animalSize / 2, overflow: 'hidden' }}
-            />
-        );
-    } else {
-        img = <KnownAvatar size={size} wallet={known} />;
-    }
 
     return (
         <PerfView>

@@ -14,13 +14,15 @@ export const TransferHeader = memo(({
     isTestnet,
     address,
     bounceable,
-    knownWallets
+    knownWallets,
+    isLedger
 }: {
     theme: ThemeType,
     isTestnet: boolean,
     address: Address,
     bounceable?: boolean,
-    knownWallets: { [key: string]: KnownWallet }
+    knownWallets: { [key: string]: KnownWallet },
+    isLedger: boolean
 }) => {
     const addressKey = address.toString({ testOnly: isTestnet });
     const addressFriendly = address.toString({ testOnly: isTestnet, bounceable });
@@ -52,6 +54,7 @@ export const TransferHeader = memo(({
                 hash={walletSettings?.avatar}
                 backgroundColor={avatarColor}
                 knownWallets={knownWallets}
+                isLedger={isLedger}
             />
             <Text style={[{ color: theme.textPrimary, marginLeft: 6, minHeight: 24 }, Typography.medium17_24]}>
                 {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}

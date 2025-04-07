@@ -19,7 +19,8 @@ export const TxAvatar = memo((
         avatarColor,
         knownWallets,
         forceAvatar,
-        verified
+        verified,
+        isLedger
     }: {
         status: "failed" | "pending" | "success",
         parsedAddressFriendly: string,
@@ -32,7 +33,8 @@ export const TxAvatar = memo((
         avatarColor: string,
         knownWallets: { [key: string]: KnownWallet },
         forceAvatar?: ForcedAvatarType,
-        verified?: boolean
+        verified?: boolean,
+        isLedger?: boolean
     }
 ) => {
 
@@ -45,6 +47,7 @@ export const TxAvatar = memo((
                 theme={theme}
                 knownWallets={knownWallets}
                 forceAvatar={forceAvatar}
+                isLedger={isLedger}
             />
         );
     }
@@ -83,6 +86,7 @@ export const TxAvatar = memo((
             backgroundColor={avatarColor}
             hash={walletSettings?.avatar}
             verified={verified}
+            isLedger={isLedger}
         />
     );
 });

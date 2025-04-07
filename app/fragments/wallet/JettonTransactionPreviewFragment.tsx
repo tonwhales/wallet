@@ -108,19 +108,17 @@ const JettonTransactionPreview = () => {
         } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
+    }, [targetContract?.kind, ledgerAddresses, opAddress]);
 
-        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+    const isLedgerTarget = useMemo(() => {
+        return !!ledgerAddresses?.find((addr) => {
             try {
                 return Address.parse(opAddress)?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-
-        if (isLedgerTarget) {
-            return 'ledger';
-        }
-    }, [targetContract, ledgerAddresses, opAddress]);
+    }, [ledgerAddresses, opAddress]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -296,6 +294,7 @@ const JettonTransactionPreview = () => {
                             theme={theme}
                             knownWallets={knownWallets}
                             hash={opAddressWalletSettings?.avatar}
+                            isLedger={isLedgerTarget}
                         />
                     )}
                     <PerfText

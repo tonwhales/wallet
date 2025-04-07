@@ -100,19 +100,17 @@ export function JettonTransactionView(props: {
         if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
+    }, [targetContract, opAddress, ledgerAddresses]);
 
-        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+    const isLedgerTarget = useMemo(() => {
+        return !!ledgerAddresses?.find((addr) => {
             try {
                 return Address.parse(opAddress)?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-
-        if (isLedgerTarget) {
-            return 'ledger';
-        }
-    }, [targetContract, opAddress, ledgerAddresses]);
+    }, [ledgerAddresses, opAddress]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -171,6 +169,7 @@ export function JettonTransactionView(props: {
                         avatarColor={avatarColor}
                         knownWallets={knownWallets}
                         forceAvatar={forcedAvatar}
+                        isLedger={isLedgerTarget}
                     />
                 </PerfView>
                 <PerfView style={styles.titleDescriptionView}>

@@ -8,11 +8,12 @@ import { Observable, Subscription } from "rxjs";
 import { TonTransport } from '@ton-community/ton-ledger';
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { delay } from "teslabot";
-import { useLedgerWallets } from "../../../engine/hooks";
+import { useLedgerWallets, useWalletSettings, useWalletsSettings } from "../../../engine/hooks";
 import { navigationRef } from "../../../Navigation";
 import { z } from "zod";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { wait } from "../../../utils/wait";
+import { Address } from "@ton/ton";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 const bufferSchema = z
@@ -119,12 +120,17 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const [bleSearch, setSearch] = useState<number>(0);
 
     const [isReconnectLedger, setIsReconnectLedger] = useState<boolean>(false);
+    const [, setWalletSettings] = useWalletSettings(addr?.address);
+    const [walletsSettings] = useWalletsSettings();
 
     // Selected Ledger name
     const ledgerName = useMemo(() => {
         const index = ledgerWallets.findIndex(wallet => wallet.address === addr?.address);
+        if (addr?.address) {
+            return walletsSettings?.[addr.address]?.name ?? `${t('hardwareWallet.ledger')} ${index + 1}`;
+        }
         return `${t('hardwareWallet.ledger')} ${index + 1}`;
-    }, [ledgerWallets, addr])
+    }, [ledgerWallets, addr, walletsSettings])
 
     const reconnectAttempts = useRef<number>(0);
 
@@ -149,6 +155,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                     style: 'destructive',
                     onPress: () => {
                         const newItems = ledgerWallets.filter(wallet => wallet.address !== addr?.address);
+                        setWalletSettings({ name: null, avatar: null, color: null });
                         setLedgerWallets(newItems);
                         setAddr(null);
                         if (newItems.length > 0) {

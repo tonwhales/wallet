@@ -8,3 +8,4 @@ export { useHoldersHiddenAccounts } from './useHoldersHiddenAccounts';
 export { useHasHoldersProducts } from './useHasHoldersProducts';
 export { useHoldersOtp } from './useHoldersOtp';
 export { useHoldersLedgerEnroll } from './useHoldersLedgerEnroll';
+export { useEnrolledAndReady } from './useEnrolledAndReady';

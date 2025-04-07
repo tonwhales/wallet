@@ -47,16 +47,6 @@ export async function handleLedgerSignError({
         return;
     }
 
-    const isVersionValid = await checkLedgerTonAppVersion(ledgerContext.tonTransport);
-    if (!isVersionValid) {
-        await wait(100);
-        Alert.alert(
-            title || t('hardwareWallet.errors.transactionRejected'),
-            t('hardwareWallet.errors.updateApp')
-        );
-        return;
-    }
-
     try {
         const isAppOpen = await isLedgerTonAppReady(ledgerContext.tonTransport);
         await wait(100);
@@ -69,6 +59,16 @@ export async function handleLedgerSignError({
         }
     } catch {
         Alert.alert(title || t('hardwareWallet.errors.transactionRejected'));
+        return;
+    }
+
+    const isVersionValid = await checkLedgerTonAppVersion(ledgerContext.tonTransport);
+    if (!isVersionValid) {
+        await wait(100);
+        Alert.alert(
+            title || t('hardwareWallet.errors.transactionRejected'),
+            t('hardwareWallet.errors.updateApp')
+        );
         return;
     }
 

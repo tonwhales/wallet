@@ -111,6 +111,8 @@ import { TransferFragment } from './fragments/secure/transfer/TransferFragment';
 import { SolanaTransferFragment } from './fragments/secure/transfer/SolanaTransferFragment';
 import { useSolanaAccountWatcher } from './engine/useSolanaAccountWatcher';
 import { SolanaTransactionPreviewFragment } from './fragments/solana/transaction/SolanaTransactionPreviewFragment';
+import { solanaAddressFromPublicKey } from './utils/solana/address';
+import { whalesConnectEndpoint } from './engine/clients';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -428,7 +430,15 @@ export const Navigation = memo(() => {
                         if (ended) {
                             return;
                         }
-                        await registerPushToken(token, appState.addresses.map((v) => v.address), isTestnet);
+                        const addresses: string[] = [];
+                    
+                        for (let a of appState.addresses) {
+                            addresses.push(a.address.toString({ testOnly: isTestnet }));
+                            const solanaAddress = solanaAddressFromPublicKey(a.publicKey);
+                            addresses.push(solanaAddress.toString());
+                        }
+                    
+                        await registerPushToken(token, addresses);
                     });
                 }
             }
@@ -447,7 +457,7 @@ export const Navigation = memo(() => {
             }
             const pending = getPendingGrant();
             for (let p of pending) {
-                await axios.post('https://connect.tonhubapi.com/connect/grant', { key: p }, { timeout: 5000 });
+                await axios.post(`${whalesConnectEndpoint}/connect/grant`, { key: p }, { timeout: 5000 });
                 removePendingGrant(p);
             }
         })
@@ -465,7 +475,7 @@ export const Navigation = memo(() => {
             }
             const pending = getPendingRevoke();
             for (let p of pending) {
-                await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: p }, { timeout: 5000 });
+                await axios.post(`${whalesConnectEndpoint}/connect/revoke`, { key: p }, { timeout: 5000 });
                 removePendingRevoke(p);
             }
         })

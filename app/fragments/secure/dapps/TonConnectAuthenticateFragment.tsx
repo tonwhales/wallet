@@ -273,7 +273,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     event: 'connect',
                     payload: {
                         items: replyItems,
-                        device: tonConnectDeviceInfo,
+                        device: tonConnectDeviceInfo(walletVersion),
                     }
                 } as ConnectEvent
 
@@ -375,7 +375,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             warn('Failed to approve');
         }
 
-    }, [state, saveAppConnection, toaster]);
+    }, [state, saveAppConnection, toaster, walletVersion]);
 
     return (
         <DappAuthComponent

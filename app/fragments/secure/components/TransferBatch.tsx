@@ -225,13 +225,13 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
 
     const walletVersion = useWalletVersion();
 
-
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
         const isV5 = walletVersion === 'v5R1';
+        let allowSendingToYourself = false;
 
         if (!selected) {
             return;
@@ -243,8 +243,8 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
             const restricted = i.message.restricted;
 
             // Check if transfering to yourself
-            if (target.equals(contract.address)) {
-                let allowSendingToYourself = await new Promise((resolve) => {
+            if (target.equals(contract.address) && !allowSendingToYourself) {
+                allowSendingToYourself = await new Promise((resolve) => {
                     Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
                         {
                             onPress: () => resolve(true),
@@ -741,11 +741,16 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                         )}
                     </ItemCollapsible>
                     {!showInternals && (
-                        <View style={{ marginTop: 16 }}>
-                            <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                                {`${t('tx.batch')} (${internals.length})`}
-                            </Text>
-                        </View>
+                        <ItemGroup style={{ marginVertical: 16 }}>
+                            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                                <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                    {t('tx.batch')}
+                                </Text>
+                                <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                    {`${internals.length} ${t('transactions.title').toLowerCase()}`}
+                                </Text>
+                            </View>
+                        </ItemGroup>
                     )}
                     {showInternals && internals.map((i, index) => {
                         const known = knownWallets[i.message.addr.address.toString({ testOnly: isTestnet })];

@@ -1,3 +1,4 @@
+import React from "react";
 import { Platform, Pressable, View, ScrollView, Text } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
@@ -15,7 +16,7 @@ import { Typography } from "../../components/styles";
 import { KnownWallets } from "../../secure/KnownWallets";
 
 export const AvatarPickerFragment = fragment(() => {
-    const { callback, hash, initColor } = useParams<{ callback: (newHash: number, color: number) => void, hash: number, initColor: number }>();
+    const { callback, hash, initColor, isLedger } = useParams<{ callback: (newHash: number, color: number) => void, hash: number, initColor: number, isLedger: boolean }>();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -62,46 +63,51 @@ export const AvatarPickerFragment = fragment(() => {
                     knownWallets={knownWallets}
                     id={address.toString({ testOnly: isTestnet })}
                     backgroundColor={avatarColors[selectedColor]}
+                    isLedger={isLedger}
                 />
             </View>
             <View style={{ flexGrow: 1 }} />
             <View style={{ paddingVertical: 20 }}>
-                <Text style={[{ color: theme.textPrimary, marginHorizontal: 16 }, Typography.regular15_20]}>
-                    {t('wallets.settings.selectAvatarTitle')}
-                </Text>
-                <ScrollView
-                    contentContainerStyle={{ marginHorizontal: 16, marginVertical: 10, paddingRight: 16 }}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                >
-                    {avatarImages.map((avatar, index) => {
-                        const isSelected = index === hashState;
-                        return (
-                            <Pressable
-                                key={`avatar-${index}`}
-                                onPress={() => setHash(index)}
-                                style={{
-                                    justifyContent: 'center', alignItems: 'center',
-                                    width: 72, height: 72,
-                                    marginRight: 12,
-                                    borderRadius: 36,
-                                    borderWidth: isSelected ? 2 : 0,
-                                    borderColor: theme.accent
-                                }}
-                            >
-                                <Avatar
-                                    size={68}
-                                    hash={index}
-                                    borderColor={theme.border}
-                                    borderWidth={0}
-                                    theme={theme}
-                                    knownWallets={knownWallets}
-                                    id={address.toString({ testOnly: isTestnet })}
-                                />
-                            </Pressable>
-                        )
-                    })}
-                </ScrollView>
+                {!isLedger && (
+                    <>
+                        <Text style={[{ color: theme.textPrimary, marginHorizontal: 16 }, Typography.regular15_20]}>
+                            {t('wallets.settings.selectAvatarTitle')}
+                        </Text>
+                        <ScrollView
+                            contentContainerStyle={{ marginHorizontal: 16, marginVertical: 10, paddingRight: 16 }}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                        >
+                            {avatarImages.map((avatar, index) => {
+                                const isSelected = index === hashState;
+                                return (
+                                    <Pressable
+                                        key={`avatar-${index}`}
+                                        onPress={() => setHash(index)}
+                                        style={{
+                                            justifyContent: 'center', alignItems: 'center',
+                                            width: 72, height: 72,
+                                            marginRight: 12,
+                                            borderRadius: 36,
+                                            borderWidth: isSelected ? 2 : 0,
+                                            borderColor: theme.accent
+                                        }}
+                                    >
+                                        <Avatar
+                                            size={68}
+                                            hash={index}
+                                            borderColor={theme.border}
+                                            borderWidth={0}
+                                            theme={theme}
+                                            knownWallets={knownWallets}
+                                            id={address.toString({ testOnly: isTestnet })}
+                                        />
+                                    </Pressable>
+                                )
+                            })}
+                        </ScrollView>
+                    </>
+                )}
                 <Text style={[{ color: theme.textPrimary, marginHorizontal: 16, marginTop: 24, marginBottom: 10 }, Typography.regular15_20]}>
                     {t('wallets.settings.selectColorTitle')}
                 </Text>

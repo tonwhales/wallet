@@ -28,6 +28,9 @@ import { isTxSPAM } from '../../../utils/spam/isTxSPAM';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
 import { TonTransaction } from '../../../engine/types';
 import { useLedgerTransport } from '../../ledger/components/TransportContext';
+import { extraCurrencyFromTransaction } from '../../../utils/extraCurrencyFromTransaction';
+import { useExtraCurrencyMap } from '../../../engine/hooks/jettons/useExtraCurrencyMap';
+import { fromBnWithDecimals } from '../../../utils/withDecimals';
 
 export function TransactionView(props: {
     own: Address,
@@ -73,6 +76,15 @@ export function TransactionView(props: {
     const targetContract = useContractInfo(opAddress);
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
+    const isOutgoing = kind === 'out';
+    const extraCurrency = extraCurrencyFromTransaction(tx);
+    const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, own.toString({ testOnly: isTestnet }));
+    const extraCurrencies = Object.entries(extraCurrencyMap ?? {}).map(([, extraCurrency]) => {
+        const amount = extraCurrency.amount;
+        const symbol = extraCurrency.preview.symbol;
+        const sign = isOutgoing ? '-' : '+';
+        return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
+    });
 
     const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
@@ -85,8 +97,8 @@ export function TransactionView(props: {
     // if it's a Recieved transaction or targetContract is wallet 
     // we show the address in a format taken from Settings
     const bounceable = targetContract?.kind === 'wallet' || !targetContract
-    ? props.bounceableFormat
-    : parsedOpAddr.isBounceable;
+        ? props.bounceableFormat
+        : parsedOpAddr.isBounceable;
 
     // Operation
     const op = useMemo(() => {
@@ -128,19 +140,17 @@ export function TransactionView(props: {
         if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
+    }, [targetContract, holdersOp, ledgerAddresses, opAddress]);
 
-        const isLedgerTarget = !!ledgerAddresses?.find((addr) => {
+    const isLedgerTarget = useMemo(() => {
+        return !!ledgerAddresses?.find((addr) => {
             try {
                 return Address.parse(opAddress)?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-
-        if (isLedgerTarget) {
-            return 'ledger';
-        }
-    }, [targetContract, holdersOp, ledgerAddresses, opAddress]);
+    }, [ledgerAddresses, opAddress]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -168,7 +178,7 @@ export function TransactionView(props: {
         }
     );
 
-    const amountColor = (kind === 'in')
+    const amountColor = !isOutgoing
         ? (spam ? theme.textPrimary : theme.accentGreen)
         : theme.textPrimary;
 
@@ -182,7 +192,9 @@ export function TransactionView(props: {
         master: jettonMaster?.toString({ testOnly: isTestnet }),
     });
 
-    const symbolText = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}${isSCAMJetton ? ' • ' : ''}` : '')
+    const symbolText = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}${isSCAMJetton ? ' • ' : ''}` : '');
+    const showAmount = absAmount > 0n;
+    const showPrice = item.kind !== 'token' && tx.base.outMessagesCount <= 1 && absAmount > 0n;
 
     if (preparedMessages.length > 1) {
         return (
@@ -209,6 +221,7 @@ export function TransactionView(props: {
                             time={tx.base.time}
                             status={parsed.status}
                             knownWallets={knownWallets}
+                            ledger={isLedgerTarget}
                         />
                     );
                 })}
@@ -253,6 +266,7 @@ export function TransactionView(props: {
                         knownWallets={knownWallets}
                         forceAvatar={forcedAvatar}
                         verified={verified}
+                        isLedger={isLedgerTarget}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>
@@ -328,9 +342,9 @@ export function TransactionView(props: {
                         >
                             {tx.base.outMessagesCount > 1 ? (
                                 `${tx.base.outMessagesCount} ${t('common.messages').toLowerCase()}`
-                            ) : (
+                            ) : showAmount && (
                                 <>
-                                    {kind === 'in' ? '+' : '-'}
+                                    {!isOutgoing ? '+' : '-'}
                                     <ValueComponent
                                         value={absAmount}
                                         decimals={item.kind === 'token' ? jettonMasterContent?.decimals : undefined}
@@ -349,10 +363,10 @@ export function TransactionView(props: {
                             )}
                         </Text>
                     )}
-                    {item.kind !== 'token' && tx.base.outMessagesCount <= 1 && (
+                    {showPrice && (
                         <PriceComponent
                             amount={absAmount}
-                            prefix={kind === 'in' ? '+' : '-'}
+                            prefix={!isOutgoing ? '+' : '-'}
                             style={{
                                 height: undefined,
                                 backgroundColor: theme.transparent,
@@ -365,6 +379,19 @@ export function TransactionView(props: {
                                 Typography.regular15_20
                             ]}
                         />
+                    )}
+                    {!!extraCurrencies && (
+                        extraCurrencies.map((text, index) => (
+                            <PerfText
+                                key={`extra-currency-${index}`}
+                                minimumFontScale={0.4}
+                                adjustsFontSizeToFit={true}
+                                numberOfLines={1}
+                                style={[{ color: amountColor, marginTop: 12 }, Typography.semiBold17_24]}
+                            >
+                                {text}
+                            </PerfText>
+                        ))
                     )}
                 </PerfView>
             </PerfView>

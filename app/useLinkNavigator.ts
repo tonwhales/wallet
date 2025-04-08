@@ -36,6 +36,7 @@ import { HoldersUserState, holdersUrl } from './engine/api/holders/fetchUserStat
 import { getIsConnectAppReady } from './engine/hooks/dapps/useIsConnectAppReady';
 import { HoldersAppParams, HoldersAppParamsType } from './fragments/holders/HoldersAppFragment';
 import { sharedStoragePersistence } from './storage/storage';
+import { useLedgerTransport } from './fragments/ledger/components/TransportContext';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -368,7 +369,8 @@ async function resolveAndNavigateToJettonTransfer(
             forwardAmount: bigint | null
         },
         isTestnet: boolean,
-        selected: SelectedAccount,
+        isLedger?: boolean,
+        address: string,
         queryClient: QueryClient,
         toaster: Toaster,
         loader: { show: () => () => void },
@@ -376,19 +378,19 @@ async function resolveAndNavigateToJettonTransfer(
         toastProps?: { duration?: ToastDuration, marginBottom?: number }
     }
 ) {
-    const { resolved, isTestnet, selected, queryClient, toaster, loader, navigation, toastProps } = params;
+    const { resolved, isTestnet, address, queryClient, toaster, loader, navigation, toastProps, isLedger } = params;
     const hideloader = loader.show();
 
-    let jettonWalletAddress = queryClient.getQueryData<string | null>(Queries.Account(selected.addressString).JettonWallet());
+    let jettonWalletAddress = queryClient.getQueryData<StoredJettonWallet | null>(Queries.Account(address).JettonWallet())?.address;
 
     if (!jettonWalletAddress) {
         try {
             jettonWalletAddress = await queryClient.fetchQuery({
-                queryKey: Queries.Jettons().Address(selected!.addressString).Wallet(resolved.jettonMaster.toString({ testOnly: isTestnet })),
-                queryFn: jettonWalletAddressQueryFn(resolved.jettonMaster.toString({ testOnly: isTestnet }), selected!.addressString, isTestnet)
+                queryKey: Queries.Jettons().Address(address).Wallet(resolved.jettonMaster.toString({ testOnly: isTestnet })),
+                queryFn: jettonWalletAddressQueryFn(resolved.jettonMaster.toString({ testOnly: isTestnet }), address, isTestnet)
             });
         } catch {
-            console.warn('Failed to fetch jetton wallet address', selected!.addressString, resolved.jettonMaster.toString({ testOnly: isTestnet }));
+            console.warn('Failed to fetch jetton wallet address', address, resolved.jettonMaster.toString({ testOnly: isTestnet }));
         }
     }
 
@@ -432,13 +434,13 @@ async function resolveAndNavigateToJettonTransfer(
         comment: resolved.comment,
         amount: resolved.amount,
         stateInit: null,
-        jetton: Address.parse(jettonWalletAddress),
+        asset: { type: 'jetton', master: resolved.jettonMaster, wallet: Address.parse(jettonWalletAddress) },
         callback: null,
         payload: resolved.payload,
         feeAmount: resolved.feeAmount,
         forwardAmount: resolved.forwardAmount,
         unknownDecimals: true,
-    });
+    }, { ledger: isLedger });
 }
 
 function getNeedsEnrollment(url: string, address: string, isTestnet: boolean, queryClient: QueryClient) {
@@ -569,7 +571,8 @@ export function storeInviteId(inviteId: string) {
 export function useLinkNavigator(
     isTestnet: boolean,
     toastProps?: { duration?: ToastDuration, marginBottom?: number },
-    tonconnectType: TonConnectAuthType = TonConnectAuthType.Qr
+    tonconnectType: TonConnectAuthType = TonConnectAuthType.Qr,
+    isLedger?: boolean
 ) {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
@@ -577,6 +580,8 @@ export function useLinkNavigator(
     const queryClient = useQueryClient();
     const toaster = useToaster();
     const loader = useGlobalLoader();
+    const ledgerContext = useLedgerTransport();
+    const address = isLedger ? ledgerContext.addr!.address : selected!.addressString;
 
     const [, updatePendingReuests] = useConnectPendingRequests();
     const pendingReqsUpdaterRef = useRef(updatePendingReuests);
@@ -611,26 +616,27 @@ export function useLinkNavigator(
                         comment: resolved.comment,
                         amount: resolved.amount,
                         stateInit: resolved.stateInit,
-                        jetton: null,
+                        asset: null,
                         callback: null
                     });
                 }
                 break;
             }
             case 'jetton-transaction': {
-                if (!selected) {
+                if (!address) {
                     return;
                 }
 
                 await resolveAndNavigateToJettonTransfer({
                     resolved,
                     isTestnet,
-                    selected,
+                    address,
                     queryClient,
                     toaster,
                     loader,
                     navigation,
-                    toastProps
+                    toastProps,
+                    isLedger
                 });
                 break;
             }

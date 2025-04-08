@@ -93,6 +93,7 @@ export const JettonPendingTransactions = memo(({
                 txs={pendingTxs}
                 viewType={'jetton-history'}
                 style={listStyle}
+                owner={owner}
             />
         </View>
     );

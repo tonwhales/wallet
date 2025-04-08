@@ -13,6 +13,7 @@ import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersApp
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { SimpleTransferAsset } from "../../secure/simpleTransfer/hooks/useSimpleTransfer";
 
 export enum WalletActionType {
     Send = 'send',
@@ -37,7 +38,7 @@ export type WalletAction = {
     type: WalletActionType.Buy
 } | {
     type: WalletActionType.Send,
-    jetton?: Address
+    jettonWallet?: Address
 } | {
     type: WalletActionType.Receive,
     asset?: ReceiveAsset
@@ -90,7 +91,7 @@ export const WalletActionButton = memo(({
             // Ignore
         }
     }, [isTestnet, linkNavigator]);
-    
+
     const onLedgerQRCodeRead = useCallback((src: string) => {
         try {
             let res = resolveUrl(src, isTestnet);
@@ -119,8 +120,9 @@ export const WalletActionButton = memo(({
                             comment: res.comment,
                             amount: res.amount,
                             stateInit: res.stateInit,
-                            jetton: null,
-                            callback: null
+                            asset: null,
+                            callback: null,
+                            unknownDecimals: true,
                         }, { ledger: true });
                     }
                     return;
@@ -131,8 +133,9 @@ export const WalletActionButton = memo(({
                     comment: res.comment,
                     amount: res.amount,
                     stateInit: null,
-                    jetton: res.jettonMaster,
-                    callback: null
+                    asset: { type: 'jetton', master: res.jettonMaster },
+                    callback: null,
+                    unknownDecimals: true,
                 }, { ledger: true });
             }
         } catch {
@@ -158,9 +161,11 @@ export const WalletActionButton = memo(({
                         }}>
                             <Image source={require('@assets/ic-buy.png')} />
                         </View>
-                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
+                        <Text
+                            style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
                             minimumFontScale={0.7}
                             adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
                             numberOfLines={1}
                         >
                             {t('wallet.actions.buy')}
@@ -172,8 +177,9 @@ export const WalletActionButton = memo(({
         case WalletActionType.Send: {
             let navigate = () => {
                 if (isWalletMode) {
+                    const asset: SimpleTransferAsset | null = action.jettonWallet ? { type: 'jetton', wallet: action.jettonWallet } : null;
                     navigation.navigateSimpleTransfer(
-                        { ...nullTransfer, jetton: action.jetton },
+                        { ...nullTransfer, asset },
                         { ledger: isLedger }
                     );
                 } else {
@@ -204,7 +210,13 @@ export const WalletActionButton = memo(({
                         }}>
                             <Image source={require('@assets/ic_send.png')} />
                         </View>
-                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
+                        <Text
+                            style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
+                            minimumFontScale={0.7}
+                            adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
+                            numberOfLines={1}
+                        >
                             {isWalletMode ? t('wallet.actions.send') : t('wallet.actions.payments')}
                         </Text>
                     </View>
@@ -252,6 +264,7 @@ export const WalletActionButton = memo(({
                             style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
                             minimumFontScale={0.7}
                             adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
                             numberOfLines={1}
                         >
                             {t('wallet.actions.receive')}
@@ -296,6 +309,7 @@ export const WalletActionButton = memo(({
                             style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
                             minimumFontScale={0.7}
                             adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
                             numberOfLines={1}
                         >
                             {t('wallet.actions.deposit')}
@@ -319,7 +333,16 @@ export const WalletActionButton = memo(({
                         }}>
                             <Image source={require('@assets/ic_swap.png')} />
                         </View>
-                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
+                        <Text
+                            style={[
+                                { color: theme.textPrimary, marginTop: 6 },
+                                Typography.medium15_20
+                            ]}
+                            minimumFontScale={0.7}
+                            adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
+                            numberOfLines={1}
+                        >
                             {t('wallet.actions.swap')}
                         </Text>
                     </View>
@@ -339,12 +362,18 @@ export const WalletActionButton = memo(({
                             borderRadius: 16,
                             alignItems: 'center', justifyContent: 'center'
                         }}>
-                            <Image
-                                source={require('@assets/ic-scan-main.png')}
-
-                            />
+                            <Image source={require('@assets/ic-scan-main.png')} />
                         </View>
-                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
+                        <Text
+                            style={[
+                                { color: theme.textPrimary, marginTop: 6 },
+                                Typography.medium15_20
+                            ]}
+                            minimumFontScale={0.7}
+                            adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
+                            numberOfLines={1}
+                        >
                             {t('wallet.actions.scan')}
                         </Text>
                     </View>

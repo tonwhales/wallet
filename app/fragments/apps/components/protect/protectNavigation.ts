@@ -1,19 +1,12 @@
 import { extractDomain } from "../../../../engine/utils/extractDomain";
 
-export function protectNavigation(url: string, app: string) {
-    let appDomain = extractDomain(app);
-    let pageDomain = extractDomain(url);
-    if (!appDomain || !pageDomain) {
-        return false;
-    }
+// domains that are not app/page but should be protected
+export function isAllowedDomain(pageDomain: string) {
     if (pageDomain.endsWith('.sumsub.com')) {
         return true
     }
     if (pageDomain.endsWith('.kauri.finance')) {
         return true
-    }
-    if (pageDomain.endsWith('.' + appDomain)) {
-        return true;
     }
     // To account for metrics redirects
     if (pageDomain === 'mc.yandex.ru' || pageDomain.endsWith('.mc.yandex.ru')) {
@@ -33,6 +26,38 @@ export function protectNavigation(url: string, app: string) {
         pageDomain === 'js.verygoodvault.com'
         || pageDomain.endsWith('.js.verygoodvault.com')
     ) {
+        return true;
+    }
+
+    if (
+        pageDomain === 'help.holders.io'
+        || pageDomain.endsWith('help.holders.io')
+    ) {
+        return true;
+    }
+
+    // To account for intercom articles redirects
+    if (
+        pageDomain === 'intercom-sheets.com'
+        || pageDomain.endsWith('.intercom-sheets.com')
+    ) {
+        return true;
+    }
+    return false;
+}
+
+export function protectNavigation(url: string, app: string) {
+    const appDomain = extractDomain(app);
+    const pageDomain = extractDomain(url);
+
+    if (!appDomain || !pageDomain) {
+        return false;
+    }
+    if (pageDomain.endsWith('.' + appDomain)) {
+        return true;
+    }
+
+    if (isAllowedDomain(pageDomain)) {
         return true;
     }
 

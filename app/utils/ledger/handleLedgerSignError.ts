@@ -6,6 +6,7 @@ import { LedgerTransport } from "../../fragments/ledger/components/TransportCont
 import { wait } from "../wait";
 import { isLedgerTonAppReady } from "./isLedgerTonAppReady";
 import { TransportStatusError } from "@ledgerhq/hw-transport";
+import { checkLedgerTonAppVersion } from "./checkLedgerTonAppVersion";
 
 export async function handleLedgerSignError({
     error,
@@ -43,6 +44,16 @@ export async function handleLedgerSignError({
     if (!ledgerContext.tonTransport) {
         navigation?.goBack();
         ledgerContext.onShowLedgerConnectionError();
+        return;
+    }
+
+    const isVersionValid = await checkLedgerTonAppVersion(ledgerContext.tonTransport);
+    if (!isVersionValid) {
+        await wait(100);
+        Alert.alert(
+            title || t('hardwareWallet.errors.transactionRejected'),
+            t('hardwareWallet.errors.updateApp')
+        );
         return;
     }
 

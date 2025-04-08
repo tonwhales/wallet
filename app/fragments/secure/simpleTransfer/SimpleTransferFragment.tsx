@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, BackHandler, Keyboard, Alert } from "react-native";
+import { Platform, BackHandler, Keyboard } from "react-native";
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { Cell, Address } from '@ton/core';
 import { setStatusBarStyle } from 'expo-status-bar';
@@ -12,7 +12,7 @@ import { useNetwork, useTheme } from '../../../engine/hooks';
 import { AddressSearchItem } from '../../../components/address/AddressSearch';
 import { AddressDomainInputRef } from '../../../components/address/AddressDomainInput';
 import { SimpleTransferLayout, SimpleTransferAmount, SimpleTransferAddress, SimpleTransferComment, SimpleTransferFees, SimpleTransferHeader, SimpleTransferFooter } from './components';
-import { SelectedInput, useSimpleTransfer } from './hooks/useSimpleTransfer';
+import { SelectedInput, SimpleTransferAsset, useSimpleTransfer } from './hooks/useSimpleTransfer';
 import { t } from '../../../i18n/t';
 import { TransferHeader } from '../../../components/transfer/TransferHeader';
 
@@ -24,7 +24,7 @@ export type SimpleTransferParams = {
     feeAmount?: bigint | null,
     forwardAmount?: bigint | null,
     stateInit?: Cell | null,
-    jetton?: Address | null,
+    asset?: SimpleTransferAsset | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
     app?: {
@@ -32,7 +32,8 @@ export type SimpleTransferParams = {
         title: string,
         url: string,
     },
-    unknownDecimals?: boolean,
+    extraCurrencyId?: number,
+    unknownDecimals?: boolean
 }
 
 const SimpleTransferComponent = () => {
@@ -74,7 +75,10 @@ const SimpleTransferComponent = () => {
         targetAddressValid,
         setSelectedInput,
         selectedInput,
-        doSend
+        doSend,
+        selectedAsset,
+        extraCurrency,
+        isTargetLedger
     } = useSimpleTransfer({ params, route, navigation });
 
     const [isScrolling, setIsScrolling] = useState(false);
@@ -127,7 +131,7 @@ const SimpleTransferComponent = () => {
     };
 
     useEffect(() => {
-        if(selectedInput === 0) {
+        if (selectedInput === 0) {
             scrollRef.current?.scrollTo({ y: 0, animated: true })
         }
     }, [selectedInput])
@@ -149,6 +153,7 @@ const SimpleTransferComponent = () => {
                     isTestnet={network.isTestnet}
                     bounceable={targetAddressValid.isBounceable}
                     knownWallets={knownWallets}
+                    isLedger={isTargetLedger}
                 />
             )
         } : { title: t('transfer.title') };
@@ -171,7 +176,7 @@ const SimpleTransferComponent = () => {
             headerComponent={<SimpleTransferHeader {...header} />}
             footerComponent={<SimpleTransferFooter {...{ selected, onNext, continueDisabled, continueLoading, doSend }} />}
             addressComponent={<SimpleTransferAddress ref={addressRef} {...{ ledgerAddress, params, domain, onInputFocus, setAddressDomainInputState, onInputSubmit, onQRCodeRead, isActive: selected === 'address', onSearchItemSelected, knownWallets }} />}
-            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton }} />}
+            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ onAssetSelected, jetton, isLedger, isSCAM, symbol, balance, onAddAll, onInputFocus, amount, setAmount, amountError, priceText, shouldChangeJetton, holdersTarget, onChangeJetton, selectedAsset, extraCurrency }} />}
             commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', payload, onInputFocus, setComment, known, commentError, maxHeight: selected === 'comment' ? 200 : undefined }} />}
             feesComponent={estimation ? <SimpleTransferFees {...{ estimation, estimationPrice }} /> : null}
             scrollEnabled={!selectedInput}

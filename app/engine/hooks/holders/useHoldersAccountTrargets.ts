@@ -53,7 +53,7 @@ export function useHoldersAccountTrargets(address: string | Address): HoldersAcc
             }).map((item) => {
                 let memo: string | undefined = undefined;
 
-                if (isPrivate && item.cryptoCurrency.ticker === 'TON') {
+                if (isPrivate && item.cryptoCurrency.ticker === 'TON' && item.contract !== 'ton.card.v7') {
                     memo = 'Top Up';
                 }
 

@@ -118,12 +118,12 @@ export const AddressSearch = memo(({
                 const walletSettings = walletsSettings[acc.addressString];
                 let title = `${t('common.wallet')} ${acc.index + 1}`;
 
-                if (walletSettings?.name) {
-                    title = walletSettings.name;
-                }
-
                 if (acc.index === -2) {
                     title = 'Ledger';
+                }
+                
+                if (walletSettings?.name) {
+                    title = walletSettings.name;
                 }
 
                 let addr: {

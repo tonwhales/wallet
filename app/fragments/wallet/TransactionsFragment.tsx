@@ -18,17 +18,15 @@ import { setStatusBarStyle } from "expo-status-bar";
 import { ThemeType } from "../../engine/state/theme";
 import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
 import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
-import { useTransactionsFilter } from "../../engine/hooks/transactions/useTransactionsFilter";
 import { TransactionsHeader } from "./views/TransactionsHeader";
+import { TransactionType } from "../../engine/types/transactions";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean, theme: ThemeType }) {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
-    const address = props.account;
-    const theme = props.theme;
-    const [params] = useTransactionsFilter(address);
-    const txs = useAccountTransactionsV2(address.toString({ testOnly: isTestnet }), { refetchOnMount: true }, params);
+    const { account: address, theme } = props;
+    const txs = useAccountTransactionsV2(address.toString({ testOnly: isTestnet }), { refetchOnMount: true }, { type: TransactionType.TON });
     const holdersAccStatus = useHoldersAccountStatus(address).data;
     const showFilters = !!holdersAccStatus && holdersAccStatus.state === HoldersUserState.Ok && !!holdersAccStatus.token;
     const transactions = txs.data;

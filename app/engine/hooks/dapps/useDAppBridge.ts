@@ -17,13 +17,14 @@ import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonc
 import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
-
+import { useWalletVersion } from '../useWalletVersion';
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string, isLedger?: boolean): any {
     const saveAppConnection = useSaveAppConnection();
     const getConnectApp = useConnectApp(address);
     const autoConnect = useAutoConnect(address);
     const removeInjectedConnection = useRemoveInjectedConnection(address);
     const onDisconnect = useDisconnectApp(address);
+    const walletVersion = useWalletVersion(address);
     
     const account = address ?? getCurrentAddress().addressString;
     const handleLedgerRequest = useHoldersLedgerTonconnectHandler();
@@ -43,7 +44,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
 
     const bridgeObject = useMemo((): TonConnectInjectedBridge => {
         return {
-            deviceInfo: tonConnectDeviceInfo,
+            deviceInfo: tonConnectDeviceInfo(walletVersion),
             protocolVersion: CURRENT_PROTOCOL_VERSION,
             isWalletBrowser: true,
 
@@ -84,7 +85,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                     event: 'connect',
                                     payload: {
                                         items: result.replyItems,
-                                        device: tonConnectDeviceInfo,
+                                        device: tonConnectDeviceInfo(walletVersion),
                                     },
                                     id: requestId
                                 });

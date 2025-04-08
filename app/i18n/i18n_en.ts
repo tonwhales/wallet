@@ -305,7 +305,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Applications or extensions you have authorized will be displayed here. You can revoke access from any app or extension at any time.",
             "installExtension": "Install and open extension for this application",
             "moreWallets": "More wallets ({{count}})",
-            "connectionSecureDescription": "No funds would be transfered to the app and no access to your coins would be granted"
+            "connectionSecureDescription": "No funds would be transfered to the app and no access to your coins would be granted",
+            "invalidManifest": "App manifest error",
+            "invalidManifestDescription": "This app failed to connect to your wallet. Please contact their support team."
         },
         "consent": "By clicking continue you accepting our"
     },

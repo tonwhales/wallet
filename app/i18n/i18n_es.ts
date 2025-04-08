@@ -305,7 +305,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Las aplicaciones o extensiones que has autorizado se mostrarán aquí. Puedes revocar el acceso de cualquier aplicación o extensión en cualquier momento.",
             "installExtension": "Instalar y abrir extensión para esta aplicación",
             "moreWallets": "Más billeteras ({{count}})",
-            "connectionSecureDescription": "No se transferirán fondos a la aplicación y no se otorgará acceso a tus monedas"
+            "connectionSecureDescription": "No se transferirán fondos a la aplicación y no se otorgará acceso a tus monedas",
+            "invalidManifest": "Error de manifiesto de la app",
+            "invalidManifestDescription": "Esta app falló al conectar con tu billetera. Por favor contacta al equipo de soporte."
         },
         "consent": "Al hacer clic en continuar aceptas nuestros"
     },

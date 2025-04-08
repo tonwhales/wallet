@@ -14,7 +14,7 @@ import { connectAnswer } from '../../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../../engine/api/sendTonConnectResponse';
 import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
 import { useNetwork, useTheme } from '../../../engine/hooks';
-import { handleConnectDeeplink } from '../../../engine/tonconnect/handleConnectDeeplink';
+import { handleConnectDeeplink, HandledConnectRequest, isValidDappDomain } from '../../../engine/tonconnect/handleConnectDeeplink';
 import { isUrl } from '../../../utils/resolveUrl';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { getAppManifest } from '../../../engine/getters/getAppManifest';
@@ -24,28 +24,13 @@ import { checkProtocolVersionCapability, resolveAuthError, verifyConnectRequest 
 import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../../engine/tonconnect/types';
 import { ConnectReplyBuilder } from '../../../engine/tonconnect/ConnectReplyBuilder';
 import { tonConnectDeviceInfo } from '../../../engine/tonconnect/config';
-import { DappAuthComponent } from './DappAuthComponent';
+import { DappAuthComponent, TonConnectSignState } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Minimizer from '../../../modules/Minimizer';
 import { SelectedAccount } from '../../../engine/types';
 import { ToastDuration, useToaster } from '../../../components/toast/ToastProvider';
 import { t } from '../../../i18n/t';
 import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
-
-type SignState = { type: 'loading' }
-    | {
-        type: 'initing',
-        name: string,
-        url: string,
-        app: AppManifest,
-        protocolVersion: number,
-        request: ConnectRequest,
-        clientSessionId?: string,
-        returnStrategy?: ReturnStrategy,
-        domain: string,
-        manifestUrl: string
-    }
-    | { type: 'failed', returnStrategy?: ReturnStrategy }
 
 const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
     const { isTestnet } = useNetwork();
@@ -54,7 +39,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const toaster = useToaster();
-    const [state, setState] = useState<SignState>({ type: 'loading' });
+    const [state, setState] = useState<TonConnectSignState>({ type: 'loading' });
     const saveAppConnection = useSaveAppConnection();
     const walletVersion = useWalletVersion();
     const toastMargin = safeArea.bottom + 56 + 48;
@@ -64,26 +49,43 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             // remote bridge
             if (connectProps.type === 'qr' || connectProps.type === 'link') {
                 try {
-                    const handled = await handleConnectDeeplink(connectProps.query);
+                    const handledDeeplink = await handleConnectDeeplink(connectProps.query);
+
+                    if (handledDeeplink.type === 'invalid-manifest') {
+                        setState({ type: 'invalid-manifest', returnStrategy: connectProps.query.ret });
+                        return;
+                    }
+
+                    const handled = handledDeeplink as HandledConnectRequest;
 
                     if (handled) {
                         checkProtocolVersionCapability(handled.protocolVersion);
                         verifyConnectRequest(handled.request);
 
-                        if (handled.manifest) {
-                            const domain = isUrl(handled.manifest.url) ? extractDomain(handled.manifest.url) : handled.manifest.url;
+                        const manifest = handled.manifest;
+                        const manifestUrl = handled.manifestUrl;
+                        if (manifest) {
+                            const dAppUrl = manifest.url;
+                            const domain = isUrl(dAppUrl) ? extractDomain(dAppUrl) : dAppUrl;
+
+                            // check manifest url & dAppUrl
+                            // For standard dApp connections, the domain name MUST contain at least one dot (.) character with valid characters on both sides. Domains without proper dot-separation (e.g., "tonkeeper", "tonhub") are reserved for native wallet integrations only and MUST NOT be accepted from external dApps.
+                            if (!isValidDappDomain(domain)) {
+                                setState({ type: 'invalid-manifest', returnStrategy: connectProps.query.ret });
+                                return;
+                            }
 
                             setState({
                                 type: 'initing',
-                                name: handled.manifest.name,
-                                url: handled.manifest.url,
-                                app: handled.manifest,
+                                name: manifest.name,
+                                url: dAppUrl,
+                                app: manifest,
                                 protocolVersion: handled.protocolVersion,
                                 request: handled.request,
                                 clientSessionId: handled.clientSessionId,
                                 returnStrategy: handled.returnStrategy,
-                                domain: domain,
-                                manifestUrl: handled.manifestUrl
+                                domain,
+                                manifestUrl
                             });
                             return;
                         }

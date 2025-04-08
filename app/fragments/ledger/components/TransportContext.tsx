@@ -189,9 +189,11 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const startHIDSearch = useCallback(async () => {
         let hid: Transport | undefined;
         try { // For some reason, the first time this is called, it fails and only requests permission to connect the HID device
-            hid = await TransportHID.create();
+            // we add timeout race because on some devices it hangs forever (like some Samsungs (S21 ultra))
+            const timeout = new Promise<TransportHID>((_, reject) => setTimeout(() => reject(new Error('Timeout of 10000 ms occured')), 5000));
+            hid = await Promise.race([TransportHID.create(), timeout]);
             await wait(100);
-        } catch {
+        } catch (e) {
             // Retry to account for first failed create with connect permission request
             hid = await TransportHID.create();
             await wait(100);

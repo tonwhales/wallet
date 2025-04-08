@@ -192,10 +192,6 @@ export const WalletActionButton = memo(({
                 }
             }
 
-            if (isWalletMode && isLedger && !(ledgerContext.tonTransport && !ledgerContext.isReconnectLedger)) {
-                navigate = ledgerContext.onShowLedgerConnectionError;
-            }
-
             return (
                 <Pressable
                     onPress={navigate}

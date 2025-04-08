@@ -305,7 +305,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Les applications ou extensions que vous avez autorisées s’afficheront ici. Vous pouvez révoquer leur accès à tout moment.",
             "installExtension": "Installez et ouvrez l’extension pour cette application",
             "moreWallets": "Plus de portefeuilles ({{count}})",
-            "connectionSecureDescription": "Aucun fonds ne sera transféré à l’application et aucun accès à vos coins ne sera accordé"
+            "connectionSecureDescription": "Aucun fonds ne sera transféré à l’application et aucun accès à vos coins ne sera accordé",
+            "invalidManifest": "Erreur de manifeste de l’application",
+            "invalidManifestDescription": "Cette application a échoué à se connecter à votre portefeuille. Veuillez contacter leur équipe de support."
         },
         "consent": "En cliquant sur Continuer, vous acceptez nos"
     },

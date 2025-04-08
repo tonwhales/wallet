@@ -42,12 +42,14 @@ export type TonConnectSignState =
         protocolVersion: number,
         request: ConnectRequest,
         clientSessionId?: string,
-        returnStrategy?: ReturnStrategy
+        returnStrategy?: ReturnStrategy,
+        domain: string,
+        manifestUrl: string
     }
     | { type: 'completed', returnStrategy?: ReturnStrategy }
     | { type: 'authorized', returnStrategy?: ReturnStrategy }
     | { type: 'failed', returnStrategy?: ReturnStrategy }
-
+    | { type: 'invalid-manifest', returnStrategy?: ReturnStrategy }
 export type TonXSignState =
     { type: 'loading' }
     | { type: 'expired' }
@@ -180,6 +182,10 @@ export const DappAuthComponent = memo(({
         }
     }, [state, domain]);
 
+    const approveDisabled = (state.type === 'invalid-manifest')
+        ? true
+        : (state.type !== 'initing' || isApproving);
+
     return (
         <View style={[
             { flexGrow: 1 },
@@ -272,9 +278,22 @@ export const DappAuthComponent = memo(({
                         </>
                     ) : (
                         <>
-                            <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
-                                {description}
-                            </Text>
+                            {
+                                state.type === 'invalid-manifest' ? (
+                                    <>
+                                        <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
+                                            {t('auth.apps.invalidManifest')}
+                                        </Text>
+                                        <Text style={[{ color: theme.textSecondary, textAlign: 'center', marginTop: 10 }, Typography.regular13_18]}>
+                                            {t('auth.apps.invalidManifestDescription')}
+                                        </Text>
+                                    </>
+                                ) : (
+                                    <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
+                                        {description}
+                                    </Text>
+                                )
+                            }
                             {state.type === 'initing' && !!setAddExtension && (
                                 <CheckBox
                                     checked={addExtension}
@@ -388,7 +407,7 @@ export const DappAuthComponent = memo(({
                         <RoundButton
                             style={{ flex: 1 }}
                             title={t('common.connect')}
-                            disabled={state.type !== 'initing' || isApproving}
+                            disabled={approveDisabled}
                             action={doApprove}
                             loading={state.type === 'loading' || isApproving}
                         />

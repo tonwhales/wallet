@@ -68,8 +68,6 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                             const dAppUrl = manifest.url;
                             const domain = isUrl(dAppUrl) ? extractDomain(dAppUrl) : dAppUrl;
 
-                            // check manifest url & dAppUrl
-                            // For standard dApp connections, the domain name MUST contain at least one dot (.) character with valid characters on both sides. Domains without proper dot-separation (e.g., "tonkeeper", "tonhub") are reserved for native wallet integrations only and MUST NOT be accepted from external dApps.
                             if (!isValidDappDomain(domain)) {
                                 setState({ type: 'invalid-manifest', returnStrategy: connectProps.query.ret });
                                 return;

@@ -99,6 +99,11 @@ export type LedgerTransport = {
     verifySelectedAddress: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>
 }
 
+function createHIDTransport() {
+    const timeout = new Promise<TransportHID>((_, reject) => setTimeout(() => reject(new Error('Timeout of 10000 ms occured')), 5000));
+    return Promise.race([TransportHID.create(), timeout]);
+}
+
 export const TransportContext = createContext<LedgerTransport | null>(null);
 
 // TODO: rewrite with useReducer
@@ -188,19 +193,20 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     const startHIDSearch = useCallback(async () => {
         let hid: Transport | undefined;
-        try { // For some reason, the first time this is called, it fails and only requests permission to connect the HID device
-            // we add timeout race because on some devices it hangs forever (like some Samsungs (S21 ultra))
-            const timeout = new Promise<TransportHID>((_, reject) => setTimeout(() => reject(new Error('Timeout of 10000 ms occured')), 5000));
-            hid = await Promise.race([TransportHID.create(), timeout]);
-            await wait(100);
-        } catch (e) {
-            // Retry to account for first failed create with connect permission request
-            hid = await TransportHID.create();
-            await wait(100);
+
+        for (let i = 0; i < 5; i++) {
+            try {
+                hid = await createHIDTransport();
+                break;
+            } catch (e) {
+                await delay(500);
+            }
         }
 
         if (hid) {
             setLedgerConnection({ type: 'hid', transport: hid, device: null });
+        } else {
+            throw new Error('Failed to create HID transport');
         }
     }, []);
 

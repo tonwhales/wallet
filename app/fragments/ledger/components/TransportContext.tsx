@@ -99,8 +99,10 @@ export type LedgerTransport = {
     verifySelectedAddress: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>
 }
 
+const HID_TRANSPORT_TIMEOUT = 20000;
+
 function createHIDTransport() {
-    const timeout = new Promise<TransportHID>((_, reject) => setTimeout(() => reject(new Error('Timeout of 10000 ms occured')), 5000));
+    const timeout = new Promise<TransportHID>((_, reject) => setTimeout(() => reject(new Error(`Timeout of ${HID_TRANSPORT_TIMEOUT} ms occured`)), HID_TRANSPORT_TIMEOUT));
     return Promise.race([TransportHID.create(), timeout]);
 }
 
@@ -199,7 +201,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 hid = await createHIDTransport();
                 break;
             } catch (e) {
-                await delay(500);
+                await delay(200);
             }
         }
 

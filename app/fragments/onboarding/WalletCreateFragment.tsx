@@ -20,6 +20,8 @@ import { mnemonicNew } from "@ton/crypto";
 import { StatusBar } from 'expo-status-bar';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
+import { AppsFlyerEvent } from '../../analytics/appsflyer';
+import { trackAppsFlyerEvent } from '../../analytics/appsflyer';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { isTestnet } = useNetwork();
@@ -153,6 +155,7 @@ export const WalletCreateFragment = systemFragment(() => {
                         <RoundButton
                             title={t('create.okSaved')}
                             onPress={() => {
+                                trackAppsFlyerEvent(AppsFlyerEvent.BackupPhraseConfirmed);
                                 setState({ ...state, saved: true });
                             }}
                         />

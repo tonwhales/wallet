@@ -31,6 +31,8 @@ import { Typography } from '../../components/styles';
 import { useValidAmount } from '../../utils/useValidAmount';
 import { LiquidStakingAmountAction, liquidStakingAmountReducer } from '../../utils/staking/liquidStakingAmountReducer';
 import { Image } from "expo-image";
+import { AppsFlyerEvent } from '../../analytics/appsflyer';
+import { trackAppsFlyerEvent } from '../../analytics/appsflyer';
 
 export type LiquidStakingTransferParams = Omit<StakingTransferParams, 'target'>;
 
@@ -171,6 +173,14 @@ export const LiquidStakingTransferFragment = fragment(() => {
                     stateInit: null,
                 },
                 text: text,
+                callback: (ok: boolean) => {
+                    if(ok) {
+                        trackAppsFlyerEvent(AppsFlyerEvent.StakingDeposit, {
+                            af_currency: 'TON',
+                            af_quantity: transferAmountTon.toString()
+                        });
+                    }
+                }
             });
             return;
         }
@@ -228,7 +238,14 @@ export const LiquidStakingTransferFragment = fragment(() => {
                 }]
             },
             text: null,
-            callback: null
+            callback: (ok: boolean) => {
+                if(ok) {
+                    trackAppsFlyerEvent(AppsFlyerEvent.StakingDeposit, {
+                        af_currency: 'TON',
+                        af_quantity: transferAmountTon.toString()
+                    });
+                }
+            }
         });
     }, [amount, params, member, liquidStaking, balance, network, depositFee]);
 

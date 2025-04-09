@@ -581,7 +581,7 @@ export function useLinkNavigator(
     const toaster = useToaster();
     const loader = useGlobalLoader();
     const ledgerContext = useLedgerTransport();
-    const address = isLedger ? ledgerContext.addr!.address : selected!.addressString;
+    const address = isLedger ? ledgerContext.addr!.address : selected?.addressString;
 
     const [, updatePendingReuests] = useConnectPendingRequests();
     const pendingReqsUpdaterRef = useRef(updatePendingReuests);

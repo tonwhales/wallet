@@ -8,11 +8,13 @@ import { TonConnectRequestButton } from "../views/TonConnectRequestButton";
 export const DappsRequests = memo(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const [tonconnectRequests,] = useConnectPendingRequests();
+    const [tonconnectRequests] = useConnectPendingRequests();
 
     if (tonconnectRequests.length === 0) {
         return null;
     }
+
+    const lastThreeRequests = tonconnectRequests.slice(-3);
 
     return (
         <View style={[{ paddingHorizontal: 16, marginTop: 16 }]}>
@@ -30,12 +32,12 @@ export const DappsRequests = memo(() => {
                 borderRadius: 20,
                 backgroundColor: theme.surfaceOnBg,
             }}>
-                {tonconnectRequests.map((r, index) => {
+                {lastThreeRequests.map((r, index) => {
                     return (
                         <TonConnectRequestButton
                             key={`tonconnect-req-${index}`}
                             request={r}
-                            divider={index < tonconnectRequests.length - 1}
+                            divider={index < lastThreeRequests.length - 1}
                             isTestnet={isTestnet}
                         />
                     );

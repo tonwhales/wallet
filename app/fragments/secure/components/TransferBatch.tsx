@@ -347,6 +347,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         let seqno = await fetchSeqno(client, lastBlock, selected.address);
 
         // Create transfer
+        const timeout = order.validUntil ?? Math.ceil(Date.now() / 1000) + 5 * 60;
         let transfer: Cell;
         try {
             const transferParams = {
@@ -354,6 +355,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages,
+                timeout
             }
             transfer = isV5
                 ? (contract as WalletContractV5R1).createTransfer(transferParams)

@@ -128,6 +128,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     // Approve
     const active = useRef(true);
+    const success = useRef(false);
 
     const navigate = useRef(() => {
         active.current = false;
@@ -333,6 +334,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 // Send connect response
                 await sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
+                success.current = true;
                 toaster.show({
                     type: 'success',
                     message: t('products.tonConnect.successAuth'),
@@ -344,6 +346,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 });
                 return;
             } else if (connectProps.type === TonConnectAuthType.Callback) {
+                success.current = true;
                 toaster.show({
                     type: 'success',
                     message: t('products.tonConnect.successAuth'),
@@ -377,13 +380,26 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
     }, [state, saveAppConnection, toaster, walletVersion]);
 
+    const onCancel = useCallback(() => {
+        navigate.current();
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            // If user rejected the connection, we need to call the callback
+            if (!success.current) {
+                if (connectProps.type === TonConnectAuthType.Callback) {
+                    connectProps.callback({ ok: false });
+                }
+            }
+        }
+    }, []);
+
     return (
         <DappAuthComponent
             state={{ ...state, connector: 'ton-connect' }}
             onApprove={approve}
-            onCancel={() => {
-                navigate.current();
-            }}
+            onCancel={onCancel}
             single={connectProps.type === 'callback'}
         />
     )

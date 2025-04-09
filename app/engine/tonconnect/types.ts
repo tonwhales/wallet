@@ -40,7 +40,7 @@ export interface SignRawMessage {
 }
 
 export type SignRawParams = {
-  valid_until: number;
+  valid_until?: number;
   messages: SignRawMessage[];
   network?: CHAIN;
   from?: string;

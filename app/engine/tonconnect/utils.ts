@@ -171,7 +171,7 @@ export function checkTonconnectRequest(id: string, params: SignRawParams, callba
   const validParams = !!params
     && Array.isArray(params.messages)
     && params.messages.every((msg) => {
-      const hasAmount = !!msg.amount;
+      let validAmount = !!msg.amount && typeof msg.amount === 'string';
       let addressIsValid = false;
       let validPayload = true;
       let validStateInit = true;
@@ -199,7 +199,7 @@ export function checkTonconnectRequest(id: string, params: SignRawParams, callba
         }
       }
 
-      return hasAmount && addressIsValid && validPayload && validStateInit;
+      return validAmount && addressIsValid && validPayload && validStateInit;
     });
 
   if (!validParams) {

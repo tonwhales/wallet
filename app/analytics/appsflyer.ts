@@ -17,7 +17,7 @@ export enum RegistrationMethod {
 
 export const appsFlyerConfig: InitSDKOptions = {
   devKey: keys.APPSFLYER_KEY,
-  isDebug: true,
+  isDebug: false,
   appId: '1607656232',
   onInstallConversionDataListener: true, //Optional
   onDeepLinkListener: true, //Optional

@@ -77,7 +77,8 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
                         title: prepared.app.name,
                         domain: extractDomain(prepared.app.url),
                         url: prepared.app.url,
-                    } : undefined
+                    } : undefined,
+                    validUntil: prepared.validUntil
                 },
                 callback: resultCallback
             });

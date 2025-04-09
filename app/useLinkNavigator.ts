@@ -27,7 +27,7 @@ import { transactionRpcRequestCodec } from './engine/tonconnect/codecs';
 import { sendTonConnectResponse } from './engine/api/sendTonConnectResponse';
 import { extensionKey } from './engine/hooks/dapps/useAddExtension';
 import { ConnectedApp } from './engine/hooks/dapps/useTonConnectExtenstions';
-import { TransferFragmentProps } from './fragments/secure/TransferFragment';
+import { OrderMessage, TransferFragmentProps } from './fragments/secure/TransferFragment';
 import { extractDomain } from './engine/utils/extractDomain';
 import { Linking } from 'react-native';
 import { openWithInApp } from './utils/openWithInApp';
@@ -37,6 +37,8 @@ import { getIsConnectAppReady } from './engine/hooks/dapps/useIsConnectAppReady'
 import { HoldersAppParams, HoldersAppParamsType } from './fragments/holders/HoldersAppFragment';
 import { sharedStoragePersistence } from './storage/storage';
 import { useLedgerTransport } from './fragments/ledger/components/TransportContext';
+import { getTimeSec } from './utils/getTimeSec';
+import { checkTonconnectRequest } from './engine/tonconnect/utils';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -141,20 +143,9 @@ function tryResolveTonconnectRequest(
             const params = JSON.parse(request.params[0]) as SignRawParams;
 
             // check if request is valid
-            const isValidRequest =
-                params && typeof params.valid_until === 'number' &&
-                Array.isArray(params.messages) &&
-                params.messages.every((msg) => !!msg.address && !!msg.amount);
+            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback);
 
             if (!isValidRequest) {
-                // report error
-                callback({
-                    error: {
-                        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-                        message: 'Bad request',
-                    },
-                    id: request.id.toString(),
-                });
                 return;
             }
 
@@ -178,7 +169,7 @@ function tryResolveTonconnectRequest(
             }
 
             // compile messages
-            const messages = [];
+            const orderMessages = [];
             for (const message of params.messages) {
                 try {
                     const msg = {
@@ -188,7 +179,7 @@ function tryResolveTonconnectRequest(
                         payload: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0] : null,
                         stateInit: message.stateInit ? Cell.fromBoc(Buffer.from(message.stateInit, 'base64'))[0] : null
                     }
-                    messages.push(msg);
+                    orderMessages.push(msg);
                 } catch {
                     // ignore invalid messages
                 }
@@ -231,7 +222,7 @@ function tryResolveTonconnectRequest(
                 text: null,
                 order: {
                     type: 'order',
-                    messages: messages,
+                    messages: orderMessages,
                     app: { title: appConnection.app.name, domain: extractDomain(appConnection.app.url), url: appConnection.app.url }
                 },
                 callback: responseCallback

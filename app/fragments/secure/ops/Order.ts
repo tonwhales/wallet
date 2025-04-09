@@ -20,7 +20,8 @@ export type Order = {
         domain: string,
         title: string,
         url: string
-    }
+    },
+    validUntil?: number
 };
 
 export type LedgerOrder = {

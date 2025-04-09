@@ -28,7 +28,8 @@ export type PreparedConnectRequest = {
   messages: OrderMessage[],
   app: ConnectedApp | null,
   network?: CHAIN,
-  from?: string
+  from?: string,
+  validUntil?: number
 }
 
 // check if the request is valid and prepare the request for transfer fragment navigation
@@ -41,9 +42,9 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
     const params = JSON.parse(request.params[0]) as SignRawParams;
 
     const isValidRequest =
-      params && typeof params.valid_until === 'number' &&
-      Array.isArray(params.messages) &&
-      params.messages.every((msg) => !!msg.address && !!msg.amount);
+      params
+      && Array.isArray(params.messages)
+      && params.messages.every((msg) => !!msg.address && !!msg.amount);
 
     const { session } = findConnectedAppByClientSessionId(request.from);
     if (!session) {
@@ -77,7 +78,7 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
       }
     }
 
-    let { valid_until, network, from } = params;
+    const { valid_until, network, from, messages } = params;
 
     // check if the network is the same as the current wallet network
     if (!!network) {
@@ -89,6 +90,15 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
         );
         return;
       }
+    }
+
+    if (messages.length === 0) {
+      deleteAndReportError(
+        'No messages',
+        SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+        t('products.transactionRequest.invalidRequest')
+      );
+      return;
     }
 
     // check if the from address is the same as the current wallet address
@@ -125,7 +135,7 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
       return;
     }
 
-    if (valid_until < getTimeSec()) {
+    if (!!valid_until && valid_until < getTimeSec()) {
       deleteAndReportError(
         'Request expired',
         SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
@@ -136,7 +146,7 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
 
     const { connectedApp } = findConnectedAppByClientSessionId(request.from);
 
-    const messages = [];
+    const orderMessages: OrderMessage[] = [];
     for (const message of params.messages) {
       const extraCurrency = message.extra_currency ? Object.fromEntries(Object.entries(message.extra_currency).map(([key, value]) => [key, BigInt(value)])) : undefined;
 
@@ -149,7 +159,7 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
           stateInit: message.stateInit ? Cell.fromBoc(Buffer.from(message.stateInit, 'base64'))[0] : null,
           extraCurrency
         }
-        messages.push(msg);
+        orderMessages.push(msg);
       } catch (error) {
         warn(error);
       }
@@ -158,10 +168,11 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
     return {
       request,
       sessionCrypto,
-      messages,
+      messages: orderMessages,
       app: connectedApp,
       network,
-      from
+      from,
+      validUntil: valid_until
     }
   }
 }

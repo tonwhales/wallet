@@ -1,4 +1,4 @@
-import { canUpgradeAppState, getAppState, getCurrentAddress, isAddressSecured } from "../storage/appState";
+import { canUpgradeAppState, getAppState, getCurrentAddress, getLedgerSelected, isAddressSecured } from "../storage/appState";
 import { storage } from "../storage/storage";
 import { PasscodeState, getPasscodeState, loadKeyStorageType } from "../storage/secureStorage";
 import { getLockAppWithAuthState } from "../engine/state/lockAppWithAuthState";
@@ -13,10 +13,11 @@ function isKeyStoreMigrated(): boolean {
     return storage.getBoolean('key-store-migrated') ?? false;
 }
 
-type OnboardingState = 'Welcome' | 'WalletUpgrade' | 'PasscodeSetupInit' | 'BackupIntro' | 'Home' | 'AppStartAuth' | 'KeyStoreMigration';
+type OnboardingState = 'Welcome' | 'WalletUpgrade' | 'PasscodeSetupInit' | 'BackupIntro' | 'Home' | 'AppStartAuth' | 'KeyStoreMigration' | 'LedgerApp';
 
 export function resolveOnboarding(isTestnet: boolean, appStart?: boolean): OnboardingState {
     const state = getAppState();
+    const ledgerSelected = getLedgerSelected();
     const wasPasscodeSetupShown = isPasscodeSetupShown();
     const storageType = loadKeyStorageType();
     const isKeyStore = storageType === 'key-store';
@@ -37,6 +38,10 @@ export function resolveOnboarding(isTestnet: boolean, appStart?: boolean): Onboa
 
             if (!wasPasscodeSetupShown && !passcodeSet) {
                 return 'PasscodeSetupInit';
+            }
+
+            if (ledgerSelected) {
+                return 'LedgerApp';
             }
             return 'Home';
         } else if (canUpgradeAppState()) {

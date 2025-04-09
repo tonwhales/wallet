@@ -50,6 +50,7 @@ export const WalletHeader = memo(({ address, height, walletCardHeight, scrollOff
                 scrollEnabled={false}
                 style={{ position: 'absolute', height, width: '100%' }}
                 contentContainerStyle={[{ height: walletCardHeight }]}
+                showsVerticalScrollIndicator={false}
             >
                 <AnimatedLinearGradient
                     style={[animatedStyle, {

@@ -322,7 +322,11 @@ window['dapp-client'] = (() => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'closeApp' } }));
     }
 
-    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, __DAPP_CLIENT_AVAILABLE };
+    const backPolicy = (backPolicy) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'backPolicy', args: { backPolicy } } }));
+    }
+
+    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, backPolicy, __DAPP_CLIENT_AVAILABLE };
     Object.freeze(obj);
     return obj;
 })();

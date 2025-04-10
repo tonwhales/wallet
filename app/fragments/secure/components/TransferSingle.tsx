@@ -29,7 +29,6 @@ import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
 import { valueText } from "../../../components/ValueComponent";
-import { useExtraCurrency } from "../../../engine/hooks/jettons/useExtraCurrency";
 import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
@@ -41,7 +40,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const account = useAccountLite(selected!.address);
     const registerPending = useRegisterPending();
 
-    let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless, useGasless } = props;
+    let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless } = props;
 
     const [walletSettings] = useWalletSettings(selected?.address);
     const [failed, setFailed] = useState(false);
@@ -297,11 +296,12 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         //
         // Gasless transfer
         //
+        const timeout = order.validUntil ?? Math.ceil(Date.now() / 1000) + 5 * 60;
         if (isGasless) {
             const tetherTransferForSend = (contract as WalletContractV5R1).createTransfer({
                 seqno,
                 authType: 'internal',
-                timeout: Math.ceil(Date.now() / 1000) + 5 * 60,
+                timeout,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
                 messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimateSuccess }).params.messages.map(message => {
@@ -311,7 +311,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                         body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
                         init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null
                     })
-                })
+                }),
             });
 
             msg = beginCell()
@@ -370,6 +370,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                         ? SendMode.CARRY_ALL_REMAINING_BALANCE
                         : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                     messages: [intMessage],
+                    timeout
                 }
 
                 transfer = isV5

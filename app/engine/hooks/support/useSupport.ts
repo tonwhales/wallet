@@ -18,12 +18,35 @@ export const useSupport = (options?: { isLedger?: boolean }) => {
     const queryCache = queryClient.getQueryCache();
     const selected = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
-    const _address = options?.isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address;
-    const address = _address.toString({ testOnly: network.isTestnet });
+    const navigation = useTypedNavigation();
+
+    const onSupport = useCallback(() => {
+        navigation.navigateDAppWebView({
+            url: `${holdersUrl}/support`,
+            fullScreen: true,
+            webViewProps: {
+                injectedJavaScriptBeforeContentLoaded: `
+                        (() => {
+                            window.initialState = ${JSON.stringify(initialState)};
+                        })();
+                        `,
+            },
+            useQueryAPI: true
+        });
+    }, [])
+
+    const _address = options?.isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address;
+    const address = _address?.toString({ testOnly: network.isTestnet });
+
+    if (!address) {
+        return {
+            onSupport: () => { }
+        }
+    }
+
     const status = getQueryData<HoldersAccountStatus>(queryCache, Queries.Holders(address).Status());
     const token = status?.state === HoldersUserState.Ok ? status.token : getHoldersToken(address);
     const accountsStatus = getQueryData<HoldersAccounts>(queryCache, Queries.Holders(address).Cards(!!token ? 'private' : 'public'));
-    const navigation = useTypedNavigation();
 
     const initialState = {
         ...status
@@ -43,20 +66,7 @@ export const useSupport = (options?: { isLedger?: boolean }) => {
             : {},
     };
 
-    const onSupport = useCallback(() => {
-        navigation.navigateDAppWebView({
-            url: `${holdersUrl}/support`,
-            fullScreen: true,
-            webViewProps: {
-                injectedJavaScriptBeforeContentLoaded: `
-                        (() => {
-                            window.initialState = ${JSON.stringify(initialState)};
-                        })();
-                        `,
-            },
-            useQueryAPI: true
-        });
-    }, [])
+
 
     return {
         onSupport

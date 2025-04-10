@@ -163,9 +163,7 @@ export const AppAuthFragment = fragment(() => {
                     }}
                     onMount={useBiometrics ? authenticateWithBiometrics : undefined}
                     onLogoutAndReset={
-                        (attempts > 0
-                            && attempts % 5 === 0
-                        )
+                        attempts > 5
                             ? fullResetActionSheet
                             : undefined
                     }

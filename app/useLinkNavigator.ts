@@ -35,13 +35,13 @@ import { HoldersAppParams, HoldersAppParamsType } from './fragments/holders/Hold
 import { sharedStoragePersistence } from './storage/storage';
 import { TransferFragmentParams } from './fragments/secure/transfer/TransferFragment';
 import { useLedgerTransport } from './fragments/ledger/components/TransportContext';
-import { TransferRequestURL } from '@solana/pay';
-import { TransactionRequestURL } from '@solana/pay';
+import { TransferRequestURL, TransactionRequestURL } from '@solana/pay';
 import { z } from 'zod';
 import axios from 'axios';
 import { SolanaOrderApp } from './fragments/secure/ops/Order';
 import { solanaAddressFromPublicKey } from './utils/solana/address';
-import { Transaction } from '@solana/web3.js';
+import { Transaction, PublicKey } from '@solana/web3.js';
+
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
 function tryResolveTonconnectRequest(
@@ -488,7 +488,19 @@ function resolveAndNavigateToHolders(params: HoldersTransactionResolveParams | H
     const { type, query, navigation, selected, updateAppState, queryClient, isTestnet } = params
     const addresses = query['addresses']?.split(',');
 
-    const isSelectedAddress = addresses?.find((a) => Address.parse(a).equals(selected.address));
+    const solanaAddress = solanaAddressFromPublicKey(selected.publicKey);
+    const isSelectedAddress = addresses?.find((a) => {
+        try {
+            return Address.parse(a).equals(selected.address);
+        } catch {
+            try {
+                const solPub = new PublicKey(a);
+                return solPub.equals(solanaAddress);
+            } catch {
+                return false;
+            }
+        }
+    });
     const transactionId = query['transactionId'];
 
     const holdersNavParams: HoldersAppParams = type === 'holders-transactions'
@@ -517,9 +529,17 @@ function resolveAndNavigateToHolders(params: HoldersTransactionResolveParams | H
     } else { // If transaction is for another address, navigate to the address first
         const appState = getAppState();
         const index = appState.addresses.findIndex((a) => {
-            return addresses.find((addr) => a.address.equals(Address.parse(addr))) !== undefined;
+            const tonAddressFound = addresses.find((addr) => a.address.equals(Address.parse(addr))) !== undefined;
+            const solanaAddressFound = addresses.find((addr) => {
+                try {
+                    const solPub = new PublicKey(addr);
+                    return solPub.equals(solanaAddressFromPublicKey(a.publicKey));
+                } catch {
+                    return false;
+                }
+            });
+            return tonAddressFound || solanaAddressFound;
         });
-
 
         // If address is found, select it
         if (index !== -1) {

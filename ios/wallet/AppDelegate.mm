@@ -4,13 +4,14 @@
 #import <React/RCTLinkingManager.h>
 #import <ReactNativePerformance/ReactNativePerformance.h>
 #import <RNAppsFlyer.h>
-
-
+#import <IntercomModule.h>
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [ReactNativePerformance onAppStarted];
+  [IntercomModule initialize:@"apiKey" withAppId:@"appId"]; // <-- Add this (Remember to replace strings with your api keys)
+
   // Disable iCloud backup
   NSArray *urlArray = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask];
   NSURL *documentsUrl = [urlArray firstObject];

@@ -1192,6 +1192,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "wallets": {
         "choose_versions": "Выберите кошельки, которые вы хотите добавить",
+        "noVersionTitle": "Выберите версию",
+        "noVersionDescription": "Не выбрана ни одна версия кошелька",
         "switchToAlertTitle": "Переключить на {{wallet}}",
         "switchToAlertMessage": "Вы уверены в том, что хотите переключить кошелек?",
         "switchToAlertAction": "Переключить",

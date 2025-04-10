@@ -1192,6 +1192,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Виберіть гаманці для додавання",
+        "noVersionTitle": "Виберіть версію",
+        "noVersionDescription": "Не вибрана жодна версія гаманця",
         "switchToAlertTitle": "Перемикання на {{wallet}}",
         "switchToAlertMessage": "Ви впевнені, що хочете переключити гаманці?",
         "switchToAlertAction": "Перемкнути",

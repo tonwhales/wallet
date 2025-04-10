@@ -1192,6 +1192,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Escolha carteiras para adicionar",
+        "noVersionTitle": "Selecione uma versão",
+        "noVersionDescription": "Nenhuma versão de carteira selecionada",
         "switchToAlertTitle": "Mudando para {{wallet}}",
         "switchToAlertMessage": "Tem certeza que deseja mudar de carteira?",
         "switchToAlertAction": "Mudar",

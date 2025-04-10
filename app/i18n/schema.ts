@@ -125,6 +125,16 @@ export type LocalizationSchema = {
         searchEngine: string,
         language: string
     },
+    walletImportSelector: {
+        title: string,
+        description: string,
+        seed: string,
+    },
+    ledgerOnboarding: {
+        title: string,
+        description: string,
+        button: string,
+    },
     theme: {
         title: string,
         light: string,

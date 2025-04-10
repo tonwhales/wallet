@@ -13,6 +13,7 @@ import { mnemonicNew } from "@ton/crypto";
 import { ScreenHeader } from "../../components/ScreenHeader";
 
 import IcCheck from "@assets/ic-check.svg";
+import { useParams } from "../../utils/useParams";
 
 export const LegalFragment = systemFragment(() => {
     const theme = useTheme();
@@ -20,6 +21,7 @@ export const LegalFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
+    const params = useParams<{ ledger?: boolean }>();
     const isCreate = route.name === 'LegalCreate';
 
     const [state, setState] = useState<{ mnemonics: string } | null>(null);
@@ -31,7 +33,7 @@ export const LegalFragment = systemFragment(() => {
         if (isCreate) {
             setLoading(true);
             if (state) {
-                navigation.replace('WalletCreate', { mnemonics: state.mnemonics });
+                navigation.replace('WalletCreate', { mnemonics: state.mnemonics, ledger: params.ledger });
                 return;
             }
             setReady(true);
@@ -61,7 +63,7 @@ export const LegalFragment = systemFragment(() => {
 
     useEffect(() => {
         if (ready && state) {
-            navigation.replace('WalletCreate', { mnemonics: state.mnemonics });
+            navigation.replace('WalletCreate', { mnemonics: state.mnemonics, ledger: params.ledger });
             return;
         }
     }, [accepted, state]);

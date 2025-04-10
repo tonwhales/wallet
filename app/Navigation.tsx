@@ -107,6 +107,8 @@ import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
 import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilterFragment';
 import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragment';
+import { WalletImportSelectorFragment } from './fragments/onboarding/WalletImportSelectorFragment';
+import { LedgerOnboardingFragment } from './fragments/onboarding/LedgerOnboardingFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -244,6 +246,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PendingTransaction', PendingTxPreviewFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
+    transparentModalScreen('WalletImportSelector', WalletImportSelectorFragment, safeArea),
+    genericScreen('LedgerOnboarding', LedgerOnboardingFragment, safeArea, true),
 
     // Dev
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),

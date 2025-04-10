@@ -123,6 +123,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Пошукова система",
         "language": "Мова"
     },
+    "walletImportSelector": {
+        "description": "Введіть вашу сід фразу або підключіть Ledger",
+        "title": "Додавання гаманця",
+        "seed": "Ввести секретні слова"
+    },
+    "ledgerOnboarding": {
+        "title": "Налаштуйте додаток",
+        "description": "Ми створимо окремий гаманець для налаштування безпеки, перед підключенням Ledger",
+        "button": "Створити гаманець"
+    },
     "theme": {
         "title": "Тема",
         "light": "Світла",

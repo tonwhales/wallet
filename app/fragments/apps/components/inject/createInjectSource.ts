@@ -322,7 +322,7 @@ window['dapp-client'] = (() => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'closeApp' } }));
     }
 
-    const backPolicy = (backPolicy) => {
+    const setBackPolicy = (backPolicy) => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'backPolicy', args: { backPolicy } } }));
     }
 

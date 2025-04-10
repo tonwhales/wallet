@@ -170,9 +170,11 @@ export const WalletActionButton = memo(({
                         }}>
                             <Image source={require('@assets/ic-buy.png')} />
                         </View>
-                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
+                        <Text
+                            style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
                             minimumFontScale={0.7}
                             adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
                             numberOfLines={1}
                         >
                             {t('wallet.actions.buy')}
@@ -199,10 +201,6 @@ export const WalletActionButton = memo(({
                 }
             }
 
-            if (isWalletMode && isLedger && !(ledgerContext.tonTransport && !ledgerContext.isReconnectLedger)) {
-                navigate = ledgerContext.onShowLedgerConnectionError;
-            }
-
             return (
                 <Pressable
                     onPress={navigate}
@@ -217,7 +215,13 @@ export const WalletActionButton = memo(({
                         }}>
                             <Image source={require('@assets/ic_send.png')} />
                         </View>
-                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
+                        <Text
+                            style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
+                            minimumFontScale={0.7}
+                            adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
+                            numberOfLines={1}
+                        >
                             {isWalletMode ? t('wallet.actions.send') : t('wallet.actions.payments')}
                         </Text>
                     </View>
@@ -273,6 +277,7 @@ export const WalletActionButton = memo(({
                             style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
                             minimumFontScale={0.7}
                             adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
                             numberOfLines={1}
                         >
                             {t('wallet.actions.receive')}
@@ -317,6 +322,7 @@ export const WalletActionButton = memo(({
                             style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
                             minimumFontScale={0.7}
                             adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
                             numberOfLines={1}
                         >
                             {t('wallet.actions.deposit')}
@@ -340,7 +346,16 @@ export const WalletActionButton = memo(({
                         }}>
                             <Image source={require('@assets/ic_swap.png')} />
                         </View>
-                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
+                        <Text
+                            style={[
+                                { color: theme.textPrimary, marginTop: 6 },
+                                Typography.medium15_20
+                            ]}
+                            minimumFontScale={0.7}
+                            adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
+                            numberOfLines={1}
+                        >
                             {t('wallet.actions.swap')}
                         </Text>
                     </View>
@@ -386,12 +401,18 @@ export const WalletActionButton = memo(({
                             borderRadius: 16,
                             alignItems: 'center', justifyContent: 'center'
                         }}>
-                            <Image
-                                source={require('@assets/ic-scan-main.png')}
-
-                            />
+                            <Image source={require('@assets/ic-scan-main.png')} />
                         </View>
-                        <Text style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}>
+                        <Text
+                            style={[
+                                { color: theme.textPrimary, marginTop: 6 },
+                                Typography.medium15_20
+                            ]}
+                            minimumFontScale={0.7}
+                            adjustsFontSizeToFit
+                            ellipsizeMode={"tail"}
+                            numberOfLines={1}
+                        >
                             {t('wallet.actions.scan')}
                         </Text>
                     </View>

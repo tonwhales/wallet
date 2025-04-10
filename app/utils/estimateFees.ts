@@ -64,9 +64,8 @@ export function estimateFees(
     let importFees = computeExternalMessageFees(config.workchain.message as any, inMsg);
 
     // Any transaction use this amount of gas
-    const gasUsed = gasUsageByOutMsgs[outMsgs.length];
+    const gasUsed = gasUsageByOutMsgs[outMsgs.length] ?? 0;
     let gasFees = computeGasPrices(BigInt(gasUsed), { flatLimit: config.workchain.gas.flatLimit, flatPrice: config.workchain.gas.flatGasPrice, price: config.workchain.gas.price });
-
 
     // Total
     let total = BigInt(0);

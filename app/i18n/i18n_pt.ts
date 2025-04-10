@@ -321,7 +321,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Aplicativos ou extensões que você autorizou serão exibidos aqui. Você pode revogar o acesso de qualquer aplicativo ou extensão a qualquer momento.",
             "installExtension": "Instale e abra a extensão para este aplicativo",
             "moreWallets": "Mais carteiras ({{count}})",
-            "connectionSecureDescription": "Nenhum fundo será transferido para o aplicativo e nenhum acesso às suas moedas será concedido"
+            "connectionSecureDescription": "Nenhum fundo será transferido para o aplicativo e nenhum acesso às suas moedas será concedido",
+            "invalidManifest": "Erro do manifesto da aplicação",
+            "invalidManifestDescription": "Esta aplicação falhou em conectar-se à sua carteira. Por favor, entre em contato com o suporte deles."
         },
         "consent": "Ao clicar em continuar, você aceita nossos"
     },

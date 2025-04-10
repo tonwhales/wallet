@@ -24,17 +24,20 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
     const selected = useSelectedAccount();
     const isLedger = !!ledgerName;
     const ledgerContext = useLedgerTransport();
-    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : (selected!.address || getAppState().addresses[0].address);
+    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : (selected?.address || getAppState().addresses?.[0]?.address);
     const currentWalletIndex = getAppState().addresses.findIndex((w) => w.address.equals(address));
     const [walletSettings] = useWalletSettings(address);
-
-    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
-    const avatarColor = avatarColors[avatarColorHash];
 
     const onAccountPress = useCallback(() => {
         navigation.navigate('AccountSelector');
     }, []);
 
+    if (!address) {
+        return null;
+    }
+
+    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
     const walletName = walletSettings?.name || ledgerName || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`;
 
     return (
@@ -53,18 +56,18 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                     borderRadius: 24,
                     marginRight: 12
                 }}>
-                        <Avatar
-                            id={address.toString({ testOnly: network.isTestnet })}
-                            size={48}
-                            borderWidth={0}
-                            hash={walletSettings?.avatar}
-                            theme={theme}
-                            knownWallets={knownWallets}
-                            backgroundColor={avatarColor}
-                            isLedger={isLedger}
-                        />
+                    <Avatar
+                        id={address.toString({ testOnly: network.isTestnet })}
+                        size={48}
+                        borderWidth={0}
+                        hash={walletSettings?.avatar}
+                        theme={theme}
+                        knownWallets={knownWallets}
+                        backgroundColor={avatarColor}
+                        isLedger={isLedger}
+                    />
                     <View style={{ position: 'absolute', top: -1, right: -1 }}>
-                        <HeaderSyncStatus size={12} isLedger={isLedger}/>
+                        <HeaderSyncStatus size={12} isLedger={isLedger} />
                     </View>
                 </View>
             </Pressable>

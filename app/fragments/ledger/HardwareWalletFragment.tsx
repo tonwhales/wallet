@@ -39,7 +39,9 @@ export const HardwareWalletFragment = fragment(() => {
 
     const searchHID = useCallback(async () => {
         setBleLocked(true);
-        await ledgerContext?.startHIDSearch();
+        try {
+            await ledgerContext?.startHIDSearch();
+        } catch {}
         setBleLocked(false);
     }, [ledgerContext]);
 

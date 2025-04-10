@@ -14,7 +14,7 @@ import { connectAnswer } from '../../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../../engine/api/sendTonConnectResponse';
 import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
 import { useNetwork, useTheme } from '../../../engine/hooks';
-import { handleConnectDeeplink } from '../../../engine/tonconnect/handleConnectDeeplink';
+import { handleConnectDeeplink, HandledConnectRequest, isValidDappDomain } from '../../../engine/tonconnect/handleConnectDeeplink';
 import { isUrl } from '../../../utils/resolveUrl';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { getAppManifest } from '../../../engine/getters/getAppManifest';
@@ -24,28 +24,13 @@ import { checkProtocolVersionCapability, resolveAuthError, verifyConnectRequest 
 import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../../engine/tonconnect/types';
 import { ConnectReplyBuilder, ExtendedConnectItemReply } from '../../../engine/tonconnect/ConnectReplyBuilder';
 import { tonConnectDeviceInfo } from '../../../engine/tonconnect/config';
-import { DappAuthComponent } from './DappAuthComponent';
+import { DappAuthComponent, TonConnectSignState } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Minimizer from '../../../modules/Minimizer';
 import { SelectedAccount } from '../../../engine/types';
 import { ToastDuration, useToaster } from '../../../components/toast/ToastProvider';
 import { t } from '../../../i18n/t';
 import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
-
-type SignState = { type: 'loading' }
-    | {
-        type: 'initing',
-        name: string,
-        url: string,
-        app: AppManifest,
-        protocolVersion: number,
-        request: ConnectRequest,
-        clientSessionId?: string,
-        returnStrategy?: ReturnStrategy,
-        domain: string,
-        manifestUrl: string
-    }
-    | { type: 'failed', returnStrategy?: ReturnStrategy }
 
 const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
     const { isTestnet } = useNetwork();
@@ -54,7 +39,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const toaster = useToaster();
-    const [state, setState] = useState<SignState>({ type: 'loading' });
+    const [state, setState] = useState<TonConnectSignState>({ type: 'loading' });
     const saveAppConnection = useSaveAppConnection();
     const walletVersion = useWalletVersion();
     const toastMargin = safeArea.bottom + 56 + 48;
@@ -64,26 +49,41 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             // remote bridge
             if (connectProps.type === 'qr' || connectProps.type === 'link') {
                 try {
-                    const handled = await handleConnectDeeplink(connectProps.query);
+                    const handledDeeplink = await handleConnectDeeplink(connectProps.query);
+
+                    if (handledDeeplink.type === 'invalid-manifest') {
+                        setState({ type: 'invalid-manifest', returnStrategy: connectProps.query.ret });
+                        return;
+                    }
+
+                    const handled = handledDeeplink as HandledConnectRequest;
 
                     if (handled) {
                         checkProtocolVersionCapability(handled.protocolVersion);
                         verifyConnectRequest(handled.request);
 
-                        if (handled.manifest) {
-                            const domain = isUrl(handled.manifest.url) ? extractDomain(handled.manifest.url) : handled.manifest.url;
+                        const manifest = handled.manifest;
+                        const manifestUrl = handled.manifestUrl;
+                        if (manifest) {
+                            const dAppUrl = manifest.url;
+                            const domain = isUrl(dAppUrl) ? extractDomain(dAppUrl) : dAppUrl;
+
+                            if (!isValidDappDomain(domain)) {
+                                setState({ type: 'invalid-manifest', returnStrategy: connectProps.query.ret });
+                                return;
+                            }
 
                             setState({
                                 type: 'initing',
-                                name: handled.manifest.name,
-                                url: handled.manifest.url,
-                                app: handled.manifest,
+                                name: manifest.name,
+                                url: dAppUrl,
+                                app: manifest,
                                 protocolVersion: handled.protocolVersion,
                                 request: handled.request,
                                 clientSessionId: handled.clientSessionId,
                                 returnStrategy: handled.returnStrategy,
-                                domain: domain,
-                                manifestUrl: handled.manifestUrl
+                                domain,
+                                manifestUrl
                             });
                             return;
                         }
@@ -128,6 +128,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     // Approve
     const active = useRef(true);
+    const success = useRef(false);
 
     const navigate = useRef(() => {
         active.current = false;
@@ -273,7 +274,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     event: 'connect',
                     payload: {
                         items: replyItems,
-                        device: tonConnectDeviceInfo,
+                        device: tonConnectDeviceInfo(walletVersion),
                     }
                 } as ConnectEvent
 
@@ -333,6 +334,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 // Send connect response
                 await sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
+                success.current = true;
                 toaster.show({
                     type: 'success',
                     message: t('products.tonConnect.successAuth'),
@@ -344,6 +346,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 });
                 return;
             } else if (connectProps.type === TonConnectAuthType.Callback) {
+                success.current = true;
                 toaster.show({
                     type: 'success',
                     message: t('products.tonConnect.successAuth'),
@@ -375,15 +378,28 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             warn('Failed to approve');
         }
 
-    }, [state, saveAppConnection, toaster]);
+    }, [state, saveAppConnection, toaster, walletVersion]);
+
+    const onCancel = useCallback(() => {
+        navigate.current();
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            // If user rejected the connection, we need to call the callback
+            if (!success.current) {
+                if (connectProps.type === TonConnectAuthType.Callback) {
+                    connectProps.callback({ ok: false });
+                }
+            }
+        }
+    }, []);
 
     return (
         <DappAuthComponent
             state={{ ...state, connector: 'ton-connect' }}
             onApprove={approve}
-            onCancel={() => {
-                navigate.current();
-            }}
+            onCancel={onCancel}
             single={connectProps.type === 'callback'}
         />
     )

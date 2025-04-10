@@ -321,7 +321,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Hier werden Anwendungen oder Erweiterungen angezeigt, die Sie autorisiert haben. Sie können den Zugriff jederzeit von jeder App oder Erweiterung widerrufen.",
             "installExtension": "Erweiterung für diese Anwendung installieren und öffnen",
             "moreWallets": "Weitere Wallets ({{count}})",
-            "connectionSecureDescription": "Es werden keine Gelder an die App übertragen und kein Zugriff auf Ihre Münzen gewährt"
+            "connectionSecureDescription": "Es werden keine Gelder an die App übertragen und kein Zugriff auf Ihre Münzen gewährt",
+            "invalidManifest": "App manifest Fehler",
+            "invalidManifestDescription": "Diese App konnte nicht mit Ihrem Wallet verbunden werden. Bitte kontaktieren Sie den Support der App."
         },
         "consent": "Durch Klicken auf Weiter akzeptieren Sie unsere"
     },

@@ -323,7 +323,9 @@ export type LocalizationSchema = {
             description: string,
             installExtension: string,
             moreWallets: string,
-            connectionSecureDescription: string
+            connectionSecureDescription: string,
+            invalidManifest: string,
+            invalidManifestDescription: string
         },
         consent: string,
     },

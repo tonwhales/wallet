@@ -116,7 +116,8 @@ export type ConfirmLoadedPropsBatch = {
             domain: string,
             title: string,
             url: string
-        }
+        },
+        validUntil?: number
     },
     fees: bigint,
     callback: ((ok: boolean, result: Cell | null) => void) | null,
@@ -733,7 +734,7 @@ export const TransferFragment = fragment(() => {
                             address: to,
                             balance: BigInt(state.account.balance.coins),
                             active: state.account.state.type === 'active',
-                            bounceable: parsedDestFriendly?.isBounceable
+                            bounceable: parsedDestFriendly?.isBounceable ?? true
                         },
                     });
                 } else {
@@ -779,7 +780,7 @@ export const TransferFragment = fragment(() => {
             // Set state
             setLoadedProps({
                 type: 'batch',
-                order: { messages, app: order.app },
+                order: { messages, app: order.app, validUntil: order.validUntil },
                 text,
                 fees,
                 callback: callback ? callback : null,

@@ -13,7 +13,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useMemo, useRef } from 'react';
-import { useHandleMessage, useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
+import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
@@ -39,7 +39,7 @@ import { TonConnectBridgeType } from '../../engine/tonconnect/types';
 import { useAppsConnections } from '../../engine/hooks/dapps/useAppConnections';
 import { ConnectedAppConnection } from '../../engine/tonconnect/types';
 import { createLogger } from '../../utils/log';
-import { Base64, hexToByteArray, SessionCrypto } from '@tonconnect/protocol';
+import { useLinkNavigator } from '../../useLinkNavigator';
 
 const logger = createLogger('tonconnect');
 
@@ -67,7 +67,7 @@ export const DeveloperToolsFragment = fragment(() => {
         }, [] as ConnectedAppConnection[]).filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
     }, [connectionsMap]);
     const connection = connections[0];
-    const handleMessage = useHandleMessage([connection], logger);
+    const linkNavigator = useLinkNavigator(isTestnet);
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -283,53 +283,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
-                        <Item title={"Handle message"} onPress={() => {
-                            // export interface MessageEvent {
-                            //     type: 'message';
-                            //     data: string | null;
-                            //     lastEventId: string | null;
-                            //     url: string;
-                            //   }
-
-                            const sessionCrypto = new SessionCrypto(connection.sessionKeyPair);
-
-                            // method: t.literal('sendTransaction'),
-                            // params: t.tuple([t.string]),
-                            // id: t.union([t.number, t.string])
-
-                            const encrypted = sessionCrypto.encrypt(
-                                JSON.stringify({
-                                    "id": 1,
-                                    "method": "sendTransaction",
-                                    "params": [
-                                        JSON.stringify({
-                                            "validUntil": 1737383466,
-                                            "messages": [
-                                                {
-                                                    "address": "UQCKWpx7cNMpvmcN5ObM5lLUZHZRFKqYA4xmw9jOry0ZsAKJ",
-                                                    "amount": "5000000",
-                                                    "stateInit": "te6cckEBBAEAOgACATQCAQAAART/APSkE/S88sgLAwBI0wHQ0wMBcbCRW+D6QDBwgBDIywVYzxYh+gLLagHPFsmAQPsAlxCarA==",
-                                                    "payload": "te6ccsEBAQEADAAMABQAAAAASGVsbG8hCaTc/g=="
-                                                }
-                                            ]
-                                        })
-                                    ]
-                                }),
-                                hexToByteArray(connection.clientSessionId),
-                            );
-
-                            const data = {
-                                from: connection.clientSessionId,
-                                message: Base64.encode(encrypted)
-                            }
-
-                            handleMessage({
-                                type: 'message',
-                                data: JSON.stringify(data),
-                                lastEventId: null,
-                                url: 'https://extra-currency-demo-stand-demo-dapp.vercel.app',
-                            });
-                        }} />
                     </View>
                     <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
                 </ScrollView>

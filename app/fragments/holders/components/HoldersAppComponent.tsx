@@ -402,6 +402,7 @@ export const HoldersAppComponent = memo((
             useEmitter: true,
             useAuthApi: true,
             useWalletAPI: true,
+            useDappClient: true,
 
             onShouldStartLoadWithRequest: loadWithRequest,
             onContentProcessDidTerminate,
@@ -434,9 +435,9 @@ export const HoldersAppComponent = memo((
                 ref={webViewRef}
                 source={{ uri: source.url }}
                 {...webViewProps}
-                defaultQueryParamsState={{
+                defaultNavigationOptions={{
                     backPolicy: 'back',
-                    showKeyboardAccessoryView: false,
+                    showKAV: false,
                     lockScroll: true
                 }}
                 webviewDebuggingEnabled={isTestnet}

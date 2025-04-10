@@ -322,7 +322,8 @@ export const ExchangesFragment = fragment(() => {
         useMainButton: true,
         useStatusBar: true,
         useEmitter: true,
-        useQueryAPI: true
+        useQueryAPI: true,
+        useDappClient: true
     };
 
     const [renderKey, setRenderKey] = useState(0);
@@ -392,9 +393,9 @@ export const ExchangesFragment = fragment(() => {
                     {...webViewProps}
                     webviewDebuggingEnabled={isTestnet}
                     allowsBackForwardNavigationGestures={true}
-                    defaultQueryParamsState={{
+                    defaultNavigationOptions={{
                         backPolicy: 'back',
-                        showKeyboardAccessoryView: false,
+                        showKAV: false,
                         lockScroll: false,
                     }}
                     loader={(l) => (<ExchangesLoader

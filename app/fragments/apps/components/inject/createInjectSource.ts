@@ -101,8 +101,6 @@ window['toaster'] = (() => {
 })();
 `
 
-
-
 export const emitterAPI = `
 window['dapp-emitter'] = (() => {
     let __EMITTER_READY = true;
@@ -218,7 +216,6 @@ export const authAPI = (params: { lastAuthTime?: number, isSecured: boolean }) =
     `
 }
 
-
 export const dappWalletAPI = `
 window['dapp-wallet'] = (() => {
     let __DAPP_WALLET_AVAILABLE = true;
@@ -295,6 +292,40 @@ window['dapp-wallet'] = (() => {
     return obj;
 })();
 true;
+`
+
+export const dappClientAPI = `
+window['dapp-client'] = (() => {
+    let __DAPP_CLIENT_AVAILABLE = true;
+
+    const openUrl = (url) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'openUrl', args: { url } } }));
+    }   
+
+    const openEnrollment = () => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'openEnrollment' } }));
+    }
+    
+    const showKeyboardAccessoryView = (show) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'showKeyboardAccessoryView', args: { show } } }));
+    }
+
+    const lockScroll = (lock) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'lockScroll', args: { lock } } }));
+    }
+
+    const subscribed = (subscribed) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'subscribed', args: { subscribed } } }));
+    }
+
+    const closeApp = () => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'closeApp' } }));
+    }
+
+    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, __DAPP_CLIENT_AVAILABLE };
+    Object.freeze(obj);
+    return obj;
+})();
 `
 
 type InjectionConfig = {
@@ -398,7 +429,6 @@ export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {
     })();
     true;
     `;
-
 }
 
 export function dispatchWalletResponse(webRef: React.RefObject<WebView>, data: { result: boolean }) {

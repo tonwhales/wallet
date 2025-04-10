@@ -210,6 +210,9 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
             useToaster: true,
             useQueryAPI: true,
             useEmitter: true,
+            useAuthApi: true,
+            useWalletAPI: true,
+            useDappClient: true,
 
             onContentProcessDidTerminate,
             onEnroll
@@ -232,9 +235,9 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
                 ref={webRef}
                 source={{ uri: source.url }}
                 {...webViewProps}
-                defaultQueryParamsState={{
+                defaultNavigationOptions={{
                     backPolicy: 'back',
-                    showKeyboardAccessoryView: false,
+                    showKAV: false,
                     lockScroll: true
                 }}
                 webviewDebuggingEnabled={isTestnet}

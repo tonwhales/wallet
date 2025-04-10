@@ -423,9 +423,9 @@ export const DAppWebViewFragment = fragment(() => {
                 webviewDebuggingEnabled={isTestnet}
                 allowsBackForwardNavigationGestures={lockNativeBack}
                 refId={refId}
-                defaultQueryParamsState={{
+                defaultNavigationOptions={{
                     backPolicy: 'back',
-                    showKeyboardAccessoryView: false,
+                    showKAV: false,
                     lockScroll: false,
                     ...defaultQueryParamsState
                 }}

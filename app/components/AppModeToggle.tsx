@@ -14,7 +14,7 @@ import { Address } from '@ton/core';
 
 const ICON_SIZE = 16;
 const GAP_BETWEEN_ICON_AND_TEXT = 4;
-const TOGGLE_BORDER_WIDTH = 2
+const TOGGLE_BORDER_WIDTH = 2;
 
 export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
     const { t } = useTranslation();
@@ -50,7 +50,7 @@ export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
     }, []);
 
     const onSwitchAppMode = useCallback((isSwitchingToWallet: boolean) => {
-        if (!isSwitchingToWallet && ((needsEnrollment || !isHoldersReady) && !holdersAccounts?.accounts.length)) {
+        if (!isSwitchingToWallet && !holdersAccounts?.accounts.length) {
             navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: { type: HoldersAppParamsType.Create }, isLedger }, isTestnet);
             handleToggle()
             return;

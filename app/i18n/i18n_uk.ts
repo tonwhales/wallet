@@ -501,9 +501,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Щоденні винагороди",
                 "note": "Розраховано з урахуванням всіх комісій",
                 "text": "Калькулятор заробітку",
-                "yearlyTopUp": "Після поповнення",
+                "yearlyTopUp": "Прибуток після поповнення",
                 "yearlyTotal": "Загальні винагороди за рік",
-                "yearlyCurrent": "Поточні",
+                "yearlyCurrent": "Поточний прибуток (за рік)",
                 "topUpTitle": "Ваші річні винагороди",
                 "goToTopUp": "Перейти до поповнення"
             },

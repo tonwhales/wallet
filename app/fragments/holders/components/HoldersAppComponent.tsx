@@ -440,6 +440,7 @@ export const HoldersAppComponent = memo((
                     showKAV: false,
                     lockScroll: true
                 }}
+                address={address}
                 webviewDebuggingEnabled={isTestnet}
                 loader={(p) => (
                     <HoldersLoader

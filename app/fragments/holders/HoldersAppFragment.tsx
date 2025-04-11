@@ -48,7 +48,7 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
     const isLedger = route.name === 'LedgerHolders' || initialParams?.ledger;
     const acc = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
-    const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : null;
+    const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
     const address = isLedger ? ledgerAddress : acc?.address;
     const status = useHoldersAccountStatus(address!.toString({ testOnly: isTestnet })).data;
     const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet })).data;
@@ -84,7 +84,7 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
                 endpoint={url}
                 accounts={holders.accounts}
                 status={holders.status}
-                address={address!}
+                address={address}
                 isLedger={isLedger}
             />
         </View>

@@ -519,7 +519,13 @@ function resolveAndNavigateToHolders(params: HoldersTransactionResolveParams | H
     } else { // If transaction is for another address, navigate to the address first
         const appState = getAppState();
         const index = appState.addresses.findIndex((a) => {
-            const tonAddressFound = addresses.find((addr) => a.address.equals(Address.parse(addr))) !== undefined;
+            const tonAddressFound = addresses.find((addr) => {
+                try {
+                    return a.address.equals(Address.parse(addr));
+                } catch {
+                    return false;
+                }
+            }) !== undefined;
             const solanaAddressFound = addresses.find((addr) => {
                 try {
                     const solPub = new PublicKey(addr);

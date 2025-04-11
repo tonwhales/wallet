@@ -40,6 +40,7 @@ import { useAppsConnections } from '../../engine/hooks/dapps/useAppConnections';
 import { ConnectedAppConnection } from '../../engine/tonconnect/types';
 import { createLogger } from '../../utils/log';
 import { useLinkNavigator } from '../../useLinkNavigator';
+import Intercom, { Visibility } from '@intercom/intercom-react-native';
 
 const logger = createLogger('tonconnect');
 
@@ -283,6 +284,17 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Show Intercom"} onPress={async () => {
+                            await Intercom.logout();
+                            await Intercom.loginUserWithUserAttributes({
+                                email: 'test@test.com',
+                                name: 'Test User',
+                                userId: '1234567890',
+                            });
+                            Intercom.present();
+                        }} />
                     </View>
                     <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
                 </ScrollView>

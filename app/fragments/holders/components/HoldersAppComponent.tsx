@@ -403,6 +403,7 @@ export const HoldersAppComponent = memo((
             useAuthApi: true,
             useWalletAPI: true,
             useDappClient: true,
+            useSupportAPI: true,
 
             onShouldStartLoadWithRequest: loadWithRequest,
             onContentProcessDidTerminate,

@@ -213,6 +213,7 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
             useAuthApi: true,
             useWalletAPI: true,
             useDappClient: true,
+            useSupportAPI: true,
 
             onContentProcessDidTerminate,
             onEnroll

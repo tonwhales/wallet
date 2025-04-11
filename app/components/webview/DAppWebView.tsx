@@ -67,7 +67,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const {
         defaultNavigationOptions, source, useQueryAPI, refId, address,
         onClose, onEnroll, onMessage, onNavigationStateChange,
-        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient,
+        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient, useSupportAPI,
         injectedJavaScriptBeforeContentLoaded, injectionEngine, defaultSafeArea,
         loader,
         onContentProcessDidTerminate,
@@ -132,7 +132,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 openWithInApp(url);
                 return;
             }
-        } catch {}
+        } catch { }
     }, [source]);
 
     const onNavigation = useCallback((url: string) => {
@@ -286,7 +286,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
     }, [
         navigation, toaster, authContext, isTestnet,
-        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient,
+        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient, useSupportAPI,
         dispatchMainButton,
         dispatchNavigationOptions,
         setLoaded, onMessage, onClose, onEnroll, safelyOpenUrl, updateLocalStorageStatus, markRefIdShown

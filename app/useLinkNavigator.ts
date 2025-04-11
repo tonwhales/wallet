@@ -41,7 +41,6 @@ import axios from 'axios';
 import { SolanaOrderApp } from './fragments/secure/ops/Order';
 import { solanaAddressFromPublicKey } from './utils/solana/address';
 import { Transaction, PublicKey } from '@solana/web3.js';
-import { getTimeSec } from './utils/getTimeSec';
 import { checkTonconnectRequest } from './engine/tonconnect/utils';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });

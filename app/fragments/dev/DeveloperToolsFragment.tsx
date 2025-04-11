@@ -40,7 +40,7 @@ import { useAppsConnections } from '../../engine/hooks/dapps/useAppConnections';
 import { ConnectedAppConnection } from '../../engine/tonconnect/types';
 import { createLogger } from '../../utils/log';
 import { useLinkNavigator } from '../../useLinkNavigator';
-import Intercom, { Visibility } from '@intercom/intercom-react-native';
+import Intercom, { Space, Visibility } from '@intercom/intercom-react-native';
 
 const logger = createLogger('tonconnect');
 
@@ -293,7 +293,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                 name: 'Test User',
                                 userId: '1234567890',
                             });
-                            Intercom.present();
+                            Intercom.presentSpace(Space.messages);
                         }} />
                     </View>
                     <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />

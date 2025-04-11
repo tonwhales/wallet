@@ -15,7 +15,7 @@ import { processEmitterMessage } from "./processEmitterMessage";
 import { NavigationOptionsAction, SetNavigationOptionsAction } from "./reduceNavigationOptions";
 import { Address } from "@ton/core";
 import { getCurrentAddress } from "../../../storage/appState";
-import Intercom from "@intercom/intercom-react-native";
+import Intercom, { Space } from "@intercom/intercom-react-native";
 import { z } from "zod";
 
 export type DAppWebViewAPI = {
@@ -284,7 +284,7 @@ export function processWebViewMessage(
                             } else {
                                 await Intercom.loginUnidentifiedUser();
                             }
-                            Intercom.present();
+                            Intercom.presentSpace(Space.messages);
                         }
                     } catch {
                         warn('Failed to show intercom');

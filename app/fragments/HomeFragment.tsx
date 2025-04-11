@@ -3,12 +3,8 @@ import { Image, View, StyleSheet } from 'react-native';
 import { fragment } from "../fragment";
 import { WalletNavigationStack } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
-import { CachedLinking } from '../utils/CachedLinking';
-import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
-import * as SplashScreen from 'expo-splash-screen';
-import { useLinkNavigator } from "../useLinkNavigator";
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BrowserFragment } from './connections/BrowserFragment';
@@ -25,7 +21,6 @@ import { useParams } from '../utils/useParams';
 import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentParams } from './secure/transfer/TransferFragment';
 import { HoldersAppParams } from './holders/HoldersAppFragment';
-import { shouldLockApp } from '../components/SessionWatcher';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
@@ -52,6 +47,7 @@ export type HomeFragmentProps = {
 export const HomeFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
+    const { isTestnet } = useNetwork();
     const { navigateTo } = useParams<HomeFragmentProps>();
     const navigation = useTypedNavigation();
     const [tonconnectRequests] = useConnectPendingRequests();
@@ -84,6 +80,10 @@ export const HomeFragment = fragment(() => {
             navigation.navigateTonTransaction(navigateTo.transaction);
         } else if (navigateTo?.type === 'tonconnect-request') {
             navigation.navigateTransfer(navigateTo.request);
+        } else if (navigateTo?.type === 'holders-landing') {
+            navigation.navigateHoldersLanding({ endpoint: navigateTo.endpoint, onEnrollType: navigateTo.onEnrollType }, isTestnet);
+        } else if (navigateTo?.type === 'holders-app') {
+            navigation.navigateHolders(navigateTo.params, isTestnet);
         }
     }, []);
 

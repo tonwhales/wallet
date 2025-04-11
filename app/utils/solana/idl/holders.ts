@@ -139,6 +139,65 @@ export const holdersIdl: Idl = {
       ]
     },
     {
+      "name": "changeGracefulPeriod",
+      "discriminator": [
+        145,
+        4,
+        98,
+        5,
+        20,
+        246,
+        158,
+        126
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "root"
+          ]
+        },
+        {
+          "name": "root",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  111,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "rootSeed"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "rootSeed",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "gracefulPeriod",
+          "type": "i64"
+        }
+      ]
+    },
+    {
       "name": "closeCard",
       "discriminator": [
         142,
@@ -814,6 +873,10 @@ export const holdersIdl: Idl = {
         },
         {
           "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "queryId",
           "type": "u64"
         }
       ]
@@ -1497,6 +1560,19 @@ export const holdersIdl: Idl = {
   ],
   "events": [
     {
+      "name": "refunded",
+      "discriminator": [
+        35,
+        103,
+        149,
+        246,
+        196,
+        123,
+        221,
+        99
+      ]
+    },
+    {
       "name": "updatedCard",
       "discriminator": [
         213,
@@ -1513,48 +1589,83 @@ export const holdersIdl: Idl = {
   "errors": [
     {
       "code": 6000,
-      "name": "incorrectSeqno",
-      "msg": "Incorrect seqno"
+      "name": "incorrectTzOffset"
     },
     {
       "code": 6001,
-      "name": "incorrectTimestamp",
-      "msg": "Incorrect timestamp"
+      "name": "incorrectSeqno"
     },
     {
       "code": 6002,
-      "name": "incorrectWithdrawA",
-      "msg": "Incorrect withdraw a"
+      "name": "incorrectTimestamp"
     },
     {
       "code": 6003,
-      "name": "incorrectWithdrawB",
-      "msg": "Incorrect withdraw b"
+      "name": "incorrectWithdrawA"
     },
     {
       "code": 6004,
-      "name": "incorrectTransferredA",
-      "msg": "Incorrect transferred a"
+      "name": "incorrectWithdrawB"
     },
     {
       "code": 6005,
-      "name": "incorrectTransferredB",
-      "msg": "Incorrect transferred b"
+      "name": "incorrectTransferredA"
     },
     {
       "code": 6006,
-      "name": "incorrectBalanceA",
-      "msg": "Incorrect balance a"
+      "name": "incorrectTransferredB"
     },
     {
       "code": 6007,
-      "name": "incorrectBalanceB",
-      "msg": "Incorrect balance b"
+      "name": "incorrectBalanceA"
     },
     {
       "code": 6008,
-      "name": "limitReached",
-      "msg": "Limit reached"
+      "name": "incorrectBalanceB"
+    },
+    {
+      "code": 6009,
+      "name": "limitReached"
+    },
+    {
+      "code": 6010,
+      "name": "incosistentReservedBalance"
+    },
+    {
+      "code": 6011,
+      "name": "incorrectBalance"
+    },
+    {
+      "code": 6012,
+      "name": "incorrectNewLimits"
+    },
+    {
+      "code": 6013,
+      "name": "incorrectNewSeqno"
+    },
+    {
+      "code": 6014,
+      "name": "tooManyPendingLimits"
+    },
+    {
+      "code": 6015,
+      "name": "gracefulPeriodInProgress"
+    },
+    {
+      "code": 6016,
+      "name": "inconsistenceBalanceA"
+    },
+    {
+      "code": 6017,
+      "name": "inconsistenceBalanceB"
+    },
+    {
+      "code": 6018,
+      "name": "notWhitelisted"
+    },
+    {
+      "code": 6019,
+      "name": "alreadyWhitelisted"
     }
   ],
   "types": [
@@ -1766,6 +1877,18 @@ export const holdersIdl: Idl = {
           {
             "name": "seqno",
             "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "refunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "queryId",
+            "type": "u64"
           }
         ]
       }

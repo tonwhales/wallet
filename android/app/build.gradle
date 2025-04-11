@@ -155,6 +155,13 @@ android {
 
         }
     }
+
+    task copyKeysFile(type: Copy) {
+        from "${rootProject.projectDir}/../assets/keys.json"
+        into "${projectDir}/src/main/assets/"
+    }
+    
+    preBuild.dependsOn(copyKeysFile)
 }
 
 dependencies {

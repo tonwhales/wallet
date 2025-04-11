@@ -81,7 +81,11 @@ public class MainApplication extends Application implements ReactApplication {
         ReactNativePerformance.onAppStarted();
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
-        IntercomModule.initialize(this, "apiKey", "appId");
+        
+        String apiKey = KeysManager.getIntercomApiKey(this);
+        String appId = KeysManager.getIntercomAppId(this);
+        IntercomModule.initialize(this, apiKey, appId);
+
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
             // If you opted-in for the New Architecture, we load the native entry point for this app.
             DefaultNewArchitectureEntryPoint.load();

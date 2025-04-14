@@ -30,7 +30,9 @@ import com.tonhub.wallet.modules.flagsecure.FlagSecurePackage;
 
 import com.shopify.reactnativeperformance.ReactNativePerformance;
 import com.tonhub.wallet.modules.wallet.WalletPackage;
-import com.intercom.reactnative.IntercomModule; 
+import com.intercom.reactnative.IntercomModule;
+
+import com.tonhub.wallet.utils.KeysManager;
 
 public class MainApplication extends Application implements ReactApplication {
     private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(
@@ -58,18 +60,20 @@ public class MainApplication extends Application implements ReactApplication {
                 protected String getJSMainModuleName() {
                     return "index";
                 }
+
                 @Override
                 protected boolean isNewArchEnabled() {
                     return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
                 }
+
                 @Override
                 protected Boolean isHermesEnabled() {
                     return BuildConfig.IS_HERMES_ENABLED;
                 }
             }));
 
-//    private final ReactNativeHost mNewArchitectureNativeHost = new MainApplicationReactNativeHost(this);
-
+    // private final ReactNativeHost mNewArchitectureNativeHost = new
+    // MainApplicationReactNativeHost(this);
 
     @Override
     public ReactNativeHost getReactNativeHost() {
@@ -81,13 +85,14 @@ public class MainApplication extends Application implements ReactApplication {
         ReactNativePerformance.onAppStarted();
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
-        
+
         String apiKey = KeysManager.getIntercomApiKey(this);
         String appId = KeysManager.getIntercomAppId(this);
         IntercomModule.initialize(this, apiKey, appId);
 
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            // If you opted-in for the New Architecture, we load the native entry point for this app.
+            // If you opted-in for the New Architecture, we load the native entry point for
+            // this app.
             DefaultNewArchitectureEntryPoint.load();
         }
         ApplicationLifecycleDispatcher.onApplicationCreate(this);
@@ -119,7 +124,8 @@ public class MainApplication extends Application implements ReactApplication {
     }
 
     /**
-     * Loads Flipper in React Native templates. Call this in the onCreate method with something like
+     * Loads Flipper in React Native templates. Call this in the onCreate method
+     * with something like
      * initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
      *
      * @param context
@@ -129,10 +135,10 @@ public class MainApplication extends Application implements ReactApplication {
             Context context, ReactInstanceManager reactInstanceManager) {
         if (BuildConfig.DEBUG) {
             try {
-        /*
-         We use reflection here to pick up the class that initializes Flipper,
-        since Flipper library is not available in release mode
-        */
+                /*
+                 * We use reflection here to pick up the class that initializes Flipper,
+                 * since Flipper library is not available in release mode
+                 */
                 Class<?> aClass = Class.forName("com.tonhub.wallet.ReactNativeFlipper");
                 aClass
                         .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)

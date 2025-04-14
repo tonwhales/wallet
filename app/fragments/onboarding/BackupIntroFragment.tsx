@@ -10,6 +10,8 @@ import { useTheme } from '../../engine/hooks';
 import { useDimensions } from "@react-native-community/hooks";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getBackup, markAddressSecured } from "../../storage/appState";
+import { trackAppsFlyerEvent } from "../../analytics/appsflyer";
+import { AppsFlyerEvent } from "../../analytics/appsflyer";
 
 export const BackupIntroFragment = systemFragment(() => {
     const theme = useTheme();
@@ -67,6 +69,7 @@ export const BackupIntroFragment = systemFragment(() => {
                 <RoundButton
                     title={t('backupIntro.saved')}
                     onPress={() => {
+                        trackAppsFlyerEvent(AppsFlyerEvent.BackupPhraseConfirmed);
                         const address = getBackup();
                         markAddressSecured(address.address);
                         navigation.navigateAndReplaceAll('Home');

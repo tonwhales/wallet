@@ -24,6 +24,7 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { getThemeStyleState } from './app/engine/state/theme';
 import { AndroidAppearance } from './app/modules/AndroidAppearance';
 import { handleLinkReceived } from './app/utils/CachedLinking';
+import { initAppsFlyer } from './app/analytics/appsflyer';
 
 const style = getThemeStyleState();
 const scheme = Platform.OS === 'android'? AndroidAppearance.getColorScheme() : Appearance.getColorScheme();
@@ -41,6 +42,7 @@ if (!(TextInput as any).defaultProps) {
   (TextInput as any).defaultProps.allowFontScaling = false;
 }
 
+initAppsFlyer()
 SplashScreen.preventAutoHideAsync();
 function Boot() {
   return (

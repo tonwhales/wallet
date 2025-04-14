@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { t } from "../../i18n/t";
 import { useAppState, useNetwork, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
@@ -53,7 +53,11 @@ export const WalletSelectVersionsComponent = React.memo((props: {
     ]);
 
     const handleContinue = useCallback(async () => {
-        onContinue(selected);
+        if (selected.length === 0) {
+            Alert.alert(t('wallets.noVersionTitle'), t('wallets.noVersionDescription'))
+        } else {
+            onContinue(selected);
+        }
     }, [onContinue, selected]);
 
     const toggleVersion = useCallback((version: WalletVersions) => () => {

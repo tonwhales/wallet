@@ -274,7 +274,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         // Check bounce flag
-        let bounce = true;
+        let bounce = target.bounceable ?? true;
         if (!target.active && !order.messages[0].stateInit) {
             bounce = false;
         }
@@ -296,7 +296,11 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         //
         // Gasless transfer
         //
-        const timeout = order.validUntil ?? Math.ceil(Date.now() / 1000) + 5 * 60;
+        let timeout = Math.ceil(Date.now() / 1000) + 5 * 60;
+        if (order.validUntil && (order.validUntil <= timeout)) {
+            timeout = order.validUntil;
+        }
+
         if (isGasless) {
             const tetherTransferForSend = (contract as WalletContractV5R1).createTransfer({
                 seqno,

@@ -270,7 +270,7 @@ async function resolveAndNavigateToTransaction(
     let hash = resolved.hash;
 
     try {
-        if (!!selected.addressString) {
+        if (selected && !!selected.addressString) {
             const isSelectedAddress = selected.address.equals(Address.parse(resolved.address));
             const queryCache = queryClient.getQueryCache();
             const holdersStatusKey = Queries.Holders(resolved.address).Status();

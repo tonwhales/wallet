@@ -21,7 +21,7 @@ export const LegalFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
-    const params = useParams<{ ledger?: boolean }>();
+    const { ledger } = useParams<{ ledger?: boolean }>();
     const isCreate = route.name === 'LegalCreate';
 
     const [state, setState] = useState<{ mnemonics: string } | null>(null);
@@ -33,7 +33,7 @@ export const LegalFragment = systemFragment(() => {
         if (isCreate) {
             setLoading(true);
             if (state) {
-                navigation.replace('WalletCreate', { mnemonics: state.mnemonics, ledger: params.ledger });
+                navigation.replace('WalletCreate', { mnemonics: state.mnemonics, ledger });
                 return;
             }
             setReady(true);
@@ -63,7 +63,7 @@ export const LegalFragment = systemFragment(() => {
 
     useEffect(() => {
         if (ready && state) {
-            navigation.replace('WalletCreate', { mnemonics: state.mnemonics, ledger: params.ledger });
+            navigation.replace('WalletCreate', { mnemonics: state.mnemonics, ledger });
             return;
         }
     }, [accepted, state]);

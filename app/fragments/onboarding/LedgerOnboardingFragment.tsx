@@ -10,6 +10,7 @@ import { useDimensions } from "@react-native-community/hooks";
 import { ScreenHeader } from "../../components/ScreenHeader";
 
 import { ledgerImages } from "../ledger/HardwareWalletFragment";
+import { Typography } from "../../components/styles";
 
 export const LedgerOnboardingFragment = systemFragment(() => {
     const theme = useTheme();
@@ -34,24 +35,20 @@ export const LedgerOnboardingFragment = systemFragment(() => {
             />
             <ScrollView style={{ width: '100%', height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-                    <Text style={{
-                        fontSize: 32, lineHeight: 38,
-                        fontWeight: '600',
+                    <Text style={[Typography.semiBold32_38, {
                         textAlign: 'center',
                         color: theme.textPrimary,
                         marginBottom: 12, marginTop: 16
-                    }}>
+                    }]}>
                         {t('ledgerOnboarding.title')}
                     </Text>
                     <Text
-                        style={{
+                        style={[Typography.regular17_24, {
                             textAlign: 'center',
-                            fontSize: 17,
-                            fontWeight: '400',
                             flexShrink: 1,
                             color: theme.textSecondary,
                             marginBottom: 24
-                        }}
+                        }]}
                     >
                         {t('ledgerOnboarding.description')}
                     </Text>

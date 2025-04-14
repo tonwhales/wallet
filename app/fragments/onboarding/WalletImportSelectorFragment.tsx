@@ -12,6 +12,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useCallback } from "react";
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel";
 import { isTermsAccepted } from "../../storage/terms";
+import { Typography } from "../../components/styles";
 
 export const WalletImportSelectorFragment = systemFragment(() => {
     const theme = useTheme();
@@ -72,21 +73,17 @@ export const WalletImportSelectorFragment = systemFragment(() => {
                 padding: 16,
                 paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 16
             }}>
-                <Text style={{
-                    fontSize: 32, lineHeight: 38,
-                    fontWeight: '600',
+                <Text style={[Typography.semiBold32_38, {
                     color: theme.textPrimary,
                     marginTop: 16,
-                }}>
+                }]}>
                     {t('walletImportSelector.title')}
                 </Text>
 
-                <Text style={{
-                    fontSize: 17, lineHeight: 24,
-                    fontWeight: '400',
+                <Text style={[Typography.regular17_24, {
                     color: theme.textSecondary,
                     marginTop: 12,
-                }}>
+                }]}>
                     {t('walletImportSelector.description')}
                 </Text>
                 <View style={{ flexGrow: 1 }} />

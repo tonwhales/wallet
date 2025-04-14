@@ -501,9 +501,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Recompensas diárias",
                 "note": "Calculado incluindo todas as taxas",
                 "text": "Calculadora de ganhos",
-                "yearlyTopUp": "Após recarga",
+                "yearlyTopUp": "Lucro após recarga",
                 "yearlyTotal": "Recompensas totais em um ano",
-                "yearlyCurrent": "Atual",
+                "yearlyCurrent": "Lucro atual (em um ano)",
                 "topUpTitle": "Suas recompensas anuais",
                 "goToTopUp": "Ir para Recarga"
             },

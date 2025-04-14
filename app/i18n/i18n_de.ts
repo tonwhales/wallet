@@ -501,9 +501,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Tägliche Rendite",
                 "note": "Berechnung unter Einbeziehung aller Gebühren",
                 "text": "Ertragsrechner",
-                "yearlyTopUp": "Nach Aufstockung",
+                "yearlyTopUp": "Gewinn nach Aufladung",
                 "yearlyTotal": "Gesamtrendite in einem Jahr",
-                "yearlyCurrent": "Aktuell",
+                "yearlyCurrent": "Aktueller Gewinn (in einem Jahr)",
                 "topUpTitle": "Deine jährliche Rendite",
                 "goToTopUp": "Zur Aufstockung"
             },

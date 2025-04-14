@@ -123,6 +123,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Moteur de recherche",
         "language": "Langue"
     },
+    "walletImportSelector": {
+        "description": "Saisissez votre phrase de récupération ou connectez Ledger en toute sécurité",
+        "title": "Importer un portefeuille",
+        "seed": "Entrez les mots de récupération"
+    },
+    "ledgerOnboarding": {
+        "title": "Configuration de sécurité",
+        "description": "Avant de connecter le Ledger, nous allons créer un portefeuille supplémentaire pour compléter la configuration de sécurité",
+        "button": "Créer un portefeuille"
+    },
     "theme": {
         "title": "Thème",
         "light": "Clair",

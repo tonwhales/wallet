@@ -29,6 +29,7 @@ import { shouldLockApp } from '../components/SessionWatcher';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
+import { useLedgerTransport } from './ledger/components/TransportContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,17 +47,19 @@ export type HomeFragmentProps = {
     } | {
         type: 'holders-app',
         params: HoldersAppParams;
-    }
+    },
+    ledger?: boolean
 };
 
 export const HomeFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const { navigateTo } = useParams<HomeFragmentProps>();
+    const { navigateTo, ledger } = useParams<HomeFragmentProps>();
     const navigation = useTypedNavigation();
     const [tonconnectRequests] = useConnectPendingRequests();
     const selected = useSelectedAccount();
     const [isWalletMode] = useAppMode(selected?.address);
+    const ledgerContext = useLedgerTransport();
 
     const [curve, setCurve] = useState<number | undefined>(undefined);
 
@@ -84,6 +87,13 @@ export const HomeFragment = fragment(() => {
             navigation.navigateTonTransaction(navigateTo.transaction);
         } else if (navigateTo?.type === 'tonconnect-request') {
             navigation.navigateTransfer(navigateTo.request);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (ledger) {
+            ledgerContext.reset();
+            navigation.navigate('Ledger');
         }
     }, []);
 

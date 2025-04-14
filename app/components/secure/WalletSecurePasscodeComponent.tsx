@@ -31,9 +31,10 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     import: boolean,
     onBack?: () => void,
     additionalWallet?: boolean,
+    ledger?: boolean,
     versions?: WalletVersions[];
 }) => {
-    const { import: isImport, additionalWallet, versions: initVersions } = props;
+    const { import: isImport, additionalWallet, ledger, versions: initVersions } = props;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -58,13 +59,14 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         const event = isImport ? MixpanelEvent.WalletSeedImported : MixpanelEvent.WalletNewSeedCreated;
         const registrationMethod = isImport ? RegistrationMethod.Import : RegistrationMethod.Create;
         trackEvent(event, { isTestnet, additionalWallet }, isTestnet, true);
+
         if (!additionalWallet) {
             trackAppsFlyerEvent(AppsFlyerEvent.CompletedRegistration, {
                 method: registrationMethod
             });
         }
-        navigation.navigateAndReplaceAll('Home');
-    }, [additionalWallet, isImport, isTestnet]);
+        navigation.navigateAndReplaceAll('Home', { ledger });
+    }, [additionalWallet, isImport, isTestnet, ledger]);
 
     // Create new wallet on launch if no wallets exist
     useEffect(() => {
@@ -329,7 +331,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         throw Error('Invalid state');
                     }
                 }
-                navigation.navigateAndReplaceAll('Home');
+                navigation.navigateAndReplaceAll('Home', { ledger });
                 return;
             }
 

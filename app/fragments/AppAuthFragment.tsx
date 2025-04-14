@@ -124,6 +124,8 @@ export const AppAuthFragment = fragment(() => {
         }
     }, [useBiometrics]);
 
+    const shouldShowLogoutAndReset = attempts > 5;
+
     return (
         <View
             style={{
@@ -163,7 +165,7 @@ export const AppAuthFragment = fragment(() => {
                     }}
                     onMount={useBiometrics ? authenticateWithBiometrics : undefined}
                     onLogoutAndReset={
-                        attempts > 5
+                        shouldShowLogoutAndReset
                             ? fullResetActionSheet
                             : undefined
                     }

@@ -20,6 +20,8 @@ import { t } from "../../../i18n/t";
 import { getSearchParams } from "../../../utils/holders/queryParamsStore";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { Typography } from "../../../components/styles";
+import { useLedgerTransport } from "../../ledger/components/TransportContext";
+import { Address } from "@ton/core";
 
 export type HoldersLandingComponentProps = {
     endpoint: string,
@@ -39,6 +41,9 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
     const [currency] = usePrimaryCurrency();
     const [lang] = useLanguage();
     const { onSupport } = useSupport({ isLedger });
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
+    const address = isLedger ? ledgerAddress : acc?.address;
 
     const domain = extractDomain(endpoint);
     const [confirmOnLedger, setConfirmOnLedger] = useState(false);
@@ -210,6 +215,9 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
             useToaster: true,
             useQueryAPI: true,
             useEmitter: true,
+            useAuthApi: true,
+            useWalletAPI: true,
+            useDappClient: true,
 
             onContentProcessDidTerminate,
             onEnroll
@@ -232,11 +240,12 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
                 ref={webRef}
                 source={{ uri: source.url }}
                 {...webViewProps}
-                defaultQueryParamsState={{
+                defaultNavigationOptions={{
                     backPolicy: 'back',
-                    showKeyboardAccessoryView: false,
+                    showKAV: false,
                     lockScroll: true
                 }}
+                address={address}
                 webviewDebuggingEnabled={isTestnet}
                 loader={(p) => <HoldersLoader
                     type={HoldersAppParamsType.Create}

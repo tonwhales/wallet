@@ -23,6 +23,8 @@ import { openSettings } from 'react-native-permissions';
 import { ScreenHeader } from '../ScreenHeader';
 import { WalletVersions } from '../../engine/types';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import { RegistrationMethod, trackAppsFlyerEvent } from '../../analytics/appsflyer';
+import { AppsFlyerEvent } from '../../analytics/appsflyer';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -55,7 +57,14 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         markAddressSecured(address.address);
 
         const event = isImport ? MixpanelEvent.WalletSeedImported : MixpanelEvent.WalletNewSeedCreated;
+        const registrationMethod = isImport ? RegistrationMethod.Import : RegistrationMethod.Create;
         trackEvent(event, { isTestnet, additionalWallet }, isTestnet, true);
+
+        if (!additionalWallet) {
+            trackAppsFlyerEvent(AppsFlyerEvent.CompletedRegistration, {
+                method: registrationMethod
+            });
+        }
         navigation.navigateAndReplaceAll('Home', { ledger });
     }, [additionalWallet, isImport, isTestnet, ledger]);
 

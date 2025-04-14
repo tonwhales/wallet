@@ -511,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Recompensas diarias",
                 "note": "Calculado incluyendo todas las tarifas",
                 "text": "Calculadora de ganancias",
-                "yearlyTopUp": "Después de recargar",
+                "yearlyTopUp": "Beneficio después de recarga",
                 "yearlyTotal": "Recompensas totales en un año",
-                "yearlyCurrent": "Actual",
+                "yearlyCurrent": "Beneficio actual (en un año)",
                 "topUpTitle": "Tus recompensas anuales",
                 "goToTopUp": "Ir a recargar"
             },
@@ -1252,6 +1252,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Elige billeteras para agregar",
+        "noVersionTitle": "Selecciona una versión",
+        "noVersionDescription": "No se ha seleccionado ninguna versión de cartera",
         "switchToAlertTitle": "Cambiando a {{wallet}}",
         "switchToAlertMessage": "¿Estás seguro de que quieres cambiar de billetera?",
         "switchToAlertAction": "Cambiar",

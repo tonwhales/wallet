@@ -511,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Daily rewards",
                 "note": "Calculated including all fees",
                 "text": "Earnings calculator",
-                "yearlyTopUp": "After Top Up",
+                "yearlyTopUp": "Profit after top up",
                 "yearlyTotal": "Total rewards in a year",
-                "yearlyCurrent": "Current",
+                "yearlyCurrent": "Current profit (in a year)",
                 "topUpTitle": "Your yearly rewards",
                 "goToTopUp": "Go to Top Up"
             },
@@ -1202,6 +1202,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Choose wallets to add",
+        "noVersionTitle": "Select a version",
+        "noVersionDescription": "No wallet version selected",
         "switchToAlertTitle": "Switching to {{wallet}}",
         "switchToAlertMessage": "Are you sure you want to switch wallets?",
         "switchToAlertAction": "Switch",

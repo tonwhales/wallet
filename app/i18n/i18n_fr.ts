@@ -511,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Gains quotidiens",
                 "note": "Calcul incluant tous les frais",
                 "text": "Calculateur de gains",
-                "yearlyTopUp": "Après la Recharge",
+                "yearlyTopUp": "Profit après recharge",
                 "yearlyTotal": "Total des gains sur un an",
-                "yearlyCurrent": "Actuel",
+                "yearlyCurrent": "Profit actuel (en un an)",
                 "topUpTitle": "Vos gains annuels",
                 "goToTopUp": "Aller à la Recharge"
             },
@@ -1202,6 +1202,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Choisissez les portefeuilles à ajouter",
+        "noVersionTitle": "Sélectionner une version",
+        "noVersionDescription": "Aucune version de portefeuille sélectionnée",
         "switchToAlertTitle": "Passer à {{wallet}}",
         "switchToAlertMessage": "Êtes-vous sûr de vouloir passer à ce portefeuille ?",
         "switchToAlertAction": "Basculer",

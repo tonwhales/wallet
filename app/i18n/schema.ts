@@ -1204,6 +1204,8 @@ export type LocalizationSchema = {
     },
     wallets: {
         choose_versions: string;
+        noVersionTitle: string;
+        noVersionDescription: string;
         switchToAlertTitle: string,
         switchToAlertMessage: string,
         switchToAlertAction: string,

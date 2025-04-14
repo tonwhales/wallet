@@ -511,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "daily": "Доходность в день",
                 "note": "Рассчитано с учетом всех комиссий",
                 "text": "Калькулятор доходности",
-                "yearlyTopUp": "После пополнения",
+                "yearlyTopUp": "Прибыль после пополнения",
                 "yearlyTotal": "Всего вознаграждений за год",
-                "yearlyCurrent": "Текущая",
+                "yearlyCurrent": "Текущая прибыль (за год)",
                 "topUpTitle": "Ваша годовая доходность",
                 "goToTopUp": "Пополнить"
             },
@@ -1202,6 +1202,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "wallets": {
         "choose_versions": "Выберите кошельки, которые вы хотите добавить",
+        "noVersionTitle": "Выберите версию",
+        "noVersionDescription": "Не выбрана ни одна версия кошелька",
         "switchToAlertTitle": "Переключить на {{wallet}}",
         "switchToAlertMessage": "Вы уверены в том, что хотите переключить кошелек?",
         "switchToAlertAction": "Переключить",

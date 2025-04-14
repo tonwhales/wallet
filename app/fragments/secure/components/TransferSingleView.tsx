@@ -274,7 +274,7 @@ export const TransferSingleView = memo(({
         const decimals = jetton?.decimals ?? 9;
         const value = jettonAmountString ? toBnWithDecimals(jettonAmountString, decimals) : amount;
 
-        if (!value) return null;
+        if (!value && value !== 0n) return null;
 
         const textArr = valueText({ value, decimals });
 

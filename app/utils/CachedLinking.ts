@@ -1,7 +1,6 @@
 import { Linking, Platform } from "react-native";
 import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
-import appsFlyer, { InitSDKOptions } from 'react-native-appsflyer';
 import { resolveSearchParams } from "./holders/resolveSearchParams";
 import { processSearchParams } from "./holders/queryParamsStore";
 
@@ -30,29 +29,11 @@ function resolveAndProcessLink(link: string) {
     }
 })();
 
-function handleAttribution(deepLink: string) {
+export function handleAttribution(deepLink: string) {
     const uri = `https://tonhub.com/${deepLink}`;
     resolveAndProcessLink(uri);
 }
 
-appsFlyer.onDeepLink(res => {
-    if (res.data && res.data.deep_link_value) {
-        handleAttribution(res.data.deep_link_value);
-    }
-});
-
-const keys = require('@assets/keys.json');
-
-export const appsFlyerConfig: InitSDKOptions = {
-    devKey: keys.APPSFLYER_KEY,
-    isDebug: false,
-    appId: '1607656232',
-    onInstallConversionDataListener: true, //Optional
-    onDeepLinkListener: true, //Optional
-    timeToWaitForATTUserAuthorization: 15 //for iOS 14.5
-};
-
-appsFlyer.initSdk(appsFlyerConfig);
 
 // Subscribe for links
 Linking.addEventListener('url', (e) => {

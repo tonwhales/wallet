@@ -10,7 +10,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [ReactNativePerformance onAppStarted];
-  [IntercomModule initialize:@"apiKey" withAppId:@"appId"]; // <-- Add this (Remember to replace strings with your api keys)
+  NSString *apiKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"INTERCOM_IOS_API"];
+  NSString *appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"INTERCOM_APP"];
+  [IntercomModule initialize:apiKey withAppId:appId]; // <-- Add this (Remember to replace strings with your api keys)
 
   // Disable iCloud backup
   NSArray *urlArray = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask];

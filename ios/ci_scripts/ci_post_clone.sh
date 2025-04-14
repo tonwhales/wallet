@@ -55,12 +55,6 @@ rep="$MIXPANEL_HOLDERS_STAGE"
 
 sed -i '' "s/$line/$rep/g" assets/keys.json
 
-# Replace the Intercom API Key in the keys.json file
-line="YOUR_INTERCOM_API_KEY"
-rep="$INTERCOM_API"
-
-sed -i '' "s/$line/$rep/g" assets/keys.json
-
 # go back to the ios folder
 cd ios/wallet
 

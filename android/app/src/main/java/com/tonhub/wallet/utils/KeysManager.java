@@ -33,7 +33,7 @@ public class KeysManager {
 
     public static String getIntercomApiKey(Context context) {
         try {
-            return getKeys(context).getString("INTERCOM_API");
+            return getKeys(context).getString("INTERCOM_ANDROID_API");
         } catch (Exception e) {
             e.printStackTrace();
             return "apiKey"; // Fallback value

@@ -71,7 +71,8 @@ export function useSolanaTransactions(address: string) {
             }
 
             return { pages, pageParams };
-        }
+        },
+        staleTime: 6000
     });
 
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -106,9 +107,14 @@ export function useSolanaTransactions(address: string) {
                 query.fetchNextPage();
             }
         },
-        refresh: () => {
-            setIsRefreshing(true);
-            query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        refresh: async () => {
+            try {
+                setIsRefreshing(true);
+                await query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+                setIsRefreshing(false);
+            } catch {
+                setIsRefreshing(false);
+            }
         },
         refreshing: isRefreshing,
         loading: query.isFetching || query.isLoading,

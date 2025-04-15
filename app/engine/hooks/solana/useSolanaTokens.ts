@@ -10,7 +10,7 @@ export function useSolanaTokens(address: string) {
         queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').Tokens(),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        staleTime: 1000 * 6,
+        staleTime: 6000,
         queryFn: () => fetchSolanaTokens(address, isTestnet)
     });
 

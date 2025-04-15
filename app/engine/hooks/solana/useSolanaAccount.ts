@@ -10,7 +10,8 @@ export function useSolanaAccount(address: string) {
         queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').Wallet(),
         refetchOnMount: true,
         refetchOnWindowFocus: true,
-        queryFn: () => fetchSolanaAccountBalance(address, isTestnet)
+        queryFn: () => fetchSolanaAccountBalance(address, isTestnet),
+        staleTime: 6000
     });
 
     return account;

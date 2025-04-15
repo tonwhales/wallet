@@ -73,7 +73,7 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
 
             return { pages, pageParams };
         },
-        staleTime: 1000 * 5
+        staleTime: 6000
     });
 
     const [isRefreshing, setIsRefreshing] = useState(false);

@@ -4,8 +4,28 @@ import { useAppVisible, useNetwork, useSolanaSelectedAccount } from "./hooks";
 import { queryClient, whalesConnectEndpoint } from "./clients";
 import { createLogger, warn } from "../utils/log";
 import { Queries } from "./queries";
+import { SOLANA_USDC_MINT_MAINNET } from "../utils/solana/address";
+import { SOLANA_USDC_MINT_DEVNET } from "../utils/solana/address";
 
 const logger = createLogger('solana-account-watcher');
+
+export function invalidateSolanaAccount(address: string, network: 'devnet' | 'mainnet') {
+    // invalidate all queries that are not transactions
+    queryClient.invalidateQueries(Queries.SolanaAccount(address.toString(), network).All());
+
+    // invalidate transactions query
+    queryClient.invalidateQueries({
+        queryKey: Queries.SolanaAccount(address.toString(), network).Transactions(),
+        refetchPage: (last, index, allPages) => index === 0
+    });
+
+    // invalidate all token transactions query
+    const mint = network === 'mainnet' ? SOLANA_USDC_MINT_MAINNET : SOLANA_USDC_MINT_DEVNET;
+    queryClient.invalidateQueries({
+        queryKey: Queries.SolanaAccount(address.toString(), network).TokenTransactions(mint),
+        refetchPage: (last, index, allPages) => index === 0
+    });
+}
 
 export function useSolanaAccountWatcher() {
     const [session, setSession] = useState(0);
@@ -15,6 +35,7 @@ export function useSolanaAccountWatcher() {
 
     const websocketRef = useRef<WebSocket | null>(null);
     const sessionTimeout = useRef<NodeJS.Timeout | null>(null);
+    const invalidateTimeout = useRef<NodeJS.Timeout | null>(null);
 
     const isInactive = appStateVisible !== 'active' && appStateVisible !== 'inactive';
 
@@ -45,45 +66,20 @@ export function useSolanaAccountWatcher() {
             if (data.event === 'message') {
                 const result = data.data.result;
                 const slot = result.context.slot;
-                // const lamports = result.value.lamports;
-                // const owner = result.value.owner;
-                // const executable = result.value.executable;
-                // const rentEpoch = result.value.rentEpoch;
 
                 if (!slot) {
                     return;
                 }
 
                 logger.log(`[sol] account ${address.toString()} updated at slot ${slot}`);
+                if (invalidateTimeout.current) {
+                    clearTimeout(invalidateTimeout.current);
+                    invalidateTimeout.current = null;
+                }
 
-                queryClient.invalidateQueries({
-                    predicate: (query) => {
-                        const base = Queries.SolanaAccount(address.toString(), network).All();
-                        if (
-                            query.queryKey.length === base.length &&
-                            query.queryKey.every((value, index) => value === base[index]) &&
-                            query.queryKey[3] !== 'transactions'
-                        ) {
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-
-                queryClient.invalidateQueries({
-                    predicate: (query) => {
-                        const base = Queries.SolanaAccount(address.toString(), network).All();
-                        if (
-                            query.queryKey.length === base.length &&
-                            query.queryKey.every((value, index) => value === base[index]) &&
-                            query.queryKey[3] === 'transactions'
-                        ) {
-                            return true;
-                        }
-                        return false;
-                    },
-                    refetchPage: (last, index, allPages) => index === 0,
-                });
+                invalidateTimeout.current = setTimeout(() => {
+                    invalidateSolanaAccount(address.toString(), network);
+                }, 6000); // to account for transaction confirmation & indexer lag
             }
         };
 

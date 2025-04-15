@@ -1,10 +1,8 @@
 import { StyleProp, ViewStyle, Text, View } from "react-native";
 import { PendingSolanaTransaction } from "../../../engine/state/pending";
-import { useNetwork, useSolanaSelectedAccount, useSolanaTransactions, useTheme } from "../../../engine/hooks";
+import { useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
 import { memo, useEffect, useMemo } from "react";
-import { SolanaTransaction } from "../../../engine/api/solana/fetchSolanaTransactions";
 import { usePendingSolanaActions } from "../../../engine/hooks/transactions/usePendingSolanaActions";
-import { SOLANA_TRANSACTION_PROCESSING_TIMEOUT } from "../../../engine/hooks/solana/useSolanaTransactionStatus";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { Typography } from "../../../components/styles";
 import { t } from "../../../i18n/t";
@@ -53,23 +51,9 @@ export const PendingSolanaTransactions = memo(({
     listStyle?: StyleProp<ViewStyle>
 }) => {
     const selectedAddress = useSolanaSelectedAccount();
-    const { isTestnet } = useNetwork();
     const addr = address ?? selectedAddress ?? '';
-    const { state: pending, remove } = usePendingSolanaActions(addr, isTestnet);
-    const txs = useSolanaTransactions(addr).data;
-    const lastTx = (txs as SolanaTransaction[])?.slice(-1)?.[0];
+    const { state: pending, remove } = usePendingSolanaActions(addr);
     const theme = useTheme();
-
-    useEffect(() => {
-        if (!!lastTx) {
-            remove(pending.filter((tx) => {
-                if (tx.id === lastTx.signature) {
-                    return false;
-                }
-                return tx.time + SOLANA_TRANSACTION_PROCESSING_TIMEOUT < lastTx.timestamp;
-            }).map((tx) => tx.id));
-        }
-    }, [lastTx, pending]);
 
     const pendingTxs = useMemo(() => {
         // Show only pending on history tab

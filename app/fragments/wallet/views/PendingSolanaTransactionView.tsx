@@ -15,6 +15,7 @@ import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAdd
 import { SOLANA_TRANSACTION_PROCESSING_TIMEOUT } from "../../../engine/hooks/solana/useSolanaTransactionStatus";
 import { ForcedAvatar } from "../../../components/avatar/ForcedAvatar";
 import { InstructionName } from "../../../utils/solana/parseInstructions";
+import { invalidateSolanaAccount } from "../../../engine/useSolanaAccountWatcher";
 
 const PendingInstructionsView = memo(({
     transaction,
@@ -34,17 +35,18 @@ const PendingInstructionsView = memo(({
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const status = useSolanaTransactionStatus(address, transaction.id, isTestnet ? 'devnet' : 'mainnet');
-    const { markAsTimedOut, remove } = usePendingSolanaActions(address, isTestnet);
+    const { markAsTimedOut, remove, txsQuery } = usePendingSolanaActions(address);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
+        const timeout = setTimeout(async () => {
+            await txsQuery.refresh();
             markAsTimedOut(transaction.id);
         }, SOLANA_TRANSACTION_PROCESSING_TIMEOUT);
 
         return () => {
             clearTimeout(timeout);
         }
-    }, []);
+    }, [address, isTestnet]);
 
     useEffect(() => {
         if (status.data?.confirmationStatus === 'finalized') {
@@ -188,7 +190,7 @@ const PendingTxView = memo((
     const navigation = useTypedNavigation();
     const status = useSolanaTransactionStatus(address, transaction.id, isTestnet ? 'devnet' : 'mainnet');
     const tokenData = useSolanaToken(address, token?.mint);
-    const { markAsTimedOut, remove } = usePendingSolanaActions(address, isTestnet);
+    const { markAsTimedOut, remove, txsQuery } = usePendingSolanaActions(address);
 
     const statusText = useMemo(() => {
         if (status.data?.confirmationStatus === 'finalized') {
@@ -203,7 +205,8 @@ const PendingTxView = memo((
     }, [transaction.status, status]);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
+        const timeout = setTimeout(async () => {
+            await txsQuery.refresh();
             markAsTimedOut(transaction.id);
         }, SOLANA_TRANSACTION_PROCESSING_TIMEOUT);
 

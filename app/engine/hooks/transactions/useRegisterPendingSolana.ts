@@ -9,7 +9,7 @@ export function useRegisterPendingSolana(address?: string) {
 
     return (tx: PendingSolanaTransaction) => {
         update((old) => {
-            if (old.find((t) => t.id == tx.id)) {
+            if (old.find((t) => t.id === tx.id)) {
                 return old;
             }
 

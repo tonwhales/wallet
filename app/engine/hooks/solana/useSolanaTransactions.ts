@@ -111,6 +111,6 @@ export function useSolanaTransactions(address: string) {
             query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
         },
         refreshing: isRefreshing,
-        loading: query.isFetching || query.isRefetching,
+        loading: query.isFetching || query.isLoading,
     }
 }

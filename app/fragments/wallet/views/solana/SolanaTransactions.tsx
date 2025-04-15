@@ -9,8 +9,6 @@ import { formatDate, getDateKey } from "../../../../utils/dates";
 import { SolanaTransaction } from "../../../../engine/api/solana/fetchSolanaTransactions";
 import { TransactionsSectionHeader } from "../TransactionsSectionHeader";
 import { TypedNavigation } from "../../../../utils/useTypedNavigation";
-import { SolanaTokenTransferView } from "./SolanaTokenTransferView";
-import { SolanaNativeTransferView } from "./SolanaNativeTransferView";
 import { ReceiveableSolanaAsset } from "../../ReceiveFragment";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ReAnimatedCircularProgress } from "../../../../components/CircularProgress/ReAnimatedCircularProgress";
@@ -59,6 +57,14 @@ export const SolanaTransactions = memo(({
       const timeKey = getDateKey(time);
       const section = sectioned.get(timeKey);
 
+      const addToSection = asset
+        ? true
+        : tx.nativeTransfers.some((transfer) => transfer.toUserAccount === owner || transfer.fromUserAccount === owner)
+
+      if (!addToSection) {
+        continue;
+      }
+
       if (section) {
         section.data.push(tx);
       } else {
@@ -67,7 +73,7 @@ export const SolanaTransactions = memo(({
     }
 
     return { transactionsSections: Array.from(sectioned.values()) };
-  }, [txs]);
+  }, [txs, owner]);
 
   const renderSectionHeader = (section: { section: SectionListData<any, { title: string }> }) => (
     <TransactionsSectionHeader theme={theme} title={section.section.title} />

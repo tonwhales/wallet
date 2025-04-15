@@ -56,7 +56,9 @@ export const TransferInstructions = (params: {
     }, [theme, authContext, params, solanaAddress, navigation, registerPending]);
 
     useEffect(() => {
-        callback?.(!!ref.current, ref.current);
+        return () => {
+            callback?.(!!ref.current, ref.current);
+        }
     }, []);
 
     return (

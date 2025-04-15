@@ -10,11 +10,12 @@ import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 
 function formatAmount(amount: string | null | undefined, token: SolanaToken | null): string | null {
     try {
-        if (!amount) {
+        const _amount = Number(amount);
+        if (!_amount) {
             return null;
         }
 
-        return `${Number(amount) / 10 ** (token?.decimals ?? 6)} ${token?.symbol ?? 'USDC'}`;
+        return `${_amount / 10 ** (token?.decimals ?? 6)} ${token?.symbol ?? 'USDC'}`;
     } catch {
         return null;
     }

@@ -123,6 +123,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Suchmaschine",
         "language": "Sprache"
     },
+    "walletImportSelector": {
+        "description": "Geben Sie Ihre Wiederherstellungsphrase ein oder verbinden Sie Ledger sicher",
+        "title": "Wallet importieren",
+        "seed": "Wiederherstellungswörter eingeben"
+    },
+    "ledgerOnboarding": {
+        "title": "Sicherheitseinrichtung",
+        "description": "Bevor Sie den Ledger verbinden, erstellen wir eine zusätzliche Wallet, um die Sicherheitseinrichtung abzuschließen",
+        "button": "Wallet erstellen"
+    },
     "theme": {
         "title": "Thema",
         "light": "Hell",
@@ -305,7 +315,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Hier werden Anwendungen oder Erweiterungen angezeigt, die Sie autorisiert haben. Sie können den Zugriff jederzeit von jeder App oder Erweiterung widerrufen.",
             "installExtension": "Erweiterung für diese Anwendung installieren und öffnen",
             "moreWallets": "Weitere Wallets ({{count}})",
-            "connectionSecureDescription": "Es werden keine Gelder an die App übertragen und kein Zugriff auf Ihre Münzen gewährt"
+            "connectionSecureDescription": "Es werden keine Gelder an die App übertragen und kein Zugriff auf Ihre Münzen gewährt",
+            "invalidManifest": "App manifest Fehler",
+            "invalidManifestDescription": "Diese App konnte nicht mit Ihrem Wallet verbunden werden. Bitte kontaktieren Sie den Support der App."
         },
         "consent": "Durch Klicken auf Weiter akzeptieren Sie unsere"
     },
@@ -499,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Tägliche Rendite",
                 "note": "Berechnung unter Einbeziehung aller Gebühren",
                 "text": "Ertragsrechner",
-                "yearlyTopUp": "Nach Aufstockung",
+                "yearlyTopUp": "Gewinn nach Aufladung",
                 "yearlyTotal": "Gesamtrendite in einem Jahr",
-                "yearlyCurrent": "Aktuell",
+                "yearlyCurrent": "Aktueller Gewinn (in einem Jahr)",
                 "topUpTitle": "Deine jährliche Rendite",
                 "goToTopUp": "Zur Aufstockung"
             },
@@ -1190,6 +1202,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Wählen Sie Wallets zum Hinzufügen",
+        "noVersionTitle": "Wählen Sie eine Version",
+        "noVersionDescription": "Keine Wallet-Version ausgewählt",
         "switchToAlertTitle": "Wechsel zu {{wallet}}",
         "switchToAlertMessage": "Sind Sie sicher, dass Sie Wallets wechseln möchten?",
         "switchToAlertAction": "Wechseln",

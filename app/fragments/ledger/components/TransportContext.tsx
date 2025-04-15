@@ -13,7 +13,7 @@ import { navigationRef } from "../../../Navigation";
 import { z } from "zod";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { wait } from "../../../utils/wait";
-import { Address } from "@ton/ton";
+import { clearLedgerSelected, setLedgerSelected } from "../../../storage/appState";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 const bufferSchema = z
@@ -99,6 +99,13 @@ export type LedgerTransport = {
     verifySelectedAddress: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>
 }
 
+const HID_TRANSPORT_TIMEOUT = 20000;
+
+function createHIDTransport() {
+    const timeout = new Promise<TransportHID>((_, reject) => setTimeout(() => reject(new Error(`Timeout of ${HID_TRANSPORT_TIMEOUT} ms occured`)), HID_TRANSPORT_TIMEOUT));
+    return Promise.race([TransportHID.create(), timeout]);
+}
+
 export const TransportContext = createContext<LedgerTransport | null>(null);
 
 // TODO: rewrite with useReducer
@@ -158,6 +165,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                         setWalletSettings({ name: null, avatar: null, color: null });
                         setLedgerWallets(newItems);
                         setAddr(null);
+                        clearLedgerSelected();
                         if (newItems.length > 0) {
                             return;
                         }
@@ -179,6 +187,10 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
             setLedgerWallets([...ledgerWallets, addr]);
         }
 
+        // if onSetAddr is called it means that we are currently 
+        // using Ledger wallet, not the standard one. That's why we set
+        // the Ledger selected state
+        setLedgerSelected(addr.address);
         setAddr(addr);
 
         if (bleState?.type === 'ongoing') {
@@ -188,17 +200,20 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     const startHIDSearch = useCallback(async () => {
         let hid: Transport | undefined;
-        try { // For some reason, the first time this is called, it fails and only requests permission to connect the HID device
-            hid = await TransportHID.create();
-            await wait(100);
-        } catch {
-            // Retry to account for first failed create with connect permission request
-            hid = await TransportHID.create();
-            await wait(100);
+
+        for (let i = 0; i < 5; i++) {
+            try {
+                hid = await createHIDTransport();
+                break;
+            } catch (e) {
+                await delay(200);
+            }
         }
 
         if (hid) {
             setLedgerConnection({ type: 'hid', transport: hid, device: null });
+        } else {
+            throw new Error('Failed to create HID transport');
         }
     }, []);
 

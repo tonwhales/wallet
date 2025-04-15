@@ -15,7 +15,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useParams } from "../../utils/useParams";
 import { LedgerDeviceSelectionParams } from "./LedgerDeviceSelectionFragment";
 
-const images = {
+export const ledgerImages = {
     ios: {
         light: require('@assets/ledger/ledger-ios.webp'),
         dark: require('@assets/ledger/ledger-ios-dark.webp')
@@ -39,7 +39,9 @@ export const HardwareWalletFragment = fragment(() => {
 
     const searchHID = useCallback(async () => {
         setBleLocked(true);
-        await ledgerContext?.startHIDSearch();
+        try {
+            await ledgerContext?.startHIDSearch();
+        } catch {}
         setBleLocked(false);
     }, [ledgerContext]);
 
@@ -103,7 +105,7 @@ export const HardwareWalletFragment = fragment(() => {
                         height={dimentions.screen.width - 32}
                         width={dimentions.screen.width - 32}
                         source={
-                            images[Platform.OS === 'android' ? 'android' : 'ios'][theme.style]
+                            ledgerImages[Platform.OS === 'android' ? 'android' : 'ios'][theme.style]
                         }
                         resizeMode={'contain'}
                     />

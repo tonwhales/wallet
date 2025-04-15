@@ -123,6 +123,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Motor de busca",
         "language": "Idioma"
     },
+    "walletImportSelector": {
+        "description": "Digite sua frase de recuperação ou conecte o Ledger com segurança",
+        "title": "Importar carteira",
+        "seed": "Digite as palavras de recuperação"
+    },
+    "ledgerOnboarding": {
+        "title": "Configuração de segurança",
+        "description": "Antes de conectar o Ledger, criaremos uma carteira adicional para completar a configuração de segurança",
+        "button": "Criar carteira"
+    },
     "theme": {
         "title": "Tema",
         "light": "Claro",
@@ -305,7 +315,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Aplicativos ou extensões que você autorizou serão exibidos aqui. Você pode revogar o acesso de qualquer aplicativo ou extensão a qualquer momento.",
             "installExtension": "Instale e abra a extensão para este aplicativo",
             "moreWallets": "Mais carteiras ({{count}})",
-            "connectionSecureDescription": "Nenhum fundo será transferido para o aplicativo e nenhum acesso às suas moedas será concedido"
+            "connectionSecureDescription": "Nenhum fundo será transferido para o aplicativo e nenhum acesso às suas moedas será concedido",
+            "invalidManifest": "Erro do manifesto da aplicação",
+            "invalidManifestDescription": "Esta aplicação falhou em conectar-se à sua carteira. Por favor, entre em contato com o suporte deles."
         },
         "consent": "Ao clicar em continuar, você aceita nossos"
     },
@@ -499,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Recompensas diárias",
                 "note": "Calculado incluindo todas as taxas",
                 "text": "Calculadora de ganhos",
-                "yearlyTopUp": "Após recarga",
+                "yearlyTopUp": "Lucro após recarga",
                 "yearlyTotal": "Recompensas totais em um ano",
-                "yearlyCurrent": "Atual",
+                "yearlyCurrent": "Lucro atual (em um ano)",
                 "topUpTitle": "Suas recompensas anuais",
                 "goToTopUp": "Ir para Recarga"
             },
@@ -1190,6 +1202,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Escolha carteiras para adicionar",
+        "noVersionTitle": "Selecione uma versão",
+        "noVersionDescription": "Nenhuma versão de carteira selecionada",
         "switchToAlertTitle": "Mudando para {{wallet}}",
         "switchToAlertMessage": "Tem certeza que deseja mudar de carteira?",
         "switchToAlertAction": "Mudar",

@@ -13,18 +13,19 @@ import { extractDomain } from '../../utils/extractDomain';
 import { useDisconnectApp } from './useDisconnect';
 import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../tonconnect/types';
 import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../tonconnect/config';
-import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonconnect/utils';
+import { checkProtocolVersionCapability, checkTonconnectRequest, verifyConnectRequest } from '../../tonconnect/utils';
 import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
-
+import { useWalletVersion } from '../useWalletVersion';
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string, isLedger?: boolean): any {
     const saveAppConnection = useSaveAppConnection();
     const getConnectApp = useConnectApp(address);
     const autoConnect = useAutoConnect(address);
     const removeInjectedConnection = useRemoveInjectedConnection(address);
     const onDisconnect = useDisconnectApp(address);
-    
+    const walletVersion = useWalletVersion(address);
+
     const account = address ?? getCurrentAddress().addressString;
     const handleLedgerRequest = useHoldersLedgerTonconnectHandler();
 
@@ -43,7 +44,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
 
     const bridgeObject = useMemo((): TonConnectInjectedBridge => {
         return {
-            deviceInfo: tonConnectDeviceInfo,
+            deviceInfo: tonConnectDeviceInfo(walletVersion),
             protocolVersion: CURRENT_PROTOCOL_VERSION,
             isWalletBrowser: true,
 
@@ -84,14 +85,21 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                     event: 'connect',
                                     payload: {
                                         items: result.replyItems,
-                                        device: tonConnectDeviceInfo,
+                                        device: tonConnectDeviceInfo(walletVersion),
                                     },
                                     id: requestId
                                 });
 
                                 // return;
                             } else {
-                                reject();
+                                resolve({
+                                    event: 'connect_error',
+                                    payload: {
+                                        code: CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
+                                        message: 'User denied the connection',
+                                    },
+                                    id: requestId
+                                });
                             }
                         }
 
@@ -101,7 +109,6 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                             request,
                             callback
                         });
-
                     });
                     setConnectEvent(event);
                     return event;
@@ -160,80 +167,68 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                     }
 
                     if (request.method === 'sendTransaction') {
-                        const params = JSON.parse(request.params[0]) as SignRawParams;
+                        try {
+                            const params = JSON.parse(request.params[0]) as SignRawParams;
 
-                        const isValidRequest =
-                            params && typeof params.valid_until === 'number' &&
-                            Array.isArray(params.messages) &&
-                            params.messages.every((msg) => !!msg.address && !!msg.amount);
+                            if (isLedger) {
+                                handleLedgerRequest(request.id.toString(), params, callback, extractDomain(endpoint));
+                                return;
+                            }
 
-                        if (!isValidRequest) {
+                            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback);
+
+                            if (!isValidRequest) {
+                                return;
+                            }
+
+                            navigation.navigateTransfer({
+                                text: null,
+                                order: {
+                                    type: 'order',
+                                    messages: params.messages.map((msg) => {
+                                        return {
+                                            amount: toNano(fromNano(msg.amount)),
+                                            target: msg.address,
+                                            amountAll: false,
+                                            payload: msg.payload ? Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] : null,
+                                            stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null
+                                        }
+                                    }),
+                                    app: app ? {
+                                        title: app.name,
+                                        domain: extractDomain(app.url),
+                                        url: app.url
+                                    } : undefined,
+                                    validUntil: params.valid_until
+                                },
+                                callback: (ok, result) => {
+                                    if (ok) {
+                                        callback({
+                                            result: result?.toBoc({ idx: false }).toString('base64') ?? '',
+                                            id: request.id.toString(),
+                                        });
+                                    } else {
+                                        callback({
+                                            error: {
+                                                code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                                                message: 'User rejected',
+                                            },
+                                            id: request.id.toString(),
+                                        });
+                                    }
+                                },
+                                back: 1
+                            });
+                            return;
+                        } catch (error) {
                             callback({
                                 error: {
-                                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                                    code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
                                     message: `Bad request`,
                                 },
                                 id: request.id.toString(),
                             });
-                            return;
                         }
-
-                        const { valid_until } = params;
-
-                        if (valid_until < getTimeSec()) {
-                            callback({
-                                error: {
-                                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                                    message: `Request timed out`,
-                                },
-                                id: request.id.toString(),
-                            });
-                            return;
-                        }
-
-                        if (isLedger) {
-                            handleLedgerRequest(request.id.toString(), params, callback, extractDomain(endpoint));
-                            return;
-                        }
-
-                        navigation.navigateTransfer({
-                            text: null,
-                            order: {
-                                type: 'order',
-                                messages: params.messages.map((msg) => {
-                                    return {
-                                        amount: toNano(fromNano(msg.amount)),
-                                        target: msg.address,
-                                        amountAll: false,
-                                        payload: msg.payload ? Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] : null,
-                                        stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null
-                                    }
-                                }),
-                                app: app ? {
-                                    title: app.name,
-                                    domain: extractDomain(app.url),
-                                    url: app.url
-                                } : undefined
-                            },
-                            callback: (ok, result) => {
-                                if (ok) {
-                                    callback({
-                                        result: result?.toBoc({ idx: false }).toString('base64') ?? '',
-                                        id: request.id.toString(),
-                                    });
-                                } else {
-                                    callback({
-                                        error: {
-                                            code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
-                                            message: 'User rejected',
-                                        },
-                                        id: request.id.toString(),
-                                    });
-                                }
-                            },
-                            back: 1
-                        })
-                        return;
                     }
 
                     callback({

@@ -116,14 +116,13 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
         ...extraCurrencies.map((e) => ({ ...e, type: 'extra' })),
         ...jettons.map((j) => ({ ...j, type: 'jetton' })),
     ];
-    const [filteredJettons, setFilteredJettons] = useState(initData);
 
-    useEffect(() => {
+    const filteredJettons = useMemo(() => {
         if (filter !== null) {
             const filterFn = filterHint(filter);
-            const filtered = initData.filter((j) => j.type !== 'jetton' || filterFn(getHintFull(j as JettonFull, testOnly)));
-            setFilteredJettons(filtered);
+            return initData.filter((j) => j.type !== 'jetton' || filterFn(getHintFull(j as JettonFull, testOnly)));
         }
+        return initData;
     }, [initData, filter, testOnly]);
 
     const renderItem = useCallback(({ item }: { item: JettonFull & { type: 'jetton' } | ExtraCurrencyHint & { type: 'extra' } }) => {

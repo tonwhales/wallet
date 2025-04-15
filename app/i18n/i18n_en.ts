@@ -123,6 +123,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Search engine",
         "language": "Language"
     },
+    "walletImportSelector": {
+        "description": "Enter your recovery phrase or securely connect Ledger",
+        "title": "Import wallet",
+        "seed": "Enter recovery words"
+    },
+    "ledgerOnboarding": {
+        "title": "Security Setup",
+        "description": "Before connecting the Ledger, we will create an additional wallet to complete the security setup",
+        "button": "Get wallet and setup the app"
+    },
     "theme": {
         "title": "Theme",
         "light": "Light",
@@ -305,7 +315,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Applications or extensions you have authorized will be displayed here. You can revoke access from any app or extension at any time.",
             "installExtension": "Install and open extension for this application",
             "moreWallets": "More wallets ({{count}})",
-            "connectionSecureDescription": "No funds would be transfered to the app and no access to your coins would be granted"
+            "connectionSecureDescription": "No funds would be transfered to the app and no access to your coins would be granted",
+            "invalidManifest": "App manifest error",
+            "invalidManifestDescription": "This app failed to connect to your wallet. Please contact their support team."
         },
         "consent": "By clicking continue you accepting our"
     },
@@ -499,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Daily rewards",
                 "note": "Calculated including all fees",
                 "text": "Earnings calculator",
-                "yearlyTopUp": "After Top Up",
+                "yearlyTopUp": "Profit after top up",
                 "yearlyTotal": "Total rewards in a year",
-                "yearlyCurrent": "Current",
+                "yearlyCurrent": "Current profit (in a year)",
                 "topUpTitle": "Your yearly rewards",
                 "goToTopUp": "Go to Top Up"
             },
@@ -1190,6 +1202,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Choose wallets to add",
+        "noVersionTitle": "Select a version",
+        "noVersionDescription": "No wallet version selected",
         "switchToAlertTitle": "Switching to {{wallet}}",
         "switchToAlertMessage": "Are you sure you want to switch wallets?",
         "switchToAlertAction": "Switch",

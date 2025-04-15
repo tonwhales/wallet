@@ -52,6 +52,7 @@ export const LedgerWalletHeader = memo(({ address, height, walletCardHeight, scr
                 scrollEnabled={false}
                 style={{ position: 'absolute', height, width: '100%' }}
                 contentContainerStyle={[{ height: walletCardHeight }]}
+                showsVerticalScrollIndicator={false}
             >
                 <AnimatedLinearGradient
                     style={[animatedStyle, {

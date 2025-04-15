@@ -29,7 +29,7 @@ import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
 import { valueText } from "../../../components/ValueComponent";
-import { useExtraCurrency } from "../../../engine/hooks/jettons/useExtraCurrency";
+import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -40,7 +40,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const account = useAccountLite(selected!.address);
     const registerPending = useRegisterPending();
 
-    let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless, useGasless } = props;
+    let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless } = props;
 
     const [walletSettings] = useWalletSettings(selected?.address);
     const [failed, setFailed] = useState(false);
@@ -274,7 +274,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         // Check bounce flag
-        let bounce = true;
+        let bounce = target.bounceable ?? true;
         if (!target.active && !order.messages[0].stateInit) {
             bounce = false;
         }
@@ -296,11 +296,16 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         //
         // Gasless transfer
         //
+        let timeout = Math.ceil(Date.now() / 1000) + 5 * 60;
+        if (order.validUntil && (order.validUntil <= timeout)) {
+            timeout = order.validUntil;
+        }
+
         if (isGasless) {
             const tetherTransferForSend = (contract as WalletContractV5R1).createTransfer({
                 seqno,
                 authType: 'internal',
-                timeout: Math.ceil(Date.now() / 1000) + 5 * 60,
+                timeout,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
                 messages: (fees as { type: "gasless", value: bigint, params: GaslessEstimateSuccess }).params.messages.map(message => {
@@ -310,7 +315,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                         body: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'hex'))[0] : null,
                         init: message.stateInit ? loadStateInit(Cell.fromBoc(Buffer.from(message.stateInit, 'hex'))[0].asSlice()) : null
                     })
-                })
+                }),
             });
 
             msg = beginCell()
@@ -369,6 +374,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                         ? SendMode.CARRY_ALL_REMAINING_BALANCE
                         : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                     messages: [intMessage],
+                    timeout
                 }
 
                 transfer = isV5
@@ -409,6 +415,16 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         let amount = order.messages[0].amount * (BigInt(-1));
         if (order.messages[0].amountAll) {
             amount = BigInt(-1) * account!.balance;
+        }
+
+        const decimals = jetton?.decimals ?? 9;
+        const value = jettonAmountString ? toBnWithDecimals(jettonAmountString, decimals) : BigInt(-1) * amount;
+
+        if (value) {
+            trackAppsFlyerEvent(AppsFlyerEvent.TransactionSent, {
+                af_currency: `${!jettonAmountString ? 'TON' : jetton?.symbol ?? ''}`,
+                af_revenue: value.toString()
+            });
         }
 
         let body: PendingTransactionBody | null = null;

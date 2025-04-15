@@ -4,10 +4,12 @@ import { extensionKey } from "./useAddExtension";
 import { useConnectApp } from "./useConnectApp";
 import { ConnectEventError, TonConnectBridgeType } from '../../tonconnect/types';
 import { tonConnectDeviceInfo } from '../../tonconnect/config';
+import { useWalletVersion } from "../useWalletVersion";
 
 export function useAutoConnect(address?: string): (endpoint: string) => Promise<ConnectEvent> {
     const getConnections = useAppConnections(address);
     const connectApp = useConnectApp(address);
+    const walletVersion = useWalletVersion(address);
     return async (endpoint: string) => {
         try {
             const app = connectApp(endpoint);
@@ -40,7 +42,7 @@ export function useAutoConnect(address?: string): (endpoint: string) => Promise<
                 event: 'connect',
                 payload: {
                     items: injectedConnection.replyItems,
-                    device: tonConnectDeviceInfo,
+                    device: tonConnectDeviceInfo(walletVersion),
                 },
                 id: 0,
             }

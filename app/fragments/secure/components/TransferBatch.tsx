@@ -225,13 +225,13 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
 
     const walletVersion = useWalletVersion();
 
-
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
         const isV5 = walletVersion === 'v5R1';
+        let allowSendingToYourself = false;
 
         if (!selected) {
             return;
@@ -243,8 +243,8 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
             const restricted = i.message.restricted;
 
             // Check if transfering to yourself
-            if (target.equals(contract.address)) {
-                let allowSendingToYourself = await new Promise((resolve) => {
+            if (target.equals(contract.address) && !allowSendingToYourself) {
+                allowSendingToYourself = await new Promise((resolve) => {
                     Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
                         {
                             onPress: () => resolve(true),
@@ -279,7 +279,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
             }
 
             // Check bounce flag
-            let bounce = true;
+            let bounce = i.message.addr.bounceable ?? true;
             if (!i.message.addr.active && !i.message.stateInit) {
                 bounce = false;
             }
@@ -347,6 +347,11 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         let seqno = await fetchSeqno(client, lastBlock, selected.address);
 
         // Create transfer
+        let timeout = Math.ceil(Date.now() / 1000) + 5 * 60;
+        if (order.validUntil && (order.validUntil <= timeout)) {
+            timeout = order.validUntil;
+        }
+
         let transfer: Cell;
         try {
             const transferParams = {
@@ -354,6 +359,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages,
+                timeout
             }
             transfer = isV5
                 ? (contract as WalletContractV5R1).createTransfer(transferParams)
@@ -741,11 +747,16 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
                         )}
                     </ItemCollapsible>
                     {!showInternals && (
-                        <View style={{ marginTop: 16 }}>
-                            <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                                {`${t('tx.batch')} (${internals.length})`}
-                            </Text>
-                        </View>
+                        <ItemGroup style={{ marginVertical: 16 }}>
+                            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                                <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                    {t('tx.batch')}
+                                </Text>
+                                <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                    {`${internals.length} ${t('transactions.title').toLowerCase()}`}
+                                </Text>
+                            </View>
+                        </ItemGroup>
                     )}
                     {showInternals && internals.map((i, index) => {
                         const known = knownWallets[i.message.addr.address.toString({ testOnly: isTestnet })];

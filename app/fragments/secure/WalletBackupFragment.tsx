@@ -23,6 +23,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { avatarHash } from '../../utils/avatarHash';
 import { KnownWallets } from '../../secure/KnownWallets';
+import { trackAppsFlyerEvent } from '../../analytics/appsflyer';
+import { AppsFlyerEvent } from '../../analytics/appsflyer';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -52,6 +54,7 @@ export const WalletBackupFragment = systemFragment(() => {
     const avatarColor = avatarColors[avatarColorHash];
 
     const onComplete = useCallback(() => {
+        trackAppsFlyerEvent(AppsFlyerEvent.BackupPhraseConfirmed);
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');

@@ -3,11 +3,10 @@ import { MessageEvent } from 'react-native-sse';
 import { sendTonConnectResponse } from '../../api/sendTonConnectResponse';
 import { warn } from '../../../utils/log';
 import { useConnectAppByClientSessionId, useDisconnectApp } from '../../hooks';
-import { getTimeSec } from '../../../utils/getTimeSec';
 import { useConnectPendingRequests } from '../../hooks';
 import { transactionRpcRequestCodec } from '../../tonconnect/codecs';
 import { ConnectedAppConnectionRemote, SignRawParams } from '../../tonconnect/types';
-import { setLastEventId } from '../../tonconnect/utils';
+import { checkTonconnectRequest, setLastEventId } from '../../tonconnect/utils';
 
 export function useHandleMessage(
     connections: ConnectedAppConnectionRemote[],
@@ -40,15 +39,21 @@ export function useHandleMessage(
 
             const parsed = JSON.parse(decryptedRequest);
 
-            if (!transactionRpcRequestCodec.is(parsed)) {
-                throw Error('Invalid request');
-            }
-
-            const request = parsed as AppRequest<RpcMethod>;
-
             const callback = (response: WalletResponse<RpcMethod>) => {
                 sendTonConnectResponse({ response, sessionCrypto, clientSessionId: from });
             }
+
+            if (!transactionRpcRequestCodec.is(parsed)) {
+                callback({
+                    error: {
+                        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+                        message: 'Invalid request',
+                    },
+                    id: parsed.id.toString(),
+                });
+                return;
+            }
+            const request = parsed as AppRequest<RpcMethod>;
 
             const { connectedApp } = findConnectedAppByClientSessionId(from);
 
@@ -64,61 +69,48 @@ export function useHandleMessage(
             }
 
             if (request.method === 'sendTransaction') {
-                const params = JSON.parse(request.params[0]) as SignRawParams;
+                try {
+                    const params = JSON.parse(request.params[0]) as SignRawParams;
 
-                const isValidRequest =
-                    params && typeof params.valid_until === 'number' &&
-                    Array.isArray(params.messages) &&
-                    params.messages.every((msg) => !!msg.address && !!msg.amount);
+                    const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback);
 
-                if (!isValidRequest) {
+                    if (!isValidRequest) {
+                        return;
+                    }
+
+                    update((prev) => {
+                        const temp = [...prev];
+
+                        const found = temp.find((item) => item.from === from);
+
+                        if (!!found) {
+                            callback({
+                                error: {
+                                    code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                                    message: `Request already pending`,
+                                },
+                                id: request.id.toString(),
+                            });
+                        } else {
+                            temp.push({
+                                from: from,
+                                id: request.id.toString(),
+                                params: request.params,
+                                method: 'sendTransaction'
+                            });
+                        }
+
+                        return temp;
+                    });
+                } catch (error) {
                     callback({
                         error: {
-                            code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                            code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
                             message: `Bad request`,
                         },
                         id: request.id.toString(),
                     });
-                    return;
                 }
-
-                const { valid_until } = params;
-
-                if (valid_until < getTimeSec()) {
-                    callback({
-                        error: {
-                            code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                            message: `Request timed out`,
-                        },
-                        id: request.id.toString(),
-                    });
-                    return;
-                }
-
-                update((prev) => {
-                    const temp = [...prev];
-
-                    const found = temp.find((item) => item.from === from);
-
-                    if (!!found) {
-                        callback({
-                            error: {
-                                code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                                message: `Request already pending`,
-                            },
-                            id: request.id.toString(),
-                        });
-                    } else {
-                        temp.push({
-                            from: from,
-                            id: request.id.toString(),
-                            params: request.params,
-                            method: 'sendTransaction'
-                        });
-                    }
-
-                    return temp;
-                });
             } else if (request.method === 'disconnect') {
                 disconnectApp(connectedApp!.url, request.id);
             } else {

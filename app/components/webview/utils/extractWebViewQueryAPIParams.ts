@@ -1,16 +1,14 @@
 import { warn } from "../../../utils/log";
 import { BackPolicy, QueryAPI } from "../types";
+import { WebViewNavigationOptions } from "./reduceNavigationOptions";
 
 export type QueryAPIParams = {
     closeApp?: boolean,
     openUrl?: string | null,
-    backPolicy: BackPolicy,
     openEnrollment?: boolean,
-    showKeyboardAccessoryView?: boolean,
-    lockScroll?: boolean,
     markAsShown?: boolean,
     subscribed?: boolean,
-}
+} & WebViewNavigationOptions
 
 export type QueryParamsState = Omit<QueryAPIParams, 'openEnrollment' | 'openUrl' | 'closeApp'>;
 
@@ -22,7 +20,7 @@ export function extractWebViewQueryAPIParams(url: string): QueryAPIParams {
         let openUrl = null;
         let backPolicy: BackPolicy = 'close';
         let openEnrollment = false;
-        let showKeyboardAccessoryView = false;
+        let showKAV = false;
         let lockScroll = undefined;
         let markAsShown = false;
         let subscribed = false;
@@ -58,7 +56,7 @@ export function extractWebViewQueryAPIParams(url: string): QueryAPIParams {
         if (params.has(QueryAPI.ShowKeyboardAccessoryView)) {
             const queryValue = params.get(QueryAPI.ShowKeyboardAccessoryView);
             if (queryValue === 'true') {
-                showKeyboardAccessoryView = true;
+                showKAV = true;
             }
         }
 
@@ -90,7 +88,7 @@ export function extractWebViewQueryAPIParams(url: string): QueryAPIParams {
             openUrl,
             backPolicy,
             openEnrollment,
-            showKeyboardAccessoryView,
+            showKAV,
             lockScroll,
             markAsShown,
             subscribed

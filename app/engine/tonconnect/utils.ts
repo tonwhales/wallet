@@ -1,10 +1,12 @@
-import { ConnectRequest } from '@tonconnect/protocol';
+import { ConnectRequest, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
 import { MIN_PROTOCOL_VERSION } from './config';
-import { WebViewBridgeMessageType } from './types';
+import { SignRawParams, WebViewBridgeMessageType } from './types';
 import { storage } from '../../storage/storage';
 import { getCurrentAddress } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { z } from 'zod';
+import { getTimeSec } from '../../utils/getTimeSec';
+import { Address, Cell } from '@ton/core';
 
 export function resolveAuthError(error: Error) {
   switch ((error as Error)?.message) {
@@ -164,3 +166,77 @@ export const getInjectableJSMessage = (message: any) => {
     })();
   `;
 };
+
+export function checkTonconnectRequest(id: string, params: SignRawParams, callback: (response: WalletResponse<RpcMethod>) => void) {
+  const validParams = !!params
+    && Array.isArray(params.messages)
+    && params.messages.every((msg) => {
+      let validAmount = !!msg.amount && typeof msg.amount === 'string';
+      let addressIsValid = false;
+      let validPayload = true;
+      let validStateInit = true;
+
+      if (!!msg.address) {
+        try {
+          Address.parseFriendly(msg.address);
+          addressIsValid = true;
+        } catch { }
+      }
+
+      if (!!msg.payload) {
+        try {
+          Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0];
+        } catch {
+          validPayload = false;
+        }
+      }
+
+      if (!!msg.stateInit) {
+        try {
+          Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0];
+        } catch {
+          validStateInit = false;
+        }
+      }
+
+      return validAmount && addressIsValid && validPayload && validStateInit;
+    });
+
+  if (!validParams) {
+    callback({
+      error: {
+        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+        message: `Bad request`,
+      },
+      id,
+    });
+
+    return false;
+  }
+
+  const { valid_until, messages } = params;
+
+  if (!!valid_until && valid_until < getTimeSec()) {
+    callback({
+      error: {
+        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+        message: `Request timed out`,
+      },
+      id,
+    });
+    return false;
+  }
+
+  if (messages.length === 0) {
+    callback({
+      error: {
+        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+        message: `No messages`,
+      },
+      id,
+    });
+    return false;
+  }
+
+  return true;
+}

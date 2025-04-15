@@ -23,15 +23,18 @@ import { openSettings } from 'react-native-permissions';
 import { ScreenHeader } from '../ScreenHeader';
 import { WalletVersions } from '../../engine/types';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
+import { RegistrationMethod, trackAppsFlyerEvent } from '../../analytics/appsflyer';
+import { AppsFlyerEvent } from '../../analytics/appsflyer';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
     import: boolean,
     onBack?: () => void,
     additionalWallet?: boolean,
+    ledger?: boolean,
     versions?: WalletVersions[];
 }) => {
-    const { import: isImport, additionalWallet, versions: initVersions } = props;
+    const { import: isImport, additionalWallet, ledger, versions: initVersions } = props;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -54,9 +57,16 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         markAddressSecured(address.address);
 
         const event = isImport ? MixpanelEvent.WalletSeedImported : MixpanelEvent.WalletNewSeedCreated;
+        const registrationMethod = isImport ? RegistrationMethod.Import : RegistrationMethod.Create;
         trackEvent(event, { isTestnet, additionalWallet }, isTestnet, true);
-        navigation.navigateAndReplaceAll('Home');
-    }, [additionalWallet, isImport, isTestnet]);
+
+        if (!additionalWallet) {
+            trackAppsFlyerEvent(AppsFlyerEvent.CompletedRegistration, {
+                method: registrationMethod
+            });
+        }
+        navigation.navigateAndReplaceAll('Home', { ledger });
+    }, [additionalWallet, isImport, isTestnet, ledger]);
 
     // Create new wallet on launch if no wallets exist
     useEffect(() => {
@@ -321,7 +331,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         throw Error('Invalid state');
                     }
                 }
-                navigation.navigateAndReplaceAll('Home');
+                navigation.navigateAndReplaceAll('Home', { ledger });
                 return;
             }
 

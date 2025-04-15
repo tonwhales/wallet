@@ -12,7 +12,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
@@ -34,6 +34,14 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
 import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
+import { ConnectedAppConnectionRemote } from '../../engine/tonconnect/types';
+import { TonConnectBridgeType } from '../../engine/tonconnect/types';
+import { useAppsConnections } from '../../engine/hooks/dapps/useAppConnections';
+import { ConnectedAppConnection } from '../../engine/tonconnect/types';
+import { createLogger } from '../../utils/log';
+import { useLinkNavigator } from '../../useLinkNavigator';
+
+const logger = createLogger('tonconnect');
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -51,6 +59,15 @@ export const DeveloperToolsFragment = fragment(() => {
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
     const webViewRef = useRef<WebView>(null);
+    const connectionsMap = useAppsConnections();
+    const connections = useMemo(() => {
+        return Object.values(connectionsMap).reduce((acc, item) => {
+            acc.push(...item);
+            return acc;
+        }, [] as ConnectedAppConnection[]).filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
+    }, [connectionsMap]);
+    const connection = connections[0];
+    const linkNavigator = useLinkNavigator(isTestnet);
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);

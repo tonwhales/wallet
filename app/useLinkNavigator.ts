@@ -7,8 +7,6 @@ import { useSelectedAccount } from './engine/hooks';
 import { InfiniteData, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { Address, Cell, fromNano, toNano } from '@ton/core';
 import { fetchAccountTransactions } from './engine/api/fetchAccountTransactions';
-import { contractMetadataQueryFn, jettonMasterContentQueryFn } from './engine/hooks/jettons/jettonsBatcher';
-import { getJettonMasterAddressFromMetadata, parseStoredMetadata } from './engine/hooks/transactions/parseStoredMetadata';
 import { AppState, getAppState } from './storage/appState';
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import { ToastDuration, Toaster, useToaster } from './components/toast/ToastProvider';
@@ -17,7 +15,7 @@ import { useGlobalLoader } from './components/useGlobalLoader';
 import { StoredJettonWallet } from './engine/metadata/StoredMetadata';
 import { createBackoff } from './utils/time';
 import { getQueryData } from './engine/utils/getQueryData';
-import { AccountStoredTransaction, SelectedAccount, StoredTransaction, TonTransaction, TransactionType } from './engine/types';
+import { AccountStoredTransaction, SelectedAccount, TonTransaction, TransactionType } from './engine/types';
 import { TonConnectAuthType } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { warn } from './utils/log';
 import { getFullConnectionsMap, getStoredConnectExtensions } from './engine/state/tonconnect';
@@ -37,6 +35,7 @@ import { getIsConnectAppReady } from './engine/hooks/dapps/useIsConnectAppReady'
 import { HoldersAppParams, HoldersAppParamsType } from './fragments/holders/HoldersAppFragment';
 import { sharedStoragePersistence } from './storage/storage';
 import { useLedgerTransport } from './fragments/ledger/components/TransportContext';
+import { checkTonconnectRequest } from './engine/tonconnect/utils';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -141,20 +140,9 @@ function tryResolveTonconnectRequest(
             const params = JSON.parse(request.params[0]) as SignRawParams;
 
             // check if request is valid
-            const isValidRequest =
-                params && typeof params.valid_until === 'number' &&
-                Array.isArray(params.messages) &&
-                params.messages.every((msg) => !!msg.address && !!msg.amount);
+            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback);
 
             if (!isValidRequest) {
-                // report error
-                callback({
-                    error: {
-                        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-                        message: 'Bad request',
-                    },
-                    id: request.id.toString(),
-                });
                 return;
             }
 
@@ -178,7 +166,7 @@ function tryResolveTonconnectRequest(
             }
 
             // compile messages
-            const messages = [];
+            const orderMessages = [];
             for (const message of params.messages) {
                 try {
                     const msg = {
@@ -188,7 +176,7 @@ function tryResolveTonconnectRequest(
                         payload: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0] : null,
                         stateInit: message.stateInit ? Cell.fromBoc(Buffer.from(message.stateInit, 'base64'))[0] : null
                     }
-                    messages.push(msg);
+                    orderMessages.push(msg);
                 } catch {
                     // ignore invalid messages
                 }
@@ -231,7 +219,7 @@ function tryResolveTonconnectRequest(
                 text: null,
                 order: {
                     type: 'order',
-                    messages: messages,
+                    messages: orderMessages,
                     app: { title: appConnection.app.name, domain: extractDomain(appConnection.app.url), url: appConnection.app.url }
                 },
                 callback: responseCallback
@@ -282,7 +270,7 @@ async function resolveAndNavigateToTransaction(
     let hash = resolved.hash;
 
     try {
-        if (!!selected.addressString) {
+        if (selected && !!selected.addressString) {
             const isSelectedAddress = selected.address.equals(Address.parse(resolved.address));
             const queryCache = queryClient.getQueryCache();
             const holdersStatusKey = Queries.Holders(resolved.address).Status();
@@ -581,7 +569,7 @@ export function useLinkNavigator(
     const toaster = useToaster();
     const loader = useGlobalLoader();
     const ledgerContext = useLedgerTransport();
-    const address = isLedger ? ledgerContext.addr!.address : selected!.addressString;
+    const address = isLedger ? ledgerContext.addr!.address : selected?.addressString;
 
     const [, updatePendingReuests] = useConnectPendingRequests();
     const pendingReqsUpdaterRef = useRef(updatePendingReuests);

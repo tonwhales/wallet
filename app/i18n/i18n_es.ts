@@ -123,6 +123,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Motor de búsqueda",
         "language": "Idioma"
     },
+    "walletImportSelector": {
+        "description": "Ingresa tu frase de recuperación o conecta Ledger de forma segura",
+        "title": "Importar cartera",
+        "seed": "Introduce palabras de recuperación"
+    },
+    "ledgerOnboarding": {
+        "title": "Configuración de seguridad",
+        "description": "Antes de conectar el Ledger, crearemos una cartera adicional para completar la configuración de seguridad",
+        "button": "Crear cartera"
+    },
     "theme": {
         "title": "Tema",
         "light": "Claro",
@@ -305,7 +315,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Las aplicaciones o extensiones que has autorizado se mostrarán aquí. Puedes revocar el acceso de cualquier aplicación o extensión en cualquier momento.",
             "installExtension": "Instalar y abrir extensión para esta aplicación",
             "moreWallets": "Más billeteras ({{count}})",
-            "connectionSecureDescription": "No se transferirán fondos a la aplicación y no se otorgará acceso a tus monedas"
+            "connectionSecureDescription": "No se transferirán fondos a la aplicación y no se otorgará acceso a tus monedas",
+            "invalidManifest": "Error de manifiesto de la app",
+            "invalidManifestDescription": "Esta app falló al conectar con tu billetera. Por favor contacta al equipo de soporte."
         },
         "consent": "Al hacer clic en continuar aceptas nuestros"
     },
@@ -499,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Recompensas diarias",
                 "note": "Calculado incluyendo todas las tarifas",
                 "text": "Calculadora de ganancias",
-                "yearlyTopUp": "Después de recargar",
+                "yearlyTopUp": "Beneficio después de recarga",
                 "yearlyTotal": "Recompensas totales en un año",
-                "yearlyCurrent": "Actual",
+                "yearlyCurrent": "Beneficio actual (en un año)",
                 "topUpTitle": "Tus recompensas anuales",
                 "goToTopUp": "Ir a recargar"
             },
@@ -1240,6 +1252,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Elige billeteras para agregar",
+        "noVersionTitle": "Selecciona una versión",
+        "noVersionDescription": "No se ha seleccionado ninguna versión de cartera",
         "switchToAlertTitle": "Cambiando a {{wallet}}",
         "switchToAlertMessage": "¿Estás seguro de que quieres cambiar de billetera?",
         "switchToAlertAction": "Cambiar",

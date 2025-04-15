@@ -123,6 +123,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Пошукова система",
         "language": "Мова"
     },
+    "walletImportSelector": {
+        "description": "Введіть вашу сід фразу або підключіть Ledger",
+        "title": "Додавання гаманця",
+        "seed": "Ввести секретні слова"
+    },
+    "ledgerOnboarding": {
+        "title": "Налаштуйте додаток",
+        "description": "Ми створимо окремий гаманець для налаштування безпеки, перед підключенням Ledger",
+        "button": "Створити гаманець"
+    },
     "theme": {
         "title": "Тема",
         "light": "Світла",
@@ -305,7 +315,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Тут будуть відображатися додатки або розширення, які ви авторизували. Ви можете відкликати доступ від будь-якого додатку або розширення в будь-який час.",
             "installExtension": "Встановіть і відкрийте розширення для цього додатку",
             "moreWallets": "Більше гаманців ({{count}})",
-            "connectionSecureDescription": "Жодні кошти не будуть передані до додатку і доступ до ваших монет не буде надано"
+            "connectionSecureDescription": "Жодні кошти не будуть передані до додатку і доступ до ваших монет не буде надано",
+            "invalidManifest": "Помилка манифесту додатку",
+            "invalidManifestDescription": "Цей додаток не зміг підключитися до вашого гаманця. Будь ласка, зверніться до їхньої команди підтримки."
         },
         "consent": "Натискаючи продовжити, ви приймаєте наші"
     },
@@ -499,9 +511,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Щоденні винагороди",
                 "note": "Розраховано з урахуванням всіх комісій",
                 "text": "Калькулятор заробітку",
-                "yearlyTopUp": "Після поповнення",
+                "yearlyTopUp": "Прибуток після поповнення",
                 "yearlyTotal": "Загальні винагороди за рік",
-                "yearlyCurrent": "Поточні",
+                "yearlyCurrent": "Поточний прибуток (за рік)",
                 "topUpTitle": "Ваші річні винагороди",
                 "goToTopUp": "Перейти до поповнення"
             },
@@ -1190,6 +1202,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Виберіть гаманці для додавання",
+        "noVersionTitle": "Виберіть версію",
+        "noVersionDescription": "Не вибрана жодна версія гаманця",
         "switchToAlertTitle": "Перемикання на {{wallet}}",
         "switchToAlertMessage": "Ви впевнені, що хочете переключити гаманці?",
         "switchToAlertAction": "Перемкнути",

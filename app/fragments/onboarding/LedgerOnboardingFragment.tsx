@@ -1,5 +1,4 @@
-import React from "react";
-import { useRoute } from "@react-navigation/native";
+import React, { useCallback } from "react";
 import { Platform, ScrollView, Text, View, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
@@ -9,16 +8,19 @@ import { systemFragment } from "../../systemFragment";
 import { useTheme } from '../../engine/hooks';
 import { useDimensions } from "@react-native-community/hooks";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { getBackup, markAddressSecured } from "../../storage/appState";
-import { trackAppsFlyerEvent } from "../../analytics/appsflyer";
-import { AppsFlyerEvent } from "../../analytics/appsflyer";
 
-export const BackupIntroFragment = systemFragment(() => {
+import { ledgerImages } from "../ledger/HardwareWalletFragment";
+import { Typography } from "../../components/styles";
+
+export const LedgerOnboardingFragment = systemFragment(() => {
     const theme = useTheme();
     const dimensions = useDimensions();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const route = useRoute();
+
+    const onContinue = useCallback(() => {
+        navigation.navigate('LegalCreate', { ledger: true });
+    }, []);
 
     return (
         <View style={{
@@ -27,29 +29,28 @@ export const BackupIntroFragment = systemFragment(() => {
             backgroundColor: theme.backgroundPrimary,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 16,
         }}>
-            <ScreenHeader />
+            <ScreenHeader
+                style={[{ paddingLeft: 16 }, Platform.select({ ios: { paddingTop: 16 } })]}
+                onBackPressed={navigation.goBack}
+            />
             <ScrollView style={{ width: '100%', height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-                    <Text style={{
-                        fontSize: 32, lineHeight: 38,
-                        fontWeight: '600',
+                    <Text style={[Typography.semiBold32_38, {
                         textAlign: 'center',
                         color: theme.textPrimary,
                         marginBottom: 12, marginTop: 16
-                    }}>
-                        {t('backupIntro.title')}
+                    }]}>
+                        {t('ledgerOnboarding.title')}
                     </Text>
                     <Text
-                        style={{
+                        style={[Typography.regular17_24, {
                             textAlign: 'center',
-                            fontSize: 17,
-                            fontWeight: '400',
                             flexShrink: 1,
                             color: theme.textSecondary,
                             marginBottom: 24
-                        }}
+                        }]}
                     >
-                        {t('backupIntro.subtitle')}
+                        {t('ledgerOnboarding.description')}
                     </Text>
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
@@ -57,30 +58,26 @@ export const BackupIntroFragment = systemFragment(() => {
                         width: dimensions.screen.width - 32,
                     }}>
                         <Image
+                            style={{
+                                width: dimensions.screen.width - 32,
+                                height: dimensions.screen.width - 32,
+                                overflow: 'hidden'
+                            }}
+                            height={dimensions.screen.width - 32}
+                            width={dimensions.screen.width - 32}
+                            source={
+                                ledgerImages[Platform.OS === 'android' ? 'android' : 'ios'][theme.style]
+                            }
                             resizeMode={'contain'}
-                            style={{ width: dimensions.screen.width - 32 }}
-                            source={theme.style === 'dark' ? require('@assets/banner_backup_dark.webp') : require('@assets/banner_backup.webp')}
                         />
                     </View>
                 </View>
             </ScrollView>
             <View style={{ flexGrow: 1 }} />
-            <View style={[{ paddingHorizontal: 16, width: '100%', gap: 16 }, Platform.select({ android: { paddingBottom: 16 } })]}>
+            <View style={[{ paddingHorizontal: 16, width: '100%' }, Platform.select({ android: { paddingBottom: 16 } })]}>
                 <RoundButton
-                    title={t('backupIntro.saved')}
-                    onPress={() => {
-                        trackAppsFlyerEvent(AppsFlyerEvent.BackupPhraseConfirmed);
-                        const address = getBackup();
-                        markAddressSecured(address.address);
-                        navigation.navigateAndReplaceAll('Home');
-                    }}
-                />
-                <RoundButton
-                    title={t('backupIntro.goToBackup')}
-                    onPress={() => {
-                        navigation.replace('WalletBackupInit');
-                    }}
-                    display={'secondary'}
+                    title={t('ledgerOnboarding.button')}
+                    onPress={onContinue}
                 />
             </View>
         </View>

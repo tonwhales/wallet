@@ -445,7 +445,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 <View style={{ justifyContent: 'center', gap: 4, paddingRight: 56 }}>
                     <TextInput
                         ref={animatedRef}
-                        value={input}
+                        value={textInput}
                         style={[{
                             color: theme.textPrimary,
                             marginHorizontal: 0, marginVertical: 0,

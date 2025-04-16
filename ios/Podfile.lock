@@ -629,6 +629,9 @@ PODS:
   - WonderPush (4.3.1):
     - WonderPush/Core (= 4.3.1)
   - WonderPush/Core (4.3.1)
+  - WonderPushExtension (4.3.1):
+    - WonderPushExtension/Extension (= 4.3.1)
+  - WonderPushExtension/Extension (4.3.1)
   - Yoga (1.14.0)
   - ZXingObjC/Core (3.6.9)
   - ZXingObjC/OneD (3.6.9):
@@ -738,6 +741,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - WonderPushExtension (~> 4.0)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -761,6 +765,7 @@ SPEC REPOS:
     - SDWebImageWebPCoder
     - SocketRocket
     - WonderPush
+    - WonderPushExtension
     - ZXingObjC
 
 EXTERNAL SOURCES:
@@ -1085,9 +1090,10 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 295a6573c512f54ad2dd58098e64e17dcf008499
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   WonderPush: 457eb234758acec58ecd6c232d48c68e05dcb392
+  WonderPushExtension: b4f1419a6dcaf16a3d2f02f27dafc8de0fcc0fd1
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: c5ae9e7666fc668e603f873b0ee4aa2d050cd2c9
+PODFILE CHECKSUM: c0ede3d9b4bc82c9e88b1e2c20d1407ff2db2593
 
 COCOAPODS: 1.15.2

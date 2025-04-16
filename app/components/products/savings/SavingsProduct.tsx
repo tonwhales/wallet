@@ -1,7 +1,7 @@
 import { memo, useCallback } from "react";
 import { View } from "react-native";
 import { t } from "../../../i18n/t";
-import { useDisplayableJettons, useNetwork, useSolanaTokens, useTheme } from "../../../engine/hooks";
+import { useDisplayableJettons, useNetwork, useSolanaSavingsBalance, useSolanaTokens, useTheme } from "../../../engine/hooks";
 import { Typography } from "../../styles";
 import { TonProductComponent } from "../TonProductComponent";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
@@ -38,10 +38,12 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const savings = useDisplayableJettons(address.toString({ testOnly: isTestnet })).savings || [];
-    const { totalBalance } = useSavingsBalance(address);
+    const { totalBalance: tonTotalBalance } = useSavingsBalance(address);
     const navigation = useTypedNavigation();
     const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
     const tokens = useSolanaTokens(solanaAddress);
+    const { solAssets: solanaSavingsBalance } = useSolanaSavingsBalance(solanaAddress);
+    const totalBalance = tonTotalBalance + solanaSavingsBalance;
 
     const selectParams = {
         onSelect: (h: any) => {
@@ -185,39 +187,6 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
             </View>
         );
     }, [theme.surfaceOnBg, theme.textPrimary, theme.textSecondary, theme.style, totalBalance]);
-
-    // if (savingsItems.length === 0) {
-    //     return (
-    //         <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
-    //             <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
-    //                 {t('products.savings')}
-    //             </Text>
-    //             <View style={{
-    //                 backgroundColor: theme.surfaceOnBg,
-    //                 borderRadius: 20, marginTop: 14,
-    //             }}>
-    //                 <TonProductComponent
-    //                     theme={theme}
-    //                     address={address}
-    //                     testOnly={isTestnet}
-    //                     isLedger={isLedger}
-    //                 />
-    //             </View>
-
-    //             <View style={{
-    //                 backgroundColor: theme.surfaceOnBg,
-    //                 borderRadius: 20, marginTop: 14,
-    //             }}>
-    //                 <SpecialJettonProduct
-    //                     theme={theme}
-    //                     address={address}
-    //                     testOnly={isTestnet}
-    //                     isLedger={isLedger}
-    //                 />
-    //             </View>
-    //         </View>
-    //     );
-    // }
 
     return (
         <View style={{ marginVertical: 16 }}>

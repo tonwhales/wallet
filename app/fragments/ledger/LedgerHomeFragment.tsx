@@ -48,7 +48,7 @@ export const LedgerHomeFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
     const address = wallet ? Address.parse(wallet?.address) : null;
     const addressFriendly = address?.toString({ testOnly: isTestnet });
-
+    const pubKey = wallet?.publicKey;
     const syncState = useSyncState(addressFriendly);
     const holdersStatus = useHoldersAccountStatus(address!).data;
     const network = useNetwork();
@@ -150,7 +150,15 @@ export const LedgerHomeFragment = fragment(() => {
                     />
                 )}
                 <View collapsable={false}>
-                    <WalletCard address={address!} height={walletCardHeight} walletHeaderHeight={walletHeaderHeight} isLedger={true} />
+                    {(address && pubKey) && (
+                        <WalletCard
+                            address={address}
+                            pubKey={pubKey}
+                            height={walletCardHeight}
+                            walletHeaderHeight={walletHeaderHeight}
+                            isLedger={true}
+                        />
+                    )}
                     <WalletActions
                         theme={theme}
                         navigation={navigation}

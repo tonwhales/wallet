@@ -9,3 +9,4 @@ export { useSolanaTransactionStatus } from './useSolanaTransactionStatus';
 export { useSolanaTransferInfo } from './useSolanaTransferInfo';
 export { useSolanaTransferInstruction } from './useSolanaTransferInstruction';
 export { useSolanaTransactionFees } from './useSolanaTransactionFees';
+export { useSolanaSavingsBalance } from './useSolanaSavingsBalance';

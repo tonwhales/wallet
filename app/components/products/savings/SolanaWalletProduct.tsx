@@ -6,7 +6,7 @@ import { Typography } from "../../styles";
 import { PriceComponent } from "../../PriceComponent";
 import { ValueComponent } from "../../ValueComponent";
 import { ItemDivider } from "../../ItemDivider";
-import { useSolanaAccount } from "../../../engine/hooks";
+import { usePrice, useSolanaAccount } from "../../../engine/hooks";
 import { t } from "../../../i18n/t";
 
 import SolanaIcon from '@assets/ic-solana.svg';
@@ -24,6 +24,7 @@ export const SolanaWalletProduct = memo(({
 }) => {
     const navigation = useTypedNavigation();
     const account = useSolanaAccount(address);
+    const [, , rates] = usePrice();
 
     const balance = account.data?.balance ?? 0n;
     const symbol = "SOL";
@@ -111,7 +112,7 @@ export const SolanaWalletProduct = memo(({
                         }}
                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         theme={theme}
-                        priceUSD={144}
+                        priceUSD={rates?.price?.usd}
                         hideCentsIfNull
                     />
                 </View>

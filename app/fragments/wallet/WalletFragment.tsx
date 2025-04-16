@@ -39,7 +39,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
     const network = useNetwork();
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const { address, solanaAddress } = selectedAcc;
+    const { address, solanaAddress, publicKey: pubKey } = selectedAcc;
     const addressString = address.toString({ testOnly: network.isTestnet });
     const bottomBarHeight = useBottomTabBarHeight();
     const syncState = useSyncState(addressString);
@@ -156,7 +156,12 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
                     />
                 )}
                 <View collapsable={false}>
-                    <WalletCard address={address} height={walletCardHeight} walletHeaderHeight={walletHeaderHeight} />
+                    <WalletCard
+                        address={address}
+                        pubKey={pubKey}
+                        height={walletCardHeight}
+                        walletHeaderHeight={walletHeaderHeight}
+                    />
                     <WalletActions
                         theme={theme}
                         navigation={navigation}

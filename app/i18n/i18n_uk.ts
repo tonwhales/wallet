@@ -125,6 +125,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Пошукова система",
         "language": "Мова"
     },
+    "walletImportSelector": {
+        "description": "Введіть вашу сід фразу або підключіть Ledger",
+        "title": "Додавання гаманця",
+        "seed": "Ввести секретні слова"
+    },
+    "ledgerOnboarding": {
+        "title": "Налаштуйте додаток",
+        "description": "Ми створимо окремий гаманець для налаштування безпеки, перед підключенням Ledger",
+        "button": "Створити гаманець"
+    },
     "theme": {
         "title": "Тема",
         "light": "Світла",
@@ -517,9 +527,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Щоденні винагороди",
                 "note": "Розраховано з урахуванням всіх комісій",
                 "text": "Калькулятор заробітку",
-                "yearlyTopUp": "Після поповнення",
+                "yearlyTopUp": "Прибуток після поповнення",
                 "yearlyTotal": "Загальні винагороди за рік",
-                "yearlyCurrent": "Поточні",
+                "yearlyCurrent": "Поточний прибуток (за рік)",
                 "topUpTitle": "Ваші річні винагороди",
                 "goToTopUp": "Перейти до поповнення"
             },
@@ -1208,6 +1218,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Виберіть гаманці для додавання",
+        "noVersionTitle": "Виберіть версію",
+        "noVersionDescription": "Не вибрана жодна версія гаманця",
         "switchToAlertTitle": "Перемикання на {{wallet}}",
         "switchToAlertMessage": "Ви впевнені, що хочете переключити гаманці?",
         "switchToAlertAction": "Перемкнути",

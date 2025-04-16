@@ -28,6 +28,7 @@ import { TonPayloadFormat } from '@ton-community/ton-ledger';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
 import { useValidAmount } from '../../utils/useValidAmount';
+import { AppsFlyerEvent, trackAppsFlyerEvent } from '../../analytics/appsflyer';
 
 export type TransferAction = 'withdraw' | 'top_up' | 'withdraw_ready';
 
@@ -175,6 +176,14 @@ export const StakingTransferFragment = fragment(() => {
                     stateInit: null,
                 },
                 text: text,
+                callback: (ok: boolean) => {
+                    if(ok) {
+                        trackAppsFlyerEvent(AppsFlyerEvent.StakingDeposit, {
+                            af_currency: 'TON',
+                            af_quantity: transferAmount.toString()
+                        });
+                    }
+                }
             });
             return;
         }
@@ -237,7 +246,14 @@ export const StakingTransferFragment = fragment(() => {
                 }]
             },
             text: null,
-            callback: null
+            callback: (ok: boolean) => {
+                if(ok) {
+                    trackAppsFlyerEvent(AppsFlyerEvent.StakingDeposit, {
+                        af_currency: 'TON',
+                        af_quantity: transferAmount.toString()
+                    });
+                }
+            }
         });
     }, [amount, params, member, pool, balance]);
 

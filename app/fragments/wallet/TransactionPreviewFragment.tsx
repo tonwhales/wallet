@@ -464,7 +464,7 @@ const TransactionPreview = () => {
                                     );
                                 })}
                             </PerfView>
-                        ) : (amount ?
+                        ) : (amount >= 0n ?
                             <>
                                 <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
                                     <Text

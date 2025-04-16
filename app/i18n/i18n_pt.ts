@@ -125,6 +125,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Motor de busca",
         "language": "Idioma"
     },
+    "walletImportSelector": {
+        "description": "Digite sua frase de recuperação ou conecte o Ledger com segurança",
+        "title": "Importar carteira",
+        "seed": "Digite as palavras de recuperação"
+    },
+    "ledgerOnboarding": {
+        "title": "Configuração de segurança",
+        "description": "Antes de conectar o Ledger, criaremos uma carteira adicional para completar a configuração de segurança",
+        "button": "Criar carteira"
+    },
     "theme": {
         "title": "Tema",
         "light": "Claro",
@@ -517,9 +527,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Recompensas diárias",
                 "note": "Calculado incluindo todas as taxas",
                 "text": "Calculadora de ganhos",
-                "yearlyTopUp": "Após recarga",
+                "yearlyTopUp": "Lucro após recarga",
                 "yearlyTotal": "Recompensas totais em um ano",
-                "yearlyCurrent": "Atual",
+                "yearlyCurrent": "Lucro atual (em um ano)",
                 "topUpTitle": "Suas recompensas anuais",
                 "goToTopUp": "Ir para Recarga"
             },
@@ -1208,6 +1218,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Escolha carteiras para adicionar",
+        "noVersionTitle": "Selecione uma versão",
+        "noVersionDescription": "Nenhuma versão de carteira selecionada",
         "switchToAlertTitle": "Mudando para {{wallet}}",
         "switchToAlertMessage": "Tem certeza que deseja mudar de carteira?",
         "switchToAlertAction": "Mudar",

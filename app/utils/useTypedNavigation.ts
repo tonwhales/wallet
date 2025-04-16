@@ -314,6 +314,10 @@ export class TypedNavigation {
         this.navigate('Assets', params);
     }
 
+    navigateContactAssets(params: AssetsFragmentParams) {
+        this.navigate('ContactAssets', params);
+    }
+
     navigateReceiveAssetsJettons(params: AssetsFragmentParams) {
         this.navigate('ReceiveAssetsJettons', params);
     }

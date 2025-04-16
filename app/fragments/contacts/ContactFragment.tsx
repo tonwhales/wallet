@@ -171,7 +171,7 @@ export const ContactFragment = fragment(() => {
                                         }}
                                     >
                                         <Pressable
-                                            onPress={() => navigation.navigateAssets({
+                                            onPress={() => navigation.navigateContactAssets({
                                                 target: parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }),
                                                 viewType: AssetViewType.Transfer
                                             })}

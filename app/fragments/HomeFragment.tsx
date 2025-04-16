@@ -18,12 +18,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../components/styles';
 import { TonTransaction } from '../engine/types';
 import { useParams } from '../utils/useParams';
-import { TonConnectAuthType } from './secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentParams } from './secure/transfer/TransferFragment';
 import { HoldersAppParams } from './holders/HoldersAppFragment';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
+import { useLedgerTransport } from './ledger/components/TransportContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -41,18 +41,20 @@ export type HomeFragmentProps = {
     } | {
         type: 'holders-app',
         params: HoldersAppParams;
-    }
+    },
+    ledger?: boolean
 };
 
 export const HomeFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const { isTestnet } = useNetwork();
-    const { navigateTo } = useParams<HomeFragmentProps>();
+    const { navigateTo, ledger } = useParams<HomeFragmentProps>();
     const navigation = useTypedNavigation();
     const [tonconnectRequests] = useConnectPendingRequests();
     const selected = useSelectedAccount();
     const [isWalletMode] = useAppMode(selected?.address);
+    const ledgerContext = useLedgerTransport();
 
     const [curve, setCurve] = useState<number | undefined>(undefined);
 
@@ -84,6 +86,13 @@ export const HomeFragment = fragment(() => {
             navigation.navigateHoldersLanding({ endpoint: navigateTo.endpoint, onEnrollType: navigateTo.onEnrollType }, isTestnet);
         } else if (navigateTo?.type === 'holders-app') {
             navigation.navigateHolders(navigateTo.params, isTestnet);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (ledger) {
+            ledgerContext.reset();
+            navigation.navigate('Ledger');
         }
     }, []);
 

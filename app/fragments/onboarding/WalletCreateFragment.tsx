@@ -20,13 +20,15 @@ import { mnemonicNew } from "@ton/crypto";
 import { StatusBar } from 'expo-status-bar';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
+import { AppsFlyerEvent } from '../../analytics/appsflyer';
+import { trackAppsFlyerEvent } from '../../analytics/appsflyer';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const { mnemonics, additionalWallet } = useParams<{ mnemonics?: string, additionalWallet?: boolean }>();
+    const { mnemonics, additionalWallet, ledger } = useParams<{ mnemonics?: string, additionalWallet?: boolean, ledger?: boolean }>();
     const [state, setState] = useState<{ mnemonics: string, saved?: boolean } | null>(mnemonics ? { mnemonics } : null);
     const toaster = useToaster();
 
@@ -153,6 +155,7 @@ export const WalletCreateFragment = systemFragment(() => {
                         <RoundButton
                             title={t('create.okSaved')}
                             onPress={() => {
+                                trackAppsFlyerEvent(AppsFlyerEvent.BackupPhraseConfirmed);
                                 setState({ ...state, saved: true });
                             }}
                         />
@@ -173,6 +176,7 @@ export const WalletCreateFragment = systemFragment(() => {
                         mnemonics={state.mnemonics}
                         import={false}
                         additionalWallet={additionalWallet}
+                        ledger={ledger}
                         onBack={() => setState({ ...state, saved: false })}
                     />
                 </Animated.View>

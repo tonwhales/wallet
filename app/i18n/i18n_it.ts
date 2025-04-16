@@ -125,6 +125,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Motore di ricerca",
         "language": "Lingua"
     },
+    "walletImportSelector": {
+        "description": "Inserisci la tua frase di recupero o collega Ledger in modo sicuro",
+        "title": "Importa portafoglio",
+        "seed": "Inserisci le parole di recupero"
+    },
+    "ledgerOnboarding": {
+        "title": "Configurazione di sicurezza",
+        "description": "Prima di collegare il Ledger, creeremo un portafoglio aggiuntivo per completare la configurazione di sicurezza",
+        "button": "Crea portafoglio"
+    },
     "theme": {
         "title": "Tema",
         "light": "Chiaro",
@@ -517,9 +527,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Ricompense giornaliere",
                 "note": "Calcolato includendo tutte le commissioni",
                 "text": "Calcolatore di guadagni",
-                "yearlyTopUp": "Dopo la Ricarica",
+                "yearlyTopUp": "Profitto dopo il ricarico",
                 "yearlyTotal": "Ricompense totali in un anno",
-                "yearlyCurrent": "Attuale",
+                "yearlyCurrent": "Profitto attuale (in un anno)",
                 "topUpTitle": "Le tue ricompense annuali",
                 "goToTopUp": "Vai alla Ricarica"
             },
@@ -1208,6 +1218,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Scegli i portafogli da aggiungere",
+        "noVersionTitle": "Seleziona una versione",
+        "noVersionDescription": "Nessuna versione del portafoglio selezionata",
         "switchToAlertTitle": "Passaggio a {{wallet}}",
         "switchToAlertMessage": "Sei sicuro di voler cambiare portafogli?",
         "switchToAlertAction": "Cambia",

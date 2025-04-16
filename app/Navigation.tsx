@@ -113,6 +113,8 @@ import { useSolanaAccountWatcher } from './engine/useSolanaAccountWatcher';
 import { SolanaTransactionPreviewFragment } from './fragments/solana/transaction/SolanaTransactionPreviewFragment';
 import { solanaAddressFromPublicKey } from './utils/solana/address';
 import { whalesConnectEndpoint } from './engine/clients';
+import { WalletImportSelectorFragment } from './fragments/onboarding/WalletImportSelectorFragment';
+import { LedgerOnboardingFragment } from './fragments/onboarding/LedgerOnboardingFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -250,6 +252,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PendingTransaction', PendingTxPreviewFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
+    transparentModalScreen('WalletImportSelector', WalletImportSelectorFragment, safeArea),
+    genericScreen('LedgerOnboarding', LedgerOnboardingFragment, safeArea, true),
 
     // Dev
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
@@ -269,6 +273,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('ReceiveAssetsJettons', AssetsFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
+    modalScreen('ContactAssets', AssetsFragment, safeArea),
     transparentModalScreen('Products', ProductsFragment, safeArea),
     modalScreen('ProductsList', ProductsListFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),

@@ -279,7 +279,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
             }
 
             // Check bounce flag
-            let bounce = true;
+            let bounce = i.message.addr.bounceable ?? true;
             if (!i.message.addr.active && !i.message.stateInit) {
                 bounce = false;
             }
@@ -347,7 +347,11 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         let seqno = await fetchSeqno(client, lastBlock, selected.address);
 
         // Create transfer
-        const timeout = order.validUntil ?? Math.ceil(Date.now() / 1000) + 5 * 60;
+        let timeout = Math.ceil(Date.now() / 1000) + 5 * 60;
+        if (order.validUntil && (order.validUntil <= timeout)) {
+            timeout = order.validUntil;
+        }
+
         let transfer: Cell;
         try {
             const transferParams = {

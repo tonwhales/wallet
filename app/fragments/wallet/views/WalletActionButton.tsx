@@ -15,6 +15,7 @@ import { resolveUrl } from "../../../utils/resolveUrl";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { SimpleTransferAsset } from "../../secure/simpleTransfer/hooks/useSimpleTransfer";
+import { AppsFlyerEvent, RegistrationMethod, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 
 export enum WalletActionType {
     Send = 'send',
@@ -185,6 +186,7 @@ export const WalletActionButton = memo(({
         }
         case WalletActionType.Send: {
             let navigate = () => {
+                trackAppsFlyerEvent(AppsFlyerEvent.CompletedRegistration, { method: RegistrationMethod.Create })
                 if (isWalletMode) {
                     const asset: SimpleTransferAsset | null = action.jettonWallet ? { type: 'jetton', wallet: action.jettonWallet } : null;
                     navigation.navigateSimpleTransfer(

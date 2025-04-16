@@ -125,6 +125,16 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "searchEngine": "Поисковая система",
         "language": "Язык"
     },
+    "walletImportSelector": {
+        "description": "Введите вашу сид фразу или подключите Ledger",
+        "title": "Добавление кошелька",
+        "seed": "Ввести секретные слова"
+    },
+    "ledgerOnboarding": {
+        "title": "Настройте приложение",
+        "description": "Мы создадим отдельный кошелек для настройки безопасности, перед подключением Ledger",
+        "button": "Создать кошелек"
+    },
     "theme": {
         "title": "Тема",
         "light": "Светлая",
@@ -517,9 +527,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "daily": "Доходность в день",
                 "note": "Рассчитано с учетом всех комиссий",
                 "text": "Калькулятор доходности",
-                "yearlyTopUp": "После пополнения",
+                "yearlyTopUp": "Прибыль после пополнения",
                 "yearlyTotal": "Всего вознаграждений за год",
-                "yearlyCurrent": "Текущая",
+                "yearlyCurrent": "Текущая прибыль (за год)",
                 "topUpTitle": "Ваша годовая доходность",
                 "goToTopUp": "Пополнить"
             },
@@ -1208,6 +1218,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "wallets": {
         "choose_versions": "Выберите кошельки, которые вы хотите добавить",
+        "noVersionTitle": "Выберите версию",
+        "noVersionDescription": "Не выбрана ни одна версия кошелька",
         "switchToAlertTitle": "Переключить на {{wallet}}",
         "switchToAlertMessage": "Вы уверены в том, что хотите переключить кошелек?",
         "switchToAlertAction": "Переключить",

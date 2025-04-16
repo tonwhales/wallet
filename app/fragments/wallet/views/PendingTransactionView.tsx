@@ -232,7 +232,7 @@ export const PendingTransactionView = memo(({
                     )}
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                    {amount !== 0n && (
+                    {amount >= 0n && (
                         <Text
                             style={[{ color: theme.textPrimary, marginRight: 2 }, Typography.semiBold17_24]}
                             numberOfLines={1}

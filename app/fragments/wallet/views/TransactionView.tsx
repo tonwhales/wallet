@@ -193,8 +193,8 @@ export function TransactionView(props: {
     });
 
     const symbolText = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}${isSCAMJetton ? ' • ' : ''}` : '');
-    const showAmount = absAmount > 0n;
-    const showPrice = item.kind !== 'token' && tx.base.outMessagesCount <= 1 && absAmount > 0n;
+    const showAmount = absAmount >= 0n;
+    const showPrice = item.kind !== 'token' && tx.base.outMessagesCount <= 1 && absAmount >= 0n;
 
     if (preparedMessages.length > 1) {
         return (

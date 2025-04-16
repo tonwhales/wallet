@@ -73,7 +73,7 @@ export const LiquidWithdrawActionFragment = fragment(() => {
                         navigation.replace('DAppWebView', {
                             url: 'https://dedust.io',
                             header: {
-                                title: 'DeDust.io',
+                                title: { type: 'params', params: { title: 'DeDust.io', domain: 'dedust.io' } },
                                 onClose: navigation.goBack
                             },
                             engine: 'ton-connect',

@@ -82,7 +82,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const onProductBannerPress = useCallback((product: ProductAd) => {
         trackEvent(
             MixpanelEvent.ProductBannerClick,
-            { product: product.id, address: selected.addressString },
+            { product: product.id, address: selected?.addressString || 'unknown' },
             isTestnet
         );
 

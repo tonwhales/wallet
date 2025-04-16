@@ -125,6 +125,16 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "searchEngine": "Suchmaschine",
         "language": "Sprache"
     },
+    "walletImportSelector": {
+        "description": "Geben Sie Ihre Wiederherstellungsphrase ein oder verbinden Sie Ledger sicher",
+        "title": "Wallet importieren",
+        "seed": "Wiederherstellungswörter eingeben"
+    },
+    "ledgerOnboarding": {
+        "title": "Sicherheitseinrichtung",
+        "description": "Bevor Sie den Ledger verbinden, erstellen wir eine zusätzliche Wallet, um die Sicherheitseinrichtung abzuschließen",
+        "button": "Wallet erstellen"
+    },
     "theme": {
         "title": "Thema",
         "light": "Hell",
@@ -517,9 +527,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "daily": "Tägliche Rendite",
                 "note": "Berechnung unter Einbeziehung aller Gebühren",
                 "text": "Ertragsrechner",
-                "yearlyTopUp": "Nach Aufstockung",
+                "yearlyTopUp": "Gewinn nach Aufladung",
                 "yearlyTotal": "Gesamtrendite in einem Jahr",
-                "yearlyCurrent": "Aktuell",
+                "yearlyCurrent": "Aktueller Gewinn (in einem Jahr)",
                 "topUpTitle": "Deine jährliche Rendite",
                 "goToTopUp": "Zur Aufstockung"
             },
@@ -1208,6 +1218,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "wallets": {
         "choose_versions": "Wählen Sie Wallets zum Hinzufügen",
+        "noVersionTitle": "Wählen Sie eine Version",
+        "noVersionDescription": "Keine Wallet-Version ausgewählt",
         "switchToAlertTitle": "Wechsel zu {{wallet}}",
         "switchToAlertMessage": "Sind Sie sicher, dass Sie Wallets wechseln möchten?",
         "switchToAlertAction": "Wechseln",

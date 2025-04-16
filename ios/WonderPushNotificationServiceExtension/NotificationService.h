@@ -5,8 +5,8 @@
 //  Created by VZ on 16/4/25.
 //
 
-#import <UserNotifications/UserNotifications.h>
+#import <WonderPushExtension/WonderPushExtension.h>
 
-@interface NotificationService : UNNotificationServiceExtension
+@interface NotificationService : WPNotificationServiceExtension
 
 @end

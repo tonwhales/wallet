@@ -144,8 +144,8 @@ const TransactionPreview = () => {
         : parsedOpAddr.isBounceable
 
     const repeatParams = useMemo(() => {
-        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent);
-    }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent]);
+        return previewToTransferParams(tx, isTestnet, isTargetBounceable, isLedger, jettonMasterContent);
+    }, [tx, isTestnet, isTargetBounceable, isLedger, jettonMasterContent]);
 
     let op: string;
 

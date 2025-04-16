@@ -92,6 +92,7 @@ const TransactionPreview = () => {
     const parsedAddress = parsedOpAddr.address;
     const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
     const amount = BigInt(item.amount);
+    const absAmount = amount < 0n ? -amount : amount;
     const isOutgoing = kind === 'out';
     const extraCurrency = extraCurrencyFromTransaction(tx);
     const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, address?.toString({ testOnly: isTestnet }));
@@ -464,7 +465,7 @@ const TransactionPreview = () => {
                                     );
                                 })}
                             </PerfView>
-                        ) : (amount >= 0n ?
+                        ) : (absAmount >= 0n ?
                             <>
                                 <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
                                     <Text

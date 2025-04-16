@@ -30,8 +30,6 @@
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C762080E00418A2C2D1ECABB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B1193B29FEA7474B5BF2AE /* ExpoModulesProvider.swift */; };
-		CE74BE742DAD0C4E00EF2CD2 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE74BE732DAD0C4E00EF2CD2 /* NotificationService.swift */; };
-		CE74BE782DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CE74BE712DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E6EF29AC2E3ADF63E8B59C26 /* libPods-WhalesApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B24ECF369F3933C464A2FA1E /* libPods-WhalesApp.a */; };
 		FC1C9FE35D1E43DD83DE347B /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC64924E023A488BB8022B0F /* noop-file.swift */; };
 /* End PBXBuildFile section */
@@ -51,13 +49,6 @@
 			remoteGlobalIDString = 36D5B6602C52596E000A4A55;
 			remoteInfo = WNonUIExt;
 		};
-		CE74BE762DAD0C4E00EF2CD2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CE74BE702DAD0C4E00EF2CD2;
-			remoteInfo = WonderPushNotificationServiceExtension;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -68,7 +59,6 @@
 			dstSubfolderSpec = 13;
 			files = (
 				36D5B66D2C52596E000A4A55 /* WNonUIExt.appex in Embed Foundation Extensions */,
-				CE74BE782DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension.appex in Embed Foundation Extensions */,
 				36D5B6562C525944000A4A55 /* WUIExt.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -111,9 +101,6 @@
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = wallet/SplashScreen.storyboard; sourceTree = "<group>"; };
 		B24ECF369F3933C464A2FA1E /* libPods-WhalesApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WhalesApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		CE74BE712DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WonderPushNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		CE74BE732DAD0C4E00EF2CD2 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
-		CE74BE752DAD0C4E00EF2CD2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DC64924E023A488BB8022B0F /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "wallet/noop-file.swift"; sourceTree = "<group>"; };
 		DEE01086D4764A1A9A279A1C /* wallet-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "wallet-Bridging-Header.h"; path = "wallet/wallet-Bridging-Header.h"; sourceTree = "<group>"; };
 		E302E801E99B9AA9CADD122C /* Pods-WhalesApp.debug testnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhalesApp.debug testnet.xcconfig"; path = "Target Support Files/Pods-WhalesApp/Pods-WhalesApp.debug testnet.xcconfig"; sourceTree = "<group>"; };
@@ -142,13 +129,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				36D5B6622C52596E000A4A55 /* UniformTypeIdentifiers.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CE74BE6E2DAD0C4E00EF2CD2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,7 +207,6 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				36D5B64B2C525944000A4A55 /* WUIExt */,
 				36D5B6632C52596E000A4A55 /* WNonUIExt */,
-				CE74BE722DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D65327D7A22EEC0BE12398D9 /* Pods */,
@@ -244,7 +223,6 @@
 				13B07F961A680F5B00A75B9A /* Tonhub [d].app */,
 				36D5B6482C525944000A4A55 /* WUIExt.appex */,
 				36D5B6612C52596E000A4A55 /* WNonUIExt.appex */,
-				CE74BE712DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -264,15 +242,6 @@
 				78B1193B29FEA7474B5BF2AE /* ExpoModulesProvider.swift */,
 			);
 			name = WhalesApp;
-			sourceTree = "<group>";
-		};
-		CE74BE722DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension */ = {
-			isa = PBXGroup;
-			children = (
-				CE74BE732DAD0C4E00EF2CD2 /* NotificationService.swift */,
-				CE74BE752DAD0C4E00EF2CD2 /* Info.plist */,
-			);
-			path = WonderPushNotificationServiceExtension;
 			sourceTree = "<group>";
 		};
 		D65327D7A22EEC0BE12398D9 /* Pods */ = {
@@ -317,7 +286,6 @@
 			dependencies = (
 				36D5B6552C525944000A4A55 /* PBXTargetDependency */,
 				36D5B66C2C52596E000A4A55 /* PBXTargetDependency */,
-				CE74BE772DAD0C4E00EF2CD2 /* PBXTargetDependency */,
 			);
 			name = WhalesApp;
 			productName = wallet;
@@ -358,30 +326,13 @@
 			productReference = 36D5B6612C52596E000A4A55 /* WNonUIExt.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		CE74BE702DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = CE74BE7D2DAD0C4E00EF2CD2 /* Build configuration list for PBXNativeTarget "WonderPushNotificationServiceExtension" */;
-			buildPhases = (
-				CE74BE6D2DAD0C4E00EF2CD2 /* Sources */,
-				CE74BE6E2DAD0C4E00EF2CD2 /* Frameworks */,
-				CE74BE6F2DAD0C4E00EF2CD2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = WonderPushNotificationServiceExtension;
-			productName = WonderPushNotificationServiceExtension;
-			productReference = CE74BE712DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
@@ -394,9 +345,6 @@
 					};
 					36D5B6602C52596E000A4A55 = {
 						CreatedOnToolsVersion = 15.4;
-					};
-					CE74BE702DAD0C4E00EF2CD2 = {
-						CreatedOnToolsVersion = 15.0.1;
 					};
 				};
 			};
@@ -416,7 +364,6 @@
 				13B07F861A680F5B00A75B9A /* WhalesApp */,
 				36D5B6472C525944000A4A55 /* WUIExt */,
 				36D5B6602C52596E000A4A55 /* WNonUIExt */,
-				CE74BE702DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -446,13 +393,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				36D5B6652C52596E000A4A55 /* Media.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CE74BE6F2DAD0C4E00EF2CD2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -615,14 +555,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CE74BE6D2DAD0C4E00EF2CD2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CE74BE742DAD0C4E00EF2CD2 /* NotificationService.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -635,11 +567,6 @@
 			isa = PBXTargetDependency;
 			target = 36D5B6602C52596E000A4A55 /* WNonUIExt */;
 			targetProxy = 36D5B66B2C52596E000A4A55 /* PBXContainerItemProxy */;
-		};
-		CE74BE772DAD0C4E00EF2CD2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = CE74BE702DAD0C4E00EF2CD2 /* WonderPushNotificationServiceExtension */;
-			targetProxy = CE74BE762DAD0C4E00EF2CD2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1501,192 +1428,6 @@
 			};
 			name = "Release Testnet";
 		};
-		CE74BE792DAD0C4E00EF2CD2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = WonderPushNotificationServiceExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WonderPushNotificationServiceExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.WonderPushNotificationServiceExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		CE74BE7A2DAD0C4E00EF2CD2 /* Debug Testnet */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = WonderPushNotificationServiceExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WonderPushNotificationServiceExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.WonderPushNotificationServiceExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = "Debug Testnet";
-		};
-		CE74BE7B2DAD0C4E00EF2CD2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = WonderPushNotificationServiceExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WonderPushNotificationServiceExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.WonderPushNotificationServiceExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
-		CE74BE7C2DAD0C4E00EF2CD2 /* Release Testnet */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 4CFQ3FG324;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = WonderPushNotificationServiceExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WonderPushNotificationServiceExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tonhub.app.WonderPushNotificationServiceExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = "Release Testnet";
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1730,17 +1471,6 @@
 				AA25CAE427A7F3A100F732A6 /* Debug Testnet */,
 				83CBBA211A601CBA00E9B192 /* Release */,
 				AA25CAE627A7F3A700F732A6 /* Release Testnet */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		CE74BE7D2DAD0C4E00EF2CD2 /* Build configuration list for PBXNativeTarget "WonderPushNotificationServiceExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CE74BE792DAD0C4E00EF2CD2 /* Debug */,
-				CE74BE7A2DAD0C4E00EF2CD2 /* Debug Testnet */,
-				CE74BE7B2DAD0C4E00EF2CD2 /* Release */,
-				CE74BE7C2DAD0C4E00EF2CD2 /* Release Testnet */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

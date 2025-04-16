@@ -99,7 +99,7 @@ export const SolanaTokenProduct = memo(({
                 <View style={{ flexShrink: 1, paddingRight: 4 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
                         <Text
-                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                            style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.semiBold17_24]}
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >

@@ -1,6 +1,5 @@
 import { memo, useMemo } from "react";
 import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useSolanaSavingsBalance, useStaking, useTheme } from "../../../engine/hooks";
-import { useSpecialJetton } from "../../../engine/hooks/jettons/useSpecialJetton";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { reduceHoldersBalances } from "../../../utils/reduceHoldersBalances";
 import { LinearGradient } from "expo-linear-gradient";
@@ -12,13 +11,13 @@ import { BlurView } from "expo-blur";
 import { Address } from "@ton/core";
 import { WalletAddress } from "../../../components/address/WalletAddress";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useTranslation } from "react-i18next";
 import { solanaAddressFromPublicKey } from "../../../utils/solana/address";
 import { useSavingsBalance } from "../../../engine/hooks/jettons/useSavingsBalance";
+import { t } from "../../../i18n/t";
 
 export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, isLedger }: { address: Address, pubKey: Buffer, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
     const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
-    const { totalBalance: tonSavingsBalance } = useSavingsBalance(address);
+    const { specialToTon } = useSavingsBalance(address);
     const { solAssetsToTon: solanaTotalBalance } = useSolanaSavingsBalance(solanaAddress);
     const account = useAccountLite(address);
     const theme = useTheme();
@@ -28,7 +27,6 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
     const bottomBarHeight = useBottomTabBarHeight();
-    const { t } = useTranslation();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -38,15 +36,15 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
     }, [staking, liquidBalance]);
 
     const walletBalance = useMemo(() => {
-        const accountWithStaking = (account ? account?.balance : 0n)
-            + (stakingBalance || 0n)
+        const accountWithStaking = (account?.balance ?? 0n) + (stakingBalance || 0n);
 
-        let balance = accountWithStaking + tonSavingsBalance;
+        let balance = accountWithStaking + specialToTon;
         if (!isLedger) {
             balance += solanaTotalBalance;
         }
+
         return balance;
-    }, [account, stakingBalance, tonSavingsBalance, isLedger, solanaTotalBalance]);
+    }, [account, stakingBalance, isLedger, solanaTotalBalance, specialToTon]);
 
     const cardsBalance = useMemo(() => {
         const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);

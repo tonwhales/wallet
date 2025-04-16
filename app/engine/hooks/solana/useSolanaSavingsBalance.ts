@@ -1,7 +1,6 @@
 import { fromNano, toNano } from "@ton/core";
 import { useNetwork, usePrice, useSolanaAccount, useSolanaTokens } from "..";
-import { SOLANA_USDC_MINT_DEVNET } from "../../../utils/solana/address";
-import { SOLANA_USDC_MINT_MAINNET } from "../../../utils/solana/address";
+import { SOLANA_USDC_MINT_DEVNET, SOLANA_USDC_MINT_MAINNET } from "../../../utils/solana/address";
 
 export function useSolanaSavingsBalance(address: string) {
     const { isTestnet } = useNetwork();
@@ -21,16 +20,16 @@ export function useSolanaSavingsBalance(address: string) {
     }
     let solBalanceUsd = 0n;
     try {
-        solBalanceUsd = toNano(parseFloat(fromNano(solBalance)) * (solanaRates?.price.usd ?? 0))
+        solBalanceUsd = toNano(parseFloat(fromNano(solBalance)) * (solanaRates?.price?.usd ?? 0))
     } catch { }
 
     const totalSolanaBalance = stableTokenBalance + solBalanceUsd;
 
     let solToTon = 0n;
 
-    if (tonRates?.price.usd) {
+    if (totalSolanaBalance && tonRates?.price?.usd) {
         try {
-            solToTon = toNano(parseFloat(fromNano(totalSolanaBalance)) / (tonRates?.price.usd ?? 0))
+            solToTon = toNano(parseFloat(fromNano(totalSolanaBalance)) / (tonRates.price.usd))
         } catch { }
     }
 

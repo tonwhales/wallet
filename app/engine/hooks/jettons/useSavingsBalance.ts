@@ -15,7 +15,7 @@ export function useSavingsBalance(addr: string | Address) {
     let totalBalance = 0;
 
     // savings jettons balance
-    const savingTotal = savings.reduce((acc, s) => {
+    let savingTotal = savings.reduce((acc, s) => {
         if (!s.price) {
             return acc;
         }
@@ -28,7 +28,17 @@ export function useSavingsBalance(addr: string | Address) {
             return acc;
         }
     }, 0);
+
+    // add only savings jettons balance
     totalBalance += savingTotal;
+
+    let specialToTon = 0;
+    // update savingTotal with special jetton balance
+    if (specialJetton?.balance && price?.price?.usd) {
+        try {
+            specialToTon = parseFloat(fromBnWithDecimals(specialJetton.balance, specialJetton.decimals ?? 6)) / (price.price.usd);
+        } catch { }
+    }
 
     // TON balance
     const tonBalance = accountLite?.balance ?? 0n;
@@ -50,6 +60,7 @@ export function useSavingsBalance(addr: string | Address) {
         totalBalance: toNano(totalBalance.toFixed(9)),
         tonBalance: toNano(tonTotal.toFixed(9)),
         savingTotal: toNano(savingTotal.toFixed(9)),
-        specialBalance: specialTotal
+        specialBalance: specialTotal,
+        specialToTon: toNano(specialToTon.toFixed(9))
     };
 }

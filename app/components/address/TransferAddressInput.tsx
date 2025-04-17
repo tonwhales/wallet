@@ -18,7 +18,7 @@ import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { Typography } from "../styles";
 import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
-import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
+import { hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -80,7 +80,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
     const holdersAccounts = useHoldersAccounts(account, isLedger ? undefined : solanaAddress).data?.accounts
-        ?.filter(acc => hasDirectDeposit(acc) && acc.network !== 'solana') ?? [];
+        ?.filter(acc => hasDirectTonDeposit(acc) && acc.network !== 'solana') ?? [];
     const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);

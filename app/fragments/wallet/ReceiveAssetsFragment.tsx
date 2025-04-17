@@ -17,7 +17,7 @@ import { Image } from "expo-image";
 import { ReceiveableTonAsset } from "./ReceiveFragment";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
-import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
+import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 import { SpecialJettonProduct } from "../../components/products/savings/SpecialJettonProduct";
 import { AssetViewType } from "./AssetsFragment";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
@@ -117,7 +117,7 @@ export const ReceiveAssetsFragment = fragment(() => {
 
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
+    const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectTonDeposit(acc) || hasDirectSolanaDeposit(acc)) ?? [];
     const hints = useDisplayableJettons(owner.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
     const url = holdersUrl(isTestnet);
@@ -137,11 +137,10 @@ export const ReceiveAssetsFragment = fragment(() => {
     }, [assetCallback, isLedger, owner, isTestnet, bounceableFormat]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
-        const path = `/account/${target.id}?deposit-open=true`;
+        let path = `/account/${target.id}?deposit-open=true`;
         const navParams: HoldersAppParams = { type: HoldersAppParamsType.Path, path, query: {} };
 
         navigation.goBack();
-
 
         if (needsEnrollment || !isHoldersReady) {
             if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {

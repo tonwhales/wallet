@@ -2,7 +2,7 @@ import { Address } from "@ton/core";
 import { useMemo } from "react";
 import { useHoldersAccounts } from "./useHoldersAccounts";
 import { GeneralHoldersAccount } from "../../api/holders/fetchAccounts";
-import { hasDirectDeposit } from "../../../utils/holders/hasDirectDeposit";
+import { hasDirectTonDeposit } from "../../../utils/holders/hasDirectDeposit";
 
 export type HoldersAccountTarget = {
     address: Address,
@@ -35,7 +35,7 @@ export function useHoldersAccountTrargets(address: string | Address, solanaAddre
 
     const readyAccounts = useMemo(() => {
         const isPrivate = data?.type === 'private';
-        const accountsWithDeposit = data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
+        const accountsWithDeposit = data?.accounts?.filter(acc => hasDirectTonDeposit(acc)) ?? [];
 
         return accountsWithDeposit
             .filter((item) => {

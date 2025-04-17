@@ -22,7 +22,7 @@ import { ReceiveableTonAsset } from "./ReceiveFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
-import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
+import { hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 import { getSpecialJetton } from "../../secure/KnownWallets";
 import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { SimpleTransferAsset } from "../secure/simpleTransfer/hooks/useSimpleTransfer";
@@ -155,7 +155,7 @@ export const AssetsFragment = fragment(() => {
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const savings = useDisplayableJettons(owner.toString({ testOnly: isTestnet })).savings || [];
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
+    const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectTonDeposit(acc)) ?? [];
     const account = useAccountLite(owner);
     const hints = useHintsFull(owner.toString({ testOnly: isTestnet })).data?.hints ?? [];
     const extraCurrencies = useExtraCurrencyHints(owner.toString({ testOnly: isTestnet })).data ?? [];

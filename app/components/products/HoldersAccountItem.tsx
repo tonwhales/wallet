@@ -142,7 +142,9 @@ export const HoldersAccountItem = memo((props: {
         isTestnet, isLedger, cardsClickable
     } = props;
     const [price] = usePrice();
-    const master = account?.cryptoCurrency?.tokenContract || undefined;
+    const master = (account.network === 'ton-mainnet' || account.network === 'ton-testnet')
+        ? (account?.cryptoCurrency?.tokenContract || undefined)
+        : undefined;
     const jettonMasterContent = useJetton({ owner, master });
     const swipableRef = useRef<Swipeable>(null);
     const theme = useTheme();

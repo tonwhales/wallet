@@ -25,7 +25,7 @@ export type ExchangesFragmentParams = {
     type: 'holders'
     holdersAccount: GeneralHoldersAccount
 } | {
-    type: 'wallet',
+    type: 'wallet' | 'solana-wallet',
     address: string,
     ticker: string,
     tokenContract?: string
@@ -290,7 +290,7 @@ export const ExchangesFragment = fragment(() => {
         const url = new URL(uri);
 
         // add query params
-        if (asset.type === 'wallet') {
+        if (asset.type !== 'holders') {
             url.searchParams.append('address', asset.address);
             url.searchParams.append('ticker', asset.ticker);
             if (asset.tokenContract) {
@@ -306,7 +306,11 @@ export const ExchangesFragment = fragment(() => {
             url.searchParams.append('ticker', asset.holdersAccount.cryptoCurrency.ticker);
         }
 
-        url.searchParams.append('chain', 'ton');
+        if (asset.type === 'solana-wallet') {
+            url.searchParams.append('chain', 'SOL');
+        } else {
+            url.searchParams.append('chain', 'TON');
+        }
 
         url.searchParams.append('lang', lang);
         url.searchParams.append('currency', currency);

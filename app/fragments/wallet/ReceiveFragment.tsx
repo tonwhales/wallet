@@ -100,7 +100,7 @@ export const ReceiveFragment = fragment(() => {
     const assetMaster = isTon
         ? (holdersAssetTarget?.jettonMaster || tonAsset?.address?.toString({ testOnly: network.isTestnet }))
         : undefined;
-    const jetton = useJetton({ owner: tonAddress ?? '', master: assetMaster });
+    const jetton = useJetton({ owner: tonAddress, master: assetMaster });
     const jettonAssetcontent: ReceiveableAssetContent | null = jetton ? {
         icon: jetton.icon,
         name: jetton.name
@@ -275,19 +275,24 @@ export const ReceiveFragment = fragment(() => {
     const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? 'TON'}`;
 
     const navigateToExchanges = () => {
+        let params: ExchangesFragmentParams | undefined;
         if (!isTon) {
-            // TODO: *solana* add solana exchanges when will be implemented on web
-            return;
+            params = {
+                type: 'solana-wallet',
+                address: addr,
+                ticker: solanaAsset?.content?.name ?? 'SOL',
+            };
+        } else {
+            params = tonAsset?.holders
+                ? { type: 'holders', holdersAccount: tonAsset.holders }
+                : {
+                    type: 'wallet',
+                    address: friendly!,
+                    ticker: jetton?.symbol ?? 'TON',
+                    tokenContract: jetton?.master?.toString({ testOnly: network.isTestnet }),
+                };
         }
 
-        const params: ExchangesFragmentParams = tonAsset?.holders
-            ? { type: 'holders', holdersAccount: tonAsset.holders }
-            : {
-                type: 'wallet',
-                address: friendly!,
-                ticker: jetton?.symbol ?? 'TON',
-                tokenContract: jetton?.master?.toString({ testOnly: network.isTestnet }),
-            };
         navigation.navigateExchanges(params);
     }
 

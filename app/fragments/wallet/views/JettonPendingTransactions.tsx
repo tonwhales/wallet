@@ -11,7 +11,7 @@ import { Typography } from "../../../components/styles";
 import { PendingTransactionsList } from "./PendingTransactions";
 import { useJettonTransactions } from "../../../engine/hooks/transactions/useJettonTransactions";
 
-const txTimeout = 12 * 1000;
+const txTimeout = 5 * 1000;
 
 export const JettonPendingTransactions = memo(({
     owner,

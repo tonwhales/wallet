@@ -32,17 +32,21 @@ export const JettonPendingTransactions = memo(({
     const addr = owner ?? account?.addressString ?? '';
     const { state: pending, removePending } = usePendingActions(addr, network.isTestnet);
     const txs = useJettonTransactions(owner, master).data;
-    const lastTx = txs?.flat()?.slice(-1)?.[0];
+    const last32Txs = txs?.flat()?.slice(-32);
 
     useEffect(() => {
-        if (!lastTx) {
+        if (!last32Txs) {
             return;
         }
         try {
-            const lastTxtime = Number(lastTx.transaction_now);
-            removePending(pending.filter(tx => (lastTxtime - tx.time) >= txTimeout).map(tx => tx.id));
+            removePending(pending.filter(tx => {
+                return last32Txs.some((t) => {
+                    const lastTxtime = Number(t.transaction_now);
+                    return (lastTxtime - tx.time) >= txTimeout;
+                });
+            }).map(tx => tx.id));
         } catch { }
-    }, [lastTx?.transaction_now, pending]);
+    }, [last32Txs, pending]);
 
     const pendingTxs = useMemo(() => {
         // Show only pending on history tab

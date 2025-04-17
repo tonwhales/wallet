@@ -46,7 +46,7 @@ export function usePendingActions(address: string, isTestnet: boolean) {
                     return false;
                 }
 
-                return tx.seqno < txSeqno;
+                return tx.seqno <= txSeqno;
             });
 
             return isToBeRemoved;

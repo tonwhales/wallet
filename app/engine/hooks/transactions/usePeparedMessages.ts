@@ -9,6 +9,8 @@ import { resolveOperation } from "../../transactions/resolveOperation";
 import { StoredContractMetadata } from "../../metadata/StoredMetadata";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useGaslessConfig } from "../jettons/useGaslessConfig";
+import { getJettonHint } from "../jettons/useJetton";
+import { mapJettonFullToMasterState } from "../../../utils/jettons/mapJettonToMasterState";
 
 type PreparedMessageType = 'relayed' | 'message';
 
@@ -26,11 +28,16 @@ export type PreparedMessage = {
     friendlyTarget: string,
 };
 
-export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean): PreparedMessage[] {
+export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean, owner: Address | null): PreparedMessage[] {
     const addresses = messages.length > 1
         ? messages.map(m => m.info.type === 'internal' ? m.info.dest : null).filter(m => !!m) as string[]
         : [];
     const metadatas = useContractMetadatas(addresses).map(m => m.data).filter(m => !!m) as StoredContractMetadata[];
+    const jettonHints = owner ? addresses.map(a => getJettonHint({
+        owner: owner,
+        master: a,
+        isTestnet: testOnly,
+    })) : [];
     const gaslessConfig = useGaslessConfig().data;
 
     return useMemo(() => {
@@ -53,6 +60,11 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean)
                 let jettonMaster: JettonMasterState | null = null;
                 if (!!metadata?.jettonWallet) {
                     jettonMaster = getJettonMaster(Address.parse(metadata.jettonWallet.master), testOnly) || null;
+                } else {
+                    const hint = jettonHints.find(h => h?.jetton.address === address.toString({ testOnly }));
+                    if (hint) {
+                        jettonMaster = mapJettonFullToMasterState(hint);
+                    }
                 }
 
                 let jettonAmount: bigint | null = null;

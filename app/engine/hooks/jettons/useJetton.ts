@@ -3,13 +3,22 @@ import { useHintsFull, useNetwork } from "..";
 import { Jetton } from "../../types";
 import { mapJettonFullToMasterState } from "../../../utils/jettons/mapJettonToMasterState";
 import { useMemo } from "react";
+import { queryClient } from "../../clients";
+import { Queries } from "../../queries";
+import { HintsFull } from "./useHintsFull";
 
 export function useJetton(params: { owner: Address | string, master?: Address | string, wallet?: Address | string }): Jetton | null {
     const { isTestnet: testOnly } = useNetwork();
     const { owner, master, wallet } = params;
-    const masterStr = typeof master === 'string' ? master : (master?.toString({ testOnly }) ?? null);
-    const ownerStr = typeof owner === 'string' ? owner : owner?.toString({ testOnly });
-    const walletStr = typeof wallet === 'string' ? wallet : (wallet?.toString({ testOnly }) ?? null);
+    const masterStr = typeof master === 'string'
+        ? Address.parse(master).toString({ testOnly })
+        : (master?.toString({ testOnly }) ?? null);
+    const ownerStr = typeof owner === 'string'
+        ? Address.parse(owner).toString({ testOnly })
+        : owner?.toString({ testOnly });
+    const walletStr = typeof wallet === 'string'
+        ? Address.parse(wallet).toString({ testOnly })
+        : (wallet?.toString({ testOnly }) ?? null);
 
     const hintsFull = useHintsFull(ownerStr);
     const key = masterStr ?? walletStr;
@@ -59,4 +68,26 @@ export function useJetton(params: { owner: Address | string, master?: Address | 
             prices: hint.price?.prices,
         };
     }, [!!hint, hint?.balance, hint?.price])
+}
+
+export function getJettonHint(params: { owner: Address | string, master?: Address | string, wallet?: Address | string, isTestnet: boolean }) {
+    const { owner, master, wallet, isTestnet } = params;
+    const masterStr = typeof master === 'string'
+        ? Address.parse(master).toString({ testOnly: isTestnet })
+        : (master?.toString({ testOnly: isTestnet }) ?? null);
+    const ownerStr = typeof owner === 'string'
+        ? Address.parse(owner).toString({ testOnly: isTestnet })
+        : owner?.toString({ testOnly: isTestnet });
+    const walletStr = typeof wallet === 'string'
+        ? Address.parse(wallet).toString({ testOnly: isTestnet })
+        : (wallet?.toString({ testOnly: isTestnet }) ?? null);
+
+    const hintsFull = queryClient.getQueryData<HintsFull>(Queries.HintsFull(ownerStr));
+    const key = masterStr ?? walletStr;
+    const jettonIndex = key ? hintsFull?.addressesIndex?.[key] : null;
+    if (!jettonIndex) {
+        return null;
+    }
+
+    return hintsFull?.hints[jettonIndex];
 }

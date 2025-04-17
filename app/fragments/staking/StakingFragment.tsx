@@ -56,7 +56,7 @@ export const StakingFragment = fragment(() => {
     const pool = useStakingPool(targetPool, memberAddress);
     const member = pool?.member;
     const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: network.isTestnet }));
-    const { state: pendingTxs, remove } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
+    const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
@@ -71,7 +71,7 @@ export const StakingFragment = fragment(() => {
                 .filter((tx) => tx.status !== 'pending')
                 .map((tx) => tx.id);
 
-            remove(toRemove);
+            removePending(toRemove);
         }, 15 * 1000);
     }, [pendingPoolTxs]);
 

@@ -5,7 +5,6 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingCycle } from "../../components/staking/StakingCycle";
-import { openWithInApp } from "../../utils/openWithInApp";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
@@ -46,7 +45,7 @@ export const LiquidStakingFragment = fragment(() => {
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
     const nominator = useLiquidStakingMember(memberAddress)?.data;
     const apy = useStakingApy()?.apy;
-    const { state: pendingTxs, remove } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
+    const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
 
     const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
     const apyWithFee = useMemo(() => {
@@ -84,7 +83,7 @@ export const LiquidStakingFragment = fragment(() => {
                 .filter((tx) => tx.status !== 'pending')
                 .map((tx) => tx.id);
 
-            remove(toRemove);
+            removePending(toRemove);
         }, 15 * 1000);
     }, [pendingPoolTxs]);
 

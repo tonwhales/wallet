@@ -30,7 +30,7 @@ export const JettonPendingTransactions = memo(({
     const account = useSelectedAccount();
     const network = useNetwork();
     const addr = owner ?? account?.addressString ?? '';
-    const { state: pending, remove } = usePendingActions(addr, network.isTestnet);
+    const { state: pending, removePending } = usePendingActions(addr, network.isTestnet);
     const txs = useJettonTransactions(owner, master).data;
     const lastTx = txs?.flat()?.slice(-1)?.[0];
 
@@ -40,7 +40,7 @@ export const JettonPendingTransactions = memo(({
         }
         try {
             const lastTxtime = Number(lastTx.transaction_now);
-            remove(pending.filter(tx => (lastTxtime - tx.time) >= txTimeout).map(tx => tx.id));
+            removePending(pending.filter(tx => (lastTxtime - tx.time) >= txTimeout).map(tx => tx.id));
         } catch { }
     }, [lastTx?.transaction_now, pending]);
 
@@ -58,7 +58,7 @@ export const JettonPendingTransactions = memo(({
                 .filter((tx) => tx.status !== 'pending')
                 .map((tx) => tx.id);
 
-            remove(toRemove);
+            removePending(toRemove);
         }, 15 * 1000);
 
         return () => {

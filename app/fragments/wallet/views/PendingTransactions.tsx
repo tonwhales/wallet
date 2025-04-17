@@ -10,8 +10,6 @@ import { useBounceableWalletFormat, usePendingActions, useSelectedAccount } from
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
-import { useAccountTransactionsV2 } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
-import { TonStoredTransaction, TransactionType } from "../../../engine/types";
 import { PendingTransactionView } from "./PendingTransactionView";
 
 export const PendingTransactionsList = memo((

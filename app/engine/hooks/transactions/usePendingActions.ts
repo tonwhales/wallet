@@ -40,14 +40,16 @@ export function usePendingActions(address: string, isTestnet: boolean) {
 
     useEffect(() => {
         removePending(pending.filter((tx) => {
-            return !last32Txs.some((t) => {
-                const txSeqno = t.data?.base.parsed.seqno;
+            const isToBeRemoved = last32Txs.some((t) => {
+                const txSeqno = t.data?.base?.parsed?.seqno;
                 if (!txSeqno) {
                     return false;
                 }
 
                 return tx.seqno < txSeqno;
             });
+
+            return isToBeRemoved;
         }).map((tx) => tx.id));
     }, [last32Txs, pending]);
 

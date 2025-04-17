@@ -76,15 +76,21 @@ export const PendingTransactions = memo(({
     const addr = address ?? account?.addressString ?? '';
     const { state: pending, removePending } = usePendingActions(addr, network.isTestnet);
     const txs = useAccountTransactionsV2(addr, undefined, { type: TransactionType.TON }).data;
-    const lastTxs = (txs as TonStoredTransaction[])?.slice(-1)?.[0]?.data;
-    const lastTxsSeqno = lastTxs?.base.parsed.seqno;
+    const last32Txs = (txs as TonStoredTransaction[])?.slice(-32);
     const theme = useTheme();
 
     useEffect(() => {
-        if (!!lastTxsSeqno) {
-            removePending(pending.filter((tx) => tx.seqno < lastTxsSeqno).map((tx) => tx.id));
-        }
-    }, [lastTxsSeqno, pending]);
+        removePending(pending.filter((tx) => {
+            return !last32Txs.some((t) => {
+                const txSeqno = t.data?.base.parsed.seqno;
+                if (!txSeqno) {
+                    return false;
+                }
+
+                return tx.seqno < txSeqno;
+            });
+        }).map((tx) => tx.id));
+    }, [last32Txs, pending]);
 
     const pendingTxs = useMemo(() => {
         // Show only pending on history tab

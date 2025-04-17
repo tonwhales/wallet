@@ -277,9 +277,12 @@ export function useAccountTransactionsV2(
                 raw.fetchNextPage();
             }
         },
-        refresh: () => {
+        refresh: async () => {
             setIsRefreshing(true);
-            raw.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+            try {
+                await raw.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+            } catch { }
+            setIsRefreshing(false);
         },
         refreshing: isRefreshing,
         hasNext: !!raw.hasNextPage,

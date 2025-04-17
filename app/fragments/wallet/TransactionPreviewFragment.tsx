@@ -103,7 +103,7 @@ const TransactionPreview = () => {
         return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
     });
 
-    const preparedMessages = usePeparedMessages(messages, isTestnet);
+    const preparedMessages = usePeparedMessages(messages, isTestnet, address);
     const [walletsSettings] = useWalletsSettings();
     const ownWalletSettings = walletsSettings[address?.toString({ testOnly: isTestnet }) ?? ''];
     const opAddressWalletSettings = walletsSettings[opAddressBounceable];

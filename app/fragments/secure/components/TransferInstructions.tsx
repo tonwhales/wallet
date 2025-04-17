@@ -1,5 +1,5 @@
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
-import { useRegisterPendingSolana, useSolanaClient, useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
+import { useRegisterPendingSolana, useSolanaClients, useSolanaSelectedAccount, useTheme } from "../../../engine/hooks";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { PublicKey, Transaction } from "@solana/web3.js";
@@ -21,7 +21,7 @@ export const TransferInstructions = (params: {
     app?: SolanaOrderApp
 }) => {
     const theme = useTheme();
-    const solanaClient = useSolanaClient();
+    const solanaClients = useSolanaClients();
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
@@ -42,7 +42,7 @@ export const TransferInstructions = (params: {
     const doSend = useCallback(async () => {
         try {
             const pending = await signAndSendSolanaTransaction({
-                solanaClient,
+                solanaClients,
                 theme,
                 authContext,
                 transaction

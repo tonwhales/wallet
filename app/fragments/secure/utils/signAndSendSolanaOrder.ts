@@ -2,7 +2,7 @@ import { SolanaOrder } from "../ops/Order";
 import { SolanaClient } from "../../../engine/hooks/solana/useSolanaClient";
 import { AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
 import { ThemeType } from "../../../engine/state/theme";
-import { Keypair, Transaction, PublicKey, SystemProgram, TransactionInstruction, SendTransactionError, Blockhash, BlockhashWithExpiryBlockHeight } from "@solana/web3.js";
+import { Keypair, Transaction, PublicKey, SystemProgram, TransactionInstruction, SendTransactionError, BlockhashWithExpiryBlockHeight } from "@solana/web3.js";
 import { Account, createTransferInstruction, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
 import { isPublicKeyATA } from "../../../utils/solana/isPublicKeyATA";
@@ -12,7 +12,10 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 
 type SendSolanaOrderParams = {
     sender: string,
-    solanaClient: SolanaClient,
+    solanaClients: {
+        client: SolanaClient,
+        publicClient: SolanaClient
+    },
     theme: ThemeType,
     authContext: AuthWalletKeysType,
     order: SolanaOrder
@@ -26,9 +29,12 @@ export const failableSolanaBackoff = createBackoffFailaible({
 });
 
 class SendSolanaTransactionError extends Error {
-    constructor(message: string) {
+    isNetworkError?: boolean;
+    constructor(message: string, isNetworkError?: boolean) {
         super(message);
         this.name = 'SendSolanaTransactionError';
+        // this.isNetworkError = isNetworkError;
+        this.isNetworkError = true;
     }
 }
 
@@ -37,17 +43,17 @@ const solTransferLogKey = 'Transfer: insufficient lamports';
 export function mapNetworkError(error: any) {
     if (!!error.statusCode) {
         if (error.statusCode === 429) {
-            return new SendSolanaTransactionError(t('transfer.solana.error.rateLimited'));
+            return new SendSolanaTransactionError(t('transfer.solana.error.rateLimited'), true);
         }
     }
     if (error.message.toLowerCase().includes('network request failed')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.networkRequestFailed'));
+        return new SendSolanaTransactionError(t('transfer.solana.error.networkRequestFailed'), true);
     } else if (error.message.toLowerCase().includes('connection timed out')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.connectionTimeout'));
+        return new SendSolanaTransactionError(t('transfer.solana.error.connectionTimeout'), true);
     } else if (error.message.toLowerCase().includes('connection refused')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.connectionRefused'));
+        return new SendSolanaTransactionError(t('transfer.solana.error.connectionRefused'), true);
     } else if (error.message.toLowerCase().includes('connection reset')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.connectionReset'));
+        return new SendSolanaTransactionError(t('transfer.solana.error.connectionReset'), true);
     }
     return error;
 }
@@ -95,8 +101,9 @@ export function mapSolanaError(error: any) {
     return mapNetworkError(error);
 }
 
-export async function signAndSendSolanaOrder({ solanaClient, theme, authContext, order, sender }: SendSolanaOrderParams): Promise<PendingSolanaTransaction> {
+export async function signAndSendSolanaOrder({ solanaClients, theme, authContext, order, sender }: SendSolanaOrderParams): Promise<PendingSolanaTransaction> {
     const { target, comment, amount, token, reference } = order;
+    const { client, publicClient } = solanaClients;
     const mintAddress = token ? new PublicKey(token.mint) : null;
     const owner = new PublicKey(sender);
     const recipient = new PublicKey(target);
@@ -107,9 +114,18 @@ export async function signAndSendSolanaOrder({ solanaClient, theme, authContext,
     const transaction = new Transaction();
     let lastBlockHash: BlockhashWithExpiryBlockHeight;
     try {
-        lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => solanaClient.getLatestBlockhash());
+        lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => client.getLatestBlockhash());
     } catch (error) {
-        throw mapSolanaError(error);
+        const mappedError = mapSolanaError(error);
+        if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
+            try {
+                lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => publicClient.getLatestBlockhash());
+            } catch (error) {
+                throw mapSolanaError(error);
+            }
+        } else {
+            throw mappedError;
+        }
     }
 
     if (!mintAddress) { // generic solana transfer
@@ -129,20 +145,43 @@ export async function signAndSendSolanaOrder({ solanaClient, theme, authContext,
 
         try {
             senderTokenAccount = await failableSolanaBackoff('getOrCreateAssociatedTokenAccount', () => getOrCreateAssociatedTokenAccount(
-                solanaClient,
+                client,
                 keyPair,
                 mintAddress,
                 owner
             ));
         } catch (error) {
-            throw mapSolanaError(error);
+            const mappedError = mapSolanaError(error);
+            if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
+                try {
+                    senderTokenAccount = await failableSolanaBackoff('getOrCreateAssociatedTokenAccount', () => getOrCreateAssociatedTokenAccount(
+                        publicClient,
+                        keyPair,
+                        mintAddress,
+                        owner
+                    ));
+                } catch (error) {
+                    throw mapSolanaError(error);
+                }
+            } else {
+                throw mappedError;
+            }
         }
 
         let isATA: boolean;
         try {
-            isATA = await failableSolanaBackoff('isPublicKeyATA', () => isPublicKeyATA({ solanaClient, address: recipient, mint: mintAddress }));
+            isATA = await failableSolanaBackoff('isPublicKeyATA', () => isPublicKeyATA({ solanaClient: client, address: recipient, mint: mintAddress }));
         } catch (error) {
-            throw mapSolanaError(error);
+            const mappedError = mapSolanaError(error);
+            if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
+                try {
+                    isATA = await failableSolanaBackoff('isPublicKeyATA', () => isPublicKeyATA({ solanaClient: publicClient, address: recipient, mint: mintAddress }));
+                } catch (error) {
+                    throw mapSolanaError(error);
+                }
+            } else {
+                throw mappedError;
+            }
         }
 
         let recipientAddress: PublicKey;
@@ -150,13 +189,27 @@ export async function signAndSendSolanaOrder({ solanaClient, theme, authContext,
         if (!isATA) {
             try {
                 recipientAddress = (await failableSolanaBackoff('getOrCreateAssociatedTokenAccount', () => getOrCreateAssociatedTokenAccount(
-                    solanaClient,
+                    client,
                     keyPair,
                     mintAddress,
                     recipient
                 ))).address;
             } catch (error) {
-                throw mapSolanaError(error);
+                const mappedError = mapSolanaError(error);
+                if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
+                    try {
+                        recipientAddress = (await failableSolanaBackoff('getOrCreateAssociatedTokenAccount', () => getOrCreateAssociatedTokenAccount(
+                            publicClient,
+                            keyPair,
+                            mintAddress,
+                            recipient
+                        ))).address;
+                    } catch (error) {
+                        throw mapSolanaError(error);
+                    }
+                } else {
+                    throw mappedError;
+                }
             }
         } else {
             recipientAddress = recipient;
@@ -196,9 +249,18 @@ export async function signAndSendSolanaOrder({ solanaClient, theme, authContext,
 
     let signature: string;
     try {
-        signature = await failableSolanaBackoff('sendEncodedTransaction', () => solanaClient.sendEncodedTransaction(transaction.serialize().toString('base64')));
+        signature = await failableSolanaBackoff('sendEncodedTransaction', () => client.sendEncodedTransaction(transaction.serialize().toString('base64')));
     } catch (error) {
-        throw mapSolanaError(error);
+        const mappedError = mapSolanaError(error);
+        if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
+            try {
+                signature = await failableSolanaBackoff('sendEncodedTransaction', () => publicClient.sendEncodedTransaction(transaction.serialize().toString('base64')));
+            } catch (error) {
+                throw mapSolanaError(error);
+            }
+        } else {
+            throw mappedError;
+        }
     }
 
     return {

@@ -4,7 +4,7 @@ import { useParams } from "../../../utils/useParams";
 import { SolanaOrder, SolanaOrderApp } from "../ops/Order"
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
-import { useSolanaClient, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana } from "../../../engine/hooks";
+import { useSolanaClients, useSolanaSelectedAccount, useSolanaToken, useTheme, useRegisterPendingSolana } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ItemGroup } from "../../../components/ItemGroup";
@@ -97,7 +97,7 @@ function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | n
 const TransferOrder = (order: SolanaOrder) => {
     const theme = useTheme();
     const toaster = useToaster();
-    const solanaClient = useSolanaClient();
+    const solanaClients = useSolanaClients();
     const authContext = useKeysAuth();
     const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
@@ -117,7 +117,7 @@ const TransferOrder = (order: SolanaOrder) => {
     const doSend = useCallback(async () => {
         try {
             const pending = await signAndSendSolanaOrder({
-                solanaClient,
+                solanaClients,
                 theme,
                 authContext,
                 order,

@@ -7,20 +7,24 @@ import { parseTransactionInstructions } from "../../../utils/solana/parseInstruc
 import { failableSolanaBackoff, mapSolanaError } from "./signAndSendSolanaOrder";
 
 type SignAndSendSolanaTransactionParams = {
-    solanaClient: SolanaClient,
+    solanaClients: {
+        client: SolanaClient,
+        publicClient: SolanaClient
+    },
     theme: ThemeType,
     authContext: AuthWalletKeysType,
     transaction: Transaction
 }
 
-export async function signAndSendSolanaTransaction({ solanaClient, theme, authContext, transaction }: SignAndSendSolanaTransactionParams): Promise<PendingSolanaTransaction> {
+export async function signAndSendSolanaTransaction({ solanaClients, theme, authContext, transaction }: SignAndSendSolanaTransactionParams): Promise<PendingSolanaTransaction> {
+    const { client, publicClient } = solanaClients;
 
     const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
     const keyPair = Keypair.fromSecretKey(new Uint8Array(walletKeys.keyPair.secretKey));
 
     let lastBlockHash: BlockhashWithExpiryBlockHeight;
     try {
-        lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => solanaClient.getLatestBlockhash());
+        lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => client.getLatestBlockhash());
     } catch (error) {
         throw mapSolanaError(error);
     }
@@ -34,7 +38,7 @@ export async function signAndSendSolanaTransaction({ solanaClient, theme, authCo
 
     let signature: string;
     try {
-        signature = await failableSolanaBackoff('sendEncodedTransaction', () => solanaClient.sendEncodedTransaction(transaction.serialize().toString('base64')));
+        signature = await failableSolanaBackoff('sendEncodedTransaction', () => client.sendEncodedTransaction(transaction.serialize().toString('base64')));
     } catch (error) {
         throw mapSolanaError(error);
     }

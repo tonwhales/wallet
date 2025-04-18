@@ -167,6 +167,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
                         navigation={navigation}
                         isTestnet={network.isTestnet}
                         address={address}
+                        solanaAddress={solanaAddress}
                     />
                 </View>
                 <ProductsComponent selected={selectedAcc} />

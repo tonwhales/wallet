@@ -8,7 +8,7 @@ import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterCon
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { ReceiveableSolanaAsset } from "../ReceiveFragment";
-import { useHoldersAccounts, useNetwork, useSelectedAccount } from "../../../engine/hooks";
+import { useHoldersAccounts, useNetwork, useSelectedAccount, useSolanaSelectedAccount } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
 import { resolveUrl } from "../../../utils/resolveUrl";
@@ -85,9 +85,10 @@ export const WalletActionButton = memo(({
     const { isTestnet } = useNetwork();
     const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount();
     const [isWalletMode] = useAppMode(selected?.address, { isLedger });
     const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address!;
-    const accounts = useHoldersAccounts(address).data?.accounts;
+    const accounts = useHoldersAccounts(address, solanaAddress).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
     const linkNavigator = useLinkNavigator(isTestnet, { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) });
 

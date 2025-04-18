@@ -30,8 +30,8 @@ export const HoldersHiddenProductComponent = memo(({ holdersAccStatus, isLedger 
     const address = isLedger ? ledgerAddress : selected!.address;
     const { accounts, prepaidCards } = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data ?? {};
 
-    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address!);
-    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address!);
+    const [hiddenAccounts, markAccount] = useHoldersHiddenAccounts(address!, isLedger ? undefined : solanaAddress);
+    const [hiddenPrepaidCards, markPrepaidCard] = useHoldersHiddenPrepaidCards(address!, isLedger ? undefined : solanaAddress);
 
     let hiddenAccountsList = useMemo(() => {
         return (accounts ?? []).filter((item) => {

@@ -26,7 +26,7 @@ const networkFilter = (account: GeneralHoldersAccount) => {
     }
 }
 
-export function useHoldersAccounts(address: string | Address | undefined, solanaAddress?: string) {
+export function useHoldersAccounts(address: string | Address | undefined, solanaAddress?: string | null) {
     let { isTestnet } = useNetwork();
     let status = useHoldersAccountStatus(address).data;
 
@@ -47,7 +47,7 @@ export function useHoldersAccounts(address: string | Address | undefined, solana
         enabled: !!addressString,
         refetchOnWindowFocus: true,
         refetchOnMount: true,
-        refetchInterval: 35000,
+        refetchInterval: 45000,
         staleTime: 35000,
         queryFn: async () => {
             try {
@@ -70,7 +70,7 @@ export function useHoldersAccounts(address: string | Address | undefined, solana
                     // fetch apple pay credentials and update provisioning credentials cache
                     await updateProvisioningCredentials(addressString!, isTestnet);
                 } else {
-                    accounts = await fetchAccountsPublic({ address: addressString!, isTestnet, solanaAddress });
+                    accounts = await fetchAccountsPublic({ address: addressString!, isTestnet, solanaAddress: solanaAddress || undefined });
                     type = 'public';
                 }
 

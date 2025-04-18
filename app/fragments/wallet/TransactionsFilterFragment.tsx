@@ -18,14 +18,14 @@ import { HoldersAccountCard } from "../../components/products/HoldersAccountCard
 
 import IcCheck from "@assets/ic-check.svg";
 
-export type TransactionsFilterFragmentParams = { address: string, type: 'type' | 'holders' };
+export type TransactionsFilterFragmentParams = { address: string, type: 'type' | 'holders', solanaAddress?: string };
 
 export const TransactionsFilterFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const { address, type } = useParams<TransactionsFilterFragmentParams>();
+    const { address, type, solanaAddress } = useParams<TransactionsFilterFragmentParams>();
     const safeArea = useSafeAreaInsets();
-    const holdersAccounts = useHoldersAccounts(address);
+    const holdersAccounts = useHoldersAccounts(address, solanaAddress);
     const cards = holdersAccounts.data?.accounts?.map((a) => a.cards)?.flat() as HoldersCard[] || [];
     const [filter, setFilter] = useTransactionsFilter(address);
 

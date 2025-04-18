@@ -13,7 +13,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useRef } from 'react';
-import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
+import { useSelectedAccount, useSetAppState, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
@@ -35,7 +35,6 @@ import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenPr
 import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 
-
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -47,7 +46,8 @@ export const DeveloperToolsFragment = fragment(() => {
     const setHiddenBanners = useSetHiddenBanners();
     const ledgerContext = useLedgerTransport();
     const acc = useSelectedAccount()!;
-    const accounts = useHoldersAccounts(acc.address);
+    const solanaAddress = useSolanaSelectedAccount()!;
+    const accounts = useHoldersAccounts(acc.address, solanaAddress);
     const holdersStatus = useHoldersAccountStatus(acc.address);
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();

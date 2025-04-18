@@ -58,11 +58,11 @@ export const SettingsFragment = fragment(() => {
     const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '', solanaAddress);
     const inviteCheck = useIsHoldersInvited(selected?.address, network.isTestnet);
     const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
-    const holdersAccounts = useHoldersAccounts(selected?.address).data;
-    const url = holdersUrl(network.isTestnet);
-    const isHoldersReady = useIsConnectAppReady(url);
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
+    const holdersAccounts = useHoldersAccounts(selected?.address, isLedger ? undefined : solanaAddress).data;
+    const url = holdersUrl(network.isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
     const [, switchAppToWalletMode] = useAppMode(selected?.address);

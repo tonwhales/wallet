@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -103,6 +103,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const route = useRoute();
     const isLedger = route.name === 'LedgerReceiveAssets';
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
@@ -117,7 +118,7 @@ export const ReceiveAssetsFragment = fragment(() => {
 
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectTonDeposit(acc) || hasDirectSolanaDeposit(acc)) ?? [];
+    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress).data?.accounts?.filter(acc => hasDirectTonDeposit(acc) || hasDirectSolanaDeposit(acc)) ?? [];
     const hints = useDisplayableJettons(owner.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
     const url = holdersUrl(isTestnet);

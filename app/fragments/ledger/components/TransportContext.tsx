@@ -91,7 +91,7 @@ export type LedgerTransport = {
     bleSearchState: BLESearchState,
     startHIDSearch: () => Promise<void>,
     startBleSearch: () => void,
-    reset: (isLogout?: boolean) => void,
+    reset: (isLogout?: boolean, onLogoutCallback?: () => void) => void,
     wallets: LedgerWallet[],
     ledgerName: string,
     onShowLedgerConnectionError: () => void,
@@ -141,7 +141,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     const reconnectAttempts = useRef<number>(0);
 
-    const reset = useCallback((isLogout?: boolean) => {
+    const reset = useCallback((isLogout?: boolean, onLogoutCallback?: () => void) => {
         const resetState = () => {
             setLedgerConnection(null);
             setTonTransport(null);
@@ -166,6 +166,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                         setLedgerWallets(newItems);
                         setAddr(null);
                         clearLedgerSelected();
+                        onLogoutCallback?.();
                         if (newItems.length > 0) {
                             return;
                         }

@@ -12,7 +12,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
@@ -34,14 +34,7 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
 import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
-import { ConnectedAppConnectionRemote } from '../../engine/tonconnect/types';
-import { TonConnectBridgeType } from '../../engine/tonconnect/types';
-import { useAppsConnections } from '../../engine/hooks/dapps/useAppConnections';
-import { ConnectedAppConnection } from '../../engine/tonconnect/types';
-import { createLogger } from '../../utils/log';
-import { useLinkNavigator } from '../../useLinkNavigator';
 
-const logger = createLogger('tonconnect');
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -59,15 +52,6 @@ export const DeveloperToolsFragment = fragment(() => {
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
     const webViewRef = useRef<WebView>(null);
-    const connectionsMap = useAppsConnections();
-    const connections = useMemo(() => {
-        return Object.values(connectionsMap).reduce((acc, item) => {
-            acc.push(...item);
-            return acc;
-        }, [] as ConnectedAppConnection[]).filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
-    }, [connectionsMap]);
-    const connection = connections[0];
-    const linkNavigator = useLinkNavigator(isTestnet);
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -166,7 +150,31 @@ export const DeveloperToolsFragment = fragment(() => {
                     onPress: copySeed,
                 }
             ]
-        )
+        );
+    }, []);
+
+    const copySolanaPK = useCallback(async () => {
+        const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+        const pk = walletKeys.keyPair.secretKey.toString('hex');
+        Clipboard.setString(pk);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }, [acc.publicKey]);
+
+    const onExportSolanaPKAlert = useCallback(() => {
+        Alert.alert(
+            "Coping private key to clipboard",
+            "WARNING! Coping private key to clipboard is not secure. Proceed at your own risk. Use only for export to Phantom wallet (At your own risk)",
+            [
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('devTools.copySeedAlertAction'),
+                    onPress: copySolanaPK,
+                }
+            ]
+        );
     }, []);
 
     return (
@@ -199,6 +207,9 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={'Solana: ' + t('devTools.copySeed')} onPress={onExportSolanaPKAlert} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton dangerZone title={'Clean cache and reset'} onPress={resetCache} />

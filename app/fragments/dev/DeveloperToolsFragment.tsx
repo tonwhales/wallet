@@ -209,7 +209,7 @@ export const DeveloperToolsFragment = fragment(() => {
                             <ItemButton title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={'Solana: ' + t('devTools.copySeed')} onPress={onExportSolanaPKAlert} />
+                            <ItemButton title={'Copy Solana private key'} onPress={onExportSolanaPKAlert} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton dangerZone title={'Clean cache and reset'} onPress={resetCache} />

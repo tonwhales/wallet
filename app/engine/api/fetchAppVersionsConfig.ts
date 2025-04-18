@@ -1,5 +1,6 @@
 import axios from "axios";
 import { z } from "zod";
+import { whalesConnectEndpoint } from "../clients";
 
 export const appVersionsScheme = z.object({
     ios: z.object({
@@ -26,7 +27,7 @@ export type AppVersionsConfig = z.infer<typeof appVersionsDatedScheme>;
 
 export async function fetchAppVersionsConfig(isTestnet: boolean): Promise<AppVersionsConfig | null> {
     const res = await axios.get(
-        `https://connect.tonhubapi.com/appconfig/versions/${isTestnet ? 'testnet' : 'mainnet'}`,
+        `${whalesConnectEndpoint}/appconfig/versions/${isTestnet ? 'testnet' : 'mainnet'}`,
         { timeout: 5000 }
     );
 

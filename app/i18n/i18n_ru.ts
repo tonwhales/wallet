@@ -85,7 +85,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "gasless": "Gasless",
         "address": "Адрес",
         "currencyChanged": "Валюта изменена",
-        "required": 'обязательно'
+        "required": 'обязательно',
+        "operation": "Операция",
+        "description": "Описание"
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -172,7 +174,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     "receive": {
         "title": "Получить",
-        "subtitle": "Отправляйте на этот адрес только токены блокчейна TON. Другие активы будут потеряны навсегда",
+        "subtitleTon": "Отправляйте на этот адрес только токены блокчейна TON. Другие активы будут потеряны навсегда",
+        "subtitleSolana": "Отправляйте на этот адрес только токены блокчейна Solana. Другие активы будут потеряны навсегда",
         "share": {
             "title": "Мой Tonhub адрес",
             "error": "Не удалось поделиться адресом, попробуйте еще раз или обратитесь в службу поддержки"
@@ -262,7 +265,20 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "notEnoughJettonsMessage": "У вас недостаточно токенов для отправки",
         "aboutFees": "О комиссиях",
         "aboutFeesDescription": "Комиссии за транзакции в блокчейне зависят от нескольких факторов: загруженности сети, размера транзакции, цены газа и конфигурационных параметров блокчейна. Чем больше размер транзакции (сообщение/комментарий транзакции) или выше спрос на обработку, тем выше будут комиссии.",
-        "gaslessTransferSwitch": "Оплатить комиссию в {{symbol}}"
+        "gaslessTransferSwitch": "Оплатить комиссию в {{symbol}}",
+        "solana": {
+            "error": {
+                "title": "Ошибка транзакции Solana",
+                "networkRequestFailed": "Ошибка сети, попробуйте позже или обратитесь в поддержку",
+                "connectionTimeout": "Тайм-аут соединения, попробуйте позже или обратитесь в поддержку",
+                "connectionRefused": "Соединение отклонено, попробуйте позже или обратитесь в поддержку",
+                "connectionReset": "Соединение сброшено, попробуйте позже или обратитесь в поддержку",
+                "insufficientLamports": "Недостаточно SOL",
+                "insufficientLamportsWithAmount": "Недостаточно SOL, необходимо еще {{amount}}",
+                "insufficientTokenFunds": "Недостаточно токенов",
+                "rateLimited": "Наблюдается высокая нагрузка, попробуйте позже или обратитесь в поддержку"
+            }
+        }
     },
     "auth": {
         "phoneNumber": "Номер телефона",
@@ -1332,10 +1348,24 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "savings": {
         "ton": "Сберегательный счет в TON",
         "usdt": "Сберегательный счет в USDT",
+        "general": "Сберегательный счет в {{symbol}}"
     },
     "spending": {
         "ton": "Платеждный счет в TON",
-        "usdt": "Платеждный счет в USDT"
+        "usdt": "Платеждный счет в USDT",
+        "general": "Платеждный счет в {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Создание связанного аккаунта токена",
+            "unknown": "Неизвестная инструкция",
+            "systemTransfer": "Перевод SOL",
+            "createAccount": "Создание аккаунта",
+            "tokenTransfer": "Перевод токена",
+            "depositCard": "Пополнение карты",
+            "closeCard": "Закрыть карту",
+            "updateCardLimits": "Обновить лимиты карты"
+        }
     },
     "iban": {
         "banner": {

@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { useConnectApp } from './useConnectApp';
-import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
+import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, ConnectItemReply, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
 import { getAppManifest } from '../../getters/getAppManifest';
 import { TonConnectAuthResult, TonConnectAuthType } from '../../../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { useSaveAppConnection } from './useSaveAppConnection';
 import { useAutoConnect } from './useAutoConnect';
 import { useRemoveInjectedConnection } from './useRemoveInjectedConnection';
-import { getTimeSec } from '../../../utils/getTimeSec';
 import { Cell, fromNano, toNano } from '@ton/core';
 import { extractDomain } from '../../utils/extractDomain';
 import { useDisconnectApp } from './useDisconnect';
@@ -18,6 +17,11 @@ import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
 import { useWalletVersion } from '../useWalletVersion';
+
+type SolanaInjectedBridge = {
+    sendSolanaTransaction: (transaction: string) => Promise<void>;
+}
+
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation, address?: string, isLedger?: boolean): any {
     const saveAppConnection = useSaveAppConnection();
     const getConnectApp = useConnectApp(address);
@@ -42,7 +46,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
         return Boolean(connectEvent && connectEvent.event === 'connect');
     }, [app, connectEvent]);
 
-    const bridgeObject = useMemo((): TonConnectInjectedBridge => {
+    const bridgeObject = useMemo((): TonConnectInjectedBridge & SolanaInjectedBridge => {
         return {
             deviceInfo: tonConnectDeviceInfo(walletVersion),
             protocolVersion: CURRENT_PROTOCOL_VERSION,
@@ -84,8 +88,8 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                 resolve({
                                     event: 'connect',
                                     payload: {
-                                        items: result.replyItems,
-                                        device: tonConnectDeviceInfo(walletVersion),
+                                        items: result.replyItems as ConnectItemReply[],
+                                        device: tonConnectDeviceInfo(walletVersion)
                                     },
                                     id: requestId
                                 });
@@ -237,6 +241,36 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                             message: `Method "${request.method}" is not supported`,
                         },
                         id: request.id.toString(),
+                    });
+                });
+            },
+
+            sendSolanaTransaction: async (transaction: string) => {
+                return new Promise<WalletResponse<any>>((resolve) => {
+                    const callback = (ok: boolean, signature: string | null) => {
+                        if (!ok) {
+                            resolve({
+                                error: {
+                                    code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                                    message: 'User rejected',
+                                },
+                                id: requestId.toString(),
+                            });
+                            return;
+                        }
+
+                        resolve({
+                            result: signature,
+                            id: requestId.toString(),
+                        });
+                    };
+
+                    // TODO: *solana* check if transaction is valid
+
+                    navigation.navigateSolanaTransfer({
+                        type: 'message',
+                        message: transaction,
+                        callback
                     });
                 });
             }

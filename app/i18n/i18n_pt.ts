@@ -85,7 +85,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Sem gas",
         "address": "Endereço",
         "currencyChanged": "Moeda alterada",
-        "required": "obrigatório"
+        "required": "obrigatório",
+        "operation": "Operação",
+        "description": "Descrição"
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -188,7 +190,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Receber",
-        "subtitle": "Envie apenas ativos da TON Blockchain para este endereço. Outros ativos serão perdidos para sempre",
+        "subtitleTon": "Envie apenas Toncoin e tokens na rede TON para este endereço, ou você pode perder seus fundos.",
+        "subtitleSolana": "Envie apenas SOL e SPL tokens na rede Solana para este endereço, ou você pode perder seus fundos.",
         "share": {
             "title": "Meu Endereço Tonhub",
             "error": "Falha ao compartilhar endereço, tente novamente ou contate o suporte"
@@ -278,7 +281,20 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "Você está tentando enviar mais tokens do que possui",
         "aboutFees": "Sobre as taxas",
         "aboutFeesDescription": "As taxas para transações na blockchain dependem de vários fatores, como congestionamento da rede, tamanho da transação, preço do gás e parâmetros de configuração da blockchain. Quanto maior a demanda pelo processamento de transações na blockchain ou maior o tamanho da transação (mensagem/comentário), maiores serão as taxas.",
-        "gaslessTransferSwitch": "Pagar taxa de gás em {{symbol}}"
+        "gaslessTransferSwitch": "Pagar taxa de gás em {{symbol}}",
+        "solana": {
+            "error": {
+                "title": "Erro na transação Solana",
+                "networkRequestFailed": "Erro de rede, por favor tente novamente mais tarde ou contacte o suporte",
+                "connectionTimeout": "Tempo limite de conexão esgotado, por favor tente novamente mais tarde ou contacte o suporte",
+                "connectionRefused": "Conexão recusada, por favor tente novamente mais tarde ou contacte o suporte",
+                "connectionReset": "Conexão redefinida, por favor tente novamente mais tarde ou contacte o suporte",
+                "insufficientLamports": "Fundos SOL insuficientes",
+                "insufficientLamportsWithAmount": "Fundos SOL insuficientes, são necessários mais {{amount}}",
+                "insufficientTokenFunds": "Fundos de token insuficientes",
+                "rateLimited": "Estamos a experienciar uma elevada procura, por favor tente novamente mais tarde ou contacte o suporte"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Verificar telefone",
@@ -1331,11 +1347,25 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "Conta poupança TON",
-        "usdt": "Conta poupança USDT"
+        "usdt": "Conta poupança USDT",
+        "general": "Conta poupança {{symbol}}"
     },
     "spending": {
-        "ton": "Conta de despesas TON",
-        "usdt": "Conta de despesas USDT"
+        "ton": "Conta de gastos TON",
+        "usdt": "Conta de gastos USDT",
+        "general": "Conta de gastos {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Criar conta de token associada",
+            "unknown": "Instrução desconhecida",
+            "systemTransfer": "Transferência de SOL",
+            "createAccount": "Criar conta",
+            "tokenTransfer": "Transferência de token",
+            "depositCard": "Depósito no cartão",
+            "closeCard": "Fechar cartão",
+            "updateCardLimits": "Atualizar limites do cartão"
+        }
     },
     "iban": {
         "banner": {

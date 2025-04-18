@@ -23,7 +23,8 @@ import { ExchangesFragmentParams } from "./ExchangesFragment";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { TransportStatusError } from "@ledgerhq/hw-transport";
 import { useRoute } from "@react-navigation/native";
-
+import { encodeURL } from "@solana/pay";
+import { PublicKey } from "@solana/web3.js";
 import CopyIcon from '@assets/ic-copy.svg';
 
 type ReceiveableAssetContent = {
@@ -31,16 +32,30 @@ type ReceiveableAssetContent = {
     name: string | null | undefined;
 }
 
-export type ReceiveableAsset = {
-    address: Address;
-    content?: ReceiveableAssetContent;
+export type ReceiveableTonAsset = {
+    address: Address,
+    content?: ReceiveableAssetContent,
     holders?: GeneralHoldersAccount
 }
 
-export type ReceiveFragmentParams = {
-    addr?: string;
-    asset?: ReceiveableAsset;
+export type ReceiveableSolanaAsset = {
+    mint: string,
+    content?: ReceiveableAssetContent,
 }
+
+export type ReceiveTonParams = {
+    type: 'ton',
+    addr?: string;
+    asset?: ReceiveableTonAsset;
+}
+
+export type ReceiveSolanaParams = {
+    type: 'solana',
+    addr: string,
+    asset?: ReceiveableSolanaAsset;
+}
+
+export type ReceiveFragmentParams = ReceiveTonParams | ReceiveSolanaParams;
 
 const qrSize = 262;
 
@@ -50,7 +65,7 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
-    const { addr, asset } = useParams<ReceiveFragmentParams>();
+    const { addr, asset, type } = useParams<ReceiveFragmentParams>();
     const selected = useSelectedAccount();
     const [bounceableFormat] = useBounceableWalletFormat();
     const toaster = useToaster();
@@ -59,7 +74,15 @@ export const ReceiveFragment = fragment(() => {
     const isLedger = route.name === 'LedgerReceive';
     const ledgerContext = useLedgerTransport();
 
-    const address = useMemo(() => {
+    const isTon = type === 'ton';
+    const tonAsset = isTon ? asset as ReceiveableTonAsset : undefined;
+    const solanaAsset = isTon ? undefined : asset as ReceiveableSolanaAsset;
+
+    const tonAddress = useMemo(() => {
+        if (!isTon) {
+            return undefined;
+        }
+
         if (addr) {
             try {
                 const parsed = Address.parseFriendly(addr);
@@ -69,23 +92,31 @@ export const ReceiveFragment = fragment(() => {
             }
         }
         return selected!.address;
-    }, [selected, addr]);
+    }, [selected, addr, isTon]);
 
-    const holdersAssetTarget = !!asset?.holders?.address
-        ? mapHoldersAccountTarget(asset?.holders)
+    const holdersAssetTarget = tonAsset?.holders?.address
+        ? mapHoldersAccountTarget(tonAsset.holders)
         : undefined;
-    const assetMaster = holdersAssetTarget?.jettonMaster || asset?.address?.toString({ testOnly: network.isTestnet });
-    const jetton = useJetton({ owner: address, master: assetMaster });
+    const assetMaster = isTon
+        ? (holdersAssetTarget?.jettonMaster || tonAsset?.address?.toString({ testOnly: network.isTestnet }))
+        : undefined;
+    const jetton = useJetton({ owner: tonAddress, master: assetMaster });
     const jettonAssetcontent: ReceiveableAssetContent | null = jetton ? {
         icon: jetton.icon,
         name: jetton.name
     } : null
-    const icon = asset?.content?.icon || jettonAssetcontent?.icon;
+    const icon = isTon
+        ? (tonAsset?.content?.icon || jettonAssetcontent?.icon)
+        : solanaAsset?.content?.icon;
     const name = asset?.content?.name;
 
     const friendly = useMemo(() => {
-        if (asset?.holders) {
-            return asset.address.toString({ testOnly: network.isTestnet });
+        if (!isTon) {
+            return addr;
+        }
+
+        if (tonAsset?.holders) {
+            return tonAsset.address.toString({ testOnly: network.isTestnet });
         }
 
         if (addr) {
@@ -96,19 +127,23 @@ export const ReceiveFragment = fragment(() => {
                 Alert.alert(t('common.error'), t('transfer.error.invalidAddress'));
             }
         }
-        return selected!.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat });
-    }, [asset?.holders, asset?.address, selected?.addressString, bounceableFormat]);
 
-    const assetFriendly = asset?.address?.toString({ testOnly: network.isTestnet });
+        return selected!.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat });
+    }, [asset, selected?.addressString, bounceableFormat, isTon]);
+
+    const assetFriendly = tonAsset?.address?.toString({ testOnly: network.isTestnet });
     const holdersJetton = holdersAssetTarget?.jettonMaster;
-    const comment = (!!asset?.holders && !holdersJetton) ? 'Top Up' : undefined;
-    const isHolders = !!asset?.holders;
+    const comment = (!!tonAsset?.holders && !holdersJetton) ? 'Top Up' : undefined;
+    const isHolders = tonAsset?.holders;
 
     const link = useMemo(() => {
+        if (!isTon) {
+            return encodeURL({ recipient: new PublicKey(addr!), memo: comment }).toString();
+        }
+
         const base = `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer/`;
 
-        if (asset?.holders) {
-
+        if (tonAsset?.holders) {
             const query = !holdersJetton
                 ? `?text=${encodeURIComponent(comment ?? '')}`
                 : `?jetton=${holdersJetton}`;
@@ -116,15 +151,15 @@ export const ReceiveFragment = fragment(() => {
             return base + friendly + query;
         }
 
-        if (asset) {
+        if (tonAsset) {
             return base + friendly + `?jetton=${assetFriendly}`
         }
 
         return base + friendly;
-    }, [friendly, holdersJetton, comment, assetFriendly]);
+    }, [friendly, holdersJetton, comment, assetFriendly, isTon, tonAsset]);
 
     const onCopyAddress = useCallback(() => {
-        copyText(friendly);
+        copyText(friendly!);
 
         toaster.show(
             {
@@ -193,6 +228,10 @@ export const ReceiveFragment = fragment(() => {
     }, [link]);
 
     const verifyLedger = async () => {
+        if (!isTon) {
+            return;
+        }
+
         if (!isLedger) {
             return
         }
@@ -203,7 +242,7 @@ export const ReceiveFragment = fragment(() => {
 
         try {
             const verificationResult = await ledgerContext.verifySelectedAddress(network.isTestnet)
-            const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(address);
+            const isValid = !!verificationResult && Address.parse(verificationResult.address).equals(tonAddress!);
 
             if (!isValid) {
                 Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
@@ -236,14 +275,24 @@ export const ReceiveFragment = fragment(() => {
     const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? 'TON'}`;
 
     const navigateToExchanges = () => {
-        const params: ExchangesFragmentParams = asset?.holders
-            ? { type: 'holders', holdersAccount: asset.holders }
-            : {
-                type: 'wallet',
-                address: friendly,
-                ticker: jetton?.symbol ?? 'TON',
-                tokenContract: jetton?.master?.toString({ testOnly: network.isTestnet }),
+        let params: ExchangesFragmentParams | undefined;
+        if (!isTon) {
+            params = {
+                type: 'solana-wallet',
+                address: addr,
+                ticker: solanaAsset?.content?.name ?? 'SOL',
             };
+        } else {
+            params = tonAsset?.holders
+                ? { type: 'holders', holdersAccount: tonAsset.holders }
+                : {
+                    type: 'wallet',
+                    address: friendly!,
+                    ticker: jetton?.symbol ?? 'TON',
+                    tokenContract: jetton?.master?.toString({ testOnly: network.isTestnet }),
+                };
+        }
+
         navigation.navigateExchanges(params);
     }
 
@@ -312,7 +361,7 @@ export const ReceiveFragment = fragment(() => {
                             color: theme.textSecondary,
                             textAlign: 'center', marginHorizontal: 16
                         }, Typography.regular17_24]}>
-                            {t('receive.subtitle')}
+                            {isTon ? t('receive.subtitleTon') : t('receive.subtitleSolana')}
                         </Text>
                     )}
                     <View style={{
@@ -329,6 +378,7 @@ export const ReceiveFragment = fragment(() => {
                             justifyContent: 'center', alignItems: 'center'
                         }}>
                             <QRCode
+                                type={isTon ? 'ton' : 'solana'}
                                 data={link}
                                 size={qrCodeSize}
                                 icon={icon}

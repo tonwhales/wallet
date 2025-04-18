@@ -19,6 +19,7 @@ import { TonStoredTransaction } from "../../engine/types";
 
 export type AddressBookParams = {
     account: string,
+    solanaAddress?: string,
     onSelected: (item: AddressSearchItem) => void
 }
 
@@ -29,12 +30,12 @@ export const AddressBookFragment = fragment(() => {
     const appState = useAppState();
     const ledgerTransport = useLedgerTransport();
     const { isTestnet } = useNetwork();
-    const { account, onSelected } = useParams<AddressBookParams>();
+    const { account, solanaAddress, onSelected } = useParams<AddressBookParams>();
     const [bounceableFormat] = useBounceableWalletFormat();
     const knownWallets = KnownWallets(isTestnet);
     const lastTwoTxs = (useLastTwoTxs(account) as TonStoredTransaction[]).map((t) => t.data);
     const accAddress = useMemo(() => Address.parse(account), [account]);
-    const holdersAccounts = useHoldersAccountTrargets(accAddress);
+    const holdersAccounts = useHoldersAccountTrargets(accAddress, solanaAddress);
     const [search, setSearch] = useState('');
 
     const myWallets = useMemo(() => {

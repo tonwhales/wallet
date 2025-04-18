@@ -13,16 +13,17 @@ import { HoldersCard } from "../../../engine/api/holders/fetchAccounts";
 
 type TransactionsHeaderProps = {
     showFilters: boolean,
-    address: string | Address
+    address: string | Address,
+    solanaAddress?: string
 }
 
-const HoldersChip = ({ address }: { address: string | Address }) => {
+const HoldersChip = ({ address, solanaAddress }: { address: string | Address, solanaAddress?: string }) => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const addressString = typeof address === 'string' ? address : address.toString({ testOnly: isTestnet });
     const [filters, setFilter] = useTransactionsFilter(addressString);
-    const holdersAccounts = useHoldersAccounts(addressString);
+    const holdersAccounts = useHoldersAccounts(addressString, solanaAddress);
     const cards = holdersAccounts.data?.accounts?.map((a) => a.cards)?.flat() as HoldersCard[] || [];
 
     if (filters?.type !== TransactionType.HOLDERS) {
@@ -37,7 +38,7 @@ const HoldersChip = ({ address }: { address: string | Address }) => {
     const tintColor = isActive ? theme.textUnchangeable : theme.iconPrimary;
 
     const onPress = () => {
-        navigation.navigateTransactionsFilter({ address: addressString, type: 'holders' });
+        navigation.navigateTransactionsFilter({ address: addressString, type: 'holders', solanaAddress });
     }
     const clear = () => {
         setFilter((prev) => ({ ...prev, cardIds: undefined }));
@@ -69,7 +70,7 @@ const HoldersChip = ({ address }: { address: string | Address }) => {
     );
 }
 
-const TransactionsFilter = ({ address }: { address: string | Address }) => {
+const TransactionsFilter = ({ address, solanaAddress }: { address: string | Address, solanaAddress?: string }) => {
 
     return (
         <ScrollView
@@ -77,12 +78,12 @@ const TransactionsFilter = ({ address }: { address: string | Address }) => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 16, flexDirection: 'row', gap: 8 }}
         >
-            <HoldersChip address={address} />
+            <HoldersChip address={address} solanaAddress={solanaAddress} />
         </ScrollView>
     );
 };
 
-export const TransactionsHeader = memo(({ showFilters, address }: TransactionsHeaderProps) => {
+export const TransactionsHeader = memo(({ showFilters, address, solanaAddress }: TransactionsHeaderProps) => {
     const { isTestnet } = useNetwork();
     const addressString = typeof address === 'string' ? address : address.toString({ testOnly: isTestnet });
     const [filters] = useTransactionsFilter(addressString);
@@ -98,7 +99,7 @@ export const TransactionsHeader = memo(({ showFilters, address }: TransactionsHe
 
     return (
         <View>
-            <TransactionsFilter address={addressString} />
+            <TransactionsFilter address={addressString} solanaAddress={solanaAddress} />
             {filters?.type !== TransactionType.HOLDERS && (
                 <PendingTransactions
                     viewType={'history'}

@@ -21,12 +21,14 @@ import { SimpleTransferAsset } from '../hooks/useSimpleTransfer';
 import { ExtraCurrencyHint } from '../../../../engine/api/fetchExtraCurrencyHints';
 import { WImage } from '../../../../components/WImage';
 
+import SolanaIcon from '@assets/ic-solana.svg';
+
 type Props = {
-    onAssetSelected: (selected?: SimpleTransferAsset) => void;
-    jetton: Jetton | null;
+    onAssetSelected?: (selected?: SimpleTransferAsset) => void;
+    jetton?: Jetton | null;
     extraCurrency?: ExtraCurrencyHint | null;
-    isLedger: boolean;
-    isSCAM: boolean;
+    isLedger?: boolean;
+    isSCAM?: boolean;
     symbol: string;
     balance: bigint;
     onAddAll: () => void;
@@ -36,10 +38,64 @@ type Props = {
     priceText?: string;
     shouldChangeJetton?: boolean;
     holdersTarget?: HoldersAccountTarget;
-    onChangeJetton: () => void;
+    decimals?: number;
+    logoURI?: string;
+    onChangeJetton?: () => void;
     onInputFocus: (index: number) => void;
-    selectedAsset: SimpleTransferAsset | null
+    selectedAsset?: SimpleTransferAsset | null;
+    isSolana?: boolean;
 }
+
+const AmountIcon = memo(({ symbol, jetton, logoURI }: { symbol: string, jetton?: Jetton | null, logoURI?: string }) => {
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+
+    if (logoURI) {
+        return <WImage
+            src={logoURI}
+            width={46}
+            height={46}
+            borderRadius={23}
+            style={{
+                height: 46,
+                width: 46,
+                marginRight: 12
+            }}
+        />
+    }
+
+    let ic = <Image
+        source={require('@assets/ic-ton-acc.png')}
+        style={{ height: 46, width: 46 }}
+    />
+
+    if (jetton) {
+        ic = <JettonIcon
+            isTestnet={isTestnet}
+            theme={theme}
+            size={46}
+            jetton={mapJettonToMasterState(jetton, isTestnet)}
+        />
+    } else if (symbol === 'SOL') {
+        ic = <SolanaIcon
+            style={{ height: 32, width: 32 }}
+            height={32}
+            width={32}
+        />
+    }
+
+    return (
+        <View style={{
+            height: 46, width: 46,
+            justifyContent: 'center', alignItems: 'center',
+            marginRight: 12,
+            backgroundColor: theme.elevation,
+            borderRadius: 23
+        }}>
+            {ic}
+        </View>
+    );
+});
 
 export const SimpleTransferAmount = memo(forwardRef(({
     onAssetSelected,
@@ -58,7 +114,10 @@ export const SimpleTransferAmount = memo(forwardRef(({
     holdersTarget,
     onChangeJetton,
     onInputFocus,
+    decimals,
+    logoURI,
     selectedAsset,
+    isSolana
 }: Props, ref) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -68,8 +127,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
     useImperativeHandle(ref, () => innerRef.current)
 
     const onValueChange = useCallback((newVal: string) => {
-        setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? 9, { skipFormattingDecimals: true }, prev));
-    }, [jetton?.decimals])
+        setAmount(prev => formatInputAmount(newVal, jetton?.decimals ?? decimals ?? 9, { skipFormattingDecimals: true }, prev));
+    }, [jetton?.decimals, decimals])
 
     const onNavigateAssets = useCallback(() => {
         navigation.navigateAssets({
@@ -81,36 +140,12 @@ export const SimpleTransferAmount = memo(forwardRef(({
     }, [onAssetSelected, jetton?.master, isLedger, selectedAsset])
 
     const assetButton = useMemo(() => {
-        let icon = <Image
-            source={require('@assets/ic-ton-acc.png')}
-            style={{ height: 46, width: 46 }}
-        />;
-
-        if (selectedAsset?.type === 'extraCurrency') {
-            icon = <WImage
-                src={extraCurrency?.preview?.image}
-                style={{ height: 46, width: 46 }}
-                height={46}
-                width={46}
-                borderRadius={23}
-            />;
-        }
-
-        if (selectedAsset?.type === 'jetton' && jetton) {
-            icon = <JettonIcon
-                isTestnet={network.isTestnet}
-                theme={theme}
-                size={46}
-                jetton={mapJettonToMasterState(jetton, network.isTestnet)}
-                backgroundColor={theme.elevation}
-                isSCAM={isSCAM}
-            />;
-        }
+        const icUrl = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.image : logoURI;
 
         return (
             <Pressable
-                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                onPress={onNavigateAssets}
+                style={({ pressed }) => ({ opacity: (pressed && !isSolana) ? 0.5 : 1 })}
+                onPress={isSolana ? undefined : onNavigateAssets}
             >
                 <View style={{
                     flexDirection: 'row',
@@ -118,13 +153,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
                     justifyContent: 'space-between'
                 }}>
                     <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'visible' }}>
-                        <View style={{
-                            height: 46, width: 46,
-                            justifyContent: 'center', alignItems: 'center',
-                            marginRight: 12
-                        }}>
-                            {icon}
-                        </View>
+                        <AmountIcon symbol={symbol} jetton={jetton} logoURI={icUrl} />
+
                         <View style={{ justifyContent: isSCAM ? 'space-between' : 'center', flexShrink: 1 }}>
                             <Text
                                 style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
@@ -149,13 +179,15 @@ export const SimpleTransferAmount = memo(forwardRef(({
                             )}
                         </View>
                     </View>
-                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                    {onAssetSelected && (
+                        <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                    )}
                 </View>
             </Pressable>
         );
     }, [onNavigateAssets, network.isTestnet, jetton, symbol, isSCAM]);
 
-    const decimals = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.decimals : jetton?.decimals;
+    const _decimals = selectedAsset?.type === 'extraCurrency' ? extraCurrency?.preview?.decimals : decimals;
 
     const valueComponent = useMemo(() => (
         <View style={{
@@ -168,7 +200,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 <ValueComponent
                     precision={4}
                     value={balance}
-                    decimals={decimals}
+                    decimals={_decimals}
                     suffix={symbol ? ` ${symbol}` : ''}
                 />
             </Text>
@@ -181,7 +213,7 @@ export const SimpleTransferAmount = memo(forwardRef(({
                 </Text>
             </Pressable>
         </View>
-    ), [balance, jetton?.decimals, jetton?.symbol, onAddAll])
+    ), [balance, jetton?.decimals, jetton?.symbol, onAddAll, decimals])
 
     const onFocus = useCallback(() => onInputFocus(1), [])
 

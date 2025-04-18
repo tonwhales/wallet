@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, { runOnJS, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
+import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../engine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
@@ -23,6 +23,7 @@ export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
     const rightLabel = t('common.cards')
     const theme = useTheme();
     const selected = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const [isWalletMode, switchAppToWalletMode] = useAppMode(selected?.address, { isLedger });
     const ledgerContext = useLedgerTransport();
     const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address!;
@@ -33,7 +34,7 @@ export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
     const isHoldersReady = useIsConnectAppReady(url);
     const holdersAccStatus = useHoldersAccountStatus(address).data;
     const [, setFilter] = useTransactionsFilter(address);
-    const holdersAccounts = useHoldersAccounts(address).data;
+    const holdersAccounts = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data;
 
     const needsEnrollment = useMemo(() => {
         return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;

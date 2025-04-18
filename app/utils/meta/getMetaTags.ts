@@ -18,7 +18,7 @@ export async function getMetaTags(link: string) {
             metaTags[`${item.attributes['name']}`] = item.attributes['content'];
         });
     } catch (e) {
-        warn(e);
+        warn(`getMetaTags error: ${e}`);
     }
 
     return metaTags;

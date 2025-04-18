@@ -71,7 +71,7 @@ export async function tryFetchJettonMaster(client: TonClient4, seqno: number, ad
         // }
         // master = _master;
     } catch (e) {
-        warn(e);
+        warn(`tryFetchJettonMaster error: ${e}`);
         return null;
     }
 

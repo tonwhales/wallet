@@ -5,7 +5,6 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingCycle } from "../../components/staking/StakingCycle";
-import { openWithInApp } from "../../utils/openWithInApp";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";

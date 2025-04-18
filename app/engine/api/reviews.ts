@@ -1,6 +1,7 @@
 import { Address } from "@ton/core";
 import axios from "axios";
 import * as t from 'io-ts';
+import { whalesConnectEndpoint } from "../clients";
 
 export type CommentInput = {
     text: string,
@@ -100,7 +101,7 @@ export const extensionResCodec = t.type({
 export type ExtensionStats = t.TypeOf<typeof extensionStatsCodec>;
 
 export async function fetchExtensionStats(url: string) {
-    const res = await axios.get(`https://connect.tonhubapi.com/apps/catalog`, { params: { url: encodeURIComponent(url) } });
+    const res = await axios.get(`${whalesConnectEndpoint}/apps/catalog`, { params: { url: encodeURIComponent(url) } });
 
     if (!extensionResCodec.is(res.data)) {
         throw Error('Error fetching extension');
@@ -110,7 +111,7 @@ export async function fetchExtensionStats(url: string) {
 }
 
 export async function fetchExtensionReview(address: Address, url: string, isTestnet: boolean) {
-    let res = await axios.get('https://connect.tonhubapi.com/apps/reviews' + `?url=${encodeURIComponent(url)}&address=${address.toString({ testOnly: isTestnet, urlSafe: true })}`, { timeout: 5000 });
+    let res = await axios.get(`${whalesConnectEndpoint}/apps/reviews` + `?url=${encodeURIComponent(url)}&address=${address.toString({ testOnly: isTestnet, urlSafe: true })}`, { timeout: 5000 });
 
     if (!reviewCodec.is(res.data)) {
         throw Error('Error fetching a review');
@@ -120,7 +121,7 @@ export async function fetchExtensionReview(address: Address, url: string, isTest
 }
 
 export async function postExtensionReview(url: string, review: ReviewInput) {
-    let res = await axios.post('https://connect.tonhubapi.com/apps/reviews', { url, input: review });
+    let res = await axios.post(`${whalesConnectEndpoint}/apps/reviews`, { url, input: review });
 
     if (!reviewCodec.is(res.data)) {
         throw Error('Error posting a review');
@@ -129,7 +130,7 @@ export async function postExtensionReview(url: string, review: ReviewInput) {
 }
 
 export async function postExtensionReport(url: string, report: ReportInput) {
-    let res = await axios.post('https://connect.tonhubapi.com/apps/reports', { url, input: report });
+    let res = await axios.post(`${whalesConnectEndpoint}/apps/reports`, { url, input: report });
 
     if (!reportCodec.is(res.data)) {
         throw Error('Error posting a report');

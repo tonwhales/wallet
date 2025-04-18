@@ -1,11 +1,12 @@
 import axios from "axios";
 import { z } from "zod";
 import { browserListingCodec, browserListingsResponseCodec } from "./fetchBrowserListings";
+import { whalesConnectEndpoint } from "../clients";
 
 export type BrowserListing = z.infer<typeof browserListingCodec>;
 
-export async function fetchHoldersBrowserListings(): Promise<BrowserListing[]>{
-    const response = await axios.get('https://connect.tonhubapi.com/tonhub/holders/banners');
+export async function fetchHoldersBrowserListings(): Promise<BrowserListing[]> {
+    const response = await axios.get(`${whalesConnectEndpoint}/tonhub/holders/banners`);
 
     if (response.status !== 200) {
         return [];

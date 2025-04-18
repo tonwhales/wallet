@@ -1,6 +1,5 @@
 import { memo, useMemo } from "react";
-import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useStaking, useTheme } from "../../../engine/hooks";
-import { useSpecialJetton } from "../../../engine/hooks/jettons/useSpecialJetton";
+import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useSolanaSavingsBalance, useStaking, useTheme } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { reduceHoldersBalances } from "../../../utils/reduceHoldersBalances";
 import { LinearGradient } from "expo-linear-gradient";
@@ -12,19 +11,22 @@ import { BlurView } from "expo-blur";
 import { Address } from "@ton/core";
 import { WalletAddress } from "../../../components/address/WalletAddress";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useTranslation } from "react-i18next";
+import { solanaAddressFromPublicKey } from "../../../utils/solana/address";
+import { useSavingsBalance } from "../../../engine/hooks/jettons/useSavingsBalance";
+import { t } from "../../../i18n/t";
 
-export const WalletCard = memo(({ address, height, walletHeaderHeight, isLedger }: { address: Address, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
+export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, isLedger }: { address: Address, pubKey: Buffer, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
+    const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
+    const { specialToTon } = useSavingsBalance(address);
+    const { solAssetsToTon: solanaTotalBalance } = useSolanaSavingsBalance(solanaAddress);
     const account = useAccountLite(address);
     const theme = useTheme();
-    const specialJetton = useSpecialJetton(address);
     const staking = useStaking(address);
     const liquidBalance = useLiquidStakingBalance(address);
-    const holdersCards = useHoldersAccounts(address).data?.accounts;
+    const holdersCards = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data?.accounts;
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
     const bottomBarHeight = useBottomTabBarHeight();
-    const { t } = useTranslation();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -34,11 +36,15 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight, isLedger 
     }, [staking, liquidBalance]);
 
     const walletBalance = useMemo(() => {
-        const accountWithStaking = (account ? account?.balance : 0n)
-            + (stakingBalance || 0n)
+        const accountWithStaking = (account?.balance ?? 0n) + (stakingBalance || 0n);
 
-        return accountWithStaking + (specialJetton?.toTon || 0n);
-    }, [account, stakingBalance, specialJetton?.toTon]);
+        let balance = accountWithStaking + specialToTon;
+        if (!isLedger) {
+            balance += solanaTotalBalance;
+        }
+
+        return balance;
+    }, [account, stakingBalance, isLedger, solanaTotalBalance, specialToTon]);
 
     const cardsBalance = useMemo(() => {
         const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);

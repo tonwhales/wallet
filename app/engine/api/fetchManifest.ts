@@ -24,7 +24,7 @@ export async function fetchManifest(link: string) {
     try {
         url = new URL(link);
     } catch (e) {
-        warn(e)
+        warn(`fetchManifest error: ${e}`);
         return null;
     }
     

@@ -1,6 +1,7 @@
 import { Address } from "@ton/core";
 import axios from "axios";
 import { z } from "zod";
+import { whalesConnectEndpoint } from "../../clients";
 
 export type GaslessEstimateParams = {
     wallet_address: string,
@@ -34,7 +35,7 @@ export type GaslessEstimateSuccess = z.infer<typeof gaslessEstimateSuccess>;
 
 export async function fetchGaslessEstimate(master: Address | string, isTestnet: boolean, body: GaslessEstimateParams): Promise<GaslessEstimate> {
     const masterString = typeof master === 'string' ? master : master.toRawString();
-    const endpoint = `https://connect.tonhubapi.com/gasless/${isTestnet ? 'testnet' : 'mainnet'}`;
+    const endpoint = `${whalesConnectEndpoint}/gasless/${isTestnet ? 'testnet' : 'mainnet'}`;
     const url = `${endpoint}/estimate`;
 
     const res = await axios.post(url, { data: body, master: masterString }, { method: 'POST' });

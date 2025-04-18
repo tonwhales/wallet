@@ -1,7 +1,7 @@
 import { useRoute } from "@react-navigation/native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
-import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Suspense, memo, useMemo } from "react";
 import { Address } from "@ton/core";
@@ -28,7 +28,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
     const { isTestnet: testOnly } = useNetwork();
     const selected = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
-
+    const solanaAddress = useSolanaSelectedAccount()!;
     const addressStr = useMemo(() => {
         if (isLedger && ledgerContext?.addr?.address) {
             try {
@@ -40,7 +40,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
         return selected!.address.toString({ testOnly });
     }, [selected, ledgerContext, testOnly]);
 
-    const holdersAccounts = useHoldersAccounts(addressStr).data;
+    const holdersAccounts = useHoldersAccounts(addressStr, isLedger ? undefined : solanaAddress).data;
     const holdersAccStatus = useHoldersAccountStatus(addressStr).data;
 
     const items = useMemo<{

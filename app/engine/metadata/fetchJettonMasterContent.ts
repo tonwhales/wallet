@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Address } from "@ton/core";
 import { z } from "zod";
+import { whalesConnectEndpoint } from "../clients";
 
 const imagePreview = z.object({
     blurhash: z.string(),
@@ -36,7 +37,7 @@ export type JettonMasterState = z.infer<typeof masterContentCodec> & { decimals:
 
 export async function fetchJettonMasterContent(address: Address, isTestnet: boolean): Promise<JettonMasterState | null> {
     const res = await axios.get(
-        `https://connect.tonhubapi.com/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
+        `${whalesConnectEndpoint}/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
         { timeout: 5000 }
     );
 

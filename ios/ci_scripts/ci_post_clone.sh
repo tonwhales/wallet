@@ -23,6 +23,38 @@ cd ../../../repository
 
 sed -i '' "s/$line/$rep/g" assets/keys.json
 
+# Replace the Helius API Key in the keys.json file
+line="YOUR_HELIUS_API_KEY"
+rep="$HELIUS_API_KEY"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+# Replace the Mixpanel keys in the keys.json file
+line="YOUR_MIXPANEL_PROD_KEY"
+rep="$MIXPANEL_PROD"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="YOUR_MIXPANEL_DEV_KEY"
+rep="$MIXPANEL_DEV"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="YOUR_MIXPANEL_SANDBOX_KEY"
+rep="$MIXPANEL_SANDBOX"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="YOUR_MIXPANEL_HOLDERS_PROD_KEY"
+rep="$MIXPANEL_HOLDERS_PROD"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="YOUR_MIXPANEL_HOLDERS_STAGE_KEY"
+rep="$MIXPANEL_HOLDERS_STAGE"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
 # go back to the ios folder
 cd ios/wallet
 
@@ -44,10 +76,10 @@ brew install cocoapods
 
 echo "===== Installing node ====="
 # have to add node yourself
-brew install node@18
+brew install node@20
 # link it to the path
 echo "===== Linking node ====="
-brew link node@18
+brew link node@20
 
 echo "===== Installing Yarn ====="
 brew install yarn

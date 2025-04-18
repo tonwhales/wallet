@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Image as ExpoImage } from "expo-image";
 import { z } from 'zod';
+import { whalesConnectEndpoint } from "../clients";
 
 type BannersRequestParams = {
     version: string,
@@ -25,7 +26,7 @@ export type ProductAd = z.infer<typeof productCodec>;
 export type AdsBannersResponse = z.infer<typeof bannersResponseCodec>;
 
 export async function fetchBanners(params: BannersRequestParams) {
-    let res = await axios.get('https://connect.tonhubapi.com/ads/banners', { params });
+    let res = await axios.get(`${whalesConnectEndpoint}/ads/banners`, { params });
 
     if (res.status !== 200) {
         return null;

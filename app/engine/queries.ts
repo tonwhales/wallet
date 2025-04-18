@@ -28,16 +28,16 @@ export const Queries = {
             ? ['transactions', 'v2', 'holders', address]
             : ['transactions', 'v2', address];
 
-            if (!!params) {
-                for (const key of Object.keys(params) as (keyof AccountTransactionsParams)[]) {
-                    const value = params[key];
-                    if (typeof value === 'string') {
-                        base.push(`${key}_${value}`);
-                    } else if (Array.isArray(value)) {
-                        base.push(`${key}_${value.join(',')}`);
-                    }
+        if (!!params) {
+            for (const key of Object.keys(params) as (keyof AccountTransactionsParams)[]) {
+                const value = params[key];
+                if (typeof value === 'string') {
+                    base.push(`${key}_${value}`);
+                } else if (Array.isArray(value)) {
+                    base.push(`${key}_${value.join(',')}`);
                 }
             }
+        }
 
         return base;
     },
@@ -91,4 +91,17 @@ export const Queries = {
     HoldersBrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', 'holders', network]),
 
     AppConfig: (network: 'mainnet' | 'testnet') => (['appConfig', network]),
+
+    //
+    // Solana
+    //
+    SolanaAccount: (address: string, network: 'mainnet' | 'devnet') => ({
+        All: () => (['solana', address, network]),
+        Wallet: () => (['solana', address, network, 'wallet']),
+        Tokens: () => (['solana', address, network, 'tokens']),
+        Transactions: () => (['solana', address, network, 'transactions']),
+        TokenTransactions: (mint: string) => (['solana', address, network, 'transactions', mint]),
+        TransactionStatus: (signature: string) => (['solana',address,  network, 'transaction', signature])
+    }),
+    SolanaTransactionFees: (network: 'mainnet' | 'testnet', tx: string) => (['solana', 'transactionFees', network, tx])
 }

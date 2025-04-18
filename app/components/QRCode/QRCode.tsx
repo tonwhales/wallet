@@ -6,6 +6,7 @@ import { WImage } from '../WImage';
 import { memo, useEffect, useState } from 'react';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
+import SolanaIcon from '@assets/ic-solana.svg';
 import TonIcon from '@assets/ic-ton-qr.svg';
 
 function addCornerFinderPatterns(items: JSX.Element[], dotSize: number, matrixSize: number, color?: string) {
@@ -153,6 +154,7 @@ const QRCodeCanvas = memo((props: {
 QRCodeCanvas.displayName = 'QRCodeCanvas';
 
 export const QRCode = memo((props: {
+    type: 'ton' | 'solana',
     data: string,
     size: number,
     color?: string,
@@ -164,6 +166,7 @@ export const QRCode = memo((props: {
     const matrixCenter = Math.floor(matrixSize / 2);
     const circleRadius = Math.floor(36 / (dotSize));
     const padding = (props.size - dotSize * matrixSize) / 2;
+    const Icon = props.type === 'ton' ? TonIcon : SolanaIcon;
 
     useEffect(() => {
         const generateQRMatrix = async () => {
@@ -173,6 +176,7 @@ export const QRCode = memo((props: {
 
         generateQRMatrix();
     }, [props.data]);
+
 
     return (
         <Animated.View
@@ -223,7 +227,7 @@ export const QRCode = memo((props: {
                         lockLoading
                     />
                 ) : (
-                    <TonIcon height={46} width={46} style={{ height: 46, width: 46 }} />
+                    <Icon height={46} width={46} style={{ height: 46, width: 46 }} />
                 )}
             </View>
         </Animated.View>

@@ -161,7 +161,7 @@ export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: 
         }
         orderMessages.push(msg);
       } catch (error) {
-        warn(error);
+        warn(`usePrepareConnectRequest error: ${error}`);
       }
     }
 

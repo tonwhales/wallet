@@ -1,5 +1,6 @@
 import axios from "axios";
 import { z } from "zod";
+import { whalesConnectEndpoint } from "../../clients";
 
 export type GasslessSendParams = {
     wallet_public_key: string,
@@ -19,7 +20,7 @@ export enum GaslessSendError {
 }
 
 export async function fetchGaslessSend(body: GasslessSendParams, isTestnet: boolean): Promise<GaslessSendResponse> {
-    const endpoint = `https://connect.tonhubapi.com/gasless/${isTestnet ? 'testnet' : 'mainnet'}`;
+    const endpoint = `${whalesConnectEndpoint}/gasless/${isTestnet ? 'testnet' : 'mainnet'}`;
     const url = `${endpoint}/send`;
 
     const res = await axios.post(url, body, { method: 'POST' });

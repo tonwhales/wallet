@@ -3,8 +3,8 @@ import { useHoldersAccounts } from ".";
 import { useRecoilState } from "recoil";
 import { hiddenCardsState } from "../../state/holders";
 
-export function useHoldersHiddenAccounts(address: string | Address): [string[], (cardId: string, hidden: boolean) => void] {
-    const accounts = useHoldersAccounts(address).data?.accounts;
+export function useHoldersHiddenAccounts(address: string | Address, solanaAddress?: string): [string[], (cardId: string, hidden: boolean) => void] {
+    const accounts = useHoldersAccounts(address, solanaAddress).data?.accounts;
     const [hiddenState, update] = useRecoilState(hiddenCardsState);
 
     const markAccount = (accountId: string, hidden: boolean) => {

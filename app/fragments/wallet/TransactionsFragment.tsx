@@ -5,7 +5,7 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useHoldersAccountStatus, useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
@@ -21,11 +21,11 @@ import { HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { TransactionsHeader } from "./views/TransactionsHeader";
 import { TransactionType } from "../../engine/types/transactions";
 
-function TransactionsComponent(props: { account: Address, isLedger?: boolean, theme: ThemeType }) {
+function TransactionsComponent(props: { account: Address, solanaAddress?: string, isLedger?: boolean, theme: ThemeType }) {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
-    const { account: address, theme } = props;
+    const { account: address, solanaAddress, theme } = props;
     const txs = useAccountTransactionsV2(address.toString({ testOnly: isTestnet }), { refetchOnMount: true }, { type: TransactionType.TON });
     const holdersAccStatus = useHoldersAccountStatus(address).data;
     const showFilters = !!holdersAccStatus && holdersAccStatus.state === HoldersUserState.Ok && !!holdersAccStatus.token;
@@ -56,12 +56,13 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                 loading={txs.loading}
                 ledger={props.isLedger}
                 theme={theme}
-                header={<TransactionsHeader showFilters={showFilters} address={address} />}
+                header={<TransactionsHeader showFilters={showFilters} address={address} solanaAddress={solanaAddress} />}
                 refresh={{
                     onRefresh,
                     refreshing: txs.refreshing
                 }}
                 holdersAccStatus={holdersAccStatus}
+                isWalletTab={true}
             />
         </View>
     );
@@ -73,7 +74,7 @@ export const TransactionsFragment = fragment(() => {
     const isLedger = route.name === 'LedgerTransactions';
     const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
-
+    const solanaAddress = useSolanaSelectedAccount();
     const account = useMemo(() => {
         if (isLedger) {
             if (!ledgerContext?.addr) {
@@ -113,6 +114,7 @@ export const TransactionsFragment = fragment(() => {
                     theme={theme}
                     isLedger={isLedger}
                     account={account}
+                    solanaAddress={isLedger ? undefined : (solanaAddress || undefined)}
                 />
             </Suspense>
         )

@@ -3,6 +3,7 @@ import { isLeft } from "fp-ts/lib/Either";
 import * as t from 'io-ts';
 import { warn } from "../../utils/log";
 import qs from 'qs';
+import { whalesConnectEndpoint } from "../clients";
 
 export type ImagePreview = {
     blurhash: string,
@@ -49,7 +50,7 @@ export async function fetchAppData(link: string) {
         return null;
     }
 
-    const reqUrl = `https://connect.tonhubapi.com/apps/metadata?${qs.stringify({ url: url.toString() })}`;
+    const reqUrl = `${whalesConnectEndpoint}/apps/metadata?${qs.stringify({ url: url.toString() })}`;
     const res = await axios.get(reqUrl);
 
     if (res.status === 200) {

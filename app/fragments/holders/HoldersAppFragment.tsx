@@ -5,7 +5,7 @@ import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useEffect, useMemo } from 'react';
-import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSecureScreen, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSecureScreen, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
@@ -50,8 +50,9 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
     const address = isLedger ? ledgerAddress : acc?.address;
+    const solanaAddress = useSolanaSelectedAccount()!;
     const status = useHoldersAccountStatus(address!.toString({ testOnly: isTestnet })).data;
-    const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet })).data;
+    const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet }), isLedger ? undefined : solanaAddress).data;
     const url = holdersUrl(isTestnet);
 
     useSecureScreen()

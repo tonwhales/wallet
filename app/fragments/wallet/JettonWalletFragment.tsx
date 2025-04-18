@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useJetton, useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
+import { useJetton, useKnownJettons, useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -22,6 +22,7 @@ import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { PendingTransaction } from "../../engine/state/pending";
 import { JettonPendingTransactions } from "./views/JettonPendingTransactions";
+import { Image } from "expo-image";
 
 export type JettonWalletFragmentProps = {
     owner: string;
@@ -66,9 +67,114 @@ const JettonWalletSkeleton = memo(() => {
     );
 });
 
+const JettonWalletHeader = memo(({ owner, master, wallet, isLedger, onRefresh }: { owner: string, master: string, wallet?: string | undefined, isLedger?: boolean, onRefresh: () => void }) => {
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const navigation = useTypedNavigation();
+    const jetton = useJetton({ owner, master, wallet });
+    const [currency] = usePrimaryCurrency();
+    const knownJettons = useKnownJettons(isTestnet);
+
+    const ownerAddress = Address.parse(owner);
+    const rate = jetton?.prices?.[currency];
+    const decimals = jetton?.decimals ?? 9;
+    const balance = jetton?.balance ?? 0n;
+    const swapAmount = rate ? calculateSwapAmount(balance, rate, decimals) : undefined;
+    const knownJettonMasters = knownJettons?.masters ?? {};
+
+    const pendingFilter = useCallback((ptx: PendingTransaction) => {
+        if (ptx.body?.type !== 'token') {
+            return false;
+        }
+
+        return ptx.body.jetton.master.toString({ testOnly: isTestnet }) === master;
+    }, [isTestnet]);
+
+    if (!jetton) {
+        return null;
+    }
+
+    const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
+    const isKnown = !!knownJettonMasters[masterState.address];
+
+    return (
+        <View style={styles.content}>
+            <View style={{
+                width: 72, height: 72, borderRadius: 36,
+                borderWidth: 0,
+                backgroundColor: theme.surfaceOnBg,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <JettonIcon
+                    size={72}
+                    jetton={masterState}
+                    theme={theme}
+                    isTestnet={isTestnet}
+                    backgroundColor={theme.surfaceOnElevation}
+                    hideVerified={true}
+                />
+                {isKnown && (
+                    <View style={{
+                        justifyContent: 'center', alignItems: 'center',
+                        height: 30, width: 30, borderRadius: 15,
+                        position: 'absolute', right: -2, bottom: -2,
+                        backgroundColor: theme.surfaceOnBg
+                    }}>
+                        <Image
+                            source={require('@assets/ic-ton-acc.png')}
+                            style={{
+                                borderRadius: 15,
+                                height: 30,
+                                width: 30
+                            }}
+                        />
+                    </View>
+                )}
+            </View>
+
+            <View style={{ marginTop: 16, width: '100%' }}>
+                <View style={{ gap: 8, alignItems: 'center' }}>
+                    <ValueComponent
+                        value={jetton?.balance ?? 0n}
+                        decimals={jetton?.decimals ?? 9}
+                        precision={2}
+                        fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
+                        centFontStyle={{ color: theme.textSecondary }}
+                        suffix={jetton?.symbol ? ` ${jetton.symbol}` : ''}
+                    />
+                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                        <ValueComponent
+                            value={swapAmount ?? 0n}
+                            precision={2}
+                            decimals={decimals}
+                            suffix={` ${CurrencySymbols[currency]?.symbol}`}
+                        />
+                    </Text>
+                </View>
+                <WalletActions
+                    actionAsset={{
+                        type: 'jetton',
+                        jetton: jetton
+                    }}
+                    theme={theme}
+                    navigation={navigation}
+                    isTestnet={isTestnet}
+                    isLedger={isLedger}
+                />
+                <JettonPendingTransactions
+                    owner={ownerAddress.toString({ testOnly: isTestnet })}
+                    master={master}
+                    onChange={onRefresh}
+                    filter={pendingFilter}
+                />
+            </View>
+        </View>
+    );
+});
+
 const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonWalletFragmentProps) => {
     const bottomBarHeight = useBottomTabBarHeight();
-    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
@@ -90,17 +196,6 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
 
     const [currency] = usePrimaryCurrency();
     const rate = jetton?.prices?.[currency];
-    const decimals = jetton?.decimals ?? 9;
-    const balance = jetton?.balance ?? 0n;
-    const swapAmount = rate ? calculateSwapAmount(balance, rate, decimals) : undefined;
-
-    const pendingFilter = useCallback((ptx: PendingTransaction) => {
-        if (ptx.body?.type !== 'token') {
-            return false;
-        }
-
-        return ptx.body.jetton.master.toString({ testOnly: isTestnet }) === master;
-    }, [isTestnet]);
 
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
@@ -110,8 +205,6 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
         return <JettonWalletSkeleton />;
     }
 
-    const masterState: JettonMasterState & { address: string } = mapJettonToMasterState(jetton, isTestnet);
-
     return (
         <View style={styles.container}>
             <ScreenHeader
@@ -119,13 +212,19 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
                 style={styles.header}
                 titleComponent={(
                     <View style={styles.headerTitleComponent}>
-                        <Text
-                            style={[{ color: theme.textPrimary }, styles.headerTitle]}
-                            numberOfLines={1}
-                            ellipsizeMode={'tail'}
-                        >
-                            {jetton?.symbol}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Text
+                                style={[{ color: theme.textPrimary }, styles.headerTitle]}
+                                numberOfLines={1}
+                                ellipsizeMode={'tail'}
+                            >
+                                {jetton?.symbol}
+                            </Text>
+                            <Image
+                                source={require('@assets/ic-verified.png')}
+                                style={{ height: 20, width: 20 }}
+                            />
+                        </View>
                         {!!rate && (
                             <Text
                                 style={[{ color: theme.textSecondary }, styles.headerSubtitle]}
@@ -163,51 +262,13 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
                 }}
                 ledger={isLedger}
                 header={
-                    <View style={styles.content}>
-                        <JettonIcon
-                            size={72}
-                            jetton={masterState}
-                            theme={theme}
-                            isTestnet={isTestnet}
-                            backgroundColor={theme.surfaceOnElevation}
-                        />
-                        <View style={{ marginTop: 16, width: '100%' }}>
-                            <View style={{ gap: 8, alignItems: 'center' }}>
-                                <ValueComponent
-                                    value={jetton?.balance ?? 0n}
-                                    decimals={jetton?.decimals ?? 9}
-                                    precision={2}
-                                    fontStyle={[Typography.semiBold32_38, { color: theme.textPrimary }]}
-                                    centFontStyle={{ color: theme.textSecondary }}
-                                    suffix={jetton?.symbol ? ` ${jetton.symbol}` : ''}
-                                />
-                                <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                                    <ValueComponent
-                                        value={swapAmount ?? 0n}
-                                        precision={2}
-                                        decimals={decimals}
-                                        suffix={` ${CurrencySymbols[currency]?.symbol}`}
-                                    />
-                                </Text>
-                            </View>
-                            <WalletActions
-                                actionAsset={{
-                                    type: 'jetton',
-                                    jetton: jetton
-                                }}
-                                theme={theme}
-                                navigation={navigation}
-                                isTestnet={isTestnet}
-                                isLedger={isLedger}
-                            />
-                            <JettonPendingTransactions
-                                owner={ownerAddress.toString({ testOnly: isTestnet })}
-                                master={master}
-                                onChange={onRefresh}
-                                filter={pendingFilter}
-                            />
-                        </View>
-                    </View>
+                    <JettonWalletHeader
+                        owner={owner}
+                        master={master}
+                        wallet={wallet}
+                        isLedger={isLedger}
+                        onRefresh={onRefresh}
+                    />
                 }
             />
         </View>

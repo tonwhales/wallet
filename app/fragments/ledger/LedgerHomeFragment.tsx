@@ -35,16 +35,20 @@ export const LedgerHomeFragment = fragment(() => {
     const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
 
-    const address = useMemo(() => {
+    const wallet = useMemo(() => {
         if (!ledgerContext?.addr) {
             return null;
         }
         try {
-            return Address.parse(ledgerContext.addr.address);
-        } catch { }
+            Address.parse(ledgerContext.addr.address);
+            return ledgerContext.addr;
+        } catch {
+            return null;
+        }
     }, [ledgerContext?.addr?.address]);
+    const address = wallet ? Address.parse(wallet?.address) : null;
     const addressFriendly = address?.toString({ testOnly: isTestnet });
-
+    const pubKey = wallet?.publicKey;
     const syncState = useSyncState(addressFriendly);
     const holdersStatus = useHoldersAccountStatus(address!).data;
     const network = useNetwork();
@@ -146,7 +150,15 @@ export const LedgerHomeFragment = fragment(() => {
                     />
                 )}
                 <View collapsable={false}>
-                    <WalletCard address={address!} height={walletCardHeight} walletHeaderHeight={walletHeaderHeight} isLedger={true} />
+                    {(address && pubKey) && (
+                        <WalletCard
+                            address={address}
+                            pubKey={pubKey}
+                            height={walletCardHeight}
+                            walletHeaderHeight={walletHeaderHeight}
+                            isLedger={true}
+                        />
+                    )}
                     <WalletActions
                         theme={theme}
                         navigation={navigation}
@@ -154,10 +166,12 @@ export const LedgerHomeFragment = fragment(() => {
                         isLedger={true}
                     />
                 </View>
-                <LedgerProductsComponent
-                    testOnly={isTestnet}
-                    addr={address!.toString({ testOnly: isTestnet })}
-                />
+                {!!wallet && (
+                    <LedgerProductsComponent
+                        testOnly={isTestnet}
+                        wallet={wallet}
+                    />
+                )}
             </Animated.ScrollView>
         </View>
     );

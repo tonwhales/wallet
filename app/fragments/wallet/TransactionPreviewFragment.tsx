@@ -518,7 +518,6 @@ const TransactionPreview = () => {
                 </PerfView>
                 {!!holdersOp && (
                     <HoldersOpView
-                        theme={theme}
                         op={holdersOp}
                         targetKind={targetContract?.kind}
                     />

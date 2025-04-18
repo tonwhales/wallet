@@ -46,15 +46,30 @@ export const accountsListPublicSchema = z.union([
   }),
 ]);
 
-export async function fetchAccountsPublic(address: string | Address, isTestnet: boolean) {
+export async function fetchAccountsPublic({ address, solanaAddress, isTestnet }: { address: string | Address, isTestnet: boolean, solanaAddress?: string }) {
   const endpoint = holdersEndpoint(isTestnet);
+  const addressString = (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address;
+  const body = solanaAddress ? {
+    walletKind: 'tonhub',
+    wallets: [
+      {
+        network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
+        address: addressString
+      },
+      {
+        network: 'solana',
+        address: solanaAddress
+      }
+    ]
+  } : {
+    walletKind: 'tonhub',
+    network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
+    address: addressString
+  };
+
   const res = await axios.post(
     `https://${endpoint}/v2/public/accounts`,
-    {
-      walletKind: 'tonhub',
-      network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
-      address: (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address
-    },
+    body,
     {
       headers: {
         "Content-Type": "application/json",
@@ -174,32 +189,68 @@ const cardPrepaid = cardSchema.and(
   }),
 );
 
-const cryptoCurrencyTicker = z.string();
+const brandSchema = z.union([
+  z.literal('HOLDERS'),
+  z.literal('TONHUB'),
+  z.literal('TONKEEPER'),
+  z.literal('CARDBOT'),
+]);
+
+const cryptoCurrencySchema = z.object({
+  decimals: z.number(),
+  ticker: z.string(),
+  tokenContract: z.string().optional(),
+});
+
+export const invoiceSchema = z.object({
+  id: z.string(),
+  expiresAt: z.number().nullable(),
+  cryptoAccountId: z.string(),
+  cryptoCurrency: cryptoCurrencySchema,
+  params: z.object({
+    kind: z.enum(['crypto', 'crypto_fiat']),
+    cryptoAmount: z.string().nullable(),
+    cryptoAmountNano: z.string(),
+    fiatAmount: z.string().nullable(),
+    fiatCurrency: z.string().nullable(),
+    rate: z.string().nullable(),
+    fees: z.string().optional(),
+  }),
+  purpose: z.any(),
+});
+
+export const cryptoAccountStatusSchema = z.enum([
+  'PENDING_CONTRACT',
+  'ACTIVE',
+  'SUSPENDED',
+  'MANUALLY_CLOSED',
+  'CLOSED',
+]);
 
 const accountSchema = z.object({
   id: z.string(),
-  accountIndex: z.number(),
+  createdAt: z.string().nullish(),
   address: z.string().nullish(),
   name: z.string().nullish(),
+  accountIndex: z.number(),
+  contractSeed: z.string().nullish(),
   seed: z.string().nullable(),
-  state: z.string(),
+  state: cryptoAccountStatusSchema,
   balance: z.string(),
   tzOffset: z.number(),
   contract: z.string(),
+  prepaidOnly: z.boolean(),
   partner: z.string(),
   network: networksSchema,
+  brand: brandSchema,
+  isLatestContract: z.boolean(),
   ownerAddress: z.string(),
-
-  cryptoCurrency: z.object({
-    decimals: z.number(),
-    ticker: cryptoCurrencyTicker,
-    tokenContract: z.string().nullish()
-  }),
-
+  cryptoCurrency: cryptoCurrencySchema,
   limits: accountLimitsSchema,
-  cards: z.array(cardDebit),
-  createdAt: z.string().nullish(),
+  invoices: invoiceSchema.array(),
+  totalDebtCryptoAmountNano: z.string(),
   hasBeenDepositedOnce: z.boolean().nullish(),
+  cards: z.array(cardDebit),
 });
 
 export const accountsListResCodec = z.discriminatedUnion('ok', [

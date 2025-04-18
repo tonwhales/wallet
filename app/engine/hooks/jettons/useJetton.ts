@@ -7,7 +7,7 @@ import { queryClient } from "../../clients";
 import { Queries } from "../../queries";
 import { HintsFull } from "./useHintsFull";
 
-export function useJetton(params: { owner: Address | string, master?: Address | string, wallet?: Address | string }): Jetton | null {
+export function useJetton(params: { owner?: Address | string, master?: Address | string, wallet?: Address | string }): Jetton | null {
     const { isTestnet: testOnly } = useNetwork();
     const { owner, master, wallet } = params;
     const masterStr = typeof master === 'string'

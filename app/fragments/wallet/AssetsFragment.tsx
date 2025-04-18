@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useAccountLite, useCloudValue, useDisplayableJettons, useExtraCurrencyHints, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAccountLite, useCloudValue, useDisplayableJettons, useExtraCurrencyHints, useHintsFull, useHoldersAccounts, useHoldersAccountStatus, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -18,11 +18,11 @@ import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { ValueComponent } from "../../components/ValueComponent";
-import { ReceiveableAsset } from "./ReceiveFragment";
+import { ReceiveableTonAsset } from "./ReceiveFragment";
 import { getAccountName } from "../../utils/holders/getAccountName";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
-import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
+import { hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 import { getSpecialJetton } from "../../secure/KnownWallets";
 import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { SimpleTransferAsset } from "../secure/simpleTransfer/hooks/useSimpleTransfer";
@@ -120,7 +120,7 @@ export type AssetsFragmentParams = {
     target?: string,
     includeHolders?: boolean,
     simpleTransferAssetCallback?: (selected?: SimpleTransferAsset) => void,
-    assetCallback?: (selected: ReceiveableAsset | null) => void,
+    assetCallback?: (selected: ReceiveableTonAsset | null) => void,
     selectedAsset?: SimpleTransferAsset | null,
     viewType: AssetViewType,
     isLedger?: boolean
@@ -133,6 +133,7 @@ export const AssetsFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
     const { target, simpleTransferAssetCallback, assetCallback, selectedAsset, viewType, includeHolders, isLedger } = useParams<AssetsFragmentParams>();
@@ -155,7 +156,7 @@ export const AssetsFragment = fragment(() => {
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const savings = useDisplayableJettons(owner.toString({ testOnly: isTestnet })).savings || [];
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
+    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress).data?.accounts?.filter(acc => hasDirectTonDeposit(acc)) ?? [];
     const account = useAccountLite(owner);
     const hints = useHintsFull(owner.toString({ testOnly: isTestnet })).data?.hints ?? [];
     const extraCurrencies = useExtraCurrencyHints(owner.toString({ testOnly: isTestnet })).data ?? [];
@@ -233,7 +234,7 @@ export const AssetsFragment = fragment(() => {
         }
     }, [simpleTransferAssetCallback]);
 
-    const onAssetCallback = useCallback((selected: ReceiveableAsset | null) => {
+    const onAssetCallback = useCallback((selected: ReceiveableTonAsset | null) => {
         if (assetCallback) {
             setTimeout(() => {
                 navigation.goBack();

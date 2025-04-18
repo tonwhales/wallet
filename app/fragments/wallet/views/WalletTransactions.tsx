@@ -7,7 +7,7 @@ import { formatDate, getDateKey } from "../../../utils/dates";
 import { ThemeType } from "../../../engine/state/theme";
 import { AccountStoredTransaction, HoldersTransaction, TonTransaction, TransactionType } from '../../../engine/types';
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
-import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
+import { TransactionsEmptyState, TransactionsEmptyStateType } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -47,7 +47,8 @@ export const WalletTransactions = memo((props: {
     },
     ledger?: boolean,
     theme: ThemeType,
-    holdersAccStatus?: HoldersAccountStatus
+    holdersAccStatus?: HoldersAccountStatus,
+    isWalletTab?: boolean
 }) => {
     const bottomBarHeight = useBottomTabBarHeight();
     const { theme, navigation, holdersAccStatus } = props;
@@ -317,7 +318,14 @@ export const WalletTransactions = memo((props: {
                     />
                 </View>
             ) : null}
-            ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
+            ListEmptyComponent={
+                props.loading
+                    ? <TransactionsSkeleton />
+                    : <TransactionsEmptyState
+                        type={TransactionsEmptyStateType.Ton}
+                        isWalletTab={props.isWalletTab}
+                    />
+            }
             renderItem={renderItem}
             initialNumToRender={16}
             onEndReached={() => props.onLoadMore()}

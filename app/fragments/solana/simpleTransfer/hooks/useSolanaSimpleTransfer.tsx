@@ -44,7 +44,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
 
     const targetAddressValid: [string | null, boolean] = useMemo(() => {
-        if (target.length < 44) {
+        if (!target || target.length < 44) {
             return [null, false];
         }
         if (!isSolanaAddress(target)) {

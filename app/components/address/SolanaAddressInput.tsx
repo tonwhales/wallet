@@ -11,7 +11,7 @@ import { isSolanaAddress } from "../../utils/solana/address";
 
 export type SolanaAddressInputState = {
     input: string,
-    target: string,
+    target: string | undefined,
     suffix: string | undefined
 }
 
@@ -31,7 +31,7 @@ export type SolanaAddressInputAction = {
 } | {
     type: SolanaInputAction.InputTarget,
     input: string,
-    target: string,
+    target: string | undefined,
 } | { type: SolanaInputAction.Clear }
 
 export function solanaAddressInputReducer() {
@@ -223,8 +223,9 @@ export const SolanaAddressInput = memo(forwardRef(({
             }
 
             inputAction({
-                type: SolanaInputAction.Input,
-                input: value
+                type: SolanaInputAction.InputTarget,
+                input: value,
+                target: undefined
             });
         }
     }, [textInput, inputAction]);

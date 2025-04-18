@@ -47,7 +47,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
     const { input, target } = state;
 
     const [validAddress, isInvalid] = useMemo(() => {
-        if (state.target.length < 44) {
+        if (!state.target || state.target.length < 44) {
             return [null, false];
         }
         if (!isSolanaAddress(state.target)) {
@@ -58,7 +58,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
         } catch {
             return [null, true];
         }
-    }, [target]);
+    }, [state.target]);
 
     const avatarColorHash = avatarHash(validAddress ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -99,7 +99,7 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
         }
     }, [select, isSelected]);
 
-    const shortTarget = target.slice(0, 4) + '...' + target.slice(-4);
+    const shortTarget = target ? target.slice(0, 4) + '...' + target.slice(-4) : '';
 
     return (
         <View>

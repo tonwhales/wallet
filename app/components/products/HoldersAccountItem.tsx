@@ -373,14 +373,6 @@ export const HoldersAccountItem = memo((props: {
     const isSolana = account.network === 'solana';
     const isTonCurrency = account.cryptoCurrency?.ticker === 'TON';
 
-    let networkIcon: React.ReactNode | null = null
-
-    if (isSolana) {
-        networkIcon = solanaIc;
-    } else if (!isTonCurrency) {
-        networkIcon = tonIc;
-    }
-
     const accountInfo = useMemo(() => (
         <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             {resolveHoldersIcon(
@@ -395,14 +387,6 @@ export const HoldersAccountItem = memo((props: {
                     >
                         {name}
                     </PerfText>
-                    {!!networkIcon && <View style={{
-                        height: 20, width: 20,
-                        borderRadius: 10,
-                        backgroundColor: theme.divider,
-                        justifyContent: 'center', alignItems: 'center'
-                    }}>
-                        {networkIcon}
-                    </View>}
                 </View>
                 {props.addressDescription && !!props.account.address && (
                     <PerfText

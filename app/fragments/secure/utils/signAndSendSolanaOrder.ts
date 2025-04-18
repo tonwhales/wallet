@@ -10,7 +10,7 @@ import { createBackoffFailaible } from "../../../utils/time";
 import { t } from "../../../i18n/t";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 
-type SendSolanaOrderParams = {
+export type SendSolanaOrderParams = {
     sender: string,
     solanaClients: {
         client: SolanaClient,
@@ -28,17 +28,20 @@ export const failableSolanaBackoff = createBackoffFailaible({
     maxFailureCount: 5
 });
 
-class SendSolanaTransactionError extends Error {
+export class SendSolanaTransactionError extends Error {
     isNetworkError?: boolean;
-    constructor(message: string, isNetworkError?: boolean) {
+    needLamports?: boolean;
+    lamportsNeeded?: bigint;
+    constructor(message: string, isNetworkError?: boolean, lamportsNeeded?: bigint) {
         super(message);
         this.name = 'SendSolanaTransactionError';
-        // this.isNetworkError = isNetworkError;
-        this.isNetworkError = true;
+        this.isNetworkError = isNetworkError;
+        this.lamportsNeeded = lamportsNeeded;
     }
 }
 
 const solTransferLogKey = 'Transfer: insufficient lamports';
+const insufficientFundsLogKey = 'insufficient funds';
 
 export function mapNetworkError(error: any) {
     if (!!error.statusCode) {
@@ -65,7 +68,7 @@ export function mapTransferError(error: SendTransactionError) {
     } else if (error.message.toLowerCase().includes('error processing instruction')) {
         const logs = error.logs;
         if (logs) {
-            const transferLog = logs.find(log => log.toLowerCase().includes(solTransferLogKey));
+            const transferLog = logs.find(log => log.toLowerCase().includes(solTransferLogKey.toLowerCase()));
             if (transferLog) {
                 const amountsString = transferLog.split(solTransferLogKey)[1];
                 if (amountsString) {
@@ -75,14 +78,14 @@ export function mapTransferError(error: SendTransactionError) {
                     const amount = BigInt(need) - BigInt(balance);
                     const amountString = `${fromBnWithDecimals(amount, 9)} SOL`;
                     if (balance && need) {
-                        return new SendSolanaTransactionError(t('transfer.solana.error.insufficientLamportsWithAmount', { amount: amountString }));
+                        return new SendSolanaTransactionError(t('transfer.solana.error.insufficientLamportsWithAmount', { amount: amountString }), false, amount);
                     }
                 }
             }
 
             const tokenTransferLog = logs.find(log => log.includes(TOKEN_PROGRAM_ID.toBase58()));
             if (tokenTransferLog) {
-                const insufficientFundsLog = logs.find(log => log.toLowerCase().includes('insufficient funds'));
+                const insufficientFundsLog = logs.find(log => log.toLowerCase().includes(insufficientFundsLogKey.toLowerCase()));
                 if (insufficientFundsLog) {
                     return new SendSolanaTransactionError(t('transfer.solana.error.insufficientTokenFunds'));
                 }

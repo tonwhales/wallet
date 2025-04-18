@@ -4,7 +4,7 @@ import { TypedNavigation } from "../../../../utils/useTypedNavigation";
 import { SolanaAddressInputState } from "../../../../components/address/SolanaAddressInput";
 import { fromNano, toNano } from "@ton/core";
 import { solanaAddressFromPublicKey, isSolanaAddress } from "../../../../utils/solana/address";
-import { useSelectedAccount, useSolanaAccount, useSolanaToken } from "../../../../engine/hooks";
+import { useSelectedAccount, useSolanaAccount, useSolanaToken, useSolanaClients } from "../../../../engine/hooks";
 import { t } from "../../../../i18n/t";
 import { formatInputAmount } from "../../../../utils/formatCurrency";
 import { SolanaSimpleTransferParams } from "../SolanaSimpleTransferFragment";
@@ -12,6 +12,7 @@ import { usePrevious } from "../../../secure/simpleTransfer/hooks/usePrevious";
 import { SolanaOrder } from "../../../secure/ops/Order";
 import { Alert } from "react-native";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../../utils/withDecimals";
+import { emulateSolanaTranOrder } from "../../../secure/utils/emulateSolanaTranOrder";
 
 type Options = {
     params: SolanaSimpleTransferParams;
@@ -25,6 +26,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
     const accSolanaAddress = solanaAddressFromPublicKey(acc!.publicKey).toString();
     const account = useSolanaAccount(accSolanaAddress);
     const accountToken = useSolanaToken(accSolanaAddress, token);
+    const { client, publicClient } = useSolanaClients();
     const hasParamsFilled = !!params?.target && !!params?.amount;
     const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
 
@@ -148,6 +150,22 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
                 ]);
             });
             if (!allowSendingZero) return;
+        }
+
+        const emulationError = await emulateSolanaTranOrder({ order, solanaClients: { client, publicClient }, sender: owner });
+        if (emulationError?.lamportsNeeded && !token) {
+            const accountAfterAmount = order.amount - emulationError.lamportsNeeded;
+
+            if (accountAfterAmount > 0n) {
+                const newOrder = {
+                    ...order,
+                    amount: accountAfterAmount
+                }
+                navigation.navigateSolanaTransfer({ type: 'order', order: newOrder });
+            } else {
+                Alert.alert(t('transfer.solana.error.title'), (emulationError as Error).message);
+                return;
+            }
         }
 
         navigation.navigateSolanaTransfer({ type: 'order', order });

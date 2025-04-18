@@ -91,8 +91,6 @@ function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | n
     }
 }
 
-
-
 const TransferOrder = (order: SolanaOrder) => {
     const theme = useTheme();
     const toaster = useToaster();

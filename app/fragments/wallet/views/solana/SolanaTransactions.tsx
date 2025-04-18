@@ -13,6 +13,7 @@ import { ReceiveableSolanaAsset } from "../../ReceiveFragment";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ReAnimatedCircularProgress } from "../../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { SolanaTransactionView } from "./SolanaTransactionView";
+import { usePendingSolanaActions } from "../../../../engine/hooks";
 
 type SolanaTransactionsProps = {
   theme: ThemeType;
@@ -49,6 +50,8 @@ export const SolanaTransactions = memo(({
   asset
 }: SolanaTransactionsProps) => {
   const bottomBarHeight = useBottomTabBarHeight();
+  const { state: pending } = usePendingSolanaActions(owner);
+  const hasPendingTxs = pending.length > 0;
   const { transactionsSections } = useMemo(() => {
     const sectioned = new Map<string, { title: string, data: SolanaTransaction[] }>();
     for (let i = 0; i < txs.length; i++) {
@@ -122,7 +125,7 @@ export const SolanaTransactions = memo(({
       contentInset={{ bottom: bottomBarHeight }}
       contentContainerStyle={styles.listContent}
       ListHeaderComponent={header}
-      ListEmptyComponent={ListEmptyComponent}
+      ListEmptyComponent={hasPendingTxs ? undefined : ListEmptyComponent}
       ListFooterComponent={ListFooterComponent}
       onEndReached={onLoadMore}
       initialNumToRender={16}

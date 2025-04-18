@@ -43,6 +43,7 @@ type Props = {
     onChangeJetton?: () => void;
     onInputFocus: (index: number) => void;
     selectedAsset?: SimpleTransferAsset | null;
+    isSolana?: boolean;
 }
 
 const AmountIcon = memo(({ symbol, jetton, logoURI }: { symbol: string, jetton?: Jetton | null, logoURI?: string }) => {
@@ -115,7 +116,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
     onInputFocus,
     decimals,
     logoURI,
-    selectedAsset
+    selectedAsset,
+    isSolana
 }: Props, ref) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -142,8 +144,8 @@ export const SimpleTransferAmount = memo(forwardRef(({
 
         return (
             <Pressable
-                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                onPress={onNavigateAssets}
+                style={({ pressed }) => ({ opacity: (pressed && !isSolana) ? 0.5 : 1 })}
+                onPress={isSolana ? undefined : onNavigateAssets}
             >
                 <View style={{
                     flexDirection: 'row',

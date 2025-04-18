@@ -122,7 +122,7 @@ const SolanaSimpleTransferComponent = () => {
             ref={scrollRef}
             headerComponent={<SimpleTransferHeader {...header} />}
             addressComponent={<SolanaSimpleTransferAddress ref={addressRef} {...{ initTarget: params?.target, setAddressInputState, onInputSubmit, onInputFocus, isActive: selected === 'address' }} />}
-            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ symbol, decimals, balance, onAddAll, onInputFocus, amount, setAmount, amountError, logoURI }} />}
+            amountComponent={<SimpleTransferAmount ref={amountRef} {...{ symbol, decimals, balance, onAddAll, onInputFocus, amount, setAmount, amountError, logoURI, isSolana: true }} />}
             commentComponent={<SimpleTransferComment ref={commentRef} {...{ commentString, isScrolling, isActive: selected === 'comment', onInputFocus, setComment, maxHeight: commentMaxHeight }} />}
             scrollEnabled={!selectedInput}
             nestedScrollEnabled={!selectedInput}

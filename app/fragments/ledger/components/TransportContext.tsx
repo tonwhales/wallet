@@ -6,14 +6,13 @@ import { Alert, Platform } from "react-native";
 import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
 import { TonTransport } from '@ton-community/ton-ledger';
-import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { delay } from "teslabot";
 import { useLedgerWallets, useWalletSettings, useWalletsSettings } from "../../../engine/hooks";
 import { navigationRef } from "../../../Navigation";
 import { z } from "zod";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
-import { wait } from "../../../utils/wait";
 import { clearLedgerSelected, setLedgerSelected } from "../../../storage/appState";
+import { checkAndRequestAndroidBluetoothPermissions, openBluetoothPermissionAlert } from "../../../utils/permissions";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 const bufferSchema = z
@@ -332,43 +331,11 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
         (async () => {
             if (!bleSearch) return;
-            if (Platform.OS === "android" && Platform.Version >= 23) {
-                const checkCoarse = await checkMultiple([
-                    PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
-                    PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
-                ]);
+            if (Platform.OS === 'android') {
+                const permissionsGranted = await checkAndRequestAndroidBluetoothPermissions();
 
-                if (checkCoarse[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] !== 'granted'
-                    || checkCoarse[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] !== 'granted') {
-                    const requestLocation = await requestMultiple([
-                        PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
-                        PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
-                    ]);
-                    if (requestLocation[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] !== 'granted'
-                        || requestLocation[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] !== 'granted') {
-                        dispatchBleState({ type: 'permissions-failed' });
-                        return;
-                    }
-                }
-
-                const scanConnect = await checkMultiple([
-                    PERMISSIONS.ANDROID.BLUETOOTH_SCAN,
-                    PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
-                ]);
-
-                if (scanConnect[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] !== 'granted'
-                    || scanConnect[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] !== 'granted') {
-
-                    let resScanConnect = await requestMultiple([
-                        PERMISSIONS.ANDROID.BLUETOOTH_SCAN,
-                        PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
-                    ]);
-
-                    if (resScanConnect[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] !== 'granted'
-                        || resScanConnect[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] !== 'granted') {
-                        dispatchBleState({ type: 'permissions-failed' });
-                        return;
-                    }
+                if (!permissionsGranted) {
+                    return;
                 }
             }
 
@@ -379,6 +346,11 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                     if (sub) sub.unsubscribe();
                     dispatchBleState({ type: 'error' });
                     reset();
+                }
+                if (Platform.OS === 'ios' && e.type === 'Unauthorized') {
+                    if (sub) sub.unsubscribe();
+                    openBluetoothPermissionAlert();
+                    return;
                 }
                 if (e.available !== previousAvailable) {
                     previousAvailable = e.available;

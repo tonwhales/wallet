@@ -85,7 +85,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Без газу",
         "address": "Адреса",
         "currencyChanged": "Валюта змінена",
-        "required": "обов’язково"
+        "required": "обов’язково",
+        "openSettings": "Відкрити налаштування",
     },
     "syncStatus": {
         "connecting": "Підключення",
@@ -1175,7 +1176,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bluetoothScanFailed": "Сканування Bluetooth не вдалося",
             "unsafeTransfer": "Будь ласка, дозвольте blind sign у додатку TON Ledger",
             "userCanceled": "Відхилено на Ledger",
-            "updateApp": "Будь ласка, оновіть додаток TON у Ledger Live до актуальної версії"
+            "updateApp": "Будь ласка, оновіть додаток TON у Ledger Live до актуальної версії",
+            "permissionsIos": "Будь ласка, дозвольте доступ до Bluetooth"
         },
         "moreAbout": "Детальніше про Ledger",
         "verifyAddress": {

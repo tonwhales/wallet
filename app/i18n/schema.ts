@@ -88,6 +88,7 @@ export type LocalizationSchema = {
         address: string,
         currencyChanged: string,
         required: string,
+        openSettings: string,
     },
     syncStatus: {
         connecting: string,
@@ -1178,6 +1179,7 @@ export type LocalizationSchema = {
             unsafeTransfer: string,
             userCanceled: string,
             updateApp: string,
+            permissionsIos: string,
         },
         moreAbout: string,
         verifyAddress: {

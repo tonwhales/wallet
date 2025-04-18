@@ -5,6 +5,7 @@ import { BlockhashWithExpiryBlockHeight, Keypair, Transaction } from "@solana/we
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
 import { failableSolanaBackoff, mapSolanaError } from "./signAndSendSolanaOrder";
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 type SignAndSendSolanaTransactionParams = {
     solanaClients: {
@@ -43,9 +44,12 @@ export async function signAndSendSolanaTransaction({ solanaClients, theme, authC
         throw mapSolanaError(error);
     }
 
+    const base58Signature = signature;
+    const base64Signature = bs58.decode(base58Signature).toString('base64');
+
     return {
         type: 'instructions',
-        id: signature,
+        id: base64Signature,
         time: Math.floor(Date.now() / 1000),
         status: PendingTransactionStatus.Pending,
         lastBlockHash,

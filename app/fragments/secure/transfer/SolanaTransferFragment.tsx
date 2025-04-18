@@ -25,7 +25,6 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { Message, Transaction } from "@solana/web3.js";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
 import { TransferInstructions } from "../components/TransferInstructions";
-import { WImage } from "../../../components/WImage";
 import { SolanaTransactionAppHeader } from "./SolanaTransactionAppHeader";
 
 type SolanaOrderTransferParams = {

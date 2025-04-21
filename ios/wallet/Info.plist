@@ -94,5 +94,9 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>WONDERPUSH_CLIENT_ID</key>
+	<string>$(WONDERPUSH_CLIENT_ID)</string>
+	<key>WONDERPUSH_CLIENT_SECRET</key>
+	<string>$(WONDERPUSH_CLIENT_SECRET)</string>
 </dict>
 </plist>

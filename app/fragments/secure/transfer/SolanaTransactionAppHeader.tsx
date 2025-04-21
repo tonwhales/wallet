@@ -6,9 +6,14 @@ import { WImage } from "../../../components/WImage";
 import { Typography } from "../../../components/styles";
 import { t } from "../../../i18n/t";
 
+const solAPIDomains = [
+    'solapi.holders.io',
+    'devnet-solapi.holders.io'
+];
+
 export const SolanaTransactionAppHeader = ({ order }: { order: SolanaOrderApp }) => {
     const theme = useTheme();
-    const showDomain = order.domain && (order.domain !== 'solapi.holders.is' && order.domain !== 'devnet-solapi.holders.io');
+    const showDomain = order.domain && !solAPIDomains.includes(order.domain);
     return (
         <ItemGroup style={{ marginTop: 16, paddingHorizontal: 16 }}>
             <View style={{ flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>

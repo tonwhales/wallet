@@ -42,8 +42,17 @@ export function usePendingActions(address: string, isTestnet: boolean) {
         removePending(pending.filter((tx) => {
             const isToBeRemoved = last32Txs.some((t) => {
                 const txSeqno = t.data?.base?.parsed?.seqno;
+
                 if (!txSeqno) {
                     return false;
+                }
+
+                const seqnoDiff = tx.seqno - txSeqno;
+
+                // out of range
+                if (seqnoDiff < -1000) {
+                    const timeDiff = t.data.base.time - tx.time;
+                    return timeDiff > 0;
                 }
 
                 return tx.seqno <= txSeqno;

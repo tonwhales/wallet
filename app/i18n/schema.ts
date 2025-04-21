@@ -90,6 +90,7 @@ export type LocalizationSchema = {
         required: string,
         operation: string,
         description: string,
+        openSettings: string,
     },
     syncStatus: {
         connecting: string,
@@ -1194,6 +1195,7 @@ export type LocalizationSchema = {
             unsafeTransfer: string,
             userCanceled: string,
             updateApp: string,
+            permissionsIos: string,
         },
         moreAbout: string,
         verifyAddress: {

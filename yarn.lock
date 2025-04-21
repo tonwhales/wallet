@@ -9472,6 +9472,16 @@ react-native-webview@^13.6.2:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
 
+react-native-wonderpush-fcm@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/react-native-wonderpush-fcm/-/react-native-wonderpush-fcm-1.0.9.tgz#50c509c8530498c4cac44d9e6801b766b216a2b1"
+  integrity sha512-qtIwaEQUmo5S9dSPjPjUR5Z9elpU5iZnehs0APSdH1LEofgrAjjYV2RMMM1EU/eaOMVjQBBCy9FWcWO04mawcg==
+
+react-native-wonderpush@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-wonderpush/-/react-native-wonderpush-2.3.0.tgz#ec8ecc5b5ccf482c21d87f9aca12690b6c4bd845"
+  integrity sha512-Echps78Ad5PqSzH/NkeD+Gq1wdhnZy7rHxDBCzrPqud+tWHB+GXqdOc4Ptyybp+CPtkKkvcK2OVPJTQDHwSaAg==
+
 react-native@0.72.6:
   version "0.72.6"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.72.6.tgz#9f8d090694907e2f83af22e115cc0e4a3d5fa626"

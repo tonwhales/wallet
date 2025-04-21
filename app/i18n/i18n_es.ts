@@ -87,7 +87,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "currencyChanged": "Moneda cambiada",
         "required": "requerido",
         "operation": "Operación",
-        "description": "Descripción"
+        "description": "Descripción",
+        "openSettings": "Abrir configuración"
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -1241,7 +1242,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bluetoothScanFailed": "Escaneo de Bluetooth fallido",
             "unsafeTransfer": "Por favor, permite la firma ciega en la aplicación TON Ledger",
             "userCanceled": "Rechazado en Ledger",
-            "updateApp": "Por favor, actualice la aplicación TON en Ledger Live a la última versión"
+            "updateApp": "Por favor, actualice la aplicación TON en Ledger Live a la última versión",
+            "permissionsIos": "Por favor, permite el acceso a Bluetooth"
         },
         "moreAbout": "Más sobre Ledger",
         "verifyAddress": {

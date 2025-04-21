@@ -291,7 +291,11 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton
                             dangerZone
                             title={t('common.logout')}
-                            onPress={() => ledgerContext.reset(true)}
+                            onPress={() => {
+                                ledgerContext.reset(true, () => {
+                                    navigation.navigateAndReplaceAll('Home');
+                                })
+                            }}
                         />
                     </View>
                 ) : (

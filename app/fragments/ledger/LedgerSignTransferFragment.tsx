@@ -21,7 +21,7 @@ import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } fro
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { confirmAlert } from '../../utils/confirmAlert';
-import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useTheme } from '../../engine/hooks';
+import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useTheme, useBounceableWalletFormat } from '../../engine/hooks';
 import { useLedgerTransport } from './components/TransportContext';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { fromBnWithDecimals } from '../../utils/withDecimals';
@@ -36,6 +36,7 @@ import { useParams } from '../../utils/useParams';
 import { handleLedgerSignError } from '../../utils/ledger/handleLedgerSignError';
 import { TransferTarget } from '../secure/transfer/TransferFragment';
 import { WalletVersions } from '../../engine/types';
+import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -46,7 +47,7 @@ export type LedgerSignTransferParams = {
 type ConfirmLoadedProps = {
     restricted: boolean,
     target: TransferTarget,
-    jettonTrarget?: TransferTarget,
+    jettonTarget?: TransferTarget,
     text: string | null,
     order: LedgerOrder,
     fees: bigint,
@@ -58,7 +59,7 @@ type ConfirmLoadedProps = {
 const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const {
         target,
-        jettonTrarget,
+        jettonTarget,
         text,
         order,
         fees,
@@ -210,7 +211,11 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
             // Resolve & reg pending transaction
             let transferPayload: LedgerTransferPayload | null = null;
             if (order.payload?.type === 'jetton-transfer' && !!jetton) {
-                transferPayload = { ...order.payload, jetton };
+                transferPayload = { 
+                    ...order.payload, 
+                    jetton,
+                    bounceable: jettonTarget ? jettonTarget.bounceable : undefined 
+                };
             } else if (order.payload?.type === 'comment') {
                 transferPayload = order.payload;
             }
@@ -264,7 +269,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
                     order={order}
                     amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
                     jettonAmountString={jettonAmountString}
-                    target={jettonTrarget || target}
+                    target={jettonTarget || target}
                     fees={{ type: 'ton', value: fees }}
                     jetton={jetton}
                     walletSettings={walletSettings}
@@ -302,6 +307,7 @@ export const LedgerSignTransferFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const [bounceableFormat] = useBounceableWalletFormat();
 
     // Memmoize all parameters just in case
     const from = useMemo(() => ledgerContext?.addr, []);
@@ -384,17 +390,19 @@ export const LedgerSignTransferFragment = fragment(() => {
                 }
             }
 
-            let jettonTrarget: TransferTarget | undefined = undefined;
+            let jettonTarget: TransferTarget | undefined = undefined;
             if (order.payload?.type === 'jetton-transfer') {
                 const dest = order.payload.destination;
                 const destState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, dest));
+                const bounceable = await resolveBounceableTag(dest, { testOnly: isTestnet, bounceableFormat });  
 
-                jettonTrarget = {
+                jettonTarget = {
                     isTestOnly: isTestnet,
                     address: dest,
                     balance: BigInt(destState.account.balance.coins),
                     active: destState.account.state.type === 'active',
-                    domain: order.domain
+                    domain: order.domain,
+                    bounceable
                 }
 
                 for (let r of config.wallets.restrict_send) {
@@ -430,7 +438,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                     domain: order.domain,
                     bounceable: target.isBounceable
                 },
-                jettonTrarget,
+                jettonTarget,
                 order,
                 fees,
                 metadata,

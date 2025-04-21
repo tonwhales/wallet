@@ -46,8 +46,8 @@ export const AppAuthFragment = fragment(() => {
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    logOutAndReset(true);
                     navigation.navigateAndReplaceAll('Welcome');
+                    logOutAndReset(true);
                     break;
                 case cancelButtonIndex:
                 // Canceled
@@ -124,7 +124,7 @@ export const AppAuthFragment = fragment(() => {
         }
     }, [useBiometrics]);
 
-    const shouldShowLogoutAndReset = attempts > 5;
+    const shouldShowLogoutAndReset = attempts > 4;
 
     return (
         <View

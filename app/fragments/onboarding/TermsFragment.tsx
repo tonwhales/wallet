@@ -19,7 +19,7 @@ export const TermsFragment = systemFragment(() => {
             <ScreenHeader
                 onClosePressed={() => navigation.goBack()}
                 style={{ paddingBottom: 8 }}
-                title={t('legal.termsOfService')}
+                title={t('settings.termsOfService')}
             />
             <WebView
                 source={{ uri: 'https://tonhub.com/legal/terms' }}

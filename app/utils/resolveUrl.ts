@@ -276,7 +276,8 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             comment: null,
             amount: null,
             payload: null,
-            stateInit: null
+            stateInit: null,
+            isBounceable: res.isBounceable
         };
     } catch (e) {
         // Ignore

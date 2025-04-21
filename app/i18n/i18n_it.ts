@@ -293,7 +293,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "insufficientLamports": "Fondi SOL insufficienti",
                 "insufficientLamportsWithAmount": "Fondi SOL insufficienti, sono necessari {{amount}} in più",
                 "insufficientTokenFunds": "Fondi token insufficienti",
-                "rateLimited": "Stiamo riscontrando una forte domanda, riprova più tardi o contatta l'assistenza"
+                "rateLimited": "Stiamo riscontrando una forte domanda, riprova più tardi o contatta l'assistenza",
+                "signingFailed": "Errore di firma della transazione"
             }
         }
     },

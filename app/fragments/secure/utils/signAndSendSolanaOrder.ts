@@ -9,6 +9,7 @@ import { isPublicKeyATA } from "../../../utils/solana/isPublicKeyATA";
 import { createBackoffFailaible } from "../../../utils/time";
 import { t } from "../../../i18n/t";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { sanitizeErrorData } from "./sanitizeErrorData";
 
 export type SendSolanaOrderParams = {
     sender: string,
@@ -33,7 +34,8 @@ export class SendSolanaTransactionError extends Error {
     needLamports?: boolean;
     lamportsNeeded?: bigint;
     constructor(message: string, isNetworkError?: boolean, lamportsNeeded?: bigint) {
-        super(message);
+        const sanitizedMessage = sanitizeErrorData(message);
+        super(sanitizedMessage);
         this.name = 'SendSolanaTransactionError';
         this.isNetworkError = isNetworkError;
         this.lamportsNeeded = lamportsNeeded;
@@ -248,7 +250,11 @@ export async function signAndSendSolanaOrder({ solanaClients, theme, authContext
     // 
     // Sign and send
     //
-    transaction.sign(keyPair);
+    try {
+        transaction.sign(keyPair);
+    } catch {
+        throw new SendSolanaTransactionError(t('transfer.solana.error.signingFailed'));
+    }
 
     let signature: string;
     try {

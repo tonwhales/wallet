@@ -295,7 +295,8 @@ export type LocalizationSchema = {
                 insufficientLamports: string,
                 insufficientLamportsWithAmount: string,
                 insufficientTokenFunds: string,
-                rateLimited: string
+                rateLimited: string,
+                signingFailed: string,
             }
         }
     },

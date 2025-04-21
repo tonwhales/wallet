@@ -4,8 +4,9 @@ import { ThemeType } from "../../../engine/state/theme";
 import { BlockhashWithExpiryBlockHeight, Keypair, Transaction } from "@solana/web3.js";
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
-import { failableSolanaBackoff, mapSolanaError } from "./signAndSendSolanaOrder";
+import { failableSolanaBackoff, mapSolanaError, SendSolanaTransactionError } from "./signAndSendSolanaOrder";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { t } from "../../../i18n/t";
 
 type SignAndSendSolanaTransactionParams = {
     solanaClients: {
@@ -35,7 +36,11 @@ export async function signAndSendSolanaTransaction({ solanaClients, theme, authC
     // 
     // Sign and send
     //
-    transaction.sign(keyPair);
+    try {
+        transaction.sign(keyPair);
+    } catch {
+        throw new SendSolanaTransactionError(t('transfer.solana.error.signingFailed'));
+    }
 
     let signature: string;
     try {

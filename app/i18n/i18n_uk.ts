@@ -293,7 +293,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "insufficientLamports": "Недостатньо SOL",
                 "insufficientLamportsWithAmount": "Недостатньо SOL, потрібно ще {{amount}}",
                 "insufficientTokenFunds": "Недостатньо токенів",
-                "rateLimited": "Спостерігається високе навантаження, спробуйте пізніше або зверніться до підтримки"
+                "rateLimited": "Спостерігається високе навантаження, спробуйте пізніше або зверніться до підтримки",
+                "signingFailed": "Помилка підпису транзакції"
             }
         }
     },

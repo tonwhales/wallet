@@ -36,7 +36,7 @@ export function useSolanaTransferInstruction(instruction: ParsedTransactionInstr
                 const deposit = instruction as unknown as HoldersDepositInstruction;
 
                 from = deposit.accounts?.find((account: any) => account.name === 'Signer')?.pubkey.toString() ?? '';
-                to = deposit.accounts?.find((account: any) => account.name === 'Card')?.pubkey.toString() ?? '';
+                to = deposit.accounts?.find((account: any) => account.name === 'Card Token Account')?.pubkey.toString() ?? '';
                 mint = deposit.accounts?.find((account: any) => account.name === 'Token Mint')?.pubkey.toString() ?? '';
 
                 amount = deposit.args?.find((arg: any) => arg.name === 'amount')?.data ?? '';

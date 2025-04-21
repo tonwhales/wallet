@@ -24,7 +24,7 @@ export const PrivacyFragment = systemFragment(() => {
             <ScreenHeader
                 onClosePressed={() => navigation.goBack()}
                 style={{ paddingBottom: 8 }}
-                title={t('legal.privacyPolicy')}
+                title={t('settings.privacyPolicy')}
             />
             <WebView source={{ uri: 'https://tonhub.com/legal/privacy' }} />
         </View>

@@ -47,7 +47,8 @@ export const SolanaTransferAddressInput = memo(forwardRef((props: SolanaTransfer
     const { input, target } = state;
 
     const [validAddress, isInvalid] = useMemo(() => {
-        if (!state.target || state.target.length < 44) {
+        const textInputRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+        if (!state.target || !textInputRegex.test(state.target)) {
             return [null, false];
         }
         if (!isSolanaAddress(state.target)) {

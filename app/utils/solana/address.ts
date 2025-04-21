@@ -9,10 +9,6 @@ export const SOLANA_USDC_MINT_MAINNET = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwy
 export const SOLANA_USDC_MINT_DEVNET = "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr";
 
 export function isSolanaAddress(addressString: string): boolean {
-    if (addressString.length !== 44) {
-        return false;
-    }
-
     try {
         new PublicKey(addressString);
         return true;

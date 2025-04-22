@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { memo } from "react";
 import { View, Text, StyleProp, ViewStyle } from "react-native";
-import { PendingTransaction } from "../../../engine/state/pending";
+import { PendingTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { useNetwork } from "../../../engine/hooks/network/useNetwork";
 import { t } from "../../../i18n/t";
@@ -10,8 +10,6 @@ import { useBounceableWalletFormat, usePendingActions, useSelectedAccount } from
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
 import { useAppConfig } from "../../../engine/hooks/useAppConfig";
-import { useAccountTransactionsV2 } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
-import { TonStoredTransaction, TransactionType } from "../../../engine/types";
 import { PendingTransactionView } from "./PendingTransactionView";
 
 export const PendingTransactionsList = memo((
@@ -75,33 +73,24 @@ export const PendingTransactions = memo(({
     const network = useNetwork();
     const addr = address ?? account?.addressString ?? '';
     const { state: pending, removePending } = usePendingActions(addr, network.isTestnet);
-    const txs = useAccountTransactionsV2(addr, undefined, { type: TransactionType.TON }).data;
-    const lastTxs = (txs as TonStoredTransaction[])?.slice(-1)?.[0]?.data;
-    const lastTxsSeqno = lastTxs?.base.parsed.seqno;
     const theme = useTheme();
-
-    useEffect(() => {
-        if (!!lastTxsSeqno) {
-            removePending(pending.filter((tx) => tx.seqno < lastTxsSeqno).map((tx) => tx.id));
-        }
-    }, [lastTxsSeqno, pending]);
 
     const pendingTxs = useMemo(() => {
         // Show only pending on history tab
         if (viewType !== 'main') {
             return pending
-                .filter((tx) => tx.status !== 'sent' && tx.status !== 'timed-out')
+                .filter((tx) => (tx.status !== PendingTransactionStatus.Sent) && (tx.status !== PendingTransactionStatus.TimedOut))
                 .filter(filter ?? (() => true));
         }
 
         return pending.filter(filter ?? (() => true));
-    }, [pending]);
+    }, [pending, viewType]);
 
     useEffect(() => {
         // Remove transactions after 15 seconds of changing status
         setTimeout(() => {
             const toRemove = pending
-                .filter((tx) => tx.status !== 'pending')
+                .filter((tx) => tx.status !== PendingTransactionStatus.Pending)
                 .map((tx) => tx.id);
 
             removePending(toRemove);

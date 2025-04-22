@@ -92,6 +92,7 @@ const TransactionPreview = () => {
     const parsedAddress = parsedOpAddr.address;
     const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
     const amount = BigInt(item.amount);
+    const absAmount = amount < 0n ? -amount : amount;
     const isOutgoing = kind === 'out';
     const extraCurrency = extraCurrencyFromTransaction(tx);
     const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, address?.toString({ testOnly: isTestnet }));
@@ -102,7 +103,7 @@ const TransactionPreview = () => {
         return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
     });
 
-    const preparedMessages = usePeparedMessages(messages, isTestnet);
+    const preparedMessages = usePeparedMessages(messages, isTestnet, address);
     const [walletsSettings] = useWalletsSettings();
     const ownWalletSettings = walletsSettings[address?.toString({ testOnly: isTestnet }) ?? ''];
     const opAddressWalletSettings = walletsSettings[opAddressBounceable];
@@ -144,8 +145,8 @@ const TransactionPreview = () => {
         : parsedOpAddr.isBounceable
 
     const repeatParams = useMemo(() => {
-        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent);
-    }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent]);
+        return previewToTransferParams(tx, isTestnet, isTargetBounceable, isLedger, jettonMasterContent);
+    }, [tx, isTestnet, isTargetBounceable, isLedger, jettonMasterContent]);
 
     let op: string;
 
@@ -464,7 +465,7 @@ const TransactionPreview = () => {
                                     );
                                 })}
                             </PerfView>
-                        ) : (amount >= 0n ?
+                        ) : (absAmount >= 0n ?
                             <>
                                 <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
                                     <Text

@@ -5,6 +5,8 @@
 #import <ReactNativePerformance/ReactNativePerformance.h>
 #import <RNAppsFlyer.h>
 #import <IntercomModule.h>
+#import <WonderPush/WonderPush.h>
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -35,6 +37,17 @@
   
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
  }
+
+- (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions 
+{
+  NSString* clientId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"WONDERPUSH_CLIENT_ID"];
+  NSString* clientSecret = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"WONDERPUSH_CLIENT_SECRET"];
+
+  [WonderPush setClientId:clientId secret:clientSecret];
+  [WonderPush setupDelegateForApplication:application];
+  [WonderPush setupDelegateForUserNotificationCenter];
+  return YES;
+}
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge {
  #ifdef DEBUG

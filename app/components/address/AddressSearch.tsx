@@ -3,7 +3,7 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useNetwork, usePeparedMessages, useWalletsSettings } from "../../engine/hooks";
+import { useNetwork, usePeparedMessages, useSelectedAccount, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -55,13 +55,14 @@ export const AddressSearch = memo(({
     theme: ThemeType,
     holdersAccounts?: HoldersAccountTarget[]
 }) => {
+    const selectedAccount = useSelectedAccount();
     const network = useNetwork();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
     const gaslessConfig = useGaslessConfig();
     const [walletsSettings] = useWalletsSettings();
     const debouncedQuery = useDebouncedValue(query?.toLowerCase(), 500);
-    const preparedMessages = usePeparedMessages(lastTwoTxs.flatMap((t) => t.base.outMessages), network.isTestnet)
+    const preparedMessages = usePeparedMessages(lastTwoTxs.flatMap((t) => t.base.outMessages), network.isTestnet, selectedAccount?.address ?? null)
 
     const lastTxs = useMemo(() => {
         const addresses = new Set<string>();

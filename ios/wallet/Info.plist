@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.4.29</string>
+	<string>2.4.30</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -42,7 +42,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>246</string>
+	<string>247</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -98,5 +98,9 @@
 	<string>$(INTERCOM_IOS_API)</string>
 	<key>INTERCOM_APP</key>
 	<string>$(INTERCOM_APP)</string>
+	<key>WONDERPUSH_CLIENT_ID</key>
+	<string>$(WONDERPUSH_CLIENT_ID)</string>
+	<key>WONDERPUSH_CLIENT_SECRET</key>
+	<string>$(WONDERPUSH_CLIENT_SECRET)</string>
 </dict>
 </plist>

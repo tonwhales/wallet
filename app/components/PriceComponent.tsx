@@ -48,7 +48,7 @@ export const PriceComponent = memo((
         const priceInUSD = priceUSD ?? price.price.usd;
         const rates = price.price.rates;
 
-        const formattedAmount = parseFloat(fromNano(abs)) * priceInUSD * rates[currencyCode || currency];
+        const formattedAmount = parseFloat(fromNano(abs)) * priceInUSD * (rates?.[currencyCode || currency] ?? 0);
         const decimals = (amount === 0n && hideCentsIfNull) ? 0 : 2;
 
         // Check if the formattedAmount is less than the smallest value representable by the specified precision

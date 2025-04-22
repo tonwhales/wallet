@@ -270,7 +270,7 @@ async function resolveAndNavigateToTransaction(
     let hash = resolved.hash;
 
     try {
-        if (!!selected.addressString) {
+        if (selected && !!selected.addressString) {
             const isSelectedAddress = selected.address.equals(Address.parse(resolved.address));
             const queryCache = queryClient.getQueryCache();
             const holdersStatusKey = Queries.Holders(resolved.address).Status();
@@ -298,7 +298,7 @@ async function resolveAndNavigateToTransaction(
             // If transaction is not found in the list, fetch it from the server
             if (!transaction) {
                 // Try to fetch transaction from the server
-                const rawTxs = await infoBackoff('tx', async () => await fetchAccountTransactions(selected.addressString, isTestnet, { lt, hash }));;
+                const rawTxs = await infoBackoff('tx', async () => await fetchAccountTransactions(resolved.address, isTestnet, { lt, hash }));;
                 if (rawTxs.length > 0 && !!rawTxs[0]) {
                     const base = rawTxs[0];
                     transaction = {
@@ -313,7 +313,6 @@ async function resolveAndNavigateToTransaction(
             }
 
             if (!!transaction) {
-
                 // If transaction is for the selected address, navigate to it
                 if (isSelectedAddress) {
                     navigation.navigateTonTransaction(transaction);
@@ -322,11 +321,13 @@ async function resolveAndNavigateToTransaction(
                     const address = Address.parse(resolved.address);
                     const index = appState.addresses.findIndex((a) => a.address.equals(address));
 
-
                     // If address is found, select it
                     if (index !== -1) {
                         // Select new address
                         updateAppState({ ...appState, selected: index }, isTestnet);
+
+                        // await 1 second in case of app state is not updated yet (should never happen)
+                        await new Promise(resolve => setTimeout(resolve, 1000));
 
                         // navigate to home with tx to be opened after
                         navigation.navigateAndReplaceHome({ navigateTo: { type: 'tx', transaction } });

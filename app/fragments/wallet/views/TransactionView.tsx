@@ -72,7 +72,7 @@ export function TransactionView(props: {
     const parsedAddress = parsedOpAddr.address;
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
-    const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet);
+    const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet, own);
     const targetContract = useContractInfo(opAddress);
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;

@@ -8,19 +8,17 @@ import { KnownWallets } from "../../secure/KnownWallets";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { HeaderSyncStatus } from "../../fragments/wallet/views/HeaderSyncStatus";
-import { WalletAddress } from "../address/WalletAddress";
 import { getAppState } from "../../storage/appState";
 import { avatarHash } from "../../utils/avatarHash";
-import { useTranslation } from "react-i18next";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { Address } from "@ton/ton";
+import { t } from "../../i18n/t";
 
 export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLightBackground?: boolean, ledgerName?: string }) => {
     const network = useNetwork();
     const knownWallets = KnownWallets(network.isTestnet);
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const { t } = useTranslation();
     const selected = useSelectedAccount();
     const isLedger = !!ledgerName;
     const ledgerContext = useLedgerTransport();

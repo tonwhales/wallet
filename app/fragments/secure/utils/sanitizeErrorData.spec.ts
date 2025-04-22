@@ -39,8 +39,8 @@ const tests: { name: string; input: string; expected: string }[] = [
     },
     {
         name: "no secrets, not hex string",
-        input: "This should not match (not_key:dead beAF dead beaf dead beaf dead beaf dead beaf) as hex pattern",
-        expected: "This should not match (not_key:dead beAF dead beaf dead beaf dead beaf dead beaf) as hex pattern",
+        input: "This should not match (not_key:dead beAF dead beaf dead beaf dead beaf dead beaf dead beAF dead beaf dead beaf dead beaf dead beaf) as hex pattern",
+        expected: "This should not match (not_key:dead beAF dead beaf dead beaf dead beaf dead beaf dead beAF dead beaf dead beaf dead beaf dead beaf) as hex pattern",
     },
     {
         name: "multiple hex strings",

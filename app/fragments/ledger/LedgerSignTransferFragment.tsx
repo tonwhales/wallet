@@ -147,7 +147,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
             }
             return;
         } else if (((account?.balance ?? 0n) < fees)) {
-            const diff = fees - account!.balance;
+            const diff = fees - (account?.balance ?? 0n);
             const diffString = fromNano(diff);
             Alert.alert(
                 t('transfer.error.notEnoughGasTitle'),

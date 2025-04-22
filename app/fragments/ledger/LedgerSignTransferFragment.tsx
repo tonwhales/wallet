@@ -37,6 +37,7 @@ import { handleLedgerSignError } from '../../utils/ledger/handleLedgerSignError'
 import { TransferTarget } from '../secure/TransferFragment';
 import { WalletVersions } from '../../engine/types';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
+import { failableTransferBackoff } from '../secure/components/TransferSingle';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -145,6 +146,14 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
                 callback(false, null);
             }
             return;
+        } else if (((account?.balance ?? 0n) < fees)) {
+            const diff = fees - account!.balance;
+            const diffString = fromNano(diff);
+            Alert.alert(
+                t('transfer.error.notEnoughGasTitle'),
+                t('transfer.error.notEnoughGasMessage', { diff: diffString }),
+            );
+            return;
         }
 
         const contract = await contractFromPublicKey(addr.publicKey, WalletVersions.v4R2, isTestnet);
@@ -206,7 +215,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
                 init: accountSeqno === 0 ? source.init : null
             });
             const msg = beginCell().store(storeMessage(extMessage)).endCell();
-            await backoffFailaible('ledger-transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
+            await failableTransferBackoff('ledger-transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
             // Resolve & reg pending transaction
             let transferPayload: LedgerTransferPayload | null = null;

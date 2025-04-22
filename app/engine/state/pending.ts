@@ -133,7 +133,8 @@ export type PendingSolanaTransactionTx = {
             decimals?: number
         } | null | undefined,
         target: string,
-        sender: string
+        sender: string,
+        tokenAccount?: string
     },
 }
 

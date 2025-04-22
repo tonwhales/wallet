@@ -1,6 +1,5 @@
 import { View, Text, Platform, ScrollView, Pressable } from "react-native";
 import { fragment } from "../../../fragment";
-import { SolanaTransfer, SolanaTransaction } from "../../../engine/api/solana/fetchSolanaTransactions";
 import { useTheme } from "../../../engine/hooks/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -22,24 +21,27 @@ import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAdd
 import { useParams } from "../../../utils/useParams";
 import { solanaPreviewToTransferParams } from "../../../utils/solana/solanaPreviewToTransferParams";
 import { RoundButton } from "../../../components/RoundButton";
-import { useSolanaTransferInfo } from "../../../engine/hooks";
+import { usePendingSolanaTransferInfo } from "../../../engine/hooks";
+import { PendingSolanaTransaction, PendingSolanaTransactionInstructions } from "../../../engine/state/pending";
+import { SolanaTransactionPreview } from "../../../engine/hooks/solana/useSolanaTransferInfo";
+import { ParsedTransactionInstruction } from "../../../utils/solana/parseInstructions";
+import { formatTime } from "../../../utils/dates";
+import { formatDate } from "../../../utils/dates";
+import { TransferInstructionView } from "../transfer/components/TransferInstructionView";
+import { SolanaTransactionAppHeader } from "../../secure/transfer/SolanaTransactionAppHeader";
 
-export type SolanaTransactionPreviewParams = {
+export type PendingSolanaTransactionPreviewParams = {
     owner: string;
-    transaction: SolanaTransaction;
-    transfer: { data: SolanaTransfer, type: 'token' | 'native' };
+    transaction: PendingSolanaTransaction;
 }
 
-const SolanaTransactionPreview = fragment(() => {
+const SolanaTxPreview = ({ transfer }: { transfer: SolanaTransactionPreview & { id: string } }) => {
+    const { op, amount, kind, from, to, dateStr, symbol, address, id } = transfer;
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const toaster = useToaster();
-    const { owner, transaction, transfer } = useParams<SolanaTransactionPreviewParams>();
-    const { data, type } = transfer;
-    const transferInfo = useSolanaTransferInfo({ type, transfer: data, transaction, owner });
-    const { op, amount, kind, from, to, dateStr, symbol, address } = transferInfo;
-    const transferParams = solanaPreviewToTransferParams(transferInfo);
+    const transferParams = solanaPreviewToTransferParams(transfer);
 
     const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
     const avatarColor = avatarColors[avatarHash(address ?? '', avatarColors.length)];
@@ -185,7 +187,7 @@ const SolanaTransactionPreview = fragment(() => {
                         </PerfView>
                     </Pressable>
                     <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                    <SolanaTxInfo signature={transaction.signature} />
+                    <SolanaTxInfo signature={id} />
                 </ItemGroup>
             </ScrollView>
             {!!transferParams && (
@@ -199,7 +201,63 @@ const SolanaTransactionPreview = fragment(() => {
             )}
         </PerfView>
     );
+}
+
+const SolanaTxPreviewInstructions = ({ tx }: { tx: PendingSolanaTransactionInstructions & { owner: string } }) => {
+    const { instructions, id, owner } = tx;
+    const theme = useTheme();
+    const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
+
+    const dateStr = `${formatDate(tx.time, 'MMMM dd, yyyy')} • ${formatTime(tx.time)}`;
+
+    return (
+        <PerfView
+            style={{
+                alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
+                alignItems: 'center',
+                paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
+            }}
+        >
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
+            <ScreenHeader
+                onClosePressed={navigation.goBack}
+                title={dateStr}
+                titleStyle={Typography.regular15_20}
+            />
+            <ScrollView
+                style={{ flexGrow: 1, alignSelf: 'stretch', marginTop: 16 }}
+                contentContainerStyle={{ paddingHorizontal: 16 }}
+                automaticallyAdjustContentInsets={false}
+                contentInset={{ bottom: safeArea.bottom + 16 }}
+                alwaysBounceVertical={false}
+            >
+                <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column', gap: 16 }}>
+                    {instructions.map((instruction, index) => (
+                        <TransferInstructionView
+                            key={index}
+                            instruction={instruction}
+                            owner={owner}
+                        />
+                    ))}
+                </View>
+                <ItemGroup style={{ marginVertical: 16 }}>
+                    <SolanaTxInfo signature={id} />
+                </ItemGroup>
+                <View style={{ height: 54 }} />
+            </ScrollView>
+        </PerfView>
+    )
+}
+
+const PendingSolanaTransactionPreview = fragment(() => {
+    const { owner, transaction } = useParams<PendingSolanaTransactionPreviewParams>();
+    const transferInfo = usePendingSolanaTransferInfo({ owner, transaction });
+
+    return !transferInfo
+        ? <SolanaTxPreviewInstructions tx={{ ...transaction as PendingSolanaTransactionInstructions, owner }} />
+        : <SolanaTxPreview transfer={{ ...transferInfo, id: transaction.id }} />
 });
 
-SolanaTransactionPreview.displayName = 'SolanaTransactionPreview';
-export const SolanaTransactionPreviewFragment = fragment(SolanaTransactionPreview);
+PendingSolanaTransactionPreview.displayName = 'PendingSolanaTransactionPreview';
+export const PendingSolanaTransactionPreviewFragment = fragment(PendingSolanaTransactionPreview);

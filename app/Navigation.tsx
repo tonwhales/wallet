@@ -115,6 +115,7 @@ import { solanaAddressFromPublicKey } from './utils/solana/address';
 import { whalesConnectEndpoint } from './engine/clients';
 import { WalletImportSelectorFragment } from './fragments/onboarding/WalletImportSelectorFragment';
 import { LedgerOnboardingFragment } from './fragments/onboarding/LedgerOnboardingFragment';
+import { PendingSolanaTransactionPreviewFragment } from './fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -381,6 +382,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('SolanaTransfer', SolanaTransferFragment, safeArea),
     modalScreen('SolanaReceive', ReceiveFragment, safeArea),
     modalScreen('SolanaTransaction', SolanaTransactionPreviewFragment, safeArea),
+    modalScreen('PendingSolanaTransaction', PendingSolanaTransactionPreviewFragment, safeArea),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

@@ -133,6 +133,8 @@ export async function signAndSendSolanaOrder({ solanaClients, theme, authContext
         }
     }
 
+    let isATA: boolean | undefined;
+    let recipientAddress: PublicKey | undefined;
     if (!mintAddress) { // generic solana transfer
         const instruction = SystemProgram.transfer({
             fromPubkey: owner,
@@ -173,7 +175,6 @@ export async function signAndSendSolanaOrder({ solanaClients, theme, authContext
             }
         }
 
-        let isATA: boolean;
         try {
             isATA = await failableSolanaBackoff('isPublicKeyATA', () => isPublicKeyATA({ solanaClient: client, address: recipient, mint: mintAddress }));
         } catch (error) {
@@ -188,8 +189,6 @@ export async function signAndSendSolanaOrder({ solanaClients, theme, authContext
                 throw mappedError;
             }
         }
-
-        let recipientAddress: PublicKey;
 
         if (!isATA) {
             try {
@@ -283,7 +282,8 @@ export async function signAndSendSolanaOrder({ solanaClients, theme, authContext
             amount,
             token,
             target,
-            sender
+            sender,
+            tokenAccount: isATA ? recipientAddress?.toString() : undefined
         }
     };
 }

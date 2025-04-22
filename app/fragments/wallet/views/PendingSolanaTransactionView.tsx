@@ -55,7 +55,10 @@ const PendingInstructionsView = memo(({
     }, [status.data?.confirmationStatus]);
 
     const onOpen = useCallback(() => {
-        navigation.navigatePendingSolanaTransaction(transaction);
+        navigation.navigatePendingSolanaTransaction({
+            owner: address,
+            transaction
+        });
     }, [transaction]);
 
     const statusText = useMemo(() => {
@@ -222,7 +225,10 @@ const PendingTxView = memo((
     }, [status.data?.confirmationStatus]);
 
     const onOpen = useCallback(() => {
-        navigation.navigatePendingSolanaTransaction(transaction);
+        navigation.navigatePendingSolanaTransaction({
+            owner: address,
+            transaction
+        });
     }, [transaction]);
 
     const symbol = token?.symbol ?? tokenData?.symbol ?? 'SOL';

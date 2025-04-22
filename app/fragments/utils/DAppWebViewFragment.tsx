@@ -247,9 +247,9 @@ export const DAppWebViewFragment = fragment(() => {
 
     const onShare = useCallback(() => {
         if (Platform.OS === 'ios') {
-            Share.share({ title: t('receive.share.title'), url: currentUrl });
+            Share.share({ url: currentUrl });
         } else {
-            Share.share({ title: t('receive.share.title'), message: currentUrl });
+            Share.share({ message: currentUrl });
         }
     }, [currentUrl]);
 

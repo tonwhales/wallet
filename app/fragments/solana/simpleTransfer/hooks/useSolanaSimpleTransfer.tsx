@@ -161,7 +161,9 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
                     ...order,
                     amount: accountAfterAmount
                 }
+
                 navigation.navigateSolanaTransfer({ type: 'order', order: newOrder });
+                return;
             } else {
                 Alert.alert(t('transfer.solana.error.title'), (emulationError as Error).message);
                 return;

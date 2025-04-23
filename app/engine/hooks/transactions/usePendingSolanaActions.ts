@@ -25,8 +25,6 @@ export function usePendingSolanaActions(address: string, mint?: string) {
                     }
                 }
 
-                console.log(tx.time, tokenLatest32Txs?.[0]?.timestamp ?? 0);
-
                 return tx.time <= (latest32Txs?.[0]?.timestamp ?? 0) || tx.time <= (tokenLatest32Txs?.[0]?.timestamp ?? 0);
             }).map((tx) => tx.id));
         }

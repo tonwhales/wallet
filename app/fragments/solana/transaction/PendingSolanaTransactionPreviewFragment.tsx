@@ -19,16 +19,12 @@ import { copyText } from "../../../utils/copyText";
 import { useCallback } from "react";
 import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 import { useParams } from "../../../utils/useParams";
-import { solanaPreviewToTransferParams } from "../../../utils/solana/solanaPreviewToTransferParams";
-import { RoundButton } from "../../../components/RoundButton";
 import { usePendingSolanaTransferInfo } from "../../../engine/hooks";
 import { PendingSolanaTransaction, PendingSolanaTransactionInstructions } from "../../../engine/state/pending";
 import { SolanaTransactionPreview } from "../../../engine/hooks/solana/useSolanaTransferInfo";
-import { ParsedTransactionInstruction } from "../../../utils/solana/parseInstructions";
 import { formatTime } from "../../../utils/dates";
 import { formatDate } from "../../../utils/dates";
 import { TransferInstructionView } from "../transfer/components/TransferInstructionView";
-import { SolanaTransactionAppHeader } from "../../secure/transfer/SolanaTransactionAppHeader";
 
 export type PendingSolanaTransactionPreviewParams = {
     owner: string;
@@ -41,7 +37,6 @@ const SolanaTxPreview = ({ transfer }: { transfer: SolanaTransactionPreview & { 
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const toaster = useToaster();
-    const transferParams = solanaPreviewToTransferParams(transfer);
 
     const amountColor = (kind === 'in') ? theme.accentGreen : theme.textPrimary;
     const avatarColor = avatarColors[avatarHash(address ?? '', avatarColors.length)];
@@ -54,12 +49,6 @@ const SolanaTxPreview = ({ transfer }: { transfer: SolanaTransactionPreview & { 
             duration: ToastDuration.SHORT
         });
     }, []);
-
-    const onRepeat = () => {
-        if (transferParams) {
-            navigation.navigateSolanaSimpleTransfer(transferParams);
-        }
-    };
 
     return (
         <PerfView
@@ -190,15 +179,6 @@ const SolanaTxPreview = ({ transfer }: { transfer: SolanaTransactionPreview & { 
                     <SolanaTxInfo signature={id} />
                 </ItemGroup>
             </ScrollView>
-            {!!transferParams && (
-                <PerfView style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
-                    <RoundButton
-                        title={t('txPreview.sendAgain')}
-                        style={{ flexGrow: 1 }}
-                        onPress={onRepeat}
-                    />
-                </PerfView>
-            )}
         </PerfView>
     );
 }

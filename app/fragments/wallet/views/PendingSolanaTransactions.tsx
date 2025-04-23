@@ -42,17 +42,19 @@ export const PendingSolanaTransactions = memo(({
     viewType = 'main',
     filter,
     onChange,
-    listStyle
+    listStyle,
+    mint
 }: {
     address?: string,
     viewType?: 'history' | 'main' | 'jetton-history',
     filter?: (tx: PendingSolanaTransaction) => boolean,
     onChange?: (txs: PendingSolanaTransaction[]) => void,
-    listStyle?: StyleProp<ViewStyle>
+    listStyle?: StyleProp<ViewStyle>,
+    mint?: string
 }) => {
     const selectedAddress = useSolanaSelectedAccount();
     const addr = address ?? selectedAddress ?? '';
-    const { state: pending, remove } = usePendingSolanaActions(addr);
+    const { state: pending, remove } = usePendingSolanaActions(addr, mint);
     const theme = useTheme();
 
     const pendingTxs = useMemo(() => {

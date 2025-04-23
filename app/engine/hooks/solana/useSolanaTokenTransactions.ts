@@ -8,11 +8,11 @@ import { PublicKey } from "@solana/web3.js";
 
 const TRANSACTIONS_LENGTH = 16;
 
-export function useSolanaTokenTransactions(address: string, mint: string) {
+export function useSolanaTokenTransactions(address: string, mint?: string) {
     const { isTestnet } = useNetwork();
 
     const query = useInfiniteQuery<SolanaTransaction[]>({
-        queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').TokenTransactions(mint),
+        queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').TokenTransactions(mint ?? 'default'),
         refetchOnWindowFocus: true,
         getNextPageParam: (last, allPages) => {
             if (!last || allPages.length < 1 || !last[TRANSACTIONS_LENGTH - 2]) {
@@ -22,6 +22,10 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
             return last[TRANSACTIONS_LENGTH - 1]?.signature;
         },
         queryFn: async (ctx) => {
+            if (!mint) {
+                return [];
+            }
+
             try {
                 const pageParam = ctx.pageParam as (string | undefined);
                 const ATAaddress = await getAssociatedTokenAddress(new PublicKey(mint), new PublicKey(address));

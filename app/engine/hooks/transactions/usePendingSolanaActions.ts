@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useRef } from "react";
-import { useNetwork, usePendingSolanaTransactions, useSolanaTransactions } from "..";
+import { useNetwork, usePendingSolanaTransactions, useSolanaTokenTransactions, useSolanaTransactions } from "..";
 import { PendingTransactionStatus } from "../../state/pending";
 
-export function usePendingSolanaActions(address: string) {
+export function usePendingSolanaActions(address: string, mint?: string) {
     const { isTestnet } = useNetwork();
     const [pending, setPending] = usePendingSolanaTransactions(address, isTestnet);
     const txsQuery = useSolanaTransactions(address);
+    const tokenTxsQuery = useSolanaTokenTransactions(address, mint);
     const txs = txsQuery.data;
     const latest32Txs = txs?.slice(-32) ?? [];
+    const tokenLatest32Txs = tokenTxsQuery.data?.slice(-32) ?? [];
 
     useEffect(() => {
         if (!!latest32Txs) {
@@ -17,10 +19,18 @@ export function usePendingSolanaActions(address: string) {
                     return true;
                 }
 
-                return tx.time <= (latest32Txs?.[0]?.timestamp ?? 0);
+                if (!!mint) {
+                    if (tokenLatest32Txs.some((ttx) => ttx.signature === tx.id)) {
+                        return true;
+                    }
+                }
+
+                console.log(tx.time, tokenLatest32Txs?.[0]?.timestamp ?? 0);
+
+                return tx.time <= (latest32Txs?.[0]?.timestamp ?? 0) || tx.time <= (tokenLatest32Txs?.[0]?.timestamp ?? 0);
             }).map((tx) => tx.id));
         }
-    }, [latest32Txs, pending]);
+    }, [latest32Txs, pending, tokenLatest32Txs]);
     const setPendingRef = useRef(setPending);
 
     useEffect(() => {

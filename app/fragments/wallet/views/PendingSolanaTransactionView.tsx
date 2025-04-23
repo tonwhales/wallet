@@ -15,63 +15,26 @@ import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAdd
 import { SOLANA_TRANSACTION_PROCESSING_TIMEOUT } from "../../../engine/hooks/solana/useSolanaTransactionStatus";
 import { ForcedAvatar } from "../../../components/avatar/ForcedAvatar";
 import { InstructionName } from "../../../utils/solana/parseInstructions";
-import { invalidateSolanaAccount } from "../../../engine/useSolanaAccountWatcher";
 
 const PendingInstructionsView = memo(({
     transaction,
     last,
     single,
     viewType = 'main',
-    address
+    address,
+    onOpen,
+    statusText
 }: {
     transaction: PendingSolanaTransactionInstructions,
     last?: boolean,
     single?: boolean,
     viewType?: 'history' | 'main' | 'jetton-history',
-    address: string
+    address: string,
+    onOpen: () => void,
+    statusText: string
 }) => {
     const isHolders = transaction.instructions.some(instruction => instruction?.program === 'Holders');
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
-    const navigation = useTypedNavigation();
-    const status = useSolanaTransactionStatus(address, transaction.id, isTestnet ? 'devnet' : 'mainnet');
-    const { markAsTimedOut, remove, txsQuery } = usePendingSolanaActions(address);
-
-    useEffect(() => {
-        const timeout = setTimeout(async () => {
-            await txsQuery.refresh();
-            markAsTimedOut(transaction.id);
-        }, SOLANA_TRANSACTION_PROCESSING_TIMEOUT);
-
-        return () => {
-            clearTimeout(timeout);
-        }
-    }, [address, isTestnet]);
-
-    useEffect(() => {
-        if (status.data?.confirmationStatus === 'finalized') {
-            remove([transaction.id]);
-        }
-    }, [status.data?.confirmationStatus]);
-
-    const onOpen = useCallback(() => {
-        navigation.navigatePendingSolanaTransaction({
-            owner: address,
-            transaction
-        });
-    }, [transaction]);
-
-    const statusText = useMemo(() => {
-        if (status.data?.confirmationStatus === 'finalized') {
-            return t('tx.sent');
-        }
-        if (transaction.status === 'timed-out') {
-            return t('tx.timeout');
-        } else if (transaction.status === 'sent') {
-            return t('tx.sent');
-        }
-        return t('tx.sending');
-    }, [transaction.status, status]);
 
     return (
         <Animated.View
@@ -178,58 +141,22 @@ const PendingTxView = memo((
         last,
         single,
         viewType = 'main',
-        address
+        address,
+        onOpen,
+        statusText
     }: {
         transaction: PendingSolanaTransactionTx,
         last?: boolean,
         single?: boolean,
         viewType?: 'history' | 'main' | 'jetton-history',
-        address: string
+        address: string,
+        onOpen: () => void,
+        statusText: string
     }
 ) => {
     const { target, amount, token } = transaction.tx;
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
-    const navigation = useTypedNavigation();
-    const status = useSolanaTransactionStatus(address, transaction.id, isTestnet ? 'devnet' : 'mainnet');
     const tokenData = useSolanaToken(address, token?.mint);
-    const { markAsTimedOut, remove, txsQuery } = usePendingSolanaActions(address);
-
-    const statusText = useMemo(() => {
-        if (status.data?.confirmationStatus === 'finalized') {
-            return t('tx.sent');
-        }
-        if (transaction.status === 'timed-out') {
-            return t('tx.timeout');
-        } else if (transaction.status === 'sent') {
-            return t('tx.sent');
-        }
-        return t('tx.sending');
-    }, [transaction.status, status]);
-
-    useEffect(() => {
-        const timeout = setTimeout(async () => {
-            await txsQuery.refresh();
-            markAsTimedOut(transaction.id);
-        }, SOLANA_TRANSACTION_PROCESSING_TIMEOUT);
-
-        return () => {
-            clearTimeout(timeout);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (status.data?.confirmationStatus === 'finalized') {
-            remove([transaction.id]);
-        }
-    }, [status.data?.confirmationStatus]);
-
-    const onOpen = useCallback(() => {
-        navigation.navigatePendingSolanaTransaction({
-            owner: address,
-            transaction
-        });
-    }, [transaction]);
 
     const symbol = token?.symbol ?? tokenData?.symbol ?? 'SOL';
     const decimals = token?.decimals ?? tokenData?.decimals ?? 9;
@@ -339,17 +266,60 @@ export const PendingSolanaTransactionView = memo(({
     last,
     single,
     viewType = 'main',
-    address
+    address,
+    mint
 }: {
     transaction: PendingSolanaTransaction,
     last?: boolean,
     single?: boolean,
     viewType?: 'history' | 'main' | 'jetton-history',
-    address: string
+    address: string,
+    mint?: string
 }) => {
+    const { isTestnet } = useNetwork();
+    const navigation = useTypedNavigation();
+    const status = useSolanaTransactionStatus(address, transaction.id, isTestnet ? 'devnet' : 'mainnet');
+    const { markAsTimedOut, remove, txsQuery } = usePendingSolanaActions(address, mint);
+
+    useEffect(() => {
+        const timeout = setTimeout(async () => {
+            await txsQuery.refresh();
+            markAsTimedOut(transaction.id);
+        }, SOLANA_TRANSACTION_PROCESSING_TIMEOUT);
+
+        return () => {
+            clearTimeout(timeout);
+        }
+    }, [address, isTestnet]);
+
+    useEffect(() => {
+        if (status.data?.confirmationStatus === 'finalized') {
+            remove([transaction.id]);
+        }
+    }, [status.data?.confirmationStatus]);
+
+    const onOpen = useCallback(() => {
+        navigation.navigatePendingSolanaTransaction({
+            owner: address,
+            transaction
+        });
+    }, [transaction]);
+
+    const statusText = useMemo(() => {
+        if (status.data?.confirmationStatus === 'finalized') {
+            return t('tx.sent');
+        }
+        if (transaction.status === 'timed-out') {
+            return t('tx.timeout');
+        } else if (transaction.status === 'sent') {
+            return t('tx.sent');
+        }
+        return t('tx.sending');
+    }, [transaction.status, status]);
+
     if (transaction.type === 'instructions') {
-        return <PendingInstructionsView transaction={transaction} address={address} />;
+        return <PendingInstructionsView transaction={transaction} address={address} onOpen={onOpen} statusText={statusText}  />;
     }
-    return <PendingTxView transaction={transaction} address={address} />;
+    return <PendingTxView transaction={transaction} address={address} onOpen={onOpen} statusText={statusText} />;
 });
 PendingSolanaTransactionView.displayName = 'PendingSolanaTransactionView';

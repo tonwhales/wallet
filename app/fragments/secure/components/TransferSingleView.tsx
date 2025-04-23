@@ -412,7 +412,7 @@ export const TransferSingleView = memo(({
                                     testOnly={isTestnet}
                                     known={!!known && !contact}
                                 />
-                                {isTargetLedger && (targetWalletSettings?.name ? ` (${targetWalletSettings?.name})` : ' (Ledger)')}
+                                {to.name ? ` (${to.name})` : ''}
                             </Text>
                         </View>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>

@@ -41,7 +41,7 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
     const { totalBalance: tonTotalBalance } = useSavingsBalance(address);
     const navigation = useTypedNavigation();
     const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
-    const tokens = useSolanaTokens(solanaAddress);
+    const tokens = useSolanaTokens(solanaAddress, isLedger);
     const { solAssets: solanaSavingsBalance } = useSolanaSavingsBalance(solanaAddress);
     const totalBalance = tonTotalBalance + solanaSavingsBalance;
 

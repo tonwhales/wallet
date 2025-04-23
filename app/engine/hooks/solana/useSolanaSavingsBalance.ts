@@ -2,9 +2,9 @@ import { fromNano, toNano } from "@ton/core";
 import { useNetwork, usePrice, useSolanaAccount, useSolanaTokens } from "..";
 import { SOLANA_USDC_MINT_DEVNET, SOLANA_USDC_MINT_MAINNET } from "../../../utils/solana/address";
 
-export function useSolanaSavingsBalance(address: string) {
+export function useSolanaSavingsBalance(address: string, isLedger?: boolean) {
     const { isTestnet } = useNetwork();
-    const { data } = useSolanaTokens(address);
+    const { data } = useSolanaTokens(address, isLedger);
     const [tonRates, , solanaRates] = usePrice();
     const tokens = data ?? [];
     const account = useSolanaAccount(address);

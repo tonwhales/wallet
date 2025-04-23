@@ -22,13 +22,6 @@ export type SendSolanaOrderParams = {
     order: SolanaOrder
 }
 
-export const failableSolanaBackoff = createBackoffFailaible({
-    logErrors: true,
-    minDelay: 1500,
-    maxDelay: 3000,
-    maxFailureCount: 5
-});
-
 export class SendSolanaTransactionError extends Error {
     isNetworkError?: boolean;
     needLamports?: boolean;
@@ -42,8 +35,22 @@ export class SendSolanaTransactionError extends Error {
     }
 }
 
+export const failableSolanaBackoff = createBackoffFailaible({
+    logErrors: true,
+    minDelay: 1500,
+    maxDelay: 3000,
+    maxFailureCount: 5,
+    failTrigger: (e: any) => {
+        if (e instanceof SendSolanaTransactionError && !e.isNetworkError) {
+            return true;
+        }
+        return false;
+    }
+});
+
 const solTransferLogKey = 'Transfer: insufficient lamports';
 const insufficientFundsLogKey = 'insufficient funds';
+const insufficientFundsForRentMessage = 'with insufficient funds for rent';
 
 export function mapNetworkError(error: any) {
     if (!!error.statusCode) {
@@ -63,7 +70,7 @@ export function mapNetworkError(error: any) {
     return error;
 }
 
-export function mapTransferError(error: SendTransactionError) {
+export function mapTransferError(error: SendTransactionError, recipientAddress?: string) {
     // check for insufficient lamports
     if (error.message.toLowerCase().includes('attempt to debit an account but found no record of a prior credit')) {
         return new SendSolanaTransactionError(t('transfer.solana.error.insufficientLamports'));
@@ -94,14 +101,16 @@ export function mapTransferError(error: SendTransactionError) {
             }
             return new SendSolanaTransactionError(logs.join('\n'));
         }
+    } else if (error.message.toLowerCase().includes(insufficientFundsForRentMessage)) {
+        return new SendSolanaTransactionError(t('transfer.solana.error.insufficientFundsForRent', { address: recipientAddress }));
     }
 
     return mapNetworkError(error);
 }
 
-export function mapSolanaError(error: any) {
+export function mapSolanaError(error: any, recipientAddress?: string) {
     if (error instanceof SendTransactionError) {
-        return mapTransferError(error);
+        return mapTransferError(error, recipientAddress);
     }
     return mapNetworkError(error);
 }
@@ -255,16 +264,25 @@ export async function signAndSendSolanaOrder({ solanaClients, theme, authContext
         throw new SendSolanaTransactionError(t('transfer.solana.error.signingFailed'));
     }
 
+    const recipientAddressString = recipient.toString();
+    const _recipientAddressString = recipientAddressString.slice(0, 4) + '...' + recipientAddressString.slice(-4);
+
     let signature: string;
     try {
-        signature = await failableSolanaBackoff('sendEncodedTransaction', () => client.sendEncodedTransaction(transaction.serialize().toString('base64')));
+        signature = await failableSolanaBackoff('sendEncodedTransaction', async () => {
+            try {
+                return await client.sendEncodedTransaction(transaction.serialize().toString('base64'));
+            } catch (error) {
+                throw mapSolanaError(error, _recipientAddressString);
+            }
+        });
     } catch (error) {
-        const mappedError = mapSolanaError(error);
+        const mappedError = mapSolanaError(error, _recipientAddressString);
         if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
             try {
-                signature = await failableSolanaBackoff('sendEncodedTransaction', () => publicClient.sendEncodedTransaction(transaction.serialize().toString('base64')));
+                signature = await failableSolanaBackoff('sendEncodedTransactionPub', () => publicClient.sendEncodedTransaction(transaction.serialize().toString('base64')));
             } catch (error) {
-                throw mapSolanaError(error);
+                throw mapSolanaError(error, _recipientAddressString);
             }
         } else {
             throw mappedError;

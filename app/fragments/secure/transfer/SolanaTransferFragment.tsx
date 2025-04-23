@@ -122,7 +122,19 @@ const TransferOrder = (order: SolanaOrder) => {
             });
             registerPending(pending);
         } catch (error) {
-            Alert.alert(t('transfer.solana.error.title'), (error as Error).message);
+            Alert.alert(
+                t('transfer.solana.error.title'),
+                (error as Error).message,
+                [
+                    {
+                        text: t('common.ok'),
+                        onPress: () => {
+                            navigation.goBack();
+                        }
+                    }
+                ]
+            );
+            return;
         }
         // Reset stack to root
         navigation.popToTop();

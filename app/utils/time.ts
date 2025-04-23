@@ -38,6 +38,7 @@ export function createBackoffFailaible(opts?: {
     maxDelay?: number;
     maxFailureCount?: number;
     logErrors?: boolean;
+    failTrigger?: (e: any) => boolean
 }): BackoffFunc {
     return async <T>(tag: string, callback: () => Promise<T>): Promise<T> => {
         let currentFailureCount = 0;
@@ -48,6 +49,9 @@ export function createBackoffFailaible(opts?: {
             try {
                 return await callback();
             } catch (e) {
+                if (opts?.failTrigger && opts.failTrigger(e)) {
+                    throw e;
+                }
                 currentFailureCount++;
                 if (maxFailureCount == 0 || currentFailureCount === maxFailureCount) {
                     if (opts?.logErrors === true) {

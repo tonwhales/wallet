@@ -50,7 +50,19 @@ export const TransferInstructions = (params: {
             ref.current = pending.id;
             registerPending(pending);
         } catch (error) {
-            Alert.alert(t('transfer.solana.error.title'), (error as Error).message);
+            Alert.alert(
+                t('transfer.solana.error.title'),
+                (error as Error).message,
+                [
+                    {
+                        text: t('common.ok'),
+                        onPress: () => {
+                            navigation.goBack();
+                        }
+                    }
+                ]
+            );
+            return;
         }
         navigation.goBack();
     }, [theme, authContext, params, solanaAddress, navigation, registerPending]);

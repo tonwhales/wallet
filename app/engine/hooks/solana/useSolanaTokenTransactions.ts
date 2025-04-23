@@ -3,6 +3,8 @@ import { Queries } from "../../queries";
 import { useNetwork } from "..";
 import { useEffect, useRef, useState } from "react";
 import { fetchSolanaTransactions, SolanaTransaction } from "../../api/solana/fetchSolanaTransactions";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
 
 const TRANSACTIONS_LENGTH = 16;
 
@@ -22,7 +24,8 @@ export function useSolanaTokenTransactions(address: string, mint: string) {
         queryFn: async (ctx) => {
             try {
                 const pageParam = ctx.pageParam as (string | undefined);
-                return await fetchSolanaTransactions(address, isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
+                const ATAaddress = await getAssociatedTokenAddress(new PublicKey(mint), new PublicKey(address));
+                return await fetchSolanaTransactions(ATAaddress.toString(), isTestnet, { limit: TRANSACTIONS_LENGTH, before: pageParam, mint });
             } catch (error) {
                 console.error(error);
                 throw error;

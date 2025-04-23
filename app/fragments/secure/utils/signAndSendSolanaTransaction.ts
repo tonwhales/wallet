@@ -28,7 +28,16 @@ export async function signAndSendSolanaTransaction({ solanaClients, theme, authC
     try {
         lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => client.getLatestBlockhash());
     } catch (error) {
-        throw mapSolanaError(error);
+        const mappedError = mapSolanaError(error);
+        if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
+            try {
+                lastBlockHash = await failableSolanaBackoff('getLatestBlockhash', () => publicClient.getLatestBlockhash());
+            } catch (error) {
+                throw mapSolanaError(error);
+            }
+        } else {
+            throw mappedError;
+        }
     }
 
     transaction.recentBlockhash = lastBlockHash.blockhash;
@@ -46,7 +55,16 @@ export async function signAndSendSolanaTransaction({ solanaClients, theme, authC
     try {
         signature = await failableSolanaBackoff('sendEncodedTransaction', () => client.sendEncodedTransaction(transaction.serialize().toString('base64')));
     } catch (error) {
-        throw mapSolanaError(error);
+        const mappedError = mapSolanaError(error);
+        if (mappedError instanceof SendSolanaTransactionError && mappedError.isNetworkError) {
+            try {
+                signature = await failableSolanaBackoff('sendEncodedTransaction', () => publicClient.sendEncodedTransaction(transaction.serialize().toString('base64')));
+            } catch (error) {
+                throw mapSolanaError(error);
+            }
+        } else {
+            throw mappedError;
+        }
     }
 
     const base58Signature = signature;

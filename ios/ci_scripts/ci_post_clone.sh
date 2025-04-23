@@ -23,12 +23,6 @@ cd ../../../repository
 
 sed -i '' "s/$line/$rep/g" assets/keys.json
 
-# Replace the Helius API Key in the keys.json file
-line="YOUR_HELIUS_API_KEY"
-rep="$HELIUS_API_KEY"
-
-sed -i '' "s/$line/$rep/g" assets/keys.json
-
 # Replace the Mixpanel keys in the keys.json file
 line="YOUR_MIXPANEL_PROD_KEY"
 rep="$MIXPANEL_PROD"

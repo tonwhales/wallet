@@ -176,10 +176,7 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
     });
 
     return (
-        <View style={[styles.container, Platform.select({
-            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
-            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
-        })]}>
+        <View style={styles.container}>
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 style={styles.header}

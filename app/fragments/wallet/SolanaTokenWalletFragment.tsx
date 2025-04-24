@@ -201,10 +201,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
     const rate = 1;
 
     return (
-        <View style={[styles.container, Platform.select({
-            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
-            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
-        })]}>
+        <View style={styles.container}>
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 style={styles.header}

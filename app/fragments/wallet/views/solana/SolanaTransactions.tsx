@@ -118,6 +118,7 @@ export const SolanaTransactions = memo(({
 
   return (
     <SectionList
+      style={{ flexGrow: 1, flex: 1 }}
       sections={transactionsSections}
       keyExtractor={(item) => `${item.signature}`}
       renderItem={renderItem}

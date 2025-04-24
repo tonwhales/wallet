@@ -174,6 +174,17 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
                 }
             }
 
+            if (emulationError?.rentNeeded) {
+                const address = order.target.slice(0, 4) + '...' + order.target.slice(-4);
+                Alert.alert(
+                    t('transfer.solana.error.insufficientFundsForRentTitle'),
+                    t(
+                        'transfer.solana.error.insufficientFundsForRent',
+                        { address, amount: `${fromBnWithDecimals(emulationError.rentNeeded, 9)} SOL` }
+                    )
+                );
+                return;
+            }
             navigation.navigateSolanaTransfer({ type: 'order', order });
         } catch (error: any) {
             // Handle the specific "Attempt to debit" error

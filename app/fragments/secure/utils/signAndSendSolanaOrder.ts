@@ -2,14 +2,13 @@ import { SolanaOrder } from "../ops/Order";
 import { SolanaClient } from "../../../engine/hooks/solana/useSolanaClient";
 import { AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
 import { ThemeType } from "../../../engine/state/theme";
-import { Keypair, Transaction, PublicKey, SystemProgram, TransactionInstruction, SendTransactionError, BlockhashWithExpiryBlockHeight } from "@solana/web3.js";
-import { Account, createTransferInstruction, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { Keypair, Transaction, PublicKey, SystemProgram, TransactionInstruction, BlockhashWithExpiryBlockHeight } from "@solana/web3.js";
+import { Account, createTransferInstruction, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
 import { isPublicKeyATA } from "../../../utils/solana/isPublicKeyATA";
 import { createBackoffFailaible } from "../../../utils/time";
 import { t } from "../../../i18n/t";
-import { fromBnWithDecimals } from "../../../utils/withDecimals";
-import { sanitizeErrorData } from "./sanitizeErrorData";
+import { mapSolanaError, SendSolanaTransactionError } from "./mapSolanaError";
 
 export type SendSolanaOrderParams = {
     sender: string,
@@ -20,19 +19,6 @@ export type SendSolanaOrderParams = {
     theme: ThemeType,
     authContext: AuthWalletKeysType,
     order: SolanaOrder
-}
-
-export class SendSolanaTransactionError extends Error {
-    isNetworkError?: boolean;
-    needLamports?: boolean;
-    lamportsNeeded?: bigint;
-    constructor(message: string, isNetworkError?: boolean, lamportsNeeded?: bigint) {
-        const sanitizedMessage = sanitizeErrorData(message);
-        super(sanitizedMessage);
-        this.name = 'SendSolanaTransactionError';
-        this.isNetworkError = isNetworkError;
-        this.lamportsNeeded = lamportsNeeded;
-    }
 }
 
 export const failableSolanaBackoff = createBackoffFailaible({
@@ -47,73 +33,6 @@ export const failableSolanaBackoff = createBackoffFailaible({
         return false;
     }
 });
-
-const solTransferLogKey = 'Transfer: insufficient lamports';
-const insufficientFundsLogKey = 'insufficient funds';
-const insufficientFundsForRentMessage = 'with insufficient funds for rent';
-
-export function mapNetworkError(error: any) {
-    if (!!error.statusCode) {
-        if (error.statusCode === 429) {
-            return new SendSolanaTransactionError(t('transfer.solana.error.rateLimited'), true);
-        }
-    }
-    if (error.message.toLowerCase().includes('network request failed')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.networkRequestFailed'), true);
-    } else if (error.message.toLowerCase().includes('connection timed out')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.connectionTimeout'), true);
-    } else if (error.message.toLowerCase().includes('connection refused')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.connectionRefused'), true);
-    } else if (error.message.toLowerCase().includes('connection reset')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.connectionReset'), true);
-    }
-    return error;
-}
-
-export function mapTransferError(error: SendTransactionError, recipientAddress?: string) {
-    // check for insufficient lamports
-    if (error.message.toLowerCase().includes('attempt to debit an account but found no record of a prior credit')) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.insufficientLamports'));
-    } else if (error.message.toLowerCase().includes('error processing instruction')) {
-        const logs = error.logs;
-        if (logs) {
-            const transferLog = logs.find(log => log.toLowerCase().includes(solTransferLogKey.toLowerCase()));
-            if (transferLog) {
-                const amountsString = transferLog.split(solTransferLogKey)[1];
-                if (amountsString) {
-                    const balances = amountsString.split(', need');
-                    const balance = balances[0];
-                    const need = balances[1];
-                    const amount = BigInt(need) - BigInt(balance);
-                    const amountString = `${fromBnWithDecimals(amount, 9)} SOL`;
-                    if (balance && need) {
-                        return new SendSolanaTransactionError(t('transfer.solana.error.insufficientLamportsWithAmount', { amount: amountString }), false, amount);
-                    }
-                }
-            }
-
-            const tokenTransferLog = logs.find(log => log.includes(TOKEN_PROGRAM_ID.toBase58()));
-            if (tokenTransferLog) {
-                const insufficientFundsLog = logs.find(log => log.toLowerCase().includes(insufficientFundsLogKey.toLowerCase()));
-                if (insufficientFundsLog) {
-                    return new SendSolanaTransactionError(t('transfer.solana.error.insufficientTokenFunds'));
-                }
-            }
-            return new SendSolanaTransactionError(logs.join('\n'));
-        }
-    } else if (error.message.toLowerCase().includes(insufficientFundsForRentMessage)) {
-        return new SendSolanaTransactionError(t('transfer.solana.error.insufficientFundsForRent', { address: recipientAddress }));
-    }
-
-    return mapNetworkError(error);
-}
-
-export function mapSolanaError(error: any, recipientAddress?: string) {
-    if (error instanceof SendTransactionError) {
-        return mapTransferError(error, recipientAddress);
-    }
-    return mapNetworkError(error);
-}
 
 export async function signAndSendSolanaOrder({ solanaClients, theme, authContext, order, sender }: SendSolanaOrderParams): Promise<PendingSolanaTransaction> {
     const { target, comment, amount, token, reference } = order;

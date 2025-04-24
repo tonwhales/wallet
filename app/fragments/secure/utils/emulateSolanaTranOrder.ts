@@ -1,8 +1,9 @@
-import { failableSolanaBackoff, SendSolanaOrderParams, SendSolanaTransactionError } from "./signAndSendSolanaOrder";
+import { failableSolanaBackoff, SendSolanaOrderParams } from "./signAndSendSolanaOrder";
 import { PublicKey, Transaction, TransactionInstruction, SystemProgram, BlockhashWithExpiryBlockHeight, SendTransactionError } from "@solana/web3.js";
 import { createTransferInstruction, getAssociatedTokenAddress } from "@solana/spl-token";
-import { mapSolanaError } from "./signAndSendSolanaOrder";
 import { isPublicKeyATA } from "../../../utils/solana/isPublicKeyATA";
+import { fromNano } from "@ton/core";
+import { mapSolanaError, SendSolanaTransactionError } from "./mapSolanaError";
 
 export async function emulateSolanaTranOrder({ order, solanaClients, sender }: Omit<SendSolanaOrderParams, 'theme' | 'authContext'>) {
     const { target, comment, amount, token, reference } = order;
@@ -137,15 +138,29 @@ export async function emulateSolanaTranOrder({ order, solanaClients, sender }: O
     const simulation = await client.simulateTransaction(transaction);
     if (simulation.value.err) {
         const logs = simulation.value.logs || [];
-        const error = new SendTransactionError({
+        let error = new SendTransactionError({
             action: 'simulate',
             signature: '',
-            transactionMessage: 'error processing instruction',
+            transactionMessage: JSON.stringify(simulation.value.err),
             logs
         });
 
+        try {
+            if (JSON.stringify(simulation.value.err).includes('InsufficientFundsForRent')) {
+                const minRent = await client.getMinimumBalanceForRentExemption(128);
+                const rent = BigInt(minRent);
+
+                error = new SendTransactionError({
+                    action: 'simulate',
+                    signature: '',
+                    transactionMessage: `InsufficientFundsForRent:${fromNano(rent)}`,
+                    logs
+                });
+            }
+        } catch { }
+
         const res = mapSolanaError(error);
-        if (res instanceof SendSolanaTransactionError && res.lamportsNeeded) {
+        if (res instanceof SendSolanaTransactionError && (res.lamportsNeeded || res.rentNeeded)) {
             return res;
         }
     }

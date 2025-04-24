@@ -295,7 +295,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "insufficientTokenFunds": "Fondi token insufficienti",
                 "rateLimited": "Stiamo riscontrando una forte domanda, riprova più tardi o contatta l'assistenza",
                 "signingFailed": "Errore di firma della transazione",
-                "insufficientFundsForRent": "Fondi SOL insufficienti per la locazione dopo la transazione sul conto: {{address}}"
+                "insufficientFundsForRentTitle": "Importo della transazione inferiore al minimo",
+                "insufficientFundsForRent": "Fondi SOL insufficienti per inviare a: {{address}}, sono necessari {{amount}} in più"
             }
         }
     },

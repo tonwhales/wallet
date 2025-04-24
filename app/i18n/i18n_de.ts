@@ -295,7 +295,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "insufficientTokenFunds": "Unzureichende Token-Mittel",
                 "rateLimited": "Wir verzeichnen eine hohe Nachfrage, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
                 "signingFailed": "Transaktionssignatur fehlgeschlagen",
-                "insufficientFundsForRent": "Unzureichende SOL-Mittel für Miete nach Transaktion auf Konto: {{address}}"
+                "insufficientFundsForRentTitle": "Transaktionsbetrag ist unter dem Mindestbetrag",
+                "insufficientFundsForRent": "Unzureichende SOL für das Senden an: {{address}}, benötigen {{amount}} mehr"
             }
         }
     },

@@ -295,7 +295,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "insufficientTokenFunds": "Недостатньо токенів",
                 "rateLimited": "Спостерігається високе навантаження, спробуйте пізніше або зверніться до підтримки",
                 "signingFailed": "Помилка підпису транзакції",
-                "insufficientFundsForRent": "Недостатньо SOL для оренди після транзакції на рахунку: {{address}}"
+                "insufficientFundsForRentTitle": "Сума транзакції нижче мінімальної",
+                "insufficientFundsForRent": "Недостатньо SOL для відправки на: {{address}}, потрібно ще {{amount}}"
             }
         }
     },

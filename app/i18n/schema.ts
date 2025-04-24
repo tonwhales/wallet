@@ -298,6 +298,7 @@ export type LocalizationSchema = {
                 rateLimited: string,
                 signingFailed: string,
                 insufficientFundsForRent: string
+                insufficientFundsForRentTitle: string
             }
         }
     },

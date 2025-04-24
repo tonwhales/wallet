@@ -166,6 +166,15 @@ android {
 
         }
     }
+
+    task copyKeysFile(type: Copy) {
+        from "${rootProject.projectDir}/../assets/keys.json"
+        into "${projectDir}/src/main/assets/"
+    }
+    
+    preBuild.dependsOn(copyKeysFile)
+
+    namespace 'com.tonhub.wallet'
 }
 
 dependencies {
@@ -236,6 +245,9 @@ applyNativeModulesAppBuildGradle(project)
 
 configurations.all {
    resolutionStrategy {
-    force 'androidx.browser:browser:1.8.0'
+      // Keep your existing browser force
+      force 'androidx.browser:browser:1.8.0'
+      // force an older version
+       force 'io.intercom.android:intercom-sdk-base:14.0.1'
    }
 }

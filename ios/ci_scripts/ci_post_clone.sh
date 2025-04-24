@@ -23,6 +23,32 @@ cd ../../../repository
 
 sed -i '' "s/$line/$rep/g" assets/keys.json
 
+# Replace the Mixpanel keys in the keys.json file
+line="YOUR_MIXPANEL_PROD_KEY"
+rep="$MIXPANEL_PROD"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="YOUR_MIXPANEL_DEV_KEY"
+rep="$MIXPANEL_DEV"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="YOUR_MIXPANEL_SANDBOX_KEY"
+rep="$MIXPANEL_SANDBOX"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="YOUR_MIXPANEL_HOLDERS_PROD_KEY"
+rep="$MIXPANEL_HOLDERS_PROD"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
+line="YOUR_MIXPANEL_HOLDERS_STAGE_KEY"
+rep="$MIXPANEL_HOLDERS_STAGE"
+
+sed -i '' "s/$line/$rep/g" assets/keys.json
+
 # go back to the ios folder
 cd ios/wallet
 

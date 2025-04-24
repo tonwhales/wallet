@@ -94,6 +94,10 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>INTERCOM_IOS_API</key>
+	<string>$(INTERCOM_IOS_API)</string>
+	<key>INTERCOM_APP</key>
+	<string>$(INTERCOM_APP)</string>
 	<key>WONDERPUSH_CLIENT_ID</key>
 	<string>$(WONDERPUSH_CLIENT_ID)</string>
 	<key>WONDERPUSH_CLIENT_SECRET</key>

@@ -116,10 +116,13 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
     }, [validAmount, balance, amount]);
 
     const onAddAll = useCallback(() => {
-        const amount = fromBnWithDecimals(balance, accountToken?.decimals ?? 9);
+        // Reserve 5000 lamports (0.000005 SOL) for transaction fees when sending SOL
+        const reserveFee = token ? 0n : 5000n;
+        const effectiveBalance = balance > reserveFee ? balance - reserveFee : 0n;
+        const amount = fromBnWithDecimals(effectiveBalance, accountToken?.decimals ?? 9);
         const formatted = formatInputAmount(amount.replace('.', ','), accountToken?.decimals ?? 9, { skipFormattingDecimals: true });
         setAmount(formatted);
-    }, [balance, accountToken?.decimals]);
+    }, [balance, accountToken?.decimals, token]);
 
     const continueDisabled = !order;
 
@@ -152,26 +155,39 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
             if (!allowSendingZero) return;
         }
 
-        const emulationError = await emulateSolanaTranOrder({ order, solanaClients: { client, publicClient }, sender: owner });
-        if (emulationError?.lamportsNeeded && !token) {
-            const accountAfterAmount = order.amount - emulationError.lamportsNeeded;
+        try {
+            const emulationError = await emulateSolanaTranOrder({ order, solanaClients: { client, publicClient }, sender: owner });
+            if (emulationError?.lamportsNeeded && !token) {
+                const accountAfterAmount = order.amount - emulationError.lamportsNeeded;
 
-            if (accountAfterAmount > 0n) {
-                const newOrder = {
-                    ...order,
-                    amount: accountAfterAmount
+                if (accountAfterAmount > 0n) {
+                    const newOrder = {
+                        ...order,
+                        amount: accountAfterAmount
+                    }
+
+                    navigation.navigateSolanaTransfer({ type: 'order', order: newOrder });
+                    return;
+                } else {
+                    Alert.alert(t('transfer.solana.error.title'), (emulationError as Error).message);
+                    return;
                 }
+            }
 
-                navigation.navigateSolanaTransfer({ type: 'order', order: newOrder });
-                return;
-            } else {
-                Alert.alert(t('transfer.solana.error.title'), (emulationError as Error).message);
+            navigation.navigateSolanaTransfer({ type: 'order', order });
+        } catch (error: any) {
+            // Handle the specific "Attempt to debit" error
+            if (error.message?.includes('Attempt to debit an account but found no record of a prior credit')) {
+                Alert.alert(
+                    t('common.error'),
+                    'Account has not been initialized on chain yet. Please fund the account first.'
+                );
                 return;
             }
+            // Handle other errors
+            Alert.alert(t('common.error'), error.message || 'Unknown error occurred');
         }
-
-        navigation.navigateSolanaTransfer({ type: 'order', order });
-    }, [navigation, targetAddressValid, validAmount, commentString]);
+    }, [navigation, targetAddressValid, validAmount, commentString, client, publicClient, owner, token]);
 
     return {
         addressInputState,

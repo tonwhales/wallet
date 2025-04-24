@@ -5,22 +5,6 @@ import { ATextInput, ATextInputRef } from "../ATextInput";
 import { useTheme } from '../../engine/hooks';
 import { useContactField } from '../../engine/hooks';
 
-function useDebounceInput(value: string, delay: number) {
-    const [debouncedValue, setDebouncedValue] = useState(value);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [value, delay]);
-
-    return debouncedValue;
-}
-
 export const ContactField = memo(forwardRef((props: {
     input: {
         onFocus?: (index: number) => void,
@@ -35,14 +19,10 @@ export const ContactField = memo(forwardRef((props: {
     onFieldChange?: (index: number, value: string) => void,
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const theme = useTheme();
-    const [value, setValue] = useState(props.input.value || '');
-    const debouncedValue = useDebounceInput(value, 500);
 
-    useEffect(() => {
-        if (props.onFieldChange) {
-            props.onFieldChange(props.index, debouncedValue);
-        }
-    }, [debouncedValue]);
+    const handleValueChange = (newValue: string) => {
+        props.onFieldChange?.(props.index, newValue);
+    };
 
     let label = useContactField(props.fieldKey);
 
@@ -67,7 +47,7 @@ export const ContactField = memo(forwardRef((props: {
             multiline={false}
             blurOnSubmit={true}
             editable={props.input.editable}
-            value={value}
+            value={props.input.value || ''}
             onFocus={() => {
                 if (props.input.onFocus) {
                     props.input.onFocus(props.index);
@@ -78,7 +58,7 @@ export const ContactField = memo(forwardRef((props: {
                     props.input.onBlur(props.index);
                 }
             }}
-            onValueChange={setValue}
+            onValueChange={handleValueChange}
             onSubmit={() => {
                 if (props.input.onSubmit) {
                     props.input.onSubmit(props.index);

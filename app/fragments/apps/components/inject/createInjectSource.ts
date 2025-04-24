@@ -340,7 +340,7 @@ window['dapp-support'] = (() => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'showIntercom', args: { userProfile } } }));
     }
 
-    const obj = { __SUPPORT_AVAILABLE, showIntercom };
+    const obj = { __SUPPORT_AVAILABLE, show };
     Object.freeze(obj);
     return obj;
 })();

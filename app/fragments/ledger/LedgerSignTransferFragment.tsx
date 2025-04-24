@@ -84,6 +84,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const registerPending = useRegisterPending(ledgerAddress?.toString({ testOnly: isTestnet }));
     const path = pathFromAccountNumber(addr.acc, isTestnet);
     const jetton = useJetton({ owner: ledgerAddress!, master: metadata?.jettonWallet?.master, wallet: metadata.jettonWallet?.address });
+    const [bounceableFormat] = useBounceableWalletFormat();
 
     // Resolve operation
     const payload = order.payload ? resolveLedgerPayload(order.payload) : null;
@@ -187,6 +188,12 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
                         return;
                     }
                 }
+            }
+            else if (targetState.account.state.type === 'active') {
+                bounce = bounceableFormat;
+            }
+            else if (order.stateInit) {
+                bounce = false;
             }
 
             // Send sign request to Ledger

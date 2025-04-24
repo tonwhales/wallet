@@ -71,7 +71,7 @@ export const LiquidWithdrawActionFragment = fragment(() => {
                     title={t('products.staking.actions.swap')}
                     onPress={() => {
                         navigation.replace('DAppWebView', {
-                            url: 'https://dedust.io',
+                            url: 'https://dedust.io/swap/wsTON/TON',
                             header: {
                                 title: { type: 'params', params: { title: 'DeDust.io', domain: 'dedust.io' } },
                                 onClose: navigation.goBack

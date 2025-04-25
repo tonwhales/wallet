@@ -83,9 +83,14 @@ export function getJettonHint(params: { owner: Address | string, master?: Addres
         : (wallet?.toString({ testOnly: isTestnet }) ?? null);
 
     const hintsFull = queryClient.getQueryData<HintsFull>(Queries.HintsFull(ownerStr));
-    const key = masterStr ?? walletStr;
+    let key = masterStr;
+
+    if (!key) {
+        key = walletStr;
+    }
+
     const jettonIndex = key ? hintsFull?.addressesIndex?.[key] : null;
-    if (!jettonIndex) {
+    if (jettonIndex === null || jettonIndex === undefined) {
         return null;
     }
 

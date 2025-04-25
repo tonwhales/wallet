@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -23,19 +23,26 @@ import { AssetViewType } from "./AssetsFragment";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { HoldersAppParams, HoldersAppParamsType } from "../holders/HoldersAppFragment";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
+import { SolanaWalletProduct } from "../../components/products/savings/SolanaWalletProduct";
+import { SolanaTokenProduct } from "../../components/products/savings/SolanaTokenProduct";
+import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 
 enum AssetType {
     TON = 'ton',
     HOLDERS = 'holders',
     SPECIAL = 'special',
-    OTHERCOINS = 'otherCoins'
+    OTHERCOINS = 'otherCoins',
+    SOLANA = 'solana',
+    SOLANA_TOKEN = 'solana-token'
 }
 
 type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SPECIAL }
     | { type: AssetType.HOLDERS, account: GeneralHoldersAccount }
     | { type: AssetType.TON }
-    | { type: AssetType.SPECIAL };
+    | { type: AssetType.SPECIAL }
+    | { type: AssetType.SOLANA }
+    | { type: AssetType.SOLANA_TOKEN, token: SolanaToken };
 
 const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
     const theme = useTheme();
@@ -109,6 +116,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
+    const tokens = useSolanaTokens(solanaAddress, isLedger);
 
     const ledgerAddress = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr) {
@@ -157,6 +165,25 @@ export const ReceiveAssetsFragment = fragment(() => {
 
         navigation.navigateHolders(navParams, isTestnet, isLedger);
     }, [needsEnrollment, isHoldersReady, isTestnet, isLedger, ledgerContext]);
+
+    const solanaTokens: SolanaToken[] = tokens?.data ?? [];
+
+    const openSolanaToken = useCallback((token: SolanaToken) => {
+        navigation.navigateSolanaReceive({
+            addr: solanaAddress,
+            asset: {
+                mint: token.address,
+                content: {
+                    icon: token.logoURI,
+                    name: token.name
+                }
+            }
+        });
+    }, [navigation, solanaAddress]);
+
+    const openSolanaWallet = useCallback(() => {
+        navigation.navigateSolanaReceive({ addr: solanaAddress });
+    }, [navigation, solanaAddress]);
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
@@ -230,6 +257,22 @@ export const ReceiveAssetsFragment = fragment(() => {
                         </View>
                     </Pressable>
                 );
+            case AssetType.SOLANA:
+                return (
+                    <SolanaWalletProduct
+                        theme={theme}
+                        address={solanaAddress}
+                        onSelect={openSolanaWallet}
+                    />
+                );
+            case AssetType.SOLANA_TOKEN:
+                return (
+                    <SolanaTokenProduct
+                        token={item.token}
+                        address={solanaAddress}
+                        onSelect={() => openSolanaToken(item.token)}
+                    />
+                );
             default:
                 const tonCallback = () => onAssetCallback(null);
                 return (<TonAssetItem onSelect={tonCallback} />);
@@ -272,7 +315,15 @@ export const ReceiveAssetsFragment = fragment(() => {
 
     const defaultSection: { type: 'default' | 'holders', data: ListItem[] } = {
         type: 'default',
-        data: [{ type: AssetType.TON }, { type: AssetType.SPECIAL }]
+        data: [
+            { type: AssetType.TON },
+            { type: AssetType.SPECIAL },
+            { type: AssetType.SOLANA },
+            ...solanaTokens.map((t) => ({
+                type: AssetType.SOLANA_TOKEN as AssetType.SOLANA_TOKEN, // wtf, typescript?
+                token: t
+            }))
+        ]
     };
 
     let itemsList: { type: 'default' | 'holders' | 'otherCoins', data: ListItem[] }[] = []

@@ -94,7 +94,6 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
                     <SolanaWalletProduct
                         theme={theme}
                         address={solanaAddress}
-                        testOnly={isTestnet}
                     />
                 );
             case 'solanaToken':
@@ -102,7 +101,6 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
                     <SolanaTokenProduct
                         token={item}
                         address={solanaAddress}
-                        testOnly={isTestnet}
                     />
                 );
         }
@@ -117,7 +115,7 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
         })
         .map((s) => ({ type: AssetType.Jetton, ...s }));
 
-    const solanaTokens: ({ type: AssetType.SolanaToken } & SolanaToken)[] = tokens.data?.map((t) => ({ type: AssetType.SolanaToken, ...t })) ?? [];
+    const solanaTokens: ({ type: AssetType.SolanaToken } & SolanaToken)[] = tokens?.data?.map((t) => ({ type: AssetType.SolanaToken, ...t })) ?? [];
 
     const items: SavingsItem[] = [
         { type: AssetType.Ton },

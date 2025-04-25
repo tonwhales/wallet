@@ -16,13 +16,13 @@ import SolanaIcon from '@assets/ic-solana.svg';
 export const SolanaTokenProduct = memo(({
     token,
     address,
-    testOnly,
-    divider
+    divider,
+    onSelect
 }: {
     token: SolanaToken,
     address: string,
-    testOnly: boolean,
-    divider?: 'top' | 'bottom'
+    divider?: 'top' | 'bottom',
+    onSelect?: () => void
 }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -34,7 +34,11 @@ export const SolanaTokenProduct = memo(({
     const name = token.name ?? "?";
 
     const onPress = () => {
-        navigation.navigateSolanaTokenWallet({ owner: address, mint: token.address });
+        if (onSelect) {
+            onSelect();
+        } else {
+            navigation.navigateSolanaTokenWallet({ owner: address, mint: token.address });
+        }
     };
 
     return (
@@ -48,7 +52,7 @@ export const SolanaTokenProduct = memo(({
                     flexDirection: 'row', flexGrow: 1,
                     alignItems: 'center',
                     padding: 20,
-                    backgroundColor: theme.surfaceOnBg,
+                    backgroundColor: onSelect ? theme.surfaceOnElevation : theme.surfaceOnBg,
                     borderRadius: 20,
                     overflow: 'hidden',
                     gap: 12
@@ -57,7 +61,7 @@ export const SolanaTokenProduct = memo(({
                 <View style={{
                     width: 46, height: 46, borderRadius: 23,
                     borderWidth: 0,
-                    backgroundColor: theme.backgroundPrimary,
+                    backgroundColor: onSelect ? theme.surfaceOnElevation : theme.backgroundPrimary,
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
@@ -118,33 +122,35 @@ export const SolanaTokenProduct = memo(({
                         {t('savings.general', { symbol })}
                     </Text>
                 </View>
-                <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                        <ValueComponent
-                            value={balance}
-                            precision={2}
-                            decimals={decimals}
-                            centFontStyle={{ color: theme.textSecondary }}
-                        />
-                        <Text
-                            style={{ color: theme.textSecondary, fontSize: 15 }}>
-                            {` ${symbol}`}
+                {!onSelect && (
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                            <ValueComponent
+                                value={balance}
+                                precision={2}
+                                decimals={decimals}
+                                centFontStyle={{ color: theme.textSecondary }}
+                            />
+                            <Text
+                                style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                {` ${symbol}`}
+                            </Text>
                         </Text>
-                    </Text>
-                    <PriceComponent
-                        amount={price}
-                        style={{
-                            backgroundColor: 'transparent',
-                            paddingHorizontal: 0, paddingVertical: 0,
-                            alignSelf: 'flex-end',
-                            height: undefined,
-                        }}
-                        textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                        theme={theme}
-                        priceUSD={1}
-                        hideCentsIfNull
-                    />
-                </View>
+                        <PriceComponent
+                            amount={price}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0, paddingVertical: 0,
+                                alignSelf: 'flex-end',
+                                height: undefined,
+                            }}
+                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                            theme={theme}
+                            priceUSD={1}
+                            hideCentsIfNull
+                        />
+                    </View>
+                )}
             </View>
             {divider === 'bottom' && <ItemDivider marginVertical={0} />}
         </Pressable>

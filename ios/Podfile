@@ -96,6 +96,52 @@ target 'WhalesApp' do
       end
 
     end
+
+    # Strip bitcode from hermes framework
+    bitcode_strip_path = `xcrun -find bitcode_strip`.chomp
+    def strip_bitcode_from_framework(bitcode_strip_path, framework_path)
+      return unless File.exist?(framework_path)
+      command = "#{bitcode_strip_path} \"#{framework_path}\" -r -o \"#{framework_path}\""
+      puts "Stripping bitcode: #{command}"
+      system(command)
+    end
+    
+    # For both local builds and Xcode Cloud builds
+    # Check built products directory first
+    Dir.glob("#{installer.sandbox.root}/../build/**/*.app/Frameworks/hermes.framework/hermes").each do |hermes_path|
+      strip_bitcode_from_framework(bitcode_strip_path, hermes_path)
+    end
+    
+    # Check derived data directory for Xcode Cloud builds
+    derived_data = ENV['DERIVED_DATA_PATH'] || ENV['OBJROOT']
+    if derived_data
+      Dir.glob("#{derived_data}/**/*.app/Frameworks/hermes.framework/hermes").each do |hermes_path|
+        strip_bitcode_from_framework(bitcode_strip_path, hermes_path)
+      end
+    end
+    
+    # Also check for the specific path mentioned in your error
+    app_names = ['Tonhub.app', 'WhalesApp.app']
+    xcode_build_dir = ENV['CONFIGURATION_BUILD_DIR']
+    if xcode_build_dir
+      app_names.each do |app_name|
+        hermes_path = "#{xcode_build_dir}/#{app_name}/Frameworks/hermes.framework/hermes"
+        strip_bitcode_from_framework(bitcode_strip_path, hermes_path)
+      end
+    end
+
+    # Add a script phase to strip bitcode from hermes
+    installer.pods_project.targets.each do |target|
+      if target.name == 'WhalesApp'
+        phase = target.new_shell_script_build_phase('Strip Bitcode from Hermes')
+        phase.shell_script = <<-SCRIPT
+          set -e
+          BITCODE_STRIP=$(xcrun -find bitcode_strip)
+          find "${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}/Frameworks/hermes.framework" -name "hermes" -type f -exec $BITCODE_STRIP -r -o {} {} \\; 2>/dev/null || true
+        SCRIPT
+        phase.show_env_vars_in_log = '1'
+      end
+    end
   end
 
   permissions_path = '../node_modules/react-native-permissions/ios'

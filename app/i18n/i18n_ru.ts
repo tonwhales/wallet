@@ -1374,7 +1374,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "updateCardLimits": "Обновить лимиты карты"
         },
         "banner": {
-            "title": "Теперь доступены Solana и USDC",
+            "title": "Solana уже в Tonhub",
             "description": "Получайте, храните и отправляйте SOL и USDC"
         }
     },

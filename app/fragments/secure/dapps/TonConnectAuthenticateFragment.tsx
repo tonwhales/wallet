@@ -22,7 +22,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useSaveAppConnection } from '../../../engine/hooks';
 import { checkProtocolVersionCapability, resolveAuthError, verifyConnectRequest } from '../../../engine/tonconnect/utils';
 import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../../engine/tonconnect/types';
-import { ConnectReplyBuilder } from '../../../engine/tonconnect/ConnectReplyBuilder';
+import { ConnectReplyBuilder, ExtendedConnectItemReply } from '../../../engine/tonconnect/ConnectReplyBuilder';
 import { tonConnectDeviceInfo } from '../../../engine/tonconnect/config';
 import { DappAuthComponent, TonConnectSignState } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -252,7 +252,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             const stateInitStr = stateInitCell.toBoc({ idx: false }).toString('base64');
             const replyBuilder = new ConnectReplyBuilder(state.request, state.app);
 
-            let replyItems: ConnectItemReply[];
+            let replyItems: ExtendedConnectItemReply[];
             try {
                 replyItems = replyBuilder.createReplyItems(
                     acc.address.toString({ testOnly: isTestnet, urlSafe: true, bounceable: true }),
@@ -405,7 +405,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     )
 });
 
-export type TonConnectAuthResult = { replyItems: ConnectItemReply[], ok: true } | { ok: false }
+export type TonConnectAuthResult = { replyItems: ExtendedConnectItemReply[], ok: true } | { ok: false }
 
 export enum TonConnectAuthType {
     Qr = 'qr',

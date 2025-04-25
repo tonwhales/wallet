@@ -29,7 +29,7 @@ import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { StoredOperation } from "../../../engine/types";
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
-import { ConfirmLoadedPropsBatch, OrderMessage } from "../TransferFragment";
+import { ConfirmLoadedPropsBatch, OrderMessage } from "../transfer/TransferFragment";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { AppInfo } from "../../../components/ConnectedAppButton";

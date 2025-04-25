@@ -26,7 +26,6 @@ import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
-import { TransferFragment } from './fragments/secure/TransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -107,8 +106,16 @@ import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
 import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilterFragment';
 import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragment';
+import { SolanaSimpleTransferFragment } from './fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
+import { TransferFragment } from './fragments/secure/transfer/TransferFragment';
+import { SolanaTransferFragment } from './fragments/secure/transfer/SolanaTransferFragment';
+import { useSolanaAccountWatcher } from './engine/useSolanaAccountWatcher';
+import { SolanaTransactionPreviewFragment } from './fragments/solana/transaction/SolanaTransactionPreviewFragment';
+import { solanaAddressFromPublicKey } from './utils/solana/address';
+import { whalesConnectEndpoint } from './engine/clients';
 import { WalletImportSelectorFragment } from './fragments/onboarding/WalletImportSelectorFragment';
 import { LedgerOnboardingFragment } from './fragments/onboarding/LedgerOnboardingFragment';
+import { PendingSolanaTransactionPreviewFragment } from './fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -368,7 +375,14 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('DAppWebViewModal', DAppWebViewFragment, safeArea),
     genericScreen('DAppWebViewLocked', DAppWebViewFragment, safeArea, true, 0, { gestureEnabled: false }),
     fullScreenModal('DAppWebViewFull', DAppWebViewFragment, safeArea),
-    modalScreen('AddressBook', AddressBookFragment, safeArea)
+    modalScreen('AddressBook', AddressBookFragment, safeArea),
+
+    // Solana
+    modalScreen('SolanaSimpleTransfer', SolanaSimpleTransferFragment, safeArea),
+    modalScreen('SolanaTransfer', SolanaTransferFragment, safeArea),
+    modalScreen('SolanaReceive', ReceiveFragment, safeArea),
+    modalScreen('SolanaTransaction', SolanaTransactionPreviewFragment, safeArea),
+    modalScreen('PendingSolanaTransaction', PendingSolanaTransactionPreviewFragment, safeArea),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();
@@ -423,7 +437,15 @@ export const Navigation = memo(() => {
                         if (ended) {
                             return;
                         }
-                        await registerPushToken(token, appState.addresses.map((v) => v.address), isTestnet);
+                        const addresses: string[] = [];
+                    
+                        for (let a of appState.addresses) {
+                            addresses.push(a.address.toString({ testOnly: isTestnet }));
+                            const solanaAddress = solanaAddressFromPublicKey(a.publicKey);
+                            addresses.push(solanaAddress.toString());
+                        }
+                    
+                        await registerPushToken(token, addresses);
                     });
                 }
             }
@@ -442,7 +464,7 @@ export const Navigation = memo(() => {
             }
             const pending = getPendingGrant();
             for (let p of pending) {
-                await axios.post('https://connect.tonhubapi.com/connect/grant', { key: p }, { timeout: 5000 });
+                await axios.post(`${whalesConnectEndpoint}/connect/grant`, { key: p }, { timeout: 5000 });
                 removePendingGrant(p);
             }
         })
@@ -460,7 +482,7 @@ export const Navigation = memo(() => {
             }
             const pending = getPendingRevoke();
             for (let p of pending) {
-                await axios.post('https://connect.tonhubapi.com/connect/revoke', { key: p }, { timeout: 5000 });
+                await axios.post(`${whalesConnectEndpoint}/connect/revoke`, { key: p }, { timeout: 5000 });
                 removePendingRevoke(p);
             }
         })
@@ -474,6 +496,9 @@ export const Navigation = memo(() => {
 
     // Watch for holders updates
     useHoldersWatcher();
+
+    // Watch for solana account updates
+    useSolanaAccountWatcher();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>

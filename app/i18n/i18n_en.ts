@@ -86,7 +86,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "address": "Address",
         "currencyChanged": "Currency changed",
         "required": "required",
-        "openSettings": "Open settings",
+        "operation": "Operation",
+        "description": "Description",
+        "openSettings": "Open settings"
     },
     "syncStatus": {
         "connecting": "Connecting",
@@ -189,7 +191,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Receive",
-        "subtitle": "Send only Toncoin and tokens in TON network to this address, or you might lose your funds.",
+        "subtitleTon": "Send only Toncoin and tokens in TON network to this address, or you might lose your funds.",
+        "subtitleSolana": "Send only SOL and SPL tokens in Solana network to this address, or you might lose your funds.",
         "share": {
             "title": "My Tonhub Address",
             "error": "Failed to share address, please try again or contact support"
@@ -279,7 +282,23 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "You are trying to send more tokens than you have",
         "aboutFees": "About fees",
         "aboutFeesDescription": "The fees for transactions on the blockchain depend on several factors, such as network congestion, transaction size, gas price, and blockchain configuration parameters. The higher the demand for transaction processing on the blockchain or the larger the transaction size (message/comment), the higher the fees will be.",
-        "gaslessTransferSwitch": "Pay gas fee in {{symbol}}"
+        "gaslessTransferSwitch": "Pay gas fee in {{symbol}}",
+        "solana": {
+            "error": {
+                "title": "Solana transaction error",
+                "networkRequestFailed": "Network error, please try again later or contact support",
+                "connectionTimeout": "Connection timed out, please try again later or contact support",
+                "connectionRefused": "Connection refused, please try again later or contact support",
+                "connectionReset": "Connection reset, please try again later or contact support",
+                "insufficientLamports": "Insufficient SOL funds",
+                "insufficientLamportsWithAmount": "Insufficient SOL funds, need {{amount}} more",
+                "insufficientTokenFunds": "Insufficient token funds",
+                "rateLimited": "We are experiencing high demand, please try again later or contact support",
+                "signingFailed": "Transaction signing failed",
+                "insufficientFundsForRentTitle": "Transaction amount is below minimum",
+                "insufficientFundsForRent": "Insufficient SOL for sending to: {{address}}, need {{amount}} more"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Verify phone",
@@ -1335,11 +1354,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "TON saving account",
-        "usdt": "USDT saving account"
+        "usdt": "USDT saving account",
+        "general": "{{symbol}} saving account",
     },
     "spending": {
         "ton": "TON spending account",
-        "usdt": "USDT spending account"
+        "usdt": "USDT spending account",
+        "general": "{{symbol}} spending account"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Create associated token account",
+            "unknown": "Unknown instruction",
+            "systemTransfer": "SOL transfer",
+            "createAccount": "Create account",
+            "tokenTransfer": "Token transfer",
+            "depositCard": "Deposit to card",
+            "closeCard": "Close card",
+            "updateCardLimits": "Update card limits"
+        },
+        "banner": {
+            "title": "Solana is Now Available",
+            "description": "Receive, store and send SOL and USDC"
+        }
     },
     "iban": {
         "banner": {

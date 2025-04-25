@@ -32,7 +32,7 @@ export function getHasHoldersProducts(address: string) {
     return hasAccounts(accounts);
 }
 
-export function useHasHoldersProducts(address: string | Address) {
-    const accs = useHoldersAccounts(address).data;
+export function useHasHoldersProducts(address: string | Address, solanaAddress?: string) {
+    const accs = useHoldersAccounts(address, solanaAddress).data;
     return hasAccounts(accs);
 }

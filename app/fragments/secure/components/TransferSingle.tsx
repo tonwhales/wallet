@@ -20,7 +20,6 @@ import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimal
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
-import { ConfirmLoadedPropsSingle } from "../TransferFragment";
 import { PendingTransactionBody, PendingTransactionStatus } from "../../../engine/state/pending";
 import Minimizer from "../../../modules/Minimizer";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
@@ -29,6 +28,7 @@ import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
 import { valueText } from "../../../components/ValueComponent";
+import { ConfirmLoadedPropsSingle } from "../transfer/TransferFragment";
 import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 
 export const failableTransferBackoff = createBackoffFailaible({

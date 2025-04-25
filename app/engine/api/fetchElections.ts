@@ -1,7 +1,8 @@
 import axios from "axios";
+import { whalesConnectEndpoint } from "../clients";
 
 export async function fetchElections(maxLength: number | null, isTestnet?: boolean) {
-    const url = `https://connect.tonhubapi.com/net/${isTestnet ? 'sandbox' : 'mainnet'}/elections/latest`;
+    const url = `${whalesConnectEndpoint}/net/${isTestnet ? 'sandbox' : 'mainnet'}/elections/latest`;
 
     let latestElections = (await axios.get(url)).data;
     let elections = (latestElections as { elections: number[] }).elections;
@@ -12,7 +13,7 @@ export async function fetchElections(maxLength: number | null, isTestnet?: boole
 
     return await Promise.all(
         elections.map(async (el) => {
-            const url = `https://connect.tonhubapi.com/net/${isTestnet ? 'sandbox' : 'mainnet'}/elections/${el}`;
+            const url = `${whalesConnectEndpoint}/net/${isTestnet ? 'sandbox' : 'mainnet'}/elections/${el}`;
             let election = (await axios.get(url)).data;
 
             let r = election as {

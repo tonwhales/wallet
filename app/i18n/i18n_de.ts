@@ -86,7 +86,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "address": "Adresse",
         "currencyChanged": "Währung geändert",
         "required": "erforderlich",
-        "openSettings": "Einstellungen öffnen",
+        "operation": "Vorgang",
+        "description": "Beschreibung",
+        "openSettings": "Einstellungen öffnen"
     },
     "syncStatus": {
         "connecting": "Verbinden",
@@ -189,7 +191,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Empfangen",
-        "subtitle": "Senden Sie nur Toncoin und Token im TON-Netzwerk an diese Adresse, sonst könnten Sie Ihre Gelder verlieren.",
+        "subtitleTon": "Senden Sie nur Toncoin und Token im TON-Netzwerk an diese Adresse, sonst könnten Sie Ihre Gelder verlieren.",
+        "subtitleSolana": "Senden Sie nur SOL und SPL-Token im Solana-Netzwerk an diese Adresse, sonst könnten Sie Ihre Gelder verlieren.",
         "share": {
             "title": "Meine Tonhub-Adresse",
             "error": "Fehler beim Teilen der Adresse, bitte versuchen Sie es erneut oder kontaktieren Sie den Support"
@@ -279,7 +282,23 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "Sie versuchen, mehr Tokens zu senden, als Sie haben",
         "aboutFees": "Über Gebühren",
         "aboutFeesDescription": "Die Gebühren für Transaktionen auf der Blockchain hängen von mehreren Faktoren ab, wie z.B. Netzwerkauslastung, Transaktionsgröße, Gaspreis und Blockchain-Konfigurationsparametern. Je höher die Nachfrage nach Transaktionsverarbeitung auf der Blockchain oder je größer die Transaktionsgröße (Nachricht/Kommentar), desto höher sind die Gebühren.",
-        "gaslessTransferSwitch": "Gasgebühr in {{symbol}} bezahlen"
+        "gaslessTransferSwitch": "Gasgebühr in {{symbol}} bezahlen",
+        "solana": {
+            "error": {
+                "title": "Solana-Transaktionsfehler",
+                "networkRequestFailed": "Netzwerkfehler, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "connectionTimeout": "Verbindungstimeout, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "connectionRefused": "Verbindung abgelehnt, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "connectionReset": "Verbindung zurückgesetzt, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "insufficientLamports": "Unzureichende SOL-Mittel",
+                "insufficientLamportsWithAmount": "Unzureichende SOL-Mittel, benötigen {{amount}} mehr",
+                "insufficientTokenFunds": "Unzureichende Token-Mittel",
+                "rateLimited": "Wir verzeichnen eine hohe Nachfrage, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "signingFailed": "Transaktionssignatur fehlgeschlagen",
+                "insufficientFundsForRentTitle": "Transaktionsbetrag ist unter dem Mindestbetrag",
+                "insufficientFundsForRent": "Unzureichende SOL für das Senden an: {{address}}, benötigen {{amount}} mehr"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Telefon verifizieren",
@@ -1335,11 +1354,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "TON Sparkonto",
-        "usdt": "USDT Sparkonto"
+        "usdt": "USDT Sparkonto",
+        "general": "{{symbol}} Sparkonto"
     },
     "spending": {
-        "ton": "TON Ausgabenkonto",
-        "usdt": "USDT Ausgabenkonto"
+        "ton": "TON-Ausgabekonto",
+        "usdt": "USDT-Ausgabekonto",
+        "general": "{{symbol}}-Ausgabekonto"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Verknüpftes Token-Konto erstellen",
+            "unknown": "Unbekannte Anweisung",
+            "systemTransfer": "SOL-Überweisung",
+            "createAccount": "Konto erstellen",
+            "tokenTransfer": "Token-Überweisung",
+            "depositCard": "Einzahlung auf Karte",
+            "closeCard": "Karte schließen",
+            "updateCardLimits": "Kartenlimits aktualisieren"
+        },
+        "banner": {
+            "title": "Solana ist jetzt verfügbar",
+            "description": "Empfangen, speichern und senden von SOL und USDC"
+        }
     },
     "iban": {
         "banner": {

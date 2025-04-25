@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.4.31</string>
+	<string>2.5.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -38,6 +38,7 @@
 				<string>$(BUNDLE_TC_SCHEMA)</string>
 				<string>$(BUNDLE_LINK_SCHEMA)</string>
 				<string>$(BUNDLE_TH_SCHEMA)</string>
+				<string>$(BUNDLE_SOL_SCHEMA)</string>
 			</array>
 		</dict>
 	</array>

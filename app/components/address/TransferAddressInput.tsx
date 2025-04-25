@@ -2,7 +2,7 @@ import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useM
 import { Platform, Pressable, View } from "react-native";
 import { Address } from "@ton/core";
 import { avatarColors } from "../avatar/Avatar";
-import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputActionType } from "./AddressDomainInput";
+import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputAction } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { useAppState, useBounceableWalletFormat, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
@@ -18,12 +18,13 @@ import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { Typography } from "../styles";
 import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
-import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
+import { hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
 type TransferAddressInputProps = {
     acc: Address,
+    solanaAddress?: string,
     isTestnet: boolean,
     index: number,
     initTarget: string,
@@ -42,7 +43,7 @@ type TransferAddressInputProps = {
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const { acc: account, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger } = props;
+    const { acc: account, solanaAddress, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger } = props;
     const theme = useTheme();
 
     const [state, setState] = useState<AddressInputState>({
@@ -78,8 +79,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const [walletSettings] = useWalletSettings(validAddressFriendly);
     const [bounceableFormat] = useBounceableWalletFormat();
     const ledgerTransport = useLedgerTransport();
-
-    const holdersAccounts = useHoldersAccounts(account).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
+    const holdersAccounts = useHoldersAccounts(account, isLedger ? undefined : solanaAddress).data?.accounts
+        ?.filter(acc => hasDirectTonDeposit(acc) && acc.network !== 'solana') ?? [];
     const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
@@ -149,7 +150,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         const suff = friendly.slice(0, 4) + '...' + friendly.slice(friendly.length - 4);
 
         (ref as RefObject<AddressDomainInputRef> | undefined)?.current?.inputAction({
-            type: InputActionType.InputTarget,
+            type: InputAction.InputTarget,
             input: name.trim(),
             target: friendly,
             suffix: suff
@@ -252,6 +253,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         isTestnet={isTestnet}
                         acc={account}
                         onSearchItemSelected={onAddressSearchItemSelected}
+                        solanaAddress={solanaAddress}
                     />
                 </View>
                 {isInvalid && (

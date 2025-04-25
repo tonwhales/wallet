@@ -7,7 +7,7 @@ import { queryClient } from "../../clients";
 import { Queries } from "../../queries";
 import { HintsFull } from "./useHintsFull";
 
-export function useJetton(params: { owner: Address | string, master?: Address | string, wallet?: Address | string }): Jetton | null {
+export function useJetton(params: { owner?: Address | string, master?: Address | string, wallet?: Address | string }): Jetton | null {
     const { isTestnet: testOnly } = useNetwork();
     const { owner, master, wallet } = params;
     const masterStr = typeof master === 'string'
@@ -83,9 +83,14 @@ export function getJettonHint(params: { owner: Address | string, master?: Addres
         : (wallet?.toString({ testOnly: isTestnet }) ?? null);
 
     const hintsFull = queryClient.getQueryData<HintsFull>(Queries.HintsFull(ownerStr));
-    const key = masterStr ?? walletStr;
+    let key = masterStr;
+
+    if (!key) {
+        key = walletStr;
+    }
+
     const jettonIndex = key ? hintsFull?.addressesIndex?.[key] : null;
-    if (!jettonIndex) {
+    if (jettonIndex === null || jettonIndex === undefined) {
         return null;
     }
 

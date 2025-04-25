@@ -32,7 +32,6 @@ import { ToastDuration, useToaster } from "../../../components/toast/ToastProvid
 import { ThemeType } from "../../../engine/state/theme";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
 import { HoldersOp, HoldersOpView } from "../../../components/transfer/HoldersOpView";
-import { TransferEstimate } from "../TransferFragment";
 import { ItemSwitch } from "../../../components/Item";
 import { Image } from 'expo-image';
 import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
@@ -40,6 +39,7 @@ import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurre
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
+import { TransferEstimate } from "../transfer/TransferFragment";
 
 const TxAvatar = memo(({
     address,
@@ -468,7 +468,6 @@ export const TransferSingleView = memo(({
 
                     {!!holdersOp && (
                         <HoldersOpView
-                            theme={theme}
                             op={holdersOp}
                             targetKind={targetContract?.kind}
                         />

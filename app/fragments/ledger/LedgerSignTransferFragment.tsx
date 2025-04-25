@@ -34,7 +34,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ledgerOrderToPendingTransactionBody, LedgerTransferPayload, PendingTransactionBody, PendingTransactionStatus } from '../../engine/state/pending';
 import { useParams } from '../../utils/useParams';
 import { handleLedgerSignError } from '../../utils/ledger/handleLedgerSignError';
-import { TransferTarget } from '../secure/TransferFragment';
+import { TransferTarget } from '../secure/transfer/TransferFragment';
 import { WalletVersions } from '../../engine/types';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 import { failableTransferBackoff } from '../secure/components/TransferSingle';

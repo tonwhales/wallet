@@ -85,8 +85,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Без газу",
         "address": "Адреса",
         "currencyChanged": "Валюта змінена",
-        "required": "обов’язково",
-        "openSettings": "Відкрити налаштування",
+        "required": "обов'язково",
+        "operation": "Операція",
+        "description": "Опис",
+        "openSettings": "Відкрити налаштування"
     },
     "syncStatus": {
         "connecting": "Підключення",
@@ -189,7 +191,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Отримати",
-        "subtitle": "Надсилайте лише Toncoin та токени в мережі TON на цю адресу, інакше ви можете втратити свої кошти.",
+        "subtitleTon": "Надсилайте лише Toncoin та токени в мережі TON на цю адресу, інакше ви можете втратити свої кошти.",
+        "subtitleSolana": "Надсилайте лише SOL та SPL токени в мережі Solana на цю адресу, інакше ви можете втратити свої кошти.",
         "share": {
             "title": "Моя адреса Tonhub",
             "error": "Не вдалося поділитися адресою, спробуйте ще раз або зверніться до підтримки"
@@ -279,7 +282,23 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "Ви намагаєтеся надіслати більше токенів, ніж у вас є",
         "aboutFees": "Про комісії",
         "aboutFeesDescription": "Комісії за транзакції в блокчейні залежать від кількох факторів, таких як завантаженість мережі, розмір транзакції, ціна газу та параметри конфігурації блокчейну. Чим вищий попит на обробку транзакцій у блокчейні або чим більший розмір транзакції (повідомлення/коментар), тим вищі будуть комісії.",
-        "gaslessTransferSwitch": "Сплатити комісію за газ у {{symbol}}"
+        "gaslessTransferSwitch": "Сплатити комісію за газ у {{symbol}}",
+        "solana": {
+            "error": {
+                "title": "Помилка транзакції Solana",
+                "networkRequestFailed": "Помилка мережі, спробуйте пізніше або зверніться до підтримки",
+                "connectionTimeout": "Час очікування з\'єднання вичерпано, спробуйте пізніше або зверніться до підтримки",
+                "connectionRefused": "З\'єднання відхилено, спробуйте пізніше або зверніться до підтримки",
+                "connectionReset": "З\'єднання скинуто, спробуйте пізніше або зверніться до підтримки",
+                "insufficientLamports": "Недостатньо SOL",
+                "insufficientLamportsWithAmount": "Недостатньо SOL, потрібно ще {{amount}}",
+                "insufficientTokenFunds": "Недостатньо токенів",
+                "rateLimited": "Спостерігається високе навантаження, спробуйте пізніше або зверніться до підтримки",
+                "signingFailed": "Помилка підпису транзакції",
+                "insufficientFundsForRentTitle": "Сума транзакції нижче мінімальної",
+                "insufficientFundsForRent": "Недостатньо SOL для відправки на: {{address}}, потрібно ще {{amount}}"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Підтвердити телефон",
@@ -909,7 +928,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "message": "Заповніть необхідні поля -> Виберіть криптовалюту та вкажіть адресу гаманця і суму для покупки -> Перейдіть до оформлення замовлення -> Введіть свої платіжні дані правильно. Оплата кредитною карткою безпечно обробляється нашими партнерами -> Завершіть покупку. Обліковий запис не потрібен!"
         },
         "title": "Купуйте TON за допомогою кредитної картки за USD, EUR та RUB",
-        "description": "Ви будете перенаправлені на Neocrypto. Послуги, пов’язані з платежами, надаються Neocrypto, яка є окремою платформою, що належить третій стороні\n\nБудь ласка, прочитайте та погодьтеся з Умовами обслуговування Neocrypto перед використанням їхніх послуг",
+        "description": "Ви будете перенаправлені на Neocrypto. Послуги, пов'язані з платежами, надаються Neocrypto, яка є окремою платформою, що належить третій стороні\n\nБудь ласка, прочитайте та погодьтеся з Умовами обслуговування Neocrypto перед використанням їхніх послуг",
         "doNotShow": "Більше не показувати для Neocrypto",
         "termsAndPrivacy": "Я прочитав і погоджуюся з ",
         "confirm": {
@@ -954,7 +973,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "connections": {
         "extensions": "Розширення",
-        "connections": "З’єднання"
+        "connections": "З'єднання"
     },
     "accounts": {
         "active": "Активний",
@@ -1335,11 +1354,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "TON ощадний рахунок",
-        "usdt": "USDT ощадний рахунок"
+        "usdt": "USDT ощадний рахунок",
+        "general": "{{symbol}} ощадний рахунок"
     },
     "spending": {
-        "ton": "TON рахунок для витрат",
-        "usdt": "USDT рахунок для витрат"
+        "ton": "Рахунок витрат TON",
+        "usdt": "Рахунок витрат USDT",
+        "general": "Рахунок витрат {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Створення пов'язаного облікового запису токена",
+            "unknown": "Невідома інструкція",
+            "systemTransfer": "Переказ SOL",
+            "createAccount": "Створення облікового запису",
+            "tokenTransfer": "Переказ токена",
+            "depositCard": "Поповнення картки",
+            "closeCard": "Закрити картку",
+            "updateCardLimits": "Оновити ліміти картки"
+        },
+        "banner": {
+            "title": "Тепер доступні Solana та USDC",
+            "description": "Отримайте, зберігайте та відправляйте SOL та USDC"
+        }
     },
     "iban": {
         "banner": {

@@ -26,6 +26,8 @@ migrateDontShowComments();
 
 LogBox.ignoreAllLogs()
 
+export const keys = require('@assets/keys.json');
+
 export const Root = memo(() => {
     const [sessionId, setSessionId] = useState(0);
     const reboot = useCallback(() => {

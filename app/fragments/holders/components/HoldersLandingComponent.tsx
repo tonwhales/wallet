@@ -6,7 +6,7 @@ import { HoldersAppParams, HoldersAppParamsType } from "../HoldersAppFragment";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { AnimatedCards } from "./AnimatedCards";
 import { Image } from "expo-image";
-import { useHoldersEnroll, useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount, useSupport, useTheme } from "../../../engine/hooks";
+import { useHoldersEnroll, useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount, useSolanaSelectedAccount, useSupport, useTheme } from "../../../engine/hooks";
 import WebView from "react-native-webview";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -32,6 +32,7 @@ export type HoldersLandingComponentProps = {
 
 export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId, isLedger }: HoldersLandingComponentProps) => {
     const acc = useSelectedAccount()!;
+    const solanaAddress = useSolanaSelectedAccount()!
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
@@ -49,7 +50,7 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
     const [confirmOnLedger, setConfirmOnLedger] = useState(false);
     const isComponentMounted = useRef(true);
 
-    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 } });
+    const enroll = useHoldersEnroll({ acc, domain, authContext, inviteId, authStyle: { paddingTop: 32 }, solanaAddress: isLedger ? undefined : solanaAddress });
     const ledgerEnroll = useHoldersLedgerEnroll({ inviteId, setConfirming: setConfirmOnLedger });
     const authenticate = isLedger ? ledgerEnroll : enroll;
 

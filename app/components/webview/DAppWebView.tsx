@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { authAPI, dappClientAPI, dappWalletAPI, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { authAPI, dappClientAPI, dappWalletAPI, dispatchResponse, dispatchTonhubBridgeResponse, emitterAPI, mainButtonAPI, statusBarAPI, supportAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -67,7 +67,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const {
         defaultNavigationOptions, source, useQueryAPI, refId, address,
         onClose, onEnroll, onMessage, onNavigationStateChange,
-        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient,
+        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient, useSupportAPI,
         injectedJavaScriptBeforeContentLoaded, injectionEngine, defaultSafeArea,
         loader,
         onContentProcessDidTerminate,
@@ -132,7 +132,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 openWithInApp(url);
                 return;
             }
-        } catch {}
+        } catch { }
     }, [source]);
 
     const onNavigation = useCallback((url: string) => {
@@ -286,7 +286,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
     }, [
         navigation, toaster, authContext, isTestnet,
-        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient,
+        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient, useSupportAPI,
         dispatchMainButton,
         dispatchNavigationOptions,
         setLoaded, onMessage, onClose, onEnroll, safelyOpenUrl, updateLocalStorageStatus, markRefIdShown
@@ -345,6 +345,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }) : ''}
         ${useWalletAPI ? dappWalletAPI : ''}
         ${useDappClient ? dappClientAPI : ''}
+        ${useSupportAPI ? supportAPI : ''}
         ${injectedJavaScriptBeforeContentLoaded ?? ''}
         (() => {
             if (!window.tonhub) {
@@ -359,7 +360,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         `
     }, [
         injectedJavaScriptBeforeContentLoaded,
-        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient,
+        useMainButton, useStatusBar, useToaster, useEmitter, useAuthApi, useWalletAPI, useDappClient, useSupportAPI,
         safeArea, defaultSafeArea
     ]);
 

@@ -12,7 +12,7 @@ import { BlurView } from "expo-blur";
 import { Address } from "@ton/core";
 import { WalletAddress } from "../../../components/address/WalletAddress";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useTranslation } from "react-i18next";
+import { t } from "../../../i18n/t";
 
 export const WalletCard = memo(({ address, height, walletHeaderHeight, isLedger }: { address: Address, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
     const account = useAccountLite(address);
@@ -24,7 +24,6 @@ export const WalletCard = memo(({ address, height, walletHeaderHeight, isLedger 
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
     const bottomBarHeight = useBottomTabBarHeight();
-    const { t } = useTranslation();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {

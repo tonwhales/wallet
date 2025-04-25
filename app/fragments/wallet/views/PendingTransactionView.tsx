@@ -45,13 +45,17 @@ export const PendingTransactionView = memo(({
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const body = tx.body;
+    const knownWallets = KnownWallets(isTestnet);
+    const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
     const targetFriendly = body?.type === 'token'
         ? body.target.toString({ testOnly: isTestnet })
         : tx.address?.toString({ testOnly: isTestnet });
-    const contact = useContact(targetFriendly);
-    const [settings] = useWalletSettings(targetFriendly);
-    const knownWallets = KnownWallets(isTestnet);
-    const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
+    const targetFriendlyBounceable = body?.type === 'token'
+        ? body.target.toString({ testOnly: isTestnet, bounceable: body.bounceable })
+        : tx.address?.toString({ testOnly: isTestnet, bounceable: tx.bounceable });
+    
+    const contact = useContact(targetFriendlyBounceable);
+    const [settings] = useWalletSettings(targetFriendlyBounceable);
     const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
@@ -91,9 +95,9 @@ export const PendingTransactionView = memo(({
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (targetFriendly) {
-        if (knownWallets[targetFriendly]) {
-            known = knownWallets[targetFriendly];
+    if (targetFriendlyBounceable) {
+        if (knownWallets[targetFriendlyBounceable]) {
+            known = knownWallets[targetFriendlyBounceable];
         }
         if (!!contact) { // Resolve contact known wallet
             known = { name: contact.name }

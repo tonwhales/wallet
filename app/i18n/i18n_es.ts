@@ -85,7 +85,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Sin gas",
         "address": "Dirección",
         "currencyChanged": "Moneda cambiada",
-        "required": "requerido"
+        "required": "requerido",
+        "openSettings": "Abrir configuración",
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -347,7 +348,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "requestingPermission": "Solicitando permisos de cámara...",
         "noPermission": "Permitir acceso a la cámara para escanear códigos QR",
         "requestPermission": "Abrir configuración",
-        "failedToReadFromImage": "No se pudo leer el código QR de la imagen"
+        "failedToReadFromImage": "No se pudo leer el código QR de la imagen",
+        "galleryPermissionTitle": "Se Requiere Permiso",
+        "galleryPermissionMessage": "Para escanear códigos QR de tus fotos, la aplicación necesita acceso a tu galería"
     },
     "products": {
         "addNew": "Agregar un producto",
@@ -1225,7 +1228,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bluetoothScanFailed": "Escaneo de Bluetooth fallido",
             "unsafeTransfer": "Por favor, permite la firma ciega en la aplicación TON Ledger",
             "userCanceled": "Rechazado en Ledger",
-            "updateApp": "Por favor, actualice la aplicación TON en Ledger Live a la última versión"
+            "updateApp": "Por favor, actualice la aplicación TON en Ledger Live a la última versión",
+            "permissionsIos": "Por favor, permite el acceso a Bluetooth"
         },
         "moreAbout": "Más sobre Ledger",
         "verifyAddress": {

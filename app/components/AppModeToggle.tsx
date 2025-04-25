@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, { runOnJS, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
-import { useTranslation } from 'react-i18next';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { holdersUrl, HoldersUserState } from '../engine/api/holders/fetchUserState';
@@ -11,13 +10,15 @@ import { useTransactionsFilter } from '../engine/hooks/transactions/useTransacti
 import { TransactionType } from '../engine/types';
 import { useLedgerTransport } from '../fragments/ledger/components/TransportContext';
 import { Address } from '@ton/core';
+import { t } from '../i18n/t';
+import { queryClient } from '../engine/clients';
+import { Queries } from '../engine/queries';
 
 const ICON_SIZE = 16;
 const GAP_BETWEEN_ICON_AND_TEXT = 4;
 const TOGGLE_BORDER_WIDTH = 2;
 
 export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
-    const { t } = useTranslation();
     const navigation = useTypedNavigation();
     const leftLabel = t('common.wallet')
     const rightLabel = t('common.cards')
@@ -57,6 +58,9 @@ export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
         } else {
             switchAppToWalletMode(isSwitchingToWallet);
             setFilter((prev) => ({ ...prev, type: isSwitchingToWallet ? TransactionType.TON : TransactionType.HOLDERS }));
+            if (!isSwitchingToWallet) {
+                queryClient.invalidateQueries({ queryKey: Queries.Holders(address.toString({ testOnly: isTestnet })).Iban() });
+            }
         }
     }, [needsEnrollment, isHoldersReady, url, isTestnet, holdersAccounts?.accounts, isLedger])
 

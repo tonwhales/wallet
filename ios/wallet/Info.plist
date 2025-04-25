@@ -43,6 +43,10 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>248</string>
+	<key>INTERCOM_APP</key>
+	<string>$(INTERCOM_APP)</string>
+	<key>INTERCOM_IOS_API</key>
+	<string>$(INTERCOM_IOS_API)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -94,5 +98,9 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>WONDERPUSH_CLIENT_ID</key>
+	<string>$(WONDERPUSH_CLIENT_ID)</string>
+	<key>WONDERPUSH_CLIENT_SECRET</key>
+	<string>$(WONDERPUSH_CLIENT_SECRET)</string>
 </dict>
 </plist>

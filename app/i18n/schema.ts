@@ -88,6 +88,7 @@ export type LocalizationSchema = {
         address: string,
         currencyChanged: string,
         required: string,
+        openSettings: string,
     },
     syncStatus: {
         connecting: string,
@@ -349,7 +350,9 @@ export type LocalizationSchema = {
         requestingPermission: string,
         noPermission: string,
         requestPermission: string,
-        failedToReadFromImage: string
+        failedToReadFromImage: string,
+        galleryPermissionTitle: string,
+        galleryPermissionMessage: string
     },
     products: {
         addNew: string,
@@ -1178,6 +1181,7 @@ export type LocalizationSchema = {
             unsafeTransfer: string,
             userCanceled: string,
             updateApp: string,
+            permissionsIos: string,
         },
         moreAbout: string,
         verifyAddress: {

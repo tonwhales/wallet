@@ -323,7 +323,8 @@ export const ExchangesFragment = fragment(() => {
         useStatusBar: true,
         useEmitter: true,
         useQueryAPI: true,
-        useDappClient: true
+        useDappClient: true,
+        useSupportAPI: true
     };
 
     const [renderKey, setRenderKey] = useState(0);

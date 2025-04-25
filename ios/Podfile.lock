@@ -87,6 +87,10 @@ PODS:
   - hermes-engine/Pre-built (0.72.6)
   - ImageColors (2.3.0):
     - ExpoModulesCore
+  - Intercom (18.6.2)
+  - intercom-react-native (8.3.0):
+    - Intercom (~> 18.6.1)
+    - React-Core
   - libaom (3.0.0):
     - libvmaf (>= 2.2.0)
   - libavif (0.11.1):
@@ -468,6 +472,9 @@ PODS:
     - React-Core
   - react-native-webview (13.6.3):
     - React-Core
+  - react-native-wonderpush (2.3.0):
+    - React (< 1.0.0, >= 0.13.0)
+    - WonderPush (= 4.3.1)
   - React-NativeModulesApple (0.72.6):
     - hermes-engine
     - React-callinvoker
@@ -623,6 +630,12 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.15)
   - SocketRocket (0.6.1)
+  - WonderPush (4.3.1):
+    - WonderPush/Core (= 4.3.1)
+  - WonderPush/Core (4.3.1)
+  - WonderPushExtension (4.3.1):
+    - WonderPushExtension/Extension (= 4.3.1)
+  - WonderPushExtension/Extension (4.3.1)
   - Yoga (1.14.0)
   - ZXingObjC/Core (3.6.9)
   - ZXingObjC/OneD (3.6.9):
@@ -665,6 +678,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - ImageColors (from `../node_modules/react-native-image-colors/ios`)
+  - "intercom-react-native (from `../node_modules/@intercom/intercom-react-native`)"
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
@@ -700,6 +714,7 @@ DEPENDENCIES:
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - react-native-webview (from `../node_modules/react-native-webview`)
+  - react-native-wonderpush (from `../node_modules/react-native-wonderpush`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -731,12 +746,14 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - WonderPushExtension (~> 4.0)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - AppsFlyerFramework
     - fmt
+    - Intercom
     - libaom
     - libavif
     - libevent
@@ -753,6 +770,8 @@ SPEC REPOS:
     - SDWebImageSVGCoder
     - SDWebImageWebPCoder
     - SocketRocket
+    - WonderPush
+    - WonderPushExtension
     - ZXingObjC
 
 EXTERNAL SOURCES:
@@ -825,6 +844,8 @@ EXTERNAL SOURCES:
     :tag: hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0
   ImageColors:
     :path: "../node_modules/react-native-image-colors/ios"
+  intercom-react-native:
+    :path: "../node_modules/@intercom/intercom-react-native"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
   MixpanelReactNative:
@@ -891,6 +912,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-view-shot"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
+  react-native-wonderpush:
+    :path: "../node_modules/react-native-wonderpush"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -993,6 +1016,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 8057e75cfc1437b178ac86c8654b24e7fead7f60
   ImageColors: bce1dff849de75dc22a226cab709aabb072d5e4a
+  Intercom: f350fe6915364cb369ea5cee9c3d888cdec3d119
+  intercom-react-native: c32823bcd02cf6b2e3d6d25aebefc5ccdfe15f0f
   libaom: 144606b1da4b5915a1054383c3a4459ccdb3c661
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
@@ -1037,6 +1062,7 @@ SPEC CHECKSUMS:
   react-native-skia: 73b15a92d31e322fd25e5bb7feff226c0a25215e
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
   react-native-webview: 88293a0f23eca8465c0433c023ec632930e644d0
+  react-native-wonderpush: fdff9cba1b1c4bee74888eca19fb4eaf2ec802bc
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2
   React-perflogger: e3596db7e753f51766bceadc061936ef1472edc3
   React-RCTActionSheet: 17ab132c748b4471012abbcdcf5befe860660485
@@ -1073,9 +1099,11 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: 295a6573c512f54ad2dd58098e64e17dcf008499
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  WonderPush: 457eb234758acec58ecd6c232d48c68e05dcb392
+  WonderPushExtension: b4f1419a6dcaf16a3d2f02f27dafc8de0fcc0fd1
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: c5ae9e7666fc668e603f873b0ee4aa2d050cd2c9
+PODFILE CHECKSUM: cb838e2bef4f4bfb0c9c8caa85d9244893b26428
 
 COCOAPODS: 1.15.2

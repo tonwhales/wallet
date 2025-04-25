@@ -1,14 +1,15 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { Pressable } from "react-native-gesture-handler";
 import { View, Text, useWindowDimensions } from "react-native";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Image } from "expo-image";
-import { useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
+import { useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 
 const bannerId = 'solana-banner';
 
@@ -17,13 +18,27 @@ export const SolanaBanner = memo(() => {
     const markBannerHidden = useMarkBannerHidden();
     const dimentions = useWindowDimensions();
     const theme = useTheme();
-    const solanaAddress = useSolanaSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const navigation = useTypedNavigation();
+    const tokens = useSolanaTokens(solanaAddress, false);
+    const solanaTokens: SolanaToken[] = tokens?.data ?? [];
+    const token = solanaTokens[0];
 
     const isHidden = hiddenBanners.includes(`${bannerId}-${solanaAddress}`);
 
     const onPress = () => {
-        if (solanaAddress) {
+        if (token) {
+            navigation.navigateSolanaReceive({
+                addr: solanaAddress,
+                asset: {
+                    mint: token.address,
+                    content: {
+                        icon: token.logoURI,
+                        name: token.name
+                    }
+                }
+            });
+        } else {
             navigation.navigateSolanaReceive({ addr: solanaAddress });
         }
     }

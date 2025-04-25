@@ -3,8 +3,7 @@ import { Mixpanel, MixpanelProperties } from "mixpanel-react-native";
 import { useCallback, useEffect } from "react";
 import { warn } from "../utils/log";
 import { IS_SANDBOX } from '../engine/state/network';
-
-export const keys = require('@assets/keys.json');
+import { keys } from "../Root";
 
 export enum MixpanelEvent {
     Reset = 'reset',

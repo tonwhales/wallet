@@ -4,9 +4,11 @@ import { ThemeType } from "../../../engine/state/theme";
 import { BlockhashWithExpiryBlockHeight, Keypair, Transaction } from "@solana/web3.js";
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
-import { failableSolanaBackoff, mapSolanaError, SendSolanaTransactionError } from "./signAndSendSolanaOrder";
+import { failableSolanaBackoff,  } from "./signAndSendSolanaOrder";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { t } from "../../../i18n/t";
+import { SendSolanaTransactionError } from "./mapSolanaError";
+import { mapSolanaError } from "./mapSolanaError";
 
 type SignAndSendSolanaTransactionParams = {
     solanaClients: {

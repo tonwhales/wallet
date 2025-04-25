@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNetwork } from "..";
-import { keys } from "../../../analytics/mixpanel";
+import { keys } from "../../../Root";
 import { Connection } from "@solana/web3.js";
 
 const heliusApiKey = keys.HELIUS_API_KEY;

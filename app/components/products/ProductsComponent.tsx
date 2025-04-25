@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback } from "react"
 import { View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -24,30 +24,29 @@ import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment
 import { W5Banner } from "./W5Banner"
 import { HoldersCustomBanner } from "../../engine/api/holders/fetchAddressInviteCheck"
 import { HoldersBanner } from "./HoldersBanner"
-import { SavingsProduct } from "./SavingsProduct"
+import { SavingsProduct } from "./savings/SavingsProduct"
 import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
-
-import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode"
 import { IbanBanner } from "../holders/IbanBanner"
+import { SolanaBanner } from "../solana/SolanaBanner"
+
+import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
-export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
+export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount & { solanaAddress: string } }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-    const totalStaked = useStaking().total;
-    const holdersAccounts = useHoldersAccounts(selected!.address).data;
+    const holdersAccounts = useHoldersAccounts(selected!.address, selected!.solanaAddress).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const banners = useBanners();
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const inviteCheck = useIsHoldersInvited(selected!.address, isTestnet);
     const [isWalletMode] = useAppMode(selected!.address);
-
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
     const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
@@ -108,6 +107,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     <>
                         <AddressFormatUpdate />
                         <W5Banner />
+                        <SolanaBanner />
                     </>
                 ) : (
                     <IbanBanner />
@@ -149,7 +149,10 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 {isWalletMode ? (
                     <>
-                        <SavingsProduct address={selected.address} />
+                        <SavingsProduct
+                            address={selected.address}
+                            pubKey={selected.publicKey}
+                        />
                         <StakingProductComponent
                             key={'pool'}
                             address={selected.address}
@@ -159,7 +162,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     </>
                 ) : (
                     <>
-                        <HoldersChangellyBanner address={selected.address} />
+                        <HoldersChangellyBanner address={selected.address} solanaAddress={selected.solanaAddress} />
                         <HoldersProductComponent holdersAccStatus={holdersAccStatus} key={'holders'} />
                         <HoldersHiddenProductComponent holdersAccStatus={holdersAccStatus} key={'holders-hidden'} />
                     </>

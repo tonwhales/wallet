@@ -1,12 +1,12 @@
 import { Address, toNano } from "@ton/core";
 import { PendingTransaction } from "../engine/state/pending";
 import { SimpleTransferParams } from "../fragments/secure/simpleTransfer";
-import { TransferFragmentProps } from "../fragments/secure/TransferFragment";
+import { TransferFragmentParams } from "../fragments/secure/transfer/TransferFragment";
 import { fromBnWithDecimals } from "./withDecimals";
 import { TonTransaction } from "../engine/types";
 import { JettonMasterState } from "../engine/metadata/fetchJettonMasterContent";
 
-export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentProps & { type: 'transfer' });
+export type RepeatTxParams = (SimpleTransferParams & { type: 'simple' }) | (TransferFragmentParams & { type: 'transfer' });
 
 // Map pending transaction obj to transfer params for navigator
 export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: boolean): RepeatTxParams | null {
@@ -77,7 +77,7 @@ export function pendingTxToTransferParams(tx: PendingTransaction, testOnly: bool
 export function previewToTransferParams(
     tx: TonTransaction,
     isTestnet: boolean,
-    bounceableFormat: boolean,
+    bounceable: boolean,
     isLedger: boolean,
     jettonMasterContent?: JettonMasterState & { address: string }
 ): RepeatTxParams | null {
@@ -93,7 +93,6 @@ export function previewToTransferParams(
             const operation = tx.base.operation;
             const opAddressString = operation.address;
             const opAddr = Address.parseFriendly(opAddressString);
-            const bounceable = bounceableFormat ? true : opAddr.isBounceable;
             const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
             const comment = operation.comment;
             const amount = fromBnWithDecimals(item.amount, jettonMasterContent?.decimals ?? 9);
@@ -116,7 +115,6 @@ export function previewToTransferParams(
         const item = operation.items[0];
         const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
         const opAddr = Address.parseFriendly(opAddressString);
-        const bounceable = bounceableFormat ? true : opAddr.isBounceable;
         const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
 
         return {

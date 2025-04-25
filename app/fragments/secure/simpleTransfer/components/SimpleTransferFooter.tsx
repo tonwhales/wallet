@@ -8,7 +8,7 @@ type Props = {
     selected: "address" | "amount" | "comment" | null
     onNext: (() => void) | null
     continueDisabled: boolean;
-    continueLoading: boolean;
+    continueLoading?: boolean;
     doSend: () => Promise<void>
 }
 
@@ -20,7 +20,7 @@ export const SimpleTransferFooter = memo(({
     doSend,
 }: Props) => {
     const safeArea = useSafeAreaInsets();
-    
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'position' : undefined}

@@ -1,11 +1,12 @@
 import { Address } from "@ton/core";
 import axios from "axios";
 import { ContractMetadata } from "../metadata/Metadata";
+import { whalesConnectEndpoint } from "../clients";
 
 export async function fetchContractMetadata(address: Address | string, isTestnet: boolean): Promise<ContractMetadata> {
     const addressString = typeof address === 'string' ? address : address.toString({ testOnly: isTestnet });
 
-    const url = `https://connect.tonhubapi.com/metadata/${addressString}`;
+    const url = `${whalesConnectEndpoint}/metadata/${addressString}`;
 
     const res = await axios.get(url);
 

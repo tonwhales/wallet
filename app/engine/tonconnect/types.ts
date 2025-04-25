@@ -2,6 +2,7 @@ import { RefObject } from 'react';
 import WebView, { WebViewMessageEvent } from 'react-native-webview';
 import { AppRequest, ConnectEvent, ConnectEventError as IConnectEventError, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse, CHAIN } from '@tonconnect/protocol';
 import { ConnectItemReply, KeyPair } from '@tonconnect/protocol';
+import { ExtendedConnectItemReply } from './ConnectReplyBuilder';
 
 export enum CONNECT_ITEM_ERROR_CODES {
   UNKNOWN_ERROR = 0,
@@ -50,12 +51,12 @@ export type ConnectedAppConnectionRemote = {
   type: TonConnectBridgeType.Remote,
   sessionKeyPair: KeyPair,
   clientSessionId: string,
-  replyItems: ConnectItemReply[],
+  replyItems: ExtendedConnectItemReply[],
 }
 
 export type ConnectedAppConnectionInjected = {
   type: TonConnectBridgeType.Injected,
-  replyItems: ConnectItemReply[],
+  replyItems: ExtendedConnectItemReply[],
 }
 
 export type ConnectedAppConnection =

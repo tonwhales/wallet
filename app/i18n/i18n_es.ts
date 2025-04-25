@@ -85,7 +85,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Sin gas",
         "address": "Dirección",
         "currencyChanged": "Moneda cambiada",
-        "required": "requerido"
+        "required": "requerido",
+        "operation": "Operación",
+        "description": "Descripción",
+        "openSettings": "Abrir configuración"
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -188,7 +191,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Recibir",
-        "subtitle": "Envía solo Toncoin y tokens en la red TON a esta dirección, o podrías perder tus fondos.",
+        "subtitleTon": "Envía solo Toncoin y tokens en la red TON a esta dirección, o podrías perder tus fondos.",
+        "subtitleSolana": "Envía solo SOL y tokens SPL en la red Solana a esta dirección, o podrías perder tus fondos.",
         "share": {
             "title": "Mi dirección de Tonhub",
             "error": "No se pudo compartir la dirección, por favor intente de nuevo o contacte al soporte"
@@ -278,7 +282,23 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "Estás intentando enviar más tokens de los que tienes",
         "aboutFees": "Sobre las tarifas",
         "aboutFeesDescription": "Las tarifas para transacciones en la blockchain dependen de varios factores, como la congestión de la red, el tamaño de la transacción, el precio del gas y los parámetros de configuración de la blockchain. Cuanto mayor sea la demanda de procesamiento de transacciones en la blockchain o mayor sea el tamaño de la transacción (mensaje/comentario), mayores serán las tarifas.",
-        "gaslessTransferSwitch": "Pagar tarifa de gas en {{symbol}}"
+        "gaslessTransferSwitch": "Pagar tarifa de gas en {{symbol}}",
+        "solana": {
+            "error": {
+                "title": "Error en la transacción de Solana",
+                "networkRequestFailed": "Error de red, inténtelo de nuevo más tarde o contacte con soporte",
+                "connectionTimeout": "Tiempo de conexión agotado, inténtelo de nuevo más tarde o contacte con soporte",
+                "connectionRefused": "Conexión rechazada, inténtelo de nuevo más tarde o contacte con soporte",
+                "connectionReset": "Conexión restablecida, inténtelo de nuevo más tarde o contacte con soporte",
+                "insufficientLamports": "Fondos SOL insuficientes",
+                "insufficientLamportsWithAmount": "Fondos SOL insuficientes, se necesita {{amount}} más",
+                "insufficientTokenFunds": "Fondos de token insuficientes",
+                "rateLimited": "Estamos experimentando una alta demanda, inténtelo de nuevo más tarde o contacte con soporte",
+                "signingFailed": "Error al firmar la transacción",
+                "insufficientFundsForRentTitle": "Cantidad de transacción por debajo del mínimo",
+                "insufficientFundsForRent": "Fondos SOL insuficientes para enviar a: {{address}}, se necesita {{amount}} más"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Verificar teléfono",
@@ -347,7 +367,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "requestingPermission": "Solicitando permisos de cámara...",
         "noPermission": "Permitir acceso a la cámara para escanear códigos QR",
         "requestPermission": "Abrir configuración",
-        "failedToReadFromImage": "No se pudo leer el código QR de la imagen"
+        "failedToReadFromImage": "No se pudo leer el código QR de la imagen",
+        "galleryPermissionTitle": "Se Requiere Permiso",
+        "galleryPermissionMessage": "Para escanear códigos QR de tus fotos, la aplicación necesita acceso a tu galería"
     },
     "products": {
         "addNew": "Agregar un producto",
@@ -708,7 +730,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "do_not_honour": "We cannot perform the operation for this merchant",
                     "card_not_effective": "The transaction was declined because your card is currently blocked. To proceed, please unblock your card through the mobile app or contact customer support for help",
                     "expired_card": "Your card has reached its expiration date. Please order a new one through the mobile app",
-                    "incorrect_pin": "Looks like there’s an issue with your PIN. Please check the details and try again. If the problem persists, please contact customer support for help",
+                    "incorrect_pin": "Looks like there's an issue with your PIN. Please check the details and try again. If the problem persists, please contact customer support for help",
                     "cvc2_or_cvv2_incorrect": "The CVV is not correct. Please check the three-digit code on the back of your card and try again",
                     "incorrect_expiry_date": "The expiry date you entered is not correct. Please check the expiry date on your card or in the mobile app and try again",
                     "invalid_card_number": "The card number you entered is not correct. Please check the number on your card or in the mobile app and try again",
@@ -1225,7 +1247,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bluetoothScanFailed": "Escaneo de Bluetooth fallido",
             "unsafeTransfer": "Por favor, permite la firma ciega en la aplicación TON Ledger",
             "userCanceled": "Rechazado en Ledger",
-            "updateApp": "Por favor, actualice la aplicación TON en Ledger Live a la última versión"
+            "updateApp": "Por favor, actualice la aplicación TON en Ledger Live a la última versión",
+            "permissionsIos": "Por favor, permite el acceso a Bluetooth"
         },
         "moreAbout": "Más sobre Ledger",
         "verifyAddress": {
@@ -1331,11 +1354,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "Cuenta de ahorro TON",
-        "usdt": "Cuenta de ahorro USDT"
+        "usdt": "Cuenta de ahorro USDT",
+        "general": "Cuenta de ahorro {{symbol}}"
     },
     "spending": {
-        "ton": "Cuenta de gastos TON",
-        "usdt": "Cuenta de gastos USDT"
+        "ton": "Cuenta de gasto TON",
+        "usdt": "Cuenta de gasto USDT",
+        "general": "Cuenta de gasto {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Crear cuenta de token asociada",
+            "unknown": "Instrucción desconocida",
+            "systemTransfer": "Transferencia de SOL",
+            "createAccount": "Crear cuenta",
+            "tokenTransfer": "Transferencia de token",
+            "depositCard": "Depositar en tarjeta",
+            "closeCard": "Cerrar tarjeta",
+            "updateCardLimits": "Actualizar límites de tarjeta"
+        },
+        "banner": {
+            "title": "Solana está disponible",
+            "description": "Recibe, almacena y envía SOL y USDC"
+        }
     },
     "iban": {
         "banner": {

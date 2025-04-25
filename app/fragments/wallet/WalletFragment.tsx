@@ -10,7 +10,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useSyncState, useTheme, useWalletCardLayoutHelper } from '../../engine/hooks';
+import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSyncState, useTheme, useWalletCardLayoutHelper } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { SelectedAccount } from '../../engine/types';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
@@ -32,12 +32,14 @@ import { getCampaignId } from '../../utils/holders/queryParamsStore';
 import { useAppMode } from '../../engine/hooks/appstate/useAppMode';
 import Animated from 'react-native-reanimated';
 import { WalletCard } from './views/WalletCard';
+import { SolanaTokenWalletFragment } from './SolanaTokenWalletFragment';
+import { SolanaWalletFragment } from './SolanaWalletFragment';
 
-const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount }) => {
+const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & { solanaAddress: string } }) => {
     const network = useNetwork();
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const address = selectedAcc.address;
+    const { address, solanaAddress, publicKey: pubKey } = selectedAcc;
     const addressString = address.toString({ testOnly: network.isTestnet });
     const bottomBarHeight = useBottomTabBarHeight();
     const syncState = useSyncState(addressString);
@@ -90,6 +92,13 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                     return true;
                 }
 
+                if (
+                    query.queryKey[0] === 'solana'
+                    && query.queryKey[1] === solanaAddress
+                ) {
+                    return true;
+                }
+
                 const token = (
                     !!holdersStatus &&
                     holdersStatus.state === HoldersUserState.Ok
@@ -104,7 +113,7 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                 return false;
             }
         });
-    }, [network, addressString, holdersStatus, specialJettonWallet]);
+    }, [network, addressString, holdersStatus, specialJettonWallet, solanaAddress]);
 
     useFocusEffect(() => {
         setStatusBarStyle('light');
@@ -147,12 +156,18 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount })
                     />
                 )}
                 <View collapsable={false}>
-                    <WalletCard address={address} height={walletCardHeight} walletHeaderHeight={walletHeaderHeight} />
+                    <WalletCard
+                        address={address}
+                        pubKey={pubKey}
+                        height={walletCardHeight}
+                        walletHeaderHeight={walletHeaderHeight}
+                    />
                     <WalletActions
                         theme={theme}
                         navigation={navigation}
                         isTestnet={network.isTestnet}
                         address={address}
+                        solanaAddress={solanaAddress}
                     />
                 </View>
                 <ProductsComponent selected={selectedAcc} />
@@ -172,6 +187,7 @@ const skeleton = (
 export const WalletFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
 
     useEffect(() => {
         if (!selectedAcc) {
@@ -198,9 +214,9 @@ export const WalletFragment = fragment(() => {
                 interactive={selectedAcc !== undefined}
                 screenName={'Wallet'}
             >
-                {!selectedAcc ? (skeleton) : (
+                {(!selectedAcc || !solanaAddress) ? (skeleton) : (
                     <Suspense fallback={skeleton}>
-                        <WalletComponent selectedAcc={selectedAcc} />
+                        <WalletComponent selectedAcc={{ ...selectedAcc, solanaAddress }} />
                     </Suspense>
                 )}
             </PerformanceMeasureView>
@@ -218,6 +234,8 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('StakingPools', StakingPoolsFragment),
     fullScreen('LiquidStaking', LiquidStakingFragment),
     fullScreen('JettonWallet', JettonWalletFragment),
+    fullScreen('SolanaWallet', SolanaWalletFragment),
+    fullScreen('SolanaTokenWallet', SolanaTokenWalletFragment),
     fullScreen('TonWallet', TonWalletFragment)
 ]
 

@@ -10,7 +10,6 @@ import { WalletKeys } from '../../../storage/walletKeys';
 import { fragment } from '../../../fragment';
 import { warn } from '../../../utils/log';
 import { AppData } from '../../../engine/api/fetchAppData';
-import { MixpanelEvent, trackEvent } from '../../../analytics/mixpanel';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import Url from 'url-parse';
 import isValid from 'is-valid-domain';
@@ -25,6 +24,7 @@ import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SelectedAccount } from '../../../engine/types';
 import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
+import { whalesConnectEndpoint } from '../../../engine/clients';
 
 type SignState = { type: 'loading' }
     | { type: 'expired' }
@@ -102,7 +102,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
         let address = contract.address.toString({ testOnly: isTestnet });
         let appInstanceKeyPair = await getAppInstanceKeyPair();
 
-        let endpoint = 'https://connect.tonhubapi.com/connect/command';
+        let endpoint = `${whalesConnectEndpoint}/connect/command`;
 
         let name = state.name;
         let url = state.url;
@@ -164,7 +164,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
 
             // Grant access
             await backoff('authenticate', async () => {
-                await axios.post('https://connect.tonhubapi.com/connect/grant', { key: props.session }, { timeout: 5000 });
+                await axios.post(`${whalesConnectEndpoint}/connect/grant`, { key: props.session }, { timeout: 5000 });
                 removePendingGrant(props.session);
             });
 

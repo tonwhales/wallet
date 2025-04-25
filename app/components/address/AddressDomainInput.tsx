@@ -23,7 +23,7 @@ export type AddressInputState = {
     suffix: string | undefined
 }
 
-export enum InputActionType {
+export enum InputAction {
     Input = 'input',
     Target = 'target',
     Domain = 'domain',
@@ -33,29 +33,29 @@ export enum InputActionType {
 }
 
 export type AddressInputAction = {
-    type: InputActionType.Input,
+    type: InputAction.Input,
     input: string,
 } | {
-    type: InputActionType.Target,
+    type: InputAction.Target,
     target: string,
 } | {
-    type: InputActionType.Domain,
+    type: InputAction.Domain,
     domain: string | undefined,
 } | {
-    type: InputActionType.DomainTarget,
+    type: InputAction.DomainTarget,
     domain: string | undefined,
     target: string,
 } | {
-    type: InputActionType.InputTarget,
+    type: InputAction.InputTarget,
     input: string,
     target: string,
     suffix: string,
-} | { type: InputActionType.Clear }
+} | { type: InputAction.Clear }
 
 export function addressInputReducer() {
     return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
         switch (action.type) {
-            case InputActionType.Input:
+            case InputAction.Input:
                 if (action.input === state.input) {
                     return state;
                 }
@@ -76,33 +76,33 @@ export function addressInputReducer() {
                     target: '',
                     suffix: undefined
                 };
-            case InputActionType.Target:
+            case InputAction.Target:
                 return {
                     ...state,
                     target: action.target,
                     suffix: undefined
                 };
-            case InputActionType.Domain:
+            case InputAction.Domain:
                 return {
                     ...state,
                     domain: action.domain,
                     suffix: undefined
                 };
-            case InputActionType.DomainTarget:
+            case InputAction.DomainTarget:
                 return {
                     ...state,
                     domain: action.domain,
                     target: action.target,
                     suffix: undefined
                 };
-            case InputActionType.InputTarget:
+            case InputAction.InputTarget:
                 return {
                     ...state,
                     input: action.input,
                     target: action.target,
                     suffix: action.suffix
                 };
-            case InputActionType.Clear:
+            case InputAction.Clear:
                 return {
                     input: '',
                     target: '',
@@ -185,6 +185,7 @@ export const AddressDomainInput = memo(forwardRef(({
     theme,
     isTestnet,
     navigation,
+    solanaAddress,
 }: {
     acc: Address,
     onFocus?: (index: number) => void,
@@ -204,6 +205,7 @@ export const AddressDomainInput = memo(forwardRef(({
     theme: ThemeType,
     isTestnet: boolean,
     navigation: TypedNavigation,
+    solanaAddress?: string,
 }, ref: ForwardedRef<AddressDomainInputRef>) => {
     const client = useClient4(isTestnet);
     const netConfig = useConfig();
@@ -265,7 +267,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
 
                 inputAction({
-                    type: InputActionType.DomainTarget,
+                    type: InputAction.DomainTarget,
                     domain: `${domain}${zone}`,
                     target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
                 });
@@ -274,7 +276,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
 
                 inputAction({
-                    type: InputActionType.DomainTarget,
+                    type: InputAction.DomainTarget,
                     domain: `${domain}${zone}`,
                     target: resolvedWalletAddress.toString({ testOnly: isTestnet, bounceable })
                 });
@@ -346,10 +348,10 @@ export const AddressDomainInput = memo(forwardRef(({
 
     const handleLayout = (event: LayoutChangeEvent) => {
         const { width, height } = event.nativeEvent.layout;
-        
+
         labelHeight.value = height
         labelWidth.value = width
-      };
+    };
 
     const labelAnimStyle = useAnimatedStyle(() => {
         return {
@@ -357,7 +359,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -labelWidth.value / 2]) },
                 { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [0, -labelHeight.value * 2]) },
                 { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
-                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelWidth.value / 2 ]) },
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelWidth.value / 2]) },
                 { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeight.value * 2]) },
             ],
             opacity: interpolate(valueNotEmptyShared.value, [0, 0.2, 1], [1, 0.1, 1]),
@@ -375,7 +377,7 @@ export const AddressDomainInput = memo(forwardRef(({
         value = value.trim();
         if (value !== textInput) {
             inputAction({
-                type: InputActionType.Input,
+                type: InputAction.Input,
                 input: value
             });
         }
@@ -384,16 +386,17 @@ export const AddressDomainInput = memo(forwardRef(({
     const focus = useCallback(() => onFocus?.(index), [index, onFocus]);
     const blur = useCallback(() => onBlur?.(index), [index, onBlur]);
     const submit = useCallback(() => onSubmit?.(index), [index, onSubmit]);
-    const clear = useCallback(() => inputAction({ type: InputActionType.Clear }), [inputAction]);
+    const clear = useCallback(() => inputAction({ type: InputAction.Clear }), [inputAction]);
 
     useEffect(() => {
         valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 50 });
     }, [valueNotEmpty]);
 
     const openAddressBook = () => {
-        navigation.navigate('AddressBook', {
+        navigation.navigateAddressBook({
             account: acc.toString({ testOnly: isTestnet }),
-            onSelected: onSearchItemSelected
+            onSelected: onSearchItemSelected,
+            solanaAddress: solanaAddress
         });
     };
 
@@ -445,7 +448,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 <View style={{ justifyContent: 'center', gap: 4, paddingRight: 56 }}>
                     <TextInput
                         ref={animatedRef}
-                        value={input}
+                        value={textInput}
                         style={[{
                             color: theme.textPrimary,
                             marginHorizontal: 0, marginVertical: 0,

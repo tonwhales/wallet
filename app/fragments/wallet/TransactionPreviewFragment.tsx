@@ -90,7 +90,7 @@ const TransactionPreview = () => {
     const isOwn = appState.addresses.findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
-    const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
+    const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const amount = BigInt(item.amount);
     const absAmount = amount < 0n ? -amount : amount;
     const isOutgoing = kind === 'out';
@@ -103,15 +103,19 @@ const TransactionPreview = () => {
         return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
     });
 
-    const preparedMessages = usePeparedMessages(messages, isTestnet);
+    const preparedMessages = usePeparedMessages(messages, isTestnet, address);
     const [walletsSettings] = useWalletsSettings();
     const ownWalletSettings = walletsSettings[address?.toString({ testOnly: isTestnet }) ?? ''];
-    const opAddressWalletSettings = walletsSettings[opAddressBounceable];
+    const targetContract = useContractInfo(opAddress);
+    const isTargetBounceable = targetContract?.kind === 'wallet'
+        ? bounceableFormat
+        : parsedOpAddr.isBounceable
 
-    const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddressBounceable, avatarColors.length);
+    const parsedAddressFriendlyBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable: isTargetBounceable });
+    const opAddressWalletSettings = walletsSettings[parsedAddressFriendlyBounceable];
+    const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-
-    const contact = addressBook.asContact(opAddressBounceable);
+    const contact = addressBook.asContact(parsedAddressFriendlyBounceable);
 
     let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
@@ -138,15 +142,9 @@ const TransactionPreview = () => {
     });
     const jettonMaster = jetton?.master ?? null;
     const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : undefined;
-    const targetContract = useContractInfo(opAddress);
-
-    const isTargetBounceable = targetContract?.kind === 'wallet'
-        ? bounceableFormat
-        : parsedOpAddr.isBounceable
-
     const repeatParams = useMemo(() => {
-        return previewToTransferParams(tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent);
-    }, [tx, isTestnet, bounceableFormat, isLedger, jettonMasterContent]);
+        return previewToTransferParams(tx, isTestnet, isTargetBounceable, isLedger, jettonMasterContent);
+    }, [tx, isTestnet, isTargetBounceable, isLedger, jettonMasterContent]);
 
     let op: string;
 
@@ -212,8 +210,8 @@ const TransactionPreview = () => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (knownWallets[opAddressBounceable]) {
-        known = knownWallets[opAddressBounceable];
+    if (knownWallets[parsedAddressFriendlyBounceable]) {
+        known = knownWallets[parsedAddressFriendlyBounceable];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
@@ -296,7 +294,7 @@ const TransactionPreview = () => {
     const symbolString = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}` : '')
     const singleAmountString = `${amountText[0]}${amountText[1]}${symbolString}`;
 
-    const fromKnownWalletsList = !!knownWallets[opAddressBounceable]
+    const fromKnownWalletsList = !!knownWallets[parsedAddressFriendlyBounceable]
 
     return (
         <PerfView
@@ -366,8 +364,8 @@ const TransactionPreview = () => {
                         ) : (
                             <Avatar
                                 size={68}
-                                id={opAddressBounceable}
-                                address={opAddressBounceable}
+                                id={parsedAddressFriendly}
+                                address={parsedAddressFriendly}
                                 spam={spam}
                                 showSpambadge
                                 borderWidth={2.5}
@@ -518,7 +516,6 @@ const TransactionPreview = () => {
                 </PerfView>
                 {!!holdersOp && (
                     <HoldersOpView
-                        theme={theme}
                         op={holdersOp}
                         targetKind={targetContract?.kind}
                     />

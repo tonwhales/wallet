@@ -7,30 +7,26 @@ import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
 import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback, useMemo } from 'react';
-import { useActionSheet } from '@expo/react-native-action-sheet';
-import * as StoreReview from 'expo-store-review';
-import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady, useLanguage } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady, useLanguage, useSolanaSelectedAccount } from '../engine/hooks';
 import * as Application from 'expo-application';
-import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { Typography } from '../components/styles';
-import { holdersUrl, HoldersUserState, holdersUrl as resolveHoldersUrl } from '../engine/api/holders/fetchUserState';
-import { queryClient } from '../engine/clients';
-import { getQueryData } from '../engine/utils/getQueryData';
-import { Queries } from '../engine/queries';
-import { getHoldersToken, HoldersAccountStatus, useHoldersAccountStatus } from '../engine/hooks/holders/useHoldersAccountStatus';
-import { HoldersAccounts, useHoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
+import { holdersUrl, HoldersUserState } from '../engine/api/holders/fetchUserState';
+import { useHoldersAccountStatus } from '../engine/hooks/holders/useHoldersAccountStatus';
+import { useHoldersAccounts } from '../engine/hooks/holders/useHoldersAccounts';
 import { useIsHoldersInvited } from '../engine/hooks/holders/useIsHoldersInvited';
 import { HoldersAppParamsType } from './holders/HoldersAppFragment';
-import { HeaderSyncStatus } from './wallet/views/HeaderSyncStatus';
 import { lagnTitles } from '../i18n/i18n';
 import { HoldersBannerType } from '../components/products/ProductsComponent';
 import { HoldersBanner } from '../components/products/HoldersBanner';
+import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
+import { useAppMode } from '../engine/hooks/appstate/useAppMode';
+import { SelectedWallet } from '../components/wallet/SelectedWallet';
+import { useSupport } from '../engine/hooks/support/useSupport';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -42,10 +38,6 @@ import IcSupport from '@assets/settings/ic-support.svg';
 import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
-import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
-import { useAppMode } from '../engine/hooks/appstate/useAppMode';
-import { SelectedWallet } from '../components/wallet/SelectedWallet';
-import { useSupport } from '../engine/hooks/support/useSupport';
 
 const iosStoreUrl = 'https://apps.apple.com/app/apple-store/id1607656232?action=write-review';
 const androidStoreUrl = 'https://play.google.com/store/apps/details?id=com.tonhub.wallet&showAllReviews=true';
@@ -62,14 +54,15 @@ export const SettingsFragment = fragment(() => {
     const [, currency] = usePrice();
     const [lang] = useLanguage();
     const [bounceableFormat] = useBounceableWalletFormat();
-    const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '');
+    const solanaAddress = useSolanaSelectedAccount()!;
+    const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '', solanaAddress);
     const inviteCheck = useIsHoldersInvited(selected?.address, network.isTestnet);
     const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
-    const holdersAccounts = useHoldersAccounts(selected?.address).data;
-    const url = holdersUrl(network.isTestnet);
-    const isHoldersReady = useIsConnectAppReady(url);
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
+    const holdersAccounts = useHoldersAccounts(selected?.address, isLedger ? undefined : solanaAddress).data;
+    const url = holdersUrl(network.isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
     const [, switchAppToWalletMode] = useAppMode(selected?.address);
@@ -298,7 +291,11 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton
                             dangerZone
                             title={t('common.logout')}
-                            onPress={() => ledgerContext.reset(true)}
+                            onPress={() => {
+                                ledgerContext.reset(true, () => {
+                                    navigation.navigateAndReplaceAll('Home');
+                                })
+                            }}
                         />
                     </View>
                 ) : (

@@ -9,6 +9,7 @@ import { useNetwork } from '../network/useNetwork';
 import { useMemo } from 'react';
 import { queryClient } from '../../clients';
 import { AutomergeValue } from '../../cloud/AutomergeValue';
+import { whalesConnectEndpoint } from '../../clients';
 
 async function deriveContentKey(utilityKey: Buffer, contentId: string, isTestnet: boolean) {
     let signKey = await deriveSymmetricPath(utilityKey, [isTestnet ? 'sandbox' : 'mainnet', 'content', contentId, 'sign']);
@@ -46,7 +47,7 @@ async function readValueFromCloud(key: string, params: { utilityKey: Buffer, isT
     let signature = safeSign(toSign, keys.signKey.secretKey);
 
     // Read value
-    let res = await axios.post('https://connect.tonhubapi.com/storage/read', {
+    let res = await axios.post(`${whalesConnectEndpoint}/storage/read`, {
         key: keys.signKey.publicKey.toString('base64'),
         signature: signature.toString('base64'),
         time
@@ -87,7 +88,7 @@ async function writeValueToCloud(key: string, seq: number, value: Buffer, params
     let signature = safeSign(toSign, keys.signKey.secretKey);
 
     // Write value
-    let res = await axios.post('https://connect.tonhubapi.com/storage/write', {
+    let res = await axios.post(`${whalesConnectEndpoint}/storage/write`, {
         key: keys.signKey.publicKey.toString('base64'),
         signature: signature.toString('base64'),
         time,

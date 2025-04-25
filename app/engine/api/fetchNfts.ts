@@ -1,6 +1,7 @@
 import axios from "axios";
 import { isLeft } from "fp-ts/lib/Either";
 import * as t from 'io-ts';
+import { whalesConnectEndpoint } from "../clients";
 
 export type NftItemKind = 'Single' | 'CollectionItem' | 'DnsItem';
 
@@ -121,7 +122,7 @@ export async function fetchNfts(address: string, isTestnet: boolean, first = 10,
     if (isTestnet) {
         return { items: [], cursor: undefined };
     }
-    const res = await axios.get(`https://connect.tonhubapi.com/nfts/${address}?first=${first}${after ? `&after=${after}` : ''}`);
+    const res = await axios.get(`${whalesConnectEndpoint}/nfts/${address}?first=${first}${after ? `&after=${after}` : ''}`);
 
     if (res.status === 200) {
         const parsed = nftItemConnectionCodec.decode(res.data.data);

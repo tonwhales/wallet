@@ -247,11 +247,11 @@ export const DAppWebViewFragment = fragment(() => {
 
     const onShare = useCallback(() => {
         if (Platform.OS === 'ios') {
-            Share.share({ title: t('receive.share.title'), url: endpoint });
+            Share.share({ url: currentUrl });
         } else {
-            Share.share({ title: t('receive.share.title'), message: endpoint });
+            Share.share({ message: currentUrl });
         }
-    }, [endpoint]);
+    }, [currentUrl]);
 
     if (engine === 'ton-x' && !hasDomainKey) {
         navigation.navigate('Install', { url: endpoint, title: title ?? '', image: null, callback: setHasDomainKey });
@@ -429,7 +429,7 @@ export const DAppWebViewFragment = fragment(() => {
                     lockScroll: false,
                     ...defaultQueryParamsState
                 }}
-                originWhitelist={['http:\/\/*', 'https:\/\/*', 'tg:*']}
+                originWhitelist={['http:\/\/*', 'https:\/\/*', 'tg:*', 'blob:*']}
             />
         </View>
     );

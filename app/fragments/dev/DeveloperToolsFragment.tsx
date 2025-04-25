@@ -12,8 +12,8 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useMemo, useRef } from 'react';
-import { useSelectedAccount, useSetAppState, useTheme } from '../../engine/hooks';
+import { useCallback, useRef } from 'react';
+import { useSelectedAccount, useSetAppState, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
@@ -34,12 +34,8 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useScreenProtectorState } from '../../engine/hooks/settings/useScreenProtector';
 import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
-import { ConnectedAppConnectionRemote } from '../../engine/tonconnect/types';
-import { TonConnectBridgeType } from '../../engine/tonconnect/types';
-import { useAppsConnections } from '../../engine/hooks/dapps/useAppConnections';
-import { ConnectedAppConnection } from '../../engine/tonconnect/types';
 import { createLogger } from '../../utils/log';
-import { useLinkNavigator } from '../../useLinkNavigator';
+import Intercom, { Space } from '@intercom/intercom-react-native';
 
 const logger = createLogger('tonconnect');
 
@@ -54,20 +50,12 @@ export const DeveloperToolsFragment = fragment(() => {
     const setHiddenBanners = useSetHiddenBanners();
     const ledgerContext = useLedgerTransport();
     const acc = useSelectedAccount()!;
-    const accounts = useHoldersAccounts(acc.address);
+    const solanaAddress = useSolanaSelectedAccount()!;
+    const accounts = useHoldersAccounts(acc.address, solanaAddress);
     const holdersStatus = useHoldersAccountStatus(acc.address);
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
     const webViewRef = useRef<WebView>(null);
-    const connectionsMap = useAppsConnections();
-    const connections = useMemo(() => {
-        return Object.values(connectionsMap).reduce((acc, item) => {
-            acc.push(...item);
-            return acc;
-        }, [] as ConnectedAppConnection[]).filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
-    }, [connectionsMap]);
-    const connection = connections[0];
-    const linkNavigator = useLinkNavigator(isTestnet);
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -166,7 +154,31 @@ export const DeveloperToolsFragment = fragment(() => {
                     onPress: copySeed,
                 }
             ]
-        )
+        );
+    }, []);
+
+    const copySolanaPK = useCallback(async () => {
+        const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+        const pk = walletKeys.keyPair.secretKey.toString('hex');
+        Clipboard.setString(pk);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }, [acc.publicKey]);
+
+    const onExportSolanaPKAlert = useCallback(() => {
+        Alert.alert(
+            "Coping private key to clipboard",
+            "WARNING! Coping private key to clipboard is not secure. Proceed at your own risk. Use only for export to Phantom wallet (At your own risk)",
+            [
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('devTools.copySeedAlertAction'),
+                    onPress: copySolanaPK,
+                }
+            ]
+        );
     }, []);
 
     return (
@@ -199,6 +211,9 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={'Copy Solana private key'} onPress={onExportSolanaPKAlert} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton dangerZone title={'Clean cache and reset'} onPress={resetCache} />
@@ -283,6 +298,17 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Show Intercom"} onPress={async () => {
+                            await Intercom.logout();
+                            await Intercom.loginUserWithUserAttributes({
+                                email: 'test@test.com',
+                                name: 'Test User',
+                                userId: '1234567890',
+                            });
+                            Intercom.presentSpace(Space.messages);
+                        }} />
                     </View>
                     <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
                 </ScrollView>

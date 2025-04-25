@@ -8,7 +8,7 @@ import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
-import { backoff, backoffFailaible } from "../../../utils/time";
+import { backoff, createBackoffFailaible } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
@@ -20,7 +20,6 @@ import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimal
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
-import { ConfirmLoadedPropsSingle } from "../TransferFragment";
 import { PendingTransactionBody, PendingTransactionStatus } from "../../../engine/state/pending";
 import Minimizer from "../../../modules/Minimizer";
 import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
@@ -29,7 +28,15 @@ import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
 import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGaslessEstimate";
 import { valueText } from "../../../components/ValueComponent";
+import { ConfirmLoadedPropsSingle } from "../transfer/TransferFragment";
 import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
+
+export const failableTransferBackoff = createBackoffFailaible({
+    logErrors: true,
+    minDelay: 1500,
+    maxDelay: 3000,
+    maxFailureCount: 15
+});
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -226,6 +233,14 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             const missing = `${missingAmount[0]}${missingAmount[1]} ${jetton?.symbol}`;
             Alert.alert(t('transfer.error.notEnoughJettons', { symbol: jetton?.symbol }), t('transfer.error.gaslessNotEnoughCoins', { fee, missing }));
             return;
+        } else if (fees.type === 'ton' && ((account?.balance ?? 0n) < fees.value)) {
+            const diff = fees.value - account!.balance;
+            const diffString = fromNano(diff);
+            Alert.alert(
+                t('transfer.error.notEnoughGasTitle'),
+                t('transfer.error.notEnoughGasMessage', { diff: diffString }),
+            );
+            return;
         }
 
         if (
@@ -331,7 +346,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 .endCell();
 
             try {
-                const gaslessTransferRes = await backoffFailaible('gasless', () => fetchGaslessSend({
+                const gaslessTransferRes = await failableTransferBackoff('gasless', () => fetchGaslessSend({
                     wallet_public_key: walletKeys.keyPair.publicKey.toString('hex'),
                     boc: msg.toBoc({ idx: false }).toString('hex')
                 }, isTestnet));
@@ -396,7 +411,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             msg = beginCell().store(storeMessage(extMessage)).endCell();
 
             // Sending transaction
-            await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
+            await failableTransferBackoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
             // Notify callback
             if (callback) {

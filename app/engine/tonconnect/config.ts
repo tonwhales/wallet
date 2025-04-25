@@ -1,13 +1,15 @@
 import { DeviceInfo } from '@tonconnect/protocol';
 import * as Application from 'expo-application';
 import { Platform } from 'react-native';
+import { whalesConnectEndpoint } from '../clients';
 import { WalletVersions } from '../types';
 
 export const CURRENT_PROTOCOL_VERSION = 2;
 
 export const MIN_PROTOCOL_VERSION = 2;
 
-export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
+
+export const bridgeUrl = `${whalesConnectEndpoint}/tonconnect`;
 
 export const getPlatform = (): DeviceInfo['platform'] => {
   if (Platform.OS === 'ios') {

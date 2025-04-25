@@ -6,7 +6,7 @@ require File.join(File.dirname(`node --print "require.resolve('expo/package.json
 require File.join(File.dirname(`node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
 require File.join(File.dirname(`node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`), "native_modules")
 
-platform :ios, '13.0'
+platform :ios, '15.0'
 prepare_react_native_project!
 # If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
 # because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
@@ -88,6 +88,105 @@ target 'WhalesApp' do
         end
       end
 
+    end
+
+    # Strip bitcode from hermes framework
+    puts "[BITCODE STRIP] Starting bitcode stripping process for hermes.framework"
+    puts "[BITCODE STRIP] Build environment: XCODE_CLOUD=#{ENV['CI_XCODE_CLOUD'] || 'false'}, CI=#{ENV['CI'] || 'false'}"
+
+    bitcode_strip_path = `xcrun -find bitcode_strip`.chomp
+    puts "[BITCODE STRIP] Using bitcode_strip at: #{bitcode_strip_path}"
+
+    def strip_bitcode_from_framework(bitcode_strip_path, framework_path)
+      if File.exist?(framework_path)
+        puts "[BITCODE STRIP] Found framework at: #{framework_path}"
+        command = "#{bitcode_strip_path} \"#{framework_path}\" -r -o \"#{framework_path}\""
+        puts "[BITCODE STRIP] Executing: #{command}"
+        result = system(command)
+        puts "[BITCODE STRIP] Command result: #{result ? 'Success' : 'Failed'}"
+        return result
+      else
+        puts "[BITCODE STRIP] Framework not found at: #{framework_path}"
+        return false
+      end
+    end
+    # For both local builds and Xcode Cloud builds
+    # Check built products directory first
+    puts "[BITCODE STRIP] Searching in build directory: #{installer.sandbox.root}/../build"
+    hermes_paths = Dir.glob("#{installer.sandbox.root}/../build/**/*.app/Frameworks/hermes.framework/hermes")
+    puts "[BITCODE STRIP] Found #{hermes_paths.count} hermes paths in build directory"
+    hermes_paths.each do |hermes_path|
+      strip_bitcode_from_framework(bitcode_strip_path, hermes_path)
+    end
+    # Check derived data directory for Xcode Cloud builds
+    derived_data = ENV['DERIVED_DATA_PATH'] || ENV['OBJROOT']
+    if derived_data
+      puts "[BITCODE STRIP] Searching in derived data directory: #{derived_data}"
+      hermes_paths = Dir.glob("#{derived_data}/**/*.app/Frameworks/hermes.framework/hermes")
+      puts "[BITCODE STRIP] Found #{hermes_paths.count} hermes paths in derived data"
+      hermes_paths.each do |hermes_path|
+        strip_bitcode_from_framework(bitcode_strip_path, hermes_path)
+      end
+    else
+      puts "[BITCODE STRIP] No derived data directory found"
+    end
+    # Also check for the specific path mentioned in your error
+    app_names = ['Tonhub.app', 'WhalesApp.app']
+    xcode_build_dir = ENV['CONFIGURATION_BUILD_DIR']
+    if xcode_build_dir
+      puts "[BITCODE STRIP] Checking build directory: #{xcode_build_dir}"
+      app_names.each do |app_name|
+        hermes_path = "#{xcode_build_dir}/#{app_name}/Frameworks/hermes.framework/hermes"
+        strip_bitcode_from_framework(bitcode_strip_path, hermes_path)
+      end
+    else
+      puts "[BITCODE STRIP] No CONFIGURATION_BUILD_DIR environment variable found"
+    end
+    puts "[BITCODE STRIP] Environment variables for debugging:"
+    ['CI', 'CI_XCODE_CLOUD', 'CONFIGURATION_BUILD_DIR', 'DERIVED_DATA_PATH', 'OBJROOT', 'BUILT_PRODUCTS_DIR'].each do |env_var|
+      puts "[BITCODE STRIP] #{env_var}=#{ENV[env_var] || 'not set'}"
+    end
+
+    # Add a script phase to strip bitcode from hermes
+    installer.pods_project.targets.each do |target|
+      if target.name == 'WhalesApp'
+        puts "[BITCODE STRIP] Adding script phase to target: #{target.name}"
+        phase = target.new_shell_script_build_phase('Strip Bitcode from Hermes')
+        phase.shell_script = <<-SCRIPT
+          echo "[BITCODE STRIP][SCRIPT] Starting hermes bitcode strip build phase"
+          echo "[BITCODE STRIP][SCRIPT] Running in environment: CI=${CI:-false}, CI_XCODE_CLOUD=${CI_XCODE_CLOUD:-false}"
+          echo "[BITCODE STRIP][SCRIPT] Build directory: ${BUILT_PRODUCTS_DIR:-not set}"
+          echo "[BITCODE STRIP][SCRIPT] Product name: ${FULL_PRODUCT_NAME:-not set}"
+
+          set -e
+          BITCODE_STRIP=$(xcrun -find bitcode_strip)
+          echo "[BITCODE STRIP][SCRIPT] Using bitcode_strip at: $BITCODE_STRIP"
+
+          FRAMEWORK_PATH="${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}/Frameworks/hermes.framework"
+          echo "[BITCODE STRIP][SCRIPT] Looking for hermes framework at: $FRAMEWORK_PATH"
+
+          if [ -d "$FRAMEWORK_PATH" ]; then
+            echo "[BITCODE STRIP][SCRIPT] Found hermes framework directory"
+            HERMES_BINARY="$FRAMEWORK_PATH/hermes"
+            if [ -f "$HERMES_BINARY" ]; then
+              echo "[BITCODE STRIP][SCRIPT] Found hermes binary, stripping bitcode"
+              $BITCODE_STRIP -r -o "$HERMES_BINARY" "$HERMES_BINARY"
+              echo "[BITCODE STRIP][SCRIPT] Bitcode stripping completed with status: $?"
+            else
+              echo "[BITCODE STRIP][SCRIPT] Hermes binary not found at: $HERMES_BINARY"
+            fi
+          else
+            echo "[BITCODE STRIP][SCRIPT] Hermes framework directory not found at: $FRAMEWORK_PATH"
+          fi
+          echo "[BITCODE STRIP][SCRIPT] Also trying with find command"
+          find "${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}/Frameworks" -name "hermes.framework" -type d -exec echo "[BITCODE STRIP][SCRIPT] Found hermes framework: {}" \\;
+          find "${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}/Frameworks/hermes.framework" -name "hermes" -type f -exec echo "[BITCODE STRIP][SCRIPT] Found hermes binary: {}" \\;
+          find "${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}/Frameworks/hermes.framework" -name "hermes" -type f -exec $BITCODE_STRIP -r -o {} {} \\; 2>/dev/null || true
+          echo "[BITCODE STRIP][SCRIPT] Completed hermes bitcode strip build phase"
+        SCRIPT
+        phase.show_env_vars_in_log = '1'
+        puts "[BITCODE STRIP] Successfully added script phase to target: #{target.name}"
+      end
     end
   end
 

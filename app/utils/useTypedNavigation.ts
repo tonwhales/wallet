@@ -3,7 +3,7 @@ import { Cell } from '@ton/core';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
-import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
+import { TransferFragmentParams } from '../fragments/secure/transfer/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/simpleTransfer';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
@@ -19,7 +19,7 @@ import { getLockAppWithAuthState } from '../engine/state/lockAppWithAuthState';
 import { getHasHoldersProducts } from '../engine/hooks/holders/useHasHoldersProducts';
 import { getCurrentAddress } from '../storage/appState';
 import { JettonWalletFragmentProps as JettonWalletFragmentParams } from '../fragments/wallet/JettonWalletFragment';
-import { ReceiveFragmentParams } from '../fragments/wallet/ReceiveFragment';
+import { ReceiveSolanaParams, ReceiveTonParams } from '../fragments/wallet/ReceiveFragment';
 import { JettonTransactionPreviewParams } from '../fragments/wallet/JettonTransactionPreviewFragment';
 import { AssetsFragmentParams } from '../fragments/wallet/AssetsFragment';
 import { AddressBookParams } from '../fragments/contacts/AddressBookFragment';
@@ -30,6 +30,13 @@ import { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSel
 import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
 import { TonTransaction } from '../engine/types';
 import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
+import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
+import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
+import { SolanaTransferParams } from '../fragments/secure/transfer/SolanaTransferFragment';
+import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
+import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
+import { PendingSolanaTransaction } from '../engine/state/pending';
+import { PendingSolanaTransactionPreviewParams } from '../fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -101,7 +108,7 @@ export class TypedNavigation {
         this.base.popToTop();
     }
 
-    navigateTransfer(tx: TransferFragmentProps) {
+    navigateTransfer(tx: TransferFragmentParams) {
         this.navigate('Transfer', tx);
     }
 
@@ -288,12 +295,12 @@ export class TypedNavigation {
         this.navigate('JettonTransaction', param);
     }
 
-    navigateReceive(params?: ReceiveFragmentParams, isLedger?: boolean) {
+    navigateReceive(params?: Omit<ReceiveTonParams, 'type'>, isLedger?: boolean) {
         if (isLedger) {
-            this.navigate('LedgerReceive', params);
+            this.navigate('LedgerReceive', { ...params, type: 'ton' });
             return;
         }
-        this.navigate('Receive', params);
+        this.navigate('Receive', { ...params, type: 'ton' });
     }
 
     navigateReceiveAssets(params: ReceiveAssetsFragment, isLedger?: boolean) {
@@ -335,6 +342,38 @@ export class TypedNavigation {
 
     navigateTransactionsFilter(params: TransactionsFilterFragmentParams) {
         this.navigate('TransactionsFilter', params);
+    }
+
+    //
+    // Solana
+    //
+
+    navigateSolanaWallet(params: SolanaWalletFragmentProps) {
+        this.navigate('SolanaWallet', params);
+    }
+
+    navigateSolanaSimpleTransfer(params: SolanaSimpleTransferParams) {
+        this.navigate('SolanaSimpleTransfer', params);
+    }
+
+    navigateSolanaTransfer(params: SolanaTransferParams) {
+        this.navigate('SolanaTransfer', params);
+    }
+
+    navigateSolanaTokenWallet(params: SolanaTokenWalletFragmentProps) {
+        this.navigate('SolanaTokenWallet', params);
+    }
+
+    navigateSolanaReceive(params: Omit<ReceiveSolanaParams, 'type'>) {
+        this.navigate('SolanaReceive', params);
+    }
+
+    navigateSolanaTransaction(params: SolanaTransactionPreviewParams) {
+        this.navigate('SolanaTransaction', params);
+    }
+
+    navigatePendingSolanaTransaction(params: PendingSolanaTransactionPreviewParams) {
+        this.navigate('PendingSolanaTransaction', params);
     }
 }
 

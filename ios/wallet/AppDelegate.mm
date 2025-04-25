@@ -4,13 +4,17 @@
 #import <React/RCTLinkingManager.h>
 #import <ReactNativePerformance/ReactNativePerformance.h>
 #import <RNAppsFlyer.h>
-
+#import <IntercomModule.h>
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [ReactNativePerformance onAppStarted];
+  NSString *apiKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"INTERCOM_IOS_API"];
+  NSString *appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"INTERCOM_APP"];
+  [IntercomModule initialize:apiKey withAppId:appId]; // <-- Add this (Remember to replace strings with your api keys)
+
   // Disable iCloud backup
   NSArray *urlArray = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask];
   NSURL *documentsUrl = [urlArray firstObject];

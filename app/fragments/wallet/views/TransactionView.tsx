@@ -72,8 +72,14 @@ export function TransactionView(props: {
     const parsedAddress = parsedOpAddr.address;
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
-    const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet);
+    const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet, own);
     const targetContract = useContractInfo(opAddress);
+    // if it's a Recieved transaction or targetContract is wallet 
+    // we show the address in a format taken from Settings
+    const bounceable = targetContract?.kind === 'wallet' || !targetContract
+        ? props.bounceableFormat
+        : parsedOpAddr.isBounceable;
+    const parsedAddressFriendlyBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable });
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
     const isOutgoing = kind === 'out';
@@ -86,19 +92,14 @@ export function TransactionView(props: {
         return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
     });
 
-    const walletSettings = props.walletsSettings[parsedAddressFriendly];
+    const walletSettings = props.walletsSettings[parsedAddressFriendlyBounceable];
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-    const contact = contacts[parsedAddressFriendly];
+    const contact = contacts[parsedAddressFriendlyBounceable];
     // const verified = !!tx.verified;
     const verified = false;
 
-    // if it's a Recieved transaction or targetContract is wallet 
-    // we show the address in a format taken from Settings
-    const bounceable = targetContract?.kind === 'wallet' || !targetContract
-        ? props.bounceableFormat
-        : parsedOpAddr.isBounceable;
 
     // Operation
     const op = useMemo(() => {
@@ -154,8 +155,8 @@ export function TransactionView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (knownWallets[parsedAddressFriendly]) {
-        known = knownWallets[parsedAddressFriendly];
+    if (knownWallets[parsedAddressFriendlyBounceable]) {
+        known = knownWallets[parsedAddressFriendlyBounceable];
     }
     // if (tx.title) {
     //     known = { name: tx.title };

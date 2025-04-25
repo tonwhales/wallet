@@ -88,6 +88,9 @@ export type LocalizationSchema = {
         address: string,
         currencyChanged: string,
         required: string,
+        operation: string,
+        description: string,
+        openSettings: string,
     },
     syncStatus: {
         connecting: string,
@@ -190,7 +193,8 @@ export type LocalizationSchema = {
     },
     receive: {
         title: string,
-        subtitle: string,
+        subtitleTon: string,
+        subtitleSolana: string,
         share: {
             title: string,
             error: string
@@ -280,7 +284,23 @@ export type LocalizationSchema = {
         notEnoughJettonsMessage: string,
         aboutFees: string,
         aboutFeesDescription: string,
-        gaslessTransferSwitch: string
+        gaslessTransferSwitch: string,
+        solana: {
+            error: {
+                title: string,
+                networkRequestFailed: string,
+                connectionTimeout: string,
+                connectionRefused: string,
+                connectionReset: string,
+                insufficientLamports: string,
+                insufficientLamportsWithAmount: string,
+                insufficientTokenFunds: string,
+                rateLimited: string,
+                signingFailed: string,
+                insufficientFundsForRent: string
+                insufficientFundsForRentTitle: string
+            }
+        }
     },
     auth: {
         phoneVerify: string,
@@ -349,7 +369,9 @@ export type LocalizationSchema = {
         requestingPermission: string,
         noPermission: string,
         requestPermission: string,
-        failedToReadFromImage: string
+        failedToReadFromImage: string,
+        galleryPermissionTitle: string,
+        galleryPermissionMessage: string
     },
     products: {
         addNew: string,
@@ -1178,6 +1200,7 @@ export type LocalizationSchema = {
             unsafeTransfer: string,
             userCanceled: string,
             updateApp: string,
+            permissionsIos: string,
         },
         moreAbout: string,
         verifyAddress: {
@@ -1332,12 +1355,30 @@ export type LocalizationSchema = {
         callToAction: string,
     },
     savings: {
-        ton: string,
-        usdt: string,
-    },
-    spending: {
+        general: string,
         ton: string,
         usdt: string
+    },
+    spending: {
+        general: string,
+        ton: string,
+        usdt: string
+    },
+    solana: {
+        instructions: {
+            depositCard: string,
+            updateCardLimits: string,
+            closeCard: string,
+            createAssociatedTokenAccount: string,
+            systemTransfer: string,
+            createAccount: string,
+            tokenTransfer: string,
+            unknown: string,
+        },
+        banner: {
+            title: string,
+            description: string
+        }
     },
     iban: {
         banner: {

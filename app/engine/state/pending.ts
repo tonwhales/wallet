@@ -1,8 +1,10 @@
 import { atomFamily } from "recoil";
 import { Address, Cell, ExtraCurrency } from "@ton/core";
 import { Jetton } from "../types";
-import { TransferEstimate } from "../../fragments/secure/TransferFragment";
 import { parseBody } from "../transactions/parseWalletTransaction";
+import { TransferEstimate } from "../../fragments/secure/transfer/TransferFragment";
+import { Blockhash } from "@solana/web3.js";
+import { ParsedTransactionInstruction } from "../../utils/solana/parseInstructions";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell, stateInit?: Cell | null, extraCurrency?: { [k: number]: bigint } }
@@ -98,5 +100,47 @@ export function ledgerOrderToPendingTransactionBody(payload: LedgerTransferPaylo
 
 export const pendingTransactionsState = atomFamily<PendingTransaction[], string>({
     key: "pendingTransactionsState",
+    default: (address) => [],
+});
+
+export type PendingSolanaTransactionInstructions = {
+    type: 'instructions',
+    id: string,
+    time: number,
+    status: PendingTransactionStatus,
+    lastBlockHash: {
+        blockhash: Blockhash,
+        lastValidBlockHeight: number
+    },
+    instructions: ParsedTransactionInstruction[]
+} 
+
+export type PendingSolanaTransactionTx = {
+    type: 'tx',
+    id: string,
+    time: number,
+    status: PendingTransactionStatus,
+    lastBlockHash: {
+        blockhash: Blockhash,
+        lastValidBlockHeight: number
+    },
+    tx: {
+        comment?: string | null,
+        amount: bigint,
+        token: {
+            mint: string,
+            symbol?: string,
+            decimals?: number
+        } | null | undefined,
+        target: string,
+        sender: string,
+        tokenAccount?: string
+    },
+}
+
+export type PendingSolanaTransaction = PendingSolanaTransactionInstructions | PendingSolanaTransactionTx;
+
+export const pendingSolanaTransactionsState = atomFamily<PendingSolanaTransaction[], string>({
+    key: "pendingSolanaTransactionsState",
     default: (address) => [],
 });

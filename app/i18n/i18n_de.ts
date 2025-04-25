@@ -85,7 +85,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Gasfrei",
         "address": "Adresse",
         "currencyChanged": "Währung geändert",
-        "required": "erforderlich"
+        "required": "erforderlich",
+        "operation": "Vorgang",
+        "description": "Beschreibung",
+        "openSettings": "Einstellungen öffnen"
     },
     "syncStatus": {
         "connecting": "Verbinden",
@@ -188,7 +191,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Empfangen",
-        "subtitle": "Senden Sie nur Toncoin und Token im TON-Netzwerk an diese Adresse, sonst könnten Sie Ihre Gelder verlieren.",
+        "subtitleTon": "Senden Sie nur Toncoin und Token im TON-Netzwerk an diese Adresse, sonst könnten Sie Ihre Gelder verlieren.",
+        "subtitleSolana": "Senden Sie nur SOL und SPL-Token im Solana-Netzwerk an diese Adresse, sonst könnten Sie Ihre Gelder verlieren.",
         "share": {
             "title": "Meine Tonhub-Adresse",
             "error": "Fehler beim Teilen der Adresse, bitte versuchen Sie es erneut oder kontaktieren Sie den Support"
@@ -278,7 +282,23 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "Sie versuchen, mehr Tokens zu senden, als Sie haben",
         "aboutFees": "Über Gebühren",
         "aboutFeesDescription": "Die Gebühren für Transaktionen auf der Blockchain hängen von mehreren Faktoren ab, wie z.B. Netzwerkauslastung, Transaktionsgröße, Gaspreis und Blockchain-Konfigurationsparametern. Je höher die Nachfrage nach Transaktionsverarbeitung auf der Blockchain oder je größer die Transaktionsgröße (Nachricht/Kommentar), desto höher sind die Gebühren.",
-        "gaslessTransferSwitch": "Gasgebühr in {{symbol}} bezahlen"
+        "gaslessTransferSwitch": "Gasgebühr in {{symbol}} bezahlen",
+        "solana": {
+            "error": {
+                "title": "Solana-Transaktionsfehler",
+                "networkRequestFailed": "Netzwerkfehler, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "connectionTimeout": "Verbindungstimeout, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "connectionRefused": "Verbindung abgelehnt, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "connectionReset": "Verbindung zurückgesetzt, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "insufficientLamports": "Unzureichende SOL-Mittel",
+                "insufficientLamportsWithAmount": "Unzureichende SOL-Mittel, benötigen {{amount}} mehr",
+                "insufficientTokenFunds": "Unzureichende Token-Mittel",
+                "rateLimited": "Wir verzeichnen eine hohe Nachfrage, bitte versuchen Sie es später erneut oder kontaktieren Sie den Support",
+                "signingFailed": "Transaktionssignatur fehlgeschlagen",
+                "insufficientFundsForRentTitle": "Transaktionsbetrag ist unter dem Mindestbetrag",
+                "insufficientFundsForRent": "Unzureichende SOL für das Senden an: {{address}}, benötigen {{amount}} mehr"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Telefon verifizieren",
@@ -347,7 +367,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "requestingPermission": "Kameraberechtigungen anfordern...",
         "noPermission": "Erlauben Sie den Kamerazugriff, um QR-Codes zu scannen",
         "requestPermission": "Einstellungen öffnen",
-        "failedToReadFromImage": "Fehler beim Lesen des QR-Codes aus dem Bild"
+        "failedToReadFromImage": "Fehler beim Lesen des QR-Codes aus dem Bild",
+        "galleryPermissionTitle": "Berechtigung Erforderlich",
+        "galleryPermissionMessage": "Um QR-Codes aus Ihren Fotos zu scannen, benötigt die App Zugriff auf Ihre Galerie"
     },
     "products": {
         "addNew": "Ein Produkt hinzufügen",
@@ -1175,7 +1197,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bluetoothScanFailed": "Bluetooth-Scan fehlgeschlagen",
             "unsafeTransfer": "Bitte erlauben Sie das Blind-Signing in der TON Ledger App",
             "userCanceled": "Auf Ledger abgelehnt",
-            "updateApp": "Bitte aktualisieren Sie die TON-App in Ledger Live auf die neueste Version"
+            "updateApp": "Bitte aktualisieren Sie die TON-App in Ledger Live auf die neueste Version",
+            "permissionsIos": "Bitte erlauben Sie Zugriff auf Bluetooth"
         },
         "moreAbout": "Mehr über Ledger",
         "verifyAddress": {
@@ -1331,11 +1354,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "TON Sparkonto",
-        "usdt": "USDT Sparkonto"
+        "usdt": "USDT Sparkonto",
+        "general": "{{symbol}} Sparkonto"
     },
     "spending": {
-        "ton": "TON Ausgabenkonto",
-        "usdt": "USDT Ausgabenkonto"
+        "ton": "TON-Ausgabekonto",
+        "usdt": "USDT-Ausgabekonto",
+        "general": "{{symbol}}-Ausgabekonto"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Verknüpftes Token-Konto erstellen",
+            "unknown": "Unbekannte Anweisung",
+            "systemTransfer": "SOL-Überweisung",
+            "createAccount": "Konto erstellen",
+            "tokenTransfer": "Token-Überweisung",
+            "depositCard": "Einzahlung auf Karte",
+            "closeCard": "Karte schließen",
+            "updateCardLimits": "Kartenlimits aktualisieren"
+        },
+        "banner": {
+            "title": "Solana ist jetzt verfügbar",
+            "description": "Empfangen, speichern und senden von SOL und USDC"
+        }
     },
     "iban": {
         "banner": {

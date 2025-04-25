@@ -1,36 +1,49 @@
 import { memo, useCallback } from "react";
-import { View, Text } from "react-native";
-import { t } from "../../i18n/t";
-import { useDisplayableJettons, useNetwork, useTheme } from "../../engine/hooks";
-import { Typography } from "../styles";
-import { TonProductComponent } from "./TonProductComponent";
+import { View } from "react-native";
+import { t } from "../../../i18n/t";
+import { useDisplayableJettons, useNetwork, useSolanaSavingsBalance, useSolanaTokens, useTheme } from "../../../engine/hooks";
+import { Typography } from "../../styles";
+import { TonProductComponent } from "../TonProductComponent";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
 import { Address } from "@ton/ton";
-import { JettonProductItem } from "./JettonProductItem";
-import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { JettonFull } from "../../engine/api/fetchHintsFull";
+import { JettonProductItem } from "../JettonProductItem";
+import { AssetViewType } from "../../../fragments/wallet/AssetsFragment";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { JettonFull } from "../../../engine/api/fetchHintsFull";
 import { Image } from "expo-image";
-import { PerfText } from "../basic/PerfText";
-import { CollapsibleCards } from "../animated/CollapsibleCards";
-import { useSavingsBalance } from "../../engine/hooks/jettons/useSavingsBalance";
-import { PriceComponent } from "../PriceComponent";
+import { PerfText } from "../../basic/PerfText";
+import { CollapsibleCards } from "../../animated/CollapsibleCards";
+import { useSavingsBalance } from "../../../engine/hooks/jettons/useSavingsBalance";
+import { PriceComponent } from "../../PriceComponent";
+import { SolanaWalletProduct } from "./SolanaWalletProduct";
+import { solanaAddressFromPublicKey } from "../../../utils/solana/address";
+import { SolanaTokenProduct } from "./SolanaTokenProduct";
+import { SolanaToken } from "../../../engine/api/solana/fetchSolanaTokens";
 
 enum AssetType {
     Jetton = 'jetton',
     Special = 'special',
-    Ton = 'ton'
+    Ton = 'ton',
+    Solana = 'solana',
+    SolanaToken = 'solanaToken'
 }
 
 type SavingsItem = { type: AssetType.Jetton, description: string } & JettonFull
-    | { type: AssetType.Special } | { type: AssetType.Ton };
+    | { type: AssetType.Special }
+    | { type: AssetType.Ton }
+    | { type: AssetType.Solana }
+    | { type: AssetType.SolanaToken } & SolanaToken;
 
-export const SavingsProduct = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
+export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Address, isLedger?: boolean, pubKey: Buffer }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const savings = useDisplayableJettons(address.toString({ testOnly: isTestnet })).savings || [];
-    const { totalBalance } = useSavingsBalance(address);
+    const { totalBalance: tonTotalBalance } = useSavingsBalance(address);
     const navigation = useTypedNavigation();
+    const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
+    const tokens = useSolanaTokens(solanaAddress, isLedger);
+    const { solAssets: solanaSavingsBalance } = useSolanaSavingsBalance(solanaAddress);
+    const totalBalance = tonTotalBalance + solanaSavingsBalance;
 
     const selectParams = {
         onSelect: (h: any) => {
@@ -76,10 +89,24 @@ export const SavingsProduct = memo(({ address, isLedger }: { address: Address, i
                         isLedger={isLedger}
                     />
                 );
+            case 'solana':
+                return (
+                    <SolanaWalletProduct
+                        theme={theme}
+                        address={solanaAddress}
+                    />
+                );
+            case 'solanaToken':
+                return (
+                    <SolanaTokenProduct
+                        token={item}
+                        address={solanaAddress}
+                    />
+                );
         }
-    }, [isTestnet, theme, selectParams]);
+    }, [isTestnet, theme, selectParams, isLedger, address, solanaAddress]);
 
-    const savingsItems = savings
+    const savingsItems: ({ type: AssetType.Jetton, description: string } & JettonFull)[] = savings
         .filter((s) => { // filter out zero balances
             try {
                 return BigInt(s.balance) > 0n;
@@ -88,10 +115,14 @@ export const SavingsProduct = memo(({ address, isLedger }: { address: Address, i
         })
         .map((s) => ({ type: AssetType.Jetton, ...s }));
 
+    const solanaTokens: ({ type: AssetType.SolanaToken } & SolanaToken)[] = tokens?.data?.map((t) => ({ type: AssetType.SolanaToken, ...t })) ?? [];
+
     const items: SavingsItem[] = [
         { type: AssetType.Ton },
         { type: AssetType.Special },
-        ...savingsItems
+        { type: AssetType.Solana },
+        ...savingsItems,
+        ...solanaTokens
     ];
 
     const renderFace = useCallback(() => {
@@ -154,39 +185,6 @@ export const SavingsProduct = memo(({ address, isLedger }: { address: Address, i
             </View>
         );
     }, [theme.surfaceOnBg, theme.textPrimary, theme.textSecondary, theme.style, totalBalance]);
-
-    if (savingsItems.length === 0) {
-        return (
-            <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
-                <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
-                    {t('products.savings')}
-                </Text>
-                <View style={{
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20, marginTop: 14,
-                }}>
-                    <TonProductComponent
-                        theme={theme}
-                        address={address}
-                        testOnly={isTestnet}
-                        isLedger={isLedger}
-                    />
-                </View>
-
-                <View style={{
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20, marginTop: 14,
-                }}>
-                    <SpecialJettonProduct
-                        theme={theme}
-                        address={address}
-                        testOnly={isTestnet}
-                        isLedger={isLedger}
-                    />
-                </View>
-            </View>
-        );
-    }
 
     return (
         <View style={{ marginVertical: 16 }}>

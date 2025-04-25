@@ -25,6 +25,7 @@ import {
 import { backoff } from '../../utils/time';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
+import { whalesConnectEndpoint } from '../../engine/clients';
 
 type Item = {
   key: string;
@@ -84,7 +85,7 @@ export const BrowserConnections = memo(
               removeConnectionReference(s.key);
               backoff('revoke', async () => {
                 await axios.post(
-                  'https://connect.tonhubapi.com/connect/revoke',
+                  `${whalesConnectEndpoint}/connect/revoke`,
                   { key: s.key },
                   { timeout: 5000 },
                 );

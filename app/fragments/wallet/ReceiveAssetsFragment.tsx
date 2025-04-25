@@ -7,35 +7,42 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { Typography } from "../../components/styles";
 import { Image } from "expo-image";
-import { ReceiveableAsset } from "./ReceiveFragment";
+import { ReceiveableTonAsset } from "./ReceiveFragment";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
-import { hasDirectDeposit } from "../../utils/holders/hasDirectDeposit";
-import { SpecialJettonProduct } from "../../components/products/SpecialJettonProduct";
+import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
+import { SpecialJettonProduct } from "../../components/products/savings/SpecialJettonProduct";
 import { AssetViewType } from "./AssetsFragment";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
 import { HoldersAppParams, HoldersAppParamsType } from "../holders/HoldersAppFragment";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
+import { SolanaWalletProduct } from "../../components/products/savings/SolanaWalletProduct";
+import { SolanaTokenProduct } from "../../components/products/savings/SolanaTokenProduct";
+import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 
 enum AssetType {
     TON = 'ton',
     HOLDERS = 'holders',
     SPECIAL = 'special',
-    OTHERCOINS = 'otherCoins'
+    OTHERCOINS = 'otherCoins',
+    SOLANA = 'solana',
+    SOLANA_TOKEN = 'solana-token'
 }
 
 type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SPECIAL }
     | { type: AssetType.HOLDERS, account: GeneralHoldersAccount }
     | { type: AssetType.TON }
-    | { type: AssetType.SPECIAL };
+    | { type: AssetType.SPECIAL }
+    | { type: AssetType.SOLANA }
+    | { type: AssetType.SOLANA_TOKEN, token: SolanaToken };
 
 const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
     const theme = useTheme();
@@ -93,7 +100,7 @@ const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
 });
 
 export type ReceiveAssetsFragment = {
-    assetCallback?: (selected: ReceiveableAsset | null) => void,
+    assetCallback?: (selected: ReceiveableTonAsset | null) => void,
     title: string
 }
 
@@ -103,11 +110,13 @@ export const ReceiveAssetsFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
+    const solanaAddress = useSolanaSelectedAccount()!;
     const route = useRoute();
     const isLedger = route.name === 'LedgerReceiveAssets';
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
+    const tokens = useSolanaTokens(solanaAddress, isLedger);
 
     const ledgerAddress = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr) {
@@ -117,7 +126,7 @@ export const ReceiveAssetsFragment = fragment(() => {
 
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner).data?.accounts?.filter(acc => hasDirectDeposit(acc)) ?? [];
+    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress).data?.accounts?.filter(acc => hasDirectTonDeposit(acc) || hasDirectSolanaDeposit(acc)) ?? [];
     const hints = useDisplayableJettons(owner.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
     const url = holdersUrl(isTestnet);
@@ -125,7 +134,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     const [isWalletMode] = useAppMode(selected?.address, { isLedger });
 
-    const onAssetCallback = useCallback((asset: ReceiveableAsset | null) => {
+    const onAssetCallback = useCallback((asset: ReceiveableTonAsset | null) => {
         if (assetCallback) {
             setTimeout(() => {
                 navigation.goBack();
@@ -137,11 +146,10 @@ export const ReceiveAssetsFragment = fragment(() => {
     }, [assetCallback, isLedger, owner, isTestnet, bounceableFormat]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
-        const path = `/account/${target.id}?deposit-open=true`;
+        let path = `/account/${target.id}?deposit-open=true`;
         const navParams: HoldersAppParams = { type: HoldersAppParamsType.Path, path, query: {} };
 
         navigation.goBack();
-
 
         if (needsEnrollment || !isHoldersReady) {
             if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
@@ -157,6 +165,25 @@ export const ReceiveAssetsFragment = fragment(() => {
 
         navigation.navigateHolders(navParams, isTestnet, isLedger);
     }, [needsEnrollment, isHoldersReady, isTestnet, isLedger, ledgerContext]);
+
+    const solanaTokens: SolanaToken[] = tokens?.data ?? [];
+
+    const openSolanaToken = useCallback((token: SolanaToken) => {
+        navigation.navigateSolanaReceive({
+            addr: solanaAddress,
+            asset: {
+                mint: token.address,
+                content: {
+                    icon: token.logoURI,
+                    name: token.name
+                }
+            }
+        });
+    }, [navigation, solanaAddress]);
+
+    const openSolanaWallet = useCallback(() => {
+        navigation.navigateSolanaReceive({ addr: solanaAddress });
+    }, [navigation, solanaAddress]);
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
@@ -230,6 +257,22 @@ export const ReceiveAssetsFragment = fragment(() => {
                         </View>
                     </Pressable>
                 );
+            case AssetType.SOLANA:
+                return (
+                    <SolanaWalletProduct
+                        theme={theme}
+                        address={solanaAddress}
+                        onSelect={openSolanaWallet}
+                    />
+                );
+            case AssetType.SOLANA_TOKEN:
+                return (
+                    <SolanaTokenProduct
+                        token={item.token}
+                        address={solanaAddress}
+                        onSelect={() => openSolanaToken(item.token)}
+                    />
+                );
             default:
                 const tonCallback = () => onAssetCallback(null);
                 return (<TonAssetItem onSelect={tonCallback} />);
@@ -272,7 +315,15 @@ export const ReceiveAssetsFragment = fragment(() => {
 
     const defaultSection: { type: 'default' | 'holders', data: ListItem[] } = {
         type: 'default',
-        data: [{ type: AssetType.TON }, { type: AssetType.SPECIAL }]
+        data: [
+            { type: AssetType.TON },
+            { type: AssetType.SPECIAL },
+            { type: AssetType.SOLANA },
+            ...solanaTokens.map((t) => ({
+                type: AssetType.SOLANA_TOKEN as AssetType.SOLANA_TOKEN, // wtf, typescript?
+                token: t
+            }))
+        ]
     };
 
     let itemsList: { type: 'default' | 'holders' | 'otherCoins', data: ListItem[] }[] = []

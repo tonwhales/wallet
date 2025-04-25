@@ -32,7 +32,7 @@ async function fetchBalance(address: WalletAddress, isTestnet: boolean) {
         const data = await client.getAccountLite(last, Address.parse(address));
         return data?.account ? BigInt(data.account.balance.coins) : BigInt(0);
     } catch (err) {
-        warn(err);
+        warn(`fetchBalance error: ${err}`);
         return BigInt(0);
     }
 }
@@ -53,12 +53,14 @@ export const WalletSelectVersionsComponent = React.memo((props: {
     ]);
 
     const handleContinue = useCallback(async () => {
-        if (selected.length === 0) {
+        const hasSelectedAddresses = addresses.some(addr => selected.includes(addr.version));
+
+        if (!hasSelectedAddresses) {
             Alert.alert(t('wallets.noVersionTitle'), t('wallets.noVersionDescription'))
         } else {
             onContinue(selected);
         }
-    }, [onContinue, selected]);
+    }, [onContinue, selected, addresses]);
 
     const toggleVersion = useCallback((version: WalletVersions) => () => {
         setSelected((selected) => {

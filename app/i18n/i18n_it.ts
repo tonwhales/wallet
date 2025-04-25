@@ -85,7 +85,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "gasless": "Senza gas",
         "address": "Indirizzo",
         "currencyChanged": "Valuta cambiata",
-        "required": "richiesto"
+        "required": "richiesto",
+        "operation": "Operazione",
+        "description": "Descrizione",
+        "openSettings": "Apri impostazioni"
     },
     "syncStatus": {
         "connecting": "Connessione in corso",
@@ -188,7 +191,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "receive": {
         "title": "Ricevi",
-        "subtitle": "Invia solo Toncoin e token nella rete TON a questo indirizzo, altrimenti potresti perdere i tuoi fondi.",
+        "subtitleTon": "Invia solo Toncoin e token nella rete TON a questo indirizzo, altrimenti potresti perdere i tuoi fondi.",
+        "subtitleSolana": "Invia solo SOL e token SPL nella rete Solana a questo indirizzo, altrimenti potresti perdere i tuoi fondi.",
         "share": {
             "title": "Il mio indirizzo Tonhub",
             "error": "Condivisione dell'indirizzo fallita, riprova o contatta il supporto"
@@ -239,7 +243,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "ledgerErrorConnectionTitle": "Ledger non è connesso",
             "ledgerErrorConnectionMessage": "Per favore, collega Ledger e riprova",
             "notEnoughGasTitle": "TON insufficienti per coprire la commissione del gas",
-            "notEnoughGasMessage": "Ricarica il tuo portafoglio con TON (almeno {{diff}} TON in più è necessario) e riprova"
+            "notEnoughGasMessage": "Ricarica il tuo portafoglio con TON (almeno {{diff}} TON in più è necessario) e riprova",
         },
         "changeJetton": "Passa a {{symbol}}",
         "sendAll": "Max",
@@ -278,7 +282,23 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "notEnoughJettonsMessage": "Stai cercando di inviare più token di quelli che possiedi",
         "aboutFees": "Informazioni sulle commissioni",
         "aboutFeesDescription": "Le commissioni per le transazioni sulla blockchain dipendono da diversi fattori, come la congestione della rete, la dimensione della transazione, il prezzo del gas e i parametri di configurazione della blockchain. Maggiore è la domanda di elaborazione delle transazioni sulla blockchain o maggiore è la dimensione della transazione (messaggio/commento), maggiori saranno le commissioni.",
-        "gaslessTransferSwitch": "Paga la commissione del gas in {{symbol}}"
+        "gaslessTransferSwitch": "Paga la commissione del gas in {{symbol}}",
+        "solana": {
+            "error": {
+                "title": "Errore nella transazione Solana",
+                "networkRequestFailed": "Errore di rete, riprova più tardi o contatta l'assistenza",
+                "connectionTimeout": "Timeout della connessione, riprova più tardi o contatta l'assistenza",
+                "connectionRefused": "Connessione rifiutata, riprova più tardi o contatta l'assistenza",
+                "connectionReset": "Connessione reimpostata, riprova più tardi o contatta l'assistenza",
+                "insufficientLamports": "Fondi SOL insufficienti",
+                "insufficientLamportsWithAmount": "Fondi SOL insufficienti, sono necessari {{amount}} in più",
+                "insufficientTokenFunds": "Fondi token insufficienti",
+                "rateLimited": "Stiamo riscontrando una forte domanda, riprova più tardi o contatta l'assistenza",
+                "signingFailed": "Errore di firma della transazione",
+                "insufficientFundsForRentTitle": "Importo della transazione inferiore al minimo",
+                "insufficientFundsForRent": "Fondi SOL insufficienti per inviare a: {{address}}, sono necessari {{amount}} in più"
+            }
+        }
     },
     "auth": {
         "phoneVerify": "Verifica telefono",
@@ -347,7 +367,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "requestingPermission": "Richiesta di autorizzazioni per la fotocamera in corso...",
         "noPermission": "Consenti l'accesso alla fotocamera per scansionare i codici QR",
         "requestPermission": "Apri le impostazioni",
-        "failedToReadFromImage": "Impossibile leggere il codice QR dall'immagine"
+        "failedToReadFromImage": "Impossibile leggere il codice QR dall'immagine",
+        "galleryPermissionTitle": "Autorizzazione Richiesta",
+        "galleryPermissionMessage": "Per scansionare i codici QR dalle tue foto, l'app ha bisogno di accedere alla tua galleria"
     },
     "products": {
         "addNew": "Aggiungi un prodotto",
@@ -1175,7 +1197,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "bluetoothScanFailed": "Scansione Bluetooth fallita",
             "unsafeTransfer": "Per favore, consenti la firma cieca nell'app TON Ledger",
             "userCanceled": "Rifiutato su Ledger",
-            "updateApp": "Per favore, aggiorna l'app TON in Ledger Live all'ultima versione"
+            "updateApp": "Per favore, aggiorna l'app TON in Ledger Live all'ultima versione",
+            "permissionsIos": "Per favore, consenti l'accesso al Bluetooth"
         },
         "moreAbout": "Maggiori informazioni su Ledger",
         "verifyAddress": {
@@ -1331,11 +1354,29 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
     },
     "savings": {
         "ton": "Conto di risparmio TON",
-        "usdt": "Conto di risparmio USDT"
+        "usdt": "Conto di risparmio USDT",
+        "general": "Conto di risparmio {{symbol}}"
     },
     "spending": {
         "ton": "Conto di spesa TON",
-        "usdt": "Conto di spesa USDT"
+        "usdt": "Conto di spesa USDT",
+        "general": "Conto di spesa {{symbol}}"
+    },
+    "solana": {
+        "instructions": {
+            "createAssociatedTokenAccount": "Crea account token associato",
+            "unknown": "Istruzione sconosciuta",
+            "systemTransfer": "Trasferimento SOL",
+            "createAccount": "Creare account",
+            "tokenTransfer": "Trasferimento token",
+            "depositCard": "Deposito su carta",
+            "closeCard": "Chiudere carta",
+            "updateCardLimits": "Aggiornare i limiti della carta"
+        },
+        "banner": {
+            "title": "Solana è ora disponibile",
+            "description": "Ricevi, memorizza e invia SOL e USDC"
+        }
     },
     "iban": {
         "banner": {

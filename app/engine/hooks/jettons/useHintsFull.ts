@@ -17,6 +17,13 @@ export function useHintsFull(addressString?: string) {
         queryFn: async () => {
             try {
                 const fetched = await fetchHintsFull(addressString!, isTestnet);
+
+                // change USDT symbol
+                const usdtIndex = fetched.hints.findIndex(hint => hint.jetton.symbol === 'USD₮');
+                if (usdtIndex !== -1) {
+                    fetched.hints[usdtIndex].jetton.symbol = 'USDT';
+                }
+
                 return fetched;
             } catch (error) {
                 warn('Failed to fetch hints');

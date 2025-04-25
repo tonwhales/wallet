@@ -325,6 +325,7 @@
 				D2CEF73AE5438721BF35B6AF /* [CP] Embed Pods Frameworks */,
 				1C7CD7604712E3C6DF309BE2 /* [CP] Copy Pods Resources */,
 				36D5B6572C525944000A4A55 /* Embed Foundation Extensions */,
+				3693E34A2DBB2362002D5A9C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -516,6 +517,23 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WhalesApp/Pods-WhalesApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		3693E34A2DBB2362002D5A9C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"[BITCODE STRIP] Starting bitcode strip from Xcode build phase\"\nBITCODE_STRIP=$(xcrun -find bitcode_strip)\n\n# Log build environment\necho \"[BITCODE STRIP] Build directory: ${BUILT_PRODUCTS_DIR}\"\necho \"[BITCODE STRIP] Product name: ${FULL_PRODUCT_NAME}\"\necho \"[BITCODE STRIP] Final app path: ${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\"\n\n# Check all possible locations for hermes framework\nfor APP_PATH in \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\" \"${BUILT_PRODUCTS_DIR}/Tonhub.app\"\ndo\n  HERMES_PATH=\"${APP_PATH}/Frameworks/hermes.framework/hermes\"\n  if [ -f \"$HERMES_PATH\" ]; then\n    echo \"[BITCODE STRIP] Found hermes binary at: $HERMES_PATH\"\n    echo \"[BITCODE STRIP] Running bitcode_strip on $HERMES_PATH\"\n    \"$BITCODE_STRIP\" -r -o \"$HERMES_PATH\" \"$HERMES_PATH\"\n    echo \"[BITCODE STRIP] Completed with status: $?\"\n    # Check file type after stripping\n    echo \"[BITCODE STRIP] File type after stripping:\"\n    file \"$HERMES_PATH\"\n  else\n    echo \"[BITCODE STRIP] Hermes not found at: $HERMES_PATH\"\n  fi\ndone\n\n# Final check with find command\necho \"[BITCODE STRIP] Searching for all hermes binaries in build dir:\"\nfind \"${TARGET_BUILD_DIR}\" -name \"hermes\" -type f -exec echo \"[BITCODE STRIP] Found: {}\" \\; -exec \"$BITCODE_STRIP\" -r -o {} {} \\; -exec echo \"[BITCODE STRIP] Stripped: {} with status: $?\" \\;\n";
 		};
 		6A3F56A2626D3545593B0F38 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

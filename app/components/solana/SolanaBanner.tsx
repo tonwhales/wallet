@@ -62,7 +62,7 @@ export const SolanaBanner = memo(() => {
                     marginHorizontal: 16, marginTop: 16
                 })}
             >
-                <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+                <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden', borderRadius: 20 }}>
                     <Canvas style={{ flexGrow: 1 }}>
                         <Rect
                             x={0} y={0}

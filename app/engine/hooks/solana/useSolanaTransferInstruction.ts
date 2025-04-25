@@ -95,8 +95,12 @@ export function useSolanaTransferInstruction(instruction: ParsedTransactionInstr
         return BigInt(amount);
     }, [solanaToken?.decimals, amount]);
 
+    const decimals = solanaToken
+        ? solanaToken?.decimals ?? 6
+        : 9;
+
     if (amount) {
-        amount = `${fromBnWithDecimals(validAmount ?? 0n, solanaToken?.decimals ?? 6)}${solanaToken?.symbol ? ` ${solanaToken.symbol}` : ''}`;
+        amount = `${fromBnWithDecimals(validAmount ?? 0n, decimals)}${solanaToken?.symbol ? ` ${solanaToken.symbol}` : ''}`;
     }
 
     return {
@@ -107,6 +111,7 @@ export function useSolanaTransferInstruction(instruction: ParsedTransactionInstr
         isHoldersOp,
         limits,
         validAmount,
-        solanaToken
+        solanaToken,
+        decimals
     }
 }

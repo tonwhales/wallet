@@ -11,6 +11,8 @@ import { avatarHash } from "../../../../utils/avatarHash";
 import { avatarColors } from "../../../../components/avatar/Avatar";
 import { SolanaWalletAddress } from "../../../../components/address/SolanaWalletAddress";
 import { PriceComponent } from "../../../../components/PriceComponent";
+import { fromBnWithDecimals } from "../../../../utils/withDecimals";
+import { toNano } from "@ton/core";
 
 export const TransferInstructionView = (params: { instruction: ParsedTransactionInstruction, owner: string }) => {
     const { instruction, owner } = params;
@@ -24,7 +26,8 @@ export const TransferInstructionView = (params: { instruction: ParsedTransaction
         amount,
         isHoldersOp,
         limits,
-        validAmount
+        validAmount,
+        decimals
     } = useSolanaTransferInstruction(instruction, owner);
 
     if (!instruction) {
@@ -81,7 +84,7 @@ export const TransferInstructionView = (params: { instruction: ParsedTransaction
                 </View>
                 {validAmount && (
                     <PriceComponent
-                        amount={validAmount}
+                        amount={toNano(fromBnWithDecimals(validAmount, decimals))}
                         style={{
                             backgroundColor: theme.transparent,
                             paddingHorizontal: 0, marginTop: 2,

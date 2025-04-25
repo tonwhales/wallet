@@ -93,7 +93,7 @@ export const SolanaWalletProduct = memo(({
                         {t('savings.general', { symbol })}
                     </Text>
                 </View>
-                {!onSelect && (
+                {!onSelect ? (
                     <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                             <ValueComponent
@@ -119,6 +119,13 @@ export const SolanaWalletProduct = memo(({
                             theme={theme}
                             priceUSD={rates?.price?.usd}
                             hideCentsIfNull
+                        />
+                    </View>
+                ) : (
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
+                        <Image
+                            source={require('@assets/ic-chevron-right.png')}
+                            style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
                         />
                     </View>
                 )}

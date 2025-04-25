@@ -1372,6 +1372,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "depositCard": "Depósito no cartão",
             "closeCard": "Fechar cartão",
             "updateCardLimits": "Atualizar limites do cartão"
+        },
+        "banner": {
+            "title": "Solana está disponível",
+            "description": "Receba, armazene e envie SOL e USDC"
         }
     },
     "iban": {

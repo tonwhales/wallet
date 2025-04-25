@@ -1372,6 +1372,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "depositCard": "Поповнення картки",
             "closeCard": "Закрити картку",
             "updateCardLimits": "Оновити ліміти картки"
+        },
+        "banner": {
+            "title": "Тепер доступні Solana та USDC",
+            "description": "Отримайте, зберігайте та відправляйте SOL та USDC"
         }
     },
     "iban": {

@@ -1373,6 +1373,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "closeCard": "Karte schließen",
             "updateCardLimits": "Kartenlimits aktualisieren"
         },
+        "banner": {
+            "title": "Solana ist jetzt verfügbar",
+            "description": "Empfangen, speichern und senden von SOL und USDC"
+        }
     },
     "iban": {
         "banner": {

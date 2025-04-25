@@ -29,6 +29,7 @@ import { PaymentOtpBanner } from "../holders/PaymentOtpBanner"
 import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode"
 import { IbanBanner } from "../holders/IbanBanner"
+import { SolanaBanner } from "../solana/SolanaBanner"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -106,6 +107,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     <>
                         <AddressFormatUpdate />
                         <W5Banner />
+                        <SolanaBanner />
                     </>
                 ) : (
                     <IbanBanner />

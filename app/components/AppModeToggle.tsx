@@ -11,6 +11,8 @@ import { TransactionType } from '../engine/types';
 import { useLedgerTransport } from '../fragments/ledger/components/TransportContext';
 import { Address } from '@ton/core';
 import { t } from '../i18n/t';
+import { queryClient } from '../engine/clients';
+import { Queries } from '../engine/queries';
 
 const ICON_SIZE = 16;
 const GAP_BETWEEN_ICON_AND_TEXT = 4;
@@ -57,6 +59,9 @@ export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
         } else {
             switchAppToWalletMode(isSwitchingToWallet);
             setFilter((prev) => ({ ...prev, type: isSwitchingToWallet ? TransactionType.TON : TransactionType.HOLDERS }));
+            if (!isSwitchingToWallet) {
+                queryClient.invalidateQueries({ queryKey: Queries.Holders(address.toString({ testOnly: isTestnet })).Iban() });
+            }
         }
     }, [needsEnrollment, isHoldersReady, url, isTestnet, holdersAccounts?.accounts, isLedger])
 

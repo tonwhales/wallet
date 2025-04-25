@@ -87,6 +87,10 @@ PODS:
   - hermes-engine/Pre-built (0.72.6)
   - ImageColors (2.3.0):
     - ExpoModulesCore
+  - Intercom (18.6.2)
+  - intercom-react-native (8.3.0):
+    - Intercom (~> 18.6.1)
+    - React-Core
   - libaom (3.0.0):
     - libvmaf (>= 2.2.0)
   - libavif (0.11.1):
@@ -674,6 +678,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - ImageColors (from `../node_modules/react-native-image-colors/ios`)
+  - "intercom-react-native (from `../node_modules/@intercom/intercom-react-native`)"
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
@@ -748,6 +753,7 @@ SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - AppsFlyerFramework
     - fmt
+    - Intercom
     - libaom
     - libavif
     - libevent
@@ -838,6 +844,8 @@ EXTERNAL SOURCES:
     :tag: hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0
   ImageColors:
     :path: "../node_modules/react-native-image-colors/ios"
+  intercom-react-native:
+    :path: "../node_modules/@intercom/intercom-react-native"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
   MixpanelReactNative:
@@ -1008,6 +1016,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 8057e75cfc1437b178ac86c8654b24e7fead7f60
   ImageColors: bce1dff849de75dc22a226cab709aabb072d5e4a
+  Intercom: f350fe6915364cb369ea5cee9c3d888cdec3d119
+  intercom-react-native: c32823bcd02cf6b2e3d6d25aebefc5ccdfe15f0f
   libaom: 144606b1da4b5915a1054383c3a4459ccdb3c661
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913

@@ -367,7 +367,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "requestingPermission": "Запит дозволу на використання камери...",
         "noPermission": "Дозвольте доступ до камери для сканування QR-кодів",
         "requestPermission": "Відкрити налаштування",
-        "failedToReadFromImage": "Не вдалося прочитати QR-код з зображення"
+        "failedToReadFromImage": "Не вдалося прочитати QR-код з зображення",
+        "galleryPermissionTitle": "Потрібен дозвіл",
+        "galleryPermissionMessage": "Для сканування QR-кодів із ваших фотографій додатку потрібен доступ до галереї"
     },
     "products": {
         "addNew": "Додати продукт",

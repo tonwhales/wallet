@@ -19,6 +19,7 @@ import { useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
 import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
 import { changeNavBarColor } from '../../modules/NavBar';
+import { openGalleryPermissionAlert } from '../../utils/permissions';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
@@ -85,6 +86,8 @@ export const ScannerFragment = systemFragment(() => {
                         }, 10);
                     }
                 }
+            } else {
+                openGalleryPermissionAlert();
             }
         } catch {
             Alert.alert(t('qr.title'), t('qr.failedToReadFromImage'));

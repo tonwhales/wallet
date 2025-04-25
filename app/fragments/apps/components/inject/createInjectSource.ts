@@ -332,6 +332,20 @@ window['dapp-client'] = (() => {
 })();
 `
 
+export const supportAPI = `
+window['dapp-support'] = (() => {
+    let __SUPPORT_AVAILABLE = true;
+
+    const show = (userProfile) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'showIntercom', args: { userProfile } } }));
+    }
+
+    const obj = { __SUPPORT_AVAILABLE, show };
+    Object.freeze(obj);
+    return obj;
+})();
+`
+
 type InjectionConfig = {
     version: number;
     platform: "ios" | "android" | "windows" | "macos" | "web";

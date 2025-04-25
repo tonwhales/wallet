@@ -50,15 +50,16 @@ export function PreparedMessageView(props: {
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
-    const isOwn = (appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
-    const walletSettings = walletsSettings[parsedAddressFriendly];
-    const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
-    const avatarColor = avatarColors[avatarColorHash];
-    const contact = contacts[parsedAddressFriendly];
     const targetContractInfo = useContractInfo(parsedAddressFriendly);
     const bounceable = (targetContractInfo?.kind === 'wallet')
         ? props.bounceableFormat
         : parsedOpAddr.isBounceable;
+    const parsedAddressFriendlyBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable });
+    const isOwn = (appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
+    const walletSettings = walletsSettings[parsedAddressFriendlyBounceable];
+    const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
+    const contact = contacts[parsedAddressFriendlyBounceable];
 
     // Operation
     const op = useMemo(() => {
@@ -79,8 +80,8 @@ export function PreparedMessageView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[parsedAddressFriendly]) {
-        known = KnownWallets(isTestnet)[parsedAddressFriendly];
+    if (KnownWallets(isTestnet)[parsedAddressFriendlyBounceable]) {
+        known = KnownWallets(isTestnet)[parsedAddressFriendlyBounceable];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }

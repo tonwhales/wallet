@@ -369,7 +369,9 @@ export type LocalizationSchema = {
         requestingPermission: string,
         noPermission: string,
         requestPermission: string,
-        failedToReadFromImage: string
+        failedToReadFromImage: string,
+        galleryPermissionTitle: string,
+        galleryPermissionMessage: string
     },
     products: {
         addNew: string,

@@ -4,17 +4,29 @@ import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { t } from '../i18n/t';
 
-export const openBluetoothPermissionAlert = () => {
+export const openPermissionAlert = (options: {
+    title: string;
+    message?: string;
+    cancelButtonText?: string;
+    settingsButtonText?: string;
+}) => {
+    const { 
+        title, 
+        message, 
+        cancelButtonText = t('common.cancel'),
+        settingsButtonText = t('common.openSettings')
+    } = options;
+
     Alert.alert(
-        Platform.OS === 'ios' ? t('hardwareWallet.errors.permissionsIos') : t('hardwareWallet.errors.permissions'), 
-        undefined, 
+        title, 
+        message, 
         [
             {
-                text: t('common.cancel'),
+                text: cancelButtonText,
                 style: 'cancel'
             },
             {
-                text: t('common.openSettings'),
+                text: settingsButtonText,
                 onPress: () => {
                     if (Platform.OS === 'ios') {
                         Linking.openURL('app-settings:');
@@ -29,6 +41,21 @@ export const openBluetoothPermissionAlert = () => {
             }
         ]
     );
+};
+
+export const openBluetoothPermissionAlert = () => {
+    openPermissionAlert({
+        title: Platform.OS === 'ios' 
+            ? t('hardwareWallet.errors.permissionsIos') 
+            : t('hardwareWallet.errors.permissions')
+    });
+};
+
+export const openGalleryPermissionAlert = () => {
+    openPermissionAlert({
+        title: t('qr.galleryPermissionTitle'),
+        message: t('qr.galleryPermissionMessage')
+    });
 };
 
 export const checkAndRequestPermissions = async (options: {

@@ -15,6 +15,8 @@ import { processEmitterMessage } from "./processEmitterMessage";
 import { NavigationOptionsAction, SetNavigationOptionsAction } from "./reduceNavigationOptions";
 import { Address } from "@ton/core";
 import { getCurrentAddress } from "../../../storage/appState";
+import Intercom, { Space } from "@intercom/intercom-react-native";
+import { z } from "zod";
 
 export type DAppWebViewAPI = {
     useMainButton?: boolean;
@@ -25,6 +27,7 @@ export type DAppWebViewAPI = {
     useQueryAPI?: boolean;
     useWalletAPI?: boolean;
     useDappClient?: boolean;
+    useSupportAPI?: boolean;
 }
 
 export enum DAppWebViewAPIMethod {
@@ -47,7 +50,24 @@ export enum DAppWebViewAPIMethod {
     subscribed = 'subscribed',
     showKeyboardAccessoryView = 'showKeyboardAccessoryView',
     backPolicy = 'backPolicy',
+    showIntercom = 'showIntercom',
 }
+
+const userAttributesSchema = z.object({
+    companies: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+        plan: z.string(),
+    })).optional(),
+    customAttributes: z.record(z.any()).optional(),
+    email: z.string().optional(),
+    languageOverride: z.string().optional(),
+    name: z.string().optional(),
+    phone: z.string().optional(),
+    signedUpAt: z.number().optional(),
+    unsubscribedFromEmails: z.boolean().optional(),
+    userId: z.string().optional(),
+});
 
 export type DAppWebViewAPIProps = {
     api: DAppWebViewAPI;
@@ -252,6 +272,24 @@ export function processWebViewMessage(
                 return true;
             case DAppWebViewAPIMethod.subscribed:
                 setSubscribed();
+                return true;
+            case DAppWebViewAPIMethod.showIntercom:
+                (async () => {
+                    try {
+                        if (api.useSupportAPI) {
+                            await Intercom.logout();
+                            const userProfile = userAttributesSchema.safeParse(args.userProfile);
+                            if (userProfile.success) {
+                                await Intercom.loginUserWithUserAttributes(userProfile.data);
+                            } else {
+                                await Intercom.loginUnidentifiedUser();
+                            }
+                            Intercom.presentSpace(Space.messages);
+                        }
+                    } catch {
+                        warn('Failed to show intercom');
+                    }
+                })();
                 return true;
             default:
                 if (api.useMainButton && method.startsWith(DAppWebViewAPIMethod.mainButton)) {

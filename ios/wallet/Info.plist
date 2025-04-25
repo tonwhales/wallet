@@ -44,6 +44,10 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>248</string>
+	<key>INTERCOM_APP</key>
+	<string>$(INTERCOM_APP)</string>
+	<key>INTERCOM_IOS_API</key>
+	<string>$(INTERCOM_IOS_API)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>

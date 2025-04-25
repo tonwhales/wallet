@@ -31,7 +31,6 @@ import { getThemeStyleState } from './app/engine/state/theme';
 import { AndroidAppearance } from './app/modules/AndroidAppearance';
 import { handleLinkReceived } from './app/utils/CachedLinking';
 import { initAppsFlyer } from './app/analytics/appsflyer';
-import WonderPush from 'react-native-wonderpush';
 
 const style = getThemeStyleState();
 const scheme = Platform.OS === 'android'? AndroidAppearance.getColorScheme() : Appearance.getColorScheme();
@@ -50,7 +49,6 @@ if (!(TextInput as any).defaultProps) {
 }
 
 initAppsFlyer()
-WonderPush.subscribeToNotifications();
 SplashScreen.preventAutoHideAsync();
 function Boot() {
   return (

@@ -336,7 +336,7 @@ export const HoldersAccountItem = memo((props: {
                         paddingRight: 20
                     }}
                 >
-                    {account.cards.slice(0, 5).map((card) => (
+                    {account.cards.map((card) => (
                         <CardItem
                             key={card.id}
                             card={card as GeneralHoldersCard}
@@ -368,7 +368,7 @@ export const HoldersAccountItem = memo((props: {
                 />
             </View>
         );
-    }, [cardsClickable, theme, onCreateCardPress]);
+    }, [cardsClickable, theme, onCreateCardPress, account.cards]);
 
     const isSolana = account.network === 'solana';
     const isTonCurrency = account.cryptoCurrency?.ticker === 'TON';
@@ -459,8 +459,7 @@ export const HoldersAccountItem = memo((props: {
                     flexGrow: 1,
                     paddingVertical: 20,
                     backgroundColor: theme.surfaceOnBg
-                },
-                    itemStyle]}>
+                }, itemStyle]}>
                     {cardsAndBalanceSection}
                     <TouchableOpacity onPress={onPress} activeOpacity={0.5}>
                         {accountInfo}

@@ -41,7 +41,7 @@ export async function tryFetchJettonWallet(client: TonClient4, seqno: number, ad
         }
         master = _master;
     } catch (e) {
-        warn(e);
+        warn(`tryFetchJettonWallet error: ${e}`);
         return null;
     }
 

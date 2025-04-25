@@ -23,6 +23,7 @@ export const WalletActions = memo(({
     isTestnet,
     actionAsset,
     address,
+    solanaAddress,
     isLedger
 }: {
     theme: ThemeType,
@@ -30,11 +31,12 @@ export const WalletActions = memo(({
     isTestnet: boolean,
     actionAsset?: Asset,
     address?: Address,
+    solanaAddress?: string,
     isLedger?: boolean,
 }) => {
     const showBuy = isNeocryptoAvailable() && !isLedger;
     const appConfig = useAppConfig();
-    const holdersAccounts = useHoldersAccounts(address).data;
+    const holdersAccounts = useHoldersAccounts(address, solanaAddress).data;
     const [isWalletMode] = useAppMode(address, { isLedger });
     const holdersAccountsCount = holdersAccounts?.accounts?.length ?? 0;
     const receiveType = holdersAccountsCount > 0 ? WalletActionType.Deposit : WalletActionType.Receive;

@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as t from 'io-ts';
+import { whalesConnectEndpoint } from "../clients";
 
 export const serverConfigCodec = t.type({
     wallets: t.type({
@@ -16,7 +17,7 @@ export type ServerConfig = {
 }
 
 export async function fetchConfig() {
-    let res = (await axios.get('https://connect.tonhubapi.com/config')).data;
+    let res = (await axios.get(`${whalesConnectEndpoint}/config`)).data;
     if (!serverConfigCodec.is(res)) {
         throw Error('Invalid config');
     }

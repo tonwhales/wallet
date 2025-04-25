@@ -31,6 +31,7 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean,
     const jettonHints = (owner ? addresses.map(a => getJettonHint({
         owner: owner,
         master: a,
+        wallet: a,
         isTestnet: testOnly,
     })) : []).filter(h => !!h);
 

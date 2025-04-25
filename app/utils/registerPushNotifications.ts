@@ -1,9 +1,9 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import axios from 'axios';
-import { Address } from '@ton/core';
 import { getAppInstanceKeyPair } from '../storage/appState';
 import { Platform } from 'react-native';
+import { whalesConnectEndpoint } from '../engine/clients';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -40,10 +40,10 @@ export const registerForPushNotificationsAsync = async () => {
     }
 };
 
-export async function registerPushToken(token: string, addresses: Address[], isTestnet: boolean) {
-    await axios.post('https://connect.tonhubapi.com/push/register', {
+export async function registerPushToken(token: string, addresses: string[]) {
+    await axios.post(`${whalesConnectEndpoint}/push/register`, {
         token,
         appPublicKey: (await getAppInstanceKeyPair()).publicKey.toString('base64'),
-        addresses: addresses.map((v) => v.toString({ testOnly: isTestnet }))
+        addresses
     }, { method: 'POST' });
 }

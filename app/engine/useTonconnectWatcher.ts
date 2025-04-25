@@ -28,6 +28,8 @@ export function useTonconnectWatcher() {
         handleMessageRef.current = handleMessage;
     }, [handleMessage]);
 
+    const sessionTimeout = useRef<NodeJS.Timeout | null>(null);
+
     useEffect(() => {
         if (connections.length === 0) {
             return;
@@ -59,11 +61,21 @@ export function useTonconnectWatcher() {
             warn('sse connect: error' + JSON.stringify(event));
             // set new session to force close connection & reconnect on error
             if (session < 1000) { // limit to 1000 reconnects (to avoid infinite loop)
-                setSession(session + 1);
+                if (sessionTimeout.current) {
+                    return;
+                }
+                sessionTimeout.current = setTimeout(() => {
+                    setSession(session + 1);
+                }, 5000);
             }
         });
 
         return () => {
+            if (sessionTimeout.current) {
+                clearTimeout(sessionTimeout.current);
+                sessionTimeout.current = null;
+            }
+
             if (watcher) {
                 watcher.removeAllEventListeners();
                 watcher.close();

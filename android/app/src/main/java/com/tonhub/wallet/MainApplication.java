@@ -32,8 +32,6 @@ import com.shopify.reactnativeperformance.ReactNativePerformance;
 import com.tonhub.wallet.modules.wallet.WalletPackage;
 import com.intercom.reactnative.IntercomModule;
 
-import com.tonhub.wallet.utils.KeysManager;
-
 public class MainApplication extends Application implements ReactApplication {
     private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(
             this,
@@ -86,9 +84,7 @@ public class MainApplication extends Application implements ReactApplication {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
 
-        String apiKey = KeysManager.getIntercomApiKey(this);
-        String appId = KeysManager.getIntercomAppId(this);
-        IntercomModule.initialize(this, apiKey, appId);
+        IntercomModule.initialize(this, BuildConfig.INTERCOM_ANDROID_API, BuildConfig.INTERCOM_APP);
 
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
             // If you opted-in for the New Architecture, we load the native entry point for

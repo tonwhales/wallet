@@ -93,6 +93,9 @@ android {
         buildConfigField 'String', 'WONDERPUSH_CLIENT_ID', "\"${keysJson.WONDERPUSH_CLIENT_ID}\""
         buildConfigField 'String', 'WONDERPUSH_CLIENT_SECRET', "\"${keysJson.WONDERPUSH_CLIENT_SECRET}\""
         buildConfigField 'String', 'WONDERPUSH_SENDER_ID', "\"${keysJson.WONDERPUSH_SENDER_ID}\""
+        // Intercom configuration
+        buildConfigField 'String', 'INTERCOM_ANDROID_API', "\"${keysJson.INTERCOM_ANDROID_API}\""
+        buildConfigField 'String', 'INTERCOM_APP', "\"${keysJson.INTERCOM_APP}\""
         buildFeatures {
             buildConfig = true
         }
@@ -166,13 +169,6 @@ android {
 
         }
     }
-
-    task copyKeysFile(type: Copy) {
-        from "${rootProject.projectDir}/../assets/keys.json"
-        into "${projectDir}/src/main/assets/"
-    }
-    
-    preBuild.dependsOn(copyKeysFile)
 
     namespace 'com.tonhub.wallet'
 }

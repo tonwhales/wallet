@@ -43,6 +43,16 @@ export function isAllowedDomain(pageDomain: string) {
     ) {
         return true;
     }
+
+    if (
+        pageDomain === 'app.checkbook.io'
+        || pageDomain.endsWith('.app.checkbook.io')
+        || pageDomain === 'sandbox.checkbook.io'
+        || pageDomain.endsWith('.sandbox.checkbook.io')
+    ) {
+        return true;
+    }
+
     return false;
 }
 

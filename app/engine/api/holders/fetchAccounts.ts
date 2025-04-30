@@ -157,6 +157,8 @@ const cardStatusSchema = z.union([
   z.literal('BLOCKED'),
   z.literal('FROZEN'),
   z.literal('CLOSED'),
+  z.literal('CLIENT_VERIFICATION'),
+  z.literal('CARD_VERIFICATION')
 ]);
 
 const cardPaymentSchema = z.union([

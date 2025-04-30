@@ -413,7 +413,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "TON Staking",
             "balance": "Solde staking",
             "subtitle": {
-                "join": "Gagnez jusqu'à {{apy}}% sur vos TON",
+                "join": "Gagnez jusqu'à {{apy}}% avec TONs ou USDe",
                 "joined": "Gagnez jusqu'à {{apy}}%",
                 "rewards": "Intérêt estimé",
                 "apy": "~13.3% de rendement annuel sur la contribution",
@@ -451,7 +451,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "tonkeeperDescription": "Portefeuille mobile convivial sur TON",
                 "liquid": "Staking Liquide",
                 "liquidDescription": "Envoyez du TON en staking et recevez à la place des wsTON",
-                "rateTitle": "Taux de change"
+                "rateTitle": "Taux de change",
+                "liquidUsde": "Staking USDe Liquide",
+                "liquidUsdeDescription": "Envoyer USDe à staking et recevoir des tsUSDe à la place"
             },
             "transfer": {
                 "stakingWarning": "Vous pouvez toujours déposer une nouvelle mise ou augmenter l'existante avec n'importe quel montant. Notez que le montant minimum est : {{minAmount}}",

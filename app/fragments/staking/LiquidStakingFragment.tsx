@@ -10,7 +10,7 @@ import { t } from "../../i18n/t";
 import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useLiquidStakingMember, useNetwork, usePendingActions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
+import { useIsLedgerRoute, useLiquidStakingMember, useNetwork, usePendingActions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -19,7 +19,7 @@ import { PendingTransactionsList } from "../wallet/views/PendingTransactions";
 import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
 import { Typography } from "../../components/styles";
 import { BackButton } from "../../components/navigation/BackButton";
-import { LiquidStakingMember } from "../../components/staking/LiquidStakingBalance";
+import { LiquidStakingMember } from "../../components/staking/LiquidStakingMember";
 import { TransferAction } from "./StakingTransferFragment";
 import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
@@ -27,11 +27,11 @@ import { extractDomain } from "../../engine/utils/extractDomain";
 
 export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
-    const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
-    const isLedger = route.name === 'LedgerLiquidStaking';
+    const { isTestnet } = useNetwork();
+    const isLedger = useIsLedgerRoute()
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
     const liquidStaking = useLiquidStaking().data;
@@ -45,7 +45,7 @@ export const LiquidStakingFragment = fragment(() => {
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
     const nominator = useLiquidStakingMember(memberAddress)?.data;
     const apy = useStakingApy()?.apy;
-    const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
+    const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: isTestnet }), isTestnet);
 
     const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
     const apyWithFee = useMemo(() => {
@@ -61,12 +61,12 @@ export const LiquidStakingFragment = fragment(() => {
     }, [nominator?.balance, liquidStaking?.rateWithdraw]);
 
     const { targetPool, targetPoolFriendly } = useMemo(() => {
-        const address = getLiquidStakingAddress(network.isTestnet);
+        const address = getLiquidStakingAddress(isTestnet);
         return {
             targetPool: address,
-            targetPoolFriendly: address.toString({ testOnly: network.isTestnet })
+            targetPoolFriendly: address.toString({ testOnly: isTestnet })
         }
-    }, [network.isTestnet]);
+    }, [isTestnet]);
 
     const stakeUntil = Math.min(liquidStaking?.extras.proxyZeroStakeUntil ?? 0, liquidStaking?.extras.proxyOneStakeUntil ?? 0);
 
@@ -105,7 +105,7 @@ export const LiquidStakingFragment = fragment(() => {
     }, [isLedger]);
 
     const openMoreInfo = () => {
-        const url = KnownPools(network.isTestnet)[targetPoolFriendly]?.webLink;
+        const url = KnownPools(isTestnet)[targetPoolFriendly]?.webLink;
 
         if (!!url) {
             const domain = extractDomain(url);
@@ -171,7 +171,7 @@ export const LiquidStakingFragment = fragment(() => {
                     </View>
                     <View style={{ backgroundColor: theme.surfaceOnDark, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 32 }}>
                         <Text style={[{ color: theme.textUnchangeable }, Typography.medium17_24]}>
-                            {KnownPools(network.isTestnet)[targetPoolFriendly]?.name}
+                            {KnownPools(isTestnet)[targetPoolFriendly]?.name}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
@@ -266,7 +266,7 @@ export const LiquidStakingFragment = fragment(() => {
                             </View>
                         </View>
                         <WalletAddress
-                            value={targetPool.toString({ testOnly: network.isTestnet })}
+                            value={targetPool.toString({ testOnly: isTestnet })}
                             address={targetPool}
                             elipsise={{ start: 4, end: 5 }}
                             style={{
@@ -376,7 +376,7 @@ export const LiquidStakingFragment = fragment(() => {
                             </View>
                             <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                                 <Pressable
-                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPoolFriendly })}
+                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPoolFriendly }, isLedger)}
                                     style={({ pressed }) => ({
                                         opacity: pressed ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,
@@ -418,7 +418,7 @@ export const LiquidStakingFragment = fragment(() => {
                                 theme={theme}
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
-                                owner={memberAddress!.toString({ testOnly: network.isTestnet })}
+                                owner={memberAddress!.toString({ testOnly: isTestnet })}
                             />
                         )}
                         {/* TODO */}

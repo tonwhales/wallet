@@ -179,8 +179,12 @@ export class TypedNavigation {
         this.navigate('LedgerSignTransfer', params);
     }
 
-    navigateStakingCalculator(params: { target: string }) {
-        this.navigate('StakingCalculator', params);
+    navigateStakingCalculator(params: { target: string }, isLedger?: boolean) {
+        this.navigate(isLedger ? 'LedgerStakingCalculator' : 'StakingCalculator', params);
+    }
+
+    navigateLiquidUSDeStakingCalculator(params: { target: string }, isLedger?: boolean) {
+        this.navigate(isLedger ? 'LedgerLiquidUSDeStakingCalculator' : 'LiquidUSDeStakingCalculator', params);
     }
 
     navigateLedgerApp() {

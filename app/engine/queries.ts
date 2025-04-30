@@ -85,7 +85,8 @@ export const Queries = {
     }),
     APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
     PoolApy: (pool: string) => (['staking', 'poolApy', pool]),
-
+    USDeApy: (isTestnet: boolean) => (['staking', 'usdeApy', isTestnet ? 'testnet' : 'mainnet']),
+    USDeRate: (isTestnet: boolean) => (['staking', 'usdeRate', isTestnet ? 'testnet' : 'mainnet']),
     Banners: (language: string, version: string, buildNumber: string) => (['banners', language, version, buildNumber]),
     BrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', network]),
     HoldersBrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', 'holders', network]),

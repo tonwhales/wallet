@@ -121,8 +121,8 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
         { type: AssetType.Ton },
         { type: AssetType.Special },
         { type: AssetType.Solana },
+        ...solanaTokens,
         ...savingsItems,
-        ...solanaTokens
     ];
 
     const renderFace = useCallback(() => {

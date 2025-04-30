@@ -315,6 +315,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('StakingAnalytics', StakingAnalyticsFragment, safeArea),
     transparentModalScreen('LiquidWithdrawAction', LiquidWithdrawActionFragment, safeArea),
 
+    // USDe
+
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),
     lockedModalScreen('LedgerDeviceSelection', LedgerDeviceSelectionFragment, safeArea),

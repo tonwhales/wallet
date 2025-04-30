@@ -466,6 +466,8 @@ export type LocalizationSchema = {
                 liquid: string,
                 liquidDescription: string,
                 rateTitle: string,
+                liquidUsde: string,
+                liquidUsdeDescription: string,
             },
             transfer: {
                 stakingWarning: string,

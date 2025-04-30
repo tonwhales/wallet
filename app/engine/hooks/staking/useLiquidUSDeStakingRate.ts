@@ -37,9 +37,7 @@ export function useLiquidUSDeStakingRate() {
         queryFn: fetchUSDeRateQueryFn(isTestnet),
         refetchOnMount: true,
         queryKey: Queries.USDeRate(isTestnet),
-        // staleTime: 1000 * 30
-        staleTime: 1000,
-        refetchInterval: 1000,
+        staleTime: 1000 * 30
     });
 
     return BigInt(query.data?.usdeRate || 0);

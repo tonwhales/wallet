@@ -8,7 +8,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { KnownPools } from "../../utils/KnownPools";
 import { useFocusEffect } from "@react-navigation/native";
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePendingActions, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePendingActions, useSelectedAccount, useTheme, useUSDeAssetsShares } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -42,6 +42,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
     const nominator = useLiquidUSDeStakingMember(memberAddress);
+    const usdeShares = useUSDeAssetsShares(memberAddress);
     const usdeApy = useUSDeStakingApy()?.apy;
     const rate = useLiquidUSDeStakingRate();
     const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: isTestnet }), isTestnet);
@@ -51,12 +52,6 @@ export const LiquidUSDeStakingFragment = fragment(() => {
             return `${t('common.apy')} ≈ ${usdeApy.toFixed(2)}%`;
         }
     }, [usdeApy]);
-
-    // const balance = useMemo(() => {
-    //     const bal = fromNano(nominator?.balance || 0n);
-    //     const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
-    //     return toNano((parseFloat(bal) * parseFloat(rate)).toFixed(9));
-    // }, [nominator?.balance, liquidStaking?.rateWithdraw]);
 
     const balance = useMemo(() => {
         const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
@@ -106,6 +101,8 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     }, [balance, rate]);
 
     const onTopUp = useCallback(() => {
+        const balanceAmount = fromNano(usdeShares?.usdeHint?.balance || 0n);
+        navigation.navigateLiquidUSDeStakingTransfer({ amount: balanceAmount, action: 'deposit' }, { ledger: isLedger });
     }, [isLedger]);
 
     const onUnstake = useCallback(() => {
@@ -236,11 +233,11 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                     }}>
                         <Text style={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}>
                             <ValueComponent
-                                value={balance}
+                                value={inUsde}
                                 precision={4}
                                 centFontStyle={{ opacity: 0.5 }}
                             />
-                            <Text style={{ color: theme.textSecondary }}>{' TON'}</Text>
+                            <Text style={{ color: theme.textSecondary }}>{' USDe'}</Text>
                         </Text>
                         <View style={{
                             flexDirection: 'row', alignItems: 'center',
@@ -336,12 +333,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                                             <Image source={require('@assets/ic-plus.png')} />
                                         </View>
                                         <Text
-                                            style={{
-                                                fontSize: 15,
-                                                color: theme.textPrimary,
-                                                marginTop: 6,
-                                                fontWeight: '400'
-                                            }}
+                                            style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.medium15_20]}
                                             minimumFontScale={0.7}
                                             adjustsFontSizeToFit
                                             numberOfLines={1}

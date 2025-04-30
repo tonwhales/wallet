@@ -14,3 +14,4 @@ export { useLiquidStakingBalance } from './useLiquidStakingBalance';
 export { useLiquidUSDeStakingMember } from './useLiquidUSDeStakingMember';
 export { useUSDeStakingApy } from './useUSDeStakingApy';
 export { useLiquidUSDeStakingRate } from './useLiquidUSDeStakingRate';
+export { useUSDeAssetsShares } from './useUSDeAssetsShares';

@@ -30,6 +30,7 @@ import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGasless
 import { valueText } from "../../../components/ValueComponent";
 import { ConfirmLoadedPropsSingle } from "../transfer/TransferFragment";
 import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
+import { useAddressBookContext } from "../../../engine/AddressBookContext";
 
 export const failableTransferBackoff = createBackoffFailaible({
     logErrors: true,
@@ -44,6 +45,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
+    const addressBook = useAddressBookContext();
     const account = useAccountLite(selected!.address);
     const registerPending = useRegisterPending();
 
@@ -127,9 +129,10 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         target = jettonTarget;
     }
 
-    const friendlyTarget = target.address.toString({ testOnly: isTestnet, bounceable: target.bounceable });
-    // Contact wallets
-    const contact = useContact(friendlyTarget);
+    const friendlyTarget = target.address.toString({ testOnly: isTestnet });
+    const friendlyTargetNonBounceable = target.address.toString({ testOnly: isTestnet, bounceable: false });
+    // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
+    const contact = addressBook.asContact(friendlyTarget) || addressBook.asContact(friendlyTargetNonBounceable);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

@@ -33,7 +33,7 @@ export const HoldersAccountCard = memo(({ card, theme, style, coverImageStyle, c
     // TODO: remove this when we have the correct personalization codes
     let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'black-pro';
 
-    if (card.provider === 'elysphere-kauri') {
+    if (card.provider === 'elysphere-kauri' || card.provider === 'decards-decards') {
         imageType = 'classic';
     }
 

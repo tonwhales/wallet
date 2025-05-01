@@ -35,7 +35,6 @@ import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/S
 import { SolanaTransferParams } from '../fragments/secure/transfer/SolanaTransferFragment';
 import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
 import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
-import { PendingSolanaTransaction } from '../engine/state/pending';
 import { PendingSolanaTransactionPreviewParams } from '../fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
 import { LiquidUSDeStakingTransferParams } from '../fragments/staking/LiquidUSDeStakingTransferFragment';
 
@@ -185,7 +184,7 @@ export class TypedNavigation {
     }
 
     navigateLiquidUSDeStakingCalculator(isLedger?: boolean) {
-        this.navigate(isLedger ? 'LedgerLiquidUSDeStakingCalculator' : 'LiquidUSDeStakingCalculator', params);
+        this.navigate(isLedger ? 'LedgerLiquidUSDeStakingCalculator' : 'LiquidUSDeStakingCalculator');
     }
 
     navigateLiquidUSDeStakingTransfer(params: LiquidUSDeStakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
@@ -196,7 +195,7 @@ export class TypedNavigation {
         }
         action('LiquidUSDeStakingTransfer', params);
     }
-    
+
     navigateLedgerApp() {
         this.navigateAndReplaceAll('LedgerApp');
     }

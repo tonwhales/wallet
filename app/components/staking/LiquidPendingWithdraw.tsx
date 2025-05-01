@@ -14,26 +14,34 @@ export const LiquidPendingWithdraw = memo(({
     last,
     symbol,
     decimals = 9,
-    priceUSD
+    priceUSD,
+    onTimeOut
 }: {
     pendingUntil: number,
     amount: bigint,
     last?: boolean,
     symbol?: string,
     decimals?: number,
-    priceUSD?: number
+    priceUSD?: number,
+    onTimeOut?: () => void
 }) => {
     const theme = useTheme();
-    const [left, setLeft] = useState(Math.floor(Date.now() / 1000));
+    const [left, setLeft] = useState(pendingUntil - Math.floor(Date.now() / 1000));
 
     useEffect(() => {
         const timerId = setInterval(() => {
-            setLeft(Math.floor(Date.now() / 1000));
+            setLeft(pendingUntil - Math.floor(Date.now() / 1000));
         }, 1000);
         return () => {
             clearInterval(timerId);
         };
-    }, []);
+    }, [pendingUntil]);
+
+    useEffect(() => {
+        if (left <= 0) {
+            onTimeOut?.();
+        }
+    }, [left]);
 
     return (
         <>
@@ -48,8 +56,8 @@ export const LiquidPendingWithdraw = memo(({
                     <Text style={[{ color: theme.textSecondary, marginTop: 2 }, Typography.regular15_20]}>
                         <Countdown
                             hidePrefix
-                            left={pendingUntil - left}
-                            textStyle={[{ flex: 1, flexShrink: 1 }, Typography.regular13_18]}
+                            left={left}
+                            textStyle={[{ flex: 1, flexShrink: 1 }, Typography.regular15_20]}
                         />
                     </Text>
                 </View>

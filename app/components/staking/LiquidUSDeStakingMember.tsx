@@ -1,21 +1,35 @@
-import { memo, useMemo } from "react";
-import { View, Image, Text } from "react-native";
-import { useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useTheme } from "../../engine/hooks";
+import { memo, useCallback, useMemo, useState } from "react";
+import { View, Image, Text, Alert } from "react-native";
+import { useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, useTheme } from "../../engine/hooks";
 import { ValueComponent } from "../ValueComponent";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
 import { ItemDivider } from "../ItemDivider";
 import { t } from "../../i18n/t";
-import { Address, fromNano, toNano } from "@ton/ton";
+import { Address, toNano } from "@ton/ton";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
-import { StakingCycle } from "./StakingCycle";
-import { LiquidStakingPoolTimer } from "./LiquidStakingPool";
 import { LiquidPendingWithdraw } from "./LiquidPendingWithdraw";
+import { useUSDeAssetsShares } from "../../engine/hooks";
+import { createWithdrawLiquidUSDeStakingPayload } from "../../utils/staking/liquidUSDeStaking";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { Pressable } from "react-native-gesture-handler";
 
 export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) => {
     const theme = useTheme();
     const nominator = useLiquidUSDeStakingMember(address);
+    const usdeShares = useUSDeAssetsShares(address);
     const rate = useLiquidUSDeStakingRate();
+    const { isTestnet } = useNetwork();
+    const navigation = useTypedNavigation();
+
+    const decimals = usdeShares?.tsUsdeHint?.jetton.decimals ?? 6;
+
+    const tsUsdeAddressWallet = useMemo(() => {
+        if (!usdeShares) {
+            return;
+        }
+        return usdeShares.tsUsdeHint?.walletAddress;
+    }, [usdeShares]);
 
     const balance = useMemo(() => {
         const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
@@ -40,24 +54,103 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
         return 0;
     }, [nominator?.timeLocked?.limit]);
 
+    const [isWithdrawReady, setIsWithdrawReady] = useState(Date.now() >= stakeUntil);
+
+    const onWithdraw = useCallback(() => {
+        if (!tsUsdeAddressWallet) {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
+
+        if (lockedBalance === 0n) {
+            Alert.alert(t('transfer.error.zeroCoins'));
+            return;
+        }
+
+        const transferCell = createWithdrawLiquidUSDeStakingPayload({
+            owner: address,
+            amount: lockedBalance,
+            isTestnet
+        });
+
+        const transferAmountTon = toNano('0.2');
+
+        navigation.navigateTransfer({
+            order: {
+                type: 'order',
+                messages: [{
+                    target: tsUsdeAddressWallet.address,
+                    payload: transferCell,
+                    amount: transferAmountTon,
+                    amountAll: false,
+                    stateInit: null
+                }]
+            },
+            text: null
+        });
+    }, [lockedBalance, tsUsdeAddressWallet, isTestnet]);
+
     return (
         <View>
             {lockedBalance > 0n && (
-                <View style={{
-                    borderRadius: 20,
-                    backgroundColor: theme.surfaceOnBg,
-                    padding: 20,
-                    marginBottom: 16
-                }}>
-                    <LiquidPendingWithdraw
-                        pendingUntil={stakeUntil}
-                        amount={lockedBalance}
-                        symbol={' tsUSDe'}
-                        decimals={6}
-                        priceUSD={Number(rate * 1000n)}
-                        last
-                    />
-                </View>
+                <Pressable
+                    style={({ pressed }) => [
+                        {
+                            borderRadius: 20,
+                            backgroundColor: theme.surfaceOnBg,
+                            padding: 20,
+                            marginBottom: 16
+                        },
+                        (pressed && isWithdrawReady) && { opacity: 0.5 }
+                    ]}
+                    onPress={onWithdraw}
+                >
+                    {!isWithdrawReady ? (
+                        <LiquidPendingWithdraw
+                            pendingUntil={stakeUntil}
+                            amount={lockedBalance}
+                            symbol={' tsUSDe'}
+                            decimals={decimals}
+                            priceUSD={Number(rate * 1000n)}
+                            last
+                            onTimeOut={() => setIsWithdrawReady(true)}
+                        />
+                    ) : (
+                        <View style={{
+                            flexDirection: 'row', width: '100%',
+                            justifyContent: 'space-between', alignItems: 'center',
+                        }}>
+                            <View>
+                                <Text style={[{ color: theme.accentGreen }, Typography.semiBold17_24]}>
+                                    {t('products.staking.withdrawStatus.ready')}
+                                </Text>
+                                <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                    {t('products.staking.withdraw')}
+                                </Text>
+                            </View>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                    {fromBnWithDecimals(lockedBalance, decimals)}
+                                    <Text style={{ color: theme.textSecondary }}>
+                                        {' tsUSDe'}
+                                    </Text>
+                                </Text>
+                                <PriceComponent
+                                    amount={lockedBalance}
+                                    style={{
+                                        backgroundColor: theme.transparent,
+                                        paddingHorizontal: 0,
+                                        paddingVertical: 0,
+                                        alignSelf: 'flex-end'
+                                    }}
+                                    textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                    theme={theme}
+                                    priceUSD={Number(rate * 1000n)}
+                                />
+                            </View>
+                        </View>
+                    )}
+                </Pressable>
             )}
             <View style={{
                 borderRadius: 20,

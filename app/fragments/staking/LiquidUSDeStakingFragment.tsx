@@ -10,19 +10,18 @@ import { KnownPools } from "../../utils/KnownPools";
 import { useFocusEffect } from "@react-navigation/native";
 import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePendingActions, useSelectedAccount, useTheme, useUSDeAssetsShares } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { Address, fromNano, toNano } from "@ton/core";
+import { Address } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactionsList } from "../wallet/views/PendingTransactions";
 import { Typography } from "../../components/styles";
 import { BackButton } from "../../components/navigation/BackButton";
-import { TransferAction } from "./StakingTransferFragment";
 import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { LiquidUSDeStakingMember } from "../../components/staking/LiquidUSDeStakingMember";
 import { useUSDeStakingApy } from "../../engine/hooks/staking/useUSDeStakingApy";
-import { gettsUSDeMinter } from "../../secure/KnownWallets";
+import { gettsUSDeMinter, getUSDeMinter } from "../../secure/KnownWallets";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 
 export const LiquidUSDeStakingFragment = fragment(() => {
@@ -53,24 +52,21 @@ export const LiquidUSDeStakingFragment = fragment(() => {
         }
     }, [usdeApy]);
 
-    const balance = useMemo(() => {
-        const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
-        return toNano(bal);
-    }, [nominator]);
+    const tsUSDe = nominator?.balance || 0n;
+    const inUsde = tsUSDe * rate;
+    const usdeDecimals = usdeShares?.usdeHint?.jetton.decimals ?? 9;
 
-    const { targetPool, targetPoolFriendly } = useMemo(() => {
-        const address = gettsUSDeMinter(isTestnet);
-        return {
-            targetPool: address,
-            targetPoolFriendly: address.toString({ testOnly: isTestnet })
-        }
+    const targets = useMemo(() => {
+        const tsMinter = gettsUSDeMinter(isTestnet);
+        const minter = getUSDeMinter(isTestnet);
+        return [tsMinter, minter];
     }, [isTestnet]);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
-            return tx.address?.equals(targetPool);
+            return targets.some((target) => tx.address?.equals(target));
         });
-    }, [pendingTxs, targetPool]);
+    }, [pendingTxs, targets]);
 
     useEffect(() => {
         // Remove transactions after 15 seconds of changing status
@@ -83,34 +79,17 @@ export const LiquidUSDeStakingFragment = fragment(() => {
         }, 15 * 1000);
     }, [pendingPoolTxs]);
 
-    // const transferAmount = useMemo(() => {
-    //     return (liquidStaking?.extras.minStake ?? 0n)
-    //         + (liquidStaking?.extras.receiptPrice ?? 0n)
-    //         + (liquidStaking?.extras.depositFee ?? 0n);
-    // }, [liquidStaking]);
-
-    // const onTopUp = useCallback(() => {
-    //     navigation.navigateLiquidStakingTransfer(
-    //         { amount: transferAmount.toString(), action: 'top_up' as TransferAction },
-    //         { ledger: isLedger }
-    //     );
-    // }, [transferAmount, isLedger]);
-
-    const inUsde = useMemo(() => {
-        return balance / rate;
-    }, [balance, rate]);
-
     const onTopUp = useCallback(() => {
-        const balanceAmount = fromNano(usdeShares?.usdeHint?.balance || 0n);
+        const balanceAmount = fromBnWithDecimals(usdeShares?.usdeHint?.balance || 0n, usdeDecimals);
         navigation.navigateLiquidUSDeStakingTransfer({ amount: balanceAmount, action: 'deposit' }, { ledger: isLedger });
     }, [isLedger]);
 
     const onUnstake = useCallback(() => {
-        navigation.navigateLiquidWithdrawAction(isLedger);
+        navigation.navigateLiquidUSDeStakingTransfer({ action: 'unstake' }, { ledger: isLedger });
     }, [isLedger]);
 
     const openMoreInfo = () => {
-        const url = KnownPools(isTestnet)[targetPoolFriendly]?.webLink;
+        const url = KnownPools(isTestnet)[targets[0].toString({ testOnly: isTestnet })]?.webLink;
 
         if (!!url) {
             const domain = extractDomain(url);
@@ -176,7 +155,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                     </View>
                     <View style={{ backgroundColor: theme.surfaceOnDark, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 32 }}>
                         <Text style={[{ color: theme.textUnchangeable }, Typography.medium17_24]}>
-                            {KnownPools(isTestnet)[targetPoolFriendly]?.name}
+                            {KnownPools(isTestnet)[targets[0].toString({ testOnly: isTestnet })]?.name}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
@@ -236,6 +215,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                                 value={inUsde}
                                 precision={4}
                                 centFontStyle={{ opacity: 0.5 }}
+                                decimals={6}
                             />
                             <Text style={{ color: theme.textSecondary }}>{' USDe'}</Text>
                         </Text>
@@ -248,7 +228,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                                 onPress={navigateToCurrencySettings}
                             >
                                 <PriceComponent
-                                    amount={inUsde}
+                                    amount={inUsde * 1000n}
                                     style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
                                     textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
                                     theme={theme}
@@ -272,8 +252,8 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                             </View>
                         </View>
                         <WalletAddress
-                            value={targetPool.toString({ testOnly: isTestnet })}
-                            address={targetPool}
+                            value={targets[0].toString({ testOnly: isTestnet })}
+                            address={targets[0]}
                             elipsise={{ start: 4, end: 5 }}
                             style={{
                                 marginTop: 16,
@@ -372,7 +352,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                             </View>
                             <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                                 <Pressable
-                                    onPress={() => navigation.navigateLiquidUSDeStakingCalculator({ target: targetPoolFriendly })}
+                                    onPress={() => navigation.navigateLiquidUSDeStakingCalculator(isLedger)}
                                     style={({ pressed }) => ({
                                         opacity: pressed ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,

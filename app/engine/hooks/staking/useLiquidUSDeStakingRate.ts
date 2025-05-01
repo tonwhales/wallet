@@ -18,13 +18,9 @@ function fetchUSDeRateQueryFn(isTestnet: boolean) {
 
         const parsed = usdeRateScheme.safeParse(res.data);
 
-        console.log('fetchUSDeRateQueryFn', res.data);
-
         if (!parsed.success) {
             throw new Error('Invalid fetchLiquidUSDeStakingRateQueryFn response');
         }
-
-        console.log('fetchLiquidUSDeStakingRateQueryFn', parsed.data);
 
         return parsed.data;
     };

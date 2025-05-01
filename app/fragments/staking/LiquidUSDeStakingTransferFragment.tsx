@@ -8,29 +8,25 @@ import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
-import { PriceComponent } from '../../components/PriceComponent';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useParams } from '../../utils/useParams';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { Address, Builder, beginCell, fromNano, toNano } from '@ton/core';
+import { Address, toNano } from '@ton/core';
 import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePrice, useSelectedAccount, useTheme, useUSDeAssetsShares } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
-import { TonPayloadFormat } from '@ton-community/ton-ledger';
-import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
 import { useLiquidStaking } from '../../engine/hooks/staking/useLiquidStaking';
-import { storeLiquidDeposit, storeLiquidWithdraw } from '../../utils/LiquidStakingContract';
 import { ItemDivider } from '../../components/ItemDivider';
 import { Typography } from '../../components/styles';
-import { useValidAmount } from '../../utils/useValidAmount';
 import { Image } from "expo-image";
 import { AppsFlyerEvent } from '../../analytics/appsflyer';
 import { trackAppsFlyerEvent } from '../../analytics/appsflyer';
-import { gettsUSDeMinter, gettsUSDeVaultAddress } from '../../secure/KnownWallets';
-import { fromBnWithDecimals } from '../../utils/withDecimals';
-import { liquidUSDeAmountReducer } from '../../utils/staking/liquidUSDeAmountReducer';
+import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
+import { liquidUSDeAmountReducer, reduceLiquidUSDeAmount } from '../../utils/staking/liquidUSDeAmountReducer';
+import { createUnstakeLiquidUSDeStakingPayload } from '../../utils/staking/liquidUSDeStaking';
+import { createDespositLiquidUSDeStakingPayload } from '../../utils/staking/liquidUSDeStaking';
 
 type TransferAction = 'deposit' | 'unstake';
 
@@ -53,7 +49,7 @@ export type LiquidUSDeStakingTransferParams = {
 export const LiquidUSDeStakingTransferFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const network = useNetwork();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const { amount: initialAmountString, action } = useParams<LiquidUSDeStakingTransferParams>();
     const selected = useSelectedAccount();
@@ -82,59 +78,143 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
         ? usdeShares?.tsUsdeHint?.jetton.name
         : usdeShares?.usdeHint?.jetton.name;
 
-    const balance = useMemo(() => {
+    const usdeAddressWallet = useMemo(() => {
+        if (!usdeShares) {
+            return;
+        }
+        return usdeShares.usdeHint?.walletAddress;
+    }, [usdeShares]);
+
+    const tsUsdeAddressWallet = useMemo(() => {
+        if (!usdeShares) {
+            return;
+        }
+        return usdeShares.tsUsdeHint?.walletAddress;
+    }, [usdeShares]);
+
+    const { balance, decimals } = useMemo(() => {
         if (action === 'deposit') {
-            return BigInt(usdeShares?.usdeHint?.balance ?? 0n);
+            return {
+                balance: BigInt(usdeShares?.usdeHint?.balance ?? 0n),
+                decimals: usdeShares?.usdeHint?.jetton.decimals ?? 9
+            };
         }
         if (action === 'unstake') {
-            return BigInt(usdeShares?.tsUsdeHint?.balance ?? 0n);
+            return {
+                balance: BigInt(usdeShares?.tsUsdeHint?.balance ?? 0n),
+                decimals: usdeShares?.tsUsdeHint?.jetton.decimals ?? 6
+            };
         }
-        return 0n;
+        return { balance: 0n, decimals: 6 };
     }, [action, member, usdeShares]);
 
+    const rateNumber = useMemo(() => {
+        try {
+            return Number(rate);
+        } catch (error) {
+            return 0;
+        }
+    }, [rate]);
+
     const [amount, dispatchAmount] = useReducer(
-        liquidUSDeAmountReducer(rate),
-        action === 'deposit'
-            ? { usde: initialAmountString ?? '', tsUsde: '' }
-            : { usde: '', tsUsde: initialAmountString ?? '' }
+        liquidUSDeAmountReducer(rateNumber),
+        reduceLiquidUSDeAmount(
+            { usde: '', tsUsde: '' },
+            action === 'deposit'
+                ? { type: 'usde', amount: initialAmountString ?? '' }
+                : { type: 'tsUsde', amount: initialAmountString ?? '' },
+            rateNumber
+        )
     );
 
-    const validAmount = useValidAmount(action === 'deposit' ? amount.usde : amount.tsUsde);
+    const validAmount = useMemo(() => {
+        const amountString = action === 'deposit' ? amount.usde : amount.tsUsde;
+        if (amountString.length === 0) {
+            return 0n;
+        }
+        let value: bigint | null = null;
+        try {
+            const valid = amountString.replace(',', '.').replaceAll(' ', '');
+            value = toBnWithDecimals(valid, decimals);
+            return value;
+        } catch {
+            return null;
+        }
+    }, [action, amount, decimals]);
+
+    const priceText = useMemo(() => {
+        if (!validAmount) {
+            return;
+        }
+        const isNeg = validAmount < 0n;
+        let abs = isNeg ? -validAmount : validAmount;
+        const absNumber = Number(fromBnWithDecimals(abs.toString(), 6));
+        const rateNumber = Number(fromBnWithDecimals(toBnWithDecimals(rate.toString(), 6), 6));
+        const computed = action === 'deposit'
+            ? absNumber * rateNumber
+            : absNumber / rateNumber;
+        return formatCurrency(
+            computed.toFixed(2),
+            currency,
+            isNeg
+        );
+    }, [validAmount, action]);
 
     const doContinue = useCallback(async () => {
-        const targetAddress = action === 'deposit'
-            ? gettsUSDeVaultAddress(network.isTestnet)
-            : gettsUSDeMinter(network.isTestnet);
-
+        if (!memberAddress) {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
         if (!validAmount) {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
         }
 
+        const target = action === 'deposit'
+            ? usdeAddressWallet?.address
+            : tsUsdeAddressWallet?.address;
+
+        const transferCell = action === 'deposit'
+            ? createDespositLiquidUSDeStakingPayload({
+                owner: memberAddress,
+                amount: validAmount,
+                isTestnet
+            })
+            : createUnstakeLiquidUSDeStakingPayload({
+                owner: memberAddress,
+                amount: validAmount,
+                isTestnet
+            });
+
+        const transferAmountTon = toNano('0.2');
+
+        if (!target) {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
+
         // Ledger transfer
         if (isLedger) {
-            let ledgerPayload: TonPayloadFormat
             let actionText = t('transfer.title');
 
             if (action === 'unstake') {
-                transferAmountTon = liquidStaking
-                    ? (liquidStaking.extras.withdrawFee + liquidStaking.extras.receiptPrice)
-                    : toNano('0.2');
                 actionText = t('products.staking.transfer.withdrawStakeTitle');
-            } else if (params.action === 'top_up') {
+            } else if (action === 'deposit') {
                 actionText = t('products.staking.transfer.topUpTitle');
-                ledgerPayload.text = 'Deposit';
             }
 
             const text = t('products.staking.transfer.ledgerSignText', { action: actionText });
             navigation.navigateLedgerSignTransfer({
                 order: {
                     type: 'ledger',
-                    target: target,
-                    payload: ledgerPayload,
+                    target,
+                    payload: {
+                        type: 'unsafe',
+                        message: transferCell
+                    },
                     amount: transferAmountTon,
                     amountAll: false,
-                    stateInit: null,
+                    stateInit: null
                 },
                 text: text,
                 callback: (ok: boolean) => {
@@ -149,37 +229,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
             return;
         }
 
-        // Add withdraw payload
-        let payloadBuilder: Builder = beginCell();
-
-        if (params?.action === 'withdraw') {
-            payloadBuilder.store(storeLiquidWithdraw(0n, transferAmountWsTon, memberAddress))
-            transferAmountTon = liquidStaking
-                ? (liquidStaking.extras.withdrawFee + liquidStaking.extras.receiptPrice)
-                : toNano('0.2');
-        } else if (params.action === 'top_up') {
-            payloadBuilder.store(storeLiquidDeposit(0n, transferAmountTon, memberAddress));
-            transferAmountTon += liquidStaking
-                ? (liquidStaking.extras.depositFee + liquidStaking.extras.receiptPrice)
-                : toNano('0.2');
-        } else {
-            throw Error('Invalid action');
-        }
-
-        // Check amount
-        if ((transferAmountTon === (account?.balance ?? 0n) || (account?.balance ?? 0n) < transferAmountTon)) {
-            setMinAmountWarn(
-                params.action === 'withdraw'
-                    ? t(
-                        'products.staking.transfer.notEnoughCoinsFee',
-                        { amount: liquidStaking ? fromNano(liquidStaking.extras.withdrawFee + liquidStaking.extras.receiptPrice) : '0.2' }
-                    )
-                    : t('transfer.error.notEnoughCoins')
-            );
-            return;
-        }
-
-        if (transferAmountTon === 0n || transferAmountWsTon === 0n) {
+        if (validAmount === 0n) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -195,19 +245,15 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                 type: 'order',
                 messages: [{
                     target,
-                    payload: payloadBuilder.endCell(),
+                    payload: transferCell,
                     amount: transferAmountTon,
                     amountAll: false,
-                    stateInit: null,
+                    stateInit: null
                 }]
             },
             text: null
         });
-    }, [amount, member, liquidStaking, balance, network, isLedger, ledgerContext, usdeShares, validAmount]);
-
-    //
-    // Scroll state tracking
-    //
+    }, [amount, member, liquidStaking, balance, isTestnet, isLedger, ledgerContext, usdeShares, validAmount, usdeAddressWallet]);
 
     const [selectedInput, setSelectedInput] = React.useState(0);
 
@@ -253,26 +299,15 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = useCallback(() => {
-        dispatchAmount({ type: action === 'deposit' ? 'usde' : 'tsUsde', amount: fromBnWithDecimals(balance, 6) });
-    }, [balance, action]);
+        dispatchAmount({
+            type: action === 'deposit' ? 'usde' : 'tsUsde',
+            amount: fromBnWithDecimals(balance, decimals)
+        });
+    }, [balance, action, decimals]);
 
     useLayoutEffect(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
-
-    const priceText = useMemo(() => {
-        if (!validAmount) {
-            return;
-        }
-        const isNeg = validAmount < 0n;
-        let abs = isNeg ? -validAmount : validAmount;
-        abs = abs * rate;
-        return formatCurrency(
-            (parseFloat(fromBnWithDecimals(abs, 6)) * (price ? price.price.rates[currency] : 0)).toFixed(2),
-            currency,
-            isNeg
-        );
-    }, [validAmount, action]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -364,6 +399,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                             precision={4}
                                             value={balance}
                                             centFontStyle={{ opacity: 0.5 }}
+                                            decimals={decimals}
                                         />
                                     </Text>
                                     <Pressable
@@ -446,6 +482,29 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                         </Text>
                                     </View>
                                 </View>
+                                <ATextInput
+                                    index={1}
+                                    ref={refs[1]}
+                                    onFocus={onFocus}
+                                    value={amount.usde}
+                                    onValueChange={(value) => dispatchAmount({ type: 'usde', amount: value })}
+                                    keyboardType={'numeric'}
+                                    style={{
+                                        backgroundColor: theme.backgroundPrimary,
+                                        paddingHorizontal: 16, paddingVertical: 14,
+                                        borderRadius: 16,
+                                        marginTop: 16
+                                    }}
+                                    inputStyle={[Typography.regular17_24, {
+                                        lineHeight: undefined,
+                                        color: theme.textPrimary,
+                                        width: 'auto',
+                                        flexShrink: 1
+                                    }]}
+                                    suffix={priceText}
+                                    hideClearButton
+                                    inputSuffix={'USDe'}
+                                />
                             </View>
                         </>
                     ) : (
@@ -509,6 +568,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                             precision={4}
                                             value={balance}
                                             centFontStyle={{ opacity: 0.5 }}
+                                            decimals={decimals}
                                         />
                                     </Text>
                                     <Pressable
@@ -620,70 +680,6 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                             </View>
                         </>
                     )}
-                    {/* <View style={{
-                        borderRadius: 20,
-                        backgroundColor: theme.surfaceOnElevation,
-                        padding: 20,
-                        marginTop: 16
-                    }}>
-                        <Text style={[{ color: theme.textSecondary, marginBottom: 2 }, Typography.regular13_18]}>
-                            {t('products.staking.pools.rateTitle')}
-                        </Text>
-                        <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                            {'1 wsTON = '}
-                            <ValueComponent
-                                value={(params.action === 'withdraw' ? liquidStaking?.rateWithdraw : liquidStaking?.rateDeposit) ?? 0n}
-                                precision={9}
-                                suffix={' TON'}
-                            />
-                        </Text>
-                        <ItemDivider marginHorizontal={0} marginVertical={20} />
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <View>
-                                <Text style={[{ color: theme.textSecondary, marginBottom: 2 }, Typography.regular13_18]}>
-                                    {params.action === 'withdraw' ? t('products.staking.info.withdrawFee') : t('products.staking.info.depositFee')}
-                                </Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                        <ValueComponent
-                                            value={
-                                                params.action === 'withdraw'
-                                                    ? (liquidStaking?.extras.withdrawFee ?? 0n) + (liquidStaking?.extras.receiptPrice ?? 0n)
-                                                    : (liquidStaking?.extras.depositFee ?? 0n) + (liquidStaking?.extras.receiptPrice ?? 0n)
-                                            }
-                                            precision={9}
-                                            suffix={' TON'}
-                                        />
-                                    </Text>
-                                    <PriceComponent
-                                        amount={
-                                            params.action === 'withdraw'
-                                                ? (liquidStaking?.extras.withdrawFee ?? 0n) + (liquidStaking?.extras.receiptPrice ?? 0n)
-                                                : (liquidStaking?.extras.depositFee ?? 0n) + (liquidStaking?.extras.receiptPrice ?? 0n)
-                                        }
-                                        style={{
-                                            backgroundColor: theme.transparent,
-                                            paddingHorizontal: 0, paddingVertical: 0,
-                                            paddingLeft: 6, paddingRight: 0,
-                                            height: undefined
-                                        }}
-                                        theme={theme}
-                                        textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
-                                    />
-                                </View>
-                            </View>
-                            <AboutIconButton
-                                title={params.action === 'withdraw' ? t('products.staking.info.withdrawFee') : t('products.staking.info.depositFee')}
-                                description={
-                                    params.action === 'withdraw'
-                                        ? t('products.staking.info.withdrawFeeDescription')
-                                        : t('products.staking.info.depositFeeDescription', { amount: fromNano(depositFee) })
-                                }
-                                style={{ height: 24, width: 24, position: undefined }}
-                                size={24}
-                            />
-                        </View>
-                    </View> */}
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView

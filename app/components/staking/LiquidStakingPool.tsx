@@ -15,7 +15,7 @@ import { ItemHeader } from "../ItemHeader";
 
 import StakingIcon from '@assets/ic_staking.svg';
 
-const LiquidStakingPoolTimer = memo(({ moveDown, stakeUntil }: { moveDown?: boolean, stakeUntil: number }) => {
+export const LiquidStakingPoolTimer = memo(({ moveDown, stakeUntil }: { moveDown?: boolean, stakeUntil: number }) => {
     const theme = useTheme();
 
     const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
@@ -29,7 +29,6 @@ const LiquidStakingPoolTimer = memo(({ moveDown, stakeUntil }: { moveDown?: bool
         };
     }, [stakeUntil]);
 
-
     return (
         <View style={[
             {
@@ -39,7 +38,7 @@ const LiquidStakingPoolTimer = memo(({ moveDown, stakeUntil }: { moveDown?: bool
                 borderRadius: 16,
                 overflow: 'hidden',
                 backgroundColor: theme.border,
-                maxWidth: 74, justifyContent: 'center',
+                maxWidth: 128, justifyContent: 'center',
             },
             moveDown ? { position: 'relative', top: -10, right: -6 } : { position: 'relative', top: 10, right: -6 }
         ]}>

@@ -1,14 +1,29 @@
 import { memo, useEffect, useState } from "react"
 import { View, Text } from "react-native"
-import { ThemeType } from "../../engine/state/theme"
 import { Countdown } from "../Countdown";
 import { Typography } from "../styles";
-import { fromNano } from "@ton/core";
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
 import { ItemDivider } from "../ItemDivider";
+import { useTheme } from "../../engine/hooks";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 
-export const LiquidPendingWithdraw = memo(({ theme, pendingUntil, amount, last }: { theme: ThemeType, pendingUntil: number, amount: bigint, last?: boolean }) => {
+export const LiquidPendingWithdraw = memo(({
+    pendingUntil,
+    amount,
+    last,
+    symbol,
+    decimals = 9,
+    priceUSD
+}: {
+    pendingUntil: number,
+    amount: bigint,
+    last?: boolean,
+    symbol?: string,
+    decimals?: number,
+    priceUSD?: number
+}) => {
+    const theme = useTheme();
     const [left, setLeft] = useState(Math.floor(Date.now() / 1000));
 
     useEffect(() => {
@@ -40,9 +55,9 @@ export const LiquidPendingWithdraw = memo(({ theme, pendingUntil, amount, last }
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                        {parseFloat(parseFloat(fromNano(amount)).toFixed(3))}
+                        {parseFloat(parseFloat(fromBnWithDecimals(amount, decimals)).toFixed(3))}
                         <Text style={{ color: theme.textSecondary }}>
-                            {' TON'}
+                            {symbol || ' TON'}
                         </Text>
                     </Text>
                     <PriceComponent
@@ -55,6 +70,7 @@ export const LiquidPendingWithdraw = memo(({ theme, pendingUntil, amount, last }
                         }}
                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         theme={theme}
+                        priceUSD={priceUSD}
                     />
                 </View>
             </View>

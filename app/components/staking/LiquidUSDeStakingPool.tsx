@@ -141,7 +141,7 @@ export const LiquidUSDeStakingPool = memo((
                             <View>
                                 <Text style={[{ color: theme.textPrimary, alignSelf: 'flex-end' }, Typography.semiBold17_24]}>
                                     <ValueComponent
-                                        precision={3}
+                                        precision={2}
                                         value={balance}
                                         centFontStyle={{ opacity: 0.5 }}
                                     />

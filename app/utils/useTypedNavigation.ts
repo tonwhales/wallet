@@ -184,7 +184,7 @@ export class TypedNavigation {
         this.navigate(isLedger ? 'LedgerStakingCalculator' : 'StakingCalculator', params);
     }
 
-    navigateLiquidUSDeStakingCalculator(params: { target: string }, isLedger?: boolean) {
+    navigateLiquidUSDeStakingCalculator(isLedger?: boolean) {
         this.navigate(isLedger ? 'LedgerLiquidUSDeStakingCalculator' : 'LiquidUSDeStakingCalculator', params);
     }
 

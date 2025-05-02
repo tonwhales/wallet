@@ -1,7 +1,6 @@
 import { atom, selector } from 'recoil';
 import { getAppState } from '../../storage/appState';
 import { networkSelector } from './network';
-import { mixpanelAddWallet, mixpanelIdentify } from '../../analytics/mixpanel';
 
 export const appStateAtom = atom({
     key: 'wallet/appstate',

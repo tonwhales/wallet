@@ -34,6 +34,7 @@ import Animated from 'react-native-reanimated';
 import { WalletCard } from './views/WalletCard';
 import { SolanaTokenWalletFragment } from './SolanaTokenWalletFragment';
 import { SolanaWalletFragment } from './SolanaWalletFragment';
+import { LiquidUSDeStakingFragment } from '../staking/LiquidUSDeStakingFragment';
 
 const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & { solanaAddress: string } }) => {
     const network = useNetwork();
@@ -233,6 +234,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     fullScreen('LiquidStaking', LiquidStakingFragment),
+    fullScreen('LiquidUSDeStaking', LiquidUSDeStakingFragment),
     fullScreen('JettonWallet', JettonWalletFragment),
     fullScreen('SolanaWallet', SolanaWalletFragment),
     fullScreen('SolanaTokenWallet', SolanaTokenWalletFragment),

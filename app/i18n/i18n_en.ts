@@ -413,7 +413,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "TON Staking",
             "balance": "Staking balance",
             "subtitle": {
-                "join": "Earn up to {{apy}}% on your TONs",
+                "join": "Earn up to {{apy}}% with TONs or USDe",
                 "joined": "Earn up to {{apy}}%",
                 "rewards": "Estimated Interest",
                 "apy": "~13.3 APY of the contribution",
@@ -451,7 +451,11 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "tonkeeperDescription": "Friendly mobile wallet on TON",
                 "liquid": "Liquid Staking",
                 "liquidDescription": "Send TON to staking and get wsTON tokens instead",
-                "rateTitle": "Exchange rate"
+                "rateTitle": "Exchange rate",
+                "liquidUsde": "USDe Liquid Staking",
+                "liquidUsdeDescription": "Send USDe to staking and get tsUSDe tokens instead",
+                "ethenaPoints": "Get more rewards",
+                "ethenaPointsDescription": "Complete the verification to increase your staking rewards",
             },
             "transfer": {
                 "stakingWarning": "You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}",

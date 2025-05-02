@@ -78,7 +78,6 @@ export const LiquidStakingPendingComponent = memo((
                         return (
                             <LiquidPendingWithdraw
                                 key={`liquid-pending-withdraw-${index}`}
-                                theme={theme}
                                 pendingUntil={item.pendingUntil}
                                 amount={BigInt(item.amount)}
                                 last={index === pending.length - 1}

@@ -1,4 +1,5 @@
 import { Address } from "@ton/core";
+import { t } from "../i18n/t";
 
 const Img_EXMO = require('@assets/known/exmo.png');
 const Img_Foundation = require('@assets/known/foundation.png');
@@ -60,6 +61,8 @@ const Img_AvanChange = require('@assets/known/avanchange.png');
 const Img_FixedFloat = require('@assets/known/fixedfloat.png');
 const Img_Bybit = require('@assets/known/bybit.png');
 const Img_Binance = require('@assets/known/binance_logo.png');
+const Img_USDe = require('@assets/usde.png');
+const Img_tsUSDe = require('@assets/tsUSDe.png');
 
 export type KnownWallet = {
     name: string,
@@ -67,6 +70,18 @@ export type KnownWallet = {
     colors?: { primary: string, secondary: string },
     requireMemo?: boolean
 };
+
+export const testnetUSDeMinter = Address.parse('kQCoEng-qFC7XAZBb6oFItzGKjfNg9NbxPwuxbjgH1i_9GKf');
+export const testnettsUSDeMinter = Address.parse('kQCjxs2R30ph_enlOOcro5eJIAxSQzYfCXK-2eANSVLV_Ca_');
+export const testnetVaultAddress = Address.parse('kQArivk-3cRZ8Do2iIUbsbcx4Esq91lTljFA9njR2K1LCRZ_');
+
+export const mainnetUSDeMinter = Address.parse('EQAIb6KmdfdDR7CN1GBqVJuP25iCnLKCvBlJ07Evuu2dzP5f');
+export const mainnettsUSDeMinter = Address.parse('EQDQ5UUyPHrLcQJlPAczd_fjxn8SLrlNQwolBznxCdSlfQwr');
+export const mainnetVaultAddress = Address.parse('EQChGuD1u0e7KUWHH5FaYh_ygcLXhsdG2nSHPXHW8qqnpZXW');
+
+export const getUSDeMinter = (isTestnet: boolean) => isTestnet ? testnetUSDeMinter : mainnetUSDeMinter;
+export const gettsUSDeMinter = (isTestnet: boolean) => isTestnet ? testnettsUSDeMinter : mainnettsUSDeMinter;
+export const gettsUSDeVaultAddress = (isTestnet: boolean) => isTestnet ? testnetVaultAddress : mainnetVaultAddress;
 
 const knownWalletsTestnet = {
     [Address.parse('kQDV1LTU0sWojmDUV4HulrlYPpxLWSUjM6F3lUurMbwhales').toString({ testOnly: true })]: {
@@ -696,6 +711,22 @@ const knownWalletsMainnet = {
         name: 'STON.fi Dex',
         requireMemo: true
     },
+    [getUSDeMinter(true).toString({ testOnly: true })]: {
+        name: 'USDe Minter',
+        ic: Img_USDe
+    },
+    [getUSDeMinter(false).toString({ testOnly: false })]: {
+        name: 'USDe Minter',
+        ic: Img_USDe
+    },
+    [gettsUSDeMinter(true).toString({ testOnly: true })]: {
+        name: 'tsUSDe Minter',
+        ic: Img_tsUSDe
+    },
+    [gettsUSDeMinter(false).toString({ testOnly: false })]: {
+        name: 'tsUSDe Minter',
+        ic: Img_tsUSDe
+    },
 }
 
 export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet } = (isTestnet: boolean) => {
@@ -706,16 +737,25 @@ export const SpecialJettonTestnet: string | null = 'kQCSJnVYculwsyLUx_VT3qbIeYUs
 export const SpecialJettonMainnet: string | null = 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs';
 export const getSpecialJetton = (isTestnet: boolean) => isTestnet ? SpecialJettonTestnet : SpecialJettonMainnet;
 
-export const KnownJettonMastersTestnet: { [key: string]: any } = {
-    'EQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQlMJ': {}, // wsTON
-    'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD': {} // wsTON
+export const savingsMastersTestnet: { [key: string]: { description: string } } = {
+    [testnetUSDeMinter.toString({ testOnly: true })]: { description: t('savings.general', { symbol: 'USDe' }) },
+    [testnettsUSDeMinter.toString({ testOnly: true })]: { description: t('savings.general', { symbol: 'tsUSDe' }) }
 }
 
-export const savingsMasters: { [key: string]: { description: string } } = {
+export const savingsMastersMainnet: { [key: string]: { description: string } } = {
     'EQDNhy-nxYFgUqzfUzImBEP67JqsyMIcyk2S5_RwNNEYku0k': { description: 'Bemo liquid token' }, // stTON
     'EQC98_qAmNEptUtPc7W6xdHh_ZHrBUFpw5Ft_IzNU20QAJav': { description: 'Tonstakers liquid token' }, // tsTON
     'EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w': { description: 'Hipo liquid token' }, // hTON
     'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': { description: 'Whales liquid token' }, // wsTON
+    [mainnetUSDeMinter.toString()]: { description: t('savings.general', { symbol: 'USDe' }) },
+    [mainnettsUSDeMinter.toString()]: { description: t('savings.general', { symbol: 'tsUSDe' }) }
+}
+
+export const KnownJettonMastersTestnet: { [key: string]: any } = {
+    'EQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQlMJ': {}, // wsTON
+    'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD': {}, // wsTON
+
+    ...savingsMastersTestnet
 }
 
 export const KnownJettonMastersMainnet: { [key: string]: any } = {
@@ -741,7 +781,7 @@ export const KnownJettonMastersMainnet: { [key: string]: any } = {
     'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs': {}, // USD₮
     'EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT': {}, // NOT
 
-    ...savingsMasters
+    ...savingsMastersMainnet
 }
 
 export const KnownJettonTickers = [

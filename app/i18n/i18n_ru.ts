@@ -413,7 +413,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "title": "TON Стейкинг",
             "balance": "Баланс стейкинга",
             "subtitle": {
-                "join": "Зарабатывайте на TON до {{apy}}%",
+                "join": "Зарабатывайте на TON или USDe до {{apy}}%",
                 "joined": "Зарабатывайте до {{apy}}%",
                 "rewards": "Расчетная доходность",
                 "apy": "~13.3% годовых",
@@ -451,7 +451,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "tonkeeperDescription": "Для пользователей дружественного мобильного кошелька Tonkeeper",
                 "liquid": "Ликвидный Стейкинг",
                 "liquidDescription": 'Отправьте TON на стейкинг и получите токены wsTON взамен',
-                "rateTitle": "Курс обмена"
+                "rateTitle": "Курс обмена",
+                "liquidUsde": "USDe Liquid Staking",
+                "liquidUsdeDescription": "Отправьте USDe на стейкинг и получите токены tsUSDe взамен",
+                "ethenaPoints": "Получить больше наград",
+                "ethenaPointsDescription": "Завершите верификацию, чтобы увеличить ваши награды за стейкинг",
             },
             "transfer": {
                 "stakingWarning": "Вы всегда можете внести новый депозит или увеличить существующий. Обратите внимание, что минимальная сумма составляет: {{minAmount}}",

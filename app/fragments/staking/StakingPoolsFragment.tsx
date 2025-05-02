@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from "react";
+import React, { ReactElement, useMemo } from "react";
 import { View, ScrollView, ActivityIndicator, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -7,19 +7,21 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { TopBar } from "../../components/topbar/TopBar";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { StakingPoolsHeader } from "../../components/staking/StakingPoolsHeader";
 import { StakingPool } from "../../components/staking/StakingPool";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { Address } from "@ton/core";
-import { useClient4, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useClient4, useIsLedgerRoute, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { LiquidStakingPool } from "../../components/staking/LiquidStakingPool";
+import { LiquidUSDeStakingPool } from "../../components/staking/LiquidUSDeStakingPool";
+import { gettsUSDeMinter } from "../../secure/KnownWallets";
 
-export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper' | 'liquid';
+export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper' | 'liquid' | 'usde';
 
 export function filterPools(pools: StakingPoolMember[], type: StakingPoolType, processed: Set<string>, isTestnet: boolean) {
     return pools.filter((v) => KnownPools(isTestnet)[v.pool].name.toLowerCase().includes(type) && !processed.has(v.pool));
@@ -32,12 +34,10 @@ export const StakingPoolsFragment = fragment(() => {
     const client = useClient4(isTestnet);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const route = useRoute();
     const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-
-    const isLedger = route.name === 'LedgerStakingPools';
+    const isLedger = useIsLedgerRoute();
 
     const ledgerAddress = useMemo(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;
@@ -184,10 +184,20 @@ export const StakingPoolsFragment = fragment(() => {
             key={'liquid-staking'}
             style={poolViewStyle}
         >
-            <LiquidStakingPool
-                isLedger={isLedger}
-                member={memberAddress!}
-            />
+            <LiquidStakingPool member={memberAddress!} />
+        </View>
+    );
+
+    // USDe
+    const usdeAddress = gettsUSDeMinter(isTestnet);
+    processed.add(usdeAddress.toString({ testOnly: isTestnet }));
+
+    items.push(
+        <View
+            key={'usde-staking'}
+            style={poolViewStyle}
+        >
+            <LiquidUSDeStakingPool member={memberAddress!} />
         </View>
     );
 

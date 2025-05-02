@@ -27,6 +27,7 @@ import { JettonWalletFragment } from "../wallet/JettonWalletFragment";
 import Animated from "react-native-reanimated";
 import { WalletCard } from "../wallet/views/WalletCard";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
+import { LiquidUSDeStakingFragment } from "../staking/LiquidUSDeStakingFragment";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -185,6 +186,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('LedgerStaking', StakingFragment),
     fullScreen('LedgerStakingPools', StakingPoolsFragment),
     fullScreen('LedgerLiquidStaking', LiquidStakingFragment),
+    fullScreen('LedgerLiquidUSDeStaking', LiquidUSDeStakingFragment),
     fullScreen('LedgerJettonWallet', JettonWalletFragment),
     fullScreen('LedgerTonWallet', TonWalletFragment)
 ]

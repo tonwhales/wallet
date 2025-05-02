@@ -116,6 +116,8 @@ import { whalesConnectEndpoint } from './engine/clients';
 import { WalletImportSelectorFragment } from './fragments/onboarding/WalletImportSelectorFragment';
 import { LedgerOnboardingFragment } from './fragments/onboarding/LedgerOnboardingFragment';
 import { PendingSolanaTransactionPreviewFragment } from './fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
+import { LiquidUSDeStakingTransferFragment } from './fragments/staking/LiquidUSDeStakingTransferFragment';
+import { LiquidUSDeStakingCalculatorFragment } from './fragments/staking/LiquidUSDeStakingCalculatorFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -315,6 +317,10 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('StakingAnalytics', StakingAnalyticsFragment, safeArea),
     transparentModalScreen('LiquidWithdrawAction', LiquidWithdrawActionFragment, safeArea),
 
+    // USDe
+    modalScreen('LiquidUSDeStakingTransfer', LiquidUSDeStakingTransferFragment, safeArea),
+    modalScreen('LiquidUSDeStakingCalculator', LiquidUSDeStakingCalculatorFragment, safeArea),
+
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),
     lockedModalScreen('LedgerDeviceSelection', LedgerDeviceSelectionFragment, safeArea),
@@ -331,6 +337,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerProductsList', ProductsListFragment, safeArea),
     modalScreen('LedgerSignData', LedgerSignDataFragment, safeArea),
     modalScreen('LedgerWalletSettings', WalletSettingsFragment, safeArea),
+    modalScreen('LedgerLiquidUSDeStakingTransfer', LiquidUSDeStakingTransferFragment, safeArea),
+    // modalScreen('LedgerLiquidUSDeStakingCalculator', LiquidUSDeStakingCalculatorFragment, safeArea),
 
     // Ledger Holders
     genericScreen('LedgerHoldersLanding', HoldersLandingFragment, safeArea, true, 0),
@@ -438,13 +446,13 @@ export const Navigation = memo(() => {
                             return;
                         }
                         const addresses: string[] = [];
-                    
+
                         for (let a of appState.addresses) {
                             addresses.push(a.address.toString({ testOnly: isTestnet }));
                             const solanaAddress = solanaAddressFromPublicKey(a.publicKey);
                             addresses.push(solanaAddress.toString());
                         }
-                    
+
                         await registerPushToken(token, addresses);
                     });
                 }

@@ -61,6 +61,8 @@ const Img_AvanChange = require('@assets/known/avanchange.png');
 const Img_FixedFloat = require('@assets/known/fixedfloat.png');
 const Img_Bybit = require('@assets/known/bybit.png');
 const Img_Binance = require('@assets/known/binance_logo.png');
+const Img_USDe = require('@assets/usde.png');
+const Img_tsUSDe = require('@assets/tsUSDe.png');
 
 export type KnownWallet = {
     name: string,
@@ -708,6 +710,22 @@ const knownWalletsMainnet = {
     [Address.parse('EQB3ncyBUTjZUA5EnFKR5_EnOMI9V1tTEAAPaiU71gc4TiUt').toString()]: {
         name: 'STON.fi Dex',
         requireMemo: true
+    },
+    [getUSDeMinter(true).toString({ testOnly: true })]: {
+        name: 'USDe Minter',
+        ic: Img_USDe
+    },
+    [getUSDeMinter(false).toString({ testOnly: false })]: {
+        name: 'USDe Minter',
+        ic: Img_USDe
+    },
+    [gettsUSDeMinter(true).toString({ testOnly: true })]: {
+        name: 'tsUSDe Minter',
+        ic: Img_tsUSDe
+    },
+    [gettsUSDeMinter(false).toString({ testOnly: false })]: {
+        name: 'tsUSDe Minter',
+        ic: Img_tsUSDe
     },
 }
 

@@ -453,7 +453,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "liquidDescription": "Надішліть TON на стейкінг і отримайте wsTON токени натомість",
                 "rateTitle": "Обмінний курс",
                 "liquidUsde": "USDe Liquid Staking",
-                "liquidUsdeDescription": "Надішліть USDe на стейкінг і отримайте tsUSDe токени натомість"
+                "liquidUsdeDescription": "Надішліть USDe на стейкінг і отримайте tsUSDe токени натомість",
+                "ethenaPoints": "Отримати більше винагород",
+                "ethenaPointsDescription": "Завершіть верифікацію, щоб збільшити свої винагороди за стейкінг",
             },
             "transfer": {
                 "stakingWarning": "Ви завжди можете внести нову ставку або збільшити існуючу на будь-яку суму. Зверніть увагу, що мінімальна сума становить: {{minAmount}}",

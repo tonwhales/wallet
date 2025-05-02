@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
+import React, { memo, useCallback, useEffect, useMemo } from "react";
+import { View, Text, Platform, Image, Pressable, ScrollView, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
@@ -8,7 +8,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { KnownPools } from "../../utils/KnownPools";
 import { useFocusEffect } from "@react-navigation/native";
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePendingActions, useSelectedAccount, useTheme, useUSDeAssetsShares } from "../../engine/hooks";
+import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePendingActions, useRefreshLiquidUSDeStaking, useSelectedAccount, useTheme, useUSDeAssetsShares } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -21,8 +21,23 @@ import { WalletAddress } from "../../components/address/WalletAddress";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { LiquidUSDeStakingMember } from "../../components/staking/LiquidUSDeStakingMember";
 import { useUSDeStakingApy } from "../../engine/hooks/staking/useUSDeStakingApy";
-import { gettsUSDeMinter, getUSDeMinter } from "../../secure/KnownWallets";
+import { gettsUSDeMinter, gettsUSDeVaultAddress, getUSDeMinter } from "../../secure/KnownWallets";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { EthenaPointsBanner } from "../../components/staking/EthenaPointsBanner";
+
+const USDeRefreshControll = memo(({ address }: { address: Address }) => {
+    const theme = useTheme();
+    const { isRefetching, refetch } = useRefreshLiquidUSDeStaking(address);
+
+    return (
+        <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={theme.textUnchangeable}
+            style={{ zIndex: 2000 }}
+        />
+    )
+})
 
 export const LiquidUSDeStakingFragment = fragment(() => {
     const theme = useTheme();
@@ -55,12 +70,33 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     const tsUSDe = nominator?.balance || 0n;
     const inUsde = tsUSDe * rate;
     const usdeDecimals = usdeShares?.usdeHint?.jetton.decimals ?? 9;
+    const usdeWallet = usdeShares?.usdeHint?.walletAddress;
+    const tsUSDeWallet = usdeShares?.tsUsdeHint?.walletAddress;
 
     const targets = useMemo(() => {
         const tsMinter = gettsUSDeMinter(isTestnet);
         const minter = getUSDeMinter(isTestnet);
-        return [tsMinter, minter];
-    }, [isTestnet]);
+        const vault = gettsUSDeVaultAddress(isTestnet);
+        let usdeAddress: Address | undefined;
+        let tsUSDeAddress: Address | undefined;
+        if (usdeWallet) {
+            usdeAddress = Address.parse(usdeWallet.address);
+        }
+        if (tsUSDeWallet) {
+            tsUSDeAddress = Address.parse(tsUSDeWallet.address);
+        }
+
+        const targets = [tsMinter, minter, vault];
+
+        if (usdeAddress) {
+            targets.push(usdeAddress);
+        }
+        if (tsUSDeAddress) {
+            targets.push(tsUSDeAddress);
+        }
+
+        return targets;
+    }, [isTestnet, usdeWallet, tsUSDeWallet]);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
@@ -190,6 +226,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                 decelerationRate={'normal'}
                 alwaysBounceVertical={true}
                 overScrollMode={'never'}
+                refreshControl={<USDeRefreshControll address={memberAddress!} />}
             >
                 {Platform.OS === 'ios' && (
                     <View
@@ -377,6 +414,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                         </View>
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
+                        <EthenaPointsBanner />
                         {!!pendingPoolTxs && pendingPoolTxs.length > 0 && (
                             <PendingTransactionsList
                                 theme={theme}

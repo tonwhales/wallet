@@ -36,25 +36,21 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
         return toNano(bal);
     }, [nominator]);
 
-    const inUsde = useMemo(() => {
-        return balance * rate;
-    }, [balance, rate]);
+    const inUsde = balance * rate;
 
-    const lockedBalance = useMemo(() => {
-        return nominator?.timeLocked?.balance || 0n;
-    }, [nominator?.timeLocked?.balance]);
+    const lockedBalance = nominator?.timeLocked?.balance || 0n;
 
     const stakeUntil = useMemo(() => {
         try {
             if (nominator?.timeLocked?.limit) {
-                // plus a week
-                return Number(nominator?.timeLocked?.limit) + (7 * 24 * 60 * 60);
+                return Number(nominator?.timeLocked?.limit);
             }
         } catch { }
         return 0;
     }, [nominator?.timeLocked?.limit]);
 
-    const [isWithdrawReady, setIsWithdrawReady] = useState(Date.now() >= stakeUntil);
+    const ready = Date.now() >= (stakeUntil * 1000);
+    const [isWithdrawReady, setIsWithdrawReady] = useState(ready);
 
     const onWithdraw = useCallback(() => {
         if (!tsUsdeAddressWallet) {
@@ -103,6 +99,7 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                         },
                         (pressed && isWithdrawReady) && { opacity: 0.5 }
                     ]}
+                    disabled={!isWithdrawReady}
                     onPress={onWithdraw}
                 >
                     {!isWithdrawReady ? (

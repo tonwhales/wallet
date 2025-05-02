@@ -453,7 +453,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "liquidDescription": "Sende TON zum Staking und erhalte stattdessen wsTON-Token",
                 "rateTitle": "Wechselkurs",
                 "liquidUsde": "Liquid USDe Staking",
-                "liquidUsdeDescription": "Sende USDe zum Staking und erhalte stattdessen tsUSDe-Token"
+                "liquidUsdeDescription": "Sende USDe zum Staking und erhalte stattdessen tsUSDe-Token",
+                "ethenaPoints": "Mehr Belohnungen erhalten",
+                "ethenaPointsDescription": "Verifiziere deine Identität, um deine Staking-Belohnungen zu erhöhen",
             },
             "transfer": {
                 "stakingWarning": "Du kannst jederzeit neues Stake-Guthaben einzahlen oder bestehendes erhöhen. Bitte beachte, dass der Mindestbetrag {{minAmount}} ist.",

@@ -13,10 +13,9 @@ import { Address } from "@ton/core";
 import { LiquidStakingPool } from "../staking/LiquidStakingPool";
 import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 import { StakingProductBanner } from "./StakingProductBanner";
-import { LiquidUSDeStakingMember } from "../staking/LiquidUSDeStakingMember";
+import { LiquidUSDeStakingPool } from "../staking/LiquidUSDeStakingPool";
 
 import StakingIcon from '@assets/ic-staking.svg';
-import { LiquidUSDeStakingPool } from "../staking/LiquidUSDeStakingPool";
 
 type ProductItem =
     { type: 'active', address: Address, balance: bigint }

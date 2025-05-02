@@ -117,6 +117,7 @@ import { WalletImportSelectorFragment } from './fragments/onboarding/WalletImpor
 import { LedgerOnboardingFragment } from './fragments/onboarding/LedgerOnboardingFragment';
 import { PendingSolanaTransactionPreviewFragment } from './fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
 import { LiquidUSDeStakingTransferFragment } from './fragments/staking/LiquidUSDeStakingTransferFragment';
+import { LiquidUSDeStakingCalculatorFragment } from './fragments/staking/LiquidUSDeStakingCalculatorFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -318,7 +319,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // USDe
     modalScreen('LiquidUSDeStakingTransfer', LiquidUSDeStakingTransferFragment, safeArea),
-    // modalScreen('LiquidUSDeStakingCalculator', LiquidUSDeStakingCalculatorFragment, safeArea),
+    modalScreen('LiquidUSDeStakingCalculator', LiquidUSDeStakingCalculatorFragment, safeArea),
 
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),

@@ -33,7 +33,7 @@ export const AddressBookFragment = fragment(() => {
     const { account, solanaAddress, onSelected } = useParams<AddressBookParams>();
     const [bounceableFormat] = useBounceableWalletFormat();
     const knownWallets = KnownWallets(isTestnet);
-    const lastTwoTxs = (useLastTwoTxs(account) as TonStoredTransaction[]).map((t) => t.data);
+    const lastTwoTxs = (useLastTwoTxs(account, undefined, 'out') as TonStoredTransaction[]).map((t) => t.data);
     const accAddress = useMemo(() => Address.parse(account), [account]);
     const holdersAccounts = useHoldersAccountTrargets(accAddress, solanaAddress);
     const [search, setSearch] = useState('');

@@ -15,6 +15,8 @@ import { Typography } from "../styles";
 import { ThemeType } from "../../engine/state/theme";
 import { ATextInputRef } from "../ATextInput";
 import { AddressSearchItem } from "./AddressSearch";
+import { isSolanaAddress } from "../../utils/solana/address";
+import { isTonAddress } from "../../utils/ton/address";
 
 export type AddressInputState = {
     input: string,
@@ -373,8 +375,14 @@ export const AddressDomainInput = memo(forwardRef(({
     });
 
     const onChangeText = useCallback((value: string) => {
-        // Remove leading and trailing spaces
-        value = value.trim();
+        // We allow entering spaces for searching names of accounts
+        // But we remove spaces for addresses
+        const trimmed = value.trim();
+        if(isTonAddress(trimmed) || isSolanaAddress(trimmed)) {
+            value = trimmed;
+        } else {
+            value = value.trimStart();
+        }
         if (value !== textInput) {
             inputAction({
                 type: InputAction.Input,

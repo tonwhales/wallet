@@ -10,7 +10,7 @@ export function useRefreshLiquidUSDeStaking(account: Address | null | undefined)
     const { isTestnet } = useNetwork();
     const pool = gettsUSDeMinter(isTestnet);
 
-    const usdeMemberKey = Queries.StakingLiquidMember(
+    const usdeMemberKey = Queries.StakingLiquidUSDeMember(
         pool.toString({ testOnly: isTestnet }),
         account!.toString({ testOnly: isTestnet })
     );

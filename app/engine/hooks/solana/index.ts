@@ -11,3 +11,4 @@ export { useSolanaTransferInstruction } from './useSolanaTransferInstruction';
 export { useSolanaTransactionFees } from './useSolanaTransactionFees';
 export { useSolanaSavingsBalance } from './useSolanaSavingsBalance';
 export { usePendingSolanaTransferInfo } from './usePendingSolanaTransferInfo';
+export { useIsSolanaRoute } from './useIsSolanaRoute';

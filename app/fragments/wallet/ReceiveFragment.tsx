@@ -8,7 +8,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useJetton } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useJetton, useIsLedgerRoute, useIsSolanaRoute } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { Typography } from "../../components/styles";
@@ -22,7 +22,6 @@ import Share from 'react-native-share';
 import { ExchangesFragmentParams } from "./ExchangesFragment";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { TransportStatusError } from "@ledgerhq/hw-transport";
-import { useRoute } from "@react-navigation/native";
 import { encodeURL } from "@solana/pay";
 import { PublicKey } from "@solana/web3.js";
 import CopyIcon from '@assets/ic-copy.svg';
@@ -70,8 +69,8 @@ export const ReceiveFragment = fragment(() => {
     const [bounceableFormat] = useBounceableWalletFormat();
     const toaster = useToaster();
     const dimensions = useWindowDimensions();
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerReceive';
+    const isSolana = useIsSolanaRoute();
+    const isLedger = useIsLedgerRoute();
     const ledgerContext = useLedgerTransport();
 
     const isTon = type === 'ton';
@@ -272,7 +271,7 @@ export const ReceiveFragment = fragment(() => {
         qrCodeSize = qrCodeSize * 0.8;
     }
 
-    const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? 'TON'}`;
+    const title = `${isHolders ? t('receive.deposit') : t('receive.title')} ${name ?? (isSolana ? 'SOL' : 'TON')}`;
 
     const navigateToExchanges = () => {
         let params: ExchangesFragmentParams | undefined;

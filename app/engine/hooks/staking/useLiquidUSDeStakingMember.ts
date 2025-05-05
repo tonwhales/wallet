@@ -19,22 +19,20 @@ const liquidUsdeStakingMemberScheme = z.object({
 
 export type LiquidUSDeStakingMember = z.infer<typeof liquidUsdeStakingMemberScheme>;
 
-function fetchLiquidUSDeStakingMemberQueryFn(isTestnet: boolean, account: Address) {
-    return async () => {
-        const url = `${whalesConnectEndpoint}/usde/staking/member/liquid/info`;
-        const res = await axios.post(url, {
-            isTestnet,
-            address: account.toString({ testOnly: isTestnet })
-        });
+async function fetchLiquidUSDeStakingMember(isTestnet: boolean, account: Address) {
+    const url = `${whalesConnectEndpoint}/usde/staking/member/liquid/info`;
+    const res = await axios.post(url, {
+        isTestnet,
+        address: account.toString({ testOnly: isTestnet })
+    });
 
-        const parsed = liquidUsdeStakingMemberScheme.safeParse(res.data);
+    const parsed = liquidUsdeStakingMemberScheme.safeParse(res.data);
 
-        if (!parsed.success) {
-            throw new Error('Invalid fetchLiquidUSDeStakingMemberQueryFn response');
-        }
+    if (!parsed.success) {
+        throw new Error('Invalid fetchLiquidUSDeStakingMemberQueryFn response');
+    }
 
-        return parsed.data;
-    };
+    return parsed.data;
 }
 
 export function useLiquidUSDeStakingMember(account: Address | null | undefined) {
@@ -42,9 +40,15 @@ export function useLiquidUSDeStakingMember(account: Address | null | undefined) 
     const pool = gettsUSDeMinter(isTestnet);
 
     const query = useQuery<LiquidUSDeStakingMember>({
-        queryFn: fetchLiquidUSDeStakingMemberQueryFn(isTestnet, account!),
+        queryFn: async () => {
+            try {
+                return await fetchLiquidUSDeStakingMember(isTestnet, account!);
+            } catch {
+                return null;
+            }
+        },
         refetchOnMount: true,
-        queryKey: Queries.StakingLiquidMember(
+        queryKey: Queries.StakingLiquidUSDeMember(
             pool.toString({ testOnly: isTestnet }),
             account!.toString({ testOnly: isTestnet })
         ),

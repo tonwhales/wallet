@@ -70,7 +70,7 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
     queryClient.invalidateQueries(Queries.Account(address).All());
     queryClient.invalidateQueries(Queries.HintsFull(address));
     queryClient.invalidateQueries(Queries.HintsExtra(address));
-    queryClient.invalidateQueries(Queries.StakingLiquidMember(tsUSDeMinter.toString({ testOnly: isTestnet }), address));
+    queryClient.invalidateQueries(Queries.StakingLiquidUSDeMember(tsUSDeMinter.toString({ testOnly: isTestnet }), address));
     queryClient.invalidateQueries({
         queryKey: Queries.TransactionsV2(address, !!token),
         refetchPage: (last, index, allPages) => index == 0,

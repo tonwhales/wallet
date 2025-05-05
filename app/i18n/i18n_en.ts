@@ -529,6 +529,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "title": "Withdraw your wsTON",
                 "message": "You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on "
             },
+            "unstakeLiquidUsde": {
+                "title": "Withdraw your tsUSDe",
+                "message": "You can withdraw funds directly after the end of time-locked period (7 days after first unstake request) or swap instantly tsUSDe to USDe on "
+            },
             "learnMore": "Info",
             "moreInfo": "More info",
             "calc": {

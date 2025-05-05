@@ -4,7 +4,7 @@ export type LiquidUSDeAmountAction = { type: 'usde', amount: string } | { type: 
 type AmountState = { usde: string, tsUsde: string };
 
 export function reduceLiquidUSDeAmount(state: AmountState, action: LiquidUSDeAmountAction, rate: number) {
-    if (action.amount === '' || action.amount === '') {
+    if (action.amount === '') {
         return { usde: '', tsUsde: '' };
     }
     try {

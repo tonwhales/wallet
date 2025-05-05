@@ -44,8 +44,8 @@ export async function onAccountsTouched(accounts: Set<string>) {
                 }
             }
 
-            if (queryKey[0] === 'staking' && queryKey[1] === 'member' && queryKey[2] === 'liquid') {
-                return accounts.has(queryKey[4]) || accounts.has(queryKey[3]);
+            if (queryKey[0] === 'staking' && queryKey[1] === 'member' && queryKey[2] === 'liquid' && queryKey[3] === 'usde') {
+                return accounts.has(queryKey[4]) || accounts.has(queryKey[5]);
             }
 
             return false;

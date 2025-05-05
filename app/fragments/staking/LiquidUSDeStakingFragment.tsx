@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useEffect, useMemo } from "react";
-import { View, Text, Platform, Image, Pressable, ScrollView, RefreshControl } from "react-native";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { View, Text, Platform, Image, Pressable, RefreshControl, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
@@ -24,20 +24,6 @@ import { gettsUSDeMinter, gettsUSDeVaultAddress, getUSDeMinter } from "../../sec
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { EthenaPointsBanner } from "../../components/staking/EthenaPointsBanner";
 
-const USDeRefreshControll = memo(({ address }: { address: Address }) => {
-    const theme = useTheme();
-    const { isRefetching, refetch } = useRefreshLiquidUSDeStaking(address);
-
-    return (
-        <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={refetch}
-            tintColor={theme.textUnchangeable}
-            style={{ zIndex: 2000 }}
-        />
-    )
-})
-
 export const LiquidUSDeStakingFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -59,6 +45,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     const usdeApy = useUSDeStakingApy()?.apy;
     const rate = useLiquidUSDeStakingRate();
     const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: isTestnet }), isTestnet);
+    const { isRefetching, refetch } = useRefreshLiquidUSDeStaking(memberAddress);
 
     const apyWithFee = useMemo(() => {
         if (!!usdeApy) {
@@ -221,10 +208,18 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                 automaticallyAdjustContentInsets={false}
                 contentContainerStyle={{ paddingBottom: 16 }}
                 showsVerticalScrollIndicator={false}
+                scrollEventThrottle={16}
                 decelerationRate={'normal'}
                 alwaysBounceVertical={true}
                 overScrollMode={'never'}
-                refreshControl={<USDeRefreshControll address={memberAddress!} />}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefetching}
+                        onRefresh={refetch}
+                        tintColor={theme.textUnchangeable}
+                        style={{ zIndex: 2000 }}
+                    />
+                }
             >
                 {Platform.OS === 'ios' && (
                     <View

@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
+import com.facebook.react.ReactApplication;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
@@ -15,8 +16,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import expo.modules.ReactActivityDelegateWrapper;
+import com.tonhub.wallet.push.PushNotificationManager;
 
 public class MainActivity extends ReactActivity {
+    private PushNotificationManager mPushNotificationManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Set the theme to AppTheme BEFORE onCreate to support
@@ -24,16 +28,28 @@ public class MainActivity extends ReactActivity {
         // This is required for expo-splash-screen.
         setTheme(R.style.AppTheme);
         super.onCreate(null);
+        
+        mPushNotificationManager = PushNotificationManager.getInstance((ReactApplication) getApplication());
+        mPushNotificationManager.processNotificationIntent(getIntent());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        mPushNotificationManager.onStart();
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPushNotificationManager.onResume();
     }
 
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
+        mPushNotificationManager.onNewIntent(intent);
     }
 
     /**

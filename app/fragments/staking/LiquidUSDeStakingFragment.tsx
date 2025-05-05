@@ -16,7 +16,6 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactionsList } from "../wallet/views/PendingTransactions";
 import { Typography } from "../../components/styles";
 import { BackButton } from "../../components/navigation/BackButton";
-import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { LiquidUSDeStakingMember } from "../../components/staking/LiquidUSDeStakingMember";
@@ -116,13 +115,12 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     }, [pendingPoolTxs]);
 
     const onTopUp = useCallback(() => {
-        const balanceAmount = fromBnWithDecimals(usdeShares?.usdeHint?.balance || 0n, usdeDecimals);
+        const balance = usdeShares?.usdeHint?.balance || 0n;
+        const balanceAmount = fromBnWithDecimals(balance, usdeDecimals);
         navigation.navigateLiquidUSDeStakingTransfer({ amount: balanceAmount, action: 'deposit' }, { ledger: isLedger });
     }, [isLedger]);
 
-    const onUnstake = useCallback(() => {
-        navigation.navigateLiquidUSDeStakingTransfer({ action: 'unstake' }, { ledger: isLedger });
-    }, [isLedger]);
+    const onUnstake = () => navigation.navigateLiquidUSDeStakingUnstake(isLedger);
 
     const openMoreInfo = () => {
         const url = KnownPools(isTestnet)[targets[0].toString({ testOnly: isTestnet })]?.webLink;
@@ -421,13 +419,6 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
                                 owner={memberAddress!.toString({ testOnly: isTestnet })}
-                            />
-                        )}
-                        {!!memberAddress && (
-                            <LiquidStakingPendingComponent
-                                member={memberAddress}
-                                style={{ marginBottom: 16 }}
-                                isLedger={isLedger}
                             />
                         )}
                         {!!memberAddress && (<LiquidUSDeStakingMember address={memberAddress} />)}

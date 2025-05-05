@@ -529,6 +529,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "title": "Retirez vos wsTON",
                 "message": "Vous pouvez retirer les fonds directement après la fin du cycle ou échanger instantanément wsTON contre TON sur "
             },
+            "unstakeLiquidUsde": {
+                "title": "Retirez vos tsUSDe",
+                "message": "Vous pouvez retirer les fonds directement après la fin du cycle ou échanger instantanément tsUSDe contre USDe sur "
+            },
             "learnMore": "Info",
             "moreInfo": "Plus d'infos",
             "calc": {

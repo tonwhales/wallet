@@ -529,6 +529,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "title": "Saque seu wsTON",
                 "message": "Você pode sacar fundos diretamente após o fim do ciclo ou trocar instantaneamente wsTON por TON em "
             },
+            "unstakeLiquidUsde": {
+                "title": "Saque seu tsUSDe",
+                "message": "Você pode sacar fundos diretamente após o fim do período de lockup (7 dias após a primeira solicitação de saque) ou trocar instantaneamente tsUSDe por USDe em "
+            },
             "learnMore": "Informações",
             "moreInfo": "Mais informações",
             "calc": {

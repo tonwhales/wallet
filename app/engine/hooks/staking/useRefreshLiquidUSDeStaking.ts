@@ -21,7 +21,7 @@ export function useRefreshLiquidUSDeStaking(account: Address | null | undefined)
     const isFetchingHints = useIsFetching(hintsFullKey);
 
     const isFetching = isFetchingMember + isFetchingHints;
-    const [isRefetching, setIsRefetching] = useState(isFetching > 0);
+    const [isRefetching, setIsRefetching] = useState(false);
 
     const refetch = async () => {
         setIsRefetching(true);

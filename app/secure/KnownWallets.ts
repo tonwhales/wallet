@@ -115,6 +115,14 @@ const knownWalletsTestnet = {
     [Address.parse('kQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXNKY').toString({ testOnly: true })]: {
         name: 'OKX',
         ic: Img_OKX
+    },
+    [getUSDeMinter(true).toString({ testOnly: true })]: {
+        name: 'USDe Minter',
+        ic: Img_USDe
+    },
+    [gettsUSDeMinter(true).toString({ testOnly: true })]: {
+        name: 'tsUSDe Minter',
+        ic: Img_tsUSDe
     }
 };
 
@@ -711,17 +719,9 @@ const knownWalletsMainnet = {
         name: 'STON.fi Dex',
         requireMemo: true
     },
-    [getUSDeMinter(true).toString({ testOnly: true })]: {
-        name: 'USDe Minter',
-        ic: Img_USDe
-    },
     [getUSDeMinter(false).toString({ testOnly: false })]: {
         name: 'USDe Minter',
         ic: Img_USDe
-    },
-    [gettsUSDeMinter(true).toString({ testOnly: true })]: {
-        name: 'tsUSDe Minter',
-        ic: Img_tsUSDe
     },
     [gettsUSDeMinter(false).toString({ testOnly: false })]: {
         name: 'tsUSDe Minter',

@@ -512,7 +512,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         <View style={[{
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
-                            padding: 20,
+                            paddingHorizontal: 20,
                             backgroundColor: theme.surfaceOnBg
                         }, props.itemStyle]}>
                             <JettonIcon

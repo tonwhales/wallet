@@ -6,7 +6,7 @@ type AmountState = { ton: string, wsTon: string };
 
 export function liquidStakingAmountReducer(withdrawRate: bigint, depositRate: bigint, type: 'withdraw' | 'top_up') {
     return (state: AmountState, action: LiquidStakingAmountAction): AmountState => {
-        if (action.amount === '' || action.amount === '') {
+        if (action.amount === '') {
             return { ton: '', wsTon: '' };
         }
         try {

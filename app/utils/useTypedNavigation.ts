@@ -196,6 +196,15 @@ export class TypedNavigation {
         action('LiquidUSDeStakingTransfer', params);
     }
 
+    navigateLiquidUSDeStakingUnstake(isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerLiquidUSDeStakingTransfer', { action: 'unstake' });
+            return;
+        }
+
+        this.navigate('LiquidUSDeStakingUnstake')
+    }
+
     navigateLedgerApp() {
         this.navigateAndReplaceAll('LedgerApp');
     }

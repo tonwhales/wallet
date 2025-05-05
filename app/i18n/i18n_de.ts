@@ -529,6 +529,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "title": "Ziehe deine wsTON ab",
                 "message": "Du kannst die Mittel direkt nach Ende des Zyklus abheben oder wsTON sofort gegen TON tauschen auf "
             },
+            "unstakeLiquidUsde": {
+                "title": "Ziehe deine tsUSDe ab",
+                "message": "Du kannst die Mittel direkt nach Ende des Zeit-Lock-Zeitraums (7 Tage nach erster Auszahlungsanfrage) abheben oder tsUSDe sofort gegen USDe tauschen auf "
+            },
             "learnMore": "Info",
             "moreInfo": "Mehr Info",
             "calc": {

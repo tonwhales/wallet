@@ -531,6 +531,10 @@ export type LocalizationSchema = {
                 title: string,
                 message: string
             },
+            unstakeLiquidUsde: {
+                title: string,
+                message: string
+            },
             learnMore: string,
             moreInfo: string,
             calc: {

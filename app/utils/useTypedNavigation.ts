@@ -395,7 +395,7 @@ export class TypedNavigation {
     }
 
     navigatePendingSolanaTransaction(params: PendingSolanaTransactionPreviewParams) {
-        this.navigate('PendingSolanaTransaction', params);
+        this.navigate('SolanaPendingTransaction', params);
     }
 }
 

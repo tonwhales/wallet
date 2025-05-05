@@ -464,7 +464,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                     </View>
                                     <View style={{ marginLeft: 12, flexShrink: 1 }}>
                                         <Text
-                                            style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                             ellipsizeMode="tail"
                                             numberOfLines={1}
                                         >
@@ -476,7 +476,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                         <Text
                                             numberOfLines={1}
                                             ellipsizeMode={'tail'}
-                                            style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
+                                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                         >
                                             {descriptionReceive}
                                         </Text>

@@ -392,7 +392,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('SolanaTransfer', SolanaTransferFragment, safeArea),
     modalScreen('SolanaReceive', ReceiveFragment, safeArea),
     modalScreen('SolanaTransaction', SolanaTransactionPreviewFragment, safeArea),
-    modalScreen('PendingSolanaTransaction', PendingSolanaTransactionPreviewFragment, safeArea),
+    modalScreen('SolanaPendingTransaction', PendingSolanaTransactionPreviewFragment, safeArea),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

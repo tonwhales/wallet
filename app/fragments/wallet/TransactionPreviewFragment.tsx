@@ -111,11 +111,10 @@ const TransactionPreview = () => {
         ? bounceableFormat
         : parsedOpAddr.isBounceable
 
-    const parsedAddressFriendlyBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable: isTargetBounceable });
-    const opAddressWalletSettings = walletsSettings[parsedAddressFriendlyBounceable];
+    const opAddressWalletSettings = walletsSettings[parsedAddressFriendly];
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-    const contact = addressBook.asContact(parsedAddressFriendlyBounceable);
+    const contact = addressBook.asContact(parsedAddressFriendly)
 
     let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
@@ -210,8 +209,8 @@ const TransactionPreview = () => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (knownWallets[parsedAddressFriendlyBounceable]) {
-        known = knownWallets[parsedAddressFriendlyBounceable];
+    if (knownWallets[parsedAddressFriendly]) {
+        known = knownWallets[parsedAddressFriendly];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
@@ -294,7 +293,7 @@ const TransactionPreview = () => {
     const symbolString = item.kind === 'ton' ? ' TON' : (jettonMasterContent?.symbol ? ` ${jettonMasterContent.symbol}` : '')
     const singleAmountString = `${amountText[0]}${amountText[1]}${symbolString}`;
 
-    const fromKnownWalletsList = !!knownWallets[parsedAddressFriendlyBounceable]
+    const fromKnownWalletsList = !!knownWallets[parsedAddressFriendly]
 
     return (
         <PerfView

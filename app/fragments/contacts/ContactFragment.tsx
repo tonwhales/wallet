@@ -53,22 +53,24 @@ export const ContactFragment = fragment(() => {
     const name = contact?.name ?? '';
     const fields = contact?.fields ?? requiredFields;
 
+    const bounceable = (contractInfo?.kind === 'wallet')
+    ? bounceableFormat
+    : true;
+
     const shortAddressStr = useMemo(() => {
         if (!parsed) {
             return null;
         }
-        const bounceable = (contractInfo?.kind === 'wallet')
-            ? bounceableFormat
-            : true;
+
         const friendly = parsed.address.toString({ testOnly: isTestnet, bounceable });
         return `${friendly.slice(0, 6) + '...' + friendly.slice(friendly.length - 6)}`;
-    }, [contractInfo, bounceableFormat, parsed, isTestnet, editing]);
+    }, [contractInfo, bounceable, parsed, isTestnet, editing]);
 
     const onCopy = useCallback(() => {
         if (!parsed) {
             return;
         }
-        copyText(parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }));
+        copyText(parsed.address.toString({ testOnly: isTestnet, bounceable }));
 
         toaster.show(
             {
@@ -77,7 +79,7 @@ export const ContactFragment = fragment(() => {
                 duration: ToastDuration.SHORT,
             }
         );
-    }, [parsed]);
+    }, [parsed, bounceable, isTestnet]);
 
     const onShare = useCallback(() => {
         if (!parsed) {
@@ -85,9 +87,9 @@ export const ContactFragment = fragment(() => {
         }
         Share.open({
             title: t('contacts.title'),
-            message: `${name} \n${parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable })}`
+            message: `${name} \n${parsed.address.toString({ testOnly: isTestnet, bounceable })}`
         });
-    }, [parsed]);
+    }, [parsed, bounceable, isTestnet]);
 
     return (
         <View style={{
@@ -172,7 +174,7 @@ export const ContactFragment = fragment(() => {
                                     >
                                         <Pressable
                                             onPress={() => navigation.navigateContactAssets({
-                                                target: parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }),
+                                                target: parsed.address.toString({ testOnly: isTestnet, bounceable }),
                                                 viewType: AssetViewType.Transfer
                                             })}
                                             style={({ pressed }) => ({

@@ -50,16 +50,17 @@ export function PreparedMessageView(props: {
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
+    const parsedAddressNonBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable: false });
     const targetContractInfo = useContractInfo(parsedAddressFriendly);
     const bounceable = (targetContractInfo?.kind === 'wallet')
         ? props.bounceableFormat
         : parsedOpAddr.isBounceable;
-    const parsedAddressFriendlyBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable });
     const isOwn = (appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
-    const walletSettings = walletsSettings[parsedAddressFriendlyBounceable];
+    const walletSettings = walletsSettings[parsedAddressFriendly];
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-    const contact = contacts[parsedAddressFriendlyBounceable];
+    // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
+    const contact = contacts[parsedAddressFriendly] || contacts[parsedAddressNonBounceable];
 
     // Operation
     const op = useMemo(() => {
@@ -80,8 +81,8 @@ export function PreparedMessageView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[parsedAddressFriendlyBounceable]) {
-        known = KnownWallets(isTestnet)[parsedAddressFriendlyBounceable];
+    if (KnownWallets(isTestnet)[parsedAddressFriendly]) {
+        known = KnownWallets(isTestnet)[parsedAddressFriendly];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }

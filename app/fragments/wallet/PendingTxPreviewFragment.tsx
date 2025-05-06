@@ -94,10 +94,10 @@ const PendingTxPreview = () => {
 
     const { verified } = useVerifyJetton({ master: opAddress });
     const targetContract = useContractInfo(opAddress || '');
-    const knownWallet = knownWallets[opAddressBounceable ?? ''];
-    const contact = addressBook.asContact(opAddressBounceable);
-    const isSpam = addressBook.isDenyAddress(opAddressBounceable);
-    const [targetWalletSettings] = useWalletSettings(opAddressBounceable);
+    const knownWallet = knownWallets[opAddress ?? ''];
+    const contact = addressBook.asContact(opAddress)
+    const isSpam = addressBook.isDenyAddress(opAddress);
+    const [targetWalletSettings] = useWalletSettings(opAddress);
     const avatarColorHash = targetWalletSettings?.color ?? avatarHash(opAddress ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 

@@ -1,7 +1,7 @@
 import { AccountStoredTransaction, HoldersStoredTransaction, TonStoredTransaction, TonTransaction, TransactionType } from "../../types";
 import { useAccountTransactionsV2 } from "./useAccountTransactionsV2";
 
-export function useLastTwoTxs(account: string, type: TransactionType = TransactionType.TON, kind?: string) {
+export function useLastTwoTxs({ account, type = TransactionType.TON, kind }: { account: string, type?: TransactionType, kind?: string }) {
     const { data } = useAccountTransactionsV2(account, undefined, { type });
 
     let res: AccountStoredTransaction[] = [];

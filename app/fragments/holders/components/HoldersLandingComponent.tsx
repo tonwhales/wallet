@@ -74,7 +74,7 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
         };
     });
 
-    const onEnroll = useCallback(async () => {
+    const onEnroll = useCallback(async (payload?: string) => {
         if (isAuthenticating.current) {
             return;
         }
@@ -102,7 +102,7 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
                 return;
             }
 
-            const res = await authenticate();
+            const res = await authenticate(payload);
 
             if (res.type === 'success') {
                 if (isComponentMounted.current) {

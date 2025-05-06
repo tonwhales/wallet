@@ -33,7 +33,7 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
     const connectApp = useConnectApp(addressString);
     const connectAppConnections = useAppConnections(addressString);
 
-    return (async () => {
+    return (async (payload?: string) => {
         if (ledgerAddress && ledgerContext?.tonTransport) {
             const tokenRes = await (async () => {
                 try {

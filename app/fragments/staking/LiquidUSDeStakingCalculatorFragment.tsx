@@ -22,7 +22,6 @@ const CalcComponent = memo(({ amount }: { amount: bigint }) => {
     const usdeApy = (useUSDeStakingApy()?.apy ?? 1) / 100;
     const theme = useTheme();
     const amountNum = Number(fromNano(amount));
-    console.log('amountNum', amountNum, usdeApy);
     const yearly = amountNum * usdeApy;
     const monthly = amountNum * (Math.pow((1 + usdeApy / 366), 30)) - amountNum;
     const daily = amountNum * (1 + usdeApy / 366) - amountNum;

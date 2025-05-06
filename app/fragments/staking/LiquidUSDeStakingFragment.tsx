@@ -297,6 +297,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                                 opacity: 0.5,
                                 fontFamily: undefined
                             }}
+                            bounceable={true}
                             limitActions
                             disableContextMenu
                             copyOnPress

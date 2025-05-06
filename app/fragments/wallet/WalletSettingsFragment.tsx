@@ -140,6 +140,9 @@ export const WalletSettingsFragment = fragment(() => {
         return { height: isInputNameFocus ? withTiming(safeArea.top) : withTiming(0), }
     })
 
+    const isSaveButtonDisabled = useMemo(() => {
+        return !hasChanges || name === ''
+    }, [hasChanges, name])
 
     return (
         <View style={{ flexGrow: 1 }} >
@@ -269,7 +272,7 @@ export const WalletSettingsFragment = fragment(() => {
             >
                 <RoundButton
                     title={t('contacts.save')}
-                    disabled={!hasChanges}
+                    disabled={isSaveButtonDisabled}
                     onPress={onSave}
                 />
             </KeyboardAvoidingView>

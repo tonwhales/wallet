@@ -52,11 +52,7 @@ export const PendingTransactionView = memo(({
     const targetFriendly = body?.type === 'token'
         ? body.target.toString({ testOnly: isTestnet })
         : tx.address?.toString({ testOnly: isTestnet });
-    const targetNonBounceable = body?.type === 'token'
-        ? body.target.toString({ testOnly: isTestnet, bounceable: false })
-        : tx.address?.toString({ testOnly: isTestnet, bounceable: false });
-    // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
-    const contact = addressBook.asContact(targetFriendly) || addressBook.asContact(targetNonBounceable);
+    const contact = addressBook.asContact(targetFriendly)
     const [settings] = useWalletSettings(targetFriendly);
     const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
     const ledgerContext = useLedgerTransport();

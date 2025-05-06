@@ -130,9 +130,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     }
 
     const friendlyTarget = target.address.toString({ testOnly: isTestnet });
-    const friendlyTargetNonBounceable = target.address.toString({ testOnly: isTestnet, bounceable: false });
-    // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
-    const contact = addressBook.asContact(friendlyTarget) || addressBook.asContact(friendlyTargetNonBounceable);
+    const contact = addressBook.asContact(friendlyTarget)
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

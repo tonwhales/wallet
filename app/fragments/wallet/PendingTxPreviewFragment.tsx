@@ -82,9 +82,6 @@ const PendingTxPreview = () => {
     const opAddress = tx.body?.type === 'token'
         ? tx.body.target.toString({ testOnly: isTestnet })
         : tx.address?.toString({ testOnly: isTestnet });
-    const opAddressNonBounceable = tx.body?.type === 'token'
-        ? tx.body.target.toString({ testOnly: isTestnet, bounceable: false })
-        : tx.address?.toString({ testOnly: isTestnet, bounceable: false });
     const opAddressBounceable = tx.body?.type === 'token'
         ? tx.body.target.toString({ testOnly: isTestnet, bounceable: tx.body.bounceable })
         : tx.address?.toString({ testOnly: isTestnet, bounceable: tx.bounceable });
@@ -98,9 +95,8 @@ const PendingTxPreview = () => {
     const { verified } = useVerifyJetton({ master: opAddress });
     const targetContract = useContractInfo(opAddress || '');
     const knownWallet = knownWallets[opAddress ?? ''];
-    // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
-    const contact = addressBook.asContact(opAddress) || addressBook.asContact(opAddressNonBounceable);
-    const isSpam = addressBook.isDenyAddress(opAddress) || addressBook.isDenyAddress(opAddressNonBounceable);
+    const contact = addressBook.asContact(opAddress)
+    const isSpam = addressBook.isDenyAddress(opAddress);
     const [targetWalletSettings] = useWalletSettings(opAddress);
     const avatarColorHash = targetWalletSettings?.color ?? avatarHash(opAddress ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

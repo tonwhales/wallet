@@ -91,7 +91,6 @@ const TransactionPreview = () => {
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
-    const parsedAddressNonBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable: false });
     const amount = BigInt(item.amount);
     const absAmount = amount < 0n ? -amount : amount;
     const isOutgoing = kind === 'out';
@@ -115,8 +114,7 @@ const TransactionPreview = () => {
     const opAddressWalletSettings = walletsSettings[parsedAddressFriendly];
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-    // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
-    const contact = addressBook.asContact(parsedAddressFriendly) || addressBook.asContact(parsedAddressNonBounceable);
+    const contact = addressBook.asContact(parsedAddressFriendly)
 
     let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);

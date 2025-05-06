@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams, HoldersAppParamsType } from '../HoldersAppFragment';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useDAppBridge, useLanguage, usePrimaryCurrency, useSupport } from '../../../engine/hooks';
+import { useBounceableWalletFormat, useDAppBridge, useLanguage, usePrimaryCurrency, useSupport } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { HoldersUserState, holdersUrl } from '../../../engine/api/holders/fetchUserState';
@@ -207,6 +207,7 @@ export const HoldersAppComponent = memo((
     const domain = useMemo(() => extractDomain(endpoint), []);
     const [lang] = useLanguage();
     const [currency] = usePrimaryCurrency();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const url = holdersUrl(isTestnet);
     const { onSupport } = useSupport({ isLedger });
 
@@ -216,6 +217,7 @@ export const HoldersAppComponent = memo((
             currency: currency,
             theme: 'holders',
             'theme-style': theme.style === 'dark' ? 'dark' : 'light',
+            bounceable: bounceableFormat.toString()
         });
 
         let route = '';
@@ -290,7 +292,7 @@ export const HoldersAppComponent = memo((
         queryParams.append('initial-route', route);
 
         return { url: urlString, initialRoute, queryParams: queryParams.toString() };
-    }, [lang, currency, status, theme, variant]);
+    }, [lang, currency, status, theme, variant, bounceableFormat]);
 
     // 
     // Track events

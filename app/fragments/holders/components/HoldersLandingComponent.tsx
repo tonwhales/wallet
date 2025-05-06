@@ -6,7 +6,7 @@ import { HoldersAppParams, HoldersAppParamsType } from "../HoldersAppFragment";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { AnimatedCards } from "./AnimatedCards";
 import { Image } from "expo-image";
-import { useHoldersEnroll, useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount, useSolanaSelectedAccount, useSupport, useTheme } from "../../../engine/hooks";
+import { useBounceableWalletFormat, useHoldersEnroll, useHoldersLedgerEnroll, useLanguage, useNetwork, usePrimaryCurrency, useSelectedAccount, useSolanaSelectedAccount, useSupport, useTheme } from "../../../engine/hooks";
 import WebView from "react-native-webview";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -41,6 +41,7 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
     const safeArea = useSafeAreaInsets();
     const [currency] = usePrimaryCurrency();
     const [lang] = useLanguage();
+    const [bounceableFormat] = useBounceableWalletFormat();
     const { onSupport } = useSupport({ isLedger });
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;
@@ -177,6 +178,7 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
             currency: currency,
             theme: 'holders',
             'theme-style': theme.style === 'dark' ? 'dark' : 'light',
+            bounceable: bounceableFormat.toString()
         });
 
         const storedReferrerParams = getSearchParams();
@@ -191,7 +193,7 @@ export const HoldersLandingComponent = memo(({ endpoint, onEnrollType, inviteId,
         queryParams.append('initial-route', 'about');
 
         return { url, initialRoute, queryParams: queryParams.toString() };
-    }, [theme, lang, currency, endpoint]);
+    }, [theme, lang, currency, endpoint, bounceableFormat]);
 
     const onContentProcessDidTerminate = useCallback(() => {
         webRef.current?.reload();

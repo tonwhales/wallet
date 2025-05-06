@@ -39,7 +39,7 @@ export type DAppWebViewProps = WebViewProps & DAppWebViewAPI & {
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
     refId?: string;
     defaultNavigationOptions?: WebViewNavigationOptions;
-    onEnroll?: () => void;
+    onEnroll?: (payload?: string) => void;
     defaultSafeArea?: { top?: number; right?: number; bottom?: number; left?: number; };
 }
 

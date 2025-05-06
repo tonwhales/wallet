@@ -76,7 +76,7 @@ export type DAppWebViewAPIProps = {
     dispatchMainButton: (action: MainButtonAction) => void;
     setLoaded: (loaded: boolean) => void;
     toaster: Toaster;
-    onEnroll?: () => void;
+    onEnroll?: (payload?: string) => void;
     dispatchNavigationOptions: (action: NavigationOptionsAction) => void;
     updateLocalStorageStatus: (status: Partial<Omit<LocalStorageStatus, "lastChecked">>) => void,
     authContext: AuthWalletKeysType
@@ -259,7 +259,7 @@ export function processWebViewMessage(
                 navigation.goBack();
                 return true;
             case DAppWebViewAPIMethod.openEnrollment:
-                onEnroll?.();
+                onEnroll?.(args.payload);
                 return true;
             case DAppWebViewAPIMethod.showKeyboardAccessoryView:
                 dispatchNavigationOptions({ type: SetNavigationOptionsAction.setShowKeyboardAccessoryView, showKAV: args.show });

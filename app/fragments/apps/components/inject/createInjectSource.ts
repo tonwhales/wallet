@@ -302,8 +302,8 @@ window['dapp-client'] = (() => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'openUrl', args: { url } } }));
     }   
 
-    const openEnrollment = () => {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'openEnrollment' } }));
+    const openEnrollment = (payload) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'openEnrollment', args: { payload } } }));
     }
     
     const showKeyboardAccessoryView = (show) => {

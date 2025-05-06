@@ -9,10 +9,9 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { formatCurrency, formatInputAmount } from "../../utils/formatCurrency";
 import { ValueComponent } from "../../components/ValueComponent";
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePrice, useSelectedAccount, useTheme, useUSDeAssetsShares, useUSDeStakingApy } from "../../engine/hooks";
+import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, usePrice, useSelectedAccount, useTheme, useUSDeStakingApy } from "../../engine/hooks";
 import { Address, fromNano, toNano } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
 import { StatusBar } from "expo-status-bar";
 import { useValidAmount } from "../../utils/useValidAmount";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
@@ -20,9 +19,10 @@ import { Typography } from "../../components/styles";
 import { PriceComponent } from "../../components/PriceComponent";
 
 const CalcComponent = memo(({ amount }: { amount: bigint }) => {
-    const usdeApy = useUSDeStakingApy()?.apy ?? 0;
+    const usdeApy = (useUSDeStakingApy()?.apy ?? 1) / 100;
     const theme = useTheme();
     const amountNum = Number(fromNano(amount));
+    console.log('amountNum', amountNum, usdeApy);
     const yearly = amountNum * usdeApy;
     const monthly = amountNum * (Math.pow((1 + usdeApy / 366), 30)) - amountNum;
     const daily = amountNum * (1 + usdeApy / 366) - amountNum;
@@ -170,7 +170,7 @@ export const LiquidUSDeStakingCalculatorFragment = fragment(() => {
         const isNeg = validAmount < 0n;
 
         return formatCurrency(
-            (parseFloat(fromNano(validAmount)) * (price ? price?.price.usd * price.price.rates[currency] : 0)).toFixed(2),
+            (parseFloat(fromNano(validAmount)) * (price ? price.price.rates[currency] : 0)).toFixed(2),
             currency,
             isNeg
         );
@@ -217,6 +217,7 @@ export const LiquidUSDeStakingCalculatorFragment = fragment(() => {
                                     precision={4}
                                     value={inUsde}
                                     centFontStyle={{ opacity: 0.5 }}
+                                    decimals={6}
                                 />
                             </Text>
                         </View>

@@ -8,6 +8,7 @@ const appConfigCodec = z.object({
     txTimeout: z.number(),
     features: z.record(z.boolean()).optional(),
     browserAlerTexts: browserAlertTextsSchema.nullish(),
+    resources: z.record(z.string()).optional(),
 });
 
 export type AppConfig = z.infer<typeof appConfigCodec>;

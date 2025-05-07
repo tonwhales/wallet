@@ -10,6 +10,7 @@ import { Typography } from "../styles";
 import { t } from "../../i18n/t";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { useAppConfig } from "../../engine/hooks/useAppConfig";
 
 const bannerId = 'ethena-points-banner';
 
@@ -25,13 +26,20 @@ export const EthenaPointsBanner = memo(() => {
     const addressString = address?.toString({ testOnly: isTestnet });
     const dimentions = useWindowDimensions();
     const theme = useTheme();
+    const { resources } = useAppConfig();
 
-    const isHidden = hiddenBanners.includes(`${bannerId}-${addressString}`);
+    const appUrl = resources?.['ethena'];
 
+    if (!appUrl) {
+        return null;
+    }
+    
     const onPress = () => {
-        Linking.openURL('https://t.me/id_app/start?startapp=6bDa6xupJKTs38B8vSMyGSM5AUFkKPxZWEeAiMSk')
+        Linking.openURL(appUrl);
     }
 
+    const isHidden = hiddenBanners.includes(`${bannerId}-${addressString}`);
+    
     if (isHidden) {
         return null;
     }

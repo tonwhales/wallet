@@ -72,6 +72,7 @@ export enum OperationType {
     WhalesStakingWithdraw = crc32str('op::stake_withdraw'),
     WhalesStakingWithdrawDelayed = crc32str('op::stake_withdraw::delayed'),
     WhalesStakingWithdrawResponse = crc32str('op::stake_withdraw::response'),
+    LiquidUSDeStakingWithdraw = 0xd750cec9,
 }
 
 export function parseMessageBody(payload: Cell): SupportedMessage | null {

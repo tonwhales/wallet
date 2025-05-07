@@ -35,8 +35,8 @@ import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/S
 import { SolanaTransferParams } from '../fragments/secure/transfer/SolanaTransferFragment';
 import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenWalletFragment';
 import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
-import { PendingSolanaTransaction } from '../engine/state/pending';
 import { PendingSolanaTransactionPreviewParams } from '../fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
+import { LiquidUSDeStakingTransferParams } from '../fragments/staking/LiquidUSDeStakingTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -179,8 +179,30 @@ export class TypedNavigation {
         this.navigate('LedgerSignTransfer', params);
     }
 
-    navigateStakingCalculator(params: { target: string }) {
-        this.navigate('StakingCalculator', params);
+    navigateStakingCalculator(params: { target: string }, isLedger?: boolean) {
+        this.navigate(isLedger ? 'LedgerStakingCalculator' : 'StakingCalculator', params);
+    }
+
+    navigateLiquidUSDeStakingCalculator(isLedger?: boolean) {
+        this.navigate(isLedger ? 'LedgerLiquidUSDeStakingCalculator' : 'LiquidUSDeStakingCalculator');
+    }
+
+    navigateLiquidUSDeStakingTransfer(params: LiquidUSDeStakingTransferParams, options?: { ledger?: boolean, replace?: boolean }) {
+        const action = options?.replace ? this.replace : this.navigate;
+        if (options?.ledger) {
+            action('LedgerLiquidUSDeStakingTransfer', params);
+            return;
+        }
+        action('LiquidUSDeStakingTransfer', params);
+    }
+
+    navigateLiquidUSDeStakingUnstake(isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerLiquidUSDeStakingTransfer', { action: 'unstake' });
+            return;
+        }
+
+        this.navigate('LiquidUSDeStakingUnstake')
     }
 
     navigateLedgerApp() {
@@ -373,7 +395,7 @@ export class TypedNavigation {
     }
 
     navigatePendingSolanaTransaction(params: PendingSolanaTransactionPreviewParams) {
-        this.navigate('PendingSolanaTransaction', params);
+        this.navigate('SolanaPendingTransaction', params);
     }
 }
 

@@ -1,8 +1,8 @@
-import React, { memo, ReactNode, useCallback, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useStakingActive, useTheme } from "../../engine/hooks";
+import { useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useStakingActive, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -13,13 +13,15 @@ import { Address } from "@ton/core";
 import { LiquidStakingPool } from "../staking/LiquidStakingPool";
 import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
 import { StakingProductBanner } from "./StakingProductBanner";
+import { LiquidUSDeStakingPool } from "../staking/LiquidUSDeStakingPool";
 
 import StakingIcon from '@assets/ic-staking.svg';
 
 type ProductItem =
     { type: 'active', address: Address, balance: bigint }
     | { type: 'liquid' }
-    | { type: 'banner' };
+    | { type: 'banner' }
+    | { type: 'liquid-usde' };
 
 const style: StyleProp<ViewStyle> = {
     height: 86,
@@ -77,6 +79,8 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
         });
     }, [active]);
     const liquidBalance = useLiquidStakingBalance(address);
+    const liquidUsdeBalance = useLiquidUSDeStakingMember(address)?.balance || 0n;
+    const liquidUsdeRate = useLiquidUSDeStakingRate();
 
     const totalBalance = useMemo(() => {
         return liquidBalance + activeArray.reduce((acc, item) => {
@@ -97,7 +101,17 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                     hideCycle
                     hideHeader
                     iconBackgroundColor={theme.backgroundPrimary}
-                    isLedger={isLedger}
+                />
+            )
+        }
+
+        if (p.type === 'liquid-usde') {
+            return (
+                <LiquidUSDeStakingPool
+                    member={address}
+                    hideHeader
+                    iconBackgroundColor={theme.backgroundPrimary}
+                    style={[{ height: 86, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
                 />
             )
         }
@@ -130,10 +144,13 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
     }
 
     const items: ProductItem[] = activeArray;
-    let action: ReactNode | undefined = undefined;
 
     if (liquidBalance > 0n) {
         items.push({ type: 'liquid' });
+    }
+
+    if (liquidUsdeBalance > 0n) {
+        items.push({ type: 'liquid-usde' });
     }
 
     if (items.length === 0) {

@@ -1,5 +1,6 @@
 import { Address } from "@ton/core";
 import { ImageRequireSource } from "react-native";
+import { gettsUSDeMinter } from "../secure/KnownWallets";
 
 export type StakingPool = { name: string, restricted?: boolean, requireSource?: ImageRequireSource, webLink: StakingPoolLink };
 
@@ -9,7 +10,8 @@ export enum StakingPoolLink {
     Nominators = 'https://tonwhales.com/staking/pool/nominators',
     Epn = 'https://tonwhales.com/staking/pool/epn',
     Tonkeeper = 'https://tonwhales.com/staking/pool/tonkeeper',
-    Liquid = 'https://tonwhales.com/staking/liquid'
+    Liquid = 'https://tonwhales.com/staking/liquid',
+    Usde = 'https://ethena.fi'
 }
 
 export function getLiquidStakingAddress(isTestnet: boolean) {
@@ -33,6 +35,11 @@ const knownPoolsTestnet = {
         name: 'Whales Liquid',
         requireSource: require('@assets/known/ic_wls.png'),
         webLink: StakingPoolLink.Liquid
+    },
+    [gettsUSDeMinter(true).toString({ testOnly: true })]: {
+        name: 'USDe Liquid',
+        requireSource: require('@assets/known/ic_usde.png'),
+        webLink: StakingPoolLink.Usde
     },
 }
 
@@ -95,6 +102,11 @@ const knownPoolsMainnet = {
         name: 'Whales Liquid',
         requireSource: require('@assets/known/ic_wls.png'),
         webLink: StakingPoolLink.Liquid
+    },
+    [gettsUSDeMinter(false).toString()]: {
+        name: 'USDe Liquid',
+        requireSource: require('@assets/known/ic_usde.png'),
+        webLink: StakingPoolLink.Usde
     },
 }
 

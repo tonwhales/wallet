@@ -11,3 +11,8 @@ export { useLiquidStakingMember } from './useLiquidStakingMember';
 export { usePoolApy } from './usePoolApy';
 export { useStakingStatus } from './useStakingStatus';
 export { useLiquidStakingBalance } from './useLiquidStakingBalance';
+export { useLiquidUSDeStakingMember } from './useLiquidUSDeStakingMember';
+export { useUSDeStakingApy } from './useUSDeStakingApy';
+export { useLiquidUSDeStakingRate } from './useLiquidUSDeStakingRate';
+export { useUSDeAssetsShares } from './useUSDeAssetsShares';
+export { useRefreshLiquidUSDeStaking } from './useRefreshLiquidUSDeStaking';

@@ -413,7 +413,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "TON Staking",
             "balance": "Staking-Guthaben",
             "subtitle": {
-                "join": "Verdiene bis zu {{apy}}% auf deine TONs",
+                "join": "Verdiene bis zu {{apy}}% mit TONs oder USDe",
                 "joined": "Verdiene bis zu {{apy}}%",
                 "rewards": "Geschätzte Verzinsung",
                 "apy": "~13,3 % APY auf den Einsatz",
@@ -451,7 +451,11 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "tonkeeperDescription": "Benutzerfreundliche mobile Wallet auf TON",
                 "liquid": "Liquid Staking",
                 "liquidDescription": "Sende TON zum Staking und erhalte stattdessen wsTON-Token",
-                "rateTitle": "Wechselkurs"
+                "rateTitle": "Wechselkurs",
+                "liquidUsde": "Liquid USDe Staking",
+                "liquidUsdeDescription": "Sende USDe zum Staking und erhalte stattdessen tsUSDe-Token",
+                "ethenaPoints": "Mehr Belohnungen erhalten",
+                "ethenaPointsDescription": "Verifiziere deine Identität, um deine Staking-Belohnungen zu erhöhen",
             },
             "transfer": {
                 "stakingWarning": "Du kannst jederzeit neues Stake-Guthaben einzahlen oder bestehendes erhöhen. Bitte beachte, dass der Mindestbetrag {{minAmount}} ist.",
@@ -524,6 +528,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "unstakeLiquid": {
                 "title": "Ziehe deine wsTON ab",
                 "message": "Du kannst die Mittel direkt nach Ende des Zyklus abheben oder wsTON sofort gegen TON tauschen auf "
+            },
+            "unstakeLiquidUsde": {
+                "title": "Ziehe deine tsUSDe ab",
+                "message": "Du kannst die Mittel direkt nach Ende des Zeit-Lock-Zeitraums (7 Tage nach erster Auszahlungsanfrage) abheben oder tsUSDe sofort gegen USDe tauschen auf "
             },
             "learnMore": "Info",
             "moreInfo": "Mehr Info",

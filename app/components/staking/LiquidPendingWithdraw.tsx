@@ -1,24 +1,47 @@
 import { memo, useEffect, useState } from "react"
 import { View, Text } from "react-native"
-import { ThemeType } from "../../engine/state/theme"
 import { Countdown } from "../Countdown";
 import { Typography } from "../styles";
-import { fromNano } from "@ton/core";
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
 import { ItemDivider } from "../ItemDivider";
+import { useTheme } from "../../engine/hooks";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 
-export const LiquidPendingWithdraw = memo(({ theme, pendingUntil, amount, last }: { theme: ThemeType, pendingUntil: number, amount: bigint, last?: boolean }) => {
-    const [left, setLeft] = useState(Math.floor(Date.now() / 1000));
+export const LiquidPendingWithdraw = memo(({
+    pendingUntil,
+    amount,
+    last,
+    symbol,
+    decimals = 9,
+    priceUSD,
+    onTimeOut
+}: {
+    pendingUntil: number,
+    amount: bigint,
+    last?: boolean,
+    symbol?: string,
+    decimals?: number,
+    priceUSD?: number,
+    onTimeOut?: () => void
+}) => {
+    const theme = useTheme();
+    const [left, setLeft] = useState(pendingUntil - Math.floor(Date.now() / 1000));
 
     useEffect(() => {
         const timerId = setInterval(() => {
-            setLeft(Math.floor(Date.now() / 1000));
+            setLeft(pendingUntil - Math.floor(Date.now() / 1000));
         }, 1000);
         return () => {
             clearInterval(timerId);
         };
-    }, []);
+    }, [pendingUntil]);
+
+    useEffect(() => {
+        if (left <= 0) {
+            onTimeOut?.();
+        }
+    }, [left]);
 
     return (
         <>
@@ -33,16 +56,16 @@ export const LiquidPendingWithdraw = memo(({ theme, pendingUntil, amount, last }
                     <Text style={[{ color: theme.textSecondary, marginTop: 2 }, Typography.regular15_20]}>
                         <Countdown
                             hidePrefix
-                            left={pendingUntil - left}
-                            textStyle={[{ flex: 1, flexShrink: 1 }, Typography.regular13_18]}
+                            left={left}
+                            textStyle={[{ flex: 1, flexShrink: 1 }, Typography.regular15_20]}
                         />
                     </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                        {parseFloat(parseFloat(fromNano(amount)).toFixed(3))}
+                        {parseFloat(parseFloat(fromBnWithDecimals(amount, decimals)).toFixed(3))}
                         <Text style={{ color: theme.textSecondary }}>
-                            {' TON'}
+                            {symbol || ' TON'}
                         </Text>
                     </Text>
                     <PriceComponent
@@ -55,6 +78,7 @@ export const LiquidPendingWithdraw = memo(({ theme, pendingUntil, amount, last }
                         }}
                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                         theme={theme}
+                        priceUSD={priceUSD}
                     />
                 </View>
             </View>

@@ -4,6 +4,7 @@ import { Queries } from '../queries';
 import { getQueryData } from '../utils/getQueryData';
 import { HoldersAccountStatus } from '../hooks/holders/useHoldersAccountStatus';
 import { HoldersUserState } from '../api/holders/fetchUserState';
+import { gettsUSDeMinter } from '../../secure/KnownWallets';
 
 export async function onAccountsTouched(accounts: Set<string>) {
     const cache = queryClient.getQueryCache();
@@ -42,6 +43,11 @@ export async function onAccountsTouched(accounts: Set<string>) {
                     }
                 }
             }
+
+            if (queryKey[0] === 'staking' && queryKey[1] === 'member' && queryKey[2] === 'liquid' && queryKey[3] === 'usde') {
+                return accounts.has(queryKey[4]) || accounts.has(queryKey[5]);
+            }
+
             return false;
         },
     })
@@ -49,7 +55,8 @@ export async function onAccountsTouched(accounts: Set<string>) {
 
 export async function onAccountTouched(account: string, isTestnet: boolean) {
     // If account touched - transactions and state changed
-    let address = Address.parse(account).toString({ testOnly: isTestnet });
+    const address = Address.parse(account).toString({ testOnly: isTestnet });
+    const tsUSDeMinter = gettsUSDeMinter(isTestnet);
 
     const cache = queryClient.getQueryCache();
     const holdersStatusKey = Queries.Holders(address).Status();
@@ -63,6 +70,7 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
     queryClient.invalidateQueries(Queries.Account(address).All());
     queryClient.invalidateQueries(Queries.HintsFull(address));
     queryClient.invalidateQueries(Queries.HintsExtra(address));
+    queryClient.invalidateQueries(Queries.StakingLiquidUSDeMember(tsUSDeMinter.toString({ testOnly: isTestnet }), address));
     queryClient.invalidateQueries({
         queryKey: Queries.TransactionsV2(address, !!token),
         refetchPage: (last, index, allPages) => index == 0,

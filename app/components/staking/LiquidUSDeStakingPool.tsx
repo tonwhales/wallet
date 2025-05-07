@@ -1,150 +1,89 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
+import { KnownPools } from "../../utils/KnownPools";
 import { t } from "../../i18n/t";
 import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../WImage";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
-import { Countdown } from "../Countdown";
-import { Address, fromNano, toNano } from "@ton/core";
-import { useIsLedgerRoute, useLiquidStakingMember, useNetwork, useStakingApy, useTheme } from "../../engine/hooks";
-import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
+import { Address, toNano } from "@ton/core";
+import { useIsLedgerRoute, useLiquidUSDeStakingMember, useNetwork, useTheme, useUSDeStakingApy } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { ItemHeader } from "../ItemHeader";
+import { gettsUSDeMinter } from "../../secure/KnownWallets";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 
 import StakingIcon from '@assets/ic_staking.svg';
 
-export const LiquidStakingPoolTimer = memo(({ moveDown, stakeUntil }: { moveDown?: boolean, stakeUntil: number }) => {
-    const theme = useTheme();
-
-    const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
-
-    useEffect(() => {
-        const timerId = setInterval(() => {
-            setLeft(Math.floor((stakeUntil) - (Date.now() / 1000)));
-        }, 1000);
-        return () => {
-            clearInterval(timerId);
-        };
-    }, [stakeUntil]);
-
-    return (
-        <View style={[
-            {
-                flexShrink: 1,
-                alignItems: 'center',
-                alignSelf: 'flex-end',
-                borderRadius: 16,
-                overflow: 'hidden',
-                backgroundColor: theme.border,
-                maxWidth: 128, justifyContent: 'center',
-            },
-            moveDown ? { position: 'relative', top: -10, right: -6 } : { position: 'relative', top: 10, right: -6 }
-        ]}>
-            <Text style={[
-                { paddingHorizontal: 8, paddingVertical: 1, color: theme.textPrimary, flexShrink: 1 },
-                Typography.regular13_18
-            ]}>
-                <Countdown
-                    hidePrefix
-                    left={left}
-                    textStyle={[{ color: theme.textPrimary, flex: 1, flexShrink: 1 }, Typography.regular13_18]}
-                />
-            </Text>
-        </View>
-    );
-});
-
-export const LiquidStakingPool = memo((
+export const LiquidUSDeStakingPool = memo((
     props: {
         member: Address,
         restricted?: boolean,
-        style?: StyleProp<ViewStyle>,
-        hideCycle?: boolean,
-        hideHeader?: boolean
+        style?: StyleProp<ViewStyle>
+        hideHeader?: boolean,
         iconBackgroundColor?: string
     }
 ) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const isLedger = useIsLedgerRoute();
     const navigation = useTypedNavigation();
-    const liquidAddress = getLiquidStakingAddress(isTestnet);
-    const poolAddressString = liquidAddress.toString({ testOnly: isTestnet });
-    const nominator = useLiquidStakingMember(props.member)?.data;
-    const liquidStaking = useLiquidStaking().data;
-    const apy = useStakingApy()?.apy;
+    const minterAddress = gettsUSDeMinter(isTestnet);
+    const poolAddressString = minterAddress.toString({ testOnly: isTestnet });
+    const nominator = useLiquidUSDeStakingMember(props.member);
+    const usdeApy = useUSDeStakingApy()?.apy;
+    const isLedger = useIsLedgerRoute();
 
     const balance = useMemo(() => {
-        const bal = fromNano(nominator?.balance || 0n);
-        const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
-        return toNano((parseFloat(bal) * parseFloat(rate)).toFixed(9));
-    }, [nominator, liquidStaking]);
+        const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
+        return toNano(bal);
+    }, [nominator]);
 
-    const stakeUntil = Math.min(liquidStaking?.extras.proxyZeroStakeUntil ?? 0, liquidStaking?.extras.proxyOneStakeUntil ?? 0);
-    const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
     const apyWithFee = useMemo(() => {
-        if (!!apy && !!poolFee) {
-            return `${t('common.apy')} ≈ ${(apy - apy * (poolFee / 100)).toFixed(2)}%`;
+        if (!!usdeApy) {
+            return `${t('common.apy')} ≈ ${usdeApy.toFixed(2)}%`;
         }
-    }, [apy, poolFee]);
+    }, [usdeApy]);
     const knownPools = KnownPools(isTestnet);
     const requireSource = knownPools[poolAddressString]?.requireSource;
     const name = knownPools[poolAddressString]?.name;
-    const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);
+    const sub = poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);
+
+    const navigate = () => {
+        navigation.navigate(isLedger ? 'LedgerLiquidUSDeStaking' : 'LiquidUSDeStaking');
+    };
 
     return (
         <View style={[{ borderRadius: 20 }, props.style]}>
             {!props.hideHeader && (
                 <View style={{
                     paddingHorizontal: 20,
-                    paddingTop: 16,
-                    paddingBottom: 16
+                    paddingVertical: 16,
                 }}>
                     <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <ItemHeader
-                            title={t('products.staking.pools.liquid')}
+                            title={t('products.staking.pools.liquidUsde')}
                             style={{ flexShrink: 1 }}
                             textStyle={{ flexGrow: 0 }}
                         />
-                        <View style={{
-                            backgroundColor: theme.accentBlue,
-                            paddingHorizontal: 8, borderRadius: 30,
-                            paddingTop: 1, paddingBottom: 3
-                        }}>
-                            <Text style={[{ color: theme.textUnchangeable }, Typography.medium13_18]}>
-                                {'Beta'}
-                            </Text>
-                        </View>
                     </View>
                     <Text style={{
                         fontSize: 14, color: theme.textSecondary,
                         marginTop: 2
                     }}>
-                        {t('products.staking.pools.liquidDescription')}
+                        {t('products.staking.pools.liquidUsdeDescription')}
                     </Text>
                 </View>
             )}
             <Pressable
-                onPress={() => {
-                    navigation.navigate(isLedger ? 'LedgerLiquidStaking' : 'LiquidStaking')
-                }}
+                onPress={navigate}
                 style={({ pressed }) => [{
                     opacity: pressed ? 0.5 : 1,
                     backgroundColor: theme.backgroundPrimary,
                     padding: 16,
-                    paddingTop: balance > 0n ? 20 : 0,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20,
                 }, props.style]}
             >
-                {!props.hideCycle && (
-                    <LiquidStakingPoolTimer
-                        stakeUntil={stakeUntil}
-                        moveDown={balance > 0n}
-                    />
-                )}
                 <View style={{
                     alignSelf: 'stretch',
                     flexDirection: 'row',
@@ -202,12 +141,12 @@ export const LiquidStakingPool = memo((
                             <View>
                                 <Text style={[{ color: theme.textPrimary, alignSelf: 'flex-end' }, Typography.semiBold17_24]}>
                                     <ValueComponent
-                                        precision={3}
+                                        precision={2}
                                         value={balance}
                                         centFontStyle={{ opacity: 0.5 }}
                                     />
                                     <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {' TON'}
+                                        {' tsUSDe'}
                                     </Text>
                                 </Text>
                                 <PriceComponent
@@ -230,4 +169,4 @@ export const LiquidStakingPool = memo((
     );
 });
 
-LiquidStakingPool.displayName = 'LiquidStakingPool';
+LiquidUSDeStakingPool.displayName = 'LiquidUSDeStakingPool';

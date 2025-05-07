@@ -413,7 +413,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "TON Staking",
             "balance": "Saldo de Staking",
             "subtitle": {
-                "join": "Ganhe até {{apy}}% em seus TONs",
+                "join": "Ganhe até {{apy}}% com TONs ou USDe",
                 "joined": "Ganhe até {{apy}}%",
                 "rewards": "Juros Estimados",
                 "apy": "~13.3 APY da contribuição",
@@ -451,7 +451,11 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "tonkeeperDescription": "Carteira móvel amigável no TON",
                 "liquid": "Staking Líquido",
                 "liquidDescription": "Envie TON para staking e receba tokens wsTON em troca",
-                "rateTitle": "Taxa de câmbio"
+                "rateTitle": "Taxa de câmbio",
+                "liquidUsde": "Staking USDe Líquido",
+                "liquidUsdeDescription": "Envie USDe para staking e receba tokens tsUSDe em troca",
+                "ethenaPoints": "Obtenha mais recompensas",
+                "ethenaPointsDescription": "Complete a verificação para aumentar suas recompensas de staking",
             },
             "transfer": {
                 "stakingWarning": "Você pode sempre depositar novo stake ou aumentar o existente com qualquer quantia. Note que o valor mínimo é: {{minAmount}}",
@@ -524,6 +528,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "unstakeLiquid": {
                 "title": "Saque seu wsTON",
                 "message": "Você pode sacar fundos diretamente após o fim do ciclo ou trocar instantaneamente wsTON por TON em "
+            },
+            "unstakeLiquidUsde": {
+                "title": "Saque seu tsUSDe",
+                "message": "Você pode sacar fundos diretamente após o fim do período de lockup (7 dias após a primeira solicitação de saque) ou trocar instantaneamente tsUSDe por USDe em "
             },
             "learnMore": "Informações",
             "moreInfo": "Mais informações",

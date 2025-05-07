@@ -413,7 +413,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "TON Staking",
             "balance": "Saldo de staking",
             "subtitle": {
-                "join": "Gana hasta {{apy}}% en tus TONs",
+                "join": "Gana hasta {{apy}}% con TONs o USDe",
                 "joined": "Gana hasta {{apy}}%",
                 "rewards": "Interés estimado",
                 "apy": "~13.3 APY de la contribución",
@@ -451,7 +451,11 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "tonkeeperDescription": "Billetera móvil amigable en TON",
                 "liquid": "Staking líquido",
                 "liquidDescription": "Envía TON a staking y obtén tokens wsTON en su lugar",
-                "rateTitle": "Tasa de cambio"
+                "rateTitle": "Tasa de cambio",
+                "liquidUsde": "Staking USDe Líquido",
+                "liquidUsdeDescription": "Envía USDe a staking y obtén tokens tsUSDe en su lugar",
+                "ethenaPoints": "Obtén más recompensas",
+                "ethenaPointsDescription": "Completa la verificación para aumentar tus recompensas de staking",
             },
             "transfer": {
                 "stakingWarning": "Siempre puedes depositar una nueva participación o aumentar una existente con cualquier cantidad. Ten en cuenta que la cantidad mínima es: {{minAmount}}",
@@ -524,6 +528,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "unstakeLiquid": {
                 "title": "Retira tus wsTON",
                 "message": "Puedes retirar fondos directamente después de que finalice el ciclo o intercambiar instantáneamente wsTON por TON en "
+            },
+            "unstakeLiquidUsde": {
+                "title": "Retira tus tsUSDe",
+                "message": "Puedes retirar fondos directamente después de que finalice el período de bloqueo (7 días después de la primera solicitud de retiro) o intercambiar instantáneamente tsUSDe por USDe en "
             },
             "learnMore": "Info",
             "moreInfo": "Más info",

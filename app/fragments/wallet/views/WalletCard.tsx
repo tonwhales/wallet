@@ -17,7 +17,7 @@ import { t } from "../../../i18n/t";
 
 export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, isLedger }: { address: Address, pubKey: Buffer, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
     const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
-    const { specialToTon } = useSavingsBalance(address);
+    const { specialToTon, savingsToTon } = useSavingsBalance(address);
     const { solAssetsToTon: solanaTotalBalance } = useSolanaSavingsBalance(solanaAddress);
     const account = useAccountLite(address);
     const theme = useTheme();
@@ -38,13 +38,13 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
     const walletBalance = useMemo(() => {
         const accountWithStaking = (account?.balance ?? 0n) + (stakingBalance || 0n);
 
-        let balance = accountWithStaking + specialToTon;
+        let balance = accountWithStaking + savingsToTon + specialToTon;
         if (!isLedger) {
             balance += solanaTotalBalance;
         }
 
         return balance;
-    }, [account, stakingBalance, isLedger, solanaTotalBalance, specialToTon]);
+    }, [account, stakingBalance, isLedger, solanaTotalBalance, savingsToTon, specialToTon]);
 
     const cardsBalance = useMemo(() => {
         const cardsBalance = reduceHoldersBalances(holdersCards ?? [], price?.price?.usd ?? 1);

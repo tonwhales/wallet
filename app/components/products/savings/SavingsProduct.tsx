@@ -43,6 +43,7 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
     const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
     const tokens = useSolanaTokens(solanaAddress, isLedger);
     const { solAssets: solanaSavingsBalance } = useSolanaSavingsBalance(solanaAddress);
+    
     const totalBalance = tonTotalBalance + solanaSavingsBalance;
 
     const selectParams = {

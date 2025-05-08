@@ -16,6 +16,7 @@ import { StakingProductBanner } from "./StakingProductBanner";
 import { LiquidUSDeStakingPool } from "../staking/LiquidUSDeStakingPool";
 
 import StakingIcon from '@assets/ic-staking.svg';
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 type ProductItem =
     { type: 'active', address: Address, balance: bigint }
@@ -24,7 +25,7 @@ type ProductItem =
     | { type: 'liquid-usde' };
 
 const style: StyleProp<ViewStyle> = {
-    height: 86,
+    height: ASSET_ITEM_HEIGHT,
     borderRadius: 20,
     padding: 20
 }
@@ -111,7 +112,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                     member={address}
                     hideHeader
                     iconBackgroundColor={theme.backgroundPrimary}
-                    style={[{ height: 86, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
+                    style={[{ height: ASSET_ITEM_HEIGHT, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
                 />
             )
         }
@@ -232,7 +233,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 theme={theme}
                 renderFace={renderFace}
                 action={items.length ? <AddStakeButton /> : undefined}
-                itemHeight={86}
+                itemHeight={ASSET_ITEM_HEIGHT}
             />
         </View>
     );

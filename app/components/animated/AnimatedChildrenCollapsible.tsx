@@ -8,6 +8,7 @@ import { CollapsibleCardsLimitConfig } from "./CollapsibleCards";
 import { t } from "../../i18n/t";
 import { Typography } from "../styles";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 type Item<T> = T & { height?: number };
 
@@ -28,7 +29,7 @@ const AnimatedChildrenCollapsibleComponent = <T,>({
     collapsed,
     items,
     renderItem,
-    itemHeight = 86,
+    itemHeight = ASSET_ITEM_HEIGHT,
     showDivider = true,
     dividerStyle,
     divider,

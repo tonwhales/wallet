@@ -19,6 +19,7 @@ import { SolanaWalletProduct } from "./SolanaWalletProduct";
 import { solanaAddressFromPublicKey } from "../../../utils/solana/address";
 import { SolanaTokenProduct } from "./SolanaTokenProduct";
 import { SolanaToken } from "../../../engine/api/solana/fetchSolanaTokens";
+import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
 
 enum AssetType {
     Jetton = 'jetton',
@@ -193,7 +194,7 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
                 items={items}
                 renderItem={renderItem}
                 renderFace={renderFace}
-                itemHeight={86}
+                itemHeight={ASSET_ITEM_HEIGHT}
                 theme={theme}
                 limitConfig={{
                     maxItems: 10,

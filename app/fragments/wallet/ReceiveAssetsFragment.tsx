@@ -26,6 +26,7 @@ import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { SolanaWalletProduct } from "../../components/products/savings/SolanaWalletProduct";
 import { SolanaTokenProduct } from "../../components/products/savings/SolanaTokenProduct";
 import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 enum AssetType {
     TON = 'ton',
@@ -48,7 +49,7 @@ const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
     const theme = useTheme();
 
     return (
-        <View style={{ height: 86 }}>
+        <View style={{ height: ASSET_ITEM_HEIGHT }}>
             <Pressable
                 style={{
                     backgroundColor: theme.surfaceOnElevation,

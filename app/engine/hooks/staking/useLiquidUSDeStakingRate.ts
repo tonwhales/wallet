@@ -6,23 +6,27 @@ import { whalesConnectEndpoint } from "../../clients";
 import axios from "axios";
 
 const usdeRateScheme = z.object({
-    usdeRate: z.string(),
+    usdeRate: z.number(),
 }).nullish();
 
 export type LiquidUSDeStakingRate = z.infer<typeof usdeRateScheme>;
 
 function fetchUSDeRateQueryFn(isTestnet: boolean) {
     return async () => {
-        const url = `${whalesConnectEndpoint}/usde/${isTestnet ? 'testnet' : 'mainnet'}/rate`;
-        const res = await axios.get(url);
+        try {
+            const url = `${whalesConnectEndpoint}/usde/${isTestnet ? 'testnet' : 'mainnet'}/rate`;
+            const res = await axios.get(url);
 
-        const parsed = usdeRateScheme.safeParse(res.data);
+            const parsed = usdeRateScheme.safeParse(res.data);
 
-        if (!parsed.success) {
-            throw new Error('Invalid fetchLiquidUSDeStakingRateQueryFn response');
+            if (!parsed.success) {
+                throw new Error('Invalid fetchLiquidUSDeStakingRateQueryFn response');
+            }
+
+            return parsed.data;
+        } catch {
+            return null;
         }
-
-        return parsed.data;
     };
 }
 
@@ -33,8 +37,9 @@ export function useLiquidUSDeStakingRate() {
         queryFn: fetchUSDeRateQueryFn(isTestnet),
         refetchOnMount: true,
         queryKey: Queries.USDeRate(isTestnet),
-        staleTime: 1000 * 30
+        staleTime: 1000 * 30,
+        refetchInterval: 10000,
     });
 
-    return BigInt(query.data?.usdeRate || 0);
+    return query.data?.usdeRate || 0;
 }

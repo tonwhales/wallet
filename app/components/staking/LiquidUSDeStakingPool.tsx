@@ -6,7 +6,7 @@ import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../WImage";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
-import { Address, toNano } from "@ton/core";
+import { Address, fromNano, toNano } from "@ton/core";
 import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, useTheme, useUSDeStakingApy } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { ItemHeader } from "../ItemHeader";
@@ -39,7 +39,10 @@ export const LiquidUSDeStakingPool = memo((
         return toNano(bal);
     }, [nominator]);
 
-    const inUsde = balance * rate;
+    const inUsde = useMemo(() => {
+        const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
+        return toNano((Number(bal) * rate).toFixed(6));
+    }, [balance, rate]);
 
     const apyWithFee = useMemo(() => {
         if (!!usdeApy) {

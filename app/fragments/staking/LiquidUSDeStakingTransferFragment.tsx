@@ -149,16 +149,15 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
         const isNeg = validAmount < 0n;
         let abs = isNeg ? -validAmount : validAmount;
         const absNumber = Number(fromBnWithDecimals(abs.toString(), 6));
-        const rateNumber = Number(fromBnWithDecimals(toBnWithDecimals(rate.toString(), 6), 6));
         const computed = action === 'deposit'
-            ? absNumber * rateNumber
-            : absNumber / rateNumber;
+            ? absNumber * rate
+            : absNumber / rate;
         return formatCurrency(
             computed.toFixed(2),
             currency,
             isNeg
         );
-    }, [validAmount, action]);
+    }, [validAmount, action, rate]);
 
     const doContinue = useCallback(async () => {
         if (!memberAddress) {

@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useStakingActive, useTheme } from "../../engine/hooks";
+import { useLiquidUSDeStakingMember, useStakingActive, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -80,7 +80,6 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
     }, [active]);
     const liquidBalance = useLiquidStakingBalance(address);
     const liquidUsdeBalance = useLiquidUSDeStakingMember(address)?.balance || 0n;
-    const liquidUsdeRate = useLiquidUSDeStakingRate();
 
     const totalBalance = useMemo(() => {
         return liquidBalance + activeArray.reduce((acc, item) => {

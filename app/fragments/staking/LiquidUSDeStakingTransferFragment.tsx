@@ -308,6 +308,25 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
 
+    const amountError = useMemo(() => {
+        if (validAmount === 0n) {
+            return t('transfer.error.zeroCoins');
+        }
+        if (!validAmount) {
+            return undefined;
+        }
+
+        const isDeposit = action === 'deposit';
+
+        if (isDeposit && validAmount > balance) {
+            return t('transfer.error.notEnoughJettons', { symbol: 'USDe' });
+        }
+        if (!isDeposit && validAmount > balance) {
+            return t('transfer.error.notEnoughJettons', { symbol: 'tsUSDe' });
+        }
+        return undefined;
+    }, [validAmount, balance, action]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({
@@ -339,7 +358,8 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                     backgroundColor: theme.surfaceOnElevation,
                                     borderRadius: 20,
                                     justifyContent: 'center',
-                                    padding: 20
+                                    padding: 20,
+                                    overflow: 'hidden'
                                 }}
                             >
                                 <View style={{ flexDirection: 'row' }}>
@@ -431,6 +451,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                     suffix={priceText}
                                     hideClearButton
                                     inputSuffix={'tsUSDe'}
+                                    error={amountError}
                                 />
                             </View>
                             <View
@@ -514,7 +535,8 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                     backgroundColor: theme.surfaceOnElevation,
                                     borderRadius: 20,
                                     justifyContent: 'center',
-                                    padding: 20
+                                    padding: 20,
+                                    overflow: 'hidden'
                                 }}
                             >
                                 <View style={{ flexDirection: 'row' }}>
@@ -600,6 +622,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                                     suffix={priceText}
                                     hideClearButton
                                     inputSuffix={'USDe'}
+                                    error={amountError}
                                 />
                             </View>
                             <View
@@ -693,6 +716,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
                 })}
             >
                 <RoundButton
+                    disabled={!!amountError}
                     title={t('common.continue')}
                     action={doContinue}
                 />

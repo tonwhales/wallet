@@ -223,7 +223,6 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                         <ValueComponent
                             value={toNano(rate)}
                             precision={2}
-                            // decimals={6}
                             suffix={' tsUSDe'}
                         />
                     </Text>

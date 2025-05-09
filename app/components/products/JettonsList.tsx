@@ -23,6 +23,7 @@ import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { ExtraCurrencyProductItem } from "./ExtraCurrencyProductItem";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 const EmptyListItem = memo(() => {
     const theme = useTheme();
@@ -35,7 +36,7 @@ const EmptyListItem = memo(() => {
                 overflow: 'hidden',
                 padding: 20,
                 alignItems: 'center',
-                height: 86,
+                height: ASSET_ITEM_HEIGHT,
                 backgroundColor: theme.surfaceOnBg
             }}
         >
@@ -69,7 +70,7 @@ const EmptyListItem = memo(() => {
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>
                     <PerfView style={{
-                        height: 20, width: 86,
+                        height: 20, width: ASSET_ITEM_HEIGHT,
                         backgroundColor: theme.textSecondary,
                         borderRadius: 8,
                         marginBottom: 8,
@@ -132,7 +133,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                     card
                     last
                     hint={item as JettonFull}
-                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
+                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: ASSET_ITEM_HEIGHT }}
                     ledger={isLedger}
                     owner={selected!.address}
                     jettonViewType={AssetViewType.Default}
@@ -146,7 +147,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                     currency={item as ExtraCurrencyHint}
                     owner={selected!.address}
                     jettonViewType={AssetViewType.Default}
-                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
+                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: ASSET_ITEM_HEIGHT }}
                     ledger={isLedger}
                 />
             );

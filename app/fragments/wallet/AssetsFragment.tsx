@@ -29,6 +29,7 @@ import { SimpleTransferAsset } from "../secure/simpleTransfer/hooks/useSimpleTra
 import { ExtraCurrencyProductItem } from "../../components/products/ExtraCurrencyProductItem";
 
 import IcCheck from "@assets/ic-check.svg";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 type ListItem =
     { type: 'jetton', hint: JettonFull }
@@ -53,7 +54,7 @@ const TonAssetItem = memo((params: {
     const theme = useTheme();
 
     return (
-        <View style={{ height: 86 }}>
+        <View style={{ height: ASSET_ITEM_HEIGHT }}>
             <Pressable
                 style={{
                     backgroundColor: theme.surfaceOnElevation,

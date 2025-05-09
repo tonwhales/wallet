@@ -7,6 +7,7 @@ import { RoundButton } from "../../../components/RoundButton";
 import { Typography } from "../../../components/styles";
 import { t } from "../../../i18n/t";
 import { Image } from "expo-image";
+import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
 
 export const SettingsPlaceholder = memo(({
     onReload,
@@ -81,7 +82,7 @@ export const SettingsPlaceholder = memo(({
                 <View
                     style={{
                         marginTop: 16,
-                        height: 86,
+                        height: ASSET_ITEM_HEIGHT,
                         width: '100%',
                         backgroundColor: theme.surfaceOnBg,
                         borderRadius: 20,

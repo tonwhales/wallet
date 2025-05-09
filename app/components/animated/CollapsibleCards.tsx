@@ -7,12 +7,13 @@ import { Typography } from "../styles";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ProductsListFragmentParams } from "../../fragments/wallet/ProductsListFragment";
 import { Image } from "expo-image";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 export const CardItemWrapper = memo(({
     progress,
     item,
     index,
-    itemHeight = 86,
+    itemHeight = ASSET_ITEM_HEIGHT,
 }: {
     progress: SharedValue<number>,
     item: ReactNode,
@@ -29,7 +30,7 @@ export const CardItemWrapper = memo(({
         height: interpolate(
             progress.value,
             [0, 1],
-            [86, itemHeight],
+            [ASSET_ITEM_HEIGHT, itemHeight],
             Extrapolation.CLAMP
         ),
     }));
@@ -67,7 +68,7 @@ const CollapsibleCardsComponent = <T,>({
     items,
     renderItem,
     renderFace,
-    itemHeight = 86,
+    itemHeight = ASSET_ITEM_HEIGHT,
     theme,
     initialCollapsed = true,
     limitConfig,
@@ -119,7 +120,7 @@ const CollapsibleCardsComponent = <T,>({
         height: interpolate(
             progress.value,
             [0, 1],
-            [86, firstHeight],
+            [ASSET_ITEM_HEIGHT, firstHeight],
             Extrapolation.CLAMP
         ),
         pointerEvents: progress.value === 0 ? 'none' : 'auto'
@@ -141,7 +142,7 @@ const CollapsibleCardsComponent = <T,>({
         marginTop: interpolate(
             progress.value,
             [0, 1],
-            [-66, 16 + firstHeight - 86],
+            [-66, 16 + firstHeight - ASSET_ITEM_HEIGHT],
             Extrapolation.CLAMP
         ),
     }));

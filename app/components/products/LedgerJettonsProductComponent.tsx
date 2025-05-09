@@ -9,6 +9,7 @@ import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
 import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { address: Address, testOnly: boolean }) => {
     const theme = useTheme();
@@ -23,6 +24,7 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                 key={'jt' + h.jetton.address}
                 hint={h}
                 card
+                itemStyle={{ height: ASSET_ITEM_HEIGHT }}
                 ledger
                 owner={address}
                 jettonViewType={AssetViewType.Default}
@@ -87,7 +89,7 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                 items={hints}
                 renderItem={renderItem}
                 renderFace={renderFace}
-                itemHeight={86}
+                itemHeight={ASSET_ITEM_HEIGHT}
                 theme={theme}
                 limitConfig={{
                     maxItems: 4,

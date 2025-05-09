@@ -22,6 +22,7 @@ import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
 import { avatarHash } from "../../../utils/avatarHash";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
+import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
 
 export const PendingTransactionView = memo(({
     tx,
@@ -139,7 +140,7 @@ export const PendingTransactionView = memo(({
             style={{
                 paddingHorizontal: viewType === 'main' ? 20 : undefined,
                 paddingVertical: 20,
-                maxHeight: 86
+                maxHeight: ASSET_ITEM_HEIGHT
             }}
         >
             <Pressable

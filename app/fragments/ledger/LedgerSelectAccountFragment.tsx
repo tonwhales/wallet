@@ -16,6 +16,7 @@ import { delay } from 'teslabot';
 import { ThemeType } from '../../engine/state/theme';
 import { Typography } from '../../components/styles';
 import { isLedgerTonAppReady } from "../../utils/ledger/isLedgerTonAppReady";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 type AccountsLite = ReturnType<typeof useAccountsLite>;
@@ -45,7 +46,7 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
             {loading ? (
                 <>
                     <View style={{
-                        height: 86,
+                        height: ASSET_ITEM_HEIGHT,
                         borderRadius: 20,
                         backgroundColor: theme.surfaceOnElevation,
                         justifyContent: 'center', padding: 20,
@@ -62,7 +63,7 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
                         }} />
                     </View>
                     <View style={{
-                        height: 86,
+                        height: ASSET_ITEM_HEIGHT,
                         borderRadius: 20,
                         backgroundColor: theme.surfaceOnElevation,
                         justifyContent: 'center', padding: 20,
@@ -79,7 +80,7 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
                         }} />
                     </View>
                     <View style={{
-                        height: 86,
+                        height: ASSET_ITEM_HEIGHT,
                         borderRadius: 20,
                         backgroundColor: theme.surfaceOnElevation,
                         justifyContent: 'center', padding: 20,

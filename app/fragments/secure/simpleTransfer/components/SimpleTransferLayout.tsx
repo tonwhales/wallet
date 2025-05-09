@@ -4,6 +4,7 @@ import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native
 import { NativeViewGestureHandler } from 'react-native-gesture-handler';
 import { Dispatch, forwardRef, memo, ReactNode, SetStateAction, useImperativeHandle, useMemo, useRef } from "react";
 import { SimpleTransferAnimatedWrapper } from "./SimpleTransferAnimatedWrapper";
+import { ASSET_ITEM_HEIGHT } from "../../../../utils/constants";
 
 type Props = {
     headerComponent: ReactNode;
@@ -43,7 +44,7 @@ export const SimpleTransferLayout = memo(forwardRef(({
     const contentInset = useMemo(() => {
         return {
             // bottom: 0.1,
-            bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - 86 - 32 : 0.1 /* Some weird bug on iOS */, // + 56 + 32
+            bottom: keyboard.keyboardShown ? keyboard.keyboardHeight - ASSET_ITEM_HEIGHT - 32 : 0.1 /* Some weird bug on iOS */, // + 56 + 32
             top: 0.1 /* Some weird bug on iOS */
         }
     }, [keyboard.keyboardShown, keyboard.keyboardHeight])

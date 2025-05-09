@@ -13,6 +13,7 @@ import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { ExtraCurrencyProductItem } from "./ExtraCurrencyProductItem";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
@@ -92,6 +93,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
                     key={'jt' + item.jetton.address}
                     hint={item}
                     rightAction={() => markJettonDisabled(item.jetton.address)}
+                    itemStyle={{ height: ASSET_ITEM_HEIGHT }}
                     rightActionIcon={hideIcon}
                     card
                     owner={owner}
@@ -122,7 +124,7 @@ export const JettonsProductComponent = memo(({ owner }: { owner: Address }) => {
                 items={items}
                 renderItem={renderItem}
                 renderFace={renderFace}
-                itemHeight={86}
+                itemHeight={ASSET_ITEM_HEIGHT}
                 theme={theme}
                 limitConfig={{
                     maxItems: 10,

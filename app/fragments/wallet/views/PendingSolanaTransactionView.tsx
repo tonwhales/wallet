@@ -15,6 +15,7 @@ import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAdd
 import { SOLANA_TRANSACTION_PROCESSING_TIMEOUT } from "../../../engine/hooks/solana/useSolanaTransactionStatus";
 import { ForcedAvatar } from "../../../components/avatar/ForcedAvatar";
 import { InstructionName } from "../../../utils/solana/parseInstructions";
+import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
 
 const PendingInstructionsView = memo(({
     transaction,
@@ -43,7 +44,7 @@ const PendingInstructionsView = memo(({
             style={{
                 paddingHorizontal: viewType === 'main' ? 20 : undefined,
                 paddingVertical: 20,
-                maxHeight: 86
+                maxHeight: ASSET_ITEM_HEIGHT
             }}
         >
             <Pressable
@@ -168,7 +169,7 @@ const PendingTxView = memo((
             style={{
                 paddingHorizontal: viewType === 'main' ? 20 : undefined,
                 paddingVertical: 20,
-                maxHeight: 86
+                maxHeight: ASSET_ITEM_HEIGHT
             }}
         >
             <Pressable

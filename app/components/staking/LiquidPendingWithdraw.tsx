@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react"
+import { memo, useEffect, useMemo, useState } from "react"
 import { View, Text } from "react-native"
 import { Countdown } from "../Countdown";
 import { Typography } from "../styles";
@@ -7,6 +7,7 @@ import { PriceComponent } from "../PriceComponent";
 import { ItemDivider } from "../ItemDivider";
 import { useTheme } from "../../engine/hooks";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { toNano } from "@ton/core";
 
 export const LiquidPendingWithdraw = memo(({
     pendingUntil,
@@ -43,6 +44,14 @@ export const LiquidPendingWithdraw = memo(({
         }
     }, [left]);
 
+    const _amount = useMemo(() => {
+        try {
+            return parseFloat(fromBnWithDecimals(amount, decimals));
+        } catch (error) {
+            return 0;
+        }
+    }, [amount, decimals]);
+
     return (
         <>
             <View style={{
@@ -63,13 +72,13 @@ export const LiquidPendingWithdraw = memo(({
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                        {parseFloat(parseFloat(fromBnWithDecimals(amount, decimals)).toFixed(3))}
+                        {_amount.toFixed(3)}
                         <Text style={{ color: theme.textSecondary }}>
                             {symbol || ' TON'}
                         </Text>
                     </Text>
                     <PriceComponent
-                        amount={amount}
+                        amount={toNano(_amount)}
                         style={{
                             backgroundColor: theme.transparent,
                             paddingHorizontal: 0,

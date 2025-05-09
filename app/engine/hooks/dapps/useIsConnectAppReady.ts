@@ -8,7 +8,7 @@ import { getCurrentAddress } from "../../../storage/appState";
 export function getIsConnectAppReady(appUrl: string, isTestnet: boolean, address?: string) {
     const full = getFullExtensionsMap();
     const acc = address ?? getCurrentAddress().address.toString({ testOnly: isTestnet });
-    const fixedUrl = appUrl.replace(/\/$/, '');;
+    const fixedUrl = appUrl.replace(/\/$/, '');
     const apps = full[acc];
     const app = Object.values(apps).find((app) => fixedUrl.startsWith(app.url.replace(/\/$/, ''))) ?? null;
 

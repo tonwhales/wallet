@@ -31,18 +31,17 @@ export const LiquidPendingWithdraw = memo(({
 
     useEffect(() => {
         const timerId = setInterval(() => {
-            setLeft(pendingUntil - Math.floor(Date.now() / 1000));
+            const diff = pendingUntil - Math.floor(Date.now() / 1000);
+            if (diff <= 0) {
+                onTimeOut?.();
+                return;
+            }
+            setLeft(diff);
         }, 1000);
         return () => {
             clearInterval(timerId);
         };
     }, [pendingUntil]);
-
-    useEffect(() => {
-        if (left <= 0) {
-            onTimeOut?.();
-        }
-    }, [left]);
 
     const _amount = useMemo(() => {
         try {
@@ -53,7 +52,7 @@ export const LiquidPendingWithdraw = memo(({
     }, [amount, decimals]);
 
     return (
-        <>
+        <View>
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
@@ -92,6 +91,6 @@ export const LiquidPendingWithdraw = memo(({
                 </View>
             </View>
             {!last && (<ItemDivider marginHorizontal={0} marginVertical={8} />)}
-        </>
+        </View>
     );
 });

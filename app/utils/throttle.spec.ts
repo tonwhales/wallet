@@ -42,6 +42,6 @@ describe('throttle', () => {
 
 
         await delay(500);
-        expect(func).toBeCalledWith(10);;
+        expect(func).toBeCalledWith(10);
     });
 });

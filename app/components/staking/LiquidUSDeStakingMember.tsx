@@ -31,12 +31,13 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
         return usdeShares.tsUsdeHint?.walletAddress;
     }, [usdeShares]);
 
-    const balance = useMemo(() => {
+    const { balance, inUsde } = useMemo(() => {
         const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
-        return toNano(bal);
+        return {
+            balance: toNano(bal),
+            inUsde: toNano((Number(bal) * rate).toFixed(6))
+        };
     }, [nominator]);
-
-    const inUsde = balance * rate;
 
     const lockedBalance = nominator?.timeLocked?.balance || 0n;
 
@@ -108,7 +109,7 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                             amount={lockedBalance}
                             symbol={' tsUSDe'}
                             decimals={decimals}
-                            priceUSD={Number(rate * 1000n)}
+                            priceUSD={rate}
                             last
                             onTimeOut={() => setIsWithdrawReady(true)}
                         />
@@ -142,7 +143,7 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                                     }}
                                     textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                     theme={theme}
-                                    priceUSD={Number(rate * 1000n)}
+                                    priceUSD={rate}
                                 />
                             </View>
                         </View>
@@ -220,9 +221,8 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                     <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
                         {'1 USDe = '}
                         <ValueComponent
-                            value={toBnWithDecimals(rate, 6)}
-                            precision={6}
-                            decimals={6}
+                            value={toNano(rate)}
+                            precision={2}
                             suffix={' tsUSDe'}
                         />
                     </Text>

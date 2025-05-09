@@ -23,7 +23,8 @@ export function useSavingsBalance(addr: string | Address) {
         try {
             const balance = BigInt(s.balance);
             const price = s.price.prices?.['USD'] ?? 0;
-            return acc + parseFloat(fromNano(balance)) * price;
+            const priceInUSD = parseFloat(fromBnWithDecimals(balance, s.jetton.decimals ?? 6)) * price;
+            return acc + priceInUSD;
         } catch {
             return acc;
         }
@@ -56,11 +57,18 @@ export function useSavingsBalance(addr: string | Address) {
         totalBalance += parseFloat(fromBnWithDecimals(specialTotal, specialJetton?.decimals ?? 6))
     } catch { }
 
+    let savingsToTon = 0n;
+
+    try {
+        savingsToTon += toNano((savingTotal / price.price.usd).toFixed(9));
+    } catch { }
+
     return {
         totalBalance: toNano(totalBalance.toFixed(9)),
         tonBalance: toNano(tonTotal.toFixed(9)),
         savingTotal: toNano(savingTotal.toFixed(9)),
         specialBalance: specialTotal,
-        specialToTon: toNano(specialToTon.toFixed(9))
+        specialToTon: toNano(specialToTon.toFixed(9)),
+        savingsToTon
     };
 }

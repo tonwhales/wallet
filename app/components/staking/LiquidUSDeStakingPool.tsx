@@ -6,8 +6,8 @@ import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../WImage";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
-import { Address, toNano } from "@ton/core";
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useNetwork, useTheme, useUSDeStakingApy } from "../../engine/hooks";
+import { Address, fromNano, toNano } from "@ton/core";
+import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, useTheme, useUSDeStakingApy } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { ItemHeader } from "../ItemHeader";
 import { gettsUSDeMinter } from "../../secure/KnownWallets";
@@ -31,12 +31,18 @@ export const LiquidUSDeStakingPool = memo((
     const poolAddressString = minterAddress.toString({ testOnly: isTestnet });
     const nominator = useLiquidUSDeStakingMember(props.member);
     const usdeApy = useUSDeStakingApy()?.apy;
+    const rate = useLiquidUSDeStakingRate();
     const isLedger = useIsLedgerRoute();
 
     const balance = useMemo(() => {
         const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
         return toNano(bal);
     }, [nominator]);
+
+    const inUsde = useMemo(() => {
+        const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
+        return toNano((Number(bal) * rate).toFixed(6));
+    }, [balance, rate]);
 
     const apyWithFee = useMemo(() => {
         if (!!usdeApy) {
@@ -150,7 +156,7 @@ export const LiquidUSDeStakingPool = memo((
                                     </Text>
                                 </Text>
                                 <PriceComponent
-                                    amount={balance}
+                                    amount={inUsde}
                                     style={{
                                         backgroundColor: theme.transparent,
                                         paddingHorizontal: 0, paddingVertical: 0,
@@ -159,6 +165,7 @@ export const LiquidUSDeStakingPool = memo((
                                     }}
                                     theme={theme}
                                     textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                    priceUSD={1}
                                 />
                             </View>
                         )}

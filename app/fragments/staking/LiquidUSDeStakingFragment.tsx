@@ -21,7 +21,7 @@ import { extractDomain } from "../../engine/utils/extractDomain";
 import { LiquidUSDeStakingMember } from "../../components/staking/LiquidUSDeStakingMember";
 import { useUSDeStakingApy } from "../../engine/hooks/staking/useUSDeStakingApy";
 import { gettsUSDeMinter, gettsUSDeVaultAddress, getUSDeMinter } from "../../secure/KnownWallets";
-import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
 import { EthenaPointsBanner } from "../../components/staking/EthenaPointsBanner";
 
 export const LiquidUSDeStakingFragment = fragment(() => {
@@ -54,7 +54,10 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     }, [usdeApy]);
 
     const tsUSDe = nominator?.balance || 0n;
-    const inUsde = tsUSDe * rate;
+    const inUsde = useMemo(() => {
+        const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
+        return toBnWithDecimals((Number(bal) * rate).toFixed(6), 6);
+    }, [tsUSDe, rate]);
     const usdeDecimals = usdeShares?.usdeHint?.jetton.decimals ?? 9;
     const usdeWallet = usdeShares?.usdeHint?.walletAddress;
     const tsUSDeWallet = usdeShares?.tsUsdeHint?.walletAddress;

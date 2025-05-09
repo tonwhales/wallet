@@ -14,7 +14,7 @@ import { Address, fromNano, toNano } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { useValidAmount } from "../../utils/useValidAmount";
-import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
 import { Typography } from "../../components/styles";
 import { PriceComponent } from "../../components/PriceComponent";
 
@@ -148,7 +148,10 @@ export const LiquidUSDeStakingCalculatorFragment = fragment(() => {
     const nominator = useLiquidUSDeStakingMember(account);
 
     const tsUSDe = nominator?.balance || 0n;
-    const inUsde = tsUSDe * rate;
+    const inUsde = useMemo(() => {
+        const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
+        return toBnWithDecimals((Number(bal) * rate).toFixed(6), 6);
+    }, [tsUSDe, rate]);
 
     let initialAmount = inUsde ? fromBnWithDecimals(inUsde, 6) : '';
     if (initialAmount) {

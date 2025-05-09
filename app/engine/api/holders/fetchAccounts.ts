@@ -265,7 +265,7 @@ export const accountsListResCodec = z.discriminatedUnion('ok', [
     ok: z.literal(false),
     error: z.string(),
   }),
-]);;
+]);
 
 export const generalAccountSchema = z.intersection(accountSchema, accountPublicSchema);
 export const generalCardSchema = z.intersection(cardSchema, cardPublicSchema);

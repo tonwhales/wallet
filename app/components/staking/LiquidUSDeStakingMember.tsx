@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { View, Image, Text, Alert } from "react-native";
 import { useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, useTheme } from "../../engine/hooks";
 import { ValueComponent } from "../ValueComponent";
@@ -7,7 +7,7 @@ import { PriceComponent } from "../PriceComponent";
 import { ItemDivider } from "../ItemDivider";
 import { t } from "../../i18n/t";
 import { Address, toNano } from "@ton/ton";
-import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { LiquidPendingWithdraw } from "./LiquidPendingWithdraw";
 import { useUSDeAssetsShares } from "../../engine/hooks";
 import { createWithdrawLiquidUSDeStakingPayload } from "../../utils/staking/liquidUSDeStaking";
@@ -24,37 +24,42 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
 
     const decimals = usdeShares?.tsUsdeHint?.jetton.decimals ?? 6;
 
-    const tsUsdeAddressWallet = useMemo(() => {
+    const tsUsdeWallet = useMemo(() => {
         if (!usdeShares) {
             return;
         }
         return usdeShares.tsUsdeHint?.walletAddress;
     }, [usdeShares]);
 
-    const { balance, inUsde } = useMemo(() => {
+    const { balance, balanceInUsde } = useMemo(() => {
         const bal = fromBnWithDecimals(nominator?.balance || 0n, 6);
         return {
             balance: toNano(bal),
-            inUsde: toNano((Number(bal) * rate).toFixed(6))
+            balanceInUsde: toNano((Number(bal) * rate).toFixed(6))
         };
-    }, [nominator]);
+    }, [nominator, rate]);
 
     const lockedBalance = nominator?.timeLocked?.balance || 0n;
+    const limit = nominator?.timeLocked?.limit;
 
     const stakeUntil = useMemo(() => {
         try {
-            if (nominator?.timeLocked?.limit) {
-                return Number(nominator?.timeLocked?.limit);
+            if (limit) {
+                return Number(limit);
             }
         } catch { }
         return 0;
-    }, [nominator?.timeLocked?.limit]);
+    }, [limit]);
 
     const ready = Date.now() >= (stakeUntil * 1000);
     const [isWithdrawReady, setIsWithdrawReady] = useState(ready);
 
+    useEffect(() => {
+        setIsWithdrawReady(ready);
+    }, [ready]);
+
     const onWithdraw = useCallback(() => {
-        if (!tsUsdeAddressWallet) {
+        if (!tsUsdeWallet) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
         }
@@ -76,7 +81,7 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
             order: {
                 type: 'order',
                 messages: [{
-                    target: tsUsdeAddressWallet.address,
+                    target: tsUsdeWallet.address,
                     payload: transferCell,
                     amount: transferAmountTon,
                     amountAll: false,
@@ -85,11 +90,11 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
             },
             text: null
         });
-    }, [lockedBalance, tsUsdeAddressWallet, isTestnet]);
+    }, [lockedBalance, tsUsdeWallet, isTestnet]);
 
     return (
         <View>
-            {lockedBalance > 0n && (
+            {(lockedBalance > 0n && stakeUntil !== 0) && (
                 <Pressable
                     style={({ pressed }) => [
                         {
@@ -107,9 +112,9 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                         <LiquidPendingWithdraw
                             pendingUntil={stakeUntil}
                             amount={lockedBalance}
-                            symbol={' tsUSDe'}
-                            decimals={decimals}
-                            priceUSD={rate}
+                            symbol={' USDe'}
+                            decimals={6}
+                            priceUSD={1}
                             last
                             onTimeOut={() => setIsWithdrawReady(true)}
                         />
@@ -130,11 +135,11 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                     {fromBnWithDecimals(lockedBalance, decimals)}
                                     <Text style={{ color: theme.textSecondary }}>
-                                        {' tsUSDe'}
+                                        {' USDe'}
                                     </Text>
                                 </Text>
                                 <PriceComponent
-                                    amount={lockedBalance}
+                                    amount={toNano(fromBnWithDecimals(lockedBalance, decimals))}
                                     style={{
                                         backgroundColor: theme.transparent,
                                         paddingHorizontal: 0,
@@ -143,7 +148,7 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                                     }}
                                     textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                     theme={theme}
-                                    priceUSD={rate}
+                                    priceUSD={1}
                                 />
                             </View>
                         </View>
@@ -202,7 +207,7 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                                 {'Staked USDe'}
                             </Text>
                             <PriceComponent
-                                amount={inUsde}
+                                amount={balanceInUsde}
                                 style={{
                                     backgroundColor: 'transparent',
                                     paddingHorizontal: 0, paddingVertical: 0,

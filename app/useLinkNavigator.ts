@@ -304,7 +304,7 @@ async function resolveAndNavigateToTransaction(
             // If transaction is not found in the list, fetch it from the server
             if (!transaction) {
                 // Try to fetch transaction from the server
-                const rawTxs = await infoBackoff('tx', async () => await fetchAccountTransactions(resolved.address, isTestnet, { lt, hash }));;
+                const rawTxs = await infoBackoff('tx', async () => await fetchAccountTransactions(resolved.address, isTestnet, { lt, hash }));
                 if (rawTxs.length > 0 && !!rawTxs[0]) {
                     const base = rawTxs[0];
                     transaction = {

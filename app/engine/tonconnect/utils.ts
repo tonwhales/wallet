@@ -70,7 +70,7 @@ export function getLastEventId() {
 
 export function isHexString(str: string): boolean {
   const hexRegex = /^[0-9a-fA-F]+$/;
-  return hexRegex.test(str) && str.length % 2 === 0;;
+  return hexRegex.test(str) && str.length % 2 === 0;
 }
 
 export function checkProtocolVersionCapability(protocolVersion: number) {

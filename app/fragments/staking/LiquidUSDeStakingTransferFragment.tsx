@@ -17,7 +17,6 @@ import { Address, toNano } from '@ton/core';
 import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePrice, useSelectedAccount, useTheme, useUSDeAssetsShares } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { StatusBar } from 'expo-status-bar';
-import { useLiquidStaking } from '../../engine/hooks/staking/useLiquidStaking';
 import { ItemDivider } from '../../components/ItemDivider';
 import { Typography } from '../../components/styles';
 import { Image } from "expo-image";
@@ -54,7 +53,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
     const { amount: initialAmountString, action } = useParams<LiquidUSDeStakingTransferParams>();
     const selected = useSelectedAccount();
     const isLedger = useIsLedgerRoute();
-    const [price, currency] = usePrice();
+    const [, currency] = usePrice();
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -65,7 +64,6 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
 
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
-    const liquidStaking = useLiquidStaking().data;
     const member = useLiquidUSDeStakingMember(memberAddress);
     const rate = useLiquidUSDeStakingRate();
     const usdeShares = useUSDeAssetsShares(memberAddress);
@@ -96,7 +94,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
         if (action === 'deposit') {
             return {
                 balance: BigInt(usdeShares?.usdeHint?.balance ?? 0n),
-                decimals: usdeShares?.usdeHint?.jetton.decimals ?? 9
+                decimals: usdeShares?.usdeHint?.jetton.decimals ?? 6
             };
         }
         if (action === 'unstake') {
@@ -128,7 +126,9 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
     );
 
     const validAmount = useMemo(() => {
-        const amountString = action === 'deposit' ? amount.usde : amount.tsUsde;
+        const amountString = action === 'deposit'
+            ? amount.usde
+            : amount.tsUsde;
         if (amountString.length === 0) {
             return 0n;
         }
@@ -147,17 +147,20 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
             return;
         }
         const isNeg = validAmount < 0n;
-        let abs = isNeg ? -validAmount : validAmount;
-        const absNumber = Number(fromBnWithDecimals(abs.toString(), 6));
+        let abs = isNeg
+            ? -validAmount
+            : validAmount;
+        const absNumber = Number(fromBnWithDecimals(abs.toString(), decimals));
         const computed = action === 'deposit'
-            ? absNumber * rate
-            : absNumber / rate;
+            ? absNumber
+            : absNumber * rate;
+
         return formatCurrency(
             computed.toFixed(2),
             currency,
             isNeg
         );
-    }, [validAmount, action, rate]);
+    }, [validAmount, action, rate, decimals]);
 
     const doContinue = useCallback(async () => {
         if (!memberAddress) {
@@ -252,7 +255,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
             },
             text: null
         });
-    }, [amount, member, liquidStaking, balance, isTestnet, isLedger, ledgerContext, usdeShares, validAmount, usdeAddressWallet]);
+    }, [amount, member, balance, isTestnet, isLedger, ledgerContext, usdeShares, validAmount, usdeAddressWallet]);
 
     const [selectedInput, setSelectedInput] = React.useState(0);
 

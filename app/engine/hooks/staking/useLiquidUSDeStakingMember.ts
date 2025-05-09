@@ -53,7 +53,8 @@ export function useLiquidUSDeStakingMember(account: Address | null | undefined) 
             account!.toString({ testOnly: isTestnet })
         ),
         staleTime: 1000 * 6,
-        enabled: !!account
+        enabled: !!account,
+        refetchInterval: 1000 * 30
     });
 
     if (query.data) {

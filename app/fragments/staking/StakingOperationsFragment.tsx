@@ -108,7 +108,7 @@ export const StakingOperationsFragment = fragment(() => {
     const { pool } = useParams<{ pool: Address }>();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const safeArea = useSafeAreaInsets();;
+    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const nominatorInfo = useNominatorInfo(pool, selected!.address, 'allTime', isTestnet).data;

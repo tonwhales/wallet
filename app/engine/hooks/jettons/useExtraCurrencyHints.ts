@@ -21,5 +21,5 @@ export function useExtraCurrencyHints(addressString?: string) {
         enabled: !!addressString,
         refetchOnMount: true,
         staleTime: 1000 * 30
-    });;
+    });
 }

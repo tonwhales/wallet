@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { View, Text, Pressable, StyleProp, ViewStyle, ImageRequireSource } from "react-native";
 import { useTheme } from "../../engine/hooks";
-import { ImageSource, Image as ExpoImage } from 'expo-image';;
+import { ImageSource, Image as ExpoImage } from 'expo-image';
 
 export const ProductBanner = memo((props: {
     onPress?: () => void,

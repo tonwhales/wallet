@@ -224,11 +224,11 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
                 <ItemDivider marginHorizontal={0} marginVertical={20} />
                 <View style={{ backgroundColor: theme.backgroundPrimary, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12 }}>
                     <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
-                        {'1 USDe = '}
+                        {'1 tsUSDe = '}
                         <ValueComponent
                             value={toNano(rate)}
                             precision={2}
-                            suffix={' tsUSDe'}
+                            suffix={' USDe'}
                         />
                     </Text>
                 </View>

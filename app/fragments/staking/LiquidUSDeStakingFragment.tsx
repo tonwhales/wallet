@@ -418,6 +418,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
                                 owner={memberAddress!.toString({ testOnly: isTestnet })}
+                                isLedger={isLedger}
                             />
                         )}
                         {!!memberAddress && (<LiquidUSDeStakingMember address={memberAddress} />)}

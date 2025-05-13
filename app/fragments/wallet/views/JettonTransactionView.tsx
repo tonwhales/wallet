@@ -26,6 +26,7 @@ import { isJettonTxSPAM, parseForwardPayloadComment } from '../../../utils/spam/
 import { JettonTransfer } from '../../../engine/hooks/transactions/useJettonTransactions';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
 import { useLedgerTransport } from '../../ledger/components/TransportContext';
+import { useAddressFormatsHistory } from '../../../engine/hooks/addressFormat/useAddressFormatsHistory';
 
 export function JettonTransactionView(props: {
     own: Address,
@@ -68,6 +69,8 @@ export function JettonTransactionView(props: {
     const kind: 'in' | 'out' = destinationAddress.equals(props.own) ? 'in' : 'out';
     const displayAddress = kind === 'in' ? sourceAddress : destinationAddress;
     const opAddress = displayAddress.toString({ testOnly: isTestnet });
+    const { getAddressFormat } = useAddressFormatsHistory();
+    const bounceable = getAddressFormat(displayAddress) ?? (props.bounceableFormat);
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(displayAddress)) >= 0;
     const targetContract = useContractInfo(opAddress);
     const comment = parseForwardPayloadComment(tx.forward_payload);
@@ -210,7 +213,7 @@ export function JettonTransactionView(props: {
                             : <AddressComponent
                                 testOnly={isTestnet}
                                 address={displayAddress}
-                                bounceable={props.bounceableFormat}
+                                bounceable={bounceable}
                             />
                         }
                         {' • '}

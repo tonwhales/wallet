@@ -170,6 +170,7 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                                 actionAsset={{ type: 'ton' }}
                             />
                             <PendingTransactions
+                                isLedger={isLedger}
                                 viewType={'history'}
                                 address={ownerAddress.toString({ testOnly: isTestnet })}
                             />

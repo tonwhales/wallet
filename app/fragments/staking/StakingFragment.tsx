@@ -365,6 +365,7 @@ export const StakingFragment = fragment(() => {
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
                                 owner={memberAddress!.toString({ testOnly: network.isTestnet })}
+                                isLedger={isLedger}
                             />
                         )}
                         <StakingPendingComponent

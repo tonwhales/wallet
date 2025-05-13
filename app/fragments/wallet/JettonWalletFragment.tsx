@@ -167,6 +167,7 @@ const JettonWalletHeader = memo(({ owner, master, wallet, isLedger, onRefresh }:
                     master={master}
                     onChange={onRefresh}
                     filter={pendingFilter}
+                    isLedger={isLedger}
                 />
             </View>
         </View>

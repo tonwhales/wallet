@@ -26,6 +26,7 @@ import { t } from "../../../i18n/t";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
+import { useAddressFormatsHistory } from "../../../engine/hooks/addressFormat/useAddressFormatsHistory";
 
 type TransactionListItemProps = {
     address: Address,
@@ -111,6 +112,7 @@ export const JettonWalletTransactions = memo((props: {
     const [spamMinAmount] = useSpamMinAmount();
     const [dontShowComments] = useDontShowComments();
     const [bounceableFormat] = useBounceableWalletFormat();
+    const { getAddressFormat } = useAddressFormatsHistory();
     const [walletsSettings] = useWalletsSettings();
     const gaslessConfig = useGaslessConfig().data;
 
@@ -175,20 +177,17 @@ export const JettonWalletTransactions = memo((props: {
         }
     }, [addToDenyList]);
 
-    const onAddressContact = useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
+    const onAddressContact = useCallback((address: string) => {
+        navigation.navigate('Contact', { address });
     }, []);
 
-    const onRepeatTx = useCallback((tx: JettonTransfer) => {
+    const onRepeatTx = useCallback((tx: JettonTransfer, formattedAddressString: string) => {
         const decimals = props.jetton.decimals ?? 9;
         const amount = toNano(fromBnWithDecimals(BigInt(tx.amount), decimals));
-        const opAddr = Address.parse(tx.destination);
-        const bounceable = bounceableFormat;
-        const target = opAddr.toString({ testOnly: isTestnet, bounceable });
         const comment = parseForwardPayloadComment(tx.forward_payload);
 
         navigation.navigateSimpleTransfer({
-            target,
+            target: formattedAddressString,
             comment: comment,
             amount: amount < 0n ? -amount : amount,
             stateInit: null,
@@ -199,16 +198,22 @@ export const JettonWalletTransactions = memo((props: {
 
     const onLongPress = (tx: JettonTransfer) => {
         const targetAddress = Address.parse(tx.destination);
-        const targetAddressWithBounce = targetAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat });
+
+        const bounceable = getAddressFormat(targetAddress) ?? bounceableFormat;
+        const targetAddressWithBounce = targetAddress.toString({ testOnly: isTestnet, bounceable });
+
         const target = targetAddress.toString({ testOnly: isTestnet });
+        const targetNonBounceable = targetAddress.toString({ testOnly: isTestnet, bounceable: false });
+        // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
+        const contactAddress = addressBook.contacts[targetAddressWithBounce] ? targetAddressWithBounce : targetNonBounceable;
         const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${targetAddressWithBounce}`;
         const buffTxHash = Buffer.from(tx.trace_id, 'base64');
         const txHash = buffTxHash.toString('base64');
         const explorerTxLink = `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
             + `${props.address.toString({ testOnly: isTestnet })}/`
             + `${tx.transaction_lt}_${encodeURIComponent(txHash)}`;
-        const contact = addressBook.contacts[target];
-        const isSpam = !!addressBook.denyList[target]?.reason;
+        const contact = addressBook.contacts[contactAddress];
+        const isSpam = !!addressBook.denyList[contactAddress]?.reason;
         const kind: 'in' | 'out' = targetAddress.equals(address) ? 'in' : 'out';
         const comment = parseForwardPayloadComment(tx.forward_payload);
 
@@ -231,7 +236,7 @@ export const JettonWalletTransactions = memo((props: {
                     break;
                 }
                 case 2: {
-                    onAddressContact(targetAddress);
+                    onAddressContact(contactAddress);
                     break;
                 }
                 case 3: {
@@ -240,15 +245,15 @@ export const JettonWalletTransactions = memo((props: {
                 }
                 case 4: {
                     if (!spam) {
-                        onMarkAddressSpam(target);
+                        onMarkAddressSpam(contactAddress);
                     } else if (canRepeat) {
-                        onRepeatTx(tx);
+                        onRepeatTx(tx, targetAddressWithBounce);
                     }
                     break;
                 }
                 case 5: {
                     if (canRepeat) {
-                        onRepeatTx(tx);
+                        onRepeatTx(tx, targetAddressWithBounce);
                     }
                     break;
                 }

@@ -419,6 +419,7 @@ export const LiquidStakingFragment = fragment(() => {
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
                                 owner={memberAddress!.toString({ testOnly: isTestnet })}
+                                isLedger={isLedger}
                             />
                         )}
                         {/* TODO */}

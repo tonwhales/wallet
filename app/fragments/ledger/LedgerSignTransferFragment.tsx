@@ -38,6 +38,7 @@ import { TransferTarget } from '../secure/transfer/TransferFragment';
 import { WalletVersions } from '../../engine/types';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 import { failableTransferBackoff } from '../secure/components/TransferSingle';
+import { useAddressFormatsHistory } from '../../engine/hooks/addressFormat/useAddressFormatsHistory';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -85,6 +86,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const path = pathFromAccountNumber(addr.acc, isTestnet);
     const jetton = useJetton({ owner: ledgerAddress!, master: metadata?.jettonWallet?.master, wallet: metadata.jettonWallet?.address });
     const [bounceableFormat] = useBounceableWalletFormat();
+    const { getAddressFormat } = useAddressFormatsHistory();
 
     // Resolve operation
     const payload = order.payload ? resolveLedgerPayload(order.payload) : null;
@@ -190,7 +192,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
                 }
             }
             else if (targetState.account.state.type === 'active') {
-                bounce = bounceableFormat;
+                bounce = getAddressFormat(address) ?? bounceableFormat;
             }
             else if (order.stateInit) {
                 bounce = false;
@@ -227,10 +229,10 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
             // Resolve & reg pending transaction
             let transferPayload: LedgerTransferPayload | null = null;
             if (order.payload?.type === 'jetton-transfer' && !!jetton) {
-                transferPayload = { 
-                    ...order.payload, 
+                transferPayload = {
+                    ...order.payload,
                     jetton,
-                    bounceable: jettonTarget ? jettonTarget.bounceable : undefined 
+                    bounceable: jettonTarget ? jettonTarget.bounceable : undefined
                 };
             } else if (order.payload?.type === 'comment') {
                 transferPayload = order.payload;
@@ -410,7 +412,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             if (order.payload?.type === 'jetton-transfer') {
                 const dest = order.payload.destination;
                 const destState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, dest));
-                const bounceable = await resolveBounceableTag(dest, { testOnly: isTestnet, bounceableFormat });  
+                const bounceable = await resolveBounceableTag(dest, { testOnly: isTestnet, bounceableFormat });
 
                 jettonTarget = {
                     isTestOnly: isTestnet,

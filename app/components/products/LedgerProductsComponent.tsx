@@ -76,7 +76,7 @@ export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: Led
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
-                <PendingTransactions address={address.toString({ testOnly })} />
+                <PendingTransactions address={address.toString({ testOnly })} isLedger={true} />
                 {!isWalletMode && (
                     <IbanBanner isLedger={true} />
                 )}

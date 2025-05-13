@@ -44,6 +44,7 @@ import { TonTransaction } from "../../engine/types";
 import { extraCurrencyFromTransaction } from "../../utils/extraCurrencyFromTransaction";
 import { useExtraCurrencyMap } from "../../engine/hooks/jettons/useExtraCurrencyMap";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { useAddressFormatsHistory } from "../../engine/hooks/addressFormat/useAddressFormatsHistory";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -107,9 +108,11 @@ const TransactionPreview = () => {
     const [walletsSettings] = useWalletsSettings();
     const ownWalletSettings = walletsSettings[address?.toString({ testOnly: isTestnet }) ?? ''];
     const targetContract = useContractInfo(opAddress);
-    const isTargetBounceable = targetContract?.kind === 'wallet'
+
+    const { getAddressFormat } = useAddressFormatsHistory();
+    const isTargetBounceable = getAddressFormat(parsedAddress) ?? (targetContract?.kind === 'wallet'
         ? bounceableFormat
-        : parsedOpAddr.isBounceable
+        : parsedOpAddr.isBounceable)
 
     const opAddressWalletSettings = walletsSettings[parsedAddressFriendly];
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
@@ -413,7 +416,7 @@ const TransactionPreview = () => {
                             >
                                 <AddressComponent
                                     address={parsedOpAddr.address}
-                                    bounceable={isTargetBounceable}
+                                    bounceable={tx.base.parsed.kind === 'out' ? isTargetBounceable : bounceableFormat}
                                     end={4}
                                     testOnly={isTestnet}
                                     known={fromKnownWalletsList}

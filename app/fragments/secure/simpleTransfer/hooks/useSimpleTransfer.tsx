@@ -29,6 +29,7 @@ import { contractFromPublicKey } from '../../../../engine/contractFromPublicKey'
 import { useExtraCurrency } from '../../../../engine/hooks/jettons/useExtraCurrency';
 import { SimpleTransferParams } from '../SimpleTransferFragment';
 import { useLedgerTransport } from '../../../ledger/components/TransportContext';
+import { useAddressFormatsHistory } from '../../../../engine/hooks/addressFormat/useAddressFormatsHistory';
 
 export type SimpleTransferAsset = {
     type: 'jetton';
@@ -65,6 +66,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
     const hasParamsFilled = !!params?.target && !!params?.amount;
     const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
+    const { saveAddressFormat } = useAddressFormatsHistory();
 
     // Ledger
     const ledgerAddress = useLedgerAddress({ isLedger })
@@ -479,8 +481,11 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         }
 
         let address: Address;
+        let bounceableFormat: boolean
         try {
-            address = Address.parseFriendly(target).address;
+            const addressFriendly = Address.parseFriendly(target)
+            address = addressFriendly.address;
+            bounceableFormat = addressFriendly.isBounceable;
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
@@ -525,6 +530,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         setSelectedInput(null);
         // Dismiss keyboard for iOS
         if (Platform.OS === 'ios') Keyboard.dismiss();
+        saveAddressFormat(address, bounceableFormat);
 
         if (isLedger) {
             if (!(tonTransport && !isReconnectLedger)) {

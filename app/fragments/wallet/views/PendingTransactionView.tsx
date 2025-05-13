@@ -23,7 +23,7 @@ import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurre
 import { avatarHash } from "../../../utils/avatarHash";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
-import { useAddressFormatsHistory } from "../../../engine/hooks/addressFormat/useAddressFormatsHistory";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 export const PendingTransactionView = memo(({
     tx,

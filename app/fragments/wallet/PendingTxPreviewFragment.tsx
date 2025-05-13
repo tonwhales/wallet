@@ -38,7 +38,7 @@ import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAv
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { avatarHash } from "../../utils/avatarHash";
-import { useAddressFormatsHistory } from "../../engine/hooks/addressFormat/useAddressFormatsHistory";
+import { useAddressFormatsHistory } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 
 export type PendingTxPreviewParams = {

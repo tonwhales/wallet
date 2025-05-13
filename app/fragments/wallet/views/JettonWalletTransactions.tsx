@@ -26,7 +26,7 @@ import { t } from "../../../i18n/t";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
-import { useAddressFormatsHistory } from "../../../engine/hooks/addressFormat/useAddressFormatsHistory";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 type TransactionListItemProps = {
     address: Address,

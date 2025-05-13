@@ -31,7 +31,7 @@ import { valueText } from "../../../components/ValueComponent";
 import { ConfirmLoadedPropsSingle } from "../transfer/TransferFragment";
 import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
-import { useAddressFormatsHistory } from "../../../engine/hooks/addressFormat/useAddressFormatsHistory";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 export const failableTransferBackoff = createBackoffFailaible({
     logErrors: true,

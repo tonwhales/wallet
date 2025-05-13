@@ -26,7 +26,7 @@ import { isJettonTxSPAM, parseForwardPayloadComment } from '../../../utils/spam/
 import { JettonTransfer } from '../../../engine/hooks/transactions/useJettonTransactions';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
 import { useLedgerTransport } from '../../ledger/components/TransportContext';
-import { useAddressFormatsHistory } from '../../../engine/hooks/addressFormat/useAddressFormatsHistory';
+import { useAddressFormatsHistory } from '../../../engine/hooks';
 
 export function JettonTransactionView(props: {
     own: Address,

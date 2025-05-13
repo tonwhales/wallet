@@ -29,7 +29,7 @@ import { contractFromPublicKey } from '../../../../engine/contractFromPublicKey'
 import { useExtraCurrency } from '../../../../engine/hooks/jettons/useExtraCurrency';
 import { SimpleTransferParams } from '../SimpleTransferFragment';
 import { useLedgerTransport } from '../../../ledger/components/TransportContext';
-import { useAddressFormatsHistory } from '../../../../engine/hooks/addressFormat/useAddressFormatsHistory';
+import { useAddressFormatsHistory } from '../../../../engine/hooks';
 
 export type SimpleTransferAsset = {
     type: 'jetton';

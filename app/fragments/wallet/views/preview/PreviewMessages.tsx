@@ -13,7 +13,7 @@ import { Typography } from "../../../../components/styles";
 import { useContractInfo } from "../../../../engine/hooks/metadata/useContractInfo";
 import { WalletAddress } from "../../../../components/address/WalletAddress";
 import { PreparedMessage } from "../../../../engine/hooks/transactions/usePeparedMessages";
-import { useAddressFormatsHistory } from "../../../../engine/hooks/addressFormat/useAddressFormatsHistory";
+import { useAddressFormatsHistory } from "../../../../engine/hooks";
 
 const MessagePreview = memo(({
     index,

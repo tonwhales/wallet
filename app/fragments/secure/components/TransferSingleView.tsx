@@ -40,7 +40,7 @@ import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
 import { TransferEstimate } from "../transfer/TransferFragment";
-import { useAddressFormatsHistory } from "../../../engine/hooks/addressFormat/useAddressFormatsHistory";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 const TxAvatar = memo(({
     address,

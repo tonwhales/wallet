@@ -44,7 +44,7 @@ import { TonTransaction } from "../../engine/types";
 import { extraCurrencyFromTransaction } from "../../utils/extraCurrencyFromTransaction";
 import { useExtraCurrencyMap } from "../../engine/hooks/jettons/useExtraCurrencyMap";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
-import { useAddressFormatsHistory } from "../../engine/hooks/addressFormat/useAddressFormatsHistory";
+import { useAddressFormatsHistory } from "../../engine/hooks";
 
 const TransactionPreview = () => {
     const theme = useTheme();

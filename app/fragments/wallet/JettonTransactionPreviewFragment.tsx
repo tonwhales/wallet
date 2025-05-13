@@ -35,7 +35,7 @@ import { JettonTransfer } from "../../engine/hooks/transactions/useJettonTransac
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { TxInfo } from "./views/preview/TxInfo";
-import { useAddressFormatsHistory } from "../../engine/hooks/addressFormat/useAddressFormatsHistory";
+import { useAddressFormatsHistory } from "../../engine/hooks";
 
 export type JettonTransactionPreviewParams = {
     transaction: JettonTransfer;

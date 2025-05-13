@@ -38,7 +38,7 @@ import { TransferTarget } from '../secure/transfer/TransferFragment';
 import { WalletVersions } from '../../engine/types';
 import { resolveBounceableTag } from '../../utils/resolveBounceableTag';
 import { failableTransferBackoff } from '../secure/components/TransferSingle';
-import { useAddressFormatsHistory } from '../../engine/hooks/addressFormat/useAddressFormatsHistory';
+import { useAddressFormatsHistory } from '../../engine/hooks';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,

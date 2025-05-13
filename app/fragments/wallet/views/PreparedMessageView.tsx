@@ -22,7 +22,7 @@ import { getLiquidStakingAddress } from '../../../utils/KnownPools';
 import { PreparedMessage } from '../../../engine/hooks/transactions/usePeparedMessages';
 import { TxAvatar } from './TxAvatar';
 import { useContractInfo } from '../../../engine/hooks';
-import { useAddressFormatsHistory } from '../../../engine/hooks/addressFormat/useAddressFormatsHistory';
+import { useAddressFormatsHistory } from '../../../engine/hooks';
 
 export function PreparedMessageView(props: {
     own: Address,

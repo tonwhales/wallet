@@ -5,7 +5,7 @@ import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useEffect, useMemo } from 'react';
-import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSecureScreen, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useHoldersAccounts, useIsLedgerRoute, useNetwork, useSecureScreen, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
@@ -44,8 +44,7 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const params = useParams<HoldersAppParams>();
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerHolders' || initialParams?.ledger;
+    const isLedger = useIsLedgerRoute() || initialParams?.ledger;
     const acc = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = ledgerContext?.addr?.address ? Address.parse(ledgerContext?.addr?.address) : undefined;

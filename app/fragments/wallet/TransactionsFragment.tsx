@@ -5,7 +5,7 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useHoldersAccountStatus, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useIsLedgerRoute, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
@@ -70,8 +70,7 @@ function TransactionsComponent(props: { account: Address, solanaAddress?: string
 
 export const TransactionsFragment = fragment(() => {
     const theme = useTheme();
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerTransactions';
+    const isLedger = useIsLedgerRoute()
     const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount();

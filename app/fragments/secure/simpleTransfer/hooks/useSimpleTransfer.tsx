@@ -4,7 +4,7 @@ import { t } from '../../../../i18n/t';
 import { KnownWallets } from '../../../../secure/KnownWallets';
 import { useLinkNavigator } from "../../../../useLinkNavigator";
 import { formatCurrency, formatInputAmount } from '../../../../utils/formatCurrency';
-import { useAccountLite, useJetton, useNetwork, usePrice, useSelectedAccount, useSolanaSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
+import { useAccountLite, useIsLedgerRoute, useJetton, useNetwork, usePrice, useSelectedAccount, useSolanaSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../../../utils/withDecimals';
 import { fromNano, Cell, Address, toNano } from '@ton/core';
 import { useWalletVersion } from '../../../../engine/hooks/useWalletVersion';
@@ -55,10 +55,10 @@ export enum SelectedInput {
     COMMENT = 2,
 }
 
-export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
+export const useSimpleTransfer = ({ params, navigation }: Options) => {
     const network = useNetwork();
     const knownWallets = KnownWallets(network.isTestnet);
-    const isLedger = route.name === 'LedgerSimpleTransfer';
+    const isLedger = useIsLedgerRoute()
     const acc = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount()!;
     const [price, currency] = usePrice();

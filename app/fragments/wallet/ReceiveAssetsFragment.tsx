@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useIsLedgerRoute, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -112,8 +112,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount()!;
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerReceiveAssets';
+    const isLedger = useIsLedgerRoute()
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();

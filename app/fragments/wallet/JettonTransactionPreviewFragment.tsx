@@ -15,7 +15,7 @@ import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useNetwork, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsLedgerRoute, useJetton, useNetwork, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
@@ -59,8 +59,7 @@ const JettonTransactionPreview = () => {
     const [bounceableFormat] = useBounceableWalletFormat();
     const { getAddressFormat } = useAddressFormatsHistory();
     const [walletsSettings] = useWalletsSettings();
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerJettonTransactionPreview';
+    const isLedger = useIsLedgerRoute()
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
 

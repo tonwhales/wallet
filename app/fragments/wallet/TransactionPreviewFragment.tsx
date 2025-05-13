@@ -17,8 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
-import { useRoute } from "@react-navigation/native";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsLedgerRoute, useJetton, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -50,7 +49,6 @@ const TransactionPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
-    const route = useRoute();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
@@ -65,7 +63,7 @@ const TransactionPreview = () => {
     const [bounceableFormat] = useBounceableWalletFormat();
     const knownJettonMasters = useKnownJettons(isTestnet)?.masters ?? {};
 
-    const isLedger = route.name === 'LedgerTransaction';
+    const isLedger = useIsLedgerRoute()
 
     const address = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr?.address) {

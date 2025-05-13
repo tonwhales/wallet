@@ -10,6 +10,7 @@ import { Address } from "@ton/core";
 import { Image } from "expo-image";
 import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 const showIcon = <Image source={require('@assets/ic-show.png')} style={{ width: 36, height: 36 }} />;
 
@@ -75,7 +76,7 @@ export const JettonsHiddenComponent = memo(({ owner }: { owner: Address }) => {
                 showDivider={false}
                 collapsed={collapsed}
                 items={hiddenList}
-                itemHeight={86}
+                itemHeight={ASSET_ITEM_HEIGHT}
                 style={{ gap: 16, paddingHorizontal: 16 }}
                 renderItem={renderItem}
                 limitConfig={{

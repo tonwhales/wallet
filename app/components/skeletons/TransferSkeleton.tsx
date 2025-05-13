@@ -6,6 +6,7 @@ import { View } from "react-native";
 import { ItemGroup } from "../ItemGroup";
 import { RoundButton } from "../RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 export const TransferSkeleton = memo(() => {
     const animation = useSharedValue(0);
@@ -44,7 +45,7 @@ export const TransferSkeleton = memo(() => {
                 <ItemGroup style={{ marginBottom: 14, height: 216 }}>
 
                 </ItemGroup>
-                <ItemGroup style={{ marginBottom: 16, height: 86 }}>
+                <ItemGroup style={{ marginBottom: 16, height: ASSET_ITEM_HEIGHT }}>
 
                 </ItemGroup>
             </Animated.View>

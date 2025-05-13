@@ -512,10 +512,9 @@ export const TransferSingleView = memo(({
                             })}
                             onPress={() => onCopyAddress(to.address)}
                         >
-                            <Text style={{
-                                fontSize: 13, lineHeight: 18, fontWeight: '400',
+                            <Text style={[{
                                 color: theme.textSecondary,
-                            }}>
+                            }, Typography.regular13_18]}>
                                 {t('common.to')}
                             </Text>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>

@@ -7,21 +7,21 @@ export type AddressFormatHistoryEntry = {
     lastUsedBounceableFormat: boolean;
 };
 
-export type AddressFormatsHistory = Map<string, AddressFormatHistoryEntry>;
+export type AddressFormatsHistory = Record<string, AddressFormatHistoryEntry>;
 
 export function getAddressFormatsHistory(): AddressFormatsHistory {
     const stored = sharedStoragePersistence.getString(addressFormatsHistoryKey);
-    if (!stored) return new Map<string, AddressFormatHistoryEntry>();
+    if (!stored) return {};
     
     try {
-        return new Map(JSON.parse(stored));
+        return JSON.parse(stored);
     } catch (e) {
-        return new Map<string, AddressFormatHistoryEntry>();
+        return {};
     }
 }
 
 export function setAddressFormatsHistory(formats: AddressFormatsHistory) {
-    sharedStoragePersistence.set(addressFormatsHistoryKey, JSON.stringify(Array.from(formats.entries())));
+    sharedStoragePersistence.set(addressFormatsHistoryKey, JSON.stringify(formats));
 }
 
 export const addressFormatsHistoryAtom = atom<AddressFormatsHistory>({

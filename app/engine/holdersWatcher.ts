@@ -7,6 +7,7 @@ import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates
 import { useHoldersAccounts, useSolanaSelectedAccount } from "./hooks";
 import { Queries } from "./queries";
 import { queryClient } from "./clients";
+import { AppState, AppStateStatus } from "react-native";
 
 export function useHoldersWatcher() {
     const account = useSelectedAccount();
@@ -66,4 +67,18 @@ export function useHoldersWatcher() {
             }
         }, isTestnet);
     }, [cards, otpKey, token]);
+
+    const appStateListener = (state: AppStateStatus) => {
+        if (state === 'active') {
+            status.refetch();
+        }
+    };
+
+    useEffect(() => {
+        let sub = AppState.addEventListener('change', appStateListener);
+
+        return () => {
+            sub.remove();
+        };
+    }, []);
 }

@@ -15,7 +15,7 @@ import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useNetwork, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsLedgerRoute, useJetton, useNetwork, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
@@ -35,6 +35,7 @@ import { JettonTransfer } from "../../engine/hooks/transactions/useJettonTransac
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { TxInfo } from "./views/preview/TxInfo";
+import { useAddressFormatsHistory } from "../../engine/hooks";
 
 export type JettonTransactionPreviewParams = {
     transaction: JettonTransfer;
@@ -56,9 +57,9 @@ const JettonTransactionPreview = () => {
     const [spamMinAmount] = useSpamMinAmount();
     const [dontShowComments] = useDontShowComments();
     const [bounceableFormat] = useBounceableWalletFormat();
+    const { getAddressFormat } = useAddressFormatsHistory();
     const [walletsSettings] = useWalletsSettings();
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerJettonTransactionPreview';
+    const isLedger = useIsLedgerRoute()
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
 
@@ -147,10 +148,12 @@ const JettonTransactionPreview = () => {
 
     const participants = useMemo(() => {
         const appState = getAppState();
-        const index = `${appState.addresses.findIndex((a) => address?.equals(a.address)) + 1}`;
+        const index = isLedger
+        ? 'Ledger'
+        : `${appState.addresses.findIndex((a) => address?.equals(a.address)) + 1}`;
         const onwnAdress = address.toString({ testOnly: isTestnet, bounceable: bounceableFormat });
         const ownName = ownWalletSettings?.name || `${t('common.wallet')} ${index}`;
-        const displayAddressString = displayAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat });
+        const displayAddressString = displayAddress.toString({ testOnly: isTestnet, bounceable: getAddressFormat(displayAddress) ?? bounceableFormat });
 
         if (kind === 'out') {
             return {
@@ -225,7 +228,7 @@ const JettonTransactionPreview = () => {
         } catch {}
 
         navigation.navigateSimpleTransfer({
-            target: destinationAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat }),
+            target: destinationAddress.toString({ testOnly: isTestnet, bounceable: getAddressFormat(destinationAddress) ?? bounceableFormat }),
             comment: comment,
             amount: isNeg ? -txAmount : txAmount,
             stateInit: null,
@@ -233,6 +236,8 @@ const JettonTransactionPreview = () => {
             callback: null
         });
     }, []);
+
+    const fromKnownWalletsList = !!knownWallets[opAddress]
 
     return (
         <PerfView
@@ -328,7 +333,8 @@ const JettonTransactionPreview = () => {
                                     address={displayAddress}
                                     end={4}
                                     testOnly={isTestnet}
-                                    known={!!known}
+                                    known={fromKnownWalletsList}
+                                    bounceable={bounceableFormat}
                                 />
                             </PerfText>
                         </PerfView>
@@ -382,7 +388,6 @@ const JettonTransactionPreview = () => {
                         kind={kind}
                         theme={theme}
                         isTestnet={isTestnet}
-                        bounceableFormat={bounceableFormat}
                     />
                     {(!!participants.to.address && !!participants.from.address) && (
                         <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
@@ -393,7 +398,6 @@ const JettonTransactionPreview = () => {
                         kind={kind}
                         theme={theme}
                         testOnly={isTestnet}
-                        bounceableFormat={bounceableFormat}
                     />
                     <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                     <TxInfo

@@ -17,8 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useJetton, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
-import { useRoute } from "@react-navigation/native";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsLedgerRoute, useJetton, useKnownJettons, useNetwork, usePeparedMessages, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -44,12 +43,12 @@ import { TonTransaction } from "../../engine/types";
 import { extraCurrencyFromTransaction } from "../../utils/extraCurrencyFromTransaction";
 import { useExtraCurrencyMap } from "../../engine/hooks/jettons/useExtraCurrencyMap";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { useAddressFormatsHistory } from "../../engine/hooks";
 
 const TransactionPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const knownWallets = KnownWallets(isTestnet);
-    const route = useRoute();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
@@ -64,7 +63,7 @@ const TransactionPreview = () => {
     const [bounceableFormat] = useBounceableWalletFormat();
     const knownJettonMasters = useKnownJettons(isTestnet)?.masters ?? {};
 
-    const isLedger = route.name === 'LedgerTransaction';
+    const isLedger = useIsLedgerRoute()
 
     const address = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr?.address) {
@@ -107,9 +106,11 @@ const TransactionPreview = () => {
     const [walletsSettings] = useWalletsSettings();
     const ownWalletSettings = walletsSettings[address?.toString({ testOnly: isTestnet }) ?? ''];
     const targetContract = useContractInfo(opAddress);
-    const isTargetBounceable = targetContract?.kind === 'wallet'
+
+    const { getAddressFormat } = useAddressFormatsHistory();
+    const isTargetBounceable = getAddressFormat(parsedAddress) ?? (targetContract?.kind === 'wallet'
         ? bounceableFormat
-        : parsedOpAddr.isBounceable
+        : parsedOpAddr.isBounceable)
 
     const opAddressWalletSettings = walletsSettings[parsedAddressFriendly];
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
@@ -413,7 +414,7 @@ const TransactionPreview = () => {
                             >
                                 <AddressComponent
                                     address={parsedOpAddr.address}
-                                    bounceable={isTargetBounceable}
+                                    bounceable={tx.base.parsed.kind === 'out' ? isTargetBounceable : bounceableFormat}
                                     end={4}
                                     testOnly={isTestnet}
                                     known={fromKnownWalletsList}

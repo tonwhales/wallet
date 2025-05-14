@@ -13,6 +13,7 @@ import { Typography } from "../../../../components/styles";
 import { useContractInfo } from "../../../../engine/hooks/metadata/useContractInfo";
 import { WalletAddress } from "../../../../components/address/WalletAddress";
 import { PreparedMessage } from "../../../../engine/hooks/transactions/usePeparedMessages";
+import { useAddressFormatsHistory } from "../../../../engine/hooks";
 
 const MessagePreview = memo(({
     index,
@@ -41,12 +42,13 @@ const MessagePreview = memo(({
 
     const targetContractInfo = useContractInfo(friendlyTarget);
     const [bounceableFormat] = useBounceableWalletFormat();
-
-    const bounceable = (targetContractInfo?.kind === 'wallet')
-            ? bounceableFormat
-            : true;
-
     const target = Address.parse(friendlyTarget);
+    const { getAddressFormat } = useAddressFormatsHistory();
+
+    const bounceable = getAddressFormat(Address.parse(friendlyTarget)) ?? (targetContractInfo?.kind === 'wallet'
+        ? bounceableFormat
+        : true);
+
     const contact = contacts[friendlyTarget];
 
     let known: KnownWallet | undefined = undefined;

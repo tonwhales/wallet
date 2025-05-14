@@ -18,13 +18,15 @@ export const JettonPendingTransactions = memo(({
     master,
     filter,
     onChange,
-    listStyle
+    listStyle,
+    isLedger
 }: {
     owner: string,
     master: string,
     filter?: (tx: PendingTransaction) => boolean,
     onChange?: (txs: PendingTransaction[]) => void,
-    listStyle?: StyleProp<ViewStyle>
+    listStyle?: StyleProp<ViewStyle>,
+    isLedger?: boolean
 }) => {
     const theme = useTheme();
     const account = useSelectedAccount();
@@ -98,6 +100,7 @@ export const JettonPendingTransactions = memo(({
                 viewType={'jetton-history'}
                 style={listStyle}
                 owner={owner}
+                isLedger={isLedger}
             />
         </View>
     );

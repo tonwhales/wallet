@@ -23,25 +23,22 @@ import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurre
 import { avatarHash } from "../../../utils/avatarHash";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 export const PendingTransactionView = memo(({
     tx,
-    first,
     last,
     single,
     viewType = 'main',
-    bounceableFormat,
-    txTimeout,
-    owner
+    owner,
+    isLedger
 }: {
     tx: PendingTransaction,
-    first?: boolean,
     last?: boolean,
     single?: boolean,
     viewType?: 'history' | 'main' | 'jetton-history',
-    bounceableFormat?: boolean,
-    txTimeout: number,
-    owner: string
+    owner: string,
+    isLedger?: boolean
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -49,13 +46,13 @@ export const PendingTransactionView = memo(({
     const body = tx.body;
     const addressBook = useAddressBookContext();
     const knownWallets = KnownWallets(isTestnet);
-    const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
-    const targetFriendly = body?.type === 'token'
-        ? body.target.toString({ testOnly: isTestnet })
-        : tx.address?.toString({ testOnly: isTestnet });
+    const target = body?.type === 'token' ? body.target : tx.address;
+    const targetFriendly = target?.toString({ testOnly: isTestnet });
+    const { getAddressFormat } = useAddressFormatsHistory();
+    const bounceable = getAddressFormat(target) ?? (body?.type === 'token' ? body.bounceable : tx.bounceable);
     const contact = addressBook.asContact(targetFriendly)
     const [settings] = useWalletSettings(targetFriendly);
-    const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
+    const targetContract = useContractInfo(target?.toString({ testOnly: isTestnet }) ?? null);
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
     const extraCurrencyMap = useExtraCurrencyMap((tx.body as any)?.extraCurrency, owner);
@@ -85,12 +82,12 @@ export const PendingTransactionView = memo(({
     const isLedgerTarget = useMemo(() => {
         return !!ledgerAddresses?.find((addr) => {
             try {
-                return tx.address?.equals(Address.parse(addr.address));
+                return target?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-    }, [ledgerAddresses, tx.address]);
+    }, [ledgerAddresses, target]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -129,9 +126,10 @@ export const PendingTransactionView = memo(({
             transaction: tx,
             timedOut: tx.status === 'timed-out',
             forceAvatar,
-            isLedgerTarget
+            isLedgerTarget,
+            isLedger
         });
-    }, [forceAvatar]);
+    }, [forceAvatar, isLedgerTarget, isLedger]);
 
     return (
         <Animated.View

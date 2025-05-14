@@ -7,9 +7,8 @@ import { t } from "../../i18n/t";
 import { KnownPools } from "../../utils/KnownPools";
 import { WImage } from "../../components/WImage";
 import { useParams } from "../../utils/useParams";
-import { useRoute } from "@react-navigation/native";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useClient4, useNetwork, usePoolApy, useSelectedAccount, useStakingPool, useStakingPoolMembers, useTheme } from "../../engine/hooks";
+import { useClient4, useIsLedgerRoute, useNetwork, usePoolApy, useSelectedAccount, useStakingPool, useStakingPoolMembers, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -119,11 +118,10 @@ export const StakingPoolSelectorFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
-    const route = useRoute();
     const selected = useSelectedAccount();
     const params = useParams<{ current: Address, callback: (pool: Address) => void }>();
 
-    const isLedger = route.name === 'StakingPoolSelectorLedger';
+    const isLedger = useIsLedgerRoute()
 
     const ledgerAddress = useMemo(() => {
         if (isLedger || !ledgerContext?.addr?.address) return;

@@ -31,6 +31,7 @@ import { valueText } from "../../../components/ValueComponent";
 import { ConfirmLoadedPropsSingle } from "../transfer/TransferFragment";
 import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 export const failableTransferBackoff = createBackoffFailaible({
     logErrors: true,
@@ -48,6 +49,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const addressBook = useAddressBookContext();
     const account = useAccountLite(selected!.address);
     const registerPending = useRegisterPending();
+    const { getAddressFormat } = useAddressFormatsHistory();
 
     let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless } = props;
 
@@ -290,7 +292,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         // Check bounce flag
-        let bounce = target.bounceable ?? true;
+        let bounce = getAddressFormat(target.address) ?? (target.bounceable ?? true);
         if (!target.active && !order.messages[0].stateInit) {
             bounce = false;
         }

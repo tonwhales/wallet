@@ -40,6 +40,7 @@ import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
 import { TransferEstimate } from "../transfer/TransferFragment";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 const TxAvatar = memo(({
     address,
@@ -162,6 +163,7 @@ export const TransferSingleView = memo(({
     const fromAddress = isLedger ? Address.parse(ledgerTransport.addr!.address) : selected!.address;
     const targetContract = useContractInfo(target.address.toString({ testOnly: isTestnet }));
     const extraCurrencyMap = useExtraCurrencyMap(extraCurrency, fromAddress.toString({ testOnly: isTestnet }));
+    const { getAddressFormat } = useAddressFormatsHistory();
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
@@ -246,8 +248,10 @@ export const TransferSingleView = memo(({
         name: walletSettings?.name || name
     }
 
+    const toBounceable = getAddressFormat(target.address) ?? target.bounceable;
+
     const to = {
-        address: target.address,
+        address: target.address.toString({ testOnly: isTestnet, bounceable: toBounceable }),
         name: (isTargetLedger && !targetWalletSettings?.name)
             ? 'Ledger'
             : targetWalletSettings?.name || known?.name || target.domain || null
@@ -406,7 +410,7 @@ export const TransferSingleView = memo(({
                             </Text>
                             <Text style={[{ color: theme.textPrimary, marginTop: 2 }, Typography.regular17_24]}>
                                 <AddressComponent
-                                    bounceable={target.bounceable}
+                                    bounceable={toBounceable}
                                     address={target.address}
                                     end={4}
                                     testOnly={isTestnet}
@@ -506,12 +510,11 @@ export const TransferSingleView = memo(({
                                 paddingHorizontal: 10, justifyContent: 'center',
                                 opacity: pressed ? 0.5 : 1,
                             })}
-                            onPress={() => onCopyAddress(to.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }))}
+                            onPress={() => onCopyAddress(to.address)}
                         >
-                            <Text style={{
-                                fontSize: 13, lineHeight: 18, fontWeight: '400',
+                            <Text style={[{
                                 color: theme.textSecondary,
-                            }}>
+                            }, Typography.regular13_18]}>
                                 {t('common.to')}
                             </Text>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -519,7 +522,7 @@ export const TransferSingleView = memo(({
                                     style={[{ color: theme.textSecondary }, Typography.regular17_24]}
                                 >
                                     <Text style={{ color: theme.textPrimary }}>
-                                        {to.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }).replaceAll('-', '\u2011')}
+                                        {to.address.replaceAll('-', '\u2011')}
                                     </Text>
                                 </Text>
                             </View>

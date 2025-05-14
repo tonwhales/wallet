@@ -4,7 +4,7 @@ import { t } from '../../../../i18n/t';
 import { KnownWallets } from '../../../../secure/KnownWallets';
 import { useLinkNavigator } from "../../../../useLinkNavigator";
 import { formatCurrency, formatInputAmount } from '../../../../utils/formatCurrency';
-import { useAccountLite, useJetton, useNetwork, usePrice, useSelectedAccount, useSolanaSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
+import { useAccountLite, useIsLedgerRoute, useJetton, useNetwork, usePrice, useSelectedAccount, useSolanaSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../../../utils/withDecimals';
 import { fromNano, Cell, Address, toNano } from '@ton/core';
 import { useWalletVersion } from '../../../../engine/hooks/useWalletVersion';
@@ -29,6 +29,7 @@ import { contractFromPublicKey } from '../../../../engine/contractFromPublicKey'
 import { useExtraCurrency } from '../../../../engine/hooks/jettons/useExtraCurrency';
 import { SimpleTransferParams } from '../SimpleTransferFragment';
 import { useLedgerTransport } from '../../../ledger/components/TransportContext';
+import { useAddressFormatsHistory } from '../../../../engine/hooks';
 
 export type SimpleTransferAsset = {
     type: 'jetton';
@@ -54,10 +55,10 @@ export enum SelectedInput {
     COMMENT = 2,
 }
 
-export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
+export const useSimpleTransfer = ({ params, navigation }: Options) => {
     const network = useNetwork();
     const knownWallets = KnownWallets(network.isTestnet);
-    const isLedger = route.name === 'LedgerSimpleTransfer';
+    const isLedger = useIsLedgerRoute()
     const acc = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount()!;
     const [price, currency] = usePrice();
@@ -65,6 +66,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const gaslessConfigLoading = gaslessConfig?.isFetching || gaslessConfig?.isLoading;
     const hasParamsFilled = !!params?.target && !!params?.amount;
     const [selectedInput, setSelectedInput] = useState<SelectedInput | null>(hasParamsFilled ? null : SelectedInput.ADDRESS);
+    const { saveAddressFormat } = useAddressFormatsHistory();
 
     // Ledger
     const ledgerAddress = useLedgerAddress({ isLedger })
@@ -479,8 +481,11 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         }
 
         let address: Address;
+        let bounceableFormat: boolean
         try {
-            address = Address.parseFriendly(target).address;
+            const addressFriendly = Address.parseFriendly(target)
+            address = addressFriendly.address;
+            bounceableFormat = addressFriendly.isBounceable;
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
@@ -525,6 +530,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
         setSelectedInput(null);
         // Dismiss keyboard for iOS
         if (Platform.OS === 'ios') Keyboard.dismiss();
+        saveAddressFormat(address, bounceableFormat);
 
         if (isLedger) {
             if (!(tonTransport && !isReconnectLedger)) {

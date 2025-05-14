@@ -16,7 +16,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsLedgerRoute, useNetwork, usePrice, useSelectedAccount, useTheme, useVerifyJetton, useWalletsSettings } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -38,12 +38,15 @@ import { ForcedAvatar, ForcedAvatarType } from "../../components/avatar/ForcedAv
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { avatarHash } from "../../utils/avatarHash";
+import { useAddressFormatsHistory } from "../../engine/hooks";
+import { useLedgerTransport } from "../ledger/components/TransportContext";
 
 export type PendingTxPreviewParams = {
     transaction: PendingTransaction;
     timedOut?: boolean;
     forceAvatar?: ForcedAvatarType;
     isLedgerTarget?: boolean;
+    isLedger?: boolean;
 }
 
 const PendingTxPreview = () => {
@@ -53,13 +56,17 @@ const PendingTxPreview = () => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
+    const isLedger = useIsLedgerRoute()
+    const ledgerContext = useLedgerTransport();
+    const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected.address;
     const toaster = useToaster();
     const appState = useAppState();
     const addressBook = useAddressBookContext();
     const [price, currency] = usePrice();
     const [dontShowComments] = useDontShowComments();
-    const [walletSettings] = useWalletSettings(selected.address);
+    const [walletSettings] = useWalletSettings(address);
     const [bounceableFormat] = useBounceableWalletFormat();
+    const { getAddressFormat } = useAddressFormatsHistory();
     const params = useParams<PendingTxPreviewParams>();
 
     const tx = params.transaction;
@@ -83,8 +90,8 @@ const PendingTxPreview = () => {
         ? tx.body.target.toString({ testOnly: isTestnet })
         : tx.address?.toString({ testOnly: isTestnet });
     const opAddressBounceable = tx.body?.type === 'token'
-        ? tx.body.target.toString({ testOnly: isTestnet, bounceable: tx.body.bounceable })
-        : tx.address?.toString({ testOnly: isTestnet, bounceable: tx.bounceable });
+        ? tx.body.target.toString({ testOnly: isTestnet, bounceable: getAddressFormat(tx.body.target) ?? bounceableFormat })
+        : tx.address?.toString({ testOnly: isTestnet, bounceable: getAddressFormat(tx.address) ?? bounceableFormat });
     const operation = !!opAddress ? resolveOperation({
         account: Address.parse(opAddress),
         amount: amount,
@@ -144,12 +151,14 @@ const PendingTxPreview = () => {
 
     const participants = useMemo(() => {
         const appState = getAppState();
-        const index = `${appState.addresses.findIndex((a) => selected.address?.equals(a.address)) + 1}`;
+        const index = isLedger
+            ? 'Ledger'
+            : `${appState.addresses.findIndex((a) => address?.equals(a.address)) + 1}`;
 
         if (!opAddressBounceable) {
             return {
                 from: {
-                    address: selected.address?.toString({ testOnly: isTestnet, bounceable: bounceableFormat }) || '',
+                    address: address?.toString({ testOnly: isTestnet, bounceable: bounceableFormat }) || '',
                     name: walletSettings?.name || `${t('common.wallet')} ${index}`
                 }
             }
@@ -157,7 +166,7 @@ const PendingTxPreview = () => {
 
         return {
             from: {
-                address: selected.address?.toString({ testOnly: isTestnet, bounceable: bounceableFormat }) || '',
+                address: address?.toString({ testOnly: isTestnet, bounceable: bounceableFormat }) || '',
                 name: walletSettings?.name || `${t('common.wallet')} ${index}`
             },
             to: {
@@ -165,7 +174,7 @@ const PendingTxPreview = () => {
                 name: known?.name
             }
         }
-    }, [opAddressBounceable, walletSettings, tx, known, bounceableFormat]);
+    }, [opAddressBounceable, walletSettings, tx, known, address, isLedger, bounceableFormat]);
 
     const onCopyAddress = useCallback((address: string) => {
         copyText(address);
@@ -308,9 +317,7 @@ const PendingTxPreview = () => {
                             >
                                 <AddressComponent
                                     address={participants.to.address}
-                                    bounceable={tx.body?.type === 'token' ? tx.body.bounceable : tx.bounceable}
                                     end={4}
-                                    known={!!known}
                                     testOnly={isTestnet}
                                 />
                             </PerfText>
@@ -393,7 +400,6 @@ const PendingTxPreview = () => {
                                 kind={'out'}
                                 theme={theme}
                                 testOnly={isTestnet}
-                                bounceableFormat={bounceableFormat}
                             />
                         </>
                     )}

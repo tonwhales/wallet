@@ -333,6 +333,7 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
     modalScreen('LedgerTransaction', TransactionPreviewFragment, safeArea),
     modalScreen('LedgerJettonTransactionPreview', JettonTransactionPreviewFragment, safeArea),
+    modalScreen('LedgerPendingTransaction', PendingTxPreviewFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),

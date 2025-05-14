@@ -286,7 +286,7 @@ export class TypedNavigation {
     }
 
     navigatePendingTx(params: PendingTxPreviewParams) {
-        this.navigate('PendingTransaction', params);
+        this.navigate(params.isLedger ? 'LedgerPendingTransaction' : 'PendingTransaction', params);
     }
 
     navigateMandatoryAuthSetup(params?: MandatoryAuthSetupParams) {

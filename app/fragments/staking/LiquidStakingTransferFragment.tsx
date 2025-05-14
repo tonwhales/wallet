@@ -12,12 +12,11 @@ import { PriceComponent } from '../../components/PriceComponent';
 import { parseAmountToBn } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useParams } from '../../utils/useParams';
-import { useRoute } from '@react-navigation/native';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { Address, Builder, beginCell, fromNano, toNano } from '@ton/core';
-import { useAccountLite, useLiquidStakingMember, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useAccountLite, useIsLedgerRoute, useLiquidStakingMember, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
 import { AboutIconButton } from '../../components/AboutIconButton';
@@ -41,11 +40,10 @@ export const LiquidStakingTransferFragment = fragment(() => {
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const params = useParams<LiquidStakingTransferParams>();
-    const route = useRoute();
     const [price, currency] = usePrice();
     const selected = useSelectedAccount();
 
-    const isLedger = route.name === 'LedgerLiquidStakingTransfer';
+    const isLedger = useIsLedgerRoute()
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {

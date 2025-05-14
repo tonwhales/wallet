@@ -22,6 +22,7 @@ import { getLiquidStakingAddress } from '../../../utils/KnownPools';
 import { PreparedMessage } from '../../../engine/hooks/transactions/usePeparedMessages';
 import { TxAvatar } from './TxAvatar';
 import { useContractInfo } from '../../../engine/hooks';
+import { useAddressFormatsHistory } from '../../../engine/hooks';
 
 export function PreparedMessageView(props: {
     own: Address,
@@ -52,9 +53,13 @@ export function PreparedMessageView(props: {
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const parsedAddressNonBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable: false });
     const targetContractInfo = useContractInfo(parsedAddressFriendly);
-    const bounceable = (targetContractInfo?.kind === 'wallet')
+    const { getAddressFormat } = useAddressFormatsHistory();    
+    // If format is saved in local history we'll show it
+    // Otherwise if targetContract is wallet we show the address in a format taken from Settings
+    // Otherwise we show the address in a format taken from the transaction (which is in most of the cases wrong)
+    const bounceable = getAddressFormat(parsedAddress) ?? (targetContractInfo?.kind === 'wallet'
         ? props.bounceableFormat
-        : parsedOpAddr.isBounceable;
+        : parsedOpAddr.isBounceable);
     const isOwn = (appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const walletSettings = walletsSettings[parsedAddressFriendly];
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);

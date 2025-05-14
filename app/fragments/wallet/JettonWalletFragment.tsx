@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useJetton, useKnownJettons, useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
+import { useIsLedgerRoute, useJetton, useKnownJettons, useNetwork, usePrimaryCurrency, useTheme } from "../../engine/hooks";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -167,6 +167,7 @@ const JettonWalletHeader = memo(({ owner, master, wallet, isLedger, onRefresh }:
                     master={master}
                     onChange={onRefresh}
                     filter={pendingFilter}
+                    isLedger={isLedger}
                 />
             </View>
         </View>
@@ -279,8 +280,7 @@ export const JettonWalletFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const { owner, master, wallet } = useParams<JettonWalletFragmentProps>();
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerJettonWallet';
+    const isLedger = useIsLedgerRoute()
 
     const addresses = validateWalletAddresses(owner, master, wallet);
 

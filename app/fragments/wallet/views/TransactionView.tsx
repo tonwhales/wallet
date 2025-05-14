@@ -31,6 +31,7 @@ import { useLedgerTransport } from '../../ledger/components/TransportContext';
 import { extraCurrencyFromTransaction } from '../../../utils/extraCurrencyFromTransaction';
 import { useExtraCurrencyMap } from '../../../engine/hooks/jettons/useExtraCurrencyMap';
 import { fromBnWithDecimals } from '../../../utils/withDecimals';
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 export function TransactionView(props: {
     own: Address,
@@ -75,11 +76,14 @@ export function TransactionView(props: {
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet, own);
     const targetContract = useContractInfo(opAddress);
-    // if it's a Recieved transaction or targetContract is wallet 
+    const { getAddressFormat } = useAddressFormatsHistory();
+    // If format is saved in local history we'll show it
+    // Otherwise if it's a Recieved transaction or targetContract is wallet 
     // we show the address in a format taken from Settings
-    const bounceable = targetContract?.kind === 'wallet' || !targetContract
+    // Otherwise we show the address in a format taken from the transaction (which is in most of the cases wrong)
+    const bounceable = getAddressFormat(parsedAddress) ?? (targetContract?.kind === 'wallet' || !targetContract
         ? props.bounceableFormat
-        : parsedOpAddr.isBounceable;
+        : parsedOpAddr.isBounceable);
     const parsedAddressFriendlyBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable });
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;

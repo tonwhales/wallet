@@ -21,7 +21,7 @@ type PreviewFromProps = {
     theme: ThemeType;
     isTestnet: boolean;
     onCopyAddress: (address: string) => void;
-    bounceableFormat: boolean;
+    bounceableFormat?: boolean;
 }
 
 export const PreviewFrom = memo((props: PreviewFromProps) => {

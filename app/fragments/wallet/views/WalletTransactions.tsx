@@ -111,14 +111,11 @@ export const WalletTransactions = memo((props: {
         navigation.navigate('Contact', { address });
     }, []);
 
-    const onRepeatTx = useCallback(async (tx: TonTransaction) => {
+    const onRepeatTx = useCallback(async (tx: TonTransaction, formattedAddressString: string) => {
         const amount = BigInt(tx.base.parsed.amount);
         const operation = tx.base.operation;
         const item = operation.items[0];
         const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-        const opAddr = Address.parseFriendly(opAddressString);
-        const bounceable = bounceableFormat ? true : opAddr.isBounceable;
-        const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
 
         let jetton: Address | undefined = undefined;
 
@@ -149,7 +146,7 @@ export const WalletTransactions = memo((props: {
         }
 
         navigation.navigateSimpleTransfer({
-            target,
+            target: formattedAddressString,
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
             amount: amount < 0n ? -amount : amount,
             stateInit: null,
@@ -211,13 +208,13 @@ export const WalletTransactions = memo((props: {
                     if (!spam) {
                         onMarkAddressSpam(contactAddress);
                     } else if (canRepeat) {
-                        onRepeatTx(tx);
+                        onRepeatTx(tx, formattedAddressString);
                     }
                     break;
                 }
                 case 5: {
                     if (canRepeat) {
-                        onRepeatTx(tx);
+                        onRepeatTx(tx, formattedAddressString);
                     }
                     break;
                 }

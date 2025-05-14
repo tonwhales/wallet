@@ -13,7 +13,7 @@ import { useRoute } from "@react-navigation/native";
 import { formatCurrency, formatInputAmount } from "../../utils/formatCurrency";
 import { ValueComponent } from "../../components/ValueComponent";
 import { TransferAction } from "./StakingTransferFragment";
-import { useLiquidStakingMember, useNetwork, usePrice, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useIsLedgerRoute, useLiquidStakingMember, useNetwork, usePrice, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { Address, fromNano, toNano } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
@@ -30,14 +30,13 @@ export const StakingCalculatorFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [price, currency] = usePrice();
     const ledgerContext = useLedgerTransport();
-    const route = useRoute();
     const network = useNetwork();
     const selected = useSelectedAccount();
     const liquidStaking = useLiquidStaking().data;
 
     const target = Address.parse(params.target);
     const isLiquid = target.equals(getLiquidStakingAddress(network.isTestnet));
-    const isLedger = route.name === 'LedgerStakingCalculator';
+    const isLedger = useIsLedgerRoute()
 
     const ledgerAddress = useMemo(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;

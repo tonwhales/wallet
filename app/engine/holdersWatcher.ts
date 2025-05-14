@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
+import { getHoldersToken, useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
 import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
 import { HoldersUserState } from "./api/holders/fetchUserState";
 import { useNetwork } from "./hooks/network/useNetwork";
@@ -18,10 +18,7 @@ export function useHoldersWatcher() {
     const cards = useHoldersAccounts(accAddressString, solanaAddress);
     const otpKey = Queries.Holders(accAddressString).OTP();
 
-    const token = (
-        !!status.data &&
-        status.data.state === HoldersUserState.Ok
-    ) ? status.data.token : null;
+    const token = getHoldersToken(accAddressString);
 
     useEffect(() => {
         if (!token) {

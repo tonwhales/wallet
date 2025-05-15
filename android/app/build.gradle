@@ -231,6 +231,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:23.0.0'
     implementation 'com.google.firebase:firebase-installations:17.0.0'
     implementation 'com.google.firebase:firebase-iid:21.1.0'
+    implementation 'com.wonderpush:wonderpush-android-sdk-fcm:1.0.5'
     implementation 'androidx.work:work-runtime-ktx:2.7.0'
     implementation 'com.google.android.gms:play-services-tapandpay:+'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'

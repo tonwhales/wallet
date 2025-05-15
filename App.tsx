@@ -83,10 +83,13 @@ export default function App(props: any) {
       pushNotificationListener = DeviceEventEmitter.addListener(
         'pushNotificationOpened',
         (data) => {
-          if (data && data.url && typeof data.url === 'string') {
-            handleLinkReceived(data.url);
+            // Using setTimeout to defer link processing to allow the Event Loop to complete current tasks
+            // and ensure the app is fully initialized before handling the deeplink
+            setTimeout(() => {
+              handleLinkReceived(data.url);
+            }, 100);
           }
-        }
+        
       );
     }
 

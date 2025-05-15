@@ -86,7 +86,9 @@ export default function App(props: any) {
             // Using setTimeout to defer link processing to allow the Event Loop to complete current tasks
             // and ensure the app is fully initialized before handling the deeplink
             setTimeout(() => {
-              handleLinkReceived(data.url);
+              if (data.url && typeof data.url === 'string') {
+                handleLinkReceived(data.url);
+              }
             }, 100);
           }
         

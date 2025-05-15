@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo } from "react";
 import { View, ScrollView, ActivityIndicator, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { useKnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
+import { useKnownPools, getLiquidStakingAddress, StakingPool as KnownStakingPool } from "../../utils/KnownPools";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -23,8 +23,8 @@ import { useAppConfig } from "../../engine/hooks/useAppConfig";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper' | 'liquid' | 'usde';
 
-export function filterPools(pools: StakingPoolMember[], type: StakingPoolType, processed: Set<string>, isTestnet: boolean) {
-    return pools.filter((v) => useKnownPools(isTestnet)[v.pool].name.toLowerCase().includes(type) && !processed.has(v.pool));
+export function filterPools(pools: StakingPoolMember[], type: StakingPoolType, processed: Set<string>, knownPools: Record<string, KnownStakingPool>) {
+    return pools.filter((v) => knownPools[v.pool].name.toLowerCase().includes(type) && !processed.has(v.pool));
 }
 
 export const StakingPoolsFragment = fragment(() => {
@@ -41,6 +41,7 @@ export const StakingPoolsFragment = fragment(() => {
     const appConfig = useAppConfig();
     const showEthena = appConfig?.features?.ethena;
     const { tsMinter } = useEthena();
+    const knownPools = useKnownPools(isTestnet);
 
     const ledgerAddress = useMemo(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;
@@ -52,7 +53,7 @@ export const StakingPoolsFragment = fragment(() => {
     const members = useStakingPoolMembers(
         client,
         isTestnet,
-        Object.keys(useKnownPools(isTestnet)).map((v) => Address.parse(v)).map((p) => ({ pool: p, member: memberAddress! })),
+        Object.keys(knownPools).map((v) => Address.parse(v)).map((p) => ({ pool: p, member: memberAddress! })),
     );
 
     const memberData = useMemo(() => {
@@ -205,11 +206,11 @@ export const StakingPoolsFragment = fragment(() => {
         );
     }
 
-    let club = filterPools(memberData, 'club', processed, network.isTestnet);
-    let team = filterPools(memberData, 'team', processed, network.isTestnet);
-    let nominators = filterPools(memberData, 'nominators', processed, network.isTestnet);
-    let epn = filterPools(memberData, 'epn', processed, network.isTestnet);
-    let tonkeeper = filterPools(memberData, 'tonkeeper', processed, network.isTestnet);
+    let club = filterPools(memberData, 'club', processed, knownPools);
+    let team = filterPools(memberData, 'team', processed, knownPools);
+    let nominators = filterPools(memberData, 'nominators', processed, knownPools);
+    let epn = filterPools(memberData, 'epn', processed, knownPools);
+    let tonkeeper = filterPools(memberData, 'tonkeeper', processed, knownPools);
 
     if (epn.length > 0) {
         const epnItems: ReactElement[] = [];

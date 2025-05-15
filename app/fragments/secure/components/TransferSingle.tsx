@@ -45,6 +45,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const account = useAccountLite(selected!.address);
+    const knownWallets = useKnownWallets(isTestnet);
     const registerPending = useRegisterPending();
 
     let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless } = props;
@@ -132,11 +133,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const contact = useContact(friendlyTarget);
 
     // Resolve built-in known wallets
-    let known: KnownWallet | undefined = undefined;
-    if (useKnownWallets(isTestnet)[friendlyTarget]) {
-        known = useKnownWallets(isTestnet)[friendlyTarget];
-    }
-    if (!!contact) { // Resolve contact known wallet
+    let known: KnownWallet | undefined = knownWallets[friendlyTarget];
+    if (!!contact && !known) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 

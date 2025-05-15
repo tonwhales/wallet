@@ -1,6 +1,6 @@
 import { Address } from "@ton/core";
 import { ImageRequireSource } from "react-native";
-import { EthenaAssets, useEthena } from "../engine/hooks/staking/useEthena";
+import { useEthena } from "../engine/hooks/staking/useEthena";
 
 export type StakingPool = {
     name: string,

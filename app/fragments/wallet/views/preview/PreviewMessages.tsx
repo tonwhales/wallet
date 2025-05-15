@@ -31,11 +31,11 @@ const MessagePreview = memo(({
     denyList: { [key: string]: { reason: string | null } },
     serverConfig?: ServerConfig
 }) => {
-    const addressString = message.addressString;
     const gas = message.gas;
     const amountString = message.amountString;
     const operation = message.operation;
     const friendlyTarget = message.friendlyTarget;
+    const knownWallets = useKnownWallets(isTestnet);
 
     let amount = message.amount;
 
@@ -49,12 +49,8 @@ const MessagePreview = memo(({
     const target = Address.parse(friendlyTarget);
     const contact = contacts[friendlyTarget];
 
-    let known: KnownWallet | undefined = undefined;
-
-    if (useKnownWallets(isTestnet)[friendlyTarget]) {
-        known = useKnownWallets(isTestnet)[friendlyTarget];
-    }
-    if (!!contact) { // Resolve contact known wallet
+    let known: KnownWallet | undefined = knownWallets[friendlyTarget];
+    if (!!contact && !known) { // Resolve contact known wallet
         known = { name: contact.name }
     }
     const isSpam = !!(denyList ?? {})[friendlyTarget];

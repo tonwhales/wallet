@@ -71,6 +71,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
+    const knownWallets = useKnownWallets(isTestnet);
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
         if (ledgerContext?.addr) {
@@ -123,10 +124,8 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const spam = useIsSpamWallet(friendlyTarget) || isSpam;
 
     // Resolve built-in known wallets
-    let known: KnownWallet | undefined = undefined;
-    if (useKnownWallets(isTestnet)[friendlyTarget]) {
-        known = useKnownWallets(isTestnet)[friendlyTarget];
-    } else if (!!contact) { // Resolve contact known wallet
+    let known: KnownWallet | undefined = knownWallets[friendlyTarget];
+    if (!!contact && !known) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 

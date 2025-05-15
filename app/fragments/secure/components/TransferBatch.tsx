@@ -171,12 +171,9 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
             const friendlyTarget = message.addr.address.toString({ testOnly: isTestnet });
             const contact = contacts[operation.address];
 
-            let known: KnownWallet | undefined = undefined;
+            let known: KnownWallet | undefined = knownWallets[friendlyTarget];
 
-            if (useKnownWallets(isTestnet)[friendlyTarget]) {
-                known = useKnownWallets(isTestnet)[friendlyTarget];
-            }
-            if (!!contact) { // Resolve contact known wallet
+            if (!!contact && !known) { // Resolve contact known wallet
                 known = { name: contact.name }
             }
             const isSpam = !!(denyList ?? {})[operation.address];

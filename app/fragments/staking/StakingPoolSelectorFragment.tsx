@@ -122,6 +122,7 @@ export const StakingPoolSelectorFragment = fragment(() => {
     const route = useRoute();
     const selected = useSelectedAccount();
     const params = useParams<{ current: Address, callback: (pool: Address) => void }>();
+    const knownPools = useKnownPools(isTestnet);
 
     const isLedger = route.name === 'StakingPoolSelectorLedger';
 
@@ -132,7 +133,7 @@ export const StakingPoolSelectorFragment = fragment(() => {
         } catch { }
     }, [ledgerContext?.addr?.address, isLedger]);
 
-    const pools = Object.keys(useKnownPools(isTestnet)).map((v) => Address.parse(v));
+    const pools = Object.keys(knownPools).map((v) => Address.parse(v));
 
     const memberData = useStakingPoolMembers(
         client,

@@ -104,8 +104,10 @@ export const LiquidStakingFragment = fragment(() => {
         navigation.navigateLiquidWithdrawAction(isLedger);
     }, [isLedger]);
 
+    const knownPools = useKnownPools(isTestnet);
+
     const openMoreInfo = () => {
-        const url = useKnownPools(isTestnet)[targetPoolFriendly]?.webLink;
+        const url = knownPools[targetPoolFriendly]?.webLink;
 
         if (!!url) {
             const domain = extractDomain(url);

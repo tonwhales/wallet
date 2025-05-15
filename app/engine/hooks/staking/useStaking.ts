@@ -33,14 +33,15 @@ function calculatePoolsAndTotal(knownPools: Address[], members: (StakingPoolMemb
 }
 
 export function useStaking(address?: Address) {
-    let selected = useSelectedAccount();
-    let { isTestnet } = useNetwork();
-    let client = useClient4(isTestnet);
-    let config = useStakingWalletConfig(address?.toString({ testOnly: isTestnet }) ?? selected!.addressString);
-    let knownPools = Object.keys(useKnownPools(isTestnet)).map((key) => Address.parse(key));
-    let members = useStakingPoolMembers(client, isTestnet, knownPools.map(p => ({ pool: p, member: address ?? selected!.address })));
+    const selected = useSelectedAccount();
+    const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
+    const config = useStakingWalletConfig(address?.toString({ testOnly: isTestnet }) ?? selected!.addressString);
+    const knownPools = useKnownPools(isTestnet);
+    const mappedKnownPools = Object.keys(knownPools).map((key) => Address.parse(key));
+    const members = useStakingPoolMembers(client, isTestnet, mappedKnownPools.map(p => ({ pool: p, member: address ?? selected!.address })));
 
-    const { pools, total } = calculatePoolsAndTotal(knownPools, members, isTestnet);
+    const { pools, total } = calculatePoolsAndTotal(mappedKnownPools, members, isTestnet);
 
     return {
         pools,

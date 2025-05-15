@@ -109,8 +109,10 @@ export const LiquidUSDeStakingFragment = fragment(() => {
 
     const onUnstake = () => navigation.navigateLiquidUSDeStakingUnstake(isLedger);
 
+    const knownPools = useKnownPools(isTestnet);
+
     const openMoreInfo = () => {
-        const url = useKnownPools(isTestnet)[targets[0].toString({ testOnly: isTestnet })]?.webLink;
+        const url = knownPools[targets[0].toString({ testOnly: isTestnet })]?.webLink;
 
         if (!!url) {
             const domain = extractDomain(url);

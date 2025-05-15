@@ -60,6 +60,7 @@ export function PreparedMessageView(props: {
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
     const contact = contacts[parsedAddressFriendlyBounceable];
+    const knownWallets = useKnownWallets(isTestnet);
 
     // Operation
     const op = useMemo(() => {
@@ -79,11 +80,8 @@ export function PreparedMessageView(props: {
     }, [operation.op, status]);
 
     // Resolve built-in known wallets
-    let known: KnownWallet | undefined = undefined;
-    if (useKnownWallets(isTestnet)[parsedAddressFriendlyBounceable]) {
-        known = useKnownWallets(isTestnet)[parsedAddressFriendlyBounceable];
-    }
-    if (!!contact) { // Resolve contact known wallet
+    let known: KnownWallet | undefined = knownWallets[parsedAddressFriendlyBounceable];
+    if (!!contact && !known) { // Resolve contact known wallet
         known = { name: contact.name }
     }
     if (!!walletSettings?.name) {

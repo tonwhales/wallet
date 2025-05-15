@@ -338,6 +338,17 @@ export const LedgerSignTransferFragment = fragment(() => {
     const netConfig = useConfig();
 
     useEffect(() => {
+        if (!ledgerContext || !ledgerContext.ledgerConnection || !ledgerContext.tonTransport || !ledgerContext.addr) {
+            ledgerContext.onShowLedgerConnectionError(() => {
+                if (params && params.callback) {
+                    params.callback(false, null);
+                }
+                navigation.goBack();
+            })
+        }
+    }, []);
+
+    useEffect(() => {
 
         // Await data
         if (!netConfig) {
@@ -348,12 +359,6 @@ export const LedgerSignTransferFragment = fragment(() => {
         let exited = false;
 
         backoff('transfer', async () => {
-            if (!ledgerContext || !ledgerContext.ledgerConnection || !ledgerContext.tonTransport || !ledgerContext.addr) {
-                if (params && params.callback) {
-                    params.callback(false, null);
-                }
-                return;
-            }
 
             if (!from) {
                 if (params && params.callback) {
@@ -361,115 +366,116 @@ export const LedgerSignTransferFragment = fragment(() => {
                 }
                 return;
             }
+            if (ledgerContext.ledgerConnection) {
+                // Get contract
+                const contract = contractFromPublicKey(from.publicKey, undefined, isTestnet) as WalletContractV4;
 
-            // Get contract
-            const contract = contractFromPublicKey(from.publicKey, undefined, isTestnet) as WalletContractV4;
+                // Resolve payload 
+                let payload: Cell | null = order.payload ? resolveLedgerPayload(order.payload) : null;
 
-            // Resolve payload 
-            let payload: Cell | null = order.payload ? resolveLedgerPayload(order.payload) : null;
+                // Create transfer
+                const intMessage = internal({
+                    to: target.address,
+                    value: order.amount,
+                    bounce: false,
+                    body: payload
+                });
 
-            // Create transfer
-            const intMessage = internal({
-                to: target.address,
-                value: order.amount,
-                bounce: false,
-                body: payload
-            });
+                const block = await backoff('transfer', () => client.getLastBlock());
+                const seqno = await backoff('transfer', async () => fetchSeqno(client, block.last.seqno, contract.address));
+                const transfer = contract.createTransfer({
+                    seqno: seqno,
+                    secretKey: Buffer.alloc(64),
+                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                    messages: [intMessage]
+                });
 
-            const block = await backoff('transfer', () => client.getLastBlock());
-            const seqno = await backoff('transfer', async () => fetchSeqno(client, block.last.seqno, contract.address));
-            const transfer = contract.createTransfer({
-                seqno: seqno,
-                secretKey: Buffer.alloc(64),
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
-                messages: [intMessage]
-            });
+                // Fetch data
+                const [
+                    config,
+                    [metadata, state]
+                ] = await Promise.all([
+                    backoff('transfer', () => fetchConfig()),
+                    backoff('transfer', async () => {
+                        return Promise.all([
+                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet, true)),
+                            backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
+                        ])
+                    })
+                ]);
 
-            // Fetch data
-            const [
-                config,
-                [metadata, state]
-            ] = await Promise.all([
-                backoff('transfer', () => fetchConfig()),
-                backoff('transfer', async () => {
-                    return Promise.all([
-                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet, true)),
-                        backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
-                    ])
-                })
-            ]);
-
-            // Check if wallet is restricted
-            let restricted = false;
-            for (let r of config.wallets.restrict_send) {
-                if (Address.parse(r).equals(target.address)) {
-                    restricted = true;
-                    break;
-                }
-            }
-
-            let jettonTarget: TransferTarget | undefined = undefined;
-            if (order.payload?.type === 'jetton-transfer') {
-                const dest = order.payload.destination;
-                const destState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, dest));
-                const bounceable = await resolveBounceableTag(dest, { testOnly: isTestnet, bounceableFormat });
-
-                jettonTarget = {
-                    isTestOnly: isTestnet,
-                    address: dest,
-                    balance: BigInt(destState.account.balance.coins),
-                    active: destState.account.state.type === 'active',
-                    domain: order.domain,
-                    bounceable
-                }
-
+                // Check if wallet is restricted
+                let restricted = false;
                 for (let r of config.wallets.restrict_send) {
-                    if (Address.parse(r).equals(dest)) {
+                    if (Address.parse(r).equals(target.address)) {
                         restricted = true;
                         break;
                     }
                 }
+
+                let jettonTarget: TransferTarget | undefined = undefined;
+                if (order.payload?.type === 'jetton-transfer') {
+                    const dest = order.payload.destination;
+                    const destState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, dest));
+                    const bounceable = await resolveBounceableTag(dest, { testOnly: isTestnet, bounceableFormat });
+
+                    jettonTarget = {
+                        isTestOnly: isTestnet,
+                        address: dest,
+                        balance: BigInt(destState.account.balance.coins),
+                        active: destState.account.state.type === 'active',
+                        domain: order.domain,
+                        bounceable
+                    }
+
+                    for (let r of config.wallets.restrict_send) {
+                        if (Address.parse(r).equals(dest)) {
+                            restricted = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (exited) {
+                    return;
+                }
+
+                // Estimate fee
+                const inMsgExt = external({
+                    to: contract.address,
+                    body: transfer,
+                    init: seqno === 0 ? contract.init : null
+                });
+
+                const inMsg = beginCell().store(storeMessage(inMsgExt)).endCell();
+                const fees = estimateFees(netConfig!, inMsg, [beginCell().store(storeMessageRelaxed(intMessage)).endCell()], [state!.account.storageStat]);
+
+                // Set state
+                setLoadedProps({
+                    restricted,
+                    target: {
+                        isTestOnly: target.isTestOnly,
+                        address: target.address,
+                        balance: BigInt(state.account.balance.coins),
+                        active: state.account.state.type === 'active',
+                        domain: order.domain,
+                        bounceable: target.isBounceable
+                    },
+                    jettonTarget,
+                    order,
+                    fees,
+                    metadata,
+                    addr: ledgerContext.addr!,
+                    text,
+                    callback: params.callback
+                });
             }
-
-            if (exited) {
-                return;
-            }
-
-            // Estimate fee
-            const inMsgExt = external({
-                to: contract.address,
-                body: transfer,
-                init: seqno === 0 ? contract.init : null
-            });
-
-            const inMsg = beginCell().store(storeMessage(inMsgExt)).endCell();
-            const fees = estimateFees(netConfig!, inMsg, [beginCell().store(storeMessageRelaxed(intMessage)).endCell()], [state!.account.storageStat]);
-
-            // Set state
-            setLoadedProps({
-                restricted,
-                target: {
-                    isTestOnly: target.isTestOnly,
-                    address: target.address,
-                    balance: BigInt(state.account.balance.coins),
-                    active: state.account.state.type === 'active',
-                    domain: order.domain,
-                    bounceable: target.isBounceable
-                },
-                jettonTarget,
-                order,
-                fees,
-                metadata,
-                addr: ledgerContext.addr,
-                text,
-                callback: params.callback
-            });
         });
 
         return () => {
             exited = true;
         };
-    }, [netConfig]);
+    }, [netConfig, ledgerContext.ledgerConnection]);
 
     return (
         <View style={{ flexGrow: 1 }}>

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, memo, useCallback } from "react";
 import { Pressable, Image, Text, View } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { KnownPools } from "../../utils/KnownPools";
+import { useKnownPools } from "../../utils/KnownPools";
 import { useNetwork, useStakingActive, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -46,8 +46,10 @@ export const StakingPoolHeader = memo(({
         )
     }, [isLedger, currentPool, setParams, activeLength]);
 
+    const pool = useKnownPools(network.isTestnet)[currentPoolFriendly];
+
     const openMoreInfo = () => {
-        const url = KnownPools(network.isTestnet)[currentPoolFriendly]?.webLink;
+        const url = pool?.webLink;
 
         if (!!url) {
             const domain = extractDomain(url);
@@ -98,10 +100,11 @@ export const StakingPoolHeader = memo(({
                     })}
                     onPress={openPoolSelector}
                 >
-                    <Text style={[{
-                        color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary,
-                    }, Typography.semiBold17_24]}>
-                        {KnownPools(network.isTestnet)[currentPoolFriendly]?.name}
+                    <Text style={[
+                        { color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary },
+                        Typography.semiBold17_24
+                    ]}>
+                        {pool?.name}
                     </Text>
                 </Pressable>
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>

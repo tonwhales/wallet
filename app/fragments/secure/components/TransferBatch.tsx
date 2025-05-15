@@ -6,7 +6,7 @@ import { SupportedMessage, parseMessageBody } from "../../../engine/transactions
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../../engine/transactions/resolveOperation";
 import { t } from "../../../i18n/t";
-import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
+import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
@@ -61,7 +61,7 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
     const contacts = addressBook.contacts;
     const denyList = addressBook.denyList;
     const serverConfig = useServerConfig();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const toaster = useToaster();
 
     const appData = useAppData(props.order.app?.url || '');
@@ -173,8 +173,8 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
 
             let known: KnownWallet | undefined = undefined;
 
-            if (KnownWallets(isTestnet)[friendlyTarget]) {
-                known = KnownWallets(isTestnet)[friendlyTarget];
+            if (useKnownWallets(isTestnet)[friendlyTarget]) {
+                known = useKnownWallets(isTestnet)[friendlyTarget];
             }
             if (!!contact) { // Resolve contact known wallet
                 known = { name: contact.name }

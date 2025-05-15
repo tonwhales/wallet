@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ResolvedTxUrl, resolveUrl } from '../../../../utils/resolveUrl';
 import { t } from '../../../../i18n/t';
-import { KnownWallets } from '../../../../secure/KnownWallets';
+import { useKnownWallets } from '../../../../secure/KnownWallets';
 import { useLinkNavigator } from "../../../../useLinkNavigator";
 import { formatCurrency, formatInputAmount } from '../../../../utils/formatCurrency';
 import { useAccountLite, useJetton, useNetwork, usePrice, useSelectedAccount, useSolanaSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
@@ -56,7 +56,7 @@ export enum SelectedInput {
 
 export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
     const network = useNetwork();
-    const knownWallets = KnownWallets(network.isTestnet);
+    const knownWallets = useKnownWallets(network.isTestnet);
     const isLedger = route.name === 'LedgerSimpleTransfer';
     const acc = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount()!;
@@ -116,7 +116,7 @@ export const useSimpleTransfer = ({ params, route, navigation }: Options) => {
 
         return fromNano(params.amount);
     });
-    
+
     const [stateInit] = useState<Cell | null>(params?.stateInit || null);
     const estimationRef = useRef<bigint | null>(null);
 

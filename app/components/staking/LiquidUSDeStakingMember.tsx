@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { View, Image, Text, Alert } from "react-native";
-import { useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, useTheme } from "../../engine/hooks";
+import { useEthena, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, useTheme } from "../../engine/hooks";
 import { ValueComponent } from "../ValueComponent";
 import { Typography } from "../styles";
 import { PriceComponent } from "../PriceComponent";
@@ -21,6 +21,7 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
     const rate = useLiquidUSDeStakingRate();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
+    const { tsMinter } = useEthena();
 
     const decimals = usdeShares?.tsUsdeHint?.jetton.decimals ?? 6;
 
@@ -70,6 +71,7 @@ export const LiquidUSDeStakingMember = memo(({ address }: { address: Address }) 
         }
 
         const transferCell = createWithdrawLiquidUSDeStakingPayload({
+            minterAddress: tsMinter,
             owner: address,
             amount: lockedBalance,
             isTestnet

@@ -16,7 +16,7 @@ import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { useParams } from "../../utils/useParams";
 import { Avatar } from "../../components/avatar/Avatar";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 import { Typography } from "../../components/styles";
 
 export const requiredFields = [
@@ -27,7 +27,7 @@ export const ContactNewFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const { address: passedAddress } = useParams<{ address?: string }>();
 
     const [address, setAddress] = useState(passedAddress ?? '');

@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useDimensions } from "@react-native-community/hooks";
 import { Typography } from "../../components/styles";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 
 export const AvatarPickerFragment = fragment(() => {
     const { callback, hash, initColor, isLedger } = useParams<{ callback: (newHash: number, color: number) => void, hash: number, initColor: number, isLedger: boolean }>();
@@ -21,7 +21,7 @@ export const AvatarPickerFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const selected = useSelectedAccount();
     const address = selected!.address;
     const dimentions = useDimensions();

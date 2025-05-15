@@ -6,9 +6,9 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { KnownPools } from "../../utils/KnownPools";
+import { useKnownPools } from "../../utils/KnownPools";
 import { useFocusEffect } from "@react-navigation/native";
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePendingActions, useRefreshLiquidUSDeStaking, useSelectedAccount, useTheme, useUSDeAssetsShares } from "../../engine/hooks";
+import { useEthena, useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePendingActions, useRefreshLiquidUSDeStaking, useSelectedAccount, useTheme, useUSDeAssetsShares } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -20,7 +20,6 @@ import { WalletAddress } from "../../components/address/WalletAddress";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { LiquidUSDeStakingMember } from "../../components/staking/LiquidUSDeStakingMember";
 import { useUSDeStakingApy } from "../../engine/hooks/staking/useUSDeStakingApy";
-import { gettsUSDeMinter, gettsUSDeVaultAddress, getUSDeMinter } from "../../secure/KnownWallets";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
 import { EthenaPointsBanner } from "../../components/staking/EthenaPointsBanner";
 
@@ -43,6 +42,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     const nominator = useLiquidUSDeStakingMember(memberAddress);
     const usdeShares = useUSDeAssetsShares(memberAddress);
     const usdeApy = useUSDeStakingApy()?.apy;
+    const { minter, tsMinter, vault } = useEthena();
     const rate = useLiquidUSDeStakingRate();
     const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: isTestnet }), isTestnet);
     const { isRefetching, refetch } = useRefreshLiquidUSDeStaking(memberAddress);
@@ -63,9 +63,6 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     const tsUSDeWallet = usdeShares?.tsUsdeHint?.walletAddress;
 
     const targets = useMemo(() => {
-        const tsMinter = gettsUSDeMinter(isTestnet);
-        const minter = getUSDeMinter(isTestnet);
-        const vault = gettsUSDeVaultAddress(isTestnet);
         let usdeAddress: Address | undefined;
         let tsUSDeAddress: Address | undefined;
         if (usdeWallet) {
@@ -113,7 +110,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
     const onUnstake = () => navigation.navigateLiquidUSDeStakingUnstake(isLedger);
 
     const openMoreInfo = () => {
-        const url = KnownPools(isTestnet)[targets[0].toString({ testOnly: isTestnet })]?.webLink;
+        const url = useKnownPools(isTestnet)[targets[0].toString({ testOnly: isTestnet })]?.webLink;
 
         if (!!url) {
             const domain = extractDomain(url);
@@ -179,7 +176,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                     </View>
                     <View style={{ backgroundColor: theme.surfaceOnDark, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 32 }}>
                         <Text style={[{ color: theme.textUnchangeable }, Typography.medium17_24]}>
-                            {KnownPools(isTestnet)[targets[0].toString({ testOnly: isTestnet })]?.name}
+                            {useKnownPools(isTestnet)[targets[0].toString({ testOnly: isTestnet })]?.name}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>

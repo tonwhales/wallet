@@ -9,7 +9,7 @@ import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar, avatarColors } from "../../components/avatar/Avatar";
 import { t } from "../../i18n/t";
-import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet, useKnownWallets } from "../../secure/KnownWallets";
 import { PriceComponent } from "../../components/PriceComponent";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
@@ -49,7 +49,7 @@ export type PendingTxPreviewParams = {
 const PendingTxPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;

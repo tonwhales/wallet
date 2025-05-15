@@ -105,7 +105,7 @@ function parseHoldersInstructionWithDiscriminator(instruction: TransactionInstru
     const discriminator = instruction.data.slice(0, 8);
 
     const idlInstruction = holdersIdl.instructions.find(
-        instr => Buffer.from(instr.discriminator).equals(discriminator as unknown as Uint8Array<ArrayBufferLike>)
+        instr => Buffer.from(instr.discriminator).equals(discriminator as unknown as Uint8Array)
     );
 
     if (!idlInstruction) {

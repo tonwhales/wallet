@@ -25,8 +25,6 @@ export function useAppConfig(): AppConfig {
         refetchOnWindowFocus: true
     });
 
-    console.log('remoteConfig', remoteConfig.data);
-
     return {
         ...defaultConfig,
         ...remoteConfig.data,

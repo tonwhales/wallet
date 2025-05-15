@@ -1,17 +1,16 @@
 import { Address } from "@ton/core";
-import { useNetwork } from "../network";
 import { Queries } from "../../queries";
-import { gettsUSDeMinter } from "../../../secure/KnownWallets";
 import { useIsFetching } from '@tanstack/react-query';
 import { queryClient } from "../../clients";
 import { useEffect, useState } from "react";
+import { useEthena, useNetwork } from "..";
 
 export function useRefreshLiquidUSDeStaking(account: Address | null | undefined) {
     const { isTestnet } = useNetwork();
-    const pool = gettsUSDeMinter(isTestnet);
+    const { tsMinter } = useEthena();
 
     const usdeMemberKey = Queries.StakingLiquidUSDeMember(
-        pool.toString({ testOnly: isTestnet }),
+        tsMinter.toString({ testOnly: isTestnet }),
         account!.toString({ testOnly: isTestnet })
     );
 

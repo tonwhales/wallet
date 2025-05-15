@@ -1,11 +1,10 @@
 import { Address } from "@ton/core";
-import { useNetwork } from "../network";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { z } from "zod";
 import { whalesConnectEndpoint } from "../../clients";
 import axios from "axios";
-import { gettsUSDeMinter } from "../../../secure/KnownWallets";
+import { useEthena, useNetwork } from "..";
 
 const liquidUsdeStakingMemberScheme = z.object({
     balance: z.string(),
@@ -37,7 +36,7 @@ async function fetchLiquidUSDeStakingMember(isTestnet: boolean, account: Address
 
 export function useLiquidUSDeStakingMember(account: Address | null | undefined) {
     const { isTestnet } = useNetwork();
-    const pool = gettsUSDeMinter(isTestnet);
+    const { tsMinter } = useEthena();
 
     const query = useQuery<LiquidUSDeStakingMember>({
         queryFn: async () => {
@@ -49,7 +48,7 @@ export function useLiquidUSDeStakingMember(account: Address | null | undefined) 
         },
         refetchOnMount: true,
         queryKey: Queries.StakingLiquidUSDeMember(
-            pool.toString({ testOnly: isTestnet }),
+            tsMinter.toString({ testOnly: isTestnet }),
             account!.toString({ testOnly: isTestnet })
         ),
         staleTime: 1000 * 6,

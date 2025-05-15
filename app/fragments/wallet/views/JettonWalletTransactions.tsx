@@ -15,7 +15,7 @@ import { AppState } from "../../../storage/appState";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
+import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
 import { warn } from "../../../utils/log";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
@@ -102,7 +102,7 @@ export const JettonWalletTransactions = memo((props: {
     const { theme, navigation, address, ledger, jetton, txs, header, loading, hasNext, sectionedListProps, onLoadMore, onRefresh } = props;
     const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const addressBookContext = useAddressBookContext();
     const addressBook = addressBookContext.state;
     const addToDenyList = useAddToDenyList();

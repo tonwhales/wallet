@@ -3,7 +3,7 @@ import { Pressable, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { avatarColors } from '../../../components/avatar/Avatar';
-import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
+import { KnownWallet, useKnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
@@ -80,8 +80,8 @@ export function PreparedMessageView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[parsedAddressFriendlyBounceable]) {
-        known = KnownWallets(isTestnet)[parsedAddressFriendlyBounceable];
+    if (useKnownWallets(isTestnet)[parsedAddressFriendlyBounceable]) {
+        known = useKnownWallets(isTestnet)[parsedAddressFriendlyBounceable];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }

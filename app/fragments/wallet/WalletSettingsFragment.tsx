@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
 import { Typography } from "../../components/styles";
 import { RoundButton } from "../../components/RoundButton";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated";
 import { useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
@@ -30,7 +30,7 @@ export const WalletSettingsFragment = fragment(() => {
     const isLedger = route.name === 'LedgerWalletSettings';
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const toaster = useToaster();
     const appState = getAppState();
     const navigation = useTypedNavigation();
@@ -82,7 +82,7 @@ export const WalletSettingsFragment = fragment(() => {
 
     const onChangeAvatar = useCallback(() => {
         const callback = (hash: number, color: number) => {
-            if(!isLedger) {
+            if (!isLedger) {
                 setAvatar(hash);
             }
             setColor(color);
@@ -168,33 +168,33 @@ export const WalletSettingsFragment = fragment(() => {
 
                     <Animated.View style={animAvatarStyles}
                         onLayout={(e) => setAvatarHeight(e.nativeEvent.layout.height)}>
-                            <Pressable
-                                style={({ pressed }) => {
-                                    return {
-                                        opacity: pressed ? 0.5 : 1,
-                                        justifyContent: 'center', alignItems: 'center'
-                                    }
-                                }}
-                                disabled={isInputNameFocus}
-                                onPress={onChangeAvatar}
-                            >
-                                <Avatar
-                                    size={100}
-                                    borderColor={theme.surfaceOnElevation}
-                                    hash={avatar}
-                                    theme={theme}
-                                    knownWallets={knownWallets}
-                                    id={address.toString({ testOnly: isTestnet })}
-                                    backgroundColor={avatarColors[selectedColor]}
-                                    isLedger={isLedger}
-                                />
-                                <Text style={[
-                                    { color: theme.accent, marginTop: 12 },
-                                    Typography.medium17_24
-                                ]}>
-                                    {t('wallets.settings.changeAvatar')}
-                                </Text>
-                            </Pressable>
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1,
+                                    justifyContent: 'center', alignItems: 'center'
+                                }
+                            }}
+                            disabled={isInputNameFocus}
+                            onPress={onChangeAvatar}
+                        >
+                            <Avatar
+                                size={100}
+                                borderColor={theme.surfaceOnElevation}
+                                hash={avatar}
+                                theme={theme}
+                                knownWallets={knownWallets}
+                                id={address.toString({ testOnly: isTestnet })}
+                                backgroundColor={avatarColors[selectedColor]}
+                                isLedger={isLedger}
+                            />
+                            <Text style={[
+                                { color: theme.accent, marginTop: 12 },
+                                Typography.medium17_24
+                            ]}>
+                                {t('wallets.settings.changeAvatar')}
+                            </Text>
+                        </Pressable>
                     </Animated.View>
 
                     <Animated.View style={[{

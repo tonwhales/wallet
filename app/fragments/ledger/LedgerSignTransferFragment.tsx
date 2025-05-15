@@ -6,7 +6,7 @@ import { backoff, backoffFailaible } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
-import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
+import { KnownWallet, useKnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
@@ -124,8 +124,8 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[friendlyTarget]) {
-        known = KnownWallets(isTestnet)[friendlyTarget];
+    if (useKnownWallets(isTestnet)[friendlyTarget]) {
+        known = useKnownWallets(isTestnet)[friendlyTarget];
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
@@ -227,10 +227,10 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
             // Resolve & reg pending transaction
             let transferPayload: LedgerTransferPayload | null = null;
             if (order.payload?.type === 'jetton-transfer' && !!jetton) {
-                transferPayload = { 
-                    ...order.payload, 
+                transferPayload = {
+                    ...order.payload,
                     jetton,
-                    bounceable: jettonTarget ? jettonTarget.bounceable : undefined 
+                    bounceable: jettonTarget ? jettonTarget.bounceable : undefined
                 };
             } else if (order.payload?.type === 'comment') {
                 transferPayload = order.payload;
@@ -410,7 +410,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             if (order.payload?.type === 'jetton-transfer') {
                 const dest = order.payload.destination;
                 const destState = await backoff('txLoad-jts', () => client.getAccount(block.last.seqno, dest));
-                const bounceable = await resolveBounceableTag(dest, { testOnly: isTestnet, bounceableFormat });  
+                const bounceable = await resolveBounceableTag(dest, { testOnly: isTestnet, bounceableFormat });
 
                 jettonTarget = {
                     isTestOnly: isTestnet,

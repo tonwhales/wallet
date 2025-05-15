@@ -3,7 +3,7 @@ import { memo } from "react";
 import { View, Text, Image, Platform } from "react-native";
 import { ThemeType } from "../../../../engine/state/theme";
 import { useBounceableWalletFormat, useNetwork, useServerConfig } from "../../../../engine/hooks";
-import { KnownWallet, KnownWallets } from "../../../../secure/KnownWallets";
+import { KnownWallet, useKnownWallets } from "../../../../secure/KnownWallets";
 import { AddressBook, AddressContact } from "../../../../engine/hooks/contacts/useAddressBook";
 import { ServerConfig } from "../../../../engine/api/fetchConfig";
 import { ItemCollapsible } from "../../../../components/ItemCollapsible";
@@ -43,16 +43,16 @@ const MessagePreview = memo(({
     const [bounceableFormat] = useBounceableWalletFormat();
 
     const bounceable = (targetContractInfo?.kind === 'wallet')
-            ? bounceableFormat
-            : true;
+        ? bounceableFormat
+        : true;
 
     const target = Address.parse(friendlyTarget);
     const contact = contacts[friendlyTarget];
 
     let known: KnownWallet | undefined = undefined;
 
-    if (KnownWallets(isTestnet)[friendlyTarget]) {
-        known = KnownWallets(isTestnet)[friendlyTarget];
+    if (useKnownWallets(isTestnet)[friendlyTarget]) {
+        known = useKnownWallets(isTestnet)[friendlyTarget];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }

@@ -22,7 +22,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { StatusBar } from 'expo-status-bar';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 import { avatarHash } from '../../utils/avatarHash';
-import { KnownWallets } from '../../secure/KnownWallets';
+import { useKnownWallets } from '../../secure/KnownWallets';
 import { trackAppsFlyerEvent } from '../../analytics/appsflyer';
 import { AppsFlyerEvent } from '../../analytics/appsflyer';
 
@@ -30,7 +30,7 @@ export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const network = useNetwork();
-    const knownWallets = KnownWallets(network.isTestnet);
+    const knownWallets = useKnownWallets(network.isTestnet);
     const navigation = useTypedNavigation();
     const route = useRoute();
     const init = route.name === 'WalletBackupInit';

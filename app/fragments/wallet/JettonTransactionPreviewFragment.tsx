@@ -9,7 +9,7 @@ import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar, avatarColors } from "../../components/avatar/Avatar";
 import { t } from "../../i18n/t";
-import { KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { KnownWallet, useKnownWallets } from "../../secure/KnownWallets";
 import { RoundButton } from "../../components/RoundButton";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
@@ -46,7 +46,7 @@ export type JettonTransactionPreviewParams = {
 const JettonTransactionPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
@@ -218,11 +218,11 @@ const JettonTransactionPreview = () => {
 
         try {
             jettonMaster = Address.parse(master);
-        } catch {}
+        } catch { }
 
         try {
             jettonWallet = Address.parse(wallet);
-        } catch {}
+        } catch { }
 
         navigation.navigateSimpleTransfer({
             target: destinationAddress.toString({ testOnly: isTestnet, bounceable: bounceableFormat }),

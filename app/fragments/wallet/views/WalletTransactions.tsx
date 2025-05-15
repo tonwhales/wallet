@@ -14,7 +14,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../../i18n/t";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { KnownWallets } from "../../../secure/KnownWallets";
+import { useKnownWallets } from "../../../secure/KnownWallets";
 import { warn } from "../../../utils/log";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { queryClient } from "../../../engine/clients";
@@ -53,7 +53,7 @@ export const WalletTransactions = memo((props: {
     const bottomBarHeight = useBottomTabBarHeight();
     const { theme, navigation, holdersAccStatus } = props;
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const [spamMinAmount] = useSpamMinAmount();
     const [dontShowComments] = useDontShowComments();
     const addressBookContext = useAddressBookContext();

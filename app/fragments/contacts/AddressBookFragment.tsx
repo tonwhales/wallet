@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { useParams } from "../../utils/useParams";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 import { useHoldersAccountTrargets } from "../../engine/hooks/holders/useHoldersAccountTrargets";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Ionicons } from '@expo/vector-icons';
@@ -32,7 +32,7 @@ export const AddressBookFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const { account, solanaAddress, onSelected } = useParams<AddressBookParams>();
     const [bounceableFormat] = useBounceableWalletFormat();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const lastTwoTxs = (useLastTwoTxs(account) as TonStoredTransaction[]).map((t) => t.data);
     const accAddress = useMemo(() => Address.parse(account), [account]);
     const holdersAccounts = useHoldersAccountTrargets(accAddress, solanaAddress);

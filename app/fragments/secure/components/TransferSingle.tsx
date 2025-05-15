@@ -4,7 +4,7 @@ import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../../engine/transactions/resolveOperation";
 import { t } from "../../../i18n/t";
-import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
+import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
@@ -133,8 +133,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[friendlyTarget]) {
-        known = KnownWallets(isTestnet)[friendlyTarget];
+    if (useKnownWallets(isTestnet)[friendlyTarget]) {
+        known = useKnownWallets(isTestnet)[friendlyTarget];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }

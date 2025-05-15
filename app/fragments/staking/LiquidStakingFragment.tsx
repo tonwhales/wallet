@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingCycle } from "../../components/staking/StakingCycle";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
+import { useKnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
 import { useIsLedgerRoute, useLiquidStakingMember, useNetwork, usePendingActions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
@@ -105,7 +105,7 @@ export const LiquidStakingFragment = fragment(() => {
     }, [isLedger]);
 
     const openMoreInfo = () => {
-        const url = KnownPools(isTestnet)[targetPoolFriendly]?.webLink;
+        const url = useKnownPools(isTestnet)[targetPoolFriendly]?.webLink;
 
         if (!!url) {
             const domain = extractDomain(url);
@@ -171,7 +171,7 @@ export const LiquidStakingFragment = fragment(() => {
                     </View>
                     <View style={{ backgroundColor: theme.surfaceOnDark, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 32 }}>
                         <Text style={[{ color: theme.textUnchangeable }, Typography.medium17_24]}>
-                            {KnownPools(isTestnet)[targetPoolFriendly]?.name}
+                            {useKnownPools(isTestnet)[targetPoolFriendly]?.name}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>

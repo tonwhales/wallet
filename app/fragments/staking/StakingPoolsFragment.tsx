@@ -2,7 +2,7 @@ import React, { ReactElement, useMemo } from "react";
 import { View, ScrollView, ActivityIndicator, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
+import { useKnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -12,19 +12,19 @@ import { StakingPoolsHeader } from "../../components/staking/StakingPoolsHeader"
 import { StakingPool } from "../../components/staking/StakingPool";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { Address } from "@ton/core";
-import { useClient4, useIsLedgerRoute, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useClient4, useEthena, useIsLedgerRoute, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { LiquidStakingPool } from "../../components/staking/LiquidStakingPool";
 import { LiquidUSDeStakingPool } from "../../components/staking/LiquidUSDeStakingPool";
-import { gettsUSDeMinter } from "../../secure/KnownWallets";
+import { useAppConfig } from "../../engine/hooks/useAppConfig";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper' | 'liquid' | 'usde';
 
 export function filterPools(pools: StakingPoolMember[], type: StakingPoolType, processed: Set<string>, isTestnet: boolean) {
-    return pools.filter((v) => KnownPools(isTestnet)[v.pool].name.toLowerCase().includes(type) && !processed.has(v.pool));
+    return pools.filter((v) => useKnownPools(isTestnet)[v.pool].name.toLowerCase().includes(type) && !processed.has(v.pool));
 }
 
 export const StakingPoolsFragment = fragment(() => {
@@ -38,6 +38,9 @@ export const StakingPoolsFragment = fragment(() => {
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
     const isLedger = useIsLedgerRoute();
+    const appConfig = useAppConfig();
+    const showEthena = appConfig?.features?.ethena;
+    const { tsMinter } = useEthena();
 
     const ledgerAddress = useMemo(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;
@@ -49,7 +52,7 @@ export const StakingPoolsFragment = fragment(() => {
     const members = useStakingPoolMembers(
         client,
         isTestnet,
-        Object.keys(KnownPools(isTestnet)).map((v) => Address.parse(v)).map((p) => ({ pool: p, member: memberAddress! })),
+        Object.keys(useKnownPools(isTestnet)).map((v) => Address.parse(v)).map((p) => ({ pool: p, member: memberAddress! })),
     );
 
     const memberData = useMemo(() => {
@@ -189,17 +192,18 @@ export const StakingPoolsFragment = fragment(() => {
     );
 
     // USDe
-    const usdeAddress = gettsUSDeMinter(isTestnet);
-    processed.add(usdeAddress.toString({ testOnly: isTestnet }));
+    if (showEthena) {
+        processed.add(tsMinter.toString({ testOnly: isTestnet }));
 
-    items.push(
-        <View
-            key={'usde-staking'}
-            style={poolViewStyle}
-        >
-            <LiquidUSDeStakingPool member={memberAddress!} />
-        </View>
-    );
+        items.push(
+            <View
+                key={'usde-staking'}
+                style={poolViewStyle}
+            >
+                <LiquidUSDeStakingPool member={memberAddress!} />
+            </View>
+        );
+    }
 
     let club = filterPools(memberData, 'club', processed, network.isTestnet);
     let team = filterPools(memberData, 'team', processed, network.isTestnet);

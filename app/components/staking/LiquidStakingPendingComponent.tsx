@@ -69,7 +69,6 @@ export const LiquidStakingPendingComponent = memo((
                         backgroundColor: theme.surfaceOnBg,
                         borderRadius: 20,
                         justifyContent: 'center',
-                        alignItems: 'center',
                         paddingHorizontal: 20,
                         paddingVertical: 10
                     }}

@@ -14,7 +14,7 @@ export const StakingProductBanner = memo(({ isLedger }: { isLedger?: boolean }) 
     const apyWithFee = apy ? (apy - apy * (5 / 100)).toFixed(2) : undefined;
 
     const onClick = () => {
-        navigation.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools');
+        navigation.navigateStakingPools(isLedger);
     }
 
     return (

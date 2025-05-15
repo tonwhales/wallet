@@ -16,3 +16,4 @@ export { useUSDeStakingApy } from './useUSDeStakingApy';
 export { useLiquidUSDeStakingRate } from './useLiquidUSDeStakingRate';
 export { useUSDeAssetsShares } from './useUSDeAssetsShares';
 export { useRefreshLiquidUSDeStaking } from './useRefreshLiquidUSDeStaking';
+export { useEthena } from './useEthena';

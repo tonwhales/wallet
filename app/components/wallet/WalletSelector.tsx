@@ -5,7 +5,7 @@ import { useAppState, useBounceableWalletFormat, useNetwork } from "../../engine
 import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { useNavigationState } from "@react-navigation/native";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 import { SelectedAccount, WalletVersions } from "../../engine/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LedgerWalletItem } from "./LedgerWalletItem";
@@ -25,7 +25,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
     const prevScreen = useNavigationState((state) => state.routes[state.index - 1]?.name);
     const { isTestnet } = useNetwork();
     const [bounceableFormat] = useBounceableWalletFormat();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
 
     const isPrevScreenLedger = prevScreen?.startsWith('Ledger') ?? false;
 

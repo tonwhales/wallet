@@ -2,7 +2,6 @@
 
 import { Address, beginCell, Cell, toNano } from "@ton/core";
 import { OperationType } from "../../engine/transactions/parseMessageBody";
-import { gettsUSDeMinter, gettsUSDeVaultAddress } from "../../secure/KnownWallets";
 
 function buildTransferMessage(
     opCode: OperationType,
@@ -27,12 +26,14 @@ function buildTransferMessage(
 // Deposit
 export function createDespositLiquidUSDeStakingPayload(
     {
+        vaultAddress,
         owner,
         amount,
         fwdAmount = toNano('0.1'),
         queryId = 69,
         isTestnet,
     }: {
+        vaultAddress: Address,
         owner: Address,
         amount: bigint,
         fwdAmount?: bigint,
@@ -40,8 +41,6 @@ export function createDespositLiquidUSDeStakingPayload(
         isTestnet: boolean
     }
 ) {
-    const vaultAddress = gettsUSDeVaultAddress(isTestnet);
-
     return buildTransferMessage(
         OperationType.JettonTransfer,
         vaultAddress,
@@ -55,12 +54,14 @@ export function createDespositLiquidUSDeStakingPayload(
 // Unstake
 export function createUnstakeLiquidUSDeStakingPayload(
     {
+        minterAddress,
         owner,
         amount,
         fwdAmount = toNano('0.1'),
         queryId = 69,
         isTestnet,
     }: {
+        minterAddress: Address,
         owner: Address,
         amount: bigint,
         fwdAmount?: bigint,
@@ -68,8 +69,6 @@ export function createUnstakeLiquidUSDeStakingPayload(
         isTestnet: boolean
     }
 ) {
-    const minterAddress = gettsUSDeMinter(isTestnet);
-
     return buildTransferMessage(
         OperationType.JettonTransfer,
         minterAddress,
@@ -83,12 +82,14 @@ export function createUnstakeLiquidUSDeStakingPayload(
 // Withdraw
 export function createWithdrawLiquidUSDeStakingPayload(
     {
+        minterAddress,
         owner,
         amount,
         fwdAmount = toNano('0.1'),
         queryId = 69,
         isTestnet,
     }: {
+        minterAddress: Address,
         owner: Address,
         amount: bigint,
         fwdAmount?: bigint,
@@ -96,8 +97,6 @@ export function createWithdrawLiquidUSDeStakingPayload(
         isTestnet: boolean
     }
 ) {
-    const minterAddress = gettsUSDeMinter(isTestnet);
-
     return buildTransferMessage(
         OperationType.LiquidUSDeStakingWithdraw,
         minterAddress,

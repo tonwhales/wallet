@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
+import { useKnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { t } from "../../i18n/t";
 import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../WImage";
@@ -89,7 +89,7 @@ export const LiquidStakingPool = memo((
             return `${t('common.apy')} ≈ ${(apy - apy * (poolFee / 100)).toFixed(2)}%`;
         }
     }, [apy, poolFee]);
-    const knownPools = KnownPools(isTestnet);
+    const knownPools = useKnownPools(isTestnet);
     const requireSource = knownPools[poolAddressString]?.requireSource;
     const name = knownPools[poolAddressString]?.name;
     const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);

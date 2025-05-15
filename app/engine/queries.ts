@@ -86,6 +86,7 @@ export const Queries = {
     APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
     PoolApy: (pool: string) => (['staking', 'poolApy', pool]),
 
+    // Ethena
     USDeApy: (isTestnet: boolean) => (['staking', 'usdeApy', isTestnet ? 'testnet' : 'mainnet']),
     USDeRate: (isTestnet: boolean) => (['staking', 'usdeRate', isTestnet ? 'testnet' : 'mainnet']),
     StakingLiquidUSDeMember: (pool: string, member: string) => ['staking', 'member', 'liquid', 'usde', pool, member],

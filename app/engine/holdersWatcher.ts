@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
+import { getHoldersToken, useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
 import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
 import { HoldersUserState } from "./api/holders/fetchUserState";
 import { useNetwork } from "./hooks/network/useNetwork";
@@ -7,6 +7,7 @@ import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates
 import { useHoldersAccounts, useSolanaSelectedAccount } from "./hooks";
 import { Queries } from "./queries";
 import { queryClient } from "./clients";
+import { AppState, AppStateStatus } from "react-native";
 
 export function useHoldersWatcher() {
     const account = useSelectedAccount();
@@ -17,10 +18,7 @@ export function useHoldersWatcher() {
     const cards = useHoldersAccounts(accAddressString, solanaAddress);
     const otpKey = Queries.Holders(accAddressString).OTP();
 
-    const token = (
-        !!status.data &&
-        status.data.state === HoldersUserState.Ok
-    ) ? status.data.token : null;
+    const token = getHoldersToken(accAddressString);
 
     useEffect(() => {
         if (!token) {
@@ -66,4 +64,18 @@ export function useHoldersWatcher() {
             }
         }, isTestnet);
     }, [cards, otpKey, token]);
+
+    const appStateListener = (state: AppStateStatus) => {
+        if (state === 'active') {
+            status.refetch();
+        }
+    };
+
+    useEffect(() => {
+        let sub = AppState.addEventListener('change', appStateListener);
+
+        return () => {
+            sub.remove();
+        };
+    }, []);
 }

@@ -15,7 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { useDimensions } from "@react-native-community/hooks";
 import { ATextInput } from "../../components/ATextInput";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 import { Typography } from "../../components/styles";
 import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
 import { TonStoredTransaction, TransactionType } from "../../engine/types";
@@ -36,7 +36,7 @@ export const ContactsFragment = fragment(() => {
     const account = useSelectedAccount();
     const dimensions = useDimensions();
     const transactions = useAccountTransactionsV2(account?.addressString ?? '', undefined, { type: TransactionType.TON }).data ?? [];
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
 
     const [search, setSearch] = useState('');
 

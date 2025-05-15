@@ -14,7 +14,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useReducer } from 're
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { Address, toNano } from '@ton/core';
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePrice, useSelectedAccount, useTheme, useUSDeAssetsShares } from '../../engine/hooks';
+import { useEthena, useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, usePrice, useSelectedAccount, useTheme, useUSDeAssetsShares } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { StatusBar } from 'expo-status-bar';
 import { ItemDivider } from '../../components/ItemDivider';
@@ -54,6 +54,7 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
     const selected = useSelectedAccount();
     const isLedger = useIsLedgerRoute();
     const [, currency] = usePrice();
+    const { tsMinter, vault } = useEthena();
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -180,12 +181,14 @@ export const LiquidUSDeStakingTransferFragment = fragment(() => {
             ? createDespositLiquidUSDeStakingPayload({
                 owner: memberAddress,
                 amount: validAmount,
-                isTestnet
+                isTestnet,
+                vaultAddress: vault
             })
             : createUnstakeLiquidUSDeStakingPayload({
                 owner: memberAddress,
                 amount: validAmount,
-                isTestnet
+                isTestnet,
+                minterAddress: tsMinter
             });
 
         const transferAmountTon = toNano('0.2');

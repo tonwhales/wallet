@@ -11,7 +11,7 @@ export function watchHoldersAccountUpdates(token: string, handler: (event: any) 
     let i = index++;
     function doOpen() {
         const endpoint = holdersEndpoint(isTestnet);
-        let s = new WebSocket(`wss://${endpoint}/v2/updates`);
+        const s = new WebSocket(`wss://${endpoint}/v2/updates`);
         socket = s;
         socket.onopen = () => {
             socket!.send(JSON.stringify({ type: 'connect', token: token }));
@@ -25,13 +25,13 @@ export function watchHoldersAccountUpdates(token: string, handler: (event: any) 
                         if (!closed) {
                             doOpen();
                         }
-                    }, 5000);
+                    }, 10000);
                     logger.log(`[${i}] Disconnected`);
                 }
             }
         };
         socket.onmessage = (msg) => {
-            let d = JSON.parse(msg.data as string);
+            const d = JSON.parse(msg.data as string);
             handler(d);
             logger.log(`[${i}] Message: ${msg.data}`);
         };

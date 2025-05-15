@@ -1,16 +1,15 @@
 import { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { KnownPools } from "../../utils/KnownPools";
+import { useKnownPools } from "../../utils/KnownPools";
 import { t } from "../../i18n/t";
 import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../WImage";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
-import { Address, fromNano, toNano } from "@ton/core";
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, useTheme, useUSDeStakingApy } from "../../engine/hooks";
+import { Address, toNano } from "@ton/core";
+import { useEthena, useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, useNetwork, useTheme, useUSDeStakingApy } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { ItemHeader } from "../ItemHeader";
-import { gettsUSDeMinter } from "../../secure/KnownWallets";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 
 import StakingIcon from '@assets/ic_staking.svg';
@@ -27,8 +26,8 @@ export const LiquidUSDeStakingPool = memo((
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const minterAddress = gettsUSDeMinter(isTestnet);
-    const poolAddressString = minterAddress.toString({ testOnly: isTestnet });
+    const { tsMinter } = useEthena();
+    const poolAddressString = tsMinter.toString({ testOnly: isTestnet });
     const nominator = useLiquidUSDeStakingMember(props.member);
     const usdeApy = useUSDeStakingApy()?.apy;
     const rate = useLiquidUSDeStakingRate();
@@ -49,7 +48,7 @@ export const LiquidUSDeStakingPool = memo((
             return `${t('common.apy')} ≈ ${usdeApy.toFixed(2)}%`;
         }
     }, [usdeApy]);
-    const knownPools = KnownPools(isTestnet);
+    const knownPools = useKnownPools(isTestnet);
     const requireSource = knownPools[poolAddressString]?.requireSource;
     const name = knownPools[poolAddressString]?.name;
     const sub = poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);

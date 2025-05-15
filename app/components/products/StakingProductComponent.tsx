@@ -41,7 +41,7 @@ const icStyleInner: StyleProp<ViewStyle> = {
     alignItems: 'center', justifyContent: 'center'
 }
 
-const AddStakeButton = memo(() => {
+const AddStakeButton = memo(({ isLedger }: { isLedger?: boolean }) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     return (
@@ -52,7 +52,7 @@ const AddStakeButton = memo(() => {
                         opacity: pressed ? 0.5 : 1
                     }
                 )}
-                onPress={() => navigation.navigate('StakingPools')}
+                onPress={() => navigation.navigateStakingPools(isLedger)}
             >
                 <Text numberOfLines={1} ellipsizeMode="tail" style={[{ color: theme.accent }, Typography.medium15_20]}>
                     {t('products.addNew')}
@@ -231,7 +231,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 renderItem={renderItem}
                 theme={theme}
                 renderFace={renderFace}
-                action={items.length ? <AddStakeButton /> : undefined}
+                action={items.length ? <AddStakeButton isLedger={isLedger} /> : undefined}
                 itemHeight={ASSET_ITEM_HEIGHT}
             />
         </View>

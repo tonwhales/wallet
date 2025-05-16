@@ -19,6 +19,7 @@ import { migrateDontShowComments } from './engine/state/spam';
 import { AppBlurContextProvider } from './components/AppBlurContext';
 import { ModalAlertProvider } from './components/ModalAlert';
 import { devKey } from './analytics/mixpanel';
+import { WebViewPreloaderProvider } from './components/WebViewPreloaderContext';
 
 const PERSISTANCE_VERSION = '23';
 // set default value for spam comments
@@ -63,11 +64,13 @@ export const Root = memo(() => {
                                 <ModalAlertProvider>
                                     <PriceLoader>
                                         <AddressBookLoader>
-                                            <LedgerTransportProvider>
-                                                <AppBlurContextProvider>
-                                                    <Navigation />
-                                                </AppBlurContextProvider>
-                                            </LedgerTransportProvider>
+                                            <WebViewPreloaderProvider>
+                                                <LedgerTransportProvider>
+                                                    <AppBlurContextProvider>
+                                                        <Navigation />
+                                                    </AppBlurContextProvider>
+                                                </LedgerTransportProvider>
+                                            </WebViewPreloaderProvider>
                                         </AddressBookLoader>
                                     </PriceLoader>
                                 </ModalAlertProvider>

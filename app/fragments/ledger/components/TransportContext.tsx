@@ -13,6 +13,7 @@ import { z } from "zod";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { clearLedgerSelected, setLedgerSelected } from "../../../storage/appState";
 import { checkAndRequestAndroidBluetoothPermissions, openBluetoothPermissionAlert } from "../../../utils/permissions";
+import { useWebViewPreloader } from "../../../components/WebViewPreloaderContext";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 const bufferSchema = z
@@ -128,6 +129,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const [isReconnectLedger, setIsReconnectLedger] = useState<boolean>(false);
     const [, setWalletSettings] = useWalletSettings(addr?.address);
     const [walletsSettings] = useWalletsSettings();
+    const { clearWebViewLocalStorage } = useWebViewPreloader();
 
     // Selected Ledger name
     const ledgerName = useMemo(() => {
@@ -165,6 +167,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                         setLedgerWallets(newItems);
                         setAddr(null);
                         clearLedgerSelected();
+                        clearWebViewLocalStorage();
                         onLogoutCallback?.();
                         if (newItems.length > 0) {
                             return;
@@ -191,6 +194,9 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         // using Ledger wallet, not the standard one. That's why we set
         // the Ledger selected state
         setLedgerSelected(addr.address);
+
+        // Clear WebView local storage with all data from previous holders account
+        clearWebViewLocalStorage();
         setAddr(addr);
 
         if (bleState?.type === 'ongoing') {

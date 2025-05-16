@@ -36,6 +36,7 @@ import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { createLogger } from '../../utils/log';
 import Intercom, { Space } from '@intercom/intercom-react-native';
+import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
 
 const logger = createLogger('tonconnect');
 
@@ -56,6 +57,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const setAppState = useSetAppState();
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
     const webViewRef = useRef<WebView>(null);
+    const { clearWebViewLocalStorage } = useWebViewPreloader();
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -65,7 +67,7 @@ export const DeveloperToolsFragment = fragment(() => {
         queryClient.invalidateQueries();
         storageQuery.clearAll();
         storagePersistence.clearAll();
-        webViewRef.current?.injectJavaScript('localStorage.clear(); true;');
+        clearWebViewLocalStorage();
         setHiddenBanners([]);
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);

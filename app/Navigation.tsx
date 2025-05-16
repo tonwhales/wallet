@@ -95,8 +95,6 @@ import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
 import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
 import { W5UpdateFragment } from './fragments/W5UpdateFragment';
-import { WebViewPreloader } from './components/WebViewPreloader';
-import { holdersUrl } from './engine/api/holders/fetchUserState';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
@@ -535,7 +533,6 @@ export const Navigation = memo(() => {
             <PendingTxsWatcher />
             <TonconnectWatcher />
             <SessionWatcher navRef={navigationRef} />
-            <WebViewPreloader url={holdersUrl(isTestnet)} />
             <Splash hide={hideSplash} />
         </View>
     );

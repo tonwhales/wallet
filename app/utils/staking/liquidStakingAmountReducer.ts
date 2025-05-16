@@ -15,7 +15,7 @@ export function liquidStakingAmountReducer(withdrawRate: bigint, depositRate: bi
             const amount = action.amount.replace(',', '.').replaceAll(' ', '');
             if (action.type === 'ton') {
                 const ton = formatInputAmount(action.amount, 9, { skipFormattingDecimals: true }, state.ton);
-                const computed = parseFloat(amount) * (1 / parseFloat(rate));
+                const computed = parseFloat(amount) * parseFloat(rate);
                 const wsTon = fromNano(toNano(computed.toFixed(9)));
 
                 if (ton === state.ton) {
@@ -26,7 +26,7 @@ export function liquidStakingAmountReducer(withdrawRate: bigint, depositRate: bi
             }
 
             const wsTon = formatInputAmount(action.amount, 9, { skipFormattingDecimals: true }, state.wsTon);
-            const computed = parseFloat(amount) * parseFloat(rate);
+            const computed = parseFloat(amount) * (1 / parseFloat(rate));
             const ton = fromNano(toNano(computed.toFixed(9)));
 
             if (wsTon === state.wsTon) {

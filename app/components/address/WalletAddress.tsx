@@ -34,6 +34,7 @@ export const WalletAddress = memo((props: {
     bounceable?: boolean,
     theme: ThemeType,
     withCopyIcon?: boolean,
+    isPoolAddress?: boolean,
 }) => {
     const toaster = useToaster();
     const network = useNetwork();
@@ -74,15 +75,17 @@ export const WalletAddress = memo((props: {
         const text = props.value ? props.value : friendlyAddress;
         copyText(text);
 
+        const addressName = props.isPoolAddress ? t('common.poolAddress') : t('common.walletAddress');
+
         toaster.show(
             {
-                message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                message: addressName + ' ' + t('common.copied').toLowerCase(),
                 type: 'default',
                 duration: ToastDuration.SHORT,
                 ...props.copyToastProps
             }
         );
-    }, [props.value, props.address, toaster, props.copyToastProps, friendlyAddress]);
+    }, [props.value, props.address, toaster, props.copyToastProps, friendlyAddress, props.isPoolAddress]);
 
     const handleAction = useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
         switch (e.nativeEvent.name) {

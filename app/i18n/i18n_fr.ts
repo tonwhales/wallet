@@ -84,6 +84,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "addressBook": "Carnet d'adresses",
         "gasless": "Sans gaz",
         "address": "Adresse",
+        "poolAddress": "Adresse du pool",
         "currencyChanged": "Devise changée",
         "required": "requis",
         "operation": "Opération",

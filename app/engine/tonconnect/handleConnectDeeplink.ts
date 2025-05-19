@@ -25,6 +25,7 @@ export type HandledConnectRequest = {
 export type HandledConnectRequestError = {
     type: 'invalid-manifest',
     returnStrategy: string,
+    clientSessionId: string,
 }
 
 export async function handleConnectDeeplink(query: ConnectQrQuery): Promise<HandledConnectRequest | HandledConnectRequestError> {
@@ -42,12 +43,15 @@ export async function handleConnectDeeplink(query: ConnectQrQuery): Promise<Hand
     }
     const clientSessionId = query.id;
 
+    console.log('request', request);
+
     const domain = extractDomain(request.manifestUrl);
 
     if (!isValidDappDomain(domain)) {
         return {
             type: 'invalid-manifest',
-            returnStrategy
+            returnStrategy,
+            clientSessionId,
         }
     }
 

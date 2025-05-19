@@ -96,14 +96,18 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
 
                                 // return;
                             } else {
-                                resolve({
-                                    event: 'connect_error',
-                                    payload: {
-                                        code: CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
-                                        message: 'User denied the connection',
-                                    },
-                                    id: requestId
-                                });
+                                if (result.event) {
+                                    resolve(result.event);
+                                } else {
+                                    resolve({
+                                        event: 'connect_error',
+                                        payload: {
+                                            code: CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
+                                            message: 'User denied the connection',
+                                        },
+                                        id: requestId
+                                    });
+                                }
                             }
                         }
 

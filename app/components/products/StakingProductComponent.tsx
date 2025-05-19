@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useLiquidUSDeStakingMember, useStakingActive, useTheme } from "../../engine/hooks";
+import { useIsLedgerRoute, useLiquidUSDeStakingMember, useStakingActive, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -41,9 +41,10 @@ const icStyleInner: StyleProp<ViewStyle> = {
     alignItems: 'center', justifyContent: 'center'
 }
 
-const AddStakeButton = memo(({ isLedger }: { isLedger?: boolean }) => {
+const AddStakeButton = memo(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
+    const isLedger = useIsLedgerRoute();
     return (
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
             <Pressable
@@ -231,7 +232,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 renderItem={renderItem}
                 theme={theme}
                 renderFace={renderFace}
-                action={items.length ? <AddStakeButton isLedger={isLedger} /> : undefined}
+                action={items.length ? <AddStakeButton /> : undefined}
                 itemHeight={ASSET_ITEM_HEIGHT}
             />
         </View>

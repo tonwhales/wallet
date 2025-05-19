@@ -533,10 +533,6 @@ export const useSimpleTransfer = ({ params, navigation }: Options) => {
         saveAddressFormat(address, bounceableFormat);
 
         if (isLedger) {
-            if (!(tonTransport && !isReconnectLedger)) {
-                onShowLedgerConnectionError()
-                return;
-            }
             navigation.replace('LedgerSignTransfer', { text: null, order: order as LedgerOrder });
             return;
         }

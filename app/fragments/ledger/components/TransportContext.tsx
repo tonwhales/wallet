@@ -94,7 +94,7 @@ export type LedgerTransport = {
     reset: (isLogout?: boolean, onLogoutCallback?: () => void) => void,
     wallets: LedgerWallet[],
     ledgerName: string,
-    onShowLedgerConnectionError: () => void,
+    onShowLedgerConnectionError: (onDiscard?: () => void) => void,
     isReconnectLedger: boolean,
     verifySelectedAddress: (isTestnet: boolean) => Promise<{ address: string; publicKey: Buffer } | undefined>
 }
@@ -265,7 +265,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         setSearch((prevSearch) => prevSearch + 1);
     }, []);
 
-    const onShowLedgerConnectionError = () => {
+    const onShowLedgerConnectionError = (onDiscard?: () => void) => {
         reset();
         Alert.alert(t('transfer.error.ledgerErrorConnectionTitle'), t('transfer.error.ledgerErrorConnectionMessage'), [
             {
@@ -281,7 +281,8 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
             },
             {
                 text: t('common.cancel'),
-                style: 'cancel'
+                style: 'cancel',
+                onPress: onDiscard
             }
         ]);
     };

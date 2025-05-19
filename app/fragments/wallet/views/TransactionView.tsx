@@ -32,6 +32,7 @@ import { extraCurrencyFromTransaction } from '../../../utils/extraCurrencyFromTr
 import { useExtraCurrencyMap } from '../../../engine/hooks/jettons/useExtraCurrencyMap';
 import { fromBnWithDecimals } from '../../../utils/withDecimals';
 import { useAddressFormatsHistory } from "../../../engine/hooks";
+import { SpamLabel } from '../../../components/SpamLabel';
 
 export function TransactionView(props: {
     own: Address,
@@ -289,25 +290,7 @@ export function TransactionView(props: {
                             {op}
                         </PerfText>
                         {spam && (
-                            <PerfView style={{
-                                backgroundColor: theme.backgroundUnchangeable,
-                                borderWidth: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                borderRadius: 100,
-                                paddingHorizontal: 5,
-                                marginLeft: 10,
-                                height: 15
-                            }}>
-                                <PerfText
-                                    style={[
-                                        { color: theme.textPrimaryInverted },
-                                        Typography.medium10_12
-                                    ]}
-                                >
-                                    {'SPAM'}
-                                </PerfText>
-                            </PerfView>
+                            <SpamLabel />
                         )}
                     </PerfView>
                     <Text

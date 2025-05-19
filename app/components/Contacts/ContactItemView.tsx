@@ -9,6 +9,7 @@ import { Address } from "@ton/core";
 import { AddressComponent } from "../address/AddressComponent";
 import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { KnownWallet } from "../../secure/KnownWallets";
+import { SpamLabel } from "../SpamLabel";
 
 export const ContactItemView = memo(({
     addressFriendly,
@@ -80,22 +81,7 @@ export const ContactItemView = memo(({
                                     {contact?.name + (lastName ? ` ${lastName}` : '')}
                                 </Text>
                                 {isSpam && (
-                                    <View style={{
-                                        backgroundColor: theme.backgroundPrimaryInverted,
-                                        borderRadius: 100,
-                                        height: 15,
-                                        marginLeft: 10,
-                                        paddingHorizontal: 5,
-                                        justifyContent: 'center',
-                                    }}>
-                                        <Text style={{
-                                            fontSize: 10,
-                                            fontWeight: '500',
-                                            color: theme.textPrimaryInverted
-                                        }}>
-                                            {'SPAM'}
-                                        </Text>
-                                    </View>
+                                    <SpamLabel />
                                 )}
                             </View>
                             <Text
@@ -126,22 +112,7 @@ export const ContactItemView = memo(({
                                 />
                             </Text>
                             {isSpam && (
-                                <View style={{
-                                    backgroundColor: theme.backgroundPrimaryInverted,
-                                    borderRadius: 100,
-                                    height: 15,
-                                    marginLeft: 10,
-                                    paddingHorizontal: 5,
-                                    justifyContent: 'center',
-                                }}>
-                                    <Text style={{
-                                        fontSize: 10,
-                                        fontWeight: '500',
-                                        color: theme.textPrimaryInverted
-                                    }}>
-                                        {'SPAM'}
-                                    </Text>
-                                </View>
+                                <SpamLabel />
                             )}
                         </View>
                     )}

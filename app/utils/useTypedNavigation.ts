@@ -205,6 +205,10 @@ export class TypedNavigation {
         this.navigate('LiquidUSDeStakingUnstake')
     }
 
+    navigateStakingPools(isLedger?: boolean) {
+        this.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools');
+    }
+
     navigateLedgerApp() {
         this.navigateAndReplaceAll('LedgerApp');
     }

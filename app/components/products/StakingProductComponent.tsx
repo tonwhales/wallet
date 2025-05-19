@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useLiquidUSDeStakingMember, useStakingActive, useTheme } from "../../engine/hooks";
+import { useIsLedgerRoute, useLiquidUSDeStakingMember, useStakingActive, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../staking/StakingPool";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -44,6 +44,7 @@ const icStyleInner: StyleProp<ViewStyle> = {
 const AddStakeButton = memo(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
+    const isLedger = useIsLedgerRoute();
     return (
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
             <Pressable
@@ -52,7 +53,7 @@ const AddStakeButton = memo(() => {
                         opacity: pressed ? 0.5 : 1
                     }
                 )}
-                onPress={() => navigation.navigate('StakingPools')}
+                onPress={() => navigation.navigateStakingPools(isLedger)}
             >
                 <Text numberOfLines={1} ellipsizeMode="tail" style={[{ color: theme.accent }, Typography.medium15_20]}>
                     {t('products.addNew')}

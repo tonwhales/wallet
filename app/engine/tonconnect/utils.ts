@@ -7,6 +7,7 @@ import { t } from '../../i18n/t';
 import { z } from 'zod';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { Address, Cell } from '@ton/core';
+import { Toaster } from '../../components/toast/ToastProvider';
 
 export function resolveAuthError(error: Error) {
   switch ((error as Error)?.message) {
@@ -167,7 +168,7 @@ export const getInjectableJSMessage = (message: any) => {
   `;
 };
 
-export function checkTonconnectRequest(id: string, params: SignRawParams, callback: (response: WalletResponse<RpcMethod>) => void) {
+export function checkTonconnectRequest(id: string, params: SignRawParams, callback: (response: WalletResponse<RpcMethod>) => void, toaster: Toaster) {
   const validParams = !!params
     && Array.isArray(params.messages)
     && params.messages.every((msg) => {
@@ -175,6 +176,7 @@ export function checkTonconnectRequest(id: string, params: SignRawParams, callba
       let addressIsValid = false;
       let validPayload = true;
       let validStateInit = true;
+      let validValidUntil = true;
 
       if (!!msg.address) {
         try {
@@ -199,10 +201,20 @@ export function checkTonconnectRequest(id: string, params: SignRawParams, callba
         }
       }
 
-      return validAmount && addressIsValid && validPayload && validStateInit;
+      if (!!params.valid_until) {
+        if (typeof params.valid_until !== 'number' || isNaN(params.valid_until)) {
+          validValidUntil = false;
+        }
+      }
+
+      return validAmount && addressIsValid && validPayload && validStateInit && validValidUntil;
     });
 
   if (!validParams) {
+    toaster.show({
+      message: t('common.errorOccurred', { error: 'Bad request' }),
+      type: 'error',
+    });
     callback({
       error: {
         code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,

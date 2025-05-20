@@ -20,6 +20,7 @@ import { AppBlurContextProvider } from './components/AppBlurContext';
 import { ModalAlertProvider } from './components/ModalAlert';
 import { devKey } from './analytics/mixpanel';
 import { WebViewPreloaderProvider } from './components/WebViewPreloaderContext';
+import { ToastProvider } from './components/toast/ToastProvider';
 
 const PERSISTANCE_VERSION = '23';
 // set default value for spam comments
@@ -67,7 +68,9 @@ export const Root = memo(() => {
                                             <WebViewPreloaderProvider>
                                                 <LedgerTransportProvider>
                                                     <AppBlurContextProvider>
-                                                        <Navigation />
+                                                        <ToastProvider>
+                                                            <Navigation />
+                                                        </ToastProvider>
                                                     </AppBlurContextProvider>
                                                 </LedgerTransportProvider>
                                             </WebViewPreloaderProvider>

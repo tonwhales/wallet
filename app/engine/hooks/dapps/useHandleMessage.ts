@@ -7,11 +7,13 @@ import { useConnectPendingRequests } from '../../hooks';
 import { transactionRpcRequestCodec } from '../../tonconnect/codecs';
 import { ConnectedAppConnectionRemote, SignRawParams } from '../../tonconnect/types';
 import { checkTonconnectRequest, setLastEventId } from '../../tonconnect/utils';
+import { useToaster } from '../../../components/toast/ToastProvider';
 
 export function useHandleMessage(
     connections: ConnectedAppConnectionRemote[],
     logger: { log: (src: any) => void; warn: (src: any) => void; }
 ) {
+    const toaster = useToaster();
     const [, update] = useConnectPendingRequests();
     const findConnectedAppByClientSessionId = useConnectAppByClientSessionId();
     const disconnectApp = useDisconnectApp();
@@ -72,7 +74,7 @@ export function useHandleMessage(
                 try {
                     const params = JSON.parse(request.params[0]) as SignRawParams;
 
-                    const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback);
+                    const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, toaster);
 
                     if (!isValidRequest) {
                         return;

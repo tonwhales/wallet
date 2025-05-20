@@ -18,6 +18,7 @@ import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
 import { useWalletVersion } from '../useWalletVersion';
 import { useToaster } from '../../../components/toast/ToastProvider';
+import { useNetwork } from '..';
 
 type SolanaInjectedBridge = {
     sendSolanaTransaction: (transaction: string) => Promise<void>;
@@ -31,6 +32,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
     const onDisconnect = useDisconnectApp(address);
     const walletVersion = useWalletVersion(address);
     const toaster = useToaster();
+    const { isTestnet } = useNetwork();
 
     const account = address ?? getCurrentAddress().addressString;
     const handleLedgerRequest = useHoldersLedgerTonconnectHandler();
@@ -183,7 +185,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                 return;
                             }
 
-                            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, toaster);
+                            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, isTestnet, toaster);
 
                             if (!isValidRequest) {
                                 return;

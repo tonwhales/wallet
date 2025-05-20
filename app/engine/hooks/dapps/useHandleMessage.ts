@@ -2,7 +2,7 @@ import { AppRequest, Base64, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCry
 import { MessageEvent } from 'react-native-sse';
 import { sendTonConnectResponse } from '../../api/sendTonConnectResponse';
 import { warn } from '../../../utils/log';
-import { useConnectAppByClientSessionId, useDisconnectApp } from '../../hooks';
+import { useConnectAppByClientSessionId, useDisconnectApp, useNetwork } from '../../hooks';
 import { useConnectPendingRequests } from '../../hooks';
 import { transactionRpcRequestCodec } from '../../tonconnect/codecs';
 import { ConnectedAppConnectionRemote, SignRawParams } from '../../tonconnect/types';
@@ -17,6 +17,7 @@ export function useHandleMessage(
     const [, update] = useConnectPendingRequests();
     const findConnectedAppByClientSessionId = useConnectAppByClientSessionId();
     const disconnectApp = useDisconnectApp();
+    const { isTestnet } = useNetwork();
 
     return async (event: MessageEvent) => {
         try {
@@ -74,7 +75,7 @@ export function useHandleMessage(
                 try {
                     const params = JSON.parse(request.params[0]) as SignRawParams;
 
-                    const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, toaster);
+                    const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, isTestnet, toaster);
 
                     if (!isValidRequest) {
                         return;

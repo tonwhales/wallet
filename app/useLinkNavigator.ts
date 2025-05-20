@@ -146,7 +146,7 @@ function tryResolveTonconnectRequest(
             const params = JSON.parse(request.params[0]) as SignRawParams;
 
             // check if request is valid
-            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback);
+            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, isTestnet, toaster);
 
             if (!isValidRequest) {
                 return;

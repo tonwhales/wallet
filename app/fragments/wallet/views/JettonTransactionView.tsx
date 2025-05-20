@@ -27,7 +27,7 @@ import { JettonTransfer } from '../../../engine/hooks/transactions/useJettonTran
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
 import { useLedgerTransport } from '../../ledger/components/TransportContext';
 import { useAddressFormatsHistory } from '../../../engine/hooks';
-
+import { SpamLabel } from '../../../components/SpamLabel';
 export function JettonTransactionView(props: {
     own: Address,
     tx: JettonTransfer,
@@ -188,19 +188,7 @@ export function JettonTransactionView(props: {
                             {op}
                         </PerfText>
                         {spam && (
-                            <PerfView style={[
-                                styles.spam,
-                                { backgroundColor: theme.backgroundUnchangeable }
-                            ]}>
-                                <PerfText
-                                    style={[
-                                        { color: theme.textPrimaryInverted },
-                                        Typography.medium10_12
-                                    ]}
-                                >
-                                    {'SPAM'}
-                                </PerfText>
-                            </PerfView>
+                            <SpamLabel />
                         )}
                     </PerfView>
                     <Text
@@ -283,15 +271,6 @@ const styles = StyleSheet.create({
         position: 'relative',
         borderWidth: 0, marginRight: 10,
         justifyContent: 'center', alignItems: 'center'
-    },
-    spam: {
-        borderWidth: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 100,
-        paddingHorizontal: 5,
-        marginLeft: 10,
-        height: 15
     },
     titleDescriptionView: { flex: 1, marginRight: 4 },
     titleView: { flexDirection: 'row', alignItems: 'center' },

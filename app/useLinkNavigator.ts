@@ -703,20 +703,22 @@ export function useLinkNavigator(
             case 'transaction': {
                 const bounceable = resolved.isBounceable ?? true;
                 if (resolved.payload) {
-                    navigation.navigateTransfer({
-                        order: {
-                            type: 'order',
-                            messages: [{
-                                target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
-                                amount: resolved.amount || BigInt(0),
-                                amountAll: false,
-                                stateInit: resolved.stateInit,
-                                payload: resolved.payload,
-                            }]
-                        },
-                        text: resolved.comment,
-                        callback: null
-                    });
+                    if (!isLedger) {
+                        navigation.navigateTransfer({
+                            order: {
+                                type: 'order',
+                                messages: [{
+                                    target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
+                                    amount: resolved.amount || BigInt(0),
+                                    amountAll: false,
+                                    stateInit: resolved.stateInit,
+                                    payload: resolved.payload,
+                                }]
+                            },
+                            text: resolved.comment,
+                            callback: null
+                        });
+                    }
                 } else {
                     navigation.navigateSimpleTransfer({
                         target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
@@ -724,8 +726,8 @@ export function useLinkNavigator(
                         amount: resolved.amount,
                         stateInit: resolved.stateInit,
                         asset: null,
-                        callback: null
-                    });
+                        callback: null,
+                    }, { ledger: isLedger });
                 }
                 break;
             }
@@ -864,7 +866,7 @@ export function useLinkNavigator(
             }
         }
 
-    }, [selected, updateAppState]);
+    }, [selected, updateAppState, isLedger]);
 
     return handler;
 }

@@ -11,11 +11,10 @@ import { ReceiveableSolanaAsset } from "../ReceiveFragment";
 import { useHoldersAccounts, useNetwork, useSelectedAccount, useSolanaSelectedAccount } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
-import { resolveUrl } from "../../../utils/resolveUrl";
-import { useLinkNavigator } from "../../../useLinkNavigator";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { SimpleTransferAsset } from "../../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { AppsFlyerEvent, RegistrationMethod, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
+import { useQRCodeHandler } from "../../../engine/hooks/qrcode/useQRCodeHandler";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export enum WalletActionType {
     Send = 'send',
@@ -90,71 +89,9 @@ export const WalletActionButton = memo(({
     const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address!;
     const accounts = useHoldersAccounts(address, solanaAddress).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
-    const linkNavigator = useLinkNavigator(isTestnet, { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) });
+    const handleQRCode = useQRCodeHandler({ toastProps: { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) } });
 
-    const onQRCodeRead = useCallback((src: string) => {
-        try {
-            let res = resolveUrl(src, isTestnet);
-            if (res) {
-                linkNavigator(res);
-            }
-        } catch (error) {
-            // Ignore
-        }
-    }, [isTestnet, linkNavigator]);
-
-    const onLedgerQRCodeRead = useCallback((src: string) => {
-        try {
-            let res = resolveUrl(src, isTestnet);
-
-            if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
-                const bounceable = res.isBounceable ?? true;
-                if (res.type === 'transaction') {
-                    if (res.payload) {
-                        // TODO: implement
-                        // navigation.navigateLedgerSignTransfer({
-                        //     order: {
-                        //         target: res.address.toString({ testOnly: network.isTestnet }),
-                        //         amount: res.amount || 0n,
-                        //         amountAll: false,
-                        //         stateInit: res.stateInit,
-                        //         payload: {
-                        //             type: 'unsafe',
-                        //             message: new CellMessage(res.payload),
-                        //         },
-                        //     },
-                        //     text: res.comment
-                        // });
-                    } else {
-                        navigation.navigateSimpleTransfer({
-                            target: res.address.toString({ testOnly: isTestnet, bounceable }),
-                            comment: res.comment,
-                            amount: res.amount,
-                            stateInit: res.stateInit,
-                            asset: null,
-                            callback: null,
-                            unknownDecimals: true,
-                        }, { ledger: true });
-                    }
-                    return;
-                }
-
-                navigation.navigateSimpleTransfer({
-                    target: res.address.toString({ testOnly: isTestnet, bounceable }),
-                    comment: res.comment,
-                    amount: res.amount,
-                    stateInit: null,
-                    asset: { type: 'jetton', master: res.jettonMaster },
-                    callback: null,
-                    unknownDecimals: true,
-                }, { ledger: true });
-            }
-        } catch {
-            // Ignore
-        }
-    }, [isTestnet, linkNavigator]);
-
-    const openScanner = useCallback(() => navigation.navigateScanner({ callback: isLedger ? onLedgerQRCodeRead : onQRCodeRead }), [isLedger, onLedgerQRCodeRead, onQRCodeRead]);
+    const openScanner = useCallback(() => navigation.navigateScanner({ callback: handleQRCode }), [handleQRCode]);
 
     switch (action.type) {
         case WalletActionType.Buy: {

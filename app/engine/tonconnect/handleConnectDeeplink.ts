@@ -43,8 +43,6 @@ export async function handleConnectDeeplink(query: ConnectQrQuery): Promise<Hand
     }
     const clientSessionId = query.id;
 
-    console.log('request', request);
-
     const domain = extractDomain(request.manifestUrl);
 
     if (!isValidDappDomain(domain)) {

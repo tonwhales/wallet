@@ -75,18 +75,16 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                         id: parseInt(connectProps.query.id)
                     };
 
-                    const answerInvalidManifest = () => sendTonConnectResponse({
-                        response: invalidManifestResult,
+                    const answerManifestError = (e: ConnectEventError) => sendTonConnectResponse({
+                        response: e,
                         sessionCrypto: new SessionCrypto(),
                         clientSessionId: handledDeeplink.clientSessionId
                     });
 
-                    console.log('handledDeeplink', handledDeeplink);
-
                     if (handledDeeplink.type === 'invalid-manifest') {
                         setState({ type: 'invalid-manifest', returnStrategy: connectProps.query.ret });
                         try {
-                            await answerInvalidManifest();
+                            await answerManifestError(invalidManifestResult);
                         } catch { }
                         return;
                     }
@@ -103,12 +101,14 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                             const dAppUrl = manifest.url;
                             const domain = isUrl(dAppUrl) ? extractDomain(dAppUrl) : dAppUrl;
 
-                            console.log('domain', { domain, manifest });
-
                             if (!isValidDappDomain(domain)) {
                                 setState({ type: 'invalid-manifest', returnStrategy: connectProps.query.ret });
                                 try {
-                                    await answerInvalidManifest();
+                                    invalidManifestResult.payload = {
+                                        code: CONNECT_EVENT_ERROR_CODES.MANIFEST_CONTENT_ERROR,
+                                        message: 'App manifest content error'
+                                    }
+                                    await answerManifestError(invalidManifestResult);
                                 } catch { }
                                 return;
                             }
@@ -132,7 +132,6 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     }
 
                 } catch (e) {
-                    console.log('handleConnectDeeplink error', e);
                     warn('Failed to handle deeplink');
                 }
                 return;

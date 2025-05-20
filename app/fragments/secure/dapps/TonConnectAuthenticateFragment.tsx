@@ -32,6 +32,33 @@ import { ToastDuration, useToaster } from '../../../components/toast/ToastProvid
 import { t } from '../../../i18n/t';
 import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
 
+export type TonConnectAuthResult = { replyItems: ExtendedConnectItemReply[], ok: true } | { ok: false, event?: ConnectEventError }
+
+export enum TonConnectAuthType {
+    Qr = 'qr',
+    Callback = 'callback',
+    Link = 'link'
+}
+
+export type TonConnectAuthProps = {
+    query: ConnectQrQuery,
+    type: TonConnectAuthType.Qr,
+} | {
+    type: TonConnectAuthType.Callback,
+    protocolVersion: number,
+    request: ConnectRequest,
+    callback: (result: TonConnectAuthResult) => void
+} | {
+    type: TonConnectAuthType.Link,
+    query: ConnectQrQuery
+}
+
+export const TonConnectAuthenticateFragment = fragment(() => {
+    const props = useParams<TonConnectAuthProps>();
+
+    return (<SignStateLoader connectProps={props} />);
+});
+
 const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
@@ -417,13 +444,35 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     useEffect(() => {
         return () => {
             // If user rejected the connection, we need to call the callback
-            if (!success.current) {
-                if (connectProps.type === TonConnectAuthType.Callback) {
-                    connectProps.callback({ ok: false });
-                }
+            if (success.current !== false || state.type !== 'initing') {
+                return;
+            }
+            
+            if (connectProps.type === TonConnectAuthType.Callback) {
+                connectProps.callback({
+                    ok: false,
+                    event: {
+                        id: 0,
+                        event: 'connect_error',
+                        payload: {
+                            code: CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
+                            message: 'Canceled by the user'
+                        }
+                    }
+                });
+            } else if (!!state.clientSessionId) {
+                const response: ConnectEventError = {
+                    event: 'connect_error',
+                    payload: {
+                        code: CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
+                        message: 'Canceled by the user'
+                    },
+                    id: 0
+                };
+                sendTonConnectResponse({ response, sessionCrypto: new SessionCrypto(), clientSessionId: state.clientSessionId });
             }
         }
-    }, []);
+    }, [state.type]);
 
     return (
         <DappAuthComponent
@@ -433,31 +482,4 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             single={connectProps.type === 'callback'}
         />
     )
-});
-
-export type TonConnectAuthResult = { replyItems: ExtendedConnectItemReply[], ok: true } | { ok: false, event?: ConnectEventError }
-
-export enum TonConnectAuthType {
-    Qr = 'qr',
-    Callback = 'callback',
-    Link = 'link'
-}
-
-export type TonConnectAuthProps = {
-    query: ConnectQrQuery,
-    type: TonConnectAuthType.Qr,
-} | {
-    type: TonConnectAuthType.Callback,
-    protocolVersion: number,
-    request: ConnectRequest,
-    callback: (result: TonConnectAuthResult) => void
-} | {
-    type: TonConnectAuthType.Link,
-    query: ConnectQrQuery
-}
-
-export const TonConnectAuthenticateFragment = fragment(() => {
-    const props = useParams<TonConnectAuthProps>();
-
-    return (<SignStateLoader connectProps={props} />);
 });

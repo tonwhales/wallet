@@ -95,11 +95,9 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                     },
                                     id: requestId
                                 });
-
-                                // return;
                             } else {
                                 if (result.event) {
-                                    resolve(result.event);
+                                    resolve({ ...result.event, id: requestId });
                                 } else {
                                     resolve({
                                         event: 'connect_error',

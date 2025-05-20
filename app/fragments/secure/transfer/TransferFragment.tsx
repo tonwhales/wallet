@@ -664,7 +664,8 @@ export const TransferFragment = fragment(() => {
                     callback: callback ? callback : null,
                     back: params.back,
                     useGasless,
-                    onSetUseGasless
+                    onSetUseGasless,
+                    source: params.source
                 });
                 return;
             }
@@ -786,6 +787,7 @@ export const TransferFragment = fragment(() => {
                 callback: callback ? callback : null,
                 back: params.back,
                 totalAmount,
+                source: params.source
             });
         });
     }, [netConfig, selectedAccount, bounceableFormat, gaslessConfig.data, walletVersion, useGasless]);

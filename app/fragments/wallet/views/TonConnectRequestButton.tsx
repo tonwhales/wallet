@@ -45,7 +45,7 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
         const prepared = prepareConnectRequest(request);
 
         if (request.method === 'sendTransaction' && prepared) {
-            
+
             // Callback to report the result of the transaction
             const resultCallback = async (
                 ok: boolean,
@@ -65,11 +65,11 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
                 }
             };
 
-            const returnStrategy = getLastReturnStrategy()
+            const returnStrategy = getLastReturnStrategy();
 
             navigation.navigateTransfer({
                 text: null,
-                source: { type: 'tonconnect', returnStrategy},
+                source: { type: 'tonconnect', returnStrategy },
                 order: {
                     type: 'order',
                     messages: prepared.messages,
@@ -93,5 +93,5 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
             image={image}
             divider={props.divider}
         />
-    )
+    );
 });

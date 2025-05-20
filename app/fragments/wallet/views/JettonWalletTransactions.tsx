@@ -282,7 +282,7 @@ export const JettonWalletTransactions = memo((props: {
     return (
         <SectionList
             ref={ref}
-            style={{ flexGrow: 1 }}
+            style={{ flexGrow: 1, flex: 1 }}
             contentContainerStyle={sectionedListProps?.contentContainerStyle}
             contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}

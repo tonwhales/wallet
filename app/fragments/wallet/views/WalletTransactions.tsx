@@ -293,7 +293,7 @@ export const WalletTransactions = memo((props: {
     return (
         <SectionList
             ref={ref}
-            style={{ flexGrow: 1 }}
+            style={{ flexGrow: 1, flex: 1 }}
             contentContainerStyle={[
                 props.sectionedListProps?.contentContainerStyle
             ]}

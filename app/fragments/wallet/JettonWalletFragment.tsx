@@ -255,11 +255,9 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
                 onRefresh={onRefresh}
                 loading={false}
                 sectionedListProps={{
-                    contentContainerStyle:
-                        Platform.select({
-                            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
-                            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
-                        })
+                    contentContainerStyle: {
+                        paddingBottom: 32
+                    }
                 }}
                 ledger={isLedger}
                 header={

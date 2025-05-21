@@ -1,8 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ResolvedTxUrl, resolveUrl } from '../../../../utils/resolveUrl';
 import { t } from '../../../../i18n/t';
 import { KnownWallets } from '../../../../secure/KnownWallets';
-import { useLinkNavigator } from "../../../../useLinkNavigator";
 import { formatCurrency, formatInputAmount } from '../../../../utils/formatCurrency';
 import { useAccountLite, useIsLedgerRoute, useJetton, useNetwork, usePrice, useSelectedAccount, useSolanaSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../../../utils/withDecimals';
@@ -30,6 +28,7 @@ import { useExtraCurrency } from '../../../../engine/hooks/jettons/useExtraCurre
 import { SimpleTransferParams } from '../SimpleTransferFragment';
 import { useLedgerTransport } from '../../../ledger/components/TransportContext';
 import { useAddressFormatsHistory } from '../../../../engine/hooks';
+import { useQRCodeHandler } from '../../../../engine/hooks/qrcode/useQRCodeHandler';
 
 export type SimpleTransferAsset = {
     type: 'jetton';
@@ -248,11 +247,12 @@ export const useSimpleTransfer = ({ params, navigation }: Options) => {
     const isV5 = walletVersion === WalletVersions.v5R1;
     const supportsGaslessTransfer = hasGaslessTransfer && isV5;
 
-    const linkNavigator = useLinkNavigator(network.isTestnet);
+    const handleQRCode = useQRCodeHandler();
 
     const onQRCodeReadData = usePrevious({
         commentString,
-        validAmount,
+        amount,
+        stateInit
     })
 
     const onQRCodeRead = useCallback((src: string) => {
@@ -262,64 +262,17 @@ export const useSimpleTransfer = ({ params, navigation }: Options) => {
 
         const {
             commentString,
-            validAmount
+            amount,
+            stateInit
         } = onQRCodeReadData.current
 
-        let res = resolveUrl(src, network.isTestnet);
-        if (!res) {
-            return;
-        }
-        const isTransferValid = res && (res.type === 'transaction' || res.type === 'jetton-transaction');
-        if (isTransferValid) {
-            const tx = res as ResolvedTxUrl;
-            if (tx.payload) {
-                navigation.goBack();
-                linkNavigator(tx);
-            } else {
-                let mComment = commentString;
-                let mTarget = null;
-                let mAmount = validAmount;
-                let mStateInit = stateInit;
-                let mJetton = null;
-
-                try {
-                    mAmount = toNano(amount);
-                } catch {
-                    mAmount = null;
-                }
-
-                if (tx.address) {
-                    const bounceable = tx.isBounceable ?? true;
-                    mTarget = tx.address.toString({ testOnly: network.isTestnet, bounceable });
-                }
-
-                if (tx.amount) {
-                    mAmount = tx.amount;
-                }
-
-                if (tx.comment) {
-                    mComment = tx.comment;
-                }
-
-                if (tx.type === 'transaction' && tx.stateInit) {
-                    mStateInit = tx.stateInit;
-                } else {
-                    mStateInit = null;
-                }
-
-                if (tx.type === 'jetton-transaction' && tx.jettonMaster) {
-                    mJetton = tx.jettonMaster
-                }
-
-                navigation.navigateSimpleTransfer({
-                    target: mTarget,
-                    comment: mComment,
-                    amount: mAmount,
-                    stateInit: mStateInit,
-                    asset: mJetton ? { type: 'jetton', master: mJetton } : null
-                }, { ledger: isLedger, replace: true });
-            }
-        }
+        handleQRCode(src, 'simple-transfer', {
+            simpleTransferData: {
+                commentString,
+                amount,
+                stateInit
+            },
+        });
     }, []);
 
     const onAddAll = useCallback(() => {

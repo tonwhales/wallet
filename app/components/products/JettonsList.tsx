@@ -117,13 +117,12 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
     const initData = [
         ...extraCurrencies.map((e) => ({ ...e, type: 'extra' })),
         ...jettons
-            .filter((j) => !disabledState.disabled[j.jetton.address])
             .map((j) => ({ ...j, type: 'jetton' })),
     ];
 
     const filteredJettons = useMemo(() => {
         if (filter !== null) {
-            const filterFn = filterHint(filter);
+            const filterFn = filterHint(filter, disabledState.disabled);
             return initData.filter((j) => j.type !== 'jetton' || filterFn(getHintFull(j as JettonFull, testOnly)));
         }
         return initData;
@@ -311,6 +310,11 @@ const JettonsFilterModal = memo(({
                     title={t('jetton.emptyBalance')}
                     value={!value?.includes('balance')}
                     onChange={() => onUpdateValue('balance')}
+                />
+                 <ItemSwitch
+                    title={t('jetton.hidden')}
+                    value={!value?.includes('hidden')}
+                    onChange={() => onUpdateValue('hidden')}
                 />
                 <RoundButton
                     title={t('common.apply')}

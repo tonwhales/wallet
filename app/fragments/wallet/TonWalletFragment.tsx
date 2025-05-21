@@ -110,11 +110,9 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                 theme={theme}
                 ledger={isLedger}
                 sectionedListProps={{
-                    contentContainerStyle:
-                        Platform.select({
-                            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
-                            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
-                        })
+                    contentContainerStyle: {
+                        paddingBottom: 32
+                    }
                 }}
                 header={
                     <View style={styles.content}>

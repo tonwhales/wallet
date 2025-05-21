@@ -3,9 +3,11 @@ import { AppState, clearLedgerSelected, setAppState } from '../../../storage/app
 import { appStateAtom } from '../../state/appState';
 import { onAccountTouched } from '../../effects/onAccountTouched';
 import { useWebViewPreloader } from '../../../components/WebViewPreloaderContext';
+import { useEthena } from '../staking/useEthena';
 
 export function useSetAppState() {
     const { clearWebViewLocalStorage } = useWebViewPreloader();
+    const ethena = useEthena();
 
     return useRecoilCallback(({ set }) => (value: AppState, isTestnet: boolean) => {
         set(appStateAtom, () => {
@@ -42,10 +44,10 @@ export function useSetAppState() {
 
             // Update queries for new selected
             if (newSelectedAddress) {
-                onAccountTouched(newSelectedAddress.addressString, isTestnet);
+                onAccountTouched(newSelectedAddress.addressString, isTestnet, ethena);
             }
 
             return temp;
         });
-    }, []);
+    }, [ethena]);
 }

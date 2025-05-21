@@ -4,7 +4,7 @@ import { Pressable, View, Text, Image } from "react-native";
 import ArrowDown from '@assets/ic-arrow-down.svg';
 import { Typography } from "../styles";
 import { useNetwork, useSelectedAccount, useTheme, useWalletSettings } from "../../engine/hooks";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar, avatarColors } from "../avatar/Avatar";
 import { HeaderSyncStatus } from "../../fragments/wallet/views/HeaderSyncStatus";
@@ -16,7 +16,7 @@ import { t } from "../../i18n/t";
 
 export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLightBackground?: boolean, ledgerName?: string }) => {
     const network = useNetwork();
-    const knownWallets = KnownWallets(network.isTestnet);
+    const knownWallets = useKnownWallets(network.isTestnet);
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();

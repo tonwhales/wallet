@@ -6,7 +6,7 @@ import { backoff, backoffFailaible } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
-import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
+import { KnownWallet, useKnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
@@ -72,6 +72,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
+    const knownWallets = useKnownWallets(isTestnet);
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
         if (ledgerContext?.addr) {
@@ -125,10 +126,8 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
     const spam = useIsSpamWallet(friendlyTarget) || isSpam;
 
     // Resolve built-in known wallets
-    let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[friendlyTarget]) {
-        known = KnownWallets(isTestnet)[friendlyTarget];
-    } else if (!!contact) { // Resolve contact known wallet
+    let known: KnownWallet | undefined = knownWallets[friendlyTarget];
+    if (!!contact && !known) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 

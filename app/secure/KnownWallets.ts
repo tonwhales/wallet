@@ -1,5 +1,5 @@
 import { Address } from "@ton/core";
-import { t } from "../i18n/t";
+import { EthenaAssets, useEthena } from "../engine/hooks/staking/useEthena";
 
 const Img_EXMO = require('@assets/known/exmo.png');
 const Img_Foundation = require('@assets/known/foundation.png');
@@ -71,18 +71,6 @@ export type KnownWallet = {
     requireMemo?: boolean
 };
 
-export const testnetUSDeMinter = Address.parse('kQCoEng-qFC7XAZBb6oFItzGKjfNg9NbxPwuxbjgH1i_9GKf');
-export const testnettsUSDeMinter = Address.parse('kQCjxs2R30ph_enlOOcro5eJIAxSQzYfCXK-2eANSVLV_Ca_');
-export const testnetVaultAddress = Address.parse('kQArivk-3cRZ8Do2iIUbsbcx4Esq91lTljFA9njR2K1LCRZ_');
-
-export const mainnetUSDeMinter = Address.parse('EQAIb6KmdfdDR7CN1GBqVJuP25iCnLKCvBlJ07Evuu2dzP5f');
-export const mainnettsUSDeMinter = Address.parse('EQDQ5UUyPHrLcQJlPAczd_fjxn8SLrlNQwolBznxCdSlfQwr');
-export const mainnetVaultAddress = Address.parse('EQChGuD1u0e7KUWHH5FaYh_ygcLXhsdG2nSHPXHW8qqnpZXW');
-
-export const getUSDeMinter = (isTestnet: boolean) => isTestnet ? testnetUSDeMinter : mainnetUSDeMinter;
-export const gettsUSDeMinter = (isTestnet: boolean) => isTestnet ? testnettsUSDeMinter : mainnettsUSDeMinter;
-export const gettsUSDeVaultAddress = (isTestnet: boolean) => isTestnet ? testnetVaultAddress : mainnetVaultAddress;
-
 const knownWalletsTestnet = {
     [Address.parse('kQDV1LTU0sWojmDUV4HulrlYPpxLWSUjM6F3lUurMbwhales').toString({ testOnly: true })]: {
         name: 'Nominators 1',
@@ -115,14 +103,6 @@ const knownWalletsTestnet = {
     [Address.parse('kQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXNKY').toString({ testOnly: true })]: {
         name: 'OKX',
         ic: Img_OKX
-    },
-    [getUSDeMinter(true).toString({ testOnly: true })]: {
-        name: 'USDe Minter',
-        ic: Img_USDe
-    },
-    [gettsUSDeMinter(true).toString({ testOnly: true })]: {
-        name: 'tsUSDe Minter',
-        ic: Img_tsUSDe
     }
 };
 
@@ -718,37 +698,36 @@ const knownWalletsMainnet = {
     [Address.parse('EQB3ncyBUTjZUA5EnFKR5_EnOMI9V1tTEAAPaiU71gc4TiUt').toString()]: {
         name: 'STON.fi Dex',
         requireMemo: true
-    },
-    [getUSDeMinter(false).toString({ testOnly: false })]: {
-        name: 'USDe Minter',
-        ic: Img_USDe
-    },
-    [gettsUSDeMinter(false).toString({ testOnly: false })]: {
-        name: 'tsUSDe Minter',
-        ic: Img_tsUSDe
-    },
+    }
 }
 
-export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet } = (isTestnet: boolean) => {
-    return isTestnet ? knownWalletsTestnet : knownWalletsMainnet;
+export const useKnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet } = (isTestnet: boolean) => {
+    const ethena = useEthena();
+    const wallets = isTestnet ? knownWalletsTestnet : knownWalletsMainnet;
+    return {
+        ...wallets,
+        [ethena.minter.toString({ testOnly: isTestnet })]: {
+            name: 'USDe Minter',
+            ic: Img_USDe
+        },
+        [ethena.tsMinter.toString({ testOnly: isTestnet })]: {
+            name: 'tsUSDe Minter',
+            ic: Img_tsUSDe
+        }
+    }
 }
 
 export const SpecialJettonTestnet: string | null = 'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD';
 export const SpecialJettonMainnet: string | null = 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs';
 export const getSpecialJetton = (isTestnet: boolean) => isTestnet ? SpecialJettonTestnet : SpecialJettonMainnet;
 
-export const savingsMastersTestnet: { [key: string]: { description: string } } = {
-    [testnetUSDeMinter.toString({ testOnly: true })]: { description: t('savings.general', { symbol: 'USDe' }) },
-    [testnettsUSDeMinter.toString({ testOnly: true })]: { description: t('savings.general', { symbol: 'tsUSDe' }) }
-}
+export const savingsMastersTestnet: { [key: string]: { description: string } } = {}
 
 export const savingsMastersMainnet: { [key: string]: { description: string } } = {
     'EQDNhy-nxYFgUqzfUzImBEP67JqsyMIcyk2S5_RwNNEYku0k': { description: 'Bemo liquid token' }, // stTON
     'EQC98_qAmNEptUtPc7W6xdHh_ZHrBUFpw5Ft_IzNU20QAJav': { description: 'Tonstakers liquid token' }, // tsTON
     'EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w': { description: 'Hipo liquid token' }, // hTON
     'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': { description: 'Whales liquid token' }, // wsTON
-    [mainnetUSDeMinter.toString()]: { description: t('savings.general', { symbol: 'USDe' }) },
-    [mainnettsUSDeMinter.toString()]: { description: t('savings.general', { symbol: 'tsUSDe' }) }
 }
 
 export const KnownJettonMastersTestnet: { [key: string]: any } = {

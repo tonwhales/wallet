@@ -276,6 +276,9 @@ export const ReceiveFragment = fragment(() => {
     const navigateToExchanges = () => {
         let params: ExchangesFragmentParams | undefined;
         if (!isTon) {
+            if (!addr) {
+                return;
+            }
             params = {
                 type: 'solana-wallet',
                 address: addr,

@@ -3,7 +3,7 @@ import { Pressable, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { avatarColors } from '../../../components/avatar/Avatar';
-import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
+import { KnownWallet, useKnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
@@ -66,6 +66,7 @@ export function PreparedMessageView(props: {
     const avatarColor = avatarColors[avatarColorHash];
     // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
     const contact = contacts[parsedAddressFriendly] || contacts[parsedAddressNonBounceable];
+    const knownWallets = useKnownWallets(isTestnet);
 
     // Operation
     const op = useMemo(() => {
@@ -85,11 +86,8 @@ export function PreparedMessageView(props: {
     }, [operation.op, status]);
 
     // Resolve built-in known wallets
-    let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[parsedAddressFriendly]) {
-        known = KnownWallets(isTestnet)[parsedAddressFriendly];
-    }
-    if (!!contact) { // Resolve contact known wallet
+    let known: KnownWallet | undefined = knownWallets[parsedAddressFriendly];
+    if (!!contact && !known) { // Resolve contact known wallet
         known = { name: contact.name }
     }
     if (!!walletSettings?.name) {

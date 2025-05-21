@@ -20,7 +20,7 @@ import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 import { requiredFields } from "./ContactNewFragment";
 import { ContactEdit } from "../../components/Contacts/ContactEdit";
 import { Avatar } from "../../components/avatar/Avatar";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 import { Typography } from "../../components/styles";
 import { AssetViewType } from "../wallet/AssetsFragment";
 
@@ -33,7 +33,7 @@ export const ContactFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
 
     const [address, setAddress] = useState(params.address ?? '');
     const parsed = useMemo(() => {

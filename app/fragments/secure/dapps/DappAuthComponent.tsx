@@ -25,7 +25,7 @@ import { WalletItem } from "../../../components/wallet/WalletItem";
 import { Address } from "@ton/core";
 import Collapsible from "react-native-collapsible";
 import Animated, { FadeOutDown } from "react-native-reanimated";
-import { KnownWallets } from "../../../secure/KnownWallets";
+import { useKnownWallets } from "../../../secure/KnownWallets";
 import { normalizeUrl } from "../../../utils/resolveUrl";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
@@ -85,7 +85,7 @@ export const DappAuthComponent = memo(({
     const appState = useAppState();
     const [bounceableFormat,] = useBounceableWalletFormat();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const accounts = useMemo(() => appState.addresses
         .map((a, i) => ({ ...a, index: i }))
         .sort((a, b) => {

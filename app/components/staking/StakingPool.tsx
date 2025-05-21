@@ -1,10 +1,9 @@
 import { memo, useMemo } from "react";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
-import { KnownPools } from "../../utils/KnownPools";
+import { useKnownPools } from "../../utils/KnownPools";
 import { t } from "../../i18n/t";
 import { Pressable, View, Text, Alert, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../WImage";
-import { openWithInApp } from "../../utils/openWithInApp";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { Address, fromNano, toNano } from "@ton/core";
@@ -96,7 +95,7 @@ export const StakingPool = memo((props: {
     const poolAddressString = props.pool.toString({ testOnly: network.isTestnet });
     const pool = useStakingPool(props.pool, props.member);
     const poolFee = pool?.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee))) / 100 : undefined;
-    const knownPools = KnownPools(network.isTestnet);
+    const knownPools = useKnownPools(network.isTestnet);
 
     const stakeUntil = pool?.status.proxyStakeUntil || 0;
     const name = knownPools[poolAddressString]?.name;

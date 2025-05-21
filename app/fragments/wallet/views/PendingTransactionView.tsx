@@ -2,7 +2,7 @@ import { memo, useCallback, useMemo } from "react";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useContractInfo, useNetwork, useTheme, useWalletSettings } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
+import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
 import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
 import { t } from "../../../i18n/t";
@@ -45,7 +45,7 @@ export const PendingTransactionView = memo(({
     const navigation = useTypedNavigation();
     const body = tx.body;
     const addressBook = useAddressBookContext();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const target = body?.type === 'token' ? body.target : tx.address;
     const targetFriendly = target?.toString({ testOnly: isTestnet });
     const { getAddressFormat } = useAddressFormatsHistory();

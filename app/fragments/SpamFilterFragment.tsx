@@ -12,7 +12,7 @@ import { useDenyList, useDontShowComments, useNetwork, useRemoveFromDenyList, us
 import { Address, fromNano, toNano } from "@ton/core";
 import { confirmAlert } from "../utils/confirmAlert";
 import { StatusBar } from "expo-status-bar";
-import { KnownWallets } from "../secure/KnownWallets";
+import { useKnownWallets } from "../secure/KnownWallets";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
 import IcInfo from '@assets/ic-info.svg';
@@ -28,7 +28,7 @@ export const SpamFilterFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const denyMap = useDenyList();
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
 
     const removeFromDenyList = useRemoveFromDenyList();
     const [minAmount, updateMinAmount] = useSpamMinAmount();

@@ -12,7 +12,7 @@ import { TransferAction } from "./StakingTransferFragment";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBanner";
-import { KnownPools } from "../../utils/KnownPools";
+import { useKnownPools } from "../../utils/KnownPools";
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
@@ -40,7 +40,7 @@ export const StakingFragment = fragment(() => {
     const isLedger = useIsLedgerRoute()
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-    const knownPools = KnownPools(network.isTestnet);
+    const knownPools = useKnownPools(network.isTestnet);
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {

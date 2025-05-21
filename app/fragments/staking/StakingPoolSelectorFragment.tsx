@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { memo, useCallback, useMemo } from "react";
 import { t } from "../../i18n/t";
-import { KnownPools } from "../../utils/KnownPools";
+import { useKnownPools } from "../../utils/KnownPools";
 import { WImage } from "../../components/WImage";
 import { useParams } from "../../utils/useParams";
 import { Address, fromNano, toNano } from "@ton/core";
@@ -20,7 +20,7 @@ import IcCheck from "@assets/ic-check.svg";
 const PoolItem = memo(({ selected, pool, onSelect }: { selected?: boolean, pool: Address, onSelect: () => void }) => {
     const theme = useTheme();
     const network = useNetwork();
-    const knownPools = KnownPools(network.isTestnet);
+    const knownPools = useKnownPools(network.isTestnet);
     const selectedAcc = useSelectedAccount();
     const poolState = useStakingPool(pool, selectedAcc!.address);
     const apy = usePoolApy(pool.toString({ testOnly: network.isTestnet }));
@@ -120,6 +120,7 @@ export const StakingPoolSelectorFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
     const params = useParams<{ current: Address, callback: (pool: Address) => void }>();
+    const knownPools = useKnownPools(isTestnet);
 
     const isLedger = useIsLedgerRoute()
 
@@ -130,7 +131,7 @@ export const StakingPoolSelectorFragment = fragment(() => {
         } catch { }
     }, [ledgerContext?.addr?.address, isLedger]);
 
-    const pools = Object.keys(KnownPools(isTestnet)).map((v) => Address.parse(v));
+    const pools = Object.keys(knownPools).map((v) => Address.parse(v));
 
     const memberData = useStakingPoolMembers(
         client,

@@ -7,7 +7,7 @@ import { Address } from "@ton/core";
 import { useBounceableWalletFormat, useNetwork, useTheme, useWalletSettings } from "../../engine/hooks";
 import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { Avatar, avatarColors } from "../avatar/Avatar";
-import { KnownWallets } from "../../secure/KnownWallets";
+import { useKnownWallets } from "../../secure/KnownWallets";
 import { avatarHash } from "../../utils/avatarHash";
 
 import IcCheck from "@assets/ic-check.svg";
@@ -25,7 +25,7 @@ export const LedgerWalletItem = memo(({ ledgerWallet, onSelect, selected, index 
     const ledgerContext = useLedgerTransport();
     const address = Address.parse(ledgerWallet.address);
     const { isTestnet } = useNetwork();
-    const knownWallets = KnownWallets(isTestnet);
+    const knownWallets = useKnownWallets(isTestnet);
     const [walletSettings] = useWalletSettings(address);
     const [bounceableFormat] = useBounceableWalletFormat();
     const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);

@@ -49,6 +49,10 @@ export function usePeparedMessages(messages: StoredMessage[], testOnly: boolean,
                 const mAddress = Address.parse(addressString);
                 const hint = jettonHints.find(h => {
                     try {
+                        if (!h?.jetton?.address) {
+                            return false;
+                        }
+
                         const isMaster = h.jetton.address === mAddress.toString({ testOnly });
 
                         if (isMaster) {

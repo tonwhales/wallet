@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { t } from '../../../../i18n/t';
-import { KnownWallets } from '../../../../secure/KnownWallets';
+import { useKnownWallets } from '../../../../secure/KnownWallets';
 import { formatCurrency, formatInputAmount } from '../../../../utils/formatCurrency';
 import { useAccountLite, useIsLedgerRoute, useJetton, useNetwork, usePrice, useSelectedAccount, useSolanaSelectedAccount, useVerifyJetton } from '../../../../engine/hooks';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../../../utils/withDecimals';
-import { fromNano, Cell, Address, toNano } from '@ton/core';
+import { fromNano, Cell, Address } from '@ton/core';
 import { useWalletVersion } from '../../../../engine/hooks/useWalletVersion';
 import { WalletVersions } from '../../../../engine/types';
 import { useGaslessConfig } from '../../../../engine/hooks/jettons/useGaslessConfig';
@@ -56,8 +56,8 @@ export enum SelectedInput {
 
 export const useSimpleTransfer = ({ params, navigation }: Options) => {
     const network = useNetwork();
-    const knownWallets = KnownWallets(network.isTestnet);
-    const isLedger = useIsLedgerRoute()
+    const isLedger = useIsLedgerRoute();
+    const knownWallets = useKnownWallets(network.isTestnet);
     const acc = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount()!;
     const [price, currency] = usePrice();
@@ -117,7 +117,7 @@ export const useSimpleTransfer = ({ params, navigation }: Options) => {
 
         return fromNano(params.amount);
     });
-    
+
     const [stateInit] = useState<Cell | null>(params?.stateInit || null);
     const estimationRef = useRef<bigint | null>(null);
 

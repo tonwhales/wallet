@@ -4,7 +4,7 @@ import { Queries } from '../queries';
 import { getQueryData } from '../utils/getQueryData';
 import { HoldersAccountStatus } from '../hooks/holders/useHoldersAccountStatus';
 import { HoldersUserState } from '../api/holders/fetchUserState';
-import { gettsUSDeMinter } from '../../secure/KnownWallets';
+import { EthenaAssets } from '../hooks/staking/useEthena';
 
 export async function onAccountsTouched(accounts: Set<string>) {
     const cache = queryClient.getQueryCache();
@@ -53,10 +53,10 @@ export async function onAccountsTouched(accounts: Set<string>) {
     })
 }
 
-export async function onAccountTouched(account: string, isTestnet: boolean) {
+export async function onAccountTouched(account: string, isTestnet: boolean, ethena: EthenaAssets) {
     // If account touched - transactions and state changed
     const address = Address.parse(account).toString({ testOnly: isTestnet });
-    const tsUSDeMinter = gettsUSDeMinter(isTestnet);
+    const tsUSDeMinter = ethena.tsMinter;
 
     const cache = queryClient.getQueryCache();
     const holdersStatusKey = Queries.Holders(address).Status();

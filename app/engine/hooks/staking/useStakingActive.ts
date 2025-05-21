@@ -1,7 +1,7 @@
 import { Address } from "@ton/core";
 import { useSelectedAccount } from "../appstate";
 import { useNetwork } from "../network";
-import { KnownPools } from "../../../utils/KnownPools";
+import { useKnownPools } from "../../../utils/KnownPools";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { whalesConnectEndpoint } from "../../clients";
@@ -46,13 +46,14 @@ function safeParseBigInt(value: string) {
 export function useStakingActive(address?: Address) {
     const selected = useSelectedAccount();
     const { isTestnet } = useNetwork();
-    const knownPools = Object.keys(KnownPools(isTestnet)).map((key) => Address.parse(key));
+    const knownPools = useKnownPools(isTestnet);
+    const mappedKnownPools = Object.keys(knownPools).map((key) => Address.parse(key));
     const account = address ?? selected?.address;
 
     const query = useQuery({
         queryKey: Queries.StakingAccountInfo(account!.toString({ testOnly: isTestnet })),
         queryFn: async () => {
-            return await fetchStakingActive(isTestnet, address ?? selected!.address, knownPools);
+            return await fetchStakingActive(isTestnet, address ?? selected!.address, mappedKnownPools);
         },
         refetchOnMount: true,
         staleTime: 1000 * 30,

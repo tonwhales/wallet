@@ -7,7 +7,7 @@ import { PerfText } from "../../../../components/basic/PerfText";
 import { Typography } from "../../../../components/styles";
 import { PerfView } from "../../../../components/basic/PerfView";
 import { AddressComponent } from "../../../../components/address/AddressComponent";
-import { KnownWallets } from "../../../../secure/KnownWallets";
+import { useKnownWallets } from "../../../../secure/KnownWallets";
 
 type PreviewToProps = {
     to: {
@@ -30,9 +30,9 @@ export const PreviewTo = memo((props: PreviewToProps) => {
     if (!to.address) return null;
 
     const parsedAddress = Address.parseFriendly(to.address);
-    const known = KnownWallets(testOnly)[parsedAddress.address.toString({ testOnly })];
+    const known = useKnownWallets(testOnly)[parsedAddress.address.toString({ testOnly })];
     const bounceable = bounceableFormat !== undefined ? bounceableFormat : parsedAddress.isBounceable;
-    
+
     const parsedAddressFriendly = parsedAddress.address.toString({ testOnly, bounceable });
 
     return (

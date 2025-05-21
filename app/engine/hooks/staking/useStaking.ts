@@ -1,7 +1,7 @@
 import { useStakingWalletConfig } from './useStakingWalletConfig';
 import { useSelectedAccount } from '../appstate/useSelectedAccount';
 import { Address } from '@ton/core';
-import { KnownPools } from '../../../utils/KnownPools';
+import { useKnownPools } from '../../../utils/KnownPools';
 import { useNetwork } from '../network/useNetwork';
 import { useStakingPoolMembers } from './useStakingPoolMember';
 import { useClient4 } from '../network/useClient4';
@@ -33,15 +33,16 @@ function calculatePoolsAndTotal(knownPools: Address[], members: (StakingPoolMemb
 }
 
 export function useStaking(address?: Address) {
-    let selected = useSelectedAccount();
-    let { isTestnet } = useNetwork();
-    let client = useClient4(isTestnet);
-    let config = useStakingWalletConfig(address?.toString({ testOnly: isTestnet }) ?? selected!.addressString);
-    let knownPools = Object.keys(KnownPools(isTestnet)).map((key) => Address.parse(key));
-    let members = useStakingPoolMembers(client, isTestnet, knownPools.map(p => ({ pool: p, member: address ?? selected!.address })));
+    const selected = useSelectedAccount();
+    const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
+    const config = useStakingWalletConfig(address?.toString({ testOnly: isTestnet }) ?? selected!.addressString);
+    const knownPools = useKnownPools(isTestnet);
+    const mappedKnownPools = Object.keys(knownPools).map((key) => Address.parse(key));
+    const members = useStakingPoolMembers(client, isTestnet, mappedKnownPools.map(p => ({ pool: p, member: address ?? selected!.address })));
 
-    const { pools, total } = calculatePoolsAndTotal(knownPools, members, isTestnet);
-    
+    const { pools, total } = calculatePoolsAndTotal(mappedKnownPools, members, isTestnet);
+
     return {
         pools,
         total,

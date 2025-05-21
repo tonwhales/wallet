@@ -13,7 +13,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useRef } from 'react';
-import { useSelectedAccount, useSetAppState, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
+import { useEthena, useSelectedAccount, useSetAppState, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
@@ -58,6 +58,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const [isScreenProtectorEnabled, setScreenProtector] = useScreenProtectorState();
     const webViewRef = useRef<WebView>(null);
     const { clearWebViewLocalStorage } = useWebViewPreloader();
+    const ethena = useEthena();
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
@@ -70,15 +71,15 @@ export const DeveloperToolsFragment = fragment(() => {
         clearWebViewLocalStorage();
         setHiddenBanners([]);
         await clearHolders(acc.address.toString({ testOnly: isTestnet }));
-        await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
+        await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet, ethena);
         for (const ledgerWalet of ledgerContext.wallets) {
             const address = Address.parse(ledgerWalet.address);
             await clearHolders(address.toString({ testOnly: isTestnet }));
-            await onAccountTouched(address.toString({ testOnly: isTestnet }), isTestnet);
+            await onAccountTouched(address.toString({ testOnly: isTestnet }), isTestnet, ethena);
         }
         IosWalletService.setCredentialsInGroupUserDefaults({});
         reboot();
-    }, [isTestnet, clearHolders, setHiddenBanners, ledgerContext.wallets]);
+    }, [isTestnet, clearHolders, setHiddenBanners, ledgerContext.wallets, ethena]);
 
     const onSwitchNetwork = async () => {
         const storedAppState = getAppState();

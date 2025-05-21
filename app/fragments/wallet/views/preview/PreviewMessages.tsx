@@ -3,7 +3,7 @@ import { memo } from "react";
 import { View, Text, Image, Platform } from "react-native";
 import { ThemeType } from "../../../../engine/state/theme";
 import { useBounceableWalletFormat, useNetwork, useServerConfig } from "../../../../engine/hooks";
-import { KnownWallet, KnownWallets } from "../../../../secure/KnownWallets";
+import { KnownWallet, useKnownWallets } from "../../../../secure/KnownWallets";
 import { AddressBook, AddressContact } from "../../../../engine/hooks/contacts/useAddressBook";
 import { ServerConfig } from "../../../../engine/api/fetchConfig";
 import { ItemCollapsible } from "../../../../components/ItemCollapsible";
@@ -32,11 +32,11 @@ const MessagePreview = memo(({
     denyList: { [key: string]: { reason: string | null } },
     serverConfig?: ServerConfig
 }) => {
-    const addressString = message.addressString;
     const gas = message.gas;
     const amountString = message.amountString;
     const operation = message.operation;
     const friendlyTarget = message.friendlyTarget;
+    const knownWallets = useKnownWallets(isTestnet);
 
     let amount = message.amount;
 
@@ -45,18 +45,13 @@ const MessagePreview = memo(({
     const target = Address.parse(friendlyTarget);
     const { getAddressFormat } = useAddressFormatsHistory();
 
-    const bounceable = getAddressFormat(Address.parse(friendlyTarget)) ?? (targetContractInfo?.kind === 'wallet'
-        ? bounceableFormat
-        : true);
+    const bounceable = getAddressFormat(Address.parse(friendlyTarget))
+        ?? (targetContractInfo?.kind === 'wallet' ? bounceableFormat : true);
 
     const contact = contacts[friendlyTarget];
 
-    let known: KnownWallet | undefined = undefined;
-
-    if (KnownWallets(isTestnet)[friendlyTarget]) {
-        known = KnownWallets(isTestnet)[friendlyTarget];
-    }
-    if (!!contact) { // Resolve contact known wallet
+    let known: KnownWallet | undefined = knownWallets[friendlyTarget];
+    if (!!contact && !known) { // Resolve contact known wallet
         known = { name: contact.name }
     }
     const isSpam = !!(denyList ?? {})[friendlyTarget];

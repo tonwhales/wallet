@@ -4,6 +4,8 @@ import { KnownJettons, fetchKnownJettons } from "../../api/fetchKnownJettons";
 import { KnownJettonMastersMainnet, KnownJettonMastersTestnet, KnownJettonTickers, SpecialJettonMainnet, SpecialJettonTestnet } from "../../../secure/KnownWallets";
 import { queryClient } from "../../clients";
 import { getQueryData } from "../../utils/getQueryData";
+import { useEthena } from "..";
+import { t } from "../../../i18n/t";
 
 export function useKnownJettons(isTestnet: boolean): KnownJettons | null {
     const full = useQuery({
@@ -13,10 +15,19 @@ export function useKnownJettons(isTestnet: boolean): KnownJettons | null {
         refetchOnMount: true,
         refetchOnWindowFocus: true,
     }).data ?? null;
+    const { minter, tsMinter } = useEthena();
 
     const knownJettons = (isTestnet ? full?.testnet : full?.mainnet) ?? null
 
-    const builtInMasters = isTestnet ? KnownJettonMastersTestnet : KnownJettonMastersMainnet;
+    let builtInMasters = isTestnet ? KnownJettonMastersTestnet : KnownJettonMastersMainnet;
+
+    const ethenaMasters = {
+        [minter.toString({ testOnly: isTestnet })]: { description: t('savings.general', { symbol: 'USDe' }) },
+        [tsMinter.toString({ testOnly: isTestnet })]: { description: t('savings.general', { symbol: 'tsUSDe' }) }
+    }
+
+    builtInMasters = { ...builtInMasters, ...ethenaMasters };
+
     const builtInSpecialJetton = isTestnet ? SpecialJettonTestnet : SpecialJettonMainnet;
     const builtInTickers = KnownJettonTickers;
 

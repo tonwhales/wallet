@@ -1,8 +1,13 @@
 import { Address } from "@ton/core";
 import { ImageRequireSource } from "react-native";
-import { gettsUSDeMinter } from "../secure/KnownWallets";
+import { useEthena } from "../engine/hooks/staking/useEthena";
 
-export type StakingPool = { name: string, restricted?: boolean, requireSource?: ImageRequireSource, webLink: StakingPoolLink };
+export type StakingPool = {
+    name: string,
+    restricted?: boolean,
+    requireSource?: ImageRequireSource,
+    webLink: StakingPoolLink | string
+};
 
 export enum StakingPoolLink {
     Club = 'https://tonwhales.com/staking/pool/club',
@@ -35,11 +40,6 @@ const knownPoolsTestnet = {
         name: 'Whales Liquid',
         requireSource: require('@assets/known/ic_wls.png'),
         webLink: StakingPoolLink.Liquid
-    },
-    [gettsUSDeMinter(true).toString({ testOnly: true })]: {
-        name: 'USDe Liquid',
-        requireSource: require('@assets/known/ic_usde.png'),
-        webLink: StakingPoolLink.Usde
     },
 }
 
@@ -102,14 +102,21 @@ const knownPoolsMainnet = {
         name: 'Whales Liquid',
         requireSource: require('@assets/known/ic_wls.png'),
         webLink: StakingPoolLink.Liquid
-    },
-    [gettsUSDeMinter(false).toString()]: {
-        name: 'USDe Liquid',
-        requireSource: require('@assets/known/ic_usde.png'),
-        webLink: StakingPoolLink.Usde
-    },
+    }
 }
 
-export const KnownPools: (isTestnet: boolean) => { [key: string]: StakingPool } = (isTestnet) => {
-    return isTestnet ? knownPoolsTestnet : knownPoolsMainnet;
+export const useKnownPools: (isTestnet: boolean) => { [key: string]: StakingPool } = (isTestnet) => {
+    const ethena = useEthena();
+    const tsMinter = ethena.tsMinter;
+    const webLink = ethena.webLink ?? StakingPoolLink.Usde;
+    const pools = isTestnet ? knownPoolsTestnet : knownPoolsMainnet;
+
+    return {
+        ...pools,
+        [tsMinter.toString({ testOnly: isTestnet })]: {
+            name: 'USDe Liquid',
+            requireSource: require('@assets/known/ic_usde.png'),
+            webLink
+        }
+    }
 }

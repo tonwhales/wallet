@@ -17,6 +17,8 @@ import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
 import { useWalletVersion } from '../useWalletVersion';
+import { useToaster } from '../../../components/toast/ToastProvider';
+import { useNetwork } from '..';
 
 type SolanaInjectedBridge = {
     sendSolanaTransaction: (transaction: string) => Promise<void>;
@@ -29,6 +31,8 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
     const removeInjectedConnection = useRemoveInjectedConnection(address);
     const onDisconnect = useDisconnectApp(address);
     const walletVersion = useWalletVersion(address);
+    const toaster = useToaster();
+    const { isTestnet } = useNetwork();
 
     const account = address ?? getCurrentAddress().addressString;
     const handleLedgerRequest = useHoldersLedgerTonconnectHandler();
@@ -93,17 +97,19 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                     },
                                     id: requestId
                                 });
-
-                                // return;
                             } else {
-                                resolve({
-                                    event: 'connect_error',
-                                    payload: {
-                                        code: CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
-                                        message: 'User denied the connection',
-                                    },
-                                    id: requestId
-                                });
+                                if (result.event) {
+                                    resolve({ ...result.event, id: requestId });
+                                } else {
+                                    resolve({
+                                        event: 'connect_error',
+                                        payload: {
+                                            code: CONNECT_EVENT_ERROR_CODES.USER_REJECTS_ERROR,
+                                            message: 'User denied the connection',
+                                        },
+                                        id: requestId
+                                    });
+                                }
                             }
                         }
 
@@ -179,7 +185,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                                 return;
                             }
 
-                            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback);
+                            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, isTestnet, toaster);
 
                             if (!isValidRequest) {
                                 return;

@@ -1,4 +1,4 @@
-import { ConnectRequest, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
+import { CHAIN, ConnectRequest, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
 import { MIN_PROTOCOL_VERSION } from './config';
 import { SignRawParams, WebViewBridgeMessageType } from './types';
 import { storage } from '../../storage/storage';
@@ -7,6 +7,7 @@ import { t } from '../../i18n/t';
 import { z } from 'zod';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { Address, Cell } from '@ton/core';
+import { Toaster } from '../../components/toast/ToastProvider';
 
 export function resolveAuthError(error: Error) {
   switch ((error as Error)?.message) {
@@ -167,46 +168,81 @@ export const getInjectableJSMessage = (message: any) => {
   `;
 };
 
-export function checkTonconnectRequest(id: string, params: SignRawParams, callback: (response: WalletResponse<RpcMethod>) => void) {
+export function checkTonconnectRequest(id: string, params: SignRawParams, callback: (response: WalletResponse<RpcMethod>) => void, isTestnet: boolean, toaster: Toaster) {
+  let errorMessage = 'Bad request';
   const validParams = !!params
     && Array.isArray(params.messages)
     && params.messages.every((msg) => {
-      let validAmount = !!msg.amount && typeof msg.amount === 'string';
-      let addressIsValid = false;
-      let validPayload = true;
-      let validStateInit = true;
 
+      // check for valid amount
+      if (!msg.amount || typeof msg.amount !== 'string') {
+        errorMessage = 'Invalid amount';
+        return false;
+      }
+
+      // check for valid address
       if (!!msg.address) {
         try {
           Address.parseFriendly(msg.address);
-          addressIsValid = true;
-        } catch { }
+        } catch {
+          errorMessage = 'Invalid address';
+          return false;
+        }
       }
 
+      // check for valid payload
       if (!!msg.payload) {
         try {
           Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0];
         } catch {
-          validPayload = false;
+          errorMessage = 'Invalid payload';
+          return false;
         }
       }
 
+      // check for valid state init
       if (!!msg.stateInit) {
         try {
           Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0];
         } catch {
-          validStateInit = false;
+          errorMessage = 'Invalid state init';
+          return false;
         }
       }
 
-      return validAmount && addressIsValid && validPayload && validStateInit;
+      // check for valid valid until
+      if (!!params.valid_until && (typeof params.valid_until !== 'number' || isNaN(params.valid_until))) {
+        errorMessage = 'Invalid valid until';
+        return false;
+      }
+
+      // check for valid selected network
+      let validNetwork = true;
+      if (!!params.network) {
+        if (isTestnet) {
+          validNetwork = params.network === CHAIN.TESTNET;
+        } else {
+          validNetwork = params.network === CHAIN.MAINNET;
+        }
+      }
+
+      if (!validNetwork) {
+        errorMessage = 'Invalid selected network';
+        return false;
+      }
+
+      return true;
     });
 
   if (!validParams) {
+    toaster.show({
+      message: t('common.errorOccurred', { error: errorMessage }),
+      type: 'error',
+    });
     callback({
       error: {
         code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-        message: `Bad request`,
+        message: errorMessage,
       },
       id,
     });

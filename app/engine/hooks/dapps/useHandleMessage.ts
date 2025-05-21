@@ -1,13 +1,14 @@
-import { AppRequest, Base64, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse, hexToByteArray } from '@tonconnect/protocol';
+import { AppRequest, Base64, RpcMethod, RpcRequests, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse, hexToByteArray } from '@tonconnect/protocol';
 import { MessageEvent } from 'react-native-sse';
 import { sendTonConnectResponse } from '../../api/sendTonConnectResponse';
 import { warn } from '../../../utils/log';
-import { useConnectAppByClientSessionId, useDisconnectApp, useNetwork } from '../../hooks';
-import { useConnectPendingRequests } from '../../hooks';
-import { transactionRpcRequestCodec } from '../../tonconnect/codecs';
-import { ConnectedAppConnectionRemote, SignRawParams } from '../../tonconnect/types';
-import { checkTonconnectRequest, setLastEventId } from '../../tonconnect/utils';
+import { useConnectAppByClientSessionId, useConnectPendingRequests, useDisconnectApp, useNetwork } from '../../hooks';
+import { tonconnectRpcReqScheme } from '../../tonconnect/codecs';
+import { ConnectedAppConnectionRemote, SignDataPayload, SignDataRawRequest, SignRawTxParams, SignRpcRequest } from '../../tonconnect/types';
+import { setLastEventId } from '../../tonconnect/utils';
 import { useToaster } from '../../../components/toast/ToastProvider';
+import { checkTonconnectTxRequest } from '../../tonconnect/checkTonconnectTxRequest';
+import { checkTonconnectSignRequest } from '../../tonconnect/checkTonconnectSignRequest';
 
 export function useHandleMessage(
     connections: ConnectedAppConnectionRemote[],
@@ -46,7 +47,7 @@ export function useHandleMessage(
                 sendTonConnectResponse({ response, sessionCrypto, clientSessionId: from });
             }
 
-            if (!transactionRpcRequestCodec.is(parsed)) {
+            if (!tonconnectRpcReqScheme.safeParse(parsed).success) {
                 callback({
                     error: {
                         code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
@@ -56,7 +57,8 @@ export function useHandleMessage(
                 });
                 return;
             }
-            const request = parsed as AppRequest<RpcMethod>;
+
+            const request = parsed as (SignDataRawRequest | AppRequest<'sendTransaction'> | AppRequest<'disconnect'>);
 
             const { connectedApp } = findConnectedAppByClientSessionId(from);
 
@@ -71,11 +73,74 @@ export function useHandleMessage(
                 return;
             }
 
-            if (request.method === 'sendTransaction') {
-                try {
-                    const params = JSON.parse(request.params[0]) as SignRawParams;
+            switch (request.method) {
+                case 'sendTransaction':
+                    try {
+                        const params = JSON.parse(request.params[0]) as SignRawTxParams;
 
-                    const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, isTestnet, toaster);
+                        const isValidRequest = checkTonconnectTxRequest(request.id.toString(), params, callback, isTestnet, toaster);
+
+                        if (!isValidRequest) {
+                            return;
+                        }
+
+                        update((prev) => {
+                            const temp = [...prev];
+
+                            const found = temp.find((item) => item.from === from);
+
+                            if (!!found) {
+                                callback({
+                                    error: {
+                                        code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                                        message: `Request already pending`,
+                                    },
+                                    id: request.id.toString(),
+                                });
+                            } else {
+                                temp.push({
+                                    from: from,
+                                    id: request.id.toString(),
+                                    params: request.params,
+                                    method: 'sendTransaction'
+                                });
+                            }
+
+                            return temp;
+                        });
+                    } catch (error) {
+                        callback({
+                            error: {
+                                code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+                                message: `Bad request`,
+                            },
+                            id: request.id.toString(),
+                        });
+                    }
+                    break;
+
+                case 'disconnect':
+                    if (connectedApp.url) {
+                        disconnectApp(connectedApp!.url, request.id);
+                        callback({
+                            id: request.id.toString(),
+                            result: {}
+                        });
+                        break;
+                    }
+
+                    callback({
+                        error: {
+                            code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                            message: 'App is not connected',
+                        },
+                        id: request.id.toString(),
+                    });
+                    break;
+
+                case 'signData':
+                    const params = JSON.parse(request.params[0]) as SignDataPayload;
+                    const isValidRequest = checkTonconnectSignRequest(request.id.toString(), params, callback, toaster);
 
                     if (!isValidRequest) {
                         return;
@@ -99,33 +164,17 @@ export function useHandleMessage(
                                 from: from,
                                 id: request.id.toString(),
                                 params: request.params,
-                                method: 'sendTransaction'
+                                method: 'signData'
                             });
                         }
 
                         return temp;
                     });
-                } catch (error) {
-                    callback({
-                        error: {
-                            code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-                            message: `Bad request`,
-                        },
-                        id: request.id.toString(),
-                    });
-                }
-            } else if (request.method === 'disconnect') {
-                disconnectApp(connectedApp!.url, request.id);
-            } else {
-                callback({
-                    error: {
-                        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-                        message: `Method "${request.method}" is not supported by the wallet app`,
-                    },
-                    id: request.id.toString(),
-                });
-            }
 
+                    break;
+                default:
+                    break;
+            }
         } catch {
             warn('Failed to handle message');
         }

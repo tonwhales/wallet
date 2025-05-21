@@ -117,6 +117,7 @@ import { PendingSolanaTransactionPreviewFragment } from './fragments/solana/tran
 import { LiquidUSDeStakingTransferFragment } from './fragments/staking/LiquidUSDeStakingTransferFragment';
 import { LiquidUSDeStakingCalculatorFragment } from './fragments/staking/LiquidUSDeStakingCalculatorFragment';
 import { LiquidUSDeStakingUnstakeFragment } from './fragments/staking/LiquidUSDeStakingUnstakeFragment';
+import { TonConnectSignFragment } from './fragments/secure/dapps/TonConnectSignFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -285,6 +286,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
+    modalScreen('TonConnectSign', TonConnectSignFragment, safeArea),
     modalScreen('Install', InstallFragment, safeArea),
     modalScreen('Authenticate', AuthenticateFragment, safeArea),
     <Stack.Screen

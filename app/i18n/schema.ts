@@ -353,7 +353,8 @@ export type LocalizationSchema = {
         title: string,
         message: string,
         hint: string,
-        action: string
+        action: string,
+        binary: string
     },
     migrate: {
         title: string,

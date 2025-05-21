@@ -3,7 +3,8 @@ import { View, Text } from "react-native";
 import { useConnectPendingRequests, useNetwork, useTheme } from "../../../engine/hooks";
 import { t } from "../../../i18n/t";
 import { Typography } from "../../../components/styles";
-import { TonConnectRequestButton } from "../views/TonConnectRequestButton";
+import { TonConnectTxRequestButton } from "../views/tonconnect/TonConnectTxRequestButton";
+import { TonConnectSignRequestButton } from "../views/tonconnect/TonConnectSignRequestButton";
 
 export const DappsRequests = memo(() => {
     const theme = useTheme();
@@ -33,14 +34,23 @@ export const DappsRequests = memo(() => {
                 backgroundColor: theme.surfaceOnBg,
             }}>
                 {lastThreeRequests.map((r, index) => {
-                    return (
-                        <TonConnectRequestButton
-                            key={`tonconnect-req-${index}`}
-                            request={r}
-                            divider={index < lastThreeRequests.length - 1}
-                            isTestnet={isTestnet}
-                        />
-                    );
+                    if (r.method === 'sendTransaction') {
+                        return (
+                            <TonConnectTxRequestButton
+                                key={`tonconnect-req-${index}`}
+                                request={r}
+                                divider={index < lastThreeRequests.length - 1}
+                                isTestnet={isTestnet}
+                            />
+                        );
+                    } else if (r.method === 'signData') {
+                        return (
+                            <TonConnectSignRequestButton
+                                key={`tonconnect-req-${index}`}
+                                request={r}
+                            />
+                        );
+                    }
                 })}
             </View>
         </View>

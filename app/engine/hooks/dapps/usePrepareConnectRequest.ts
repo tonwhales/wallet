@@ -5,7 +5,7 @@ import { getTimeSec } from "../../../utils/getTimeSec";
 import { warn } from "../../../utils/log";
 import { Address, Cell, fromNano, toNano } from "@ton/core";
 import { useDeleteActiveRemoteRequests } from "./useDeleteActiveRemoteRequests";
-import { SendTransactionRequest, SignRawParams } from '../../tonconnect/types';
+import { SendTransactionRequest, SignRawTxParams } from '../../tonconnect/types';
 import { ConnectedApp } from "./useTonConnectExtenstions";
 import { Toaster } from "../../../components/toast/ToastProvider";
 import { getCurrentAddress } from "../../../storage/appState";
@@ -22,7 +22,7 @@ export type OrderMessage = {
   }
 }
 
-export type PreparedConnectRequest = {
+export type PreparedConnectTxRequest = {
   request: SendTransactionRequest,
   sessionCrypto: SessionCrypto,
   messages: OrderMessage[],
@@ -33,13 +33,13 @@ export type PreparedConnectRequest = {
 }
 
 // check if the request is valid and prepare the request for transfer fragment navigation
-export function usePrepareConnectRequest(config: { isTestnet: boolean, toaster: Toaster, toastProps?: { marginBottom: number } }): (request: { from: string } & SendTransactionRequest) => PreparedConnectRequest | undefined {
+export function usePrepareConnectTxRequest(config: { isTestnet: boolean, toaster: Toaster, toastProps?: { marginBottom: number } }): (request: { from: string } & SendTransactionRequest) => PreparedConnectTxRequest | undefined {
   const findConnectedAppByClientSessionId = useConnectAppByClientSessionId();
   const deleteActiveRemoteRequest = useDeleteActiveRemoteRequests();
   const { toaster, isTestnet, toastProps } = config;
 
   return (request: { from: string } & SendTransactionRequest) => {
-    const params = JSON.parse(request.params[0]) as SignRawParams;
+    const params = JSON.parse(request.params[0]) as SignRawTxParams;
 
     const isValidRequest =
       params

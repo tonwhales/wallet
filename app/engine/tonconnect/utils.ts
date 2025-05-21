@@ -1,13 +1,13 @@
-import { CHAIN, ConnectRequest, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
+import { ConnectRequest } from '@tonconnect/protocol';
 import { MIN_PROTOCOL_VERSION } from './config';
-import { SignRawParams, WebViewBridgeMessageType } from './types';
+import { SignBinaryPayload, SignCellPayload, SignTextPayload, WebViewBridgeMessageType } from './types';
 import { storage } from '../../storage/storage';
 import { getCurrentAddress } from '../../storage/appState';
-import { t } from '../../i18n/t';
 import { z } from 'zod';
-import { getTimeSec } from '../../utils/getTimeSec';
-import { Address, Cell } from '@ton/core';
-import { Toaster } from '../../components/toast/ToastProvider';
+import { t } from '../../i18n/t';
+import { Address, beginCell, Cell } from '@ton/core';
+import { sha256_sync } from '@ton/crypto';
+import { crc32 } from '../../utils/crc32';
 
 export function resolveAuthError(error: Error) {
   switch ((error as Error)?.message) {
@@ -168,111 +168,79 @@ export const getInjectableJSMessage = (message: any) => {
   `;
 };
 
-export function checkTonconnectRequest(id: string, params: SignRawParams, callback: (response: WalletResponse<RpcMethod>) => void, isTestnet: boolean, toaster: Toaster) {
-  let errorMessage = 'Bad request';
-  const validParams = !!params
-    && Array.isArray(params.messages)
-    && params.messages.every((msg) => {
+/**
+ * Creates hash for text or binary payload.
+ * Message format:
+ * message = 0xffff || "ton-connect/sign-data/" || workchain || address_hash || domain_len || domain || timestamp || payload
+ */
+export function createTextBinaryHash(
+  payload: SignTextPayload | SignBinaryPayload,
+  parsedAddr: Address,
+  domain: string,
+  timestamp: number
+): Buffer {
+  // Create workchain buffer
+  const wcBuffer = Buffer.alloc(4);
+  wcBuffer.writeInt32BE(parsedAddr.workChain);
 
-      // check for valid amount
-      if (!msg.amount || typeof msg.amount !== 'string') {
-        errorMessage = 'Invalid amount';
-        return false;
-      }
+  // Create domain buffer
+  const domainBuffer = Buffer.from(domain, 'utf8');
+  const domainLenBuffer = Buffer.alloc(4);
+  domainLenBuffer.writeUInt32BE(domainBuffer.length);
 
-      // check for valid address
-      if (!!msg.address) {
-        try {
-          Address.parseFriendly(msg.address);
-        } catch {
-          errorMessage = 'Invalid address';
-          return false;
-        }
-      }
+  // Create timestamp buffer
+  const tsBuffer = Buffer.alloc(8);
+  tsBuffer.writeBigUInt64BE(BigInt(timestamp));
 
-      // check for valid payload
-      if (!!msg.payload) {
-        try {
-          Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0];
-        } catch {
-          errorMessage = 'Invalid payload';
-          return false;
-        }
-      }
+  // Create payload buffer
+  const typePrefix = payload.type === 'text' ? 'txt' : 'bin';
+  const content = payload.type === 'text' ? payload.text : payload.bytes;
+  const encoding = payload.type === 'text' ? 'utf8' : 'base64';
 
-      // check for valid state init
-      if (!!msg.stateInit) {
-        try {
-          Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0];
-        } catch {
-          errorMessage = 'Invalid state init';
-          return false;
-        }
-      }
+  const payloadPrefix = Buffer.from(typePrefix);
+  const payloadBuffer = Buffer.from(content, encoding);
+  const payloadLenBuffer = Buffer.alloc(4);
+  payloadLenBuffer.writeUInt32BE(payloadBuffer.length);
 
-      // check for valid valid until
-      if (!!params.valid_until && (typeof params.valid_until !== 'number' || isNaN(params.valid_until))) {
-        errorMessage = 'Invalid valid until';
-        return false;
-      }
+  // Build message
+  const message = Buffer.concat([
+    Buffer.from([0xff, 0xff]),
+    Buffer.from("ton-connect/sign-data/"),
+    wcBuffer,
+    parsedAddr.hash,
+    domainLenBuffer,
+    domainBuffer,
+    tsBuffer,
+    payloadPrefix,
+    payloadLenBuffer,
+    payloadBuffer,
+  ]);
 
-      // check for valid selected network
-      let validNetwork = true;
-      if (!!params.network) {
-        if (isTestnet) {
-          validNetwork = params.network === CHAIN.TESTNET;
-        } else {
-          validNetwork = params.network === CHAIN.MAINNET;
-        }
-      }
+  // Hash message with sha256
+  return sha256_sync(message);
+}
 
-      if (!validNetwork) {
-        errorMessage = 'Invalid selected network';
-        return false;
-      }
+/**
+* Creates hash for Cell payload according to TON Connect specification.
+*/
+export function createCellHash(
+  payload: SignCellPayload,
+  parsedAddr: Address,
+  domain: string,
+  timestamp: number
+): Buffer {
+  const cell = Cell.fromBase64(payload.cell);
+  const schemaHash = crc32(Buffer.from(payload.schema, 'utf8')) >>> 0; // unsigned crc32 hash
 
-      return true;
-    });
+  const message = beginCell()
+    .storeUint(0x75569022, 32) // prefix
+    .storeUint(schemaHash, 32) // schema hash
+    .storeUint(timestamp, 64) // timestamp
+    .storeAddress(parsedAddr) // user wallet address
+    .storeStringRefTail(domain) // app domain
+    .storeRef(cell) // payload cell
+    .endCell();
 
-  if (!validParams) {
-    toaster.show({
-      message: t('common.errorOccurred', { error: errorMessage }),
-      type: 'error',
-    });
-    callback({
-      error: {
-        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-        message: errorMessage,
-      },
-      id,
-    });
-
-    return false;
-  }
-
-  const { valid_until, messages } = params;
-
-  if (!!valid_until && valid_until < getTimeSec()) {
-    callback({
-      error: {
-        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-        message: `Request timed out`,
-      },
-      id,
-    });
-    return false;
-  }
-
-  if (messages.length === 0) {
-    callback({
-      error: {
-        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-        message: `No messages`,
-      },
-      id,
-    });
-    return false;
-  }
-
-  return true;
+  // return Buffer.from(message.hash());
+  return message.hash();
 }

@@ -3,7 +3,7 @@ import { storagePersistence } from "../../storage/storage";
 import { z } from "zod";
 import { CHAIN } from "@tonconnect/protocol";
 import { ConnectedApp } from "../hooks/dapps/useTonConnectExtenstions";
-import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, ConnectedAppConnectionRemote, SendTransactionRequest, TonConnectBridgeType } from '../tonconnect/types';
+import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, ConnectedAppConnectionRemote, PendingTonconnectRequest, SendTransactionRequest, SignDataRawRequest, SignDataRequest, TonConnectBridgeType } from '../tonconnect/types';
 import { selectedAccountSelector } from "./appState";
 import { getAppState, getLedgerWallets } from "../../storage/appState";
 import { getIsTestnet } from "./network";
@@ -152,16 +152,29 @@ function getPendingRequestsState(address?: string) {
   if (!address) {
     return [];
   }
+
   const stored = storagePersistence.getString(`${address}/${pendingRequestsKey}`);
+
   if (!stored) {
     return [];
   }
-  const parsed = z.array(z.object({
-    method: z.literal('sendTransaction'),
-    params: z.array(z.string()),
-    id: z.string(),
-    from: z.string(),
-  })).safeParse(JSON.parse(stored));
+
+  const parsed = z.array(
+    z.union([
+      z.object({
+        method: z.literal('sendTransaction'),
+        params: z.tuple([z.string()]),
+        id: z.string(),
+        from: z.string(),
+      }),
+      z.object({
+        method: z.literal('signData'),
+        params: z.tuple([z.string()]),
+        id: z.string(),
+        from: z.string(),
+      }),
+    ])
+  ).safeParse(JSON.parse(stored));
 
   if (parsed.success) {
     return parsed.data;
@@ -170,11 +183,11 @@ function getPendingRequestsState(address?: string) {
   return [];
 }
 
-function storePendingRequestsState(address: string, newState: SendTransactionRequest[]) {
+function storePendingRequestsState(address: string, newState: PendingTonconnectRequest[]) {
   storagePersistence.set(`${address}/${pendingRequestsKey}`, JSON.stringify(newState));
 }
 
-export type SendTransactionRequestsMap = { [address: string]: SendTransactionRequest[] }
+export type PendingRequestsMap = { [address: string]: PendingTonconnectRequest[] }
 
 function getSendTransactionRequestsMap() {
   const appState = getAppState();
@@ -182,7 +195,7 @@ function getSendTransactionRequestsMap() {
     return {};
   }
 
-  const res: SendTransactionRequestsMap = {};
+  const res: PendingRequestsMap = {};
 
   const isTestnet = getIsTestnet();
 
@@ -194,7 +207,7 @@ function getSendTransactionRequestsMap() {
   return res;
 }
 
-const pendingRequestsState = atom<SendTransactionRequestsMap>({
+const pendingRequestsState = atom<PendingRequestsMap>({
   key: 'tonconnect/pendingRequests/state',
   default: getSendTransactionRequestsMap(),
   effects: [({ onSet }) => {
@@ -206,7 +219,7 @@ const pendingRequestsState = atom<SendTransactionRequestsMap>({
   }]
 });
 
-export const pendingRequestsSelector = selector<SendTransactionRequest[]>({
+export const pendingRequestsSelector = selector<(SendTransactionRequest | SignDataRawRequest)[]>({
   key: 'tonconnect/pendingRequests/selector',
   get: ({ get }) => {
     const currentAccount = get(selectedAccountSelector);

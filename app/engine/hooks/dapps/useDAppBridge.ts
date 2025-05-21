@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { useConnectApp } from './useConnectApp';
-import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, ConnectItemReply, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
+import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, ConnectItemReply, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletEvent, WalletResponse } from '@tonconnect/protocol';
 import { getAppManifest } from '../../getters/getAppManifest';
 import { TonConnectAuthResult, TonConnectAuthType } from '../../../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { useSaveAppConnection } from './useSaveAppConnection';
@@ -10,15 +10,17 @@ import { useRemoveInjectedConnection } from './useRemoveInjectedConnection';
 import { Cell, fromNano, toNano } from '@ton/core';
 import { extractDomain } from '../../utils/extractDomain';
 import { useDisconnectApp } from './useDisconnect';
-import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../tonconnect/types';
+import { ConnectEventError, SignDataPayload, SignRawTxParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../tonconnect/types';
 import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../tonconnect/config';
-import { checkProtocolVersionCapability, checkTonconnectRequest, verifyConnectRequest } from '../../tonconnect/utils';
+import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonconnect/utils';
 import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
 import { useWalletVersion } from '../useWalletVersion';
 import { useToaster } from '../../../components/toast/ToastProvider';
 import { useNetwork } from '..';
+import { checkTonconnectTxRequest } from '../../tonconnect/checkTonconnectTxRequest';
+import { checkTonconnectSignRequest } from '../../tonconnect/checkTonconnectSignRequest';
 
 type SolanaInjectedBridge = {
     sendSolanaTransaction: (transaction: string) => Promise<void>;
@@ -33,6 +35,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
     const walletVersion = useWalletVersion(address);
     const toaster = useToaster();
     const { isTestnet } = useNetwork();
+    const cleanEndpoint = endpoint.split('?')[0];
 
     const account = address ?? getCurrentAddress().addressString;
     const handleLedgerRequest = useHoldersLedgerTonconnectHandler();
@@ -137,7 +140,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
             },
 
             restoreConnection: async () => {
-                const event = await autoConnect(endpoint);
+                const event = await autoConnect(cleanEndpoint);
                 setRequestId(event.id);
                 setConnectEvent(event);
                 return event;
@@ -145,7 +148,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
 
             disconnect: async () => {
                 setConnectEvent(null);
-                removeInjectedConnection(endpoint);
+                onDisconnect(cleanEndpoint, requestId);
                 setRequestId(0);
                 return;
             },
@@ -176,81 +179,124 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                         });
                     }
 
-                    if (request.method === 'sendTransaction') {
-                        try {
-                            const params = JSON.parse(request.params[0]) as SignRawParams;
+                    switch (request.method) {
+                        case 'sendTransaction':
+                            try {
+                                const params = JSON.parse(request.params[0]) as SignRawTxParams;
 
-                            if (isLedger) {
-                                handleLedgerRequest(request.id.toString(), params, callback, extractDomain(endpoint));
-                                return;
-                            }
+                                if (isLedger) {
+                                    handleLedgerRequest(request.id.toString(), params, callback, extractDomain(endpoint));
+                                    return;
+                                }
 
-                            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback, isTestnet, toaster);
+                                const isValidRequest = checkTonconnectTxRequest(request.id.toString(), params, callback, isTestnet, toaster);
 
-                            if (!isValidRequest) {
-                                return;
-                            }
+                                if (!isValidRequest) {
+                                    return;
+                                }
 
-                            navigation.navigateTransfer({
-                                text: null,
-                                order: {
-                                    type: 'order',
-                                    messages: params.messages.map((msg) => {
-                                        return {
-                                            amount: toNano(fromNano(msg.amount)),
-                                            target: msg.address,
-                                            amountAll: false,
-                                            payload: msg.payload ? Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] : null,
-                                            stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null
+                                navigation.navigateTransfer({
+                                    text: null,
+                                    order: {
+                                        type: 'order',
+                                        messages: params.messages.map((msg) => {
+                                            return {
+                                                amount: toNano(fromNano(msg.amount)),
+                                                target: msg.address,
+                                                amountAll: false,
+                                                payload: msg.payload ? Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0] : null,
+                                                stateInit: msg.stateInit ? Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0] : null
+                                            }
+                                        }),
+                                        app: app ? {
+                                            title: app.name,
+                                            domain: extractDomain(app.url),
+                                            url: app.url
+                                        } : undefined,
+                                        validUntil: params.valid_until
+                                    },
+                                    callback: (ok, result) => {
+                                        if (ok) {
+                                            callback({
+                                                result: result?.toBoc({ idx: false }).toString('base64') ?? '',
+                                                id: request.id.toString(),
+                                            });
+                                        } else {
+                                            callback({
+                                                error: {
+                                                    code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
+                                                    message: 'User rejected',
+                                                },
+                                                id: request.id.toString(),
+                                            });
                                         }
-                                    }),
-                                    app: app ? {
-                                        title: app.name,
-                                        domain: extractDomain(app.url),
-                                        url: app.url
-                                    } : undefined,
-                                    validUntil: params.valid_until
-                                },
-                                callback: (ok, result) => {
-                                    if (ok) {
-                                        callback({
-                                            result: result?.toBoc({ idx: false }).toString('base64') ?? '',
+                                    },
+                                    back: 1
+                                });
+                                return;
+                            } catch (error) {
+                                callback({
+                                    error: {
+                                        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+                                        message: `Bad request`,
+                                    },
+                                    id: request.id.toString(),
+                                });
+                            }
+                            break;
+
+                        case 'signData':
+                            try {
+                                const params = JSON.parse((request.params as unknown as [string])[0]) as SignDataPayload;
+                                const isValidRequest = checkTonconnectSignRequest(request.id.toString(), params, callback, toaster);
+
+                                if (!isValidRequest) {
+                                    return;
+                                }
+
+                                navigation.navigateTonConnectSign({
+                                    data: {
+                                        request: {
+                                            method: 'signData',
+                                            params: [params],
                                             id: request.id.toString(),
-                                        });
-                                    } else {
-                                        callback({
-                                            error: {
-                                                code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
-                                                message: 'User rejected',
-                                            },
-                                            id: request.id.toString(),
-                                        });
-                                    }
-                                },
-                                back: 1
+                                            from: ''
+                                        },
+                                        sessionCrypto: new SessionCrypto(),
+                                        app: app,
+                                    },
+                                    callback
+                                });
+                            } catch (error) {
+                                callback({
+                                    error: {
+                                        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+                                        message: `Bad request`,
+                                    },
+                                    id: request.id.toString(),
+                                });
+                            }
+                            break;
+                        case 'disconnect':
+                            onDisconnect(cleanEndpoint, requestId);
+                            callback({
+                                id: request.id.toString(),
+                                result: {}
                             });
-                            return;
-                        } catch (error) {
+                            break;
+                        default:
                             callback({
                                 error: {
                                     code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-                                    message: `Bad request`,
+                                    message: `Method is not supported`,
                                 },
-                                id: request.id.toString(),
+                                id: (requestId + 1).toString(),
                             });
-                        }
+                            break;
                     }
-
-                    callback({
-                        error: {
-                            code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-                            message: `Method "${request.method}" is not supported`,
-                        },
-                        id: request.id.toString(),
-                    });
                 });
             },
-
+            
             sendSolanaTransaction: async (transaction: string) => {
                 return new Promise<WalletResponse<any>>((resolve) => {
                     const callback = (ok: boolean, signature: string | null) => {
@@ -281,17 +327,17 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation, add
                 });
             }
         };
-    }, [endpoint, app, requestId, saveAppConnection, autoConnect, removeInjectedConnection, handleLedgerRequest]);
+    }, [cleanEndpoint, app, requestId, saveAppConnection, autoConnect, removeInjectedConnection, handleLedgerRequest]);
 
     const [ref, injectedJavaScriptBeforeContentLoaded, onMessage, sendEvent] =
         useWebViewBridge<TonConnectInjectedBridge, WalletEvent>(bridgeObject);
 
     const disconnect = useCallback(async () => {
         try {
-            onDisconnect(endpoint, requestId);
+            onDisconnect(cleanEndpoint, requestId);
             sendEvent({ event: 'disconnect', payload: {}, id: requestId });
         } catch { }
-    }, [endpoint, sendEvent, requestId]);
+    }, [cleanEndpoint, sendEvent, requestId]);
 
     return {
         ref,

@@ -71,8 +71,6 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const walletVersion = useWalletVersion();
     const toastMargin = safeArea.bottom + 56 + 48;
 
-    // await sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
-
     const handleReturnStrategy = useCallback((returnStrategy: string) => {
         if (returnStrategy === 'back') {
             Minimizer.goBack();

@@ -20,6 +20,7 @@ import { useDimensions } from '@react-native-community/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { holdersUrl as resolveHoldersUrl } from '../../engine/api/holders/fetchUserState';
 import { ConnectedApp } from '../../engine/hooks/dapps/useTonConnectExtenstions';
+import { Typography } from '../styles';
 
 export const EmptyIllustrations = {
   dark: require('@assets/empty-connections-dark.webp'),
@@ -120,13 +121,11 @@ export const BrowserExtensions = memo(({ onScroll }: { onScroll?: (event: Native
         source={EmptyIllustrations[theme.style]}
       />
       <Text
-        style={{
-          fontSize: 32,
-          fontWeight: '600',
+        style={[{
           marginHorizontal: 24,
           textAlign: 'center',
           color: theme.textPrimary,
-        }}>
+        }, Typography.semiBold32_38]}>
         {t('auth.noExtensions')}
       </Text>
     </View>

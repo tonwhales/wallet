@@ -2,7 +2,7 @@ import { SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from "@tonconnect/protoco
 import { Cell } from "@ton/core";
 import { sendTonConnectResponse } from "../../api/sendTonConnectResponse";
 import { useDeleteActiveRemoteRequests } from "./useDeleteActiveRemoteRequests";
-import { SendTransactionError, SendTransactionRequest } from '../../tonconnect/types';
+import { SendTransactionError, SendTransactionRequest, SignDataRequest } from '../../tonconnect/types';
 
 const errorMessage = 'Wallet declined request';
 
@@ -11,7 +11,7 @@ export function useConnectCallback() {
     return async (
         ok: boolean,
         result: Cell | null,
-        request: { from: string } & SendTransactionRequest,
+        request: SendTransactionRequest | SignDataRequest,
         sessionCrypto: SessionCrypto
     ) => {
         const response = !ok

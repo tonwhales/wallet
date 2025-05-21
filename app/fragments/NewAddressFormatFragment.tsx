@@ -13,6 +13,8 @@ import { useCallback, useMemo } from "react";
 import { useAddressBookContext } from "../engine/AddressBookContext";
 import { queryClient } from "../engine/clients";
 import { Queries } from "../engine/queries";
+import { getLedgerSelected } from "../storage/appState";
+import { Address } from "@ton/core";
 
 export const NewAddressFormatFragment = fragment(() => {
     const theme = useTheme();
@@ -21,15 +23,17 @@ export const NewAddressFormatFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const [bounceableFormat, setBounceableFormat] = useBounceableWalletFormat();
     const selectedAccount = useSelectedAccount();
+    const ledgerSelected = useMemo(() => getLedgerSelected(), []);
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
+    const address = ledgerSelected ? Address.parse(ledgerSelected) : selectedAccount?.address;
 
     const { oldAddressString, newAddressString } = useMemo(() => {
         return {
-            oldAddressString: selectedAccount?.address.toString({ testOnly: network.isTestnet }),
-            newAddressString: selectedAccount?.address.toString({ testOnly: network.isTestnet, bounceable: false })
+            oldAddressString: address?.toString({ testOnly: network.isTestnet }),
+            newAddressString: address?.toString({ testOnly: network.isTestnet, bounceable: false })
         }
-    }, [selectedAccount, network.isTestnet]);
+    }, [address, network.isTestnet]);
 
     const onFormatSwitch = useCallback(() => {
         // Prefetch contacts contract info for current account at least

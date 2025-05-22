@@ -39,8 +39,7 @@ export function tonConnectDeviceInfo(walletVersion: WalletVersions): DeviceInfo 
 
   return {
     platform: getPlatform(),
-    // appName: Application.applicationName ?? 'Tonhub',
-    appName: 'Tonhub',
+    appName: Application.applicationName ?? 'Tonhub',
     appVersion: Application.nativeApplicationVersion ?? '1.23.3',
     maxProtocolVersion: CURRENT_PROTOCOL_VERSION,
     features: ['SendTransaction', sendTransactionFeature, signDataFeature]

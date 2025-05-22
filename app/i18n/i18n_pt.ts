@@ -351,7 +351,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Solicitação de assinatura",
         "message": "Solicitação para assinar uma mensagem",
         "hint": "Nenhum fundo será transferido para o aplicativo e nenhum acesso às suas moedas será concedido.",
-        "action": "Assinar"
+        "action": "Assinar",
+        "binary": "Mensagem binária"
     },
     "migrate": {
         "title": "Migrar carteiras antigas",

@@ -1,11 +1,9 @@
-import { DisconnectEvent, SessionCrypto, WalletResponse } from "@tonconnect/protocol";
-import { useConnectApp } from "../../hooks/dapps/useConnectApp";
-import { useAppConnections } from "../../hooks/dapps/useAppConnections";
+import { DisconnectEvent, SessionCrypto } from "@tonconnect/protocol";
 import { extensionKey } from "./useAddExtension";
 import { sendTonConnectResponse } from "../../api/sendTonConnectResponse";
-import { useConnectPendingRequests } from "../../hooks/dapps/useConnectPendingRequests";
 import { useRemoveConnectApp } from "./useRemoveConnectApp";
 import { ConnectedAppConnectionRemote, TonConnectBridgeType } from '../../tonconnect/types';
+import { useAppConnections, useConnectApp, useConnectPendingRequests } from "..";
 
 export function useDisconnectApp(address?: string) {
     const getConnectApp = useConnectApp(address);
@@ -39,6 +37,7 @@ export function useDisconnectApp(address?: string) {
             sendTonConnectResponse({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
         });
 
+        // remove all requests
         update((prev) => {
             const temp = [...prev];
 

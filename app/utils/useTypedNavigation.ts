@@ -37,6 +37,7 @@ import { SolanaTokenWalletFragmentProps } from '../fragments/wallet/SolanaTokenW
 import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/SolanaTransactionPreviewFragment';
 import { PendingSolanaTransactionPreviewParams } from '../fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
 import { LiquidUSDeStakingTransferParams } from '../fragments/staking/LiquidUSDeStakingTransferFragment';
+import { TonConnectSignProps } from '../fragments/secure/dapps/TonConnectSignFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -244,6 +245,10 @@ export class TypedNavigation {
 
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
+    }
+
+    navigateTonConnectSign(params: TonConnectSignProps) {
+        this.navigate('TonConnectSign', params);
     }
 
     navigateScanner(params: { callback: (src: string) => void }, modal?: boolean) {

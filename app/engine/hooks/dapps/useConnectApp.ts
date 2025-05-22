@@ -29,7 +29,6 @@ export function useConnectAppByClientSessionId() {
                     res = { connectedApp: app, session: item };
                     break;
                 }
-
             }
         }
         return res;

@@ -91,7 +91,7 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                         <PriceComponent
                             showSign={false}
                             amount={toNano(1)}
-                            style={{ backgroundColor: undefined }}
+                            style={{ backgroundColor: undefined, height: undefined, paddingVertical: undefined }}
                             textStyle={[{ color: theme.textSecondary }, styles.headerSubtitle]}
                             theme={theme}
                         />

@@ -90,8 +90,8 @@ const PendingTxPreview = () => {
         ? tx.body.target.toString({ testOnly: isTestnet })
         : tx.address?.toString({ testOnly: isTestnet });
     const opAddressBounceable = tx.body?.type === 'token'
-        ? tx.body.target.toString({ testOnly: isTestnet, bounceable: getAddressFormat(tx.body.target) ?? bounceableFormat })
-        : tx.address?.toString({ testOnly: isTestnet, bounceable: getAddressFormat(tx.address) ?? bounceableFormat });
+        ? tx.body.target.toString({ testOnly: isTestnet, bounceable: getAddressFormat(tx.body.target) ?? tx.body.bounceable ?? bounceableFormat })
+        : tx.address?.toString({ testOnly: isTestnet, bounceable: getAddressFormat(tx.address) ?? tx.bounceable ?? bounceableFormat });
     const operation = !!opAddress ? resolveOperation({
         account: Address.parse(opAddress),
         amount: amount,

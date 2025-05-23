@@ -106,7 +106,7 @@ export const SpecialJettonProduct = memo(({
                 {
                     flexDirection: 'row', flexGrow: 1,
                     alignItems: 'center',
-                    padding: 20,
+                    paddingHorizontal: 20,
                     backgroundColor: theme.surfaceOnBg,
                     borderRadius: 20,
                     overflow: 'hidden',
@@ -143,7 +143,7 @@ export const SpecialJettonProduct = memo(({
                     </View>
                 </View>
                 <View style={{ flexShrink: 1 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
                         <Text
                             style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                             ellipsizeMode="tail"
@@ -151,11 +151,13 @@ export const SpecialJettonProduct = memo(({
                         >
                             {'USDT'}
                         </Text>
-                        {(isGassless && !assetCallback) && (<GaslessInfoButton />)}
-                        <Image
-                            source={require('@assets/ic-verified.png')}
-                            style={{ height: 20, width: 20 }}
-                        />
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            {(isGassless && !assetCallback) && (<GaslessInfoButton />)}
+                            <Image
+                                source={require('@assets/ic-verified.png')}
+                                style={{ height: 20, width: 20 }}
+                            />
+                        </View>
                     </View>
                     <Text
                         numberOfLines={1}

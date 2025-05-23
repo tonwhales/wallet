@@ -1,4 +1,4 @@
-import { Pressable, View, Text, Platform, ScrollView, KeyboardAvoidingView } from "react-native";
+import { Pressable, View, Text, Platform, ScrollView, KeyboardAvoidingView, BackHandler } from "react-native";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getAppState } from "../../storage/appState";
@@ -6,7 +6,7 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { avatarHash } from "../../utils/avatarHash";
 import { Avatar, avatarColors, avatarImages } from "../../components/avatar/Avatar";
-import { createRef, Ref, useCallback, useMemo, useState } from "react";
+import { createRef, Ref, useCallback, useEffect, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
@@ -58,6 +58,22 @@ export const WalletSettingsFragment = fragment(() => {
     const [name, setName] = useState(walletSettings?.name ?? (isLedger ? ledgerContext.ledgerName : `${t('common.wallet')} ${appState.selected + 1}`));
     const [avatar, setAvatar] = useState(initHash);
     const [selectedColor, setColor] = useState(initColorHash);
+
+    const onHardwareBackPress = useCallback(() => {
+        if (isInputNameFocus) {
+            setIsInputNameFocus(false)
+            return true;
+        }
+
+        return false;
+    }, [isInputNameFocus]);
+
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
+        }
+    }, [onHardwareBackPress]);
 
     const hasChanges = useMemo(() => {
         return (

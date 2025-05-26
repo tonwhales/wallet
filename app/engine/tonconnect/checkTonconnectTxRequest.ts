@@ -48,7 +48,7 @@ export function checkTonconnectTxRequest(id: string, params: SignRawTxParams, ca
             }
 
             // check for valid valid until
-            if (!!params.valid_until && (typeof params.valid_until !== 'number' || isNaN(params.valid_until))) {
+            if (params.valid_until !== undefined && (typeof params.valid_until !== 'number' || isNaN(params.valid_until))) {
                 errorMessage = 'Invalid valid until';
                 return false;
             }

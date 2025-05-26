@@ -17,11 +17,12 @@ import { extractDomain } from "../../utils/extractDomain";
 import { CHAIN, ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
 import { getTimeSec } from "../../../utils/getTimeSec";
 import { authParamsFromLedgerProof } from "../../../utils/holders/authParamsFromLedgerProof";
-import { AccountKeyParam, fetchUserToken, TonAuthRequest, TonSolanaAuthRequest } from "../../api/holders/fetchUserToken";
+import { fetchUserToken, TonAuthRequest } from "../../api/holders/fetchUserToken";
 import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 import { handleLedgerSignError } from "../../../utils/ledger/handleLedgerSignError";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { wait } from "../../../utils/wait";
+import { getAppsFlyerUID } from "../../../analytics/appsflyer";
 
 export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?: string, setConfirming?: (value: boolean) => void }) {
     const { isTestnet } = useNetwork();
@@ -129,6 +130,7 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
                         }
 
                         const proof = (replyItems.find((item) => item.name === 'ton_proof') as TonProofItemReplySuccess | undefined);
+                        const appsflyerId = await getAppsFlyerUID()
 
                         const tokenParams: TonAuthRequest = authParamsFromLedgerProof(
                             Address.parse(rawAddress),
@@ -138,7 +140,8 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
                                 lengthBytes: domainBuffer.byteLength,
                                 value: domain,
                             },
-                            walletStateInit
+                            walletStateInit,
+                            appsflyerId
                         )
 
                         await saveAppConnection({

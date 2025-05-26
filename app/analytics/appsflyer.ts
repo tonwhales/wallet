@@ -43,11 +43,10 @@ export const trackAppsFlyerEvent = async (
   )
 }
 
-export const getAppsFlyerUID = async (): Promise<string> => {
-  return new Promise((resolve, reject) => {
+export const getAppsFlyerUID = (): Promise<string | undefined> => {
+  return new Promise((resolve) => {
     appsFlyer.getAppsFlyerUID((err, uid) => {
-      if (err) reject(err);
-      else resolve(uid);
+      resolve(uid);
     });
   });
 };

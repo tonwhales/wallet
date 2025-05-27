@@ -11,7 +11,7 @@ export function authParamsFromLedgerProof(
         value: string;
     },
     walletStateInit: string | null | undefined,
-    appsflyerId: string
+    appsflyerId?: string
 ): TonAuthRequest {
     return {
         stack: 'ton',

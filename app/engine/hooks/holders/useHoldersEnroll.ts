@@ -181,8 +181,12 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
                     }
 
                     const solanaPublicKey = new PublicKey(walletKeys.keyPair.publicKey);
-                    const appsflyerId = await getAppsFlyerUID()
-
+                    
+                    let appsflyerId;
+                    try {
+                        appsflyerId = await getAppsFlyerUID()
+                    } catch {}
+                    
                     const requestParams: TonSolanaAuthRequest = [
                         {
                             stack: 'ton',

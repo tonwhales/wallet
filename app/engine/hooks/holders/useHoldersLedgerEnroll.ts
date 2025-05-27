@@ -130,7 +130,11 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
                         }
 
                         const proof = (replyItems.find((item) => item.name === 'ton_proof') as TonProofItemReplySuccess | undefined);
-                        const appsflyerId = await getAppsFlyerUID()
+                        
+                        let appsflyerId;
+                        try {
+                            appsflyerId = await getAppsFlyerUID()
+                        } catch {}
 
                         const tokenParams: TonAuthRequest = authParamsFromLedgerProof(
                             Address.parse(rawAddress),

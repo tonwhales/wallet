@@ -71,7 +71,7 @@ export const ContactNewFragment = fragment(() => {
         }
 
         await setContact(
-            parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }),
+            parsed.address.toString({ testOnly: isTestnet }),
             { name, fields }
         );
 

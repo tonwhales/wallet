@@ -33,7 +33,7 @@ export function usePendingWatcher(address?: string) {
     const lastBlock = useLastWatchedBlock();
     const acc = address || account?.addressString || '';
     const [pending, setPending] = usePendingTransactions(acc, isTestnet);
-    const firstTransaction = (useLastTwoTxs(acc) as TonStoredTransaction[])[0]?.data?.base;
+    const firstTransaction = (useLastTwoTxs({ account: acc }) as TonStoredTransaction[])[0]?.data?.base;
 
     const firstTransactionTime = firstTransaction?.time;
     const toRemove = pending.filter(a => a.time < (firstTransactionTime || 0)).map(a => a.id);

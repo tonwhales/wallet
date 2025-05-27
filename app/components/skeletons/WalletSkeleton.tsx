@@ -5,6 +5,7 @@ import { usePulsatingStyle } from "./usePulsatingStyle";
 import { View } from "react-native";
 import { useTheme } from "../../engine/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 export const WalletSkeleton = memo(() => {
     const animation = useSharedValue(0);
@@ -87,7 +88,7 @@ export const WalletSkeleton = memo(() => {
                             backgroundColor: theme.surfaceOnBg,
                             height: 96,
                             borderRadius: 20,
-                            marginTop: 86,
+                            marginTop: ASSET_ITEM_HEIGHT,
                             position: 'absolute',
                             top: 230,
                             left: 16, right: 16,

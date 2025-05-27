@@ -84,6 +84,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "addressBook": "Адресна книга",
         "gasless": "Без газу",
         "address": "Адреса",
+        "poolAddress": "Адреса пулу",
         "currencyChanged": "Валюта змінена",
         "required": "обов'язково",
         "operation": "Операція",
@@ -350,7 +351,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Запит на підпис",
         "message": "Запит на підпис повідомлення",
         "hint": "Жодні кошти не будуть передані до додатку і доступ до ваших монет не буде надано.",
-        "action": "Підписати"
+        "action": "Підписати",
+        "binary": "Бінарне повідомлення"
     },
     "migrate": {
         "title": "Міграція старих гаманців",

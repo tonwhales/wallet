@@ -84,6 +84,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "addressBook": "Rubrica",
         "gasless": "Senza gas",
         "address": "Indirizzo",
+        "poolAddress": "Indirizzo del pool",
         "currencyChanged": "Valuta cambiata",
         "required": "richiesto",
         "operation": "Operazione",
@@ -350,7 +351,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Richiesta di firma",
         "message": "Richiesta di firmare un messaggio",
         "hint": "Nessun fondo sarà trasferito all'app e nessun accesso alle tue monete sarà concesso.",
-        "action": "Firma"
+        "action": "Firma",
+        "binary": "Messaggio binario"
     },
     "migrate": {
         "title": "Migrare vecchi portafogli",

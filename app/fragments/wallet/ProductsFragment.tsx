@@ -97,7 +97,7 @@ export const ProductsFragment = fragment(() => {
                     <ProductBanner
                         onPress={() => {
                             navigation.goBack();
-                            navigation.navigate('StakingPools');
+                            navigation.navigateStakingPools()
                         }}
                         reverse
                         title={t('products.staking.title')}

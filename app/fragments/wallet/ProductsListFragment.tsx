@@ -1,7 +1,6 @@
-import { useRoute } from "@react-navigation/native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
-import { useHoldersAccountStatus, useHoldersAccounts, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useHoldersAccounts, useIsLedgerRoute, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Suspense, memo, useMemo } from "react";
 import { Address } from "@ton/core";
@@ -113,7 +112,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
 
 export const ProductsListFragment = fragment(() => {
     const { type } = useParams<ProductsListFragmentParams>();
-    const isLedger = useRoute().name === 'LedgerProductsList';
+    const isLedger = useIsLedgerRoute()
 
     return (
         <View style={{ flexGrow: 1 }}>

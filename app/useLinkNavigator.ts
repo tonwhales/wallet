@@ -19,9 +19,9 @@ import { AccountStoredTransaction, SelectedAccount, TonTransaction, TransactionT
 import { TonConnectAuthType } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { warn } from './utils/log';
 import { getFullConnectionsMap, getStoredConnectExtensions } from './engine/state/tonconnect';
-import { ConnectedAppConnectionRemote, ConnectPushQuery, SendTransactionError, SendTransactionRequest, SignRawParams, TonConnectBridgeType } from './engine/tonconnect/types';
+import { ConnectedAppConnectionRemote, ConnectPushQuery, PendingTonconnectRequest, SendTransactionError, SendTransactionRequest, SignRawTxParams, TonConnectBridgeType } from './engine/tonconnect/types';
 import { AppRequest, Base64, CHAIN, hexToByteArray, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse } from '@tonconnect/protocol';
-import { transactionRpcRequestCodec } from './engine/tonconnect/codecs';
+import { tonconnectRpcReqScheme } from './engine/tonconnect/codecs';
 import { sendTonConnectResponse } from './engine/api/sendTonConnectResponse';
 import { extensionKey } from './engine/hooks/dapps/useAddExtension';
 import { ConnectedApp } from './engine/hooks/dapps/useTonConnectExtenstions';
@@ -41,7 +41,7 @@ import axios from 'axios';
 import { SolanaOrderApp } from './fragments/secure/ops/Order';
 import { solanaAddressFromPublicKey } from './utils/solana/address';
 import { Transaction, PublicKey } from '@solana/web3.js';
-import { checkTonconnectRequest } from './engine/tonconnect/utils';
+import { checkTonconnectTxRequest } from './engine/tonconnect/checkTonconnectTxRequest';
 
 const infoBackoff = createBackoff({ maxFailureCount: 10 });
 
@@ -51,7 +51,7 @@ function tryResolveTonconnectRequest(
         isTestnet: boolean,
         toaster: Toaster,
         navigation: TypedNavigation,
-        pendingReqsUpdaterRef: MutableRefObject<(updater: (currVal: SendTransactionRequest[]) => SendTransactionRequest[]) => void>,
+        pendingReqsUpdaterRef: MutableRefObject<(updater: (currVal: PendingTonconnectRequest[]) => PendingTonconnectRequest[]) => void>,
         updateAppState: (value: AppState, isTestnet: boolean) => void,
         toastProps?: { duration?: ToastDuration, marginBottom?: number }
     }
@@ -130,7 +130,7 @@ function tryResolveTonconnectRequest(
         const parsed = JSON.parse(decryptedRequest);
 
         // validate request
-        if (!transactionRpcRequestCodec.is(parsed)) {
+        if (!tonconnectRpcReqScheme.safeParse(parsed).success) {
             toaster.show({
                 message: t('products.transactionRequest.invalidRequest'),
                 ...toastProps, type: 'error'
@@ -143,10 +143,10 @@ function tryResolveTonconnectRequest(
         // transaction request
         if (request.method === 'sendTransaction') {
             const callback = (response: WalletResponse<RpcMethod>) => sendTonConnectResponse({ response, sessionCrypto, clientSessionId: from });
-            const params = JSON.parse(request.params[0]) as SignRawParams;
+            const params = JSON.parse(request.params[0]) as SignRawTxParams;
 
             // check if request is valid
-            const isValidRequest = checkTonconnectRequest(request.id.toString(), params, callback);
+            const isValidRequest = checkTonconnectTxRequest(request.id.toString(), params, callback, isTestnet, toaster);
 
             if (!isValidRequest) {
                 return;
@@ -242,6 +242,8 @@ function tryResolveTonconnectRequest(
             } else {
                 navigation.navigateTransfer(prepared);
             }
+        } else if (request.method === 'signData') {
+            // checkTonconnectSignRequest
         }
     } catch {
         warn('Failed to resolve TonConnect request');
@@ -703,20 +705,22 @@ export function useLinkNavigator(
             case 'transaction': {
                 const bounceable = resolved.isBounceable ?? true;
                 if (resolved.payload) {
-                    navigation.navigateTransfer({
-                        order: {
-                            type: 'order',
-                            messages: [{
-                                target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
-                                amount: resolved.amount || BigInt(0),
-                                amountAll: false,
-                                stateInit: resolved.stateInit,
-                                payload: resolved.payload,
-                            }]
-                        },
-                        text: resolved.comment,
-                        callback: null
-                    });
+                    if (!isLedger) {
+                        navigation.navigateTransfer({
+                            order: {
+                                type: 'order',
+                                messages: [{
+                                    target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
+                                    amount: resolved.amount || BigInt(0),
+                                    amountAll: false,
+                                    stateInit: resolved.stateInit,
+                                    payload: resolved.payload,
+                                }]
+                            },
+                            text: resolved.comment,
+                            callback: null
+                        });
+                    }
                 } else {
                     navigation.navigateSimpleTransfer({
                         target: resolved.address.toString({ testOnly: isTestnet, bounceable }),
@@ -724,8 +728,8 @@ export function useLinkNavigator(
                         amount: resolved.amount,
                         stateInit: resolved.stateInit,
                         asset: null,
-                        callback: null
-                    });
+                        callback: null,
+                    }, { ledger: isLedger });
                 }
                 break;
             }
@@ -864,7 +868,7 @@ export function useLinkNavigator(
             }
         }
 
-    }, [selected, updateAppState]);
+    }, [selected, updateAppState, isLedger]);
 
     return handler;
 }

@@ -86,6 +86,7 @@ export type LocalizationSchema = {
         addressBook: string,
         gasless: string,
         address: string,
+        poolAddress: string,
         currencyChanged: string,
         required: string,
         operation: string,
@@ -352,7 +353,8 @@ export type LocalizationSchema = {
         title: string,
         message: string,
         hint: string,
-        action: string
+        action: string,
+        binary: string
     },
     migrate: {
         title: string,

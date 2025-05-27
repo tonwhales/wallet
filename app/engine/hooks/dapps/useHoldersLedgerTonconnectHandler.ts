@@ -1,6 +1,6 @@
 import { RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from "@tonconnect/protocol";
 import { useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
-import { SignRawParams } from "../../tonconnect/types";
+import { SignRawTxParams } from "../../tonconnect/types";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, Cell } from "@ton/core";
 import { parseAnyStringAddress } from "../../../utils/parseAnyStringAddress";
@@ -8,12 +8,12 @@ import { useNetwork } from "..";
 import { createUnsafeLedgerOrder } from "../../../fragments/secure/ops/Order";
 import { validateLedgerJettonTransfer } from "../../../utils/holders/validateLedgerJettonTransfer";
 
-export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(): (id: string, params: SignRawParams, callback: (response: WalletResponse<T>) => void, domain: string) => void {
+export function useHoldersLedgerTonconnectHandler<T extends RpcMethod>(): (id: string, params: SignRawTxParams, callback: (response: WalletResponse<T>) => void, domain: string) => void {
     const ledgerContext = useLedgerTransport();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
 
-    return async (id: string, params: SignRawParams, callback: (response: WalletResponse<T>) => void, domain: string) => {
+    return async (id: string, params: SignRawTxParams, callback: (response: WalletResponse<T>) => void, domain: string) => {
 
         if (!ledgerContext?.tonTransport) {
             ledgerContext?.onShowLedgerConnectionError();

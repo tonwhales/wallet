@@ -3,10 +3,10 @@ import { avatarHash } from '../../utils/avatarHash';
 import { KnownAvatar } from './KnownAvatar';
 import { Image as ExpoImage } from 'expo-image';
 import { ReactNode, memo } from 'react';
-import { PerfText } from '../basic/PerfText';
 import { PerfView } from '../basic/PerfView';
 import { ThemeType } from '../../engine/state/theme';
 import { KnownWallet } from '../../secure/KnownWallets';
+import { SpamLabel } from '../SpamLabel';
 
 export const avatarImages = [
     require('@assets/avatars/0.png'),
@@ -267,27 +267,8 @@ export const Avatar = memo((props: {
                 {ic}
             </PerfView>
             {isSpam && (
-                <PerfView style={{ borderRadius: 100, padding: 2, backgroundColor: theme.surfaceOnElevation }}>
-                    <PerfView style={{
-                        backgroundColor: theme.backgroundPrimaryInverted,
-                        borderRadius: 100,
-                        height: 15,
-                        paddingHorizontal: 5,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        alignSelf: 'center',
-                        position: 'absolute', bottom: 0,
-                        width: 40,
-                    }}>
-                        <PerfText style={{
-                            fontSize: 10,
-                            fontWeight: '500',
-                            color: theme.textPrimaryInverted,
-                            flexShrink: 1
-                        }}>
-                            {'SPAM'}
-                        </PerfText>
-                    </PerfView>
+                <PerfView style={{ position: 'absolute', bottom: 0, paddingHorizontal: 5}}>
+                    <SpamLabel />
                 </PerfView>
             )}
         </PerfView>

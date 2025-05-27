@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from "react";
 import { PendingTransaction } from "../../../engine/state/pending";
-import { useContact, useContractInfo, useNetwork, useTheme, useWalletSettings } from "../../../engine/hooks";
+import { useContractInfo, useNetwork, useTheme, useWalletSettings } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
@@ -21,42 +21,38 @@ import { View, Text } from "react-native";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
 import { avatarHash } from "../../../utils/avatarHash";
+import { useAddressBookContext } from "../../../engine/AddressBookContext";
+import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 export const PendingTransactionView = memo(({
     tx,
-    first,
     last,
     single,
     viewType = 'main',
-    bounceableFormat,
-    txTimeout,
-    owner
+    owner,
+    isLedger
 }: {
     tx: PendingTransaction,
-    first?: boolean,
     last?: boolean,
     single?: boolean,
     viewType?: 'history' | 'main' | 'jetton-history',
-    bounceableFormat?: boolean,
-    txTimeout: number,
-    owner: string
+    owner: string,
+    isLedger?: boolean
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const body = tx.body;
+    const addressBook = useAddressBookContext();
     const knownWallets = useKnownWallets(isTestnet);
-    const bounceable = bounceableFormat ? true : (body?.type === 'token' ? body.bounceable : tx.bounceable);
-    const targetFriendly = body?.type === 'token'
-        ? body.target.toString({ testOnly: isTestnet })
-        : tx.address?.toString({ testOnly: isTestnet });
-    const targetFriendlyBounceable = body?.type === 'token'
-        ? body.target.toString({ testOnly: isTestnet, bounceable: body.bounceable })
-        : tx.address?.toString({ testOnly: isTestnet, bounceable: tx.bounceable });
-
-    const contact = useContact(targetFriendlyBounceable);
-    const [settings] = useWalletSettings(targetFriendlyBounceable);
-    const targetContract = useContractInfo(tx.address?.toString({ testOnly: isTestnet }) ?? null);
+    const target = body?.type === 'token' ? body.target : tx.address;
+    const targetFriendly = target?.toString({ testOnly: isTestnet });
+    const { getAddressFormat } = useAddressFormatsHistory();
+    const bounceable = getAddressFormat(target) ?? (body?.type === 'token' ? body.bounceable : tx.bounceable);
+    const contact = addressBook.asContact(targetFriendly)
+    const [settings] = useWalletSettings(targetFriendly);
+    const targetContract = useContractInfo(target?.toString({ testOnly: isTestnet }) ?? null);
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
     const extraCurrencyMap = useExtraCurrencyMap((tx.body as any)?.extraCurrency, owner);
@@ -86,18 +82,18 @@ export const PendingTransactionView = memo(({
     const isLedgerTarget = useMemo(() => {
         return !!ledgerAddresses?.find((addr) => {
             try {
-                return tx.address?.equals(Address.parse(addr.address));
+                return target?.equals(Address.parse(addr.address));
             } catch (error) {
                 return false;
             }
         });
-    }, [ledgerAddresses, tx.address]);
+    }, [ledgerAddresses, target]);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (targetFriendlyBounceable) {
-        if (knownWallets[targetFriendlyBounceable]) {
-            known = knownWallets[targetFriendlyBounceable];
+    if (targetFriendly) {
+        if (knownWallets[targetFriendly]) {
+            known = knownWallets[targetFriendly];
         }
         if (!!contact) { // Resolve contact known wallet
             known = { name: contact.name }
@@ -130,9 +126,10 @@ export const PendingTransactionView = memo(({
             transaction: tx,
             timedOut: tx.status === 'timed-out',
             forceAvatar,
-            isLedgerTarget
+            isLedgerTarget,
+            isLedger
         });
-    }, [forceAvatar]);
+    }, [forceAvatar, isLedgerTarget, isLedger]);
 
     return (
         <Animated.View
@@ -141,7 +138,7 @@ export const PendingTransactionView = memo(({
             style={{
                 paddingHorizontal: viewType === 'main' ? 20 : undefined,
                 paddingVertical: 20,
-                maxHeight: 86
+                maxHeight: ASSET_ITEM_HEIGHT
             }}
         >
             <Pressable

@@ -31,6 +31,8 @@ import { useLedgerTransport } from '../../ledger/components/TransportContext';
 import { extraCurrencyFromTransaction } from '../../../utils/extraCurrencyFromTransaction';
 import { useExtraCurrencyMap } from '../../../engine/hooks/jettons/useExtraCurrencyMap';
 import { fromBnWithDecimals } from '../../../utils/withDecimals';
+import { useAddressFormatsHistory } from "../../../engine/hooks";
+import { SpamLabel } from '../../../components/SpamLabel';
 
 export function TransactionView(props: {
     own: Address,
@@ -38,7 +40,7 @@ export function TransactionView(props: {
     theme: ThemeType,
     navigation: TypedNavigation,
     onPress: (src: TonTransaction) => void,
-    onLongPress?: (src: TonTransaction) => void,
+    onLongPress?: (src: TonTransaction, formattedAddressString: string) => void,
     ledger?: boolean,
     spamMinAmount: bigint,
     dontShowComments: boolean,
@@ -71,14 +73,18 @@ export function TransactionView(props: {
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
+    const parsedAddressNonBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable: false });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const preparedMessages = usePeparedMessages(tx.base.outMessages, isTestnet, own);
     const targetContract = useContractInfo(opAddress);
-    // if it's a Recieved transaction or targetContract is wallet 
+    const { getAddressFormat } = useAddressFormatsHistory();
+    // If format is saved in local history we'll show it
+    // Otherwise if it's a Recieved transaction or targetContract is wallet 
     // we show the address in a format taken from Settings
-    const bounceable = targetContract?.kind === 'wallet' || !targetContract
+    // Otherwise we show the address in a format taken from the transaction (which is in most of the cases wrong)
+    const bounceable = getAddressFormat(parsedAddress) ?? (targetContract?.kind === 'wallet' || !targetContract
         ? props.bounceableFormat
-        : parsedOpAddr.isBounceable;
+        : parsedOpAddr.isBounceable);
     const parsedAddressFriendlyBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable });
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
@@ -92,11 +98,12 @@ export function TransactionView(props: {
         return `${sign}${fromBnWithDecimals(amount, extraCurrency.preview.decimals)} ${symbol}`;
     });
 
-    const walletSettings = props.walletsSettings[parsedAddressFriendlyBounceable];
+    const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
-    const contact = contacts[parsedAddressFriendlyBounceable];
+    // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
+    const contact = contacts[parsedAddressFriendly] || contacts[parsedAddressNonBounceable];
     // const verified = !!tx.verified;
     const verified = false;
 
@@ -155,8 +162,8 @@ export function TransactionView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (knownWallets[parsedAddressFriendlyBounceable]) {
-        known = knownWallets[parsedAddressFriendlyBounceable];
+    if (knownWallets[parsedAddressFriendly]) {
+        known = knownWallets[parsedAddressFriendly];
     }
     // if (tx.title) {
     //     known = { name: tx.title };
@@ -214,7 +221,7 @@ export function TransactionView(props: {
                             theme={theme}
                             navigation={props.navigation}
                             onPress={() => props.onPress(props.tx)}
-                            onLongPress={() => props.onLongPress?.(props.tx)}
+                            onLongPress={() => props.onLongPress?.(props.tx, parsedAddressFriendlyBounceable)}
                             contacts={props.contacts}
                             isTestnet={props.isTestnet}
                             bounceableFormat={props.bounceableFormat}
@@ -239,7 +246,7 @@ export function TransactionView(props: {
                 paddingVertical: 20,
                 paddingBottom: operation.comment ? 0 : undefined
             }}
-            onLongPress={() => props.onLongPress?.(props.tx)}
+            onLongPress={() => props.onLongPress?.(props.tx, parsedAddressFriendlyBounceable)}
         >
             <PerfView style={{
                 alignSelf: 'stretch',
@@ -283,25 +290,7 @@ export function TransactionView(props: {
                             {op}
                         </PerfText>
                         {spam && (
-                            <PerfView style={{
-                                backgroundColor: theme.backgroundUnchangeable,
-                                borderWidth: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                borderRadius: 100,
-                                paddingHorizontal: 5,
-                                marginLeft: 10,
-                                height: 15
-                            }}>
-                                <PerfText
-                                    style={[
-                                        { color: theme.textPrimaryInverted },
-                                        Typography.medium10_12
-                                    ]}
-                                >
-                                    {'SPAM'}
-                                </PerfText>
-                            </PerfView>
+                            <SpamLabel />
                         )}
                     </PerfView>
                     <Text

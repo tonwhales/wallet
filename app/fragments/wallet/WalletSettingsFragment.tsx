@@ -10,7 +10,7 @@ import { createRef, Ref, useCallback, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
-import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme, useIsLedgerRoute } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,15 +19,13 @@ import { Typography } from "../../components/styles";
 import { RoundButton } from "../../components/RoundButton";
 import { useKnownWallets } from "../../secure/KnownWallets";
 import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated";
-import { useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/ton";
 
 const PLATFORM_IOS = Platform.OS === 'ios'
 
 export const WalletSettingsFragment = fragment(() => {
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerWalletSettings';
+    const isLedger = useIsLedgerRoute()
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const knownWallets = useKnownWallets(isTestnet);
@@ -140,6 +138,9 @@ export const WalletSettingsFragment = fragment(() => {
         return { height: isInputNameFocus ? withTiming(safeArea.top) : withTiming(0), }
     })
 
+    const isSaveButtonDisabled = useMemo(() => {
+        return !hasChanges || name === ''
+    }, [hasChanges, name])
 
     return (
         <View style={{ flexGrow: 1 }} >
@@ -269,7 +270,7 @@ export const WalletSettingsFragment = fragment(() => {
             >
                 <RoundButton
                     title={t('contacts.save')}
-                    disabled={!hasChanges}
+                    disabled={isSaveButtonDisabled}
                     onPress={onSave}
                 />
             </KeyboardAvoidingView>

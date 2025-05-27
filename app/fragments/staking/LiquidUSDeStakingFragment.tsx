@@ -305,6 +305,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                             copyOnPress
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
                             theme={theme}
+                            isPoolAddress
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -417,6 +418,7 @@ export const LiquidUSDeStakingFragment = fragment(() => {
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
                                 owner={memberAddress!.toString({ testOnly: isTestnet })}
+                                isLedger={isLedger}
                             />
                         )}
                         {!!memberAddress && (<LiquidUSDeStakingMember address={memberAddress} />)}

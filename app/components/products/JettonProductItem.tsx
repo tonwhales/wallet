@@ -27,6 +27,7 @@ import { useWalletVersion } from '../../engine/hooks/useWalletVersion';
 import { GaslessInfoButton } from '../jettons/GaslessInfoButton';
 
 import IcCheck from "@assets/ic-check.svg";
+import { ASSET_ITEM_HEIGHT } from '../../utils/constants';
 
 type JettonProductItemProps = {
     hint: JettonFull,
@@ -118,7 +119,7 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
             >
                 <Pressable
                     style={{
-                        height: 86,
+                        height: ASSET_ITEM_HEIGHT,
                         flexDirection: 'row',
                         borderRadius: 20,
                         overflow: 'hidden',
@@ -180,7 +181,7 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
                         </PerfView>
                         <PerfView style={{ alignItems: 'flex-end' }}>
                             <PerfView style={{
-                                height: 20, width: 86,
+                                height: 20, width: ASSET_ITEM_HEIGHT,
                                 backgroundColor: theme.textSecondary,
                                 borderRadius: 8,
                                 marginBottom: 8,
@@ -200,7 +201,7 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
         ) : (
             <Pressable style={[
                 {
-                    height: 86,
+                    height: ASSET_ITEM_HEIGHT,
                     flexDirection: 'row',
                     borderRadius: 20,
                     overflow: 'hidden',
@@ -263,7 +264,7 @@ const JettonItemSekeleton = memo((props: JettonProductItemProps & { type: 'loadi
                     </PerfView>
                     <PerfView style={{ alignItems: 'flex-end' }}>
                         <PerfView style={{
-                            height: 20, width: 86,
+                            height: 20, width: ASSET_ITEM_HEIGHT,
                             backgroundColor: theme.textSecondary,
                             borderRadius: 8,
                             marginBottom: 8,
@@ -512,7 +513,7 @@ const JettonProductItemComponent = memo((props: JettonProductItemProps) => {
                         <View style={[{
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
-                            padding: 20,
+                            paddingHorizontal: 20,
                             backgroundColor: theme.surfaceOnBg
                         }, props.itemStyle]}>
                             <JettonIcon

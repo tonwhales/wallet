@@ -30,6 +30,8 @@ import { GaslessEstimateSuccess } from "../../../engine/api/gasless/fetchGasless
 import { valueText } from "../../../components/ValueComponent";
 import { ConfirmLoadedPropsSingle } from "../transfer/TransferFragment";
 import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
+import { useAddressBookContext } from "../../../engine/AddressBookContext";
+import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 export const failableTransferBackoff = createBackoffFailaible({
     logErrors: true,
@@ -44,9 +46,11 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
+    const addressBook = useAddressBookContext();
     const account = useAccountLite(selected!.address);
     const knownWallets = useKnownWallets(isTestnet);
     const registerPending = useRegisterPending();
+    const { getAddressFormat } = useAddressFormatsHistory();
 
     let { restricted, target, jettonTarget, text, order, fees, metadata, callback, onSetUseGasless } = props;
 
@@ -128,9 +132,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         target = jettonTarget;
     }
 
-    const friendlyTarget = target.address.toString({ testOnly: isTestnet, bounceable: target.bounceable });
-    // Contact wallets
-    const contact = useContact(friendlyTarget);
+    const friendlyTarget = target.address.toString({ testOnly: isTestnet });
+    const contact = addressBook.asContact(friendlyTarget)
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = knownWallets[friendlyTarget];
@@ -287,7 +290,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         }
 
         // Check bounce flag
-        let bounce = target.bounceable ?? true;
+        let bounce = getAddressFormat(target.address) ?? (target.bounceable ?? true);
         if (!target.active && !order.messages[0].stateInit) {
             bounce = false;
         }

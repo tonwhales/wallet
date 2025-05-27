@@ -18,42 +18,37 @@ export const PendingTransactionsList = memo((
         txs,
         style,
         viewType = 'main',
-        owner
+        owner,
+        isLedger
     }: {
         theme: ThemeType,
         txs: PendingTransaction[],
         style?: StyleProp<ViewStyle>,
         viewType?: 'history' | 'main' | 'jetton-history',
-        owner: string
+        owner: string,
+        isLedger?: boolean
     }
-) => {
-    const [bounceableFormat] = useBounceableWalletFormat();
-    const appConfig = useAppConfig();
-
-    return (
-        <View style={[
-            {
-                overflow: 'hidden',
-                backgroundColor: viewType === 'main' ? theme.surfaceOnBg : undefined,
-                borderRadius: 20,
-            },
-            style
-        ]}>
-            {txs.map((tx, i) => (
-                <PendingTransactionView
-                    key={`tx-${tx.id}-${viewType}`}
-                    tx={tx}
-                    first={i === 0}
-                    last={(i === txs.length - 1) || viewType === 'history'}
-                    viewType={viewType}
-                    bounceableFormat={bounceableFormat}
-                    txTimeout={appConfig.txTimeout}
-                    owner={owner}
-                />
-            ))}
-        </View>
-    );
-});
+) => (
+    <View style={[
+        {
+            overflow: 'hidden',
+            backgroundColor: viewType === 'main' ? theme.surfaceOnBg : undefined,
+            borderRadius: 20,
+        },
+        style
+    ]}>
+        {txs.map((tx, i) => (
+            <PendingTransactionView
+                key={`tx-${tx.id}-${viewType}`}
+                tx={tx}
+                last={(i === txs.length - 1) || viewType === 'history'}
+                viewType={viewType}
+                owner={owner}
+                isLedger={isLedger}
+            />
+        ))}
+    </View>
+));
 PendingTransactionsList.displayName = 'PendingTransactionsView';
 
 export const PendingTransactions = memo(({
@@ -61,13 +56,15 @@ export const PendingTransactions = memo(({
     viewType = 'main',
     filter,
     onChange,
-    listStyle
+    listStyle,
+    isLedger
 }: {
     address?: string,
     viewType?: 'history' | 'main' | 'jetton-history',
     filter?: (tx: PendingTransaction) => boolean,
     onChange?: (txs: PendingTransaction[]) => void,
-    listStyle?: StyleProp<ViewStyle>
+    listStyle?: StyleProp<ViewStyle>,
+    isLedger?: boolean
 }) => {
     const account = useSelectedAccount();
     const network = useNetwork();
@@ -128,6 +125,7 @@ export const PendingTransactions = memo(({
                 viewType={viewType}
                 style={listStyle}
                 owner={addr}
+                isLedger={isLedger}
             />
         </View>
     );

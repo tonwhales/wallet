@@ -1,12 +1,14 @@
-import { ConnectRequest, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
+import { ConnectRequest } from '@tonconnect/protocol';
 import { MIN_PROTOCOL_VERSION } from './config';
-import { SignRawParams, WebViewBridgeMessageType } from './types';
+import { SignBinaryPayload, SignCellPayload, SignTextPayload, WebViewBridgeMessageType } from './types';
 import { storage } from '../../storage/storage';
 import { getCurrentAddress } from '../../storage/appState';
-import { t } from '../../i18n/t';
 import { z } from 'zod';
-import { getTimeSec } from '../../utils/getTimeSec';
-import { Address, Cell } from '@ton/core';
+import { t } from '../../i18n/t';
+import { Address, beginCell, Cell } from '@ton/core';
+import { sha256_sync } from '@ton/crypto';
+import { crc32 } from '../../utils/crc32';
+import { toASCII } from 'punycode';
 
 export function resolveAuthError(error: Error) {
   switch ((error as Error)?.message) {
@@ -167,76 +169,140 @@ export const getInjectableJSMessage = (message: any) => {
   `;
 };
 
-export function checkTonconnectRequest(id: string, params: SignRawParams, callback: (response: WalletResponse<RpcMethod>) => void) {
-  const validParams = !!params
-    && Array.isArray(params.messages)
-    && params.messages.every((msg) => {
-      let validAmount = !!msg.amount && typeof msg.amount === 'string';
-      let addressIsValid = false;
-      let validPayload = true;
-      let validStateInit = true;
 
-      if (!!msg.address) {
-        try {
-          Address.parseFriendly(msg.address);
-          addressIsValid = true;
-        } catch { }
-      }
+/**
+ * Convert a human-readable domain (e.g. "ton-connect.github.io")
+ * into the TON DNS internal byte representation defined in TEP-81.
+ *
+ * Rules (TEP-81 §“Domain names” → §“Domain internal representation”):
+ *   • UTF-8 string ≤ 126 bytes; bytes 0x00–0x20 are forbidden. :contentReference[oaicite:0]{index=0}
+ *   • Split by ".", reverse the order, append 0x00 after every label
+ *     (“google.com” ⇒ “com\0google\0”). :contentReference[oaicite:1]{index=1}
+ *   • Resulting byte array must fit into a Cell (n ≤ 127). :contentReference[oaicite:2]{index=2}
+ *
+ * The helper returns both:
+ *   • `Buffer` — raw bytes, convenient for hashing/debugging
+ *   • `Cell`   — ready for `dnsresolve` calls via @ton/core
+ */
 
-      if (!!msg.payload) {
-        try {
-          Cell.fromBoc(Buffer.from(msg.payload, 'base64'))[0];
-        } catch {
-          validPayload = false;
-        }
-      }
-
-      if (!!msg.stateInit) {
-        try {
-          Cell.fromBoc(Buffer.from(msg.stateInit, 'base64'))[0];
-        } catch {
-          validStateInit = false;
-        }
-      }
-
-      return validAmount && addressIsValid && validPayload && validStateInit;
-    });
-
-  if (!validParams) {
-    callback({
-      error: {
-        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-        message: `Bad request`,
-      },
-      id,
-    });
-
-    return false;
+export function encodeDnsName(domain: string): Buffer {
+  if (!domain) {
+    throw new Error('Domain must be non-empty');
   }
 
-  const { valid_until, messages } = params;
+  // Normalise (lower-case, strip trailing dot) – recommended for interop
+  let norm = domain.toLowerCase();
+  if (norm.endsWith('.')) norm = norm.slice(0, -1);
 
-  if (!!valid_until && valid_until < getTimeSec()) {
-    callback({
-      error: {
-        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-        message: `Request timed out`,
-      },
-      id,
-    });
-    return false;
+  // Special case: single dot (“.”) ⇒ self-reference ⇒ single 0x00
+  if (norm === '') {
+    return Buffer.from([0]);
   }
 
-  if (messages.length === 0) {
-    callback({
-      error: {
-        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-        message: `No messages`,
-      },
-      id,
-    });
-    return false;
+  // Split & validate labels
+  const labelsAscii = norm.split('.').map((lbl) => {
+    if (lbl.length === 0) {
+      throw new Error('Empty label ("..") not allowed');
+    }
+    // IDN: convert Unicode → punycode ASCII (xn--…)
+    const ascii = toASCII(lbl);
+    // Disallow bytes 0x00–0x20 and label > 63 chars (classic DNS rule)
+    if (ascii.length > 63 || /[\x00-\x20]/.test(ascii)) {
+      throw new Error(`Invalid label "${lbl}"`);
+    }
+    return ascii;
+  });
+
+  // Build byte array: reverse order + 0x00 after each label
+  const byteChunks: number[] = [];
+  for (const label of labelsAscii.reverse()) {
+    byteChunks.push(...Buffer.from(label, 'utf8'), 0);
+  }
+  const bytes = Buffer.from(byteChunks);
+
+  if (bytes.length > 126) {
+    throw new Error(
+      `Encoded name is ${bytes.length} bytes; TEP-81 allows at most 126`
+    );
   }
 
-  return true;
+  return bytes;
+}
+
+/**
+ * Creates hash for text or binary payload.
+ * Message format:
+ * message = 0xffff || "ton-connect/sign-data/" || workchain || address_hash || domain_len || domain || timestamp || payload
+ */
+export function createTextBinaryHash(
+  payload: SignTextPayload | SignBinaryPayload,
+  parsedAddr: Address,
+  domain: string,
+  timestamp: number
+): Buffer {
+  // Create workchain buffer
+  const wcBuffer = Buffer.alloc(4);
+  wcBuffer.writeInt32BE(parsedAddr.workChain);
+
+  // Create domain buffer
+  const domainBuffer = Buffer.from(domain, 'utf8');
+  const domainLenBuffer = Buffer.alloc(4);
+  domainLenBuffer.writeUInt32BE(domainBuffer.length);
+
+  // Create timestamp buffer
+  const tsBuffer = Buffer.alloc(8);
+  tsBuffer.writeBigUInt64BE(BigInt(timestamp));
+
+  // Create payload buffer
+  const typePrefix = payload.type === 'text' ? 'txt' : 'bin';
+  const content = payload.type === 'text' ? payload.text : payload.bytes;
+  const encoding = payload.type === 'text' ? 'utf8' : 'base64';
+
+  const payloadPrefix = Buffer.from(typePrefix);
+  const payloadBuffer = Buffer.from(content, encoding);
+  const payloadLenBuffer = Buffer.alloc(4);
+  payloadLenBuffer.writeUInt32BE(payloadBuffer.length);
+
+  // Build message
+  const message = Buffer.concat([
+    Buffer.from([0xff, 0xff]),
+    Buffer.from("ton-connect/sign-data/"),
+    wcBuffer,
+    parsedAddr.hash,
+    domainLenBuffer,
+    domainBuffer,
+    tsBuffer,
+    payloadPrefix,
+    payloadLenBuffer,
+    payloadBuffer,
+  ]);
+
+  // Hash message with sha256
+  return sha256_sync(message);
+}
+
+/**
+* Creates hash for Cell payload according to TON Connect specification.
+*/
+export function createCellHash(
+  payload: SignCellPayload,
+  parsedAddr: Address,
+  domain: string,
+  timestamp: number
+): Buffer {
+  const cell = Cell.fromBase64(payload.cell);
+  const schemaHash = crc32(Buffer.from(payload.schema, 'utf8')) >>> 0; // unsigned crc32 hash
+  const encodedDomain = encodeDnsName(domain).toString('utf8');
+
+  const message = beginCell()
+    .storeUint(0x75569022, 32) // prefix
+    .storeUint(schemaHash, 32) // schema hash
+    .storeUint(timestamp, 64) // timestamp
+    .storeAddress(parsedAddr) // user wallet address
+    .storeStringRefTail(encodedDomain) // app domain
+    .storeRef(cell) // payload cell
+    .endCell();
+
+  // return Buffer.from(message.hash());
+  return message.hash();
 }

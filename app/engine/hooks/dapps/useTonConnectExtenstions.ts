@@ -18,6 +18,7 @@ export function useConnectExtensions(address?: string): [
   const account = useSelectedAccount();
   const [fullMap, update] = useRecoilState(connectExtensionsMapAtom);
 
+
   const key = address ?? account?.addressString;
   const extensions = key ? fullMap[address ?? account!.addressString] : {};
   const setterUpdater = (updater: (prev: ConnectedAppsMap) => ConnectedAppsMap) => {

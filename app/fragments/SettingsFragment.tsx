@@ -8,10 +8,10 @@ import { t } from '../i18n/t';
 import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady, useLanguage, useSolanaSelectedAccount } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady, useLanguage, useSolanaSelectedAccount, useIsLedgerRoute } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useLedgerTransport } from './ledger/components/TransportContext';
 import { Typography } from '../components/styles';
@@ -58,8 +58,7 @@ export const SettingsFragment = fragment(() => {
     const hasHoldersProducts = useHasHoldersProducts(selected?.address.toString({ testOnly: network.isTestnet }) || '', solanaAddress);
     const inviteCheck = useIsHoldersInvited(selected?.address, network.isTestnet);
     const holdersAccStatus = useHoldersAccountStatus(selected?.address).data;
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerSettings';
+    const isLedger = useIsLedgerRoute()
     const holdersAccounts = useHoldersAccounts(selected?.address, isLedger ? undefined : solanaAddress).data;
     const url = holdersUrl(network.isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);

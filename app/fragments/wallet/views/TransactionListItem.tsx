@@ -14,7 +14,7 @@ export type TransactionListItemProps = {
     address: Address,
     theme: ThemeType,
     onPress: (tx: TonTransaction) => void,
-    onLongPress?: (tx: TonTransaction) => void,
+    onLongPress?: (tx: TonTransaction, formattedAddressString: string) => void,
     ledger?: boolean,
     navigation: TypedNavigation,
     addToDenyList: (address: string | Address, reason: string) => void,

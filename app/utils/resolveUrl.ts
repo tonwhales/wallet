@@ -178,9 +178,12 @@ function resolveTransferUrl(url: Url<Record<string, string | undefined>>): Resol
             if (key.toLowerCase() === 'amount') {
                 try {
                     if (keys.find((p) => p.toLowerCase() === 'jetton') !== undefined) {
-                        amount = toNano(url.query[key]!.replace(',', '.').replaceAll(' ', ''));
+                        // if the amount is float number (which is incorrect), we set it to 0n to avoid crashes
+                        amount = url.query[key]!.includes('.') ? 0n : toNano(url.query[key]!.replace(',', '.').replaceAll(' ', ''));
+
                     } else {
-                        amount = BigInt(url.query[key]!);
+                        // if the amount is float number (which is incorrect), we set it to 0n to avoid crashes
+                        amount = url.query[key]!.includes('.') ? 0n : BigInt(url.query[key]!);
                     }
                 } catch {
                     return { type: 'error', error: ResolveUrlError.InvalidAmount };

@@ -25,9 +25,15 @@ export const AddressBookLoader = memo(({ children }: { children: React.ReactNode
         if (!addressString) {
             return null;
         }
-        const contact = state.contacts[addressString];
-        if (!!contact) {
-            return contact;
+        try {
+            const address = Address.parse(addressString);
+            // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
+            const contact = state.contacts[address.toString({ testOnly: isTestnet })] || state.contacts[address.toString({ testOnly: isTestnet, bounceable: false })];
+            if (!!contact) {
+                return contact;
+            }
+        } catch (e) {
+            return null;
         }
         return null;
     }

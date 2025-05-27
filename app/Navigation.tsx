@@ -95,8 +95,6 @@ import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
 import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
 import { W5UpdateFragment } from './fragments/W5UpdateFragment';
-import { WebViewPreloader } from './components/WebViewPreloader';
-import { holdersUrl } from './engine/api/holders/fetchUserState';
 import { JettonTransactionPreviewFragment } from './fragments/wallet/JettonTransactionPreviewFragment';
 import { AddressBookFragment } from './fragments/contacts/AddressBookFragment';
 import { ExchangesFragment } from './fragments/wallet/ExchangesFragment';
@@ -119,6 +117,7 @@ import { PendingSolanaTransactionPreviewFragment } from './fragments/solana/tran
 import { LiquidUSDeStakingTransferFragment } from './fragments/staking/LiquidUSDeStakingTransferFragment';
 import { LiquidUSDeStakingCalculatorFragment } from './fragments/staking/LiquidUSDeStakingCalculatorFragment';
 import { LiquidUSDeStakingUnstakeFragment } from './fragments/staking/LiquidUSDeStakingUnstakeFragment';
+import { TonConnectSignFragment } from './fragments/secure/dapps/TonConnectSignFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -287,6 +286,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // dApps
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
+    modalScreen('TonConnectSign', TonConnectSignFragment, safeArea),
     modalScreen('Install', InstallFragment, safeArea),
     modalScreen('Authenticate', AuthenticateFragment, safeArea),
     <Stack.Screen
@@ -333,6 +333,7 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
     modalScreen('LedgerTransaction', TransactionPreviewFragment, safeArea),
     modalScreen('LedgerJettonTransactionPreview', JettonTransactionPreviewFragment, safeArea),
+    modalScreen('LedgerPendingTransaction', PendingTxPreviewFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
@@ -534,7 +535,6 @@ export const Navigation = memo(() => {
             <PendingTxsWatcher />
             <TonconnectWatcher />
             <SessionWatcher navRef={navigationRef} />
-            <WebViewPreloader url={holdersUrl(isTestnet)} />
             <Splash hide={hideSplash} />
         </View>
     );

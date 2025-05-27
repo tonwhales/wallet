@@ -14,12 +14,11 @@ import { BrowserTabs } from '../../components/browser/BrowserTabs';
 import { BrowserSearch } from '../../components/browser/BrowserSearch';
 import Animated, { Easing, SharedValue, cancelAnimation, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useQRCodeHandler } from '../../engine/hooks/qrcode/useQRCodeHandler';
 
 export const BrowserFragment = fragment(() => {
     const theme = useTheme();
-    const network = useNetwork();
     const navigation = useTypedNavigation();
-    const linkNavigator = useLinkNavigator(network.isTestnet);
     const safeArea = useSafeAreaInsets();
 
     const searchTranslateY = useSharedValue(0);
@@ -34,18 +33,9 @@ export const BrowserFragment = fragment(() => {
         transform: [{ translateY: withTiming(-tabsTranslateY.value, { duration: 250 }) }]
     }));
 
-    const onQRCodeRead = (src: string) => {
-        try {
-            let res = resolveUrl(src, network.isTestnet);
-            if (res) {
-                linkNavigator(res);
-            }
-        } catch {
-            // Ignore
-        }
-    };
+    const handleQRCode = useQRCodeHandler();
 
-    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
+    const openScanner = useCallback(() => navigation.navigateScanner({ callback: handleQRCode }), []);
 
     useFocusEffect(useCallback(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');

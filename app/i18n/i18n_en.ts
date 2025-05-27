@@ -84,6 +84,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "addressBook": "Address book",
         "gasless": "Gasless",
         "address": "Address",
+        "poolAddress": "Pool address",
         "currencyChanged": "Currency changed",
         "required": "required",
         "operation": "Operation",
@@ -350,7 +351,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Signature request",
         "message": "Requested to sign a message",
         "hint": "No funds would be transfered to the app and no access to your coins would be granted.",
-        "action": "Sign"
+        "action": "Sign",
+        "binary": "Binary payload message"
     },
     "migrate": {
         "title": "Migrate old wallets",

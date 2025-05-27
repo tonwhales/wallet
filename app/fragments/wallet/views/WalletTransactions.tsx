@@ -107,18 +107,15 @@ export const WalletTransactions = memo((props: {
         }
     }, [addToDenyList]);
 
-    const onAddressContact = useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
+    const onAddressContact = useCallback((address: string) => {
+        navigation.navigate('Contact', { address });
     }, []);
 
-    const onRepeatTx = useCallback(async (tx: TonTransaction) => {
+    const onRepeatTx = useCallback(async (tx: TonTransaction, formattedAddressString: string) => {
         const amount = BigInt(tx.base.parsed.amount);
         const operation = tx.base.operation;
         const item = operation.items[0];
         const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-        const opAddr = Address.parseFriendly(opAddressString);
-        const bounceable = bounceableFormat ? true : opAddr.isBounceable;
-        const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
 
         let jetton: Address | undefined = undefined;
 
@@ -149,7 +146,7 @@ export const WalletTransactions = memo((props: {
         }
 
         navigation.navigateSimpleTransfer({
-            target,
+            target: formattedAddressString,
             comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
             amount: amount < 0n ? -amount : amount,
             stateInit: null,
@@ -158,20 +155,24 @@ export const WalletTransactions = memo((props: {
         });
     }, [navigation, isTestnet, bounceableFormat]);
 
-    const onLongPress = (tx: TonTransaction) => {
+    const onLongPress = (tx: TonTransaction, formattedAddressString: string) => {
         const operation = tx.base.operation;
         const item = operation.items[0];
         const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        const opAddressFriendly = Address.parseFriendly(opAddress);
+        const opAddressInAnotherFormat = opAddressFriendly.address.toString({ testOnly: isTestnet, bounceable: !opAddressFriendly.isBounceable });
+        // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
+        const contactAddress = addressBook.contacts[opAddress] ? opAddress : opAddressInAnotherFormat;
+        const contact = addressBook.contacts[contactAddress];
+        const isSpam = !!addressBook.denyList[contactAddress]?.reason;
         const kind = tx.base.parsed.kind;
-        const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${opAddress}`;
+        const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${formattedAddressString}`;
         const txId = `${tx.base.lt}_${tx.base.hash}`;
         const explorerTxLink = `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
             + `${props.address.toString({ testOnly: isTestnet })}/`
             + `${txId}`;
         const itemAmount = BigInt(item.amount);
         const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
-        const contact = addressBook.contacts[opAddress];
-        const isSpam = !!addressBook.denyList[opAddress]?.reason;
 
         const spam =
             !!spamWallets.find((i) => opAddress === i)
@@ -196,7 +197,7 @@ export const WalletTransactions = memo((props: {
                     break;
                 }
                 case 2: {
-                    onAddressContact(Address.parse(opAddress));
+                    onAddressContact(contactAddress);
                     break;
                 }
                 case 3: {
@@ -205,15 +206,15 @@ export const WalletTransactions = memo((props: {
                 }
                 case 4: {
                     if (!spam) {
-                        onMarkAddressSpam(opAddress);
+                        onMarkAddressSpam(contactAddress);
                     } else if (canRepeat) {
-                        onRepeatTx(tx);
+                        onRepeatTx(tx, formattedAddressString);
                     }
                     break;
                 }
                 case 5: {
                     if (canRepeat) {
-                        onRepeatTx(tx);
+                        onRepeatTx(tx, formattedAddressString);
                     }
                     break;
                 }
@@ -292,7 +293,7 @@ export const WalletTransactions = memo((props: {
     return (
         <SectionList
             ref={ref}
-            style={{ flexGrow: 1 }}
+            style={{ flexGrow: 1, flex: 1 }}
             contentContainerStyle={[
                 props.sectionedListProps?.contentContainerStyle
             ]}

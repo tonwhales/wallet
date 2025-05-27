@@ -1,23 +1,23 @@
 import { memo, useCallback, useMemo } from "react";
-import { useAppManifest, useConnectAppByClientSessionId, useConnectCallback, usePrepareConnectRequest } from "../../../engine/hooks";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { t } from "../../../i18n/t";
-import { extractDomain } from "../../../engine/utils/extractDomain";
-import { SendTransactionRequest } from "../../../engine/tonconnect/types";
-import { DappRequestButton } from "./DappRequestButton";
-import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
+import { useAppManifest, useConnectAppByClientSessionId, useConnectCallback, usePrepareConnectTxRequest } from "../../../../engine/hooks";
+import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
+import { t } from "../../../../i18n/t";
+import { extractDomain } from "../../../../engine/utils/extractDomain";
+import { SendTransactionRequest } from "../../../../engine/tonconnect/types";
+import { DappRequestButton } from "../DappRequestButton";
+import { ToastDuration, useToaster } from "../../../../components/toast/ToastProvider";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { Cell } from "@ton/core";
-import { getLastReturnStrategy } from "../../../engine/tonconnect/utils";
+import { getLastReturnStrategy } from "../../../../engine/tonconnect/utils";
 
-type TonConnectRequestButtonProps = {
+type TonConnectTxRequestButtonProps = {
     request: SendTransactionRequest,
     divider?: boolean,
     isTestnet: boolean
 }
 
-export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps) => {
+export const TonConnectTxRequestButton = memo((props: TonConnectTxRequestButtonProps) => {
     const navigation = useTypedNavigation();
     const toaster = useToaster();
     const bottomBarHeight = useBottomTabBarHeight();
@@ -27,7 +27,7 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
         android: { marginBottom: 16 },
         default: { marginBottom: 16 }
     });
-    const prepareConnectRequest = usePrepareConnectRequest({ isTestnet: props.isTestnet, toaster, toastProps });
+    const prepareConnectRequest = usePrepareConnectTxRequest({ isTestnet: props.isTestnet, toaster, toastProps });
     const connectCallback = useConnectCallback();
     const url = appBySessionId(props.request.from).connectedApp?.manifestUrl;
     const appManifest = useAppManifest(url ?? '');
@@ -45,7 +45,7 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
         const prepared = prepareConnectRequest(request);
 
         if (request.method === 'sendTransaction' && prepared) {
-            
+
             // Callback to report the result of the transaction
             const resultCallback = async (
                 ok: boolean,
@@ -65,11 +65,11 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
                 }
             };
 
-            const returnStrategy = getLastReturnStrategy()
+            const returnStrategy = getLastReturnStrategy();
 
             navigation.navigateTransfer({
                 text: null,
-                source: { type: 'tonconnect', returnStrategy},
+                source: { type: 'tonconnect', returnStrategy },
                 order: {
                     type: 'order',
                     messages: prepared.messages,
@@ -93,5 +93,5 @@ export const TonConnectRequestButton = memo((props: TonConnectRequestButtonProps
             image={image}
             divider={props.divider}
         />
-    )
+    );
 });

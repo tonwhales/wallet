@@ -13,6 +13,7 @@ import { JettonFull } from "../../engine/api/fetchHintsFull";
 
 type Hint = {
     address: string,
+    jettonAddress?: string,
     loaded?: boolean;
     rate?: number | null;
     verified?: boolean;
@@ -20,7 +21,7 @@ type Hint = {
     balance?: bigint;
 };
 
-export type HintsFilter = 'scam' | 'balance' | 'verified';
+export type HintsFilter = 'scam' | 'balance' | 'verified' | 'hidden';
 
 export function getHintWeights(filter?: HintsFilter[]): { scam: number, balance: number, verified: number } {
 
@@ -39,7 +40,7 @@ export function getHintWeights(filter?: HintsFilter[]): { scam: number, balance:
     };
 }
 
-export function filterHint(filter: HintsFilter[]): (hint: Hint) => boolean {
+export function filterHint(filter: HintsFilter[], disabledJettons: { [key: string]: { reason: string } }): (hint: Hint) => boolean {
     return (hint: Hint) => {
 
         if (!hint.loaded) {
@@ -58,6 +59,10 @@ export function filterHint(filter: HintsFilter[]): (hint: Hint) => boolean {
             return false;
         }
 
+        if (filter.includes('hidden') && hint.jettonAddress && disabledJettons[hint.jettonAddress]) {
+            return false;
+        }
+
         return true;
     }
 }
@@ -68,7 +73,7 @@ export function getHintFull(jetton: JettonFull, isTestnet: boolean): Hint {
     const usdRate = jetton.price?.prices?.['USD'];
     const rate = usdRate? calculateHintRateNum(BigInt(jetton.balance), usdRate, decimals): undefined;
 
-    return { address: jetton.walletAddress.address, rate, verified, isSCAM, balance: BigInt(jetton.balance), loaded: true };
+    return { address: jetton.walletAddress.address, jettonAddress: jetton.jetton.address, rate, verified, isSCAM, balance: BigInt(jetton.balance), loaded: true };
 }
 
 export function getHint(queryCache: QueryCache, hint: string, isTestnet: boolean): Hint {

@@ -1,7 +1,7 @@
 import { RefObject } from 'react';
 import WebView, { WebViewMessageEvent } from 'react-native-webview';
-import { AppRequest, ConnectEvent, ConnectEventError as IConnectEventError, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse, CHAIN } from '@tonconnect/protocol';
-import { ConnectItemReply, KeyPair } from '@tonconnect/protocol';
+import { AppRequest, ConnectEvent, ConnectEventError as IConnectEventError, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse, CHAIN, SendTransactionRpcRequest } from '@tonconnect/protocol';
+import { KeyPair } from '@tonconnect/protocol';
 import { ExtendedConnectItemReply } from './ConnectReplyBuilder';
 
 export enum CONNECT_ITEM_ERROR_CODES {
@@ -40,7 +40,7 @@ export interface SignRawMessage {
   }
 }
 
-export type SignRawParams = {
+export type SignRawTxParams = {
   valid_until?: number;
   messages: SignRawMessage[];
   network?: CHAIN;
@@ -63,12 +63,18 @@ export type ConnectedAppConnection =
   | ConnectedAppConnectionRemote
   | ConnectedAppConnectionInjected;
 
-export type SendTransactionRequest = {
-  method: 'sendTransaction',
-  params: string[],
-  id: string,
-  from: string
-}
+export type SendTransactionRequest = SendTransactionRpcRequest & { from: string }
+
+export type SignTextPayload = { type: 'text', text: string }
+export type SignBinaryPayload = { type: 'binary', bytes: string }
+export type SignCellPayload = { type: 'cell', schema: string, cell: string }
+export type SignDataPayload = SignTextPayload | SignBinaryPayload | SignCellPayload
+export type SignRpcRequest = { method: 'signData', params: [SignDataPayload], id: string }
+export type SignDataRequest = SignRpcRequest & { from: string }
+
+export type SignDataRawRequest = { method: 'signData', params: [string], from: string, id: string }
+
+export type PendingTonconnectRequest = SendTransactionRequest | SignDataRawRequest
 
 export type TonConnectExtension = {
   key: string;

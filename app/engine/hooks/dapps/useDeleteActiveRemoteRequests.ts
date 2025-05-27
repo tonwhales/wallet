@@ -1,4 +1,4 @@
-import { useConnectPendingRequests } from "../../hooks/dapps/useConnectPendingRequests";
+import { useConnectPendingRequests } from "./useConnectPendingRequests";
 
 export function useDeleteActiveRemoteRequests() {
     const [, update] = useConnectPendingRequests();

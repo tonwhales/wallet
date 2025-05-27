@@ -1,5 +1,5 @@
 import { fragment } from "../../fragment";
-import { useAccountLite, useNetwork, useTheme } from "../../engine/hooks";
+import { useAccountLite, useIsLedgerRoute, useNetwork, useTheme } from "../../engine/hooks";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -11,7 +11,7 @@ import { memo, Suspense, useCallback } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactions } from "./views/PendingTransactions";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletTransactions } from "./views/WalletTransactions";
 import { WalletActions } from "./views/WalletActions";
@@ -48,9 +48,8 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const ownerAddress = Address.parse(owner);
-    const route = useRoute();
     const account = useAccountLite(ownerAddress);
-    const isLedger = route.name === 'LedgerTonWallet';
+    const isLedger = useIsLedgerRoute()
 
     const txs = useAccountTransactionsV2(
         ownerAddress.toString({ testOnly: isTestnet }),
@@ -111,11 +110,9 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                 theme={theme}
                 ledger={isLedger}
                 sectionedListProps={{
-                    contentContainerStyle:
-                        Platform.select({
-                            android: { paddingBottom: bottomBarHeight + safeArea.top + 56 + 16 },
-                            ios: { paddingBottom: bottomBarHeight + safeArea.top + 56 }
-                        })
+                    contentContainerStyle: {
+                        paddingBottom: 32
+                    }
                 }}
                 header={
                     <View style={styles.content}>
@@ -170,6 +167,7 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                                 actionAsset={{ type: 'ton' }}
                             />
                             <PendingTransactions
+                                isLedger={isLedger}
                                 viewType={'history'}
                                 address={ownerAddress.toString({ testOnly: isTestnet })}
                             />

@@ -1,4 +1,5 @@
 import { mixpanelFlush, mixpanelReset } from "../../../analytics/mixpanel";
+import { useWebViewPreloader } from "../../../components/WebViewPreloaderContext";
 import { clearLedgerSelected, getAppState } from "../../../storage/appState";
 import { BiometricsState, PasscodeState } from '../../../storage/secureStorage';
 import { storage, storagePersistence } from "../../../storage/storage";
@@ -19,7 +20,7 @@ export function useDeleteCurrentAccount() {
     const setAppState = useSetAppState();
     const setBiometricsState = useSetBiometricsState();
     const setPasscodeState = useSetPasscodeState();
-
+    const { clearWebViewLocalStorage } = useWebViewPreloader();
     const navigation = useTypedNavigation();
     return () => {
         const appState = getAppState();
@@ -61,6 +62,7 @@ export function useDeleteCurrentAccount() {
             setPasscodeState(PasscodeState.NotSet);
             setBiometricsState(BiometricsState.NotSet);
             clearLedgerSelected();
+            clearWebViewLocalStorage();
 
             navigation.navigateAndReplaceAll('Welcome');
         }

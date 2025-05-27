@@ -17,6 +17,7 @@ import { useWalletVersion } from "../useWalletVersion";
 import { getInviteId } from "../../../useLinkNavigator";
 import { LedgerWallet } from "../../../fragments/ledger/components/TransportContext";
 import { PublicKey } from "@solana/web3.js";
+import { getAppsFlyerUID } from "../../../analytics/appsflyer";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -61,7 +62,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
     const connectApp = useConnectApp();
     const connectAppConnections = useAppConnections();
 
-    return (async () => {
+    return (async (payload?: string) => {
         let res = await (async () => {
 
             //
@@ -131,7 +132,11 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
 
                 const replyBuilder = new ConnectReplyBuilder(
                     {
-                        items: [{ name: 'ton_addr' }, { name: 'ton_proof', payload: 'ton-proof-any' }, { name: 'solana_proof', payload: 'solana-proof-any' }],
+                        items: [
+                            { name: 'ton_addr' },
+                            { name: 'ton_proof', payload: payload ?? 'ton-proof-any' },
+                            { name: 'solana_proof', payload: payload ?? 'solana-proof-any' }
+                        ],
                         manifestUrl
                     },
                     manifest
@@ -176,7 +181,12 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
                     }
 
                     const solanaPublicKey = new PublicKey(walletKeys.keyPair.publicKey);
-
+                    
+                    let appsflyerId;
+                    try {
+                        appsflyerId = await getAppsFlyerUID()
+                    } catch {}
+                    
                     const requestParams: TonSolanaAuthRequest = [
                         {
                             stack: 'ton',
@@ -196,7 +206,8 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
                                     }
                                 }
                             },
-                            inviteId
+                            inviteId,
+                            appsflyerId        
                         },
                         {
                             stack: 'solana',

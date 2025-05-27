@@ -182,7 +182,7 @@ const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'LedgerStack';
 
 const navigation = (safeArea: EdgeInsets) => [
-    fullScreen('Home', LedgerHomeFragment),
+    fullScreen('LedgerHome', LedgerHomeFragment),
     fullScreen('LedgerStaking', StakingFragment),
     fullScreen('LedgerStakingPools', StakingPoolsFragment),
     fullScreen('LedgerLiquidStaking', LiquidStakingFragment),
@@ -201,7 +201,7 @@ export const LedgerNavigationStack = memo(() => {
 
     return (
         <Stack.Navigator
-            initialRouteName={'Home'}
+            initialRouteName={'LedgerHome'}
             screenOptions={{
                 headerBackTitle: t('common.back'),
                 title: '',

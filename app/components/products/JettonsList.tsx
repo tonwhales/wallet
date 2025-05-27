@@ -1,7 +1,7 @@
 import { Pressable, View, Text, Platform, useWindowDimensions } from "react-native";
 import { ItemSwitch } from "../Item";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useExtraCurrencyHints, useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useCloudValue, useExtraCurrencyHints, useHintsFull, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,6 +23,7 @@ import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { ExtraCurrencyProductItem } from "./ExtraCurrencyProductItem";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 const EmptyListItem = memo(() => {
     const theme = useTheme();
@@ -35,7 +36,7 @@ const EmptyListItem = memo(() => {
                 overflow: 'hidden',
                 padding: 20,
                 alignItems: 'center',
-                height: 86,
+                height: ASSET_ITEM_HEIGHT,
                 backgroundColor: theme.surfaceOnBg
             }}
         >
@@ -69,7 +70,7 @@ const EmptyListItem = memo(() => {
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>
                     <PerfView style={{
-                        height: 20, width: 86,
+                        height: 20, width: ASSET_ITEM_HEIGHT,
                         backgroundColor: theme.textSecondary,
                         borderRadius: 8,
                         marginBottom: 8,
@@ -110,16 +111,18 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
     }, [selected, ledgerContext, testOnly]);
 
     const [filter, setFilter] = useState<HintsFilter[] | null>(null);
+    let [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
     const jettons: JettonFull[] = useHintsFull(addressStr).data?.hints ?? [];
     const extraCurrencies: ExtraCurrencyHint[] = useExtraCurrencyHints(addressStr).data ?? [];
     const initData = [
         ...extraCurrencies.map((e) => ({ ...e, type: 'extra' })),
-        ...jettons.map((j) => ({ ...j, type: 'jetton' })),
+        ...jettons
+            .map((j) => ({ ...j, type: 'jetton' })),
     ];
 
     const filteredJettons = useMemo(() => {
         if (filter !== null) {
-            const filterFn = filterHint(filter);
+            const filterFn = filterHint(filter, disabledState.disabled);
             return initData.filter((j) => j.type !== 'jetton' || filterFn(getHintFull(j as JettonFull, testOnly)));
         }
         return initData;
@@ -132,7 +135,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                     card
                     last
                     hint={item as JettonFull}
-                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
+                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: ASSET_ITEM_HEIGHT }}
                     ledger={isLedger}
                     owner={selected!.address}
                     jettonViewType={AssetViewType.Default}
@@ -146,7 +149,7 @@ export const JettonsList = memo(({ isLedger }: { isLedger: boolean }) => {
                     currency={item as ExtraCurrencyHint}
                     owner={selected!.address}
                     jettonViewType={AssetViewType.Default}
-                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: 86 }}
+                    itemStyle={{ backgroundColor: theme.surfaceOnElevation, height: ASSET_ITEM_HEIGHT }}
                     ledger={isLedger}
                 />
             );
@@ -307,6 +310,11 @@ const JettonsFilterModal = memo(({
                     title={t('jetton.emptyBalance')}
                     value={!value?.includes('balance')}
                     onChange={() => onUpdateValue('balance')}
+                />
+                 <ItemSwitch
+                    title={t('jetton.hidden')}
+                    value={!value?.includes('hidden')}
+                    onChange={() => onUpdateValue('hidden')}
                 />
                 <RoundButton
                     title={t('common.apply')}

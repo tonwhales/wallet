@@ -2,15 +2,13 @@ import { HoldersAppFragment } from "../HoldersAppFragment";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Platform, View } from "react-native";
 import { HoldersAppParamsType } from "../HoldersAppFragment";
-import { useRoute } from "@react-navigation/native";
-import { useEnrolledAndReady, useNetwork } from "../../../engine/hooks";
+import { useEnrolledAndReady, useIsLedgerRoute, useNetwork } from "../../../engine/hooks";
 import { holdersUrl } from "../../../engine/api/holders/fetchUserState";
 import { HoldersLandingComponent } from "./HoldersLandingComponent";
 
 export const HoldersSettings = () => {
     const bottomBarHeight = useBottomTabBarHeight();
-    const route = useRoute();
-    const ledger = route.name.startsWith('Ledger');
+    const ledger = useIsLedgerRoute();
     const { isTestnet } = useNetwork();
 
     const isReady = useEnrolledAndReady();

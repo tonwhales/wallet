@@ -84,7 +84,7 @@ export const HoldersAccountsSearch = memo(({
                             const onOpen = () => onSelect?.(item);
                             return (
                                 <HoldersAccountItem
-                                    key={`holders-${index}`}
+                                    key={`holders-${item.acc.id}`}
                                     owner={owner}
                                     account={item.acc}
                                     itemStyle={{ backgroundColor: theme.surfaceOnElevation }}

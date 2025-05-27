@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
-import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useIsLedgerRoute, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -26,6 +26,7 @@ import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { SolanaWalletProduct } from "../../components/products/savings/SolanaWalletProduct";
 import { SolanaTokenProduct } from "../../components/products/savings/SolanaTokenProduct";
 import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 enum AssetType {
     TON = 'ton',
@@ -48,7 +49,7 @@ const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
     const theme = useTheme();
 
     return (
-        <View style={{ height: 86 }}>
+        <View style={{ height: ASSET_ITEM_HEIGHT }}>
             <Pressable
                 style={{
                     backgroundColor: theme.surfaceOnElevation,
@@ -111,8 +112,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
     const solanaAddress = useSolanaSelectedAccount()!;
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerReceiveAssets';
+    const isLedger = useIsLedgerRoute()
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();

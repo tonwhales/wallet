@@ -22,3 +22,4 @@ export * from './wallet';
 export * from './support';
 export { useLocalStorageStatus } from "./webView/useLocalStorageStatus";
 export * from './solana';
+export * from './addressFormat/useAddressFormatsHistory';

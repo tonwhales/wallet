@@ -401,8 +401,15 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                     auth.promise.resolve(keys);
                                 }
                             } catch {
-                                setAttempts(attempts + 1);
-
+                                // Using setTimeout here is critical to prevent UI jumps/flickering.
+                                // Direct state updates (setAttempts) during error handling would conflict with
+                                // the PasscodeInput's error animation, causing visual artifacts.
+                                // By deferring the state update to the next event loop, we allow the error
+                                // animation to complete smoothly before updating the parent component state.
+                                setTimeout(() => {
+                                    setAttempts(value => value + 1);
+                                });
+                                
                                 // TODO: think about destroying keys after 30 attempts
 
                                 throw Error('Failed to load keys');

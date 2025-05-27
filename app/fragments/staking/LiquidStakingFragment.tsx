@@ -7,8 +7,8 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingCycle } from "../../components/staking/StakingCycle";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
+import { useFocusEffect } from "@react-navigation/native";
 import { useKnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
 import { useIsLedgerRoute, useLiquidStakingMember, useNetwork, usePendingActions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
@@ -29,7 +29,6 @@ export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const route = useRoute();
     const { isTestnet } = useNetwork();
     const isLedger = useIsLedgerRoute()
     const selected = useSelectedAccount();
@@ -288,6 +287,7 @@ export const LiquidStakingFragment = fragment(() => {
                             copyOnPress
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
                             theme={theme}
+                            isPoolAddress
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -395,12 +395,7 @@ export const LiquidStakingFragment = fragment(() => {
                                             <Image source={require('@assets/ic-staking-calc.png')} />
                                         </View>
                                         <Text
-                                            style={{
-                                                fontSize: 15,
-                                                color: theme.textPrimary,
-                                                marginTop: 6,
-                                                fontWeight: '400'
-                                            }}
+                                            style={[{ color: theme.textPrimary, marginTop: 6 }, Typography.regular15_20]}
                                         >
                                             {t('products.staking.actions.calc')}
                                         </Text>
@@ -421,9 +416,9 @@ export const LiquidStakingFragment = fragment(() => {
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
                                 owner={memberAddress!.toString({ testOnly: isTestnet })}
+                                isLedger={isLedger}
                             />
                         )}
-                        {/* TODO */}
                         {!!memberAddress && (
                             <LiquidStakingPendingComponent
                                 member={memberAddress}

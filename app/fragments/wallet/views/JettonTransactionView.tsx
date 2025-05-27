@@ -26,7 +26,8 @@ import { isJettonTxSPAM, parseForwardPayloadComment } from '../../../utils/spam/
 import { JettonTransfer } from '../../../engine/hooks/transactions/useJettonTransactions';
 import { mapJettonToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
 import { useLedgerTransport } from '../../ledger/components/TransportContext';
-
+import { useAddressFormatsHistory } from '../../../engine/hooks';
+import { SpamLabel } from '../../../components/SpamLabel';
 export function JettonTransactionView(props: {
     own: Address,
     tx: JettonTransfer,
@@ -68,6 +69,8 @@ export function JettonTransactionView(props: {
     const kind: 'in' | 'out' = destinationAddress.equals(props.own) ? 'in' : 'out';
     const displayAddress = kind === 'in' ? sourceAddress : destinationAddress;
     const opAddress = displayAddress.toString({ testOnly: isTestnet });
+    const { getAddressFormat } = useAddressFormatsHistory();
+    const bounceable = getAddressFormat(displayAddress) ?? (props.bounceableFormat);
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(displayAddress)) >= 0;
     const targetContract = useContractInfo(opAddress);
     const comment = parseForwardPayloadComment(tx.forward_payload);
@@ -185,19 +188,7 @@ export function JettonTransactionView(props: {
                             {op}
                         </PerfText>
                         {spam && (
-                            <PerfView style={[
-                                styles.spam,
-                                { backgroundColor: theme.backgroundUnchangeable }
-                            ]}>
-                                <PerfText
-                                    style={[
-                                        { color: theme.textPrimaryInverted },
-                                        Typography.medium10_12
-                                    ]}
-                                >
-                                    {'SPAM'}
-                                </PerfText>
-                            </PerfView>
+                            <SpamLabel />
                         )}
                     </PerfView>
                     <Text
@@ -210,7 +201,7 @@ export function JettonTransactionView(props: {
                             : <AddressComponent
                                 testOnly={isTestnet}
                                 address={displayAddress}
-                                bounceable={props.bounceableFormat}
+                                bounceable={bounceable}
                             />
                         }
                         {' • '}
@@ -280,15 +271,6 @@ const styles = StyleSheet.create({
         position: 'relative',
         borderWidth: 0, marginRight: 10,
         justifyContent: 'center', alignItems: 'center'
-    },
-    spam: {
-        borderWidth: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 100,
-        paddingHorizontal: 5,
-        marginLeft: 10,
-        height: 15
     },
     titleDescriptionView: { flex: 1, marginRight: 4 },
     titleView: { flexDirection: 'row', alignItems: 'center' },

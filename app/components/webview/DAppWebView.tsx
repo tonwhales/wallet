@@ -39,7 +39,7 @@ export type DAppWebViewProps = WebViewProps & DAppWebViewAPI & {
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
     refId?: string;
     defaultNavigationOptions?: WebViewNavigationOptions;
-    onEnroll?: () => void;
+    onEnroll?: (payload?: string) => void;
     defaultSafeArea?: { top?: number; right?: number; bottom?: number; left?: number; };
 }
 
@@ -301,12 +301,18 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             return true;
         }
         if (navigationOptions.backPolicy === 'close') {
-            onClose?.();
-            navigation.goBack();
-            return true;
+            if (loaded) {
+                onClose?.();
+                navigation.goBack();
+                return true;
+            } else {
+                // if WebView is in initial loading state we need to wait for it to 
+                // be loaded because fast going back on Android will lead to bugs
+                return true;
+            }
         }
         return false;
-    }, [navigationOptions.backPolicy, onClose]);
+    }, [navigationOptions.backPolicy, onClose, loaded]);
 
     useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);

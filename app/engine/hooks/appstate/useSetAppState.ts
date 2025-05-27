@@ -2,9 +2,13 @@ import { useRecoilCallback } from 'recoil';
 import { AppState, clearLedgerSelected, setAppState } from '../../../storage/appState';
 import { appStateAtom } from '../../state/appState';
 import { onAccountTouched } from '../../effects/onAccountTouched';
+import { useWebViewPreloader } from '../../../components/WebViewPreloaderContext';
 import { useEthena } from '../staking/useEthena';
+
 export function useSetAppState() {
+    const { clearWebViewLocalStorage } = useWebViewPreloader();
     const ethena = useEthena();
+
     return useRecoilCallback(({ set }) => (value: AppState, isTestnet: boolean) => {
         set(appStateAtom, () => {
             const temp = value;
@@ -34,6 +38,9 @@ export function useSetAppState() {
             // using standard wallet, not the Ledger one. That's why we clear
             // the Ledger selected state
             clearLedgerSelected()
+
+            // Clear WebView local storage with all data from previous holders account
+            clearWebViewLocalStorage();
 
             // Update queries for new selected
             if (newSelectedAddress) {

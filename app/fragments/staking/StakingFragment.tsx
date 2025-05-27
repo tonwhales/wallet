@@ -14,9 +14,9 @@ import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBanner";
 import { useKnownPools } from "../../utils/KnownPools";
 import { StakingPoolType } from "./StakingPoolsFragment";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, usePendingActions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useIsLedgerRoute, useNetwork, usePendingActions, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -37,8 +37,7 @@ export const StakingFragment = fragment(() => {
     const initParams = useParams<StakingFragmentParams>();
     const [params, setParams] = useState(initParams);
     const navigation = useTypedNavigation();
-    const route = useRoute();
-    const isLedger = route.name === 'LedgerStaking';
+    const isLedger = useIsLedgerRoute()
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
     const knownPools = useKnownPools(network.isTestnet);
@@ -229,6 +228,7 @@ export const StakingFragment = fragment(() => {
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
                             bounceable={true}
                             theme={theme}
+                            isPoolAddress
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -365,6 +365,7 @@ export const StakingFragment = fragment(() => {
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
                                 owner={memberAddress!.toString({ testOnly: network.isTestnet })}
+                                isLedger={isLedger}
                             />
                         )}
                         <StakingPendingComponent

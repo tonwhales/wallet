@@ -10,7 +10,8 @@ export function authParamsFromLedgerProof(
         lengthBytes: number;
         value: string;
     },
-    walletStateInit: string | null | undefined
+    walletStateInit: string | null | undefined,
+    appsflyerId?: string
 ): TonAuthRequest {
     return {
         stack: 'ton',
@@ -29,6 +30,7 @@ export function authParamsFromLedgerProof(
                     walletStateInit
                 }
             }
-        }
+        },
+        appsflyerId
     }
 }

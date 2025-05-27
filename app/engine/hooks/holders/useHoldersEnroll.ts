@@ -17,6 +17,7 @@ import { useWalletVersion } from "../useWalletVersion";
 import { getInviteId } from "../../../useLinkNavigator";
 import { LedgerWallet } from "../../../fragments/ledger/components/TransportContext";
 import { PublicKey } from "@solana/web3.js";
+import { getAppsFlyerUID } from "../../../analytics/appsflyer";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -180,7 +181,12 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
                     }
 
                     const solanaPublicKey = new PublicKey(walletKeys.keyPair.publicKey);
-
+                    
+                    let appsflyerId;
+                    try {
+                        appsflyerId = await getAppsFlyerUID()
+                    } catch {}
+                    
                     const requestParams: TonSolanaAuthRequest = [
                         {
                             stack: 'ton',
@@ -200,7 +206,8 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
                                     }
                                 }
                             },
-                            inviteId
+                            inviteId,
+                            appsflyerId        
                         },
                         {
                             stack: 'solana',

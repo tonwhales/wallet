@@ -9,12 +9,16 @@ export const CheckBox = React.memo((
         checked,
         text,
         onToggle,
-        style
+        style,
+        inactiveColor = '#CBCBCB',
+        activeOpacity = 0.3
     }: {
         checked?: boolean,
         text?: any,
         onToggle?: (newVal: boolean) => void,
-        style?: StyleProp<ViewStyle>
+        style?: StyleProp<ViewStyle>,
+        inactiveColor?: string,
+        activeOpacity?: number
     }
 ) => {
     const theme = useTheme();
@@ -39,7 +43,7 @@ export const CheckBox = React.memo((
             onPress={toggle}
             style={({ pressed }) => {
                 return [{
-                    opacity: pressed ? 0.3 : 1
+                    opacity: pressed ? activeOpacity : 1
                 }, style]
             }}
         >
@@ -50,7 +54,7 @@ export const CheckBox = React.memo((
                     justifyContent: 'center',
                     alignItems: 'center',
                     height: 24, width: 24, borderRadius: 4,
-                    backgroundColor: isChecked ? theme.accent : '#CBCBCB'
+                    backgroundColor: isChecked ? theme.accent : inactiveColor
                 }}>
                     {isChecked && <CheckMark />}
                 </View>

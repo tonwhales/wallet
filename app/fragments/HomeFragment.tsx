@@ -24,6 +24,7 @@ import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
 import { useLedgerTransport } from './ledger/components/TransportContext';
+import { Questionnaire } from '../components/questionnaire';
 
 const Tab = createBottomTabNavigator();
 
@@ -213,6 +214,7 @@ export const HomeFragment = fragment(() => {
                     />
                 </Tab.Navigator>
             </View>
+            <Questionnaire />
         </View>
     );
 });

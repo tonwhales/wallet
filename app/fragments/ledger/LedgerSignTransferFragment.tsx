@@ -239,11 +239,16 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps) => {
 
             const pendingBody: PendingTransactionBody | null = ledgerOrderToPendingTransactionBody(transferPayload);
 
+            let amount = value * (BigInt(-1));
+            if (order.amountAll) {
+                amount = BigInt(-1) * account!.balance;
+            }
+
             registerPending({
                 id: 'pending-' + accountSeqno,
                 status: PendingTransactionStatus.Pending,
                 fees: fees,
-                amount: value,
+                amount,
                 address: target.address,
                 bounceable: target.bounceable,
                 seqno: accountSeqno,

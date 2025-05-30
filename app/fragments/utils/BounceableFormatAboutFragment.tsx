@@ -22,7 +22,7 @@ export const BounceableFormatAboutFragment = fragment(() => {
             flexGrow: 1,
             justifyContent: 'flex-end',
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom,
+            paddingBottom: safeArea.bottom,
             backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : undefined,
         }}>
             <StatusBar style={Platform.select({

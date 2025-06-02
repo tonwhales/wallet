@@ -312,6 +312,15 @@ export const DeveloperToolsFragment = fragment(() => {
                             });
                             Intercom.presentSpace(Space.messages);
                         }} />
+                        <ItemButton title={"Show Intercom with message"} onPress={async () => {
+                            await Intercom.logout();
+                            await Intercom.loginUserWithUserAttributes({
+                                email: 'test@test.com',
+                                name: 'Test User',
+                                userId: '1234567890',
+                            });
+                            await Intercom.presentMessageComposer('Hello, how are you? This is a test message');
+                        }} />
                     </View>
                     <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
                 </ScrollView>

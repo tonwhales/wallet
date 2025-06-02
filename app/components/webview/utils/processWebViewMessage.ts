@@ -51,6 +51,7 @@ export enum DAppWebViewAPIMethod {
     showKeyboardAccessoryView = 'showKeyboardAccessoryView',
     backPolicy = 'backPolicy',
     showIntercom = 'showIntercom',
+    showIntercomWithMessage = 'showIntercomWithMessage',
 }
 
 const userAttributesSchema = z.object({
@@ -288,6 +289,26 @@ export function processWebViewMessage(
                         }
                     } catch {
                         warn('Failed to show intercom');
+                    }
+                })();
+                return true;
+            case DAppWebViewAPIMethod.showIntercomWithMessage:
+                (async () => {
+                    try {
+                        if (api.useSupportAPI) {
+                            if (!args.text) {
+                                warn('Invalid text');
+                                return true;
+                            } else if (args.userProfile) {
+                                await Intercom.logout();
+                                await Intercom.loginUserWithUserAttributes(args.userProfile);
+                            } else {
+                                await Intercom.loginUnidentifiedUser();
+                            }
+                            await Intercom.presentMessageComposer(args.text);
+                        }
+                    } catch {
+                        warn('Failed to show intercom with message');
                     }
                 })();
                 return true;

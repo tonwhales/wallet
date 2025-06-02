@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo, useRef } from "react";
-import { View, Pressable, StyleProp, ViewStyle, Text, ScrollView as RNScrollView } from "react-native";
+import { View, Pressable, StyleProp, ViewStyle, Text, ScrollView as RNScrollView, TouchableOpacity } from "react-native";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -8,7 +8,7 @@ import { HoldersUserState, holdersUrl } from "../../engine/api/holders/fetchUser
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
-import { Swipeable, TouchableOpacity, ScrollView } from "react-native-gesture-handler";
+import { Swipeable, ScrollView } from "react-native-gesture-handler";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { toBnWithDecimals } from "../../utils/withDecimals";

@@ -137,6 +137,7 @@ export const ScreenHeader = memo((
                     {!!title && !titleComponent && (
                         <PerfText style={[{ color: textColor ?? theme.textPrimary, maxWidth: '60%' }, Typography.semiBold17_24, titleStyle]}
                             ellipsizeMode={'tail'}
+                            numberOfLines={1}
                         >
                             {title}
                         </PerfText>

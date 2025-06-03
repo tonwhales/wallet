@@ -70,9 +70,7 @@ export const WalletBackupFragment = systemFragment(() => {
     useEffect(() => {
         let subscription: ScreenCapture.Subscription;
         subscription = ScreenCapture.addScreenshotListener(() => {
-            navigation.navigateScreenCapture({
-                callback: () => ScreenCapture.allowScreenCaptureAsync('words-screen')
-            });
+            navigation.navigateScreenCapture();
         });
 
         (async () => {

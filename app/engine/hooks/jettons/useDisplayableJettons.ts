@@ -1,10 +1,10 @@
 import { useHintsFull, useNetwork } from "..";
-import { getSpecialJetton, savingsMastersMainnet, savingsMastersTestnet } from "../../../secure/KnownWallets";
+import { getSpecialJetton, useSavingsMasters } from "../../../secure/KnownWallets";
 
 export function useDisplayableJettons(addressString?: string) {
     const { isTestnet } = useNetwork();
     const hints = useHintsFull(addressString).data?.hints ?? [];
-    const savingsMasters = isTestnet ? savingsMastersTestnet : savingsMastersMainnet;
+    const savingsMasters = useSavingsMasters();
 
     const savings = hints
         .filter(hint => hint.jetton.address in savingsMasters)

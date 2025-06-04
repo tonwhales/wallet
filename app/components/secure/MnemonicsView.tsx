@@ -40,14 +40,9 @@ export const MnemonicsView = memo(({ mnemonics, style, preventCapture }: { mnemo
     const wordsCol2 = words.slice(12, 24);
 
     useEffect(() => {
-        // Currently, taking screenshots on iOS cannot be prevented. This is due to underlying OS limitations.
-        if (preventCapture && Platform.OS === 'android') { 
-            ScreenCapture.preventScreenCaptureAsync('words-screen');
-        }
         // Keeping screen in awakened state
         activateKeepAwakeAsync('MnemonicsView');
         return () => {
-            ScreenCapture.allowScreenCaptureAsync('words-screen');
             deactivateKeepAwake('MnemonicsView');
         }
     }, []);

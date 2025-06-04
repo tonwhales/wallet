@@ -394,7 +394,15 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
 
                             const acc = auth?.params?.selectedAccount ?? getCurrentAddress();
                             try {
-                                const keys = await loadWalletKeys(acc.secretKeyEnc, pass);
+                                // We add minimum delay to show 1 circle of the loader
+                                const delay = new Promise(resolve => setTimeout(resolve, 700));
+                                const results = await Promise.allSettled([delay, loadWalletKeys(acc.secretKeyEnc, pass)]);
+
+                                const loadKeysResult = results[1];
+                                if (loadKeysResult.status === 'rejected') {
+                                    throw loadKeysResult.reason;
+                                }
+                                const keys = loadKeysResult.value
                                 if (auth.returns === 'keysWithPasscode') {
                                     auth.promise.resolve({ keys, passcode: pass });
                                 } else {
@@ -427,6 +435,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                         }
                         passcodeLength={auth.params?.passcodeLength}
                         onRetryBiometrics={canRetryBiometrics ? retryBiometrics : undefined}
+                        withLoader
                     />
                     {auth.params?.cancelable && (
                         <CloseButton

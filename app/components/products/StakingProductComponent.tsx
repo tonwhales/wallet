@@ -89,7 +89,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
         }, 0n);
     }, [active, liquidBalance]);
 
-    const renderItem = useCallback((p: ProductItem) => {
+    const renderItem = useCallback((p: ProductItem, index: number) => {
         if (!p) {
             return null;
         }
@@ -97,6 +97,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
         if (p.type === 'liquid') {
             return (
                 <LiquidStakingPool
+                    key={`liquid-${index}`}
                     member={address}
                     style={[style, { padding: 0, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
                     hideCycle
@@ -109,6 +110,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
         if (p.type === 'liquid-usde') {
             return (
                 <LiquidUSDeStakingPool
+                    key={`liquid-usde-${index}`}
                     member={address}
                     hideHeader
                     iconBackgroundColor={theme.backgroundPrimary}
@@ -119,7 +121,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
 
         if (p.type === 'banner') {
             return (
-                <StakingProductBanner isLedger={isLedger} />
+                <StakingProductBanner key={`banner-${index}`} isLedger={isLedger} />
             );
         }
 

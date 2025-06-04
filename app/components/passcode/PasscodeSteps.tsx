@@ -10,6 +10,7 @@ export const PasscodeSteps = memo((
         state,
         style,
         emoji,
+        isLoading
     }: {
         passcodeLength?: number,
         state: {
@@ -18,6 +19,7 @@ export const PasscodeSteps = memo((
         },
         style?: StyleProp<ViewStyle>
         emoji?: boolean,
+        isLoading?: boolean,
     }
 ) => {
     const width = passcodeLength * ((emoji ? 32 : dotSize) + 22);
@@ -27,7 +29,8 @@ export const PasscodeSteps = memo((
             {
                 height: (emoji ? 32 : dotSize) + 4, width: '100%',
                 justifyContent: 'center', alignItems: 'center',
-                marginVertical: 16,
+                marginTop: 24,
+                marginBottom: 16,
             },
             style
         ]}>
@@ -45,6 +48,8 @@ export const PasscodeSteps = memo((
                             error={state.error}
                             index={index}
                             passLen={state.passLen}
+                            isLoading={isLoading}
+                            totalSteps={passcodeLength}
                         />
                     );
                 })}

@@ -23,3 +23,4 @@ export * from './support';
 export { useLocalStorageStatus } from "./webView/useLocalStorageStatus";
 export * from './solana';
 export * from './addressFormat/useAddressFormatsHistory';
+export { useSavingsMasters } from '../../secure/KnownWallets';

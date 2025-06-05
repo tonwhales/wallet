@@ -17,7 +17,7 @@ import { fetchSeqno } from "../engine/api/fetchSeqno";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { useAccountLite, useClient4, useNetwork, useSelectedAccount, useSupport, useTheme } from "../engine/hooks";
+import { useAccountLite, useClient4, useNetwork, useSelectedAccount, useSupport, useTheme, useWalletName } from "../engine/hooks";
 import { beginCell, internal, storeMessage, external, Address, SendMode, toNano } from "@ton/core";
 import { getLastBlock } from "../engine/accountWatcher";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
@@ -35,6 +35,7 @@ export const DeleteAccountFragment = fragment(() => {
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
     const { showActionSheetWithOptions } = useActionSheet();
+    const { shortWalletName } = useWalletName();
     const { onSupport } = useSupport();
     const tresuresAddress = Address.parse(
         network.isTestnet
@@ -265,7 +266,7 @@ export const DeleteAccountFragment = fragment(() => {
                 ios: 'light'
             })} />
             <ScreenHeader
-                title={t('settings.deleteAccount')}
+                title={t('settings.deleteWallet')}
                 onBackPressed={navigation.goBack}
                 style={{ paddingLeft: 16 }}
             />
@@ -381,7 +382,7 @@ export const DeleteAccountFragment = fragment(() => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
             >
                 <RoundButton
-                    title={t('settings.deleteAccount')}
+                    title={t('settings.deleteWalletWithName', { name: shortWalletName })}
                     onPress={onContinue}
                     display={'default'}
                     style={{ marginBottom: 16 }}

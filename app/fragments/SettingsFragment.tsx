@@ -307,12 +307,12 @@ export const SettingsFragment = fragment(() => {
                     }}>
                         <ItemButton
                             dangerZone
-                            title={t('common.logout')}
+                            title={t('settings.disconnectWallet')}
                             onPress={() => navigation.navigate('Logout')}
                         />
                         <ItemButton
                             dangerZone
-                            title={t('settings.deleteAccount')}
+                            title={t('settings.deleteWallet')}
                             onPress={() => navigation.navigate('DeleteAccount')}
                         />
                     </View>

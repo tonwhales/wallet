@@ -125,6 +125,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "deleteAccount": "Видалити акаунт",
         "theme": "Тема",
         "searchEngine": "Пошукова система",
+        "deleteWallet": "Видалити гаманець",
+        "deleteWalletWithName": "Видалити гаманець \"{{name}}\"",
+        "disconnectWallet": "Відключити гаманець",
+        "disconnectWalletWithName": "Відключити гаманець \"{{name}}\"",
         "language": "Мова"
     },
     "walletImportSelector": {

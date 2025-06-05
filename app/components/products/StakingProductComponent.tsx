@@ -22,7 +22,8 @@ type ProductItem =
     { type: 'active', address: Address, balance: bigint }
     | { type: 'liquid' }
     | { type: 'banner' }
-    | { type: 'liquid-usde' };
+    | { type: 'liquid-usde' }
+    | { type: 'usde-banner' };
 
 const style: StyleProp<ViewStyle> = {
     height: ASSET_ITEM_HEIGHT,
@@ -123,6 +124,12 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
             );
         }
 
+        if (p.type === 'usde-banner') {
+            return (
+                <StakingProductBanner isLedger={isLedger} type="usde" />
+            );
+        }
+
         return (
             <StakingPool
                 member={address}
@@ -156,6 +163,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
 
     if (items.length === 0) {
         items.push({ type: 'banner' });
+        items.push({ type: 'usde-banner' });
     }
 
     const renderFace = useCallback(() => {

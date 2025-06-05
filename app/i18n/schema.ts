@@ -415,6 +415,7 @@ export type LocalizationSchema = {
         staking: {
             earnings: string,
             title: string,
+            usdeTitle: string,
             balance: string,
             subtitle: {
                 join: string,

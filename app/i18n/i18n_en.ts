@@ -413,9 +413,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "staking": {
             "earnings": "Earnings",
             "title": "TON Staking",
+            "usdeTitle": "USDe Staking",
             "balance": "Staking balance",
             "subtitle": {
-                "join": "Earn up to {{apy}}% with TONs or USDe",
+                "join": "Earn up to {{apy}}% with {{tokenName}}",
                 "joined": "Earn up to {{apy}}%",
                 "rewards": "Estimated Interest",
                 "apy": "~13.3 APY of the contribution",

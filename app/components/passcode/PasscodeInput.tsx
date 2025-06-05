@@ -63,7 +63,7 @@ export const PasscodeInput = memo((
             onRetryBiometrics();
             return;
         }
-        
+
         clearTimeout(cleanupTimerIdRef.current);
         setIsWrong(false);
 
@@ -80,31 +80,27 @@ export const PasscodeInput = memo((
                     if (withLoader) {
                         setLoading(true);
                     }
+                    setTimeout(async () => {
+                        try {
+                            await onEntered(newState);
+                        } catch (e) {
+                            setIsWrong(true);
+                        }
+                        if (withLoader) {
+                            setLoading(false);
+                        }
+
+                        clearTimeout(cleanupTimerIdRef.current);
+                        cleanupTimerIdRef.current = setTimeout(() => {
+                            setPasscode('');
+                            setIsWrong(false);
+                        }, 1500);
+                    });
                 }
                 return newState;
             });
         }
-    }, [passcodeLength, isWrong, withLoader]);
-
-    useEffect(() => {
-        if (passcode.length === passcodeLength && !isWrong) {
-            (async () => {
-                try {
-                    await onEntered(passcode);
-                } catch (e) {
-                    setIsWrong(true);
-                }
-
-                setLoading(false);
-
-                clearTimeout(cleanupTimerIdRef.current);
-                cleanupTimerIdRef.current = setTimeout(() => {
-                    setPasscode('');
-                    setIsWrong(false);
-                }, 1500);
-            })();
-        }
-    }, [passcode, passcodeLength, isWrong, onEntered]);
+    }, [passcodeLength, isWrong, withLoader, onEntered]);
 
     useEffect(() => {
         setPasscode('');

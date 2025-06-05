@@ -72,7 +72,7 @@ export const PasscodeStep = memo((
 
     // Loader animation: dots move to center and rotate in circle
     const loaderStyle = useAnimatedStyle(() => {
-        if (!isLoading || totalSteps === undefined) {
+        if (!isLoading) {
             return { transform: [{ translateX: 0 }, { translateY: 0 }] };
         }
 

@@ -5307,15 +5307,15 @@ escape-html@~1.0.3:
   resolved "https://registry.yarnpkg.com/escape-html/-/escape-html-1.0.3.tgz#0258eae4d3d0c0974de1c169188ef0051d1d1988"
   integrity sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==
 
-escape-string-regexp@2.0.0, escape-string-regexp@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-2.0.0.tgz#a30304e99daa32e23b2fd20f51babd07cffca344"
-  integrity sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
-
 escape-string-regexp@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==
+
+escape-string-regexp@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-2.0.0.tgz#a30304e99daa32e23b2fd20f51babd07cffca344"
+  integrity sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
 
 escape-string-regexp@^4.0.0:
   version "4.0.0"
@@ -9471,12 +9471,12 @@ react-native-view-shot@^3.8.0:
   dependencies:
     html2canvas "^1.4.1"
 
-react-native-webview@^13.6.2:
-  version "13.6.3"
-  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-13.6.3.tgz#f3d26e942ef5cc5a07547f2e47903aa81a68e25e"
-  integrity sha512-IApO0JSj0uAWsBGKWagyfgDYoX29piiMYLmkHtRjKeL1rIVjLoR/bMe7KJ/0X47y86b//a6u3cYQtphyay+F2A==
+react-native-webview@^13.14.1:
+  version "13.14.1"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-13.14.1.tgz#e19e27f595bf9673b55eb03fac2583591af27195"
+  integrity sha512-JThPAJcOWYYiBn7z0rIWD0/PijX/+p0H1h7T461IMqsVxBd1rWjZ9U4JEyzMFUFiqomUJEj/zR+ZVQk7RJmZuA==
   dependencies:
-    escape-string-regexp "2.0.0"
+    escape-string-regexp "^4.0.0"
     invariant "2.2.4"
 
 react-native-wonderpush-fcm@^1.0.9:

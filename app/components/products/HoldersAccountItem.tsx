@@ -158,7 +158,7 @@ export const HoldersAccountItem = memo((props: {
     const isHoldersReady = useIsConnectAppReady(url, owner.toString({ testOnly: isTestnet }));
     const name = getAccountName(account.accountIndex, account.name);
     const ledgerContext = useLedgerTransport();
-    const hasDirectDeposit = false; hasDirectTonDeposit(account) || hasDirectSolanaDeposit(account);
+    const hasDirectDeposit = hasDirectTonDeposit(account) || hasDirectSolanaDeposit(account);
 
     const priceAmount = useMemo(() => {
         try {

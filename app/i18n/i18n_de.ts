@@ -831,6 +831,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "text": "Die Blockchain-Validierung läuft derzeit. Dies kann einige Minuten dauern"
                 }
             },
+            "noDirectDeposit": {
+                "warningTitle": "Direkte Einzahlung wird nicht unterstützt",
+                "alertTitle": "Wir haben den Vertrag aktualisiert",
+                "alertDescription": "Bitte erstellen Sie ein neues Konto und übertragen Sie alle Ihre Gelder und Karten darauf. Es ist sicherer und unterstützt direkte Einzahlungen",
+                "buttonTitle": "Ein neues Konto erstellen"
+            }
         },
     },
     "welcome": {

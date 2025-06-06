@@ -832,6 +832,12 @@ export type LocalizationSchema = {
                     cancelButtonText: string,
                     text: string
                 }
+            },
+            noDirectDeposit: {
+                warningTitle: string,
+                alertTitle: string,
+                alertDescription: string,
+                buttonTitle: string
             }
         }
     },

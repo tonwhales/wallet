@@ -830,6 +830,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "cancelButtonText": "Show transaction details",
                     "text": "Blockchain validation is currently underway. This may take a few minutes"
                 }
+            },
+            "noDirectDeposit": {
+                "warningTitle": "Direct deposit is not supported",
+                "alertTitle": "We updated the contract",
+                "alertDescription": "Please create a new account and transfer all your funds and cards to it. It is safer and supports direct deposits",
+                "buttonTitle": "Create a new account"
             }
         }
     },

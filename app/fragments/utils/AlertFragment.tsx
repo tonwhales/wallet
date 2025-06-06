@@ -13,7 +13,7 @@ export const AlertFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const { title, message, callback } = useParams<{ title: string, message?: string, callback?: () => void }>();
+    const { title, message, buttonTitle, callback } = useParams<{ title: string, message?: string, buttonTitle?: string, callback?: () => void }>();
 
     return (
         <View style={{
@@ -71,7 +71,7 @@ export const AlertFragment = fragment(() => {
                 )}
                 <RoundButton
                     style={{ marginBottom: 16 }}
-                    title={t('common.ok')}
+                    title={buttonTitle || t('common.ok')}
                     onPress={() => {
                         navigation.goBack();
                         if (callback) {

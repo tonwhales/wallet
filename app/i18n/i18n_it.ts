@@ -834,6 +834,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "cancelButtonText": "Mostra dettagli della transazione",
                     "text": "La convalida della blockchain è attualmente in corso. Questo potrebbe richiedere alcuni minuti"
                 }
+            },
+            "noDirectDeposit": {
+                "warningTitle": "Il deposito diretto non è supportato",
+                "alertTitle": "Abbiamo aggiornato il contratto",
+                "alertDescription": "Si prega di creare un nuovo account e trasferire tutti i fondi e le carte su di esso. È più sicuro e supporta i depositi diretti",
+                "buttonTitle": "Crea un nuovo account"
             }
         }
     },

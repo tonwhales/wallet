@@ -155,7 +155,15 @@ export const AppAuthFragment = fragment(() => {
                             return;
                         }
                         try {
-                            await loadWalletKeys(acc.secretKeyEnc, pass);
+                            // We add minimum delay to show 1 circle of the loader
+                            const delay = new Promise(resolve => setTimeout(resolve, 700));
+                            const results = await Promise.allSettled([delay, loadWalletKeys(acc.secretKeyEnc, pass)]);
+                            
+                            const loadKeysResult = results[1];
+                            if (loadKeysResult.status === 'rejected') {
+                                throw loadKeysResult.reason;
+                            }
+                            
                             onConfirmed();
                         } catch (e) {
                             setAuthInProgress?.(false);
@@ -171,6 +179,7 @@ export const AppAuthFragment = fragment(() => {
                     }
                     passcodeLength={storage.getNumber(passcodeLengthKey) ?? 6}
                     onRetryBiometrics={useBiometrics ? authenticateWithBiometrics : undefined}
+                    withLoader
                 />
             )}
         </View>

@@ -46,25 +46,29 @@ const keyImages: { [key: string]: any } = {
 export const PasscodeKeyButton = memo((
     {
         passcodeKey,
-        onPress
+        onPress,
+        isLoading
     }: {
         passcodeKey: PasscodeKey,
         onPress: () => void,
+        isLoading?: boolean,
     }) => {
     const  theme = useTheme();
 
     const Img = keyImages[passcodeKey];
 
-
     return (
         <Pressable
+            disabled={isLoading}
+            hitSlop={{ top: 6, bottom: 6, left: 30, right: 30 }}
             onPress={onPress}
             style={({ pressed }) => {
                 return {
                     height: 60, width: 60,
                     justifyContent: 'center', alignItems: 'center',
                     marginHorizontal: 30, borderRadius: 30,
-                    backgroundColor: pressed ? theme.border : undefined,
+                    backgroundColor: pressed && !isLoading ? theme.border : undefined,
+                    opacity: isLoading ? 0.5 : 1,
                 }
             }}
         >

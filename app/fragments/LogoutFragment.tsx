@@ -8,36 +8,19 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
-import { openWithInApp } from "../utils/openWithInApp";
-import { useAppState, useSupport, useTheme, useWalletSettings } from "../engine/hooks";
+import { useSupport, useTheme, useWalletName } from "../engine/hooks";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 import { StatusBar } from "expo-status-bar";
-import { getAppState } from "../storage/appState";
-import { getHasHoldersProducts } from "../engine/hooks/holders/useHasHoldersProducts";
 
 import IcLogout from '@assets/ic-alert-red.svg';
 import Support from '@assets/ic-support.svg';
-
-function hasHoldersProductsOnDevice(isTestnet: boolean) {
-    const appState = getAppState();
-
-    return !!appState.addresses.find((acc) => {
-        return getHasHoldersProducts(acc.address.toString({ testOnly: isTestnet }));
-    });
-}
 
 export const LogoutFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const appState = useAppState();
-    const address = appState.addresses[appState.selected]?.address;
-    const [walletSettings] = useWalletSettings(address);
+    const { shortWalletName } = useWalletName();
     const { onSupport } = useSupport();
-
-    const accountName = walletSettings?.name || `${t('common.wallet')} ${appState.selected + 1}`;
-    const shortAccountName = accountName.length > 16 ? `${accountName.slice(0, 8)}...${accountName.slice(accountName.length - 6)}` : accountName;
-
     const { showActionSheetWithOptions } = useActionSheet();
     const onAccountDeleted = useDeleteCurrentAccount();
 
@@ -83,7 +66,7 @@ export const LogoutFragment = fragment(() => {
                 ios: 'light'
             })} />
             <ScreenHeader
-                title={t('common.logout')}
+                title={t('settings.disconnectWallet')}
                 onBackPressed={navigation.goBack}
                 style={[
                     { paddingHorizontal: 16 },
@@ -135,7 +118,7 @@ export const LogoutFragment = fragment(() => {
                 <View style={{ flexGrow: 1 }} />
                 <View style={{ marginBottom: 16 }}>
                     <RoundButton
-                        title={t('common.logoutFrom', { name: shortAccountName })}
+                        title={t('settings.disconnectWalletWithName', { name: shortWalletName })}
                         onPress={showLogoutActSheet}
                         display={'default'}
                         style={{ marginBottom: 16 }}

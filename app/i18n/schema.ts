@@ -127,6 +127,10 @@ export type LocalizationSchema = {
         deleteAccount: string,
         theme: string,
         searchEngine: string,
+        deleteWallet: string,
+        deleteWalletWithName: string,
+        disconnectWallet: string,
+        disconnectWalletWithName: string,
         language: string
     },
     walletImportSelector: {

@@ -120,7 +120,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "holders": "Банковские карты и счета",
             "tonhub": 'Tonhub'
         },
-        "telegram": "Telegram",
+        "telegram": "Подписаться на наш Telegram",
         "rateApp": "Оценить приложение",
         "deleteAccount": "Удалить аккаунт",
         "theme": "Тема",

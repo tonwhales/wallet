@@ -15,6 +15,7 @@ import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { GaslessInfoButton } from "../../jettons/GaslessInfoButton";
 import { ReceiveableTonAsset } from "../../../fragments/wallet/ReceiveFragment";
 import { t } from "../../../i18n/t";
+import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
 
 export const SpecialJettonProduct = memo(({
     theme,
@@ -107,6 +108,7 @@ export const SpecialJettonProduct = memo(({
                     flexDirection: 'row', flexGrow: 1,
                     alignItems: 'center',
                     paddingHorizontal: 20,
+                    minHeight: ASSET_ITEM_HEIGHT,
                     backgroundColor: theme.surfaceOnBg,
                     borderRadius: 20,
                     overflow: 'hidden',

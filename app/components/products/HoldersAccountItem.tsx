@@ -22,10 +22,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import IcCheck from "@assets/ic-check.svg";
-import SolanaIcon from '@assets/ic-solana.svg';
-
-const solanaIc = <SolanaIcon width={10} height={10} style={{ borderRadius: 8, height: 16, width: 16 }} />;
-const tonIc = <Image source={require('@assets/ic-ton-acc.png')} style={{ borderRadius: 10, height: 20, width: 20 }} />;
 
 export enum HoldersItemContentType {
     BALANCE = 'balance',
@@ -345,11 +341,13 @@ export const HoldersAccountItem = memo((props: {
                             onCardPress={onCardPress}
                         />
                     ))}
-                    <AddCardButton
-                        interactive={!!cardsClickable}
-                        theme={theme}
-                        onCreateCardPress={onCreateCardPress}
-                    />
+                    {account.cards.some((card) => card.provider !== 'elysphere-kauri') && (
+                        <AddCardButton
+                            interactive={!!cardsClickable}
+                            theme={theme}
+                            onCreateCardPress={onCreateCardPress}
+                        />
+                    )}
                 </ScrollViewComponent>
                 <LinearGradient
                     style={{
@@ -369,9 +367,6 @@ export const HoldersAccountItem = memo((props: {
             </View>
         );
     }, [cardsClickable, theme, onCreateCardPress, account.cards]);
-
-    const isSolana = account.network === 'solana';
-    const isTonCurrency = account.cryptoCurrency?.ticker === 'TON';
 
     const accountInfo = useMemo(() => (
         <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 8 }}>

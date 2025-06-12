@@ -244,6 +244,12 @@ export const HoldersAccountItem = memo((props: {
         }, isTestnet);
     }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation, account.id]);
 
+    const showAddCardButton = useMemo(() => {
+        if (account.cards.length === 0) return true;
+        if (account.cards.some((card) => card.provider !== 'elysphere-kauri')) return true;
+        return false;
+    }, [account.cards]);
+
     const renderRightAction = useCallback(() => {
         if (!rightActionIcon || !rightAction) return undefined;
 
@@ -341,7 +347,7 @@ export const HoldersAccountItem = memo((props: {
                             onCardPress={onCardPress}
                         />
                     ))}
-                    {account.cards.some((card) => card.provider !== 'elysphere-kauri') && (
+                    {showAddCardButton && (
                         <AddCardButton
                             interactive={!!cardsClickable}
                             theme={theme}

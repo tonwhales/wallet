@@ -11,16 +11,14 @@ import { Cell, fromNano, toNano } from '@ton/core';
 import { extractDomain } from '../../utils/extractDomain';
 import { useDisconnectApp } from './useDisconnect';
 import { ConnectEventError, SignDataPayload, SignRawTxParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../tonconnect/types';
-import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../tonconnect/config';
-import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonconnect/utils';
+import { tonConnectDeviceInfo } from '../../tonconnect/config';
 import { useWebViewBridge } from './useWebViewBridge';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersLedgerTonconnectHandler } from './useHoldersLedgerTonconnectHandler';
 import { useWalletVersion } from '../useWalletVersion';
 import { useToaster } from '../../../components/toast/ToastProvider';
 import { useNetwork } from '..';
-import { checkTonconnectTxRequest } from '../../tonconnect/checkTonconnectTxRequest';
-import { checkTonconnectSignRequest } from '../../tonconnect/checkTonconnectSignRequest';
+import { checkProtocolVersionCapability, checkTonconnectSignRequest, checkTonconnectTxRequest, CURRENT_PROTOCOL_VERSION, verifyConnectRequest } from '../../tonconnect';
 
 type SolanaInjectedBridge = {
     sendSolanaTransaction: (transaction: string) => Promise<void>;

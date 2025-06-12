@@ -15,14 +15,13 @@ import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { TransferSingleView } from "./TransferSingleView";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode, fromNano } from "@ton/core";
-import { useAccountLite, useClient4, useContact, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
+import { useAccountLite, useClient4, useDenyAddress, useIsSpamWallet, useJetton, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { PendingTransactionBody, PendingTransactionStatus } from "../../../engine/state/pending";
 import Minimizer from "../../../modules/Minimizer";
-import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { fetchGaslessSend, GaslessSendError } from "../../../engine/api/gasless/fetchGaslessSend";
@@ -32,6 +31,7 @@ import { ConfirmLoadedPropsSingle } from "../transfer/TransferFragment";
 import { AppsFlyerEvent, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
+import { clearLastReturnStrategy } from "../../../engine/tonconnect";
 
 export const failableTransferBackoff = createBackoffFailaible({
     logErrors: true,

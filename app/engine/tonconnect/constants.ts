@@ -1,0 +1,2 @@
+export const CURRENT_PROTOCOL_VERSION = 2;
+export const MIN_PROTOCOL_VERSION = 2;

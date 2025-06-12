@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { useLinkNavigator } from "../../../useLinkNavigator";
+import { useLinkNavigator } from "../../../utils/link-navigator/useLinkNavigator";
 import { Platform } from "react-native";
 import { useNetwork } from "..";
 import { TonConnectAuthType } from "../../../fragments/secure/dapps/TonConnectAuthenticateFragment";
 import { CachedLinking } from "../../../utils/CachedLinking";
 import { shouldLockApp } from "../../../components/SessionWatcher";
-import { resolveUrl } from "../../../utils/resolveUrl";
+import { resolveUrl } from "../../../utils/url/resolveUrl";
 import * as SplashScreen from 'expo-splash-screen';
 
 export const useLinksSubscription = (options?: { isLedger?: boolean }) => {

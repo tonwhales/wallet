@@ -3,7 +3,7 @@ import { connectExtensionsMapAtom } from "../../state/tonconnect";
 import { useMemo } from "react";
 import { Trie } from "../../../utils/wordsListTrie";
 import { extractDomain } from "../../utils/extractDomain";
-import { normalizeUrl } from "../../../utils/resolveUrl";
+import { normalizeUrl } from "../../../utils/url/resolveUrl";
 
 export type BrowserSearchSuggestion = {
     source: 'dapp' | 'web-search';

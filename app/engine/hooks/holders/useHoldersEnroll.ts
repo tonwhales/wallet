@@ -14,10 +14,10 @@ import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHolde
 import { TonConnectBridgeType } from "../../tonconnect/types";
 import { extensionKey } from "../dapps/useAddExtension";
 import { useWalletVersion } from "../useWalletVersion";
-import { getInviteId } from "../../../useLinkNavigator";
 import { LedgerWallet } from "../../../fragments/ledger/components/TransportContext";
 import { PublicKey } from "@solana/web3.js";
 import { getAppsFlyerUID } from "../../../analytics/appsflyer";
+import { getInviteId } from "../../../utils/holders/storage";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -181,12 +181,12 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
                     }
 
                     const solanaPublicKey = new PublicKey(walletKeys.keyPair.publicKey);
-                    
+
                     let appsflyerId;
                     try {
                         appsflyerId = await getAppsFlyerUID()
-                    } catch {}
-                    
+                    } catch { }
+
                     const requestParams: TonSolanaAuthRequest = [
                         {
                             stack: 'ton',
@@ -207,7 +207,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
                                 }
                             },
                             inviteId,
-                            appsflyerId        
+                            appsflyerId
                         },
                         {
                             stack: 'solana',

@@ -1,7 +1,6 @@
 import { Address, beginCell, storeStateInit } from "@ton/core";
 import { useAppConnections, useConnectApp, useNetwork, useSaveAppConnection } from "..";
 import { useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
-import { getInviteId } from "../../../useLinkNavigator";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { holdersUrl } from "../../api/holders/fetchUserState";
 import { extensionKey } from "../dapps/useAddExtension";
@@ -12,7 +11,7 @@ import { AppManifest } from "../../api/fetchManifest";
 import { WalletVersions } from "../../types";
 import { getAppManifest } from "../../getters/getAppManifest";
 import { HoldersEnrollErrorType, HoldersEnrollResult } from "./useHoldersEnroll";
-import { normalizeUrl } from "../../../utils/resolveUrl";
+import { normalizeUrl } from "../../../utils/url/resolveUrl";
 import { extractDomain } from "../../utils/extractDomain";
 import { CHAIN, ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
 import { getTimeSec } from "../../../utils/getTimeSec";
@@ -23,6 +22,7 @@ import { handleLedgerSignError } from "../../../utils/ledger/handleLedgerSignErr
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { wait } from "../../../utils/wait";
 import { getAppsFlyerUID } from "../../../analytics/appsflyer";
+import { getInviteId } from "../../../utils/holders/storage";
 
 export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?: string, setConfirming?: (value: boolean) => void }) {
     const { isTestnet } = useNetwork();
@@ -130,11 +130,11 @@ export function useHoldersLedgerEnroll({ inviteId, setConfirming }: { inviteId?:
                         }
 
                         const proof = (replyItems.find((item) => item.name === 'ton_proof') as TonProofItemReplySuccess | undefined);
-                        
+
                         let appsflyerId;
                         try {
                             appsflyerId = await getAppsFlyerUID()
-                        } catch {}
+                        } catch { }
 
                         const tokenParams: TonAuthRequest = authParamsFromLedgerProof(
                             Address.parse(rawAddress),

@@ -43,14 +43,14 @@ type TransferAddressInputProps = {
 }
 
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<AddressDomainInputRef>) => {
-    const { acc: account, solanaAddress, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger } = props;
+    const { acc: account, solanaAddress, isTestnet, index, initTarget, onFocus, onSubmit, onQRCodeRead, isSelected, onSearchItemSelected, knownWallets, navigation, setAddressDomainInputState, autoFocus, isLedger, domain } = props;
     const theme = useTheme();
 
     const [state, setState] = useState<AddressInputState>({
         input: initTarget,
         target: initTarget,
         suffix: '',
-        domain: undefined
+        domain: domain
     });
 
     useEffect(() => {
@@ -254,6 +254,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         acc={account}
                         onSearchItemSelected={onAddressSearchItemSelected}
                         solanaAddress={solanaAddress}
+                        initDomain={domain}
                     />
                 </View>
                 {isInvalid && (

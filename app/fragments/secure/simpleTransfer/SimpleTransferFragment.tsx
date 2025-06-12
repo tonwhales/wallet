@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, BackHandler, Keyboard } from "react-native";
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { Cell, Address } from '@ton/core';
+import { Cell } from '@ton/core';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ATextInputRef } from '../../../components/ATextInput';
@@ -25,6 +25,8 @@ export type SimpleTransferParams = {
     forwardAmount?: bigint | null,
     stateInit?: Cell | null,
     asset?: SimpleTransferAsset | null,
+    validUntil?: number,
+    domain?: string,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
     app?: {

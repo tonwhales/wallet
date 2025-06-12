@@ -22,7 +22,7 @@ export type Order = {
         title: string,
         url: string
     },
-    validUntil?: number
+    validUntil?: number | null
 };
 
 export type LedgerOrder = {
@@ -36,7 +36,8 @@ export type LedgerOrder = {
     app?: {
         domain: string,
         title: string
-    }
+    },
+    validUntil?: number | null
 };
 
 export type SolanaOrderApp = {
@@ -70,7 +71,8 @@ export function createLedgerJettonOrder(args: {
     amount: bigint,
     tonAmount: bigint,
     txAmount: bigint,
-    payload: Cell | null
+    payload: Cell | null,
+    validUntil?: number | null
 }, isTestnet: boolean): LedgerOrder {
 
     // Resolve payload
@@ -136,7 +138,8 @@ export function createSimpleLedgerOrder(args: {
     app?: {
         domain: string,
         title: string
-    }
+    },
+    validUntil?: number | null
 }): LedgerOrder {
 
     // Resolve payload
@@ -173,7 +176,8 @@ export function createOrder(args: {
     },
     extraCurrency?: {
         [k: number]: bigint;
-    }
+    },
+    validUntil?: number | null
 }) {
     return {
         messages: [{
@@ -185,7 +189,8 @@ export function createOrder(args: {
             extraCurrency: args.extraCurrency
         }],
         domain: args.domain,
-        app: args.app
+        app: args.app,
+        validUntil: args.validUntil
     };
 }
 
@@ -204,7 +209,8 @@ export function createSimpleOrder(args: {
     },
     extraCurrency?: {
         [k: number]: bigint;
-    }
+    },
+    validUntil?: number | null
 }): Order {
 
     // Resolve payload
@@ -226,7 +232,8 @@ export function createSimpleOrder(args: {
             amountAll: args.amountAll,
             stateInit: args.stateInit,
             app: args.app,
-            extraCurrency: args.extraCurrency
+            extraCurrency: args.extraCurrency,
+            validUntil: args.validUntil
         })
     };
 }
@@ -242,7 +249,8 @@ export function createJettonOrder(args: {
     txAmount: bigint,
     customPayload: Cell | null,
     payload: Cell | null,
-    stateInit: Cell | null
+    stateInit: Cell | null,
+    validUntil?: number | null
 }, isTestnet: boolean): Order {
 
     // Resolve payload
@@ -278,7 +286,8 @@ export function createJettonOrder(args: {
             payload: msg,
             amount: args.txAmount,
             amountAll: false,
-            stateInit: args.stateInit
+            stateInit: args.stateInit,
+            validUntil: args.validUntil
         })
     };
 }

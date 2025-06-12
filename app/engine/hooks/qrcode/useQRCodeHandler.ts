@@ -1,10 +1,10 @@
 import { useNetwork } from "../network";
 import { useIsLedgerRoute } from "..";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useLinkNavigator } from "../../../useLinkNavigator";
+import { useLinkNavigator } from "../../../utils/link-navigator/useLinkNavigator";
 import { useCallback } from "react";
 import { Cell, toNano } from "@ton/ton";
-import { resolveUrl } from "../../../utils/resolveUrl";
+import { resolveUrl } from "../../../utils/url/resolveUrl";
 import { ToastDuration } from "../../../components/toast/ToastProvider";
 import { TonConnectAuthType } from "../../../fragments/secure/dapps/TonConnectAuthenticateFragment";
 
@@ -16,7 +16,7 @@ export function useQRCodeHandler(options?: { toastProps?: { duration?: ToastDura
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const isLedger = useIsLedgerRoute();
-    
+
     const linkNavigator = useLinkNavigator(
         isTestnet,
         options?.toastProps,

@@ -64,8 +64,8 @@ export function addressInputReducer() {
                 try {
                     Address.parse(action.input);
                     return {
+                        ...state,
                         input: action.input,
-                        domain: undefined,
                         target: action.input,
                         suffix: undefined
                     };
@@ -73,8 +73,8 @@ export function addressInputReducer() {
                     // ignore
                 }
                 return {
+                    ...state,
                     input: action.input,
-                    domain: undefined,
                     target: '',
                     suffix: undefined
                 };
@@ -188,6 +188,7 @@ export const AddressDomainInput = memo(forwardRef(({
     isTestnet,
     navigation,
     solanaAddress,
+    initDomain
 }: {
     acc: Address,
     onFocus?: (index: number) => void,
@@ -208,6 +209,7 @@ export const AddressDomainInput = memo(forwardRef(({
     isTestnet: boolean,
     navigation: TypedNavigation,
     solanaAddress?: string,
+    initDomain?: string,
 }, ref: ForwardedRef<AddressDomainInputRef>) => {
     const client = useClient4(isTestnet);
     const netConfig = useConfig();
@@ -218,7 +220,7 @@ export const AddressDomainInput = memo(forwardRef(({
         {
             input: initTarget || '',
             target: initTarget || '',
-            domain: undefined,
+            domain: initDomain || undefined,
             suffix: undefined,
         }
     );

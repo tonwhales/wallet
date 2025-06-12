@@ -1,9 +1,6 @@
 import { ConnectRequest } from '@tonconnect/protocol';
-import { MIN_PROTOCOL_VERSION } from './config';
+import { MIN_PROTOCOL_VERSION } from './constants';
 import { SignBinaryPayload, SignCellPayload, SignTextPayload, WebViewBridgeMessageType } from './types';
-import { storage } from '../../storage/storage';
-import { getCurrentAddress } from '../../storage/appState';
-import { z } from 'zod';
 import { t } from '../../i18n/t';
 import { Address, beginCell, Cell } from '@ton/core';
 import { sha256_sync } from '@ton/crypto';
@@ -23,51 +20,6 @@ export function resolveAuthError(error: Error) {
     default:
       return t('products.tonConnect.errors.unknown');
   }
-}
-
-const lastReturnStrategyKey = 'connectLastReturnStrategy';
-const lastRetirnStrategyCodec = z.object({
-  at: z.number(),
-  strategy: z.string(),
-});
-
-export function setLastReturnStrategy(returnStrategy: string) {
-  storage.set(lastReturnStrategyKey, JSON.stringify({ at: Date.now(), strategy: returnStrategy }));
-}
-
-export function clearLastReturnStrategy() {
-  storage.delete(lastReturnStrategyKey);
-}
-
-export function getLastReturnStrategy() {
-  const stored = storage.getString(lastReturnStrategyKey);
-
-  if (!stored) {
-    return null;
-  }
-
-  const parsed = lastRetirnStrategyCodec.safeParse(JSON.parse(stored));
-
-  if (parsed.success) {
-
-    if (Date.now() - parsed.data.at > 1000 * 60 * 1) {
-      return null;
-    }
-
-    return parsed.data.strategy;
-  }
-
-  return null;
-}
-
-export function setLastEventId(lastEventId: string) {
-  const selected = getCurrentAddress().addressString;
-  storage.set(`${selected}/connect_last_event_id`, lastEventId);
-}
-
-export function getLastEventId() {
-  const selected = getCurrentAddress().addressString;
-  return storage.getString(`${selected}/connect_last_event_id`);
 }
 
 export function isHexString(str: string): boolean {

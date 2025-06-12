@@ -1,4 +1,4 @@
-import { Address, StoragePrices, TonClient4, configParse18, configParseGasLimitsPrices, configParseMasterAddress, configParseMsgPrices, loadConfigParamsAsSlice, parseFullConfig } from '@ton/ton';
+import { TonClient4, configParse18, configParseGasLimitsPrices, configParseMasterAddress, configParseMsgPrices, loadConfigParamsAsSlice } from '@ton/ton';
 import { getLastBlock } from '../../accountWatcher';
 import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
@@ -6,7 +6,7 @@ import { useClient4 } from './useClient4';
 import { useNetwork } from './useNetwork';
 import { ConfigState } from '../../types';
 
-function fetchConfigQueryFn(client: TonClient4, isTestnet: boolean) {
+export function fetchConfigQueryFn(client: TonClient4, isTestnet: boolean) {
     return async () => {
         let blockSeqno = await getLastBlock();
         let configRaw = await client.getConfig(blockSeqno, [4, 18, 20, 21, 24, 25]);

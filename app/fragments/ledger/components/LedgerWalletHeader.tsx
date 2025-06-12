@@ -2,7 +2,7 @@ import { memo, useCallback } from "react";
 import { Pressable, View, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { resolveUrl } from "../../../utils/resolveUrl";
+import { resolveUrl } from "../../../utils/url/resolveUrl";
 import { useNetwork, useTheme } from '../../../engine/hooks';
 import { useLedgerTransport } from "./TransportContext";
 import { Address, toNano } from "@ton/core";

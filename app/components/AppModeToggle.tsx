@@ -37,6 +37,10 @@ export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
     const [, setFilter] = useTransactionsFilter(address);
     const holdersAccounts = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data;
 
+    useEffect(() => {
+        setToggleInWalletMode(isWalletMode);
+    }, [address?.toString(), isWalletMode]);
+
     const needsEnrollment = useMemo(() => {
         return holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
     }, [holdersAccStatus?.state]);

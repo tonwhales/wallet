@@ -2,6 +2,7 @@ import React from "react";
 import { memo, useCallback } from "react";
 import { Pressable, View, Text, Image } from "react-native";
 import ArrowDown from '@assets/ic-arrow-down.svg';
+import EditIcon from '@assets/ic-edit.svg';
 import { Typography } from "../styles";
 import { useNetwork, useSelectedAccount, useTheme, useWalletSettings } from "../../engine/hooks";
 import { useKnownWallets } from "../../secure/KnownWallets";
@@ -39,7 +40,7 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
     const walletName = walletSettings?.name || ledgerName || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`;
 
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1, alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1 }}>
             <Pressable
                 style={({ pressed }) => {
                     return {
@@ -66,6 +67,13 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                     />
                     <View style={{ position: 'absolute', top: -1, right: -1 }}>
                         <HeaderSyncStatus size={12} isLedger={isLedger} />
+                    </View>
+                    <View style={{ position: 'absolute', bottom: -3, right: -3 }}>
+                        <EditIcon
+                            height={16}
+                            width={16}
+                            color={onLightBackground ? theme.textPrimary : theme.iconUnchangeable}
+                        />
                     </View>
                 </View>
             </Pressable>

@@ -37,12 +37,12 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { Typography } from "../../../components/styles";
 import { ToastDuration, useToaster } from "../../../components/toast/ToastProvider";
 import { copyText } from "../../../utils/copyText";
-import { clearLastReturnStrategy } from "../../../engine/tonconnect/utils";
 import Minimizer from "../../../modules/Minimizer";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
 import { WalletContractV4, WalletContractV5R1 } from "@ton/ton";
 import { PendingTransactionStatus } from "../../../engine/state/pending";
 import { Image } from 'expo-image';
+import { clearLastReturnStrategy } from "../../../engine/tonconnect";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';

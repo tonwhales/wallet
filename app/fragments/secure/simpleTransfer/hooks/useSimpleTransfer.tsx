@@ -79,7 +79,7 @@ export const useSimpleTransfer = ({ params, navigation }: Options) => {
         {
             input: params?.target || '',
             target: params?.target || '',
-            domain: undefined,
+            domain: params?.domain || undefined,
             suffix: undefined,
         }
     );

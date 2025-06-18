@@ -31,6 +31,7 @@ type Options = {
     forwardAmount: bigint | null;
     payload: Cell | null;
     extraCurrencyId?: number | null;
+    validUntil?: number | null;
 }
 
 export const useOrder = (options: Options) => {
@@ -54,7 +55,8 @@ export const useOrder = (options: Options) => {
             payload,
             validAmount,
             commentString,
-            extraCurrencyId
+            extraCurrencyId,
+            validUntil
         } = options
 
         const accountLite = useAccountLite(address);
@@ -93,7 +95,8 @@ export const useOrder = (options: Options) => {
                         amount: validAmount,
                         tonAmount: 1n,
                         txAmount: txForwardAmount,
-                        payload: null
+                        payload: null,
+                        validUntil
                     }, network.isTestnet);
                 }
     
@@ -105,7 +108,8 @@ export const useOrder = (options: Options) => {
                     payload: null,
                     amount: accountLite?.balance === validAmount ? toNano('0') : validAmount,
                     amountAll: accountLite?.balance === validAmount ? true : false,
-                    stateInit
+                    stateInit,
+                    validUntil
                 });
             }
     
@@ -135,7 +139,8 @@ export const useOrder = (options: Options) => {
                     txAmount,
                     customPayload: customPayloadCell,
                     payload: payload,
-                    stateInit: stateInitCell
+                    stateInit: stateInitCell,
+                    validUntil
                 }, network.isTestnet);
             }
 
@@ -160,7 +165,8 @@ export const useOrder = (options: Options) => {
                 amountAll: validAmount === accountLite?.balance,
                 stateInit,
                 app,
-                extraCurrency
+                extraCurrency,
+                validUntil
             });
     
         }, [validAmount, target, domain, commentString, stateInit, jetton, app, acc, ledgerAddress, known, jettonPayload]);

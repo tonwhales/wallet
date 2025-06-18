@@ -1,5 +1,6 @@
-import { Address, Cell, comment, toNano } from "@ton/core";
-import { resolveUrl, isUrl, normalizeUrl, ResolveUrlError } from "./resolveUrl";
+import { Address, comment, toNano } from "@ton/core";
+import { resolveUrl, isUrl, normalizeUrl } from "./resolveUrl";
+import { ResolveUrlError } from "./types";
 
 describe('resolveUrl', () => {
     it('should handle plain address', () => {
@@ -216,6 +217,90 @@ describe('resolveUrl', () => {
         } else {
             throw Error();
         }
+    });
+
+    it('should resolve bin transfer', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&bin=te6ccgEBAQEANwAAaV0r640BleSq4Ql3m5OrdlSApYTNRMdDGUFXwTpwZ1oe1G8cPlS_Zym8CwoAdO4mWSned-Fg';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve exp transfer', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&exp=174000000';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve dns transfer', () => {
+        const url = 'ton://transfer/subbotin.ton?amount=1';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve jetton transfer', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&jetton=EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve jetton transfer with bin', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&jetton=EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs&bin=te6ccgEBAQEANwAAaV0r640BleSq4Ql3m5OrdlSApYTNRMdDGUFXwTpwZ1oe1G8cPlS_Zym8CwoAdO4mWSned-Fg';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve transfer with valid exp', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&exp=1796015245';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve transfer with valid init', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&init=te6ccgEBAgEACwACATQBAQAI_____w\=\=';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve jetton transfer with valid text', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&text=test';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve transfer with valid text comment', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&text=test';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve transfer with valid init and bin', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&init=te6ccgEBAgEACwACATQBAQAI_____w\=\=&bin=te6ccgEBAQEANwAAaV0r640BleSq4Ql3m5OrdlSApYTNRMdDGUFXwTpwZ1oe1G8cPlS_Zym8CwoAdO4mWSned-Fg';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve transfer with valid init and text', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&init=te6ccgEBAgEACwACATQBAQAI_____w\=\=&text=test';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
+    });
+
+    it('should resolve transfer with valid bin and text', () => {
+        const url = 'ton://transfer/UQDNzlh0XSZdb5_Qrlx5QjyZHVAO74v5oMeVVrtF_5Vt1rIt?amount=1&text=test&bin=te6ccgEBAQEANwAAaV0r640BleSq4Ql3m5OrdlSApYTNRMdDGUFXwTpwZ1oe1G8cPlS_Zym8CwoAdO4mWSned-Fg';
+        const res = resolveUrl(url, false)!;
+        expect(res).not.toBeNull();
+        expect(res).not.toBeUndefined();
     });
 });
 

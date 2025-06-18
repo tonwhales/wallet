@@ -22,13 +22,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import IcCheck from "@assets/ic-check.svg";
-import SolanaIcon from '@assets/ic-solana.svg';
 import Warning from '@assets/ic-exclamation-mark.svg';
 import { t } from "../../i18n/t";
 import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
-
-const solanaIc = <SolanaIcon width={10} height={10} style={{ borderRadius: 8, height: 16, width: 16 }} />;
-const tonIc = <Image source={require('@assets/ic-ton-acc.png')} style={{ borderRadius: 10, height: 20, width: 20 }} />;
 
 export enum HoldersItemContentType {
     BALANCE = 'balance',
@@ -254,6 +250,12 @@ export const HoldersAccountItem = memo((props: {
         }, isTestnet);
     }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation, account.id]);
 
+    const showAddCardButton = useMemo(() => {
+        if (account.cards.length === 0) return true;
+        if (account.cards.some((card) => card.provider !== 'elysphere-kauri')) return true;
+        return false;
+    }, [account.cards]);
+
     const renderRightAction = useCallback(() => {
         if (!rightActionIcon || !rightAction) return undefined;
 
@@ -351,11 +353,13 @@ export const HoldersAccountItem = memo((props: {
                             onCardPress={onCardPress}
                         />
                     ))}
-                    <AddCardButton
-                        interactive={!!cardsClickable}
-                        theme={theme}
-                        onCreateCardPress={onCreateCardPress}
-                    />
+                    {showAddCardButton && (
+                        <AddCardButton
+                            interactive={!!cardsClickable}
+                            theme={theme}
+                            onCreateCardPress={onCreateCardPress}
+                        />
+                    )}
                 </ScrollViewComponent>
                 <LinearGradient
                     style={{
@@ -375,9 +379,6 @@ export const HoldersAccountItem = memo((props: {
             </View>
         );
     }, [cardsClickable, theme, onCreateCardPress, account.cards]);
-
-    const isSolana = account.network === 'solana';
-    const isTonCurrency = account.cryptoCurrency?.ticker === 'TON';
 
     const accountInfo = useMemo(() => (
         <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 8 }}>

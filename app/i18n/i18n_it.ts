@@ -120,11 +120,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "holders": "Carta bancaria & conti",
             "tonhub": "Tonhub"
         },
-        "telegram": "Telegram",
+        "telegram": "Iscriviti al nostro Telegram",
         "rateApp": "Valuta app",
         "deleteAccount": "Elimina account",
         "theme": "Tema",
         "searchEngine": "Motore di ricerca",
+        "deleteWallet": "Elimina wallet",
+        "deleteWalletWithName": "Elimina wallet \"{{name}}\"",
+        "disconnectWallet": "Disconnetti wallet",
+        "disconnectWalletWithName": "Disconnetti wallet \"{{name}}\"",
         "language": "Lingua"
     },
     "walletImportSelector": {

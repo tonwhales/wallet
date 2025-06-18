@@ -16,7 +16,7 @@ import { sha256_sync } from '@ton/crypto';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
 import { AppManifest } from '../api/fetchManifest';
-import { normalizeUrl } from '../../utils/resolveUrl';
+import { normalizeUrl } from '../../utils/url/resolveUrl';
 import { PublicKey } from '@solana/web3.js';
 export type SolanaProofItem = {
   name: 'solana_proof';

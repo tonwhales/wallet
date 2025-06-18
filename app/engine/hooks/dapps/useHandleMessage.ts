@@ -1,14 +1,10 @@
-import { AppRequest, Base64, RpcMethod, RpcRequests, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse, hexToByteArray } from '@tonconnect/protocol';
+import { AppRequest, Base64, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCrypto, WalletResponse, hexToByteArray } from '@tonconnect/protocol';
 import { MessageEvent } from 'react-native-sse';
 import { sendTonConnectResponse } from '../../api/sendTonConnectResponse';
 import { warn } from '../../../utils/log';
 import { useConnectAppByClientSessionId, useConnectPendingRequests, useDisconnectApp, useNetwork } from '../../hooks';
-import { tonconnectRpcReqScheme } from '../../tonconnect/codecs';
-import { ConnectedAppConnectionRemote, SignDataPayload, SignDataRawRequest, SignRawTxParams, SignRpcRequest } from '../../tonconnect/types';
-import { setLastEventId } from '../../tonconnect/utils';
 import { useToaster } from '../../../components/toast/ToastProvider';
-import { checkTonconnectTxRequest } from '../../tonconnect/checkTonconnectTxRequest';
-import { checkTonconnectSignRequest } from '../../tonconnect/checkTonconnectSignRequest';
+import { checkTonconnectSignRequest, checkTonconnectTxRequest, ConnectedAppConnectionRemote, setLastEventId, SignDataPayload, SignDataRawRequest, SignRawTxParams, tonconnectRpcReqScheme } from '../../tonconnect';
 
 export function useHandleMessage(
     connections: ConnectedAppConnectionRemote[],

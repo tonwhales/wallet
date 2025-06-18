@@ -4,7 +4,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
 import { fragment } from '../../fragment';
-import { Suspense, memo, useCallback, useEffect, useState } from 'react';
+import { Suspense, memo, useCallback, useEffect, useState, useRef } from 'react';
 import { WalletHeader } from './views/WalletHeader';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
@@ -35,6 +35,7 @@ import { WalletCard } from './views/WalletCard';
 import { SolanaTokenWalletFragment } from './SolanaTokenWalletFragment';
 import { SolanaWalletFragment } from './SolanaWalletFragment';
 import { LiquidUSDeStakingFragment } from '../staking/LiquidUSDeStakingFragment';
+import { AppModeToggle } from '../../components/AppModeToggle';
 
 const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & { solanaAddress: string } }) => {
     const network = useNetwork();
@@ -51,7 +52,15 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
 
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const { walletCardHeight, walletHeaderHeight, scrollHandler, scrollOffsetSv } = useWalletCardLayoutHelper()
+    const { walletCardHeight, walletHeaderHeight, scrollHandler, scrollOffsetSv, headerTopPadding } = useWalletCardLayoutHelper()
+
+    const scrollRef = useRef<Animated.ScrollView>(null);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTo({ y: 0, animated: true });
+        }
+    }, [isWalletMode]);
 
     useEffect(() => {
         if (syncState !== 'updating') {
@@ -123,7 +132,13 @@ const WalletComponent = memo(({ selectedAcc }: { selectedAcc: SelectedAccount & 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
             <WalletHeader address={address} walletCardHeight={walletCardHeight} height={walletHeaderHeight} scrollOffsetSv={scrollOffsetSv} />
+            <AppModeToggle
+                scrollOffsetSv={scrollOffsetSv}
+                walletHeaderHeight={walletHeaderHeight}
+                headerTopPadding={headerTopPadding}
+            />
             <Animated.ScrollView
+                ref={scrollRef}
                 style={{ flexBasis: 0 }}
                 onScroll={scrollHandler}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}

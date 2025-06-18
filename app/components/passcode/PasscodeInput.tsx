@@ -23,6 +23,7 @@ export const PasscodeInput = memo((
         passcodeLength = 6,
         onPasscodeLengthChange,
         onLogoutAndReset,
+        withLoader,
     }: {
         title?: string,
         description?: string,
@@ -33,6 +34,7 @@ export const PasscodeInput = memo((
         passcodeLength?: number,
         onPasscodeLengthChange?: (length: number) => void,
         onLogoutAndReset?: () => void,
+        withLoader?: boolean,
     }
 ) => {
     const theme = useTheme();
@@ -40,6 +42,7 @@ export const PasscodeInput = memo((
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = useState(false);
     const cleanupTimerIdRef = useRef<NodeJS.Timeout | undefined>(undefined);
+    const [isLoading, setLoading] = useState(false);
 
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
@@ -60,7 +63,7 @@ export const PasscodeInput = memo((
             onRetryBiometrics();
             return;
         }
-        
+
         clearTimeout(cleanupTimerIdRef.current);
         setIsWrong(false);
 
@@ -73,17 +76,18 @@ export const PasscodeInput = memo((
                 if (newState.length < passcodeLength) {
                     newState = newState + key;
                 }
-
-                if (prevPasscode === newState) {
-                    return prevPasscode;
-                }
-                
                 if (newState.length === passcodeLength) {
-                    (async () => {
+                    if (withLoader) {
+                        setLoading(true);
+                    }
+                    setTimeout(async () => {
                         try {
                             await onEntered(newState);
                         } catch (e) {
                             setIsWrong(true);
+                        }
+                        if (withLoader) {
+                            setLoading(false);
                         }
 
                         clearTimeout(cleanupTimerIdRef.current);
@@ -91,12 +95,12 @@ export const PasscodeInput = memo((
                             setPasscode('');
                             setIsWrong(false);
                         }, 1500);
-                    })();
+                    });
                 }
                 return newState;
             });
         }
-    }, [passcodeLength, passcode, isWrong]);
+    }, [passcodeLength, isWrong, withLoader, onEntered]);
 
     useEffect(() => {
         setPasscode('');
@@ -110,6 +114,7 @@ export const PasscodeInput = memo((
         translate.value = 0;
         if (isWrong) {
             doShake();
+            setLoading(false);
         }
     }, [isWrong]);
 
@@ -219,6 +224,7 @@ export const PasscodeInput = memo((
                             error: isWrong,
                         }}
                         passcodeLength={passcodeLength}
+                        isLoading={isLoading}
                     />
                     {!!onPasscodeLengthChange && (
                         <Animated.View
@@ -299,6 +305,7 @@ export const PasscodeInput = memo((
                 <PasscodeKeyboard
                     leftIcon={deviceEncryptionIcon}
                     onKeyPress={onKeyPress}
+                    isLoading={isLoading}
                 />
             </View>
         </View>

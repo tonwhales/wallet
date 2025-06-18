@@ -92,6 +92,7 @@ export const WalletActionButton = memo(({
     const handleQRCode = useQRCodeHandler({ toastProps: { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) } });
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: handleQRCode }), [handleQRCode]);
+    const isDisabled = !isWalletMode && !accounts?.length;
 
     switch (action.type) {
         case WalletActionType.Buy: {
@@ -144,7 +145,8 @@ export const WalletActionButton = memo(({
             return (
                 <Pressable
                     onPress={navigate}
-                    style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
+                    disabled={isDisabled}
+                    style={({ pressed }) => ([{ opacity: pressed || isDisabled ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                         <View style={{
@@ -202,7 +204,8 @@ export const WalletActionButton = memo(({
             return (
                 <Pressable
                     onPress={navigate}
-                    style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
+                    disabled={isDisabled}
+                    style={({ pressed }) => ([{ opacity: pressed || isDisabled ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                         <View style={{

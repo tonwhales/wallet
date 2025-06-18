@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import Animated, { runOnJS, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { runOnJS, SharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../engine/hooks';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
@@ -19,7 +19,7 @@ const ICON_SIZE = 16;
 const GAP_BETWEEN_ICON_AND_TEXT = 4;
 const TOGGLE_BORDER_WIDTH = 2;
 
-export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeight, headerTopPadding, style }: { isLedger?: boolean, scrollOffsetSv: any, walletHeaderHeight: number, headerTopPadding: number, style?: any }) => {
+export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeight, headerTopPadding }: { isLedger?: boolean, scrollOffsetSv: SharedValue<number>, walletHeaderHeight: number, headerTopPadding: number}) => {
     const navigation = useTypedNavigation();
     const leftLabel = t('common.wallet')
     const rightLabel = t('common.cards')
@@ -120,7 +120,7 @@ export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeigh
     });
 
     return (
-        <Animated.View style={[positionStyle, style]} pointerEvents="box-none">
+        <Animated.View style={positionStyle} pointerEvents="box-none">
             <View style={styles.container}>
                 <Pressable onPress={handleToggle} style={[styles.toggleContainer, { width: toggleWidth * 2, backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }]}>
                     <Animated.View style={[styles.toggle, animatedStyle, { width: toggleWidth, backgroundColor: theme.white }]} />

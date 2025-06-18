@@ -22,6 +22,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import IcCheck from "@assets/ic-check.svg";
+import Warning from '@assets/ic-exclamation-mark.svg';
+import { t } from "../../i18n/t";
+import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
 export enum HoldersItemContentType {
     BALANCE = 'balance',
@@ -124,6 +127,7 @@ export const HoldersAccountItem = memo((props: {
     holdersAccStatus?: HoldersAccountStatus,
     onBeforeOpen?: () => void
     onOpen?: () => void,
+    onWarningClick?: () => void,
     content?: { type: HoldersItemContentType.SELECT, isSelected: boolean } | { type: HoldersItemContentType.BALANCE } | { type: HoldersItemContentType.NAVIGATION },
     addressDescription?: boolean,
     isLedger?: boolean,
@@ -134,6 +138,7 @@ export const HoldersAccountItem = memo((props: {
         rightAction, rightActionIcon, content,
         style, itemStyle,
         onBeforeOpen, onOpen,
+        onWarningClick,
         hideCardsIfEmpty,
         isTestnet, isLedger, cardsClickable
     } = props;
@@ -149,6 +154,7 @@ export const HoldersAccountItem = memo((props: {
     const isHoldersReady = useIsConnectAppReady(url, owner.toString({ testOnly: isTestnet }));
     const name = getAccountName(account.accountIndex, account.name);
     const ledgerContext = useLedgerTransport();
+    const hasDirectDeposit = hasDirectTonDeposit(account) || hasDirectSolanaDeposit(account);
 
     const priceAmount = useMemo(() => {
         try {
@@ -434,10 +440,44 @@ export const HoldersAccountItem = memo((props: {
         </View>
     ), [cardsList, cardsClickable, contentView, onPress]);
 
+    const shouldWarningBeShown = useMemo(() => {
+        return !hasDirectDeposit && !!onWarningClick;
+    }, [hasDirectDeposit, onWarningClick]);
+
+    const warningSection = useMemo(() => {
+        if (!shouldWarningBeShown) return null;
+
+        return (
+            <>
+                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
+                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20 }} onPress={() => {
+                    navigation.navigateAlert({
+                        title: t('products.holders.noDirectDeposit.alertTitle'),
+                        message: t('products.holders.noDirectDeposit.alertDescription'),
+                        buttonTitle: t('products.holders.noDirectDeposit.buttonTitle'),
+                        callback: onWarningClick
+                    });
+                }}>
+                    <Warning width={24} height={24} color={theme.warning} />
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ color: theme.warning, ...Typography.regular15_20 }} numberOfLines={1} ellipsizeMode={'tail'}>
+                            {t('products.holders.noDirectDeposit.warningTitle')}
+                        </Text>
+                    </View>
+                    <Image
+                        source={require('@assets/ic-chevron-right.png')}
+                        style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                    />
+                </TouchableOpacity>
+            </>
+        );
+    }, [theme.warning, navigation, onWarningClick]);
+
+
     const holdersAccountCard = useMemo(() => {
         if (!cardsClickable) {
             return (
-                <TouchableOpacity onPress={onPress} activeOpacity={0.5} style={{ flexGrow: 1 }}>
+                <TouchableOpacity onPress={onPress} activeOpacity={0.5} style={{ flexGrow: 1 }} disabled={shouldWarningBeShown}>
                     <View style={[{
                         borderRadius: 20,
                         overflow: 'hidden',
@@ -446,9 +486,12 @@ export const HoldersAccountItem = memo((props: {
                         backgroundColor: theme.surfaceOnBg
                     },
                         itemStyle]}>
-                        {cardsAndBalanceSection}
-                        {accountInfo}
-                        {navigationIcon}
+                        <View style={{ opacity: shouldWarningBeShown ? 0.5 : 1 }}>
+                            {cardsAndBalanceSection}
+                            {accountInfo}
+                            {navigationIcon}
+                        </View>
+                        {warningSection}
                     </View>
                 </TouchableOpacity>
             );
@@ -469,7 +512,7 @@ export const HoldersAccountItem = memo((props: {
                 </View>
             );
         }
-    }, [cardsClickable, onPress, cardsAndBalanceSection, accountInfo, navigationIcon]);
+    }, [cardsClickable, onPress, cardsAndBalanceSection, accountInfo, navigationIcon, hasDirectDeposit]);
 
     return (
         <Swipeable

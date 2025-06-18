@@ -1,5 +1,5 @@
 import React, { ReactElement, useMemo } from "react";
-import { View, ScrollView, ActivityIndicator, Platform } from "react-native";
+import { View, ActivityIndicator, Platform, SectionList, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { useKnownPools, getLiquidStakingAddress, StakingPool as KnownStakingPool } from "../../utils/KnownPools";
@@ -20,6 +20,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { LiquidStakingPool } from "../../components/staking/LiquidStakingPool";
 import { LiquidUSDeStakingPool } from "../../components/staking/LiquidUSDeStakingPool";
 import { useAppConfig } from "../../engine/hooks/useAppConfig";
+import { Typography } from "../../components/styles";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper' | 'liquid' | 'usde';
 
@@ -383,6 +384,27 @@ export const StakingPoolsFragment = fragment(() => {
         }, 10);
     });
 
+    const sections = useMemo(() => {
+        const tonStakingItems = items.filter(item => 
+            item.key !== 'usde-staking'
+        );
+        
+        const usdeStakingItems = items.filter(item => 
+            item.key === 'usde-staking'
+        );
+
+        return [
+            {
+                title: t('products.staking.usdeTitle'),
+                data: usdeStakingItems
+            },
+            {
+                title: t('products.staking.title'),
+                data: tonStakingItems
+            }
+        ];
+    }, [items]);
+
     return (
         <View style={{
             flex: 1,
@@ -390,24 +412,34 @@ export const StakingPoolsFragment = fragment(() => {
         }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <ScreenHeader
-                title={t('products.staking.pools.title')}
+                title={t('products.staking.earnings')}
                 onBackPressed={navigation.goBack}
                 style={{
                     paddingTop: safeArea.top - (Platform.OS === 'ios' ? 16 : 0),
                     paddingHorizontal: 16
                 }}
             />
-            <ScrollView
-                alwaysBounceVertical={false}
-                style={{ flexShrink: 1, flexGrow: 1 }}
+            <SectionList
+                sections={sections}
+                keyExtractor={(item, index) => item.key || index.toString()}
+                renderItem={({ item }) => item}
+                renderSectionHeader={({ section: { title } }) => (
+                    <View style={{ 
+                        paddingVertical: 16, 
+                        paddingHorizontal: 16,
+                        backgroundColor: theme.backgroundPrimary
+                    }}>
+                        <Text style={[{
+                            color: theme.textPrimary
+                        }, Typography.semiBold17_24]}>
+                            {title}
+                        </Text>
+                    </View>
+                )}
                 contentContainerStyle={{ paddingTop: 8, paddingHorizontal: 16 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
-            >
-                <View style={{ flexGrow: 1 }}>
-                    {items}
-                    <View style={{ height: 24 }} />
-                </View>
-            </ScrollView>
+                stickySectionHeadersEnabled={true}
+            />
         </View>
     );
 });

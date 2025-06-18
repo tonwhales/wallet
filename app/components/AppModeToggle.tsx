@@ -108,7 +108,7 @@ export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeigh
 
     const positionStyle = useAnimatedStyle(() => {
         const headerHeight = walletHeaderHeight - headerTopPadding
-        const y = Math.max(walletHeaderHeight - scrollOffsetSv.value+8, walletHeaderHeight - (headerHeight / 2 + APP_MODE_TOGGLE_HEIGHT / 2));
+        const y = Math.max(walletHeaderHeight - scrollOffsetSv.value + 8, walletHeaderHeight - (headerHeight / 2 + APP_MODE_TOGGLE_HEIGHT / 2));
         return {
             position: 'absolute',
             left: 0,

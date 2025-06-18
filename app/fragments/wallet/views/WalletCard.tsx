@@ -3,7 +3,6 @@ import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, 
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { reduceHoldersBalances } from "../../../utils/reduceHoldersBalances";
 import { LinearGradient } from "expo-linear-gradient";
-import { AppModeToggle } from "../../../components/AppModeToggle";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { Typography } from "../../../components/styles";
 import { Platform, Text, View } from "react-native";
@@ -14,6 +13,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { solanaAddressFromPublicKey } from "../../../utils/solana/address";
 import { useSavingsBalance } from "../../../engine/hooks/jettons/useSavingsBalance";
 import { t } from "../../../i18n/t";
+import { APP_MODE_TOGGLE_HEIGHT } from "../../../utils/constants";
 
 export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, isLedger }: { address: Address, pubKey: Buffer, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
     const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
@@ -67,7 +67,6 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
             start={[1, 0]}
             end={[1, 1]}
         >
-            <AppModeToggle isLedger={isLedger} />
             <View>
                 <PriceComponent
                     amount={isWalletMode ? walletBalance : cardsBalance}
@@ -79,7 +78,7 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
                         paddingLeft: undefined,
                         borderRadius: undefined,
                         height: undefined,
-                        marginTop: 28,
+                        marginTop: 28 + APP_MODE_TOGGLE_HEIGHT,
                     }}
                     textStyle={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}
                     centsTextStyle={{ color: theme.textSecondary }}

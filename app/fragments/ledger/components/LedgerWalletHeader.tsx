@@ -7,7 +7,7 @@ import { useNetwork, useTheme } from '../../../engine/hooks';
 import { useLedgerTransport } from "./TransportContext";
 import { Address, toNano } from "@ton/core";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
-import Animated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import Animated, { SharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { ScrollView } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
 import { SelectedWallet } from "../../../components/wallet/SelectedWallet";
@@ -36,6 +36,13 @@ export const LedgerWalletHeader = memo(({ address, height, walletCardHeight, scr
     }))
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
+
+    const headerContentAnimatedStyle = useAnimatedStyle(() => {
+        const showToggle = scrollOffsetSv.value > 0;
+        return {
+            opacity: withTiming(showToggle ? 0 : 1, { duration: 200 }),
+        };
+    });
 
     return (
         <Animated.View
@@ -70,24 +77,25 @@ export const LedgerWalletHeader = memo(({ address, height, walletCardHeight, scr
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingBottom: 8,
                 paddingHorizontal: 16,
             }}>
-                <SelectedWallet ledgerName={ledgerContext.ledgerName} />
+                <SelectedWallet ledgerName={ledgerContext.ledgerName} headerContentAnimatedStyle={headerContentAnimatedStyle} />
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                     {isWalletMode && (
-                        <Pressable
-                            style={{ flexDirection: 'row', alignItems: 'center' }}
-                            onPress={navigateToCurrencySettings}
-                        >
-                            <PriceComponent
-                                showSign
-                                amount={toNano(1)}
-                                style={{ backgroundColor: 'transparent' }}
-                                textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
-                                theme={theme}
-                            />
-                        </Pressable>
+                        <Animated.View style={headerContentAnimatedStyle}>
+                            <Pressable
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
+                                onPress={navigateToCurrencySettings}
+                            >
+                                <PriceComponent
+                                    showSign
+                                    amount={toNano(1)}
+                                    style={{ backgroundColor: 'transparent' }}
+                                    textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
+                                    theme={theme}
+                                />
+                            </Pressable>
+                        </Animated.View>
                     )}
                 </View>
             </View>

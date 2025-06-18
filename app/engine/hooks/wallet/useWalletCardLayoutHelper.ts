@@ -12,14 +12,15 @@ export const useWalletCardLayoutHelper = () => {
 
         // We use static sizes for correct header-gradient animation
         const selectedWalletHeight = 56
-        const topPadding = safeArea.top + (Platform.OS === 'ios' ? 0 : 16)
-        const walletHeaderHeight = selectedWalletHeight + topPadding
+        const headerTopPadding = safeArea.top + (Platform.OS === 'ios' ? 0 : 16)
+        const walletHeaderHeight = selectedWalletHeight + headerTopPadding
         const walletCardHeight = 146 + walletHeaderHeight
 
         return {
             walletHeaderHeight,
             walletCardHeight,
             scrollOffsetSv,
-            scrollHandler
+            scrollHandler,
+            headerTopPadding
         }
 }

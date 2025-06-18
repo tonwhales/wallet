@@ -32,6 +32,10 @@ export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeigh
     const [, setFilter] = useTransactionsFilter(address);
 
     useEffect(() => {
+        setToggleInWalletMode(isWalletMode);
+    }, [address?.toString(), isWalletMode]);
+
+    useEffect(() => {
         const leftLabelWidth = leftLabel.length * 10;
         const rightLabelWidth = rightLabel.length * 10;
         setToggleWidth(Math.max(leftLabelWidth, rightLabelWidth) + ICON_SIZE + GAP_BETWEEN_ICON_AND_TEXT + 16);

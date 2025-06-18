@@ -262,7 +262,7 @@ export class TypedNavigation {
         this.navigate('ScreenCapture', params);
     }
 
-    navigateAlert(params: { title: string, message?: string, callback?: () => void }, replace?: boolean) {
+    navigateAlert(params: { title: string, message?: string, buttonTitle?: string, callback?: () => void }, replace?: boolean) {
         if (replace) {
             this.replace('Alert', params);
             return;

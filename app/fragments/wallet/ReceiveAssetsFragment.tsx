@@ -126,7 +126,7 @@ export const ReceiveAssetsFragment = fragment(() => {
 
     const owner = isLedger ? ledgerAddress! : selected!.address;
     const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress).data?.accounts?.filter(acc => hasDirectTonDeposit(acc) || hasDirectSolanaDeposit(acc)) ?? [];
+    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress).data?.accounts ?? [];
     const hints = useDisplayableJettons(owner.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
     const url = holdersUrl(isTestnet);
@@ -166,6 +166,22 @@ export const ReceiveAssetsFragment = fragment(() => {
         navigation.navigateHolders(navParams, isTestnet, isLedger);
     }, [needsEnrollment, isHoldersReady, isTestnet, isLedger, ledgerContext]);
 
+    const onWarningClick = useCallback(() => {
+        const navParams: HoldersAppParams = { type: HoldersAppParamsType.Create };
+        navigation.goBack();
+        
+        if (needsEnrollment || !isHoldersReady) {
+            if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
+                ledgerContext.onShowLedgerConnectionError();
+                return;
+            }
+            navigation.navigateHoldersLanding({ endpoint: url, onEnrollType: navParams, isLedger }, isTestnet);
+            return;
+        }
+
+        navigation.navigateHolders(navParams, isTestnet, isLedger);
+    }, [needsEnrollment, isHoldersReady, isTestnet, isLedger, ledgerContext]);
+
     const solanaTokens: SolanaToken[] = tokens?.data ?? [];
 
     const openSolanaToken = useCallback((token: SolanaToken) => {
@@ -199,6 +215,7 @@ export const ReceiveAssetsFragment = fragment(() => {
                         holdersAccStatus={holdersAccStatus}
                         onOpen={() => onHoldersSelected(item.account)}
                         content={{ type: HoldersItemContentType.NAVIGATION }}
+                        onWarningClick={onWarningClick}
                     />
                 );
             case AssetType.SPECIAL:

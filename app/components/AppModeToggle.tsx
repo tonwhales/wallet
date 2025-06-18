@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, { runOnJS, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../engine/hooks';
@@ -13,12 +13,13 @@ import { Address } from '@ton/core';
 import { t } from '../i18n/t';
 import { queryClient } from '../engine/clients';
 import { Queries } from '../engine/queries';
+import { APP_MODE_TOGGLE_HEIGHT } from '../utils/constants';
 
 const ICON_SIZE = 16;
 const GAP_BETWEEN_ICON_AND_TEXT = 4;
 const TOGGLE_BORDER_WIDTH = 2;
 
-export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
+export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeight, headerTopPadding, style }: { isLedger?: boolean, scrollOffsetSv: any, walletHeaderHeight: number, headerTopPadding: number, style?: any }) => {
     const navigation = useTypedNavigation();
     const leftLabel = t('common.wallet')
     const rightLabel = t('common.cards')
@@ -105,29 +106,43 @@ export const AppModeToggle = ({ isLedger }: { isLedger?: boolean }) => {
         };
     });
 
-    return (
-        <View style={styles.container}>
-            <Pressable onPress={handleToggle} style={[styles.toggleContainer, { width: toggleWidth * 2, backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }]}>
-                <Animated.View style={[styles.toggle, animatedStyle, { width: toggleWidth, backgroundColor: theme.white }]} />
-                <View style={styles.button}>
-                    <Animated.Image
-                        source={require('@assets/ic-filter-wallet.png')}
-                        style={walletIconStyle}
-                    />
-                    <Animated.Text style={[styles.text, leftTextStyle]}>{leftLabel}</Animated.Text>
-                </View>
-                <View style={styles.button}>
-                    <Animated.Image
-                        source={require('@assets/ic-filter-card.png')}
-                        style={cardsIconStyle}
-                    />
-                    <Animated.Text style={[styles.text, rightTextStyle]}>{rightLabel}</Animated.Text>
-                </View>
+    const positionStyle = useAnimatedStyle(() => {
+        const headerHeight = walletHeaderHeight - headerTopPadding
+        const y = Math.max(walletHeaderHeight - scrollOffsetSv.value+8, walletHeaderHeight - (headerHeight / 2 + APP_MODE_TOGGLE_HEIGHT / 2));
+        return {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: y,
+            zIndex: 10,
+            alignItems: 'center',
+        };
+    });
 
-            </Pressable>
-        </View>
+    return (
+        <Animated.View style={[positionStyle, style]} pointerEvents="box-none">
+            <View style={styles.container}>
+                <Pressable onPress={handleToggle} style={[styles.toggleContainer, { width: toggleWidth * 2, backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }]}>
+                    <Animated.View style={[styles.toggle, animatedStyle, { width: toggleWidth, backgroundColor: theme.white }]} />
+                    <View style={styles.button}>
+                        <Animated.Image
+                            source={require('@assets/ic-filter-wallet.png')}
+                            style={walletIconStyle}
+                        />
+                        <Animated.Text style={[styles.text, leftTextStyle]}>{leftLabel}</Animated.Text>
+                    </View>
+                    <View style={styles.button}>
+                        <Animated.Image
+                            source={require('@assets/ic-filter-card.png')}
+                            style={cardsIconStyle}
+                        />
+                        <Animated.Text style={[styles.text, rightTextStyle]}>{rightLabel}</Animated.Text>
+                    </View>
+                </Pressable>
+            </View>
+        </Animated.View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {
@@ -139,11 +154,11 @@ const styles = StyleSheet.create({
     toggleContainer: {
         flexDirection: 'row',
         borderRadius: 20,
-        height: 36,
+        height: APP_MODE_TOGGLE_HEIGHT,
     },
     toggle: {
         position: 'absolute',
-        height: 32,
+        height: APP_MODE_TOGGLE_HEIGHT - TOGGLE_BORDER_WIDTH * 2,
         borderRadius: 15,
         top: 2,
         left: TOGGLE_BORDER_WIDTH,

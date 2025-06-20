@@ -20,11 +20,11 @@ import { Image } from "expo-image";
 import { AddressComponent } from "../address/AddressComponent";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { t } from "../../i18n/t";
+import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
 import IcCheck from "@assets/ic-check.svg";
 import Warning from '@assets/ic-exclamation-mark.svg';
-import { t } from "../../i18n/t";
-import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
 export enum HoldersItemContentType {
     BALANCE = 'balance',

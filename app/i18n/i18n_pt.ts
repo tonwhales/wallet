@@ -89,7 +89,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "required": "obrigatório",
         "operation": "Operação",
         "description": "Descrição",
-        "openSettings": "Abrir configurações"
+        "openSettings": "Abrir configurações",
+        "exchanges": "Trocas"
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -1303,6 +1304,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "De EQ para UQ"
     },
     "changelly": {
+        "title": "Changelly é uma exchange de criptomoedas instantânea e não-custodial",
+        "description": "Você está prestes a usar um serviço Changelly operado por uma parte independente não afiliada ao Tonhub\nVocê deve concordar com os Termos de Uso e Política de Privacidade para continuar",
+        "dontShowTitle": "Não mostrar novamente para Changelly",
         "bannerTitle": "Depósitos de USDT e USDC",
         "bannerDescription": "Disponíveis Tron, Solana, Ethereum, Polygon!"
     },

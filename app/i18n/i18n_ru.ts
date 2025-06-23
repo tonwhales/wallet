@@ -120,11 +120,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "holders": "Банковские карты и счета",
             "tonhub": 'Tonhub'
         },
-        "telegram": "Telegram",
+        "telegram": "Подписаться на наш Telegram",
         "rateApp": "Оценить приложение",
         "deleteAccount": "Удалить аккаунт",
         "theme": "Тема",
         "searchEngine": "Поисковая система",
+        "deleteWallet": "Удалить кошелек",
+        "deleteWalletWithName": "Удалить кошелек \"{{name}}\"",
+        "disconnectWallet": "Отключить кошелек",
+        "disconnectWalletWithName": "Отключить кошелек \"{{name}}\"",
         "language": "Язык"
     },
     "walletImportSelector": {
@@ -413,9 +417,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "staking": {
             "earnings": "Заработок",
             "title": "TON Стейкинг",
+            "usdeTitle": "USDe Стейкинг",
             "balance": "Баланс стейкинга",
             "subtitle": {
-                "join": "Зарабатывайте на TON или USDe до {{apy}}%",
+                "join": "Зарабатывайте на {{tokenName}} до {{apy}}%",
                 "joined": "Зарабатывайте до {{apy}}%",
                 "rewards": "Расчетная доходность",
                 "apy": "~13.3% годовых",
@@ -830,6 +835,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                     "text": "В настоящее время идет проверка блокчейна. Это может занять несколько минут"
                 }
             },
+            "noDirectDeposit": {
+                "warningTitle": "Прямое пополнение не поддерживается",
+                "alertTitle": "Мы обновили контракт",
+                "alertDescription": "Пожалуйста, создайте новый аккаунт и переведите в него все ваши средства и карты. Это безопаснее и поддерживает прямые пополнения",
+                "buttonTitle": "Создать новый аккаунт"
+            }
         }
     },
     "welcome": {

@@ -120,11 +120,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "holders": "Bank card & accounts",
             "tonhub": "Tonhub"
         },
-        "telegram": "Telegram",
+        "telegram": "Subscribe to our Telegram",
         "rateApp": "Rate app",
         "deleteAccount": "Delete account",
         "theme": "Theme",
         "searchEngine": "Search engine",
+        "deleteWallet": "Delete wallet",
+        "deleteWalletWithName": "Delete wallet \"{{name}}\"",
+        "disconnectWallet": "Disconnect wallet",
+        "disconnectWalletWithName": "Disconnect wallet \"{{name}}\"",
         "language": "Language"
     },
     "walletImportSelector": {
@@ -413,9 +417,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "staking": {
             "earnings": "Earnings",
             "title": "TON Staking",
+            "usdeTitle": "USDe Staking",
             "balance": "Staking balance",
             "subtitle": {
-                "join": "Earn up to {{apy}}% with TONs or USDe",
+                "join": "Earn up to {{apy}}% with {{tokenName}}",
                 "joined": "Earn up to {{apy}}%",
                 "rewards": "Estimated Interest",
                 "apy": "~13.3 APY of the contribution",
@@ -829,6 +834,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "cancelButtonText": "Show transaction details",
                     "text": "Blockchain validation is currently underway. This may take a few minutes"
                 }
+            },
+            "noDirectDeposit": {
+                "warningTitle": "Direct deposit is not supported",
+                "alertTitle": "We updated the contract",
+                "alertDescription": "Please create a new account and transfer all your funds and cards to it. It is safer and supports direct deposits",
+                "buttonTitle": "Create a new account"
             }
         }
     },

@@ -1,7 +1,8 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { Pressable, View, Text, Image } from "react-native";
+import { Pressable, View, Text, Image, StyleProp, ViewStyle } from "react-native";
 import ArrowDown from '@assets/ic-arrow-down.svg';
+import EditIcon from '@assets/ic-edit.svg';
 import { Typography } from "../styles";
 import { useNetwork, useSelectedAccount, useTheme, useWalletSettings } from "../../engine/hooks";
 import { useKnownWallets } from "../../secure/KnownWallets";
@@ -13,8 +14,9 @@ import { avatarHash } from "../../utils/avatarHash";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 import { Address } from "@ton/ton";
 import { t } from "../../i18n/t";
+import Animated from "react-native-reanimated";
 
-export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLightBackground?: boolean, ledgerName?: string }) => {
+export const SelectedWallet = memo(({ onLightBackground, ledgerName, headerContentAnimatedStyle }: { onLightBackground?: boolean, ledgerName?: string, headerContentAnimatedStyle?: StyleProp<ViewStyle> }) => {
     const network = useNetwork();
     const knownWallets = useKnownWallets(network.isTestnet);
     const theme = useTheme();
@@ -39,7 +41,7 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
     const walletName = walletSettings?.name || ledgerName || `${network.isTestnet ? '[test] ' : ''}${t('common.wallet')} ${currentWalletIndex + 1}`;
 
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1, alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1 }}>
             <Pressable
                 style={({ pressed }) => {
                     return {
@@ -67,30 +69,39 @@ export const SelectedWallet = memo(({ onLightBackground, ledgerName }: { onLight
                     <View style={{ position: 'absolute', top: -1, right: -1 }}>
                         <HeaderSyncStatus size={12} isLedger={isLedger} />
                     </View>
+                    <View style={{ position: 'absolute', bottom: -3, right: -3 }}>
+                        <EditIcon
+                            height={16}
+                            width={16}
+                            color={onLightBackground ? theme.textPrimary : theme.iconUnchangeable}
+                        />
+                    </View>
                 </View>
             </Pressable>
-            <Pressable
-                onPress={onAccountPress}
-                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, marginLeft: 4, flexDirection: 'row', alignItems: 'center', gap: 4 })}
-            >
-                <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
-                    <Text
-                        style={[{
-                            color: onLightBackground ? theme.textPrimary : theme.textOnsurfaceOnDark,
-                            marginRight: 8,
-                        }, Typography.semiBold15_20]}
-                        ellipsizeMode='tail'
-                        numberOfLines={1}
-                    >
-                        {walletName}
-                    </Text>
-                </View>
-                <ArrowDown
-                    height={16}
-                    width={16}
-                    color={onLightBackground ? theme.textPrimary : theme.iconUnchangeable}
-                />
-            </Pressable>
+            <Animated.View style={headerContentAnimatedStyle}>
+                <Pressable
+                    onPress={onAccountPress}
+                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, marginLeft: 4, flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 })}
+                >
+                    <View style={{ justifyContent: 'center', alignItems: 'flex-start' }}>
+                        <Text
+                            style={[{
+                                color: onLightBackground ? theme.textPrimary : theme.textOnsurfaceOnDark,
+                                marginRight: 8,
+                            }, Typography.semiBold15_20]}
+                            ellipsizeMode='tail'
+                            numberOfLines={1}
+                        >
+                            {walletName}
+                        </Text>
+                    </View>
+                    <ArrowDown
+                        height={16}
+                        width={16}
+                        color={onLightBackground ? theme.textPrimary : theme.iconUnchangeable}
+                    />
+                </Pressable>
+            </Animated.View>
         </View>
     );
 });

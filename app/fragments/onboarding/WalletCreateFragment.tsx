@@ -47,9 +47,7 @@ export const WalletCreateFragment = systemFragment(() => {
         let subscription: ScreenCapture.Subscription;
         if (!state?.saved) {
             subscription = ScreenCapture.addScreenshotListener(() => {
-                navigation.navigateScreenCapture({
-                    callback: () => ScreenCapture.allowScreenCaptureAsync('words-screen')
-                });
+                navigation.navigateScreenCapture();
             });
         }
 

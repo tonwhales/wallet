@@ -120,11 +120,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "holders": "Carta bancaria & conti",
             "tonhub": "Tonhub"
         },
-        "telegram": "Telegram",
+        "telegram": "Iscriviti al nostro Telegram",
         "rateApp": "Valuta app",
         "deleteAccount": "Elimina account",
         "theme": "Tema",
         "searchEngine": "Motore di ricerca",
+        "deleteWallet": "Elimina wallet",
+        "deleteWalletWithName": "Elimina wallet \"{{name}}\"",
+        "disconnectWallet": "Disconnetti wallet",
+        "disconnectWalletWithName": "Disconnetti wallet \"{{name}}\"",
         "language": "Lingua"
     },
     "walletImportSelector": {
@@ -413,9 +417,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "staking": {
             "earnings": "Guadagni",
             "title": "TON Staking",
+            "usdeTitle": "USDe Staking",
             "balance": "Saldo di staking",
             "subtitle": {
-                "join": "Guadagna fino al {{apy}}% con TONs o USDe",
+                "join": "Guadagna fino al {{apy}}% con {{tokenName}}",
                 "joined": "Guadagna fino al {{apy}}%",
                 "rewards": "Interesse stimato",
                 "apy": "~13.3 APY del contributo",
@@ -829,6 +834,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "cancelButtonText": "Mostra dettagli della transazione",
                     "text": "La convalida della blockchain è attualmente in corso. Questo potrebbe richiedere alcuni minuti"
                 }
+            },
+            "noDirectDeposit": {
+                "warningTitle": "Il deposito diretto non è supportato",
+                "alertTitle": "Abbiamo aggiornato il contratto",
+                "alertDescription": "Si prega di creare un nuovo account e trasferire tutti i fondi e le carte su di esso. È più sicuro e supporta i depositi diretti",
+                "buttonTitle": "Crea un nuovo account"
             }
         }
     },

@@ -10,9 +10,9 @@ import { useTonhubBridgeEngine } from "../apps/components/inject/useInjectEngine
 import { usePermissions } from "expo-notifications";
 import i18n from 'i18next';
 import { extractDomain } from "../../engine/utils/extractDomain";
-import { useLinkNavigator } from "../../useLinkNavigator";
+import { useLinkNavigator } from "../../utils/link-navigator/useLinkNavigator";
 import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
-import { resolveUrl } from "../../utils/resolveUrl";
+import { resolveUrl } from "../../utils/url/resolveUrl";
 import { protectNavigation } from "../apps/components/protect/protectNavigation";
 import { DAppWebView } from "../../components/webview/DAppWebView";
 import WebView from "react-native-webview";

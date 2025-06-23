@@ -1,7 +1,7 @@
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "../../i18n/t";
 import { View, Platform, RefreshControl } from "react-native";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
@@ -28,6 +28,7 @@ import Animated from "react-native-reanimated";
 import { WalletCard } from "../wallet/views/WalletCard";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { LiquidUSDeStakingFragment } from "../staking/LiquidUSDeStakingFragment";
+import { AppModeToggle } from "../../components/AppModeToggle";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -55,9 +56,16 @@ export const LedgerHomeFragment = fragment(() => {
     const network = useNetwork();
     const specialJetton = useSpecialJetton(address!);
     const specialJettonWallet = specialJetton?.wallet?.toString({ testOnly: network.isTestnet });
-    const { walletCardHeight, walletHeaderHeight, scrollHandler, scrollOffsetSv } = useWalletCardLayoutHelper()
+    const { walletCardHeight, walletHeaderHeight, scrollHandler, scrollOffsetSv, headerTopPadding } = useWalletCardLayoutHelper()
     const [isWalletMode] = useAppMode(address, { isLedger: true });
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const scrollRef = useRef<Animated.ScrollView>(null);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTo({ y: 0, animated: true });
+        }
+    }, [isWalletMode]);
 
     // Subscribe for links
     useLinksSubscription({ isLedger: true });
@@ -120,7 +128,14 @@ export const LedgerHomeFragment = fragment(() => {
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
             <StatusBar style={'light'} />
             {!!address && <LedgerWalletHeader address={address} walletCardHeight={walletCardHeight} height={walletHeaderHeight} scrollOffsetSv={scrollOffsetSv} />}
+            <AppModeToggle
+                scrollOffsetSv={scrollOffsetSv}
+                walletHeaderHeight={walletHeaderHeight}
+                headerTopPadding={headerTopPadding}
+                isLedger
+            />
             <Animated.ScrollView
+                ref={scrollRef}
                 style={{ flexBasis: 0 }}
                 onScroll={scrollHandler}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}

@@ -9,7 +9,7 @@ import { ToastDuration, useToaster } from "../../../../components/toast/ToastPro
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Platform } from "react-native";
 import { Cell } from "@ton/core";
-import { getLastReturnStrategy } from "../../../../engine/tonconnect/utils";
+import { getLastReturnStrategy } from "../../../../engine/tonconnect";
 
 type TonConnectTxRequestButtonProps = {
     request: SendTransactionRequest,

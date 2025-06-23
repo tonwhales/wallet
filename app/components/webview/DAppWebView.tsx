@@ -472,6 +472,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     )
                 }}
                 setSupportMultipleWindows={false}
+                hideKeyboardAccessoryView={!navigationOptions.showKAV}
             />
             <KeyboardAvoidingView
                 style={{ position: 'absolute', bottom: safeArea.bottom, left: 0, right: 0 }}

@@ -3,11 +3,7 @@ import * as Application from 'expo-application';
 import { Platform } from 'react-native';
 import { whalesConnectEndpoint } from '../clients';
 import { WalletVersions } from '../types';
-
-export const CURRENT_PROTOCOL_VERSION = 2;
-
-export const MIN_PROTOCOL_VERSION = 2;
-
+import { CURRENT_PROTOCOL_VERSION } from './constants';
 
 export const bridgeUrl = `${whalesConnectEndpoint}/tonconnect`;
 

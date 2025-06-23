@@ -127,6 +127,10 @@ export type LocalizationSchema = {
         deleteAccount: string,
         theme: string,
         searchEngine: string,
+        deleteWallet: string,
+        deleteWalletWithName: string,
+        disconnectWallet: string,
+        disconnectWalletWithName: string,
         language: string
     },
     walletImportSelector: {
@@ -415,6 +419,7 @@ export type LocalizationSchema = {
         staking: {
             earnings: string,
             title: string,
+            usdeTitle: string,
             balance: string,
             subtitle: {
                 join: string,
@@ -831,6 +836,12 @@ export type LocalizationSchema = {
                     cancelButtonText: string,
                     text: string
                 }
+            },
+            noDirectDeposit: {
+                warningTitle: string,
+                alertTitle: string,
+                alertDescription: string,
+                buttonTitle: string
             }
         }
     },

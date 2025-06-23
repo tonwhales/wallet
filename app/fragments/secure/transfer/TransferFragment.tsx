@@ -27,10 +27,8 @@ import { estimateFees } from '../../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../../utils/internalFromSignRawMessage';
 import { StatusBar } from 'expo-status-bar';
 import { resolveBounceableTag } from '../../../utils/resolveBounceableTag';
-import { ReturnStrategy } from '../../../engine/tonconnect/types';
 import Minimizer from '../../../modules/Minimizer';
 import { warn } from '../../../utils/log';
-import { clearLastReturnStrategy } from '../../../engine/tonconnect/utils';
 import { parseAnyStringAddress } from '../../../utils/parseAnyStringAddress';
 import { useWalletVersion } from '../../../engine/hooks/useWalletVersion';
 import { WalletContractV4, WalletContractV5R1 } from '@ton/ton';
@@ -44,6 +42,7 @@ import { toBnWithDecimals } from '../../../utils/withDecimals';
 import { updateTargetAmount } from '../../../utils/gasless/updateTargetAmount';
 import { MintlessJetton } from '../../../engine/api/fetchMintlessHints';
 import { useParams } from '../../../utils/useParams';
+import { clearLastReturnStrategy, ReturnStrategy } from '../../../engine/tonconnect';
 
 export type TransferRequestSource = { type: 'tonconnect', returnStrategy?: ReturnStrategy | null }
 
@@ -117,7 +116,7 @@ export type ConfirmLoadedPropsBatch = {
             title: string,
             url: string
         },
-        validUntil?: number
+        validUntil?: number | null
     },
     fees: bigint,
     callback: ((ok: boolean, result: Cell | null) => void) | null,

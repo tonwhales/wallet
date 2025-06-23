@@ -5,7 +5,7 @@ import { AppManifest } from "../engine/api/fetchManifest";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { WImage } from "./WImage";
 import Animated from "react-native-reanimated";
-import { isUrl } from "../utils/resolveUrl";
+import { isUrl } from "../utils/url/resolveUrl";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
 import { Swipeable, TouchableHighlight } from "react-native-gesture-handler";
 import { useAppData, useAppManifest, useTheme } from "../engine/hooks";

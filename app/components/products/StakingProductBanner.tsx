@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Pressable } from "react-native-gesture-handler";
 import { View, Text } from "react-native";
@@ -7,7 +7,7 @@ import { Image } from "expo-image";
 import { useStakingApy, useTheme } from "../../engine/hooks";
 import { t } from "../../i18n/t";
 
-export const StakingProductBanner = memo(({ isLedger }: { isLedger?: boolean }) => {
+export const StakingProductBanner = memo(({ isLedger, type = 'ton' }: { isLedger?: boolean, type?: 'ton' | 'usde' }) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const apy = useStakingApy()?.apy;
@@ -16,6 +16,23 @@ export const StakingProductBanner = memo(({ isLedger }: { isLedger?: boolean }) 
     const onClick = () => {
         navigation.navigateStakingPools(isLedger);
     }
+
+    const content = useMemo(() => {
+        switch (type) {
+            case 'ton':
+                return {
+                    title: t('products.staking.title'),
+                    subtitle: t("products.staking.subtitle.join", { apy: apyWithFee ?? '8', tokenName: 'TON' }),
+                    image: require('@assets/staking-banner.png')
+                }
+            case 'usde':
+                return {
+                    title: t('products.staking.usdeTitle'),
+                    subtitle: t("products.staking.subtitle.join", { apy: '8', tokenName: 'USDe' }),
+                    image: require('@assets/staking-banner-usde.png')
+                }
+        }
+    }, [type, apyWithFee]);
 
     return (
         <Pressable
@@ -39,7 +56,7 @@ export const StakingProductBanner = memo(({ isLedger }: { isLedger?: boolean }) 
                         ellipsizeMode={'tail'}
                         numberOfLines={2}
                     >
-                        {t('products.staking.title')}
+                        {content.title}
                     </Text>
                     <Text
                         style={[{ flex: 1, flexShrink: 1, color: theme.textSecondary, opacity: 0.8, marginBottom: 8 }, Typography.regular15_20]}
@@ -48,7 +65,7 @@ export const StakingProductBanner = memo(({ isLedger }: { isLedger?: boolean }) 
                         adjustsFontSizeToFit={true}
                         minimumFontScale={0.75}
                     >
-                        {t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
+                        {content.subtitle}
                     </Text>
                     <View style={{ flexDirection: 'row', flexShrink: 1 }}>
                         <View style={{
@@ -86,7 +103,7 @@ export const StakingProductBanner = memo(({ isLedger }: { isLedger?: boolean }) 
                         height: 152
                     }}
                     contentFit="contain"
-                    source={require('@assets/staking-banner.png')}
+                    source={content.image}
                 />
             </View>
         </Pressable>

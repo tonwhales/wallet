@@ -17,6 +17,7 @@ import { useRoute } from "@react-navigation/native";
 import { updateLastAuthTimestamp } from "../components/secure/AuthWalletKeys";
 import { useAppBlur } from "../components/AppBlurContext";
 import { CachedLinking } from "../utils/CachedLinking";
+import { loadCurrentWalletKeysWithDelay } from "../utils/walletAuth";
 
 export const AppAuthFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -150,12 +151,11 @@ export const AppAuthFragment = fragment(() => {
                     description={t('appAuth.description')}
                     onEntered={async (pass) => {
                         setAuthInProgress?.(true);
-                        const acc = getCurrentAddress();
                         if (!pass) {
                             return;
                         }
                         try {
-                            await loadWalletKeys(acc.secretKeyEnc, pass);
+                            await loadCurrentWalletKeysWithDelay(pass);
                             onConfirmed();
                         } catch (e) {
                             setAuthInProgress?.(false);
@@ -171,6 +171,7 @@ export const AppAuthFragment = fragment(() => {
                     }
                     passcodeLength={storage.getNumber(passcodeLengthKey) ?? 6}
                     onRetryBiometrics={useBiometrics ? authenticateWithBiometrics : undefined}
+                    withLoader
                 />
             )}
         </View>

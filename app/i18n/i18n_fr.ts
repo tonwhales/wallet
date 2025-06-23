@@ -120,11 +120,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "holders": "Carte bancaire & comptes",
             "tonhub": "Tonhub"
         },
-        "telegram": "Telegram",
+        "telegram": "Abonnez-vous à notre Telegram",
         "rateApp": "Noter l'application",
         "deleteAccount": "Supprimer le compte",
         "theme": "Thème",
         "searchEngine": "Moteur de recherche",
+        "deleteWallet": "Supprimer le portefeuille",
+        "deleteWalletWithName": "Supprimer le portefeuille \"{{name}}\"",
+        "disconnectWallet": "Déconnecter le portefeuille",
+        "disconnectWalletWithName": "Déconnecter le portefeuille \"{{name}}\"",
         "language": "Langue"
     },
     "walletImportSelector": {
@@ -413,9 +417,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "staking": {
             "earnings": "Revenus",
             "title": "TON Staking",
+            "usdeTitle": "USDe Staking",
             "balance": "Solde staking",
             "subtitle": {
-                "join": "Gagnez jusqu'à {{apy}}% avec TONs ou USDe",
+                "join": "Gagnez jusqu'à {{apy}}% avec {{tokenName}}",
                 "joined": "Gagnez jusqu'à {{apy}}%",
                 "rewards": "Intérêt estimé",
                 "apy": "~13.3% de rendement annuel sur la contribution",
@@ -830,6 +835,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "text": "La validation de la blockchain est actuellement en cours. Cela peut prendre quelques minutes"
                 }
             },
+            "noDirectDeposit": {
+                "warningTitle": "Le dépôt direct n'est pas pris en charge",
+                "alertTitle": "Nous avons mis à jour le contrat",
+                "alertDescription": "Veuillez créer un nouveau compte et y transférer tous vos fonds et cartes. C'est plus sûr et prend en charge les dépôts directs",
+                "buttonTitle": "Créer un nouveau compte"
+            }
         }
     },
     "welcome": {

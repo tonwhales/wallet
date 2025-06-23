@@ -224,6 +224,7 @@ export function TransactionView(props: {
                             onLongPress={() => props.onLongPress?.(props.tx, parsedAddressFriendlyBounceable)}
                             contacts={props.contacts}
                             isTestnet={props.isTestnet}
+                            appState={props.appState}
                             bounceableFormat={props.bounceableFormat}
                             walletsSettings={props.walletsSettings}
                             time={tx.base.time}

@@ -3,10 +3,8 @@ import EventSource, { MessageEvent } from 'react-native-sse';
 import { createLogger, warn } from '../utils/log';
 import { SessionCrypto } from '@tonconnect/protocol';
 import { useHandleMessage } from './hooks';
-import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './tonconnect/types';
-import { getLastEventId } from './tonconnect/utils';
-import { bridgeUrl } from './tonconnect/config';
 import { useAppsConnections } from './hooks/dapps/useAppConnections';
+import { bridgeUrl, ConnectedAppConnection, ConnectedAppConnectionRemote, getLastEventId, TonConnectBridgeType } from './tonconnect';
 
 const logger = createLogger('tonconnect');
 

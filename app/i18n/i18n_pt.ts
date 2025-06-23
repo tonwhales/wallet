@@ -120,11 +120,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "holders": "Cartão bancário e contas",
             "tonhub": "Tonhub"
         },
-        "telegram": "Telegram",
+        "telegram": "Assine nosso Telegram",
         "rateApp": "Avaliar app",
         "deleteAccount": "Excluir conta",
         "theme": "Tema",
         "searchEngine": "Motor de busca",
+        "deleteWallet": "Excluir carteira",
+        "deleteWalletWithName": "Excluir carteira \"{{name}}\"",
+        "disconnectWallet": "Desconectar carteira",
+        "disconnectWalletWithName": "Desconectar carteira \"{{name}}\"",
         "language": "Idioma"
     },
     "walletImportSelector": {
@@ -413,9 +417,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "staking": {
             "earnings": "Ganhos",
             "title": "TON Staking",
+            "usdeTitle": "USDe Staking",
             "balance": "Saldo de Staking",
             "subtitle": {
-                "join": "Ganhe até {{apy}}% com TONs ou USDe",
+                "join": "Ganhe até {{apy}}% com {{tokenName}}",
                 "joined": "Ganhe até {{apy}}%",
                 "rewards": "Juros Estimados",
                 "apy": "~13.3 APY da contribuição",
@@ -829,6 +834,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "cancelButtonText": "Mostrar detalhes da transação",
                     "text": "A validação da blockchain está em andamento. Isso pode levar alguns minutos"
                 }
+            },
+            "noDirectDeposit": {
+                "warningTitle": "Depósito direto não é suportado",
+                "alertTitle": "Atualizamos o contrato",
+                "alertDescription": "Por favor, crie uma nova conta e transfira todos os seus fundos e cartões para ela. É mais seguro e suporta depósitos diretos",
+                "buttonTitle": "Criar uma nova conta"
             }
         }
     },

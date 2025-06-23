@@ -1,5 +1,6 @@
 import { Address } from "@ton/core";
 import { EthenaAssets, useEthena } from "../engine/hooks/staking/useEthena";
+import { useNetwork } from "../engine/hooks";
 
 const Img_EXMO = require('@assets/known/exmo.png');
 const Img_Foundation = require('@assets/known/foundation.png');
@@ -728,6 +729,20 @@ export const savingsMastersMainnet: { [key: string]: { description: string } } =
     'EQC98_qAmNEptUtPc7W6xdHh_ZHrBUFpw5Ft_IzNU20QAJav': { description: 'Tonstakers liquid token' }, // tsTON
     'EQDPdq8xjAhytYqfGSX8KcFWIReCufsB9Wdg0pLlYSO_h76w': { description: 'Hipo liquid token' }, // hTON
     'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': { description: 'Whales liquid token' }, // wsTON
+}
+
+export function useSavingsMasters() {
+    const { isTestnet } = useNetwork();
+    const ethena = useEthena();
+
+    const ethenaMasters = {
+        [ethena.minter.toString({ testOnly: isTestnet })]: { description: 'Ethena USDe' },
+        [ethena.tsMinter.toString({ testOnly: isTestnet })]: { description: 'Ethena tsUSDe' },
+    }
+
+    return isTestnet
+        ? { ...savingsMastersTestnet, ...ethenaMasters }
+        : { ...savingsMastersMainnet, ...ethenaMasters };
 }
 
 export const KnownJettonMastersTestnet: { [key: string]: any } = {

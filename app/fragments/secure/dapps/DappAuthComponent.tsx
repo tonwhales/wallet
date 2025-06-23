@@ -26,7 +26,7 @@ import { Address } from "@ton/core";
 import Collapsible from "react-native-collapsible";
 import Animated, { FadeOutDown } from "react-native-reanimated";
 import { useKnownWallets } from "../../../secure/KnownWallets";
-import { normalizeUrl } from "../../../utils/resolveUrl";
+import { normalizeUrl } from "../../../utils/url/resolveUrl";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';

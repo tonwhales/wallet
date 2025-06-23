@@ -15,7 +15,7 @@ import { sendTonConnectResponse } from '../../../engine/api/sendTonConnectRespon
 import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
 import { useNetwork, useTheme } from '../../../engine/hooks';
 import { handleConnectDeeplink, HandledConnectRequest, isValidDappDomain } from '../../../engine/tonconnect/handleConnectDeeplink';
-import { isUrl } from '../../../utils/resolveUrl';
+import { isUrl } from '../../../utils/url/resolveUrl';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { getAppManifest } from '../../../engine/getters/getAppManifest';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -445,7 +445,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             if (success.current !== false || state.type !== 'initing') {
                 return;
             }
-            
+
             if (connectProps.type === TonConnectAuthType.Callback) {
                 connectProps.callback({
                     ok: false,

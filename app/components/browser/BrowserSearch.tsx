@@ -7,7 +7,7 @@ import { t } from "../../i18n/t";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { Typography } from "../styles";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
-import { normalizeUrl } from "../../utils/resolveUrl";
+import { normalizeUrl } from "../../utils/url/resolveUrl";
 import axios from "axios";
 import { useToaster } from "../toast/ToastProvider";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";

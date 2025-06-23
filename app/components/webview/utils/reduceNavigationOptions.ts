@@ -34,7 +34,7 @@ export function reduceNavigationOptions() {
             case SetNavigationOptionsAction.setShowKeyboardAccessoryView:
                 return {
                     ...navigationOptions,
-                    showKeyboardAccessoryView: action.showKAV
+                    showKAV: action.showKAV
                 }
             case SetNavigationOptionsAction.setLockScroll:
                 return {

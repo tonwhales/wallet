@@ -120,11 +120,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "holders": "Банківська картка та рахунки",
             "tonhub": "Tonhub"
         },
-        "telegram": "Telegram",
+        "telegram": "Підпишіться на наш Telegram",
         "rateApp": "Оцінити додаток",
         "deleteAccount": "Видалити акаунт",
         "theme": "Тема",
         "searchEngine": "Пошукова система",
+        "deleteWallet": "Видалити гаманець",
+        "deleteWalletWithName": "Видалити гаманець \"{{name}}\"",
+        "disconnectWallet": "Відключити гаманець",
+        "disconnectWalletWithName": "Відключити гаманець \"{{name}}\"",
         "language": "Мова"
     },
     "walletImportSelector": {
@@ -413,9 +417,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "staking": {
             "earnings": "Доходи",
             "title": "TON Стейкінг",
+            "usdeTitle": "USDe Стейкінг",
             "balance": "Баланс стейкінгу",
             "subtitle": {
-                "join": "Заробляйте до {{apy}}% на ваших TON або USDe",
+                "join": "Заробляйте до {{apy}}% на ваших {{tokenName}}",
                 "joined": "Заробляйте до {{apy}}%",
                 "rewards": "Оцінений відсоток",
                 "apy": "~13.3 APY від внеску",
@@ -830,6 +835,12 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                     "text": "В даний час триває перевірка блокчейну. Це може зайняти кілька хвилин"
                 }
             },
+            "noDirectDeposit": {
+                "warningTitle": "Прямий депозит не підтримується",
+                "alertTitle": "Ми оновили контракт",
+                "alertDescription": "Будь ласка, створіть новий акаунт і переведіть на нього всі ваші кошти та картки. Це безпечніше і підтримує прямі депозити",
+                "buttonTitle": "Створити новий акаунт"
+            }
         }
     },
     "welcome": {

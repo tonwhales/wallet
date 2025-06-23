@@ -18,6 +18,7 @@ import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset
 import { CloseButton } from '../navigation/CloseButton';
 import { SelectedAccount } from '../../engine/types';
 import { useAppBlur } from '../AppBlurContext';
+import { loadCurrentWalletKeysWithDelay } from '../../utils/walletAuth';
 
 export const lastAuthKey = 'lastAuthenticationAt';
 
@@ -392,9 +393,8 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 return;
                             }
 
-                            const acc = auth?.params?.selectedAccount ?? getCurrentAddress();
                             try {
-                                const keys = await loadWalletKeys(acc.secretKeyEnc, pass);
+                                const keys = await loadCurrentWalletKeysWithDelay(pass, auth?.params?.selectedAccount);
                                 if (auth.returns === 'keysWithPasscode') {
                                     auth.promise.resolve({ keys, passcode: pass });
                                 } else {
@@ -427,6 +427,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                         }
                         passcodeLength={auth.params?.passcodeLength}
                         onRetryBiometrics={canRetryBiometrics ? retryBiometrics : undefined}
+                        withLoader
                     />
                     {auth.params?.cancelable && (
                         <CloseButton

@@ -1,14 +1,12 @@
 import * as React from 'react';
-import { useCallback, useState } from 'react';
-import { Pressable, View, Image, Platform } from 'react-native';
+import { useCallback } from 'react';
+import { Pressable, View, Image, ScrollView } from 'react-native';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
-import { resolveUrl } from '../../utils/resolveUrl';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useLinkNavigator } from '../../useLinkNavigator';
 import { useFocusEffect } from '@react-navigation/native';
 import { TabHeader } from '../../components/topbar/TabHeader';
-import { useNetwork, useTheme } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { BrowserTabs } from '../../components/browser/BrowserTabs';
 import { BrowserSearch } from '../../components/browser/BrowserSearch';
@@ -42,7 +40,13 @@ export const BrowserFragment = fragment(() => {
     }, [theme.style]));
 
     return (
-        <View style={{ flex: 1 }}>
+        // ScrollView is used to be able to dismiss keyboard when tapping outside of the search input
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={false}
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
+        >
             <View style={{ height: 44, marginBottom: 8 }} />
             <View style={{ marginTop: safeArea.top }}>
                 <Animated.View style={[searchAnimStyle, { zIndex: 1005 }]}>
@@ -114,6 +118,6 @@ export const BrowserFragment = fragment(() => {
                     }
                 />
             </View>
-        </View>
+        </ScrollView>
     );
 });

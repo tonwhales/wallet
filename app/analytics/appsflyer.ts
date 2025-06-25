@@ -4,7 +4,7 @@ import { handleAttribution } from "../utils/CachedLinking";
 const keys = require('@assets/keys.json');
 
 export enum AppsFlyerEvent {
-  CompletedRegistration = 'af_complete_registration',
+  CompletedRegistration = 'af_registration_complete',
   BackupPhraseConfirmed = 'backup_phrase_confirmed',
   TransactionSent = 'transaction_sent',
   StakingDeposit = 'staking_deposit',

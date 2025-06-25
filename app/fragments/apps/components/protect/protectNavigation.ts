@@ -40,6 +40,8 @@ export function isAllowedDomain(pageDomain: string) {
     if (
         pageDomain === 'intercom-sheets.com'
         || pageDomain.endsWith('.intercom-sheets.com')
+        || pageDomain === 'intercom.help'
+        || pageDomain.endsWith('.intercom.help')
     ) {
         return true;
     }
@@ -63,6 +65,7 @@ export function protectNavigation(url: string, app: string) {
     if (!appDomain || !pageDomain) {
         return false;
     }
+
     if (pageDomain.endsWith('.' + appDomain)) {
         return true;
     }

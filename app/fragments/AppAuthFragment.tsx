@@ -17,6 +17,7 @@ import { useRoute } from "@react-navigation/native";
 import { updateLastAuthTimestamp } from "../components/secure/AuthWalletKeys";
 import { useAppBlur } from "../components/AppBlurContext";
 import { CachedLinking } from "../utils/CachedLinking";
+import { loadCurrentWalletKeysWithDelay } from "../utils/walletAuth";
 
 export const AppAuthFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -150,20 +151,11 @@ export const AppAuthFragment = fragment(() => {
                     description={t('appAuth.description')}
                     onEntered={async (pass) => {
                         setAuthInProgress?.(true);
-                        const acc = getCurrentAddress();
                         if (!pass) {
                             return;
                         }
                         try {
-                            // We add minimum delay to show 1 circle of the loader
-                            const delay = new Promise(resolve => setTimeout(resolve, 700));
-                            const results = await Promise.allSettled([delay, loadWalletKeys(acc.secretKeyEnc, pass)]);
-                            
-                            const loadKeysResult = results[1];
-                            if (loadKeysResult.status === 'rejected') {
-                                throw loadKeysResult.reason;
-                            }
-                            
+                            await loadCurrentWalletKeysWithDelay(pass);
                             onConfirmed();
                         } catch (e) {
                             setAuthInProgress?.(false);

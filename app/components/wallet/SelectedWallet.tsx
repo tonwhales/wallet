@@ -1,6 +1,6 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { Pressable, View, Text, Image } from "react-native";
+import { Pressable, View, Text, Image, StyleProp, ViewStyle } from "react-native";
 import ArrowDown from '@assets/ic-arrow-down.svg';
 import EditIcon from '@assets/ic-edit.svg';
 import { Typography } from "../styles";
@@ -16,7 +16,7 @@ import { Address } from "@ton/ton";
 import { t } from "../../i18n/t";
 import Animated from "react-native-reanimated";
 
-export const SelectedWallet = memo(({ onLightBackground, ledgerName, headerContentAnimatedStyle }: { onLightBackground?: boolean, ledgerName?: string, headerContentAnimatedStyle?: any }) => {
+export const SelectedWallet = memo(({ onLightBackground, ledgerName, headerContentAnimatedStyle }: { onLightBackground?: boolean, ledgerName?: string, headerContentAnimatedStyle?: StyleProp<ViewStyle> }) => {
     const network = useNetwork();
     const knownWallets = useKnownWallets(network.isTestnet);
     const theme = useTheme();

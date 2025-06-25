@@ -180,7 +180,7 @@ export const ReceiveAssetsFragment = fragment(() => {
         }
 
         navigation.navigateHolders(navParams, isTestnet, isLedger);
-    }, [needsEnrollment, isHoldersReady, isTestnet, isLedger, ledgerContext]);
+    }, [needsEnrollment, isHoldersReady, isTestnet, isLedger, ledgerContext, url]);
 
     const solanaTokens: SolanaToken[] = tokens?.data ?? [];
 

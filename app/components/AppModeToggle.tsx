@@ -22,7 +22,7 @@ export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeigh
     const rightLabel = t('common.cards')
     const theme = useTheme();
     const selected = useSelectedAccount();
-    const [isWalletMode, switchAppToWalletMode] = useAppMode(selected?.address, { isLedger });
+    const [isWalletMode, toggleAppMode] = useAppMode(selected?.address, { isLedger });
     const ledgerContext = useLedgerTransport();
     const address = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address!;
     const [isToggleInWalletMode, setToggleInWalletMode] = useState(isWalletMode);
@@ -46,12 +46,12 @@ export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeigh
     }, []);
 
     const onSwitchAppMode = useCallback((isSwitchingToWallet: boolean) => {
-        switchAppToWalletMode(isSwitchingToWallet);
+        toggleAppMode(isSwitchingToWallet);
         setFilter((prev) => ({ ...prev, type: isSwitchingToWallet ? TransactionType.TON : TransactionType.HOLDERS }));
         if (!isSwitchingToWallet) {
             queryClient.invalidateQueries({ queryKey: Queries.Holders(address.toString({ testOnly: isTestnet })).Iban() });
         }
-    }, [url, isTestnet, isLedger, address])
+    }, [url, isTestnet, isLedger, address, toggleAppMode])
 
     const animatedStyle = useAnimatedStyle(() => {
         return {

@@ -18,6 +18,7 @@ import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset
 import { CloseButton } from '../navigation/CloseButton';
 import { SelectedAccount } from '../../engine/types';
 import { useAppBlur } from '../AppBlurContext';
+import { loadCurrentWalletKeysWithDelay } from '../../utils/walletAuth';
 
 export const lastAuthKey = 'lastAuthenticationAt';
 
@@ -392,17 +393,8 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 return;
                             }
 
-                            const acc = auth?.params?.selectedAccount ?? getCurrentAddress();
                             try {
-                                // We add minimum delay to show 1 circle of the loader
-                                const delay = new Promise(resolve => setTimeout(resolve, 700));
-                                const results = await Promise.allSettled([delay, loadWalletKeys(acc.secretKeyEnc, pass)]);
-
-                                const loadKeysResult = results[1];
-                                if (loadKeysResult.status === 'rejected') {
-                                    throw loadKeysResult.reason;
-                                }
-                                const keys = loadKeysResult.value
+                                const keys = await loadCurrentWalletKeysWithDelay(pass, auth?.params?.selectedAccount);
                                 if (auth.returns === 'keysWithPasscode') {
                                     auth.promise.resolve({ keys, passcode: pass });
                                 } else {

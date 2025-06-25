@@ -19,6 +19,7 @@ export const ConfirmLegal = memo(({
     termsUrl,
     dontShowTitle,
     icon,
+    iconSvg,
 }: {
     onConfirmed: () => void,
     skipKey: string,
@@ -29,6 +30,7 @@ export const ConfirmLegal = memo(({
     termsUrl: string,
     dontShowTitle: string,
     icon?: ImageSourcePropType,
+    iconSvg?: React.ReactNode,
 }) => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
@@ -63,7 +65,7 @@ export const ConfirmLegal = memo(({
             >
                 <View style={{ flexGrow: 1, paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ flexGrow: 1 }} />
-                    {!!icon && (
+                    {iconSvg || (!!icon && (
                         <Image
                             style={{
                                 width: 100,
@@ -72,7 +74,7 @@ export const ConfirmLegal = memo(({
                             }}
                             source={icon}
                         />
-                    )}
+                    ))}
                     <Text style={[{
                         textAlign: 'center',
                         color: theme.textPrimary,

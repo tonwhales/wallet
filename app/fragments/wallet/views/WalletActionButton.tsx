@@ -93,6 +93,15 @@ export const WalletActionButton = memo(({
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: handleQRCode }), [handleQRCode]);
     const isDisabled = !isWalletMode && !accounts?.length;
+    const onSwap = useCallback(() => {
+        // TODO: rm platfrom check after review
+        // dont show Dedust on ios until the issue with review is resolved
+        if (Platform.OS === 'android') {
+            navigation.navigate('SelectExchange');
+        } else {
+            navigation.navigate('Changelly');
+        }
+    }, [navigation]);
 
     switch (action.type) {
         case WalletActionType.Buy: {
@@ -277,7 +286,7 @@ export const WalletActionButton = memo(({
         case WalletActionType.Swap: {
             return (
                 <Pressable
-                    onPress={() => navigation.navigate('Swap')}
+                    onPress={onSwap}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ alignItems: 'center', justifyContent: 'center' }}>

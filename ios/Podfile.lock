@@ -117,6 +117,15 @@ PODS:
   - lottie-react-native (6.4.1):
     - lottie-ios (~> 4.3.3)
     - React-Core
+  - Mindbox (2.13.4):
+    - MindboxLogger (= 2.13.4)
+  - MindboxLogger (2.13.4)
+  - MindboxNotifications (2.13.4):
+    - MindboxLogger (= 2.13.4)
+  - MindboxSdk (2.13.4):
+    - Mindbox (= 2.13.4)
+    - MindboxNotifications (= 2.13.4)
+    - React-Core
   - Mixpanel-swift (4.3.0):
     - Mixpanel-swift/Complete (= 4.3.0)
   - Mixpanel-swift/Complete (4.3.0)
@@ -473,9 +482,6 @@ PODS:
   - react-native-webview (13.14.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - react-native-wonderpush (2.3.0):
-    - React (< 1.0.0, >= 0.13.0)
-    - WonderPush (= 4.3.1)
   - React-NativeModulesApple (0.72.6):
     - hermes-engine
     - React-callinvoker
@@ -631,12 +637,6 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.15)
   - SocketRocket (0.6.1)
-  - WonderPush (4.3.1):
-    - WonderPush/Core (= 4.3.1)
-  - WonderPush/Core (4.3.1)
-  - WonderPushExtension (4.3.1):
-    - WonderPushExtension/Extension (= 4.3.1)
-  - WonderPushExtension/Extension (4.3.1)
   - Yoga (1.14.0)
   - ZXingObjC/Core (3.6.9)
   - ZXingObjC/OneD (3.6.9):
@@ -682,6 +682,7 @@ DEPENDENCIES:
   - "intercom-react-native (from `../node_modules/@intercom/intercom-react-native`)"
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
+  - MindboxSdk (from `../node_modules/mindbox-sdk`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
   - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -715,7 +716,6 @@ DEPENDENCIES:
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - react-native-webview (from `../node_modules/react-native-webview`)
-  - react-native-wonderpush (from `../node_modules/react-native-wonderpush`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -747,7 +747,6 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - WonderPushExtension (~> 4.0)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -761,6 +760,9 @@ SPEC REPOS:
     - libvmaf
     - libwebp
     - lottie-ios
+    - Mindbox
+    - MindboxLogger
+    - MindboxNotifications
     - Mixpanel-swift
     - MMKV
     - MMKVCore
@@ -771,8 +773,6 @@ SPEC REPOS:
     - SDWebImageSVGCoder
     - SDWebImageWebPCoder
     - SocketRocket
-    - WonderPush
-    - WonderPushExtension
     - ZXingObjC
 
 EXTERNAL SOURCES:
@@ -849,6 +849,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@intercom/intercom-react-native"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
+  MindboxSdk:
+    :path: "../node_modules/mindbox-sdk"
   MixpanelReactNative:
     :path: "../node_modules/mixpanel-react-native"
   Permission-Camera:
@@ -913,8 +915,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-view-shot"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
-  react-native-wonderpush:
-    :path: "../node_modules/react-native-wonderpush"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -1026,6 +1026,10 @@ SPEC CHECKSUMS:
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   lottie-ios: 3d98679b41fa6fd6aff2352b3953dbd3df8a397e
   lottie-react-native: a2ae9c27c273b060b2affff2957bc0ff7fdca353
+  Mindbox: 232b73269546b9492ec4bf9905021f83c941114b
+  MindboxLogger: 0a63c34d4daf2a48a8493da7450a018c123adbd2
+  MindboxNotifications: 00637c85e497d4fdfc54ddeb114dfec16cb88025
+  MindboxSdk: 3d99a4517581c1b52741b60e7b26cca7ef8849a3
   Mixpanel-swift: 2192b9a24cf41b870749e4e0e10fbc9822bb2b4a
   MixpanelReactNative: cd3d7129cfc77d796d07e117846f1f2a9d2fe02d
   MMKV: ce484c1ac40bf76d5f09a0195d2ec5b3d3840d55
@@ -1063,7 +1067,6 @@ SPEC CHECKSUMS:
   react-native-skia: 73b15a92d31e322fd25e5bb7feff226c0a25215e
   react-native-view-shot: 6b7ed61d77d88580fed10954d45fad0eb2d47688
   react-native-webview: e64642d18a4592b52e407b08dea6c54d4a34a887
-  react-native-wonderpush: fdff9cba1b1c4bee74888eca19fb4eaf2ec802bc
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2
   React-perflogger: e3596db7e753f51766bceadc061936ef1472edc3
   React-RCTActionSheet: 17ab132c748b4471012abbcdcf5befe860660485
@@ -1100,11 +1103,9 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: 295a6573c512f54ad2dd58098e64e17dcf008499
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  WonderPush: 457eb234758acec58ecd6c232d48c68e05dcb392
-  WonderPushExtension: b4f1419a6dcaf16a3d2f02f27dafc8de0fcc0fd1
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: ba30c93915125d81c396cb4a8bb79c8cf021ccca
+PODFILE CHECKSUM: 13c22cb099803562bb58f3acca6c8b89a8fd8fba
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.11.3

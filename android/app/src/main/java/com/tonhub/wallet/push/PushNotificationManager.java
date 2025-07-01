@@ -131,12 +131,7 @@ public class PushNotificationManager {
     private void sendDataToJS(ReactContext reactContext, Bundle data) {
         try {
             WritableMap params = Arguments.createMap();
-            String url = extractUrlFromBundle(data);
-            if (url != null) {
-                params.putString("url", url);
-            } else {
-                bundleToWritableMap(data, params);
-            }
+            bundleToWritableMap(data, params);
             reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("pushNotificationOpened", params);
         } catch (Exception e) {
@@ -164,68 +159,5 @@ public class PushNotificationManager {
                 map.putString(key, value.toString());
             }
         }
-    }
-
-    /**
-     * Extracts URL from various fields in Bundle
-     */
-    private String extractUrlFromBundle(Bundle data) {
-        // Direct url field
-        if (data.containsKey("url")) {
-            return data.getString("url");
-        }
-
-        // Check data field
-        String url = extractUrlFromJsonField(data, "data");
-        if (url != null) {
-            return url;
-        }
-
-        // Check body field
-        url = extractUrlFromJsonField(data, "body");
-        if (url != null) {
-            return url;
-        }
-
-        // Check notification field
-        if (data.containsKey("notification")) {
-            try {
-                String notifStr = data.getString("notification");
-                JSONObject notifJson = new JSONObject(notifStr);
-                if (notifJson.has("data") && notifJson.getJSONObject("data").has("url")) {
-                    return notifJson.getJSONObject("data").getString("url");
-                } else if (notifJson.has("url")) {
-                    return notifJson.getString("url");
-                }
-            } catch (Exception e) {
-                // Ignore errors
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Helper method to extract URL from a JSON string field in Bundle
-     */
-    private String extractUrlFromJsonField(Bundle data, String fieldName) {
-        if (data.containsKey(fieldName)) {
-            try {
-                String fieldValue = data.getString(fieldName);
-                if (fieldValue != null) {
-                    try {
-                        JSONObject jsonObj = new JSONObject(fieldValue);
-                        if (jsonObj.has("url")) {
-                            return jsonObj.getString("url");
-                        }
-                    } catch (JSONException e) {
-                        return fieldValue;
-                    }
-                }
-            } catch (Exception e) {
-                // Ignore errors
-            }
-        }
-        return null;
     }
 }

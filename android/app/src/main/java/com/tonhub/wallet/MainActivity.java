@@ -12,14 +12,40 @@ import com.facebook.react.ReactApplication;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import expo.modules.ReactActivityDelegateWrapper;
 import com.tonhub.wallet.push.PushNotificationManager;
+import cloud.mindbox.mobile_sdk.Mindbox;
 
 public class MainActivity extends ReactActivity {
     private PushNotificationManager mPushNotificationManager;
+
+    /**
+     * Checks if the intent contains Maestra push notification data
+     */
+    private boolean isMaestraPush(Intent intent) {
+        if (intent == null)
+            return false;
+
+        Bundle extras = intent.getExtras();
+        if (extras == null)
+            return false;
+
+        // Check for Maestra-specific fields
+        return extras.containsKey("uniq_push_key") && extras.containsKey("push_url");
+    }
+
+    /**
+     * Processes intent and handles Maestra push tracking for onCreate
+     */
+    private void processIntent(Intent intent) {
+        // Always process notification intent for our push manager
+        mPushNotificationManager.processNotificationIntent(intent);
+
+        // Track Maestra push clicks only
+        if (isMaestraPush(intent)) {
+            Mindbox.INSTANCE.onPushClicked(this, intent);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,9 +54,9 @@ public class MainActivity extends ReactActivity {
         // This is required for expo-splash-screen.
         setTheme(R.style.AppTheme);
         super.onCreate(null);
-        
+
         mPushNotificationManager = PushNotificationManager.getInstance((ReactApplication) getApplication());
-        mPushNotificationManager.processNotificationIntent(getIntent());
+        processIntent(getIntent());
     }
 
     @Override
@@ -38,7 +64,7 @@ public class MainActivity extends ReactActivity {
         super.onStart();
         mPushNotificationManager.onStart();
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -49,6 +75,12 @@ public class MainActivity extends ReactActivity {
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+
+        // Track Maestra push clicks only
+        if (isMaestraPush(intent)) {
+            Mindbox.INSTANCE.onPushClicked(this, intent);
+        }
+
         mPushNotificationManager.onNewIntent(intent);
     }
 
@@ -88,45 +120,33 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected ReactActivityDelegate createReactActivityDelegate() {
-        return new ReactActivityDelegateWrapper(this, BuildConfig.IS_NEW_ARCHITECTURE_ENABLED, new DefaultReactActivityDelegate(
-                this,
-                getMainComponentName(),
-                // If you opted-in for the New Architecture, we enable the Fabric Renderer.
-                DefaultNewArchitectureEntryPoint.getFabricEnabled(), // fabricEnabled
-                // If you opted-in for the New Architecture, we enable Concurrent React (i.e. React 18).
-                DefaultNewArchitectureEntryPoint.getConcurrentReactEnabled() // concurrentRootEnabled
-        ) {
-            @Nullable
-            @Override
-            protected Bundle getLaunchOptions() {
-                Intent intent = getIntent();
-                Bundle initBundle = super.getLaunchOptions();
+        return new ReactActivityDelegateWrapper(this, BuildConfig.IS_NEW_ARCHITECTURE_ENABLED,
+                new DefaultReactActivityDelegate(
+                        this,
+                        getMainComponentName(),
+                        // If you opted-in for the New Architecture, we enable the Fabric Renderer.
+                        DefaultNewArchitectureEntryPoint.getFabricEnabled(), // fabricEnabled
+                        // If you opted-in for the New Architecture, we enable Concurrent React (i.e.
+                        // React 18).
+                        DefaultNewArchitectureEntryPoint.getConcurrentReactEnabled() // concurrentRootEnabled
+                ) {
+                    @Nullable
+                    @Override
+                    protected Bundle getLaunchOptions() {
+                        Intent intent = getIntent();
+                        Bundle initBundle = super.getLaunchOptions();
 
-                Bundle extras = intent.getExtras();
-
-                if (extras != null) {
-                    // check for body
-                    if (extras.containsKey("body")) {
-                        String body = extras.getString("body");
-
-                        if (body != null) {
-                            try {
-                                JSONObject bodyJson = new JSONObject(body);
-                                if (bodyJson.has("url")) {
-                                    String url = bodyJson.getString("url");
-                                    if (initBundle == null) {
-                                        initBundle = new Bundle();
-                                    }
-                                    initBundle.putString("url", url);
-                                }
-                            } catch (JSONException ignored) {}
+                        // Pass initial push notification data for cold start
+                        Bundle extras = intent.getExtras();
+                        if (extras != null && extras.size() > 0) {
+                            if (initBundle == null) {
+                                initBundle = new Bundle();
+                            }
+                            initBundle.putBundle("initialPushData", extras);
                         }
-                    }
-                }
 
-                return initBundle;
-            }
-        }
-        );
+                        return initBundle;
+                    }
+                });
     }
 }

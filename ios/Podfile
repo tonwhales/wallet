@@ -46,7 +46,8 @@ target 'WhalesApp' do
   )
 
   # pod 'OpenSSL-Universal', :modular_headers => true, :configurations => ['Release', 'Release Testnet', 'Debug', 'Debug Testnet']
-
+  pod 'Mindbox'
+  
   post_install do |installer|
     react_native_post_install(
       installer,

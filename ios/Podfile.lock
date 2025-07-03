@@ -682,6 +682,7 @@ DEPENDENCIES:
   - "intercom-react-native (from `../node_modules/@intercom/intercom-react-native`)"
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
+  - Mindbox
   - MindboxSdk (from `../node_modules/mindbox-sdk`)
   - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
   - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera`)
@@ -1106,6 +1107,6 @@ SPEC CHECKSUMS:
   Yoga: b76f1acfda8212aa16b7e26bcce3983230c82603
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 13c22cb099803562bb58f3acca6c8b89a8fd8fba
+PODFILE CHECKSUM: 9b4a4c2b150fc6ae0b0738e764349ca0991ead5b
 
 COCOAPODS: 1.11.3

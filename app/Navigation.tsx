@@ -56,10 +56,13 @@ import { appStateAtom } from './engine/state/appState';
 import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
-import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
+import { registerForPushNotificationsAsync, registerPushToken, setupAPNsTokenHandler } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { warn } from './utils/log';
+import { NativeModules } from 'react-native';
+
+const { MaestraModule } = NativeModules;
 import { useIsRestoring } from '@tanstack/react-query';
 import { ThemeFragment } from './fragments/ThemeFragment';
 import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
@@ -423,11 +426,22 @@ export const Navigation = memo(() => {
     }, [mounted]);
     const hideSplash = mounted && !isRestoring;
 
+    useEffect(() => {
+        const apnsSubscription = setupAPNsTokenHandler();
+        
+        return () => {
+            apnsSubscription?.remove();
+        };
+    }, []);
+
     // Register token
     useEffect(() => {
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            if (Platform.OS === 'ios' && MaestraModule) {
+                MaestraModule.updateNotificationPermissions(existingStatus === PermissionStatus.GRANTED);
+            }
             if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
                 const token = await backoff('navigation', async () => {
                     try {

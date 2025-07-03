@@ -12,6 +12,7 @@
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.4CFQ3FG324.com.tonhub.app</string>
+		<string>group.cloud.Mindbox.com.tonhub.app.debug</string>
 	</array>
 </dict>
 </plist>

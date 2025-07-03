@@ -1,8 +1,11 @@
-import { Linking, Platform } from "react-native";
+import { Linking, Platform, NativeModules } from "react-native";
 import * as Notifications from 'expo-notifications';
 import { z } from 'zod';
 import { resolveSearchParams } from "./holders/resolveSearchParams";
 import { processSearchParams } from "./holders/queryParamsStore";
+import { isMaestraPushDataIOS } from "../engine/types";
+
+const { MaestraModule } = NativeModules;
 
 let lastLink: string | null = null;
 let listener: (((link: string) => string | null) | null) = null;
@@ -76,6 +79,17 @@ function handleNotificationResponse(response: Notifications.NotificationResponse
     if (!response) {
         return;
     }
+
+    if (Platform.OS === 'ios' && MaestraModule) {
+        const payload = (response.notification.request.trigger as Notifications.PushNotificationTrigger).payload;
+        if (payload) {
+            if (isMaestraPushDataIOS(payload)) {
+                MaestraModule.trackPushClick(payload, response.actionIdentifier);
+                handleLinkReceived(payload.clickUrl);
+            }
+        }
+    }
+
     let data = response.notification.request.content.data;
     if (data && typeof data['url'] === 'string') {
         handleLinkReceived(data['url']);

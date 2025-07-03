@@ -968,7 +968,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "withdrawRequested": "Запрос на вывод принят",
         "upgrade": "Обновление кода до {{hash}}",
         "upgradeOk": "Обновление завершено",
-        "cashback": "Кэшбек",
+        "cashback": "Токенбэк",
         "tokenSent": "Токен отправлен",
         "tokenReceived": "Токен получен",
         "holders": {

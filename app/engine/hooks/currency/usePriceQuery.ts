@@ -20,7 +20,7 @@ export function usePriceQuery(): [Price, string, Price] {
 
     const tonPrice = {
         price: {
-            usd: price.data?.price.usd ?? 0,
+            usd: price.data?.price?.usd ?? 0,
             rates: price.data?.rates ?? {}
         }
     };

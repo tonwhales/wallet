@@ -14,6 +14,7 @@ import { trackScreen } from "../../analytics/mixpanel";
 import { ConfirmLegal } from "../../components/ConfirmLegal";
 import { sharedStoragePersistence } from "../../storage/storage";
 import ChangellyLogo from '../../../assets/changelly.svg';
+import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL, CHANGELLY_WIDGET_URL } from "../../utils/constants";
 
 const skipLegalChangelly = 'skip_legal_changelly';
 
@@ -36,7 +37,7 @@ export const ChangellyFragment = fragment(() => {
         v: '3'
     }), []);
 
-    const main = `https://widget.changelly.com?${queryParams.toString()}`;
+    const main = `${CHANGELLY_WIDGET_URL}?${queryParams.toString()}`;
 
     const onOpenBuy = useCallback(() => {
         setAccepted(true);
@@ -88,8 +89,8 @@ export const ChangellyFragment = fragment(() => {
                         title={t('changelly.title')}
                         description={t('changelly.description')}
                         termsAndPrivacy={t('swap.termsAndPrivacy')}
-                        privacyUrl={'https://changelly.com/privacy-policy'}
-                        termsUrl={'https://changelly.com/terms-of-use'}
+                        privacyUrl={CHANGELLY_PRIVACY_URL}
+                        termsUrl={CHANGELLY_TERMS_URL}
                         dontShowTitle={t('changelly.dontShowTitle')}
                         iconSvg={<ChangellyLogo />}
                     />

@@ -92,6 +92,7 @@ export type LocalizationSchema = {
         operation: string,
         description: string,
         openSettings: string,
+        exchanges: string,
     },
     syncStatus: {
         connecting: string,
@@ -1305,6 +1306,9 @@ export type LocalizationSchema = {
         bannerDescription: string,
     },
     changelly: {
+        title: string,
+        description: string,
+        dontShowTitle: string,
         bannerTitle: string,
         bannerDescription: string
     },

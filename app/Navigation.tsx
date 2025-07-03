@@ -118,6 +118,8 @@ import { LiquidUSDeStakingTransferFragment } from './fragments/staking/LiquidUSD
 import { LiquidUSDeStakingCalculatorFragment } from './fragments/staking/LiquidUSDeStakingCalculatorFragment';
 import { LiquidUSDeStakingUnstakeFragment } from './fragments/staking/LiquidUSDeStakingUnstakeFragment';
 import { TonConnectSignFragment } from './fragments/secure/dapps/TonConnectSignFragment';
+import { ChangellyFragment } from './fragments/integrations/ChangellyFragment';
+import { SelectExchangeFragment } from './fragments/integrations/SelectExchangeFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -280,6 +282,8 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Products', ProductsFragment, safeArea),
     modalScreen('ProductsList', ProductsListFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
+    modalScreen('Changelly', ChangellyFragment, safeArea),
+    modalScreen('SelectExchange', SelectExchangeFragment, safeArea),
     modalScreen('TransactionsFilter', TransactionsFilterFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
     modalScreen('JettonTransaction', JettonTransactionPreviewFragment, safeArea),

@@ -22,7 +22,7 @@ import java.util.Random;
 /**
  * Service for handling FCM messages for Expo notifications. Foreground state only.
  * This service processes Expo-specific notifications and displays them in the system tray.
- * Non-Expo notifications are passed to other services (e.g., WonderPush).
+ * Non-Expo notifications are passed to other services (e.g., Maestra).
  */
 public class ExpoFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "ExpoFCMService";
@@ -39,7 +39,7 @@ public class ExpoFirebaseMessagingService extends FirebaseMessagingService {
             // Show notification in system tray for all Expo notifications
             showExpoNotification(remoteMessage);
         } else {
-            // Pass non-Expo notifications to other services (e.g., WonderPush)
+            // Pass non-Expo notifications to other services (e.g., Maestra)
             super.onMessageReceived(remoteMessage);
         }
     }

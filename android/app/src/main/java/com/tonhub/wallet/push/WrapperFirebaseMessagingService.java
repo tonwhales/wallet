@@ -27,7 +27,7 @@ public class WrapperFirebaseMessagingService extends FirebaseMessagingService {
 
     public WrapperFirebaseMessagingService() {
         // Add all the FirebaseMessagingServices you need here
-        messagingServices.add(new com.wonderpush.sdk.push.fcm.FirebaseMessagingService());
+        messagingServices.add(new com.tonhub.wallet.push.MaestraFirebaseMessagingService());
         messagingServices.add(new com.tonhub.wallet.push.ExpoFirebaseMessagingService());
     }
 
@@ -35,7 +35,6 @@ public class WrapperFirebaseMessagingService extends FirebaseMessagingService {
     // Forward FirebaseMessagingService methods
     //
 
-    // WonderPush needs this method to be forwarded
     @Override
     public void onNewToken(String s) {
         forward(service -> {
@@ -43,7 +42,6 @@ public class WrapperFirebaseMessagingService extends FirebaseMessagingService {
         });
     }
 
-    // WonderPush needs this method to be forwarded
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         forward(service -> {
@@ -53,23 +51,7 @@ public class WrapperFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onDeletedMessages() {
-        forward(service -> {
-            service.onDeletedMessages();
-        });
-    }
-
-    @Override
-    public void onMessageSent(@NonNull String s) {
-        forward(service -> {
-            service.onMessageSent(s);
-        });
-    }
-
-    @Override
-    public void onSendError(@NonNull String s, @NonNull Exception e) {
-        forward(service -> {
-            service.onSendError(s, e);
-        });
+        forward(FirebaseMessagingService::onDeletedMessages);
     }
 
     //
@@ -78,16 +60,7 @@ public class WrapperFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onCreate() {
-        forward(service -> {
-            service.onCreate();
-        });
-    }
-
-    @Override
-    public void onStart(Intent intent, int startId) {
-        forward(service -> {
-            service.onStart(intent, startId);
-        });
+        forward(Service::onCreate);
     }
 
     @Override
@@ -99,9 +72,7 @@ public class WrapperFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onLowMemory() {
-        forward(service -> {
-            service.onLowMemory();
-        });
+        forward(Service::onLowMemory);
     }
 
     @Override

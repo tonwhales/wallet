@@ -10,6 +10,7 @@ import { PerfText } from "../../../../components/basic/PerfText";
 import { ThemeType } from "../../../../engine/state/theme";
 import { Typography } from "../../../../components/styles";
 import * as ScreenCapture from 'expo-screen-capture';
+import { TONVIEWER_TRANSACTION_URL } from "../../../../utils/constants";
 
 type TxInfoProps = {
     lt: string;
@@ -38,6 +39,11 @@ export const TxInfo = memo(({ lt, hash, address, isTestnet, toaster, theme }: Tx
             + `${lt}_${encodeURIComponent(hash)}`
     }, []);
 
+    const tonviewerLink = useMemo(() => {
+        const hexHash = Buffer.from(hash, "base64").toString("hex") 
+        return TONVIEWER_TRANSACTION_URL + hexHash
+    }, [hash])
+
     const onTxIdPress = useCallback(() => {
         if (!tonhubLink) {
             return;
@@ -58,7 +64,7 @@ export const TxInfo = memo(({ lt, hash, address, isTestnet, toaster, theme }: Tx
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    openWithInApp(tonhubLink);
+                    openWithInApp(tonviewerLink);
                     break;
                 case 2:
                     copyText(tonhubLink);
@@ -83,7 +89,7 @@ export const TxInfo = memo(({ lt, hash, address, isTestnet, toaster, theme }: Tx
                     break;
             }
         });
-    }, [tonhubLink, txId]);
+    }, [tonhubLink, tonviewerLink, txId]);
 
     useEffect(() => {
         let subscription: ScreenCapture.Subscription;

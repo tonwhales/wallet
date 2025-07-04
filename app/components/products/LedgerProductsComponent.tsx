@@ -22,6 +22,7 @@ import { LedgerWallet, useLedgerTransport } from "../../fragments/ledger/compone
 import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { IbanBanner } from "../holders/IbanBanner";
+import { LedgerJettonsHiddenComponent } from "./LedgerJettonsHiddenComponent";
 
 export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: LedgerWallet, testOnly: boolean }) => {
     const theme = useTheme();
@@ -128,6 +129,9 @@ export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: Led
                             address={address}
                             testOnly={testOnly}
                         />
+                        <LedgerJettonsHiddenComponent
+                            address={address}
+                            testOnly={testOnly} />
                     </>
                 ) : (
                     <>

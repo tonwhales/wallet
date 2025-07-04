@@ -2,7 +2,7 @@ import React, { memo, useCallback } from "react";
 import { View, Text, Image } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import { t } from "../../i18n/t";
-import { useDisplayableJettons, useTheme } from "../../engine/hooks";
+import { useDisplayableJettons, useLedgerHiddenJettons, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -10,11 +10,18 @@ import { Typography } from "../styles";
 import { AssetViewType } from "../../fragments/wallet/AssetsFragment";
 import { JettonFull } from "../../engine/api/fetchHintsFull";
 import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
+const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
 export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { address: Address, testOnly: boolean }) => {
     const theme = useTheme();
     const hints = useDisplayableJettons(address.toString({ testOnly })).jettonsList ?? [];
+    const [hiddenLedgerJettons, markLedgerJettonHidden] = useLedgerHiddenJettons();
 
+    const visibleList: (JettonFull & { type: 'jetton' })[] = hints
+        .filter((s) => !hiddenLedgerJettons[s.jetton.address])
+        .filter((s) => !!s)
+        .map((s) => ({ ...s, type: 'jetton' }));
+    
     const renderItem = useCallback((h: JettonFull) => {
         if (!h) {
             return null;
@@ -28,6 +35,8 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
                 ledger
                 owner={address}
                 jettonViewType={AssetViewType.Default}
+                rightAction={() => markLedgerJettonHidden(h.jetton.address, true)}
+                rightActionIcon={hideIcon}
             />
         );
     }, [address]);
@@ -78,7 +87,7 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
         );
     }, [])
 
-    if (hints.length === 0) {
+    if (visibleList.length === 0) {
         return null;
     }
 
@@ -86,7 +95,7 @@ export const LedgerJettonsProductComponent = memo(({ address, testOnly }: { addr
         <View style={{ marginBottom: 16 }}>
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
-                items={hints}
+                items={visibleList}
                 renderItem={renderItem}
                 renderFace={renderFace}
                 itemHeight={ASSET_ITEM_HEIGHT}

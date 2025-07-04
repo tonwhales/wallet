@@ -237,8 +237,8 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({
             type: HoldersAppParamsType.Card,
             id
-        }, isTestnet);
-    }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation]);
+        }, isTestnet, isLedger);
+    }, [checkEnrollmentAndPrepareNavigation, isTestnet, isLedger, navigation]);
 
     const onCreateCardPress = useCallback(() => {
         const { shouldReturn } = checkEnrollmentAndPrepareNavigation();
@@ -247,8 +247,8 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({
             type: HoldersAppParamsType.CreateCard,
             id: account.id
-        }, isTestnet);
-    }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation, account.id]);
+        }, isTestnet, isLedger);
+    }, [checkEnrollmentAndPrepareNavigation, isTestnet, isLedger, navigation, account.id]);
 
     const showAddCardButton = useMemo(() => {
         if (account.cards.length === 0) return true;

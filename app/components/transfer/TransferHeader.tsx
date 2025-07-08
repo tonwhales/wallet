@@ -3,7 +3,7 @@ import { Text } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { ThemeType } from "../../engine/state/theme";
 import { Avatar, avatarColors } from "../avatar/Avatar";
-import { useWalletSettings } from "../../engine/hooks";
+import { useContractInfo, useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 import { Address } from "@ton/core";
 import { Typography } from "../styles";
@@ -29,6 +29,8 @@ export const TransferHeader = memo(({
     const [walletSettings,] = useWalletSettings(addressKey);
     const avatarColorHash = walletSettings?.color ?? avatarHash(addressKey, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
+    const targetContract = useContractInfo(addressKey);
+    const forcedAvatar = targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card' ? 'holders' : undefined;
 
     return (
         <Animated.View
@@ -55,6 +57,7 @@ export const TransferHeader = memo(({
                 backgroundColor={avatarColor}
                 knownWallets={knownWallets}
                 isLedger={isLedger}
+                forcedAvatar={forcedAvatar}
             />
             <Text style={[{ color: theme.textPrimary, marginLeft: 6, minHeight: 24 }, Typography.medium17_24]}>
                 {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}

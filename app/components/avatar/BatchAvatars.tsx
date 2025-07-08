@@ -11,6 +11,7 @@ import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { SelectedAccount } from "../../engine/types";
 import { KnownWallet } from "../../secure/KnownWallets";
+import { useContractInfo } from "../../engine/hooks";
 
 export const BatchAvatar = memo(({
     message,
@@ -88,6 +89,7 @@ export const BatchAvatar = memo(({
     const spam = !!denyList[opAddressBounceable] || spamWallets.includes(addressString);
     const contact = contacts[opAddressBounceable];
     const isOwn = !!ownAccounts.find((a) => a.address.equals(target));
+    const targetContract = useContractInfo(friendlyTarget);
 
     return (
         <Avatar
@@ -105,6 +107,7 @@ export const BatchAvatar = memo(({
             verified={verified}
             showSpambadge={showSpambadge}
             knownWallets={knownWallets}
+            forcedAvatar={targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card' ? 'holders' : undefined}
         />
     );
 });

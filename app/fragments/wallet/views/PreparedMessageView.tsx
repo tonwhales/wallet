@@ -23,6 +23,7 @@ import { PreparedMessage } from '../../../engine/hooks/transactions/usePeparedMe
 import { TxAvatar } from './TxAvatar';
 import { useContractInfo } from '../../../engine/hooks';
 import { useAddressFormatsHistory } from '../../../engine/hooks';
+import { ForcedAvatarType } from '../../../components/avatar/ForcedAvatar';
 
 export function PreparedMessageView(props: {
     own: Address,
@@ -67,6 +68,13 @@ export function PreparedMessageView(props: {
     // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
     const contact = contacts[parsedAddressFriendly] || contacts[parsedAddressNonBounceable];
     const knownWallets = useKnownWallets(isTestnet);
+    const targetContract = useContractInfo(opAddress);
+
+    const forcedAvatar: ForcedAvatarType | undefined = useMemo(() => {
+        if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
+            return 'holders';
+        }
+    }, [targetContract, opAddress]);
 
     // Operation
     const op = useMemo(() => {
@@ -129,6 +137,7 @@ export function PreparedMessageView(props: {
                         avatarColor={avatarColor}
                         knownWallets={props.knownWallets}
                         isLedger={props.ledger}
+                        forceAvatar={forcedAvatar}
                     />
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>

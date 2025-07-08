@@ -169,7 +169,9 @@ const TransactionPreview = () => {
     const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
         if (targetContract?.kind === 'dedust-vault') {
             return 'dedust';
-        } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
+        } else if (operation.op?.res === 'known.cashback') {
+            return 'cashback';
+        }else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
     }, [targetContract, ledgerAddresses, opAddress]);

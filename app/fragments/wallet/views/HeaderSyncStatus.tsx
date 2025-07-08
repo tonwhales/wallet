@@ -5,7 +5,7 @@ import { View } from 'react-native';
 
 import NoConnection from '@assets/ic-no-connection.svg';
 
-const BlinkingDot = memo(() => {
+const BlinkingDot = memo(({ size }: { size?: number }) => {
     const theme = useTheme();
     const opacity = useSharedValue(1);
 
@@ -19,8 +19,8 @@ const BlinkingDot = memo(() => {
     }));
 
     return (
-        <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-            <Animated.View style={[{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.iconNav }, animatedStyle]} />
+        <View style={{ height: size ?? 12, width: size ?? 12, justifyContent: 'center', alignItems: 'center' }}>
+            <Animated.View style={[{ width: size ?? 12, height: size ?? 12, borderRadius: size ?? 6, backgroundColor: theme.iconNav }, animatedStyle]} />
         </View>
     )
 });
@@ -30,7 +30,7 @@ export const HeaderSyncStatus = memo(({ address, isLedger, size }: { address?: s
     const syncState = useSyncState(address);
 
     if (syncState === 'updating') {
-        return <BlinkingDot />;
+        return <BlinkingDot size={size} />;
     }
 
     if (syncState === 'connecting') {
@@ -44,8 +44,8 @@ export const HeaderSyncStatus = memo(({ address, isLedger, size }: { address?: s
     }
 
     return (
-        <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ backgroundColor: theme.accentGreen, width: size ?? 8, height: size ?? 8, borderRadius: typeof size === 'number' ? size / 2 : 4 }} />
+        <View style={{ height: size ?? 12, width: size ?? 12, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ backgroundColor: theme.accentGreen, width: size ?? 12, height: size ?? 12, borderRadius: typeof size === 'number' ? size / 2 : 4 }} />
         </View>
     );
 });

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcManager;
 import android.nfc.cardemulation.CardEmulation;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -24,6 +25,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -42,9 +44,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -165,33 +169,111 @@ public class WalletModule extends ReactContextBaseJavaModule implements Activity
         });
     }
 
-    @ReactMethod
-    @SuppressWarnings("unused")
-    private void checkIfCardIsAlreadyAdded(String primaryAccountNumberSuffix, Promise promise) {
+    private CompletableFuture<Boolean> isCardAddedFuture(String primaryAccountNumberSuffix) {
+        WalletModule module = this;
+
         IsTokenizedRequest request = new IsTokenizedRequest.Builder().setNetwork(TapAndPay.CARD_NETWORK_VISA)
                 .setTokenServiceProvider(TapAndPay.TOKEN_PROVIDER_VISA).setIssuerName("Holders")
                 .setIdentifier(primaryAccountNumberSuffix).build();
+
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
         tapAndPayClient.isTokenized(request).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                this.getTokenStatusByFpanLastFour(primaryAccountNumberSuffix).thenAccept((res) -> {
+                module.getTokenStatusByFpanLastFour(primaryAccountNumberSuffix).thenAccept((res) -> {
                     if (res.status == -1) {
-                        promise.resolve(false);
+                        future.complete(false);
                         return;
                     }
                     if (res.status != TapAndPay.TOKEN_STATE_NEEDS_IDENTITY_VERIFICATION
                             && res.status != TapAndPay.TOKEN_STATE_FELICA_PENDING_PROVISIONING) {
-                        promise.resolve(true);
+                        future.complete(true);
                     } else {
-                        promise.resolve(false);
+                        future.complete(false);
                     }
                 }).exceptionally(e -> {
-                    promise.reject(e);
+                    future.completeExceptionally(e);
                     return null;
                 });
             } else {
                 ApiException apiException = (ApiException) task.getException();
-                promise.reject(apiException);
+                future.completeExceptionally(apiException);
             }
+        });
+
+        return future;
+    }
+
+    @ReactMethod
+    @SuppressWarnings("unused")
+    private void checkIfCardIsAlreadyAdded(String primaryAccountNumberSuffix, Promise promise) {
+        isCardAddedFuture(primaryAccountNumberSuffix).thenAccept(promise::resolve).exceptionally(e -> {
+            promise.reject(e);
+            return null;
+        });
+    }
+
+    @ReactMethod
+    @SuppressWarnings("unused")
+    private void checkIfCardsAreAdded(ReadableArray cardIds, Promise promise) {
+        if (cardIds.size() == 0) {
+            promise.resolve(new Object());
+            return;
+        }
+
+        int batchSize = 10; // Process 10 cards at a time
+        int totalCards = cardIds.size();
+        List<CompletableFuture<Void>> batchFutures = new ArrayList<>();
+
+        for (int batchStart = 0; batchStart < totalCards; batchStart += batchSize) {
+            int batchEnd = Math.min(batchStart + batchSize, totalCards);
+
+            int finalBatchStart = batchStart;
+            CompletableFuture<Void> batchFuture = CompletableFuture.supplyAsync(() -> {
+                List<CompletableFuture<Boolean>> cardFutures = new ArrayList<>();
+
+                for (int i = finalBatchStart; i < batchEnd; i++) {
+                    String cardId = cardIds.getString(i);
+                    cardFutures.add(isCardAddedFuture(cardId));
+                }
+
+                // Wait for all cards in this batch to complete
+                CompletableFuture<Void> batchCompletion = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    batchCompletion = CompletableFuture.allOf(
+                            cardFutures.toArray(new CompletableFuture[0])).orTimeout(30, TimeUnit.SECONDS);
+                } else {
+                    batchCompletion = CompletableFuture.allOf(cardFutures.toArray(new CompletableFuture[0]));
+                }
+
+                try {
+                    batchCompletion.join();
+                } catch (Exception e) {
+                    throw new RuntimeException("Batch processing failed", e);
+                }
+
+                return null;
+            });
+
+            batchFutures.add(batchFuture);
+        }
+
+        // Process batches sequentially
+        CompletableFuture<Void> sequentialProcessing = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            sequentialProcessing = batchFutures.stream()
+                    .reduce(CompletableFuture.completedFuture(null),
+                            (previousBatch, currentBatch) -> previousBatch.thenCompose(v -> currentBatch))
+                    .orTimeout(120, TimeUnit.SECONDS);
+        } else {
+            sequentialProcessing = CompletableFuture.allOf(batchFutures.toArray(new CompletableFuture[0]));
+        }
+
+        sequentialProcessing.thenAccept((res) -> {
+            promise.resolve(cardIds);
+        }).exceptionally(e -> {
+            promise.reject(e);
+            return null;
         });
     }
 

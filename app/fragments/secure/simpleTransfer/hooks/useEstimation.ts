@@ -81,7 +81,7 @@ export const useEstimation = (options: Options) => {
                     used: {
                         bits: number;
                         cells: number;
-                        publicCells: number;
+                        publicCells?: number;
                     }
                 } | null)[] = [];
 

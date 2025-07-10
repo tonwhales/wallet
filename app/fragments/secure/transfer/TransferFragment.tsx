@@ -681,7 +681,7 @@ export const TransferFragment = fragment(() => {
                 used: {
                     bits: number;
                     cells: number;
-                    publicCells: number;
+                    publicCells?: number;
                 }
             } | null)[] = [];
             const inMsgs: MessageRelaxed[] = [];

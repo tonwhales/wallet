@@ -33,7 +33,7 @@ export function estimateFees(
         used: {
             bits: number;
             cells: number;
-            publicCells: number;
+            publicCells?: number;
         }
     } | null)[]
 ) {
@@ -53,7 +53,7 @@ export function estimateFees(
                 storageStat: {
                     bits: storageStat.used.bits,
                     cells: storageStat.used.cells,
-                    publicCells: storageStat.used.publicCells
+                    publicCells: storageStat.used.publicCells ?? 0
                 }
             });
             storageFees = storageFees + computed;

@@ -95,13 +95,14 @@ public class MainApplication extends Application implements ReactApplication {
         }
         ApplicationLifecycleDispatcher.onApplicationCreate(this);
 
-        java.util.List<cloud.mindbox.mobile_sdk.pushes.MindboxPushService> pushServices = new java.util.ArrayList<>();
+        // @TODO: uncomment this when we start using Maestra
+        // java.util.List<cloud.mindbox.mobile_sdk.pushes.MindboxPushService> pushServices = new java.util.ArrayList<>();
         
-        if (MindboxFirebase.INSTANCE != null) {
-            pushServices.add(MindboxFirebase.INSTANCE);
-        }
+        // if (MindboxFirebase.INSTANCE != null) {
+        //     pushServices.add(MindboxFirebase.INSTANCE);
+        // }
         
-        Mindbox.INSTANCE.initPushServices(this, pushServices);
+        // Mindbox.INSTANCE.initPushServices(this, pushServices);
     }
 
     @Override

@@ -70,21 +70,21 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
       pushNotificationListener?.remove();
     };
   }, [handleAndroidPushNotification]);
+  // @TODO: uncomment this when we start using Maestra
+  // const appInitializationCallback = useCallback(async () => {
+  //   const configuration = {
+  //     domain: 'api.maestra.io',
+  //     endpointId:
+  //       Platform.OS === 'ios'
+  //         ? 'tonhub.IosApp'
+  //         : 'tonhub.AndroidApp',
+  //     subscribeCustomerIfCreated: true,
+  //     shouldCreateCustomer: true,
+  //   };
+  //   await MindboxSdk.initialize(configuration);
+  // }, []);
 
-  const appInitializationCallback = useCallback(async () => {
-    const configuration = {
-      domain: 'api.maestra.io',
-      endpointId:
-        Platform.OS === 'ios'
-          ? 'tonhub.IosApp'
-          : 'tonhub.AndroidApp',
-      subscribeCustomerIfCreated: true,
-      shouldCreateCustomer: true,
-    };
-    await MindboxSdk.initialize(configuration);
-  }, []);
-
-  useEffect(() => {
-    appInitializationCallback();
-  }, [appInitializationCallback]);
+  // useEffect(() => {
+  //   appInitializationCallback();
+  // }, [appInitializationCallback]);
 }

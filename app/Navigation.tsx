@@ -430,22 +430,24 @@ export const Navigation = memo(() => {
     }, [mounted]);
     const hideSplash = mounted && !isRestoring;
 
-    useEffect(() => {
-        const apnsSubscription = setupAPNsTokenHandler();
-        
-        return () => {
-            apnsSubscription?.remove();
-        };
-    }, []);
+    // @TODO: uncomment this when we start using Maestra
+    // useEffect(() => {
+    //     const apnsSubscription = setupAPNsTokenHandler();
+
+    //     return () => {
+    //         apnsSubscription?.remove();
+    //     };
+    // }, []);
 
     // Register token
     useEffect(() => {
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            if (Platform.OS === 'ios' && MaestraModule) {
-                MaestraModule.updateNotificationPermissions(existingStatus === PermissionStatus.GRANTED);
-            }
+            // @TODO: uncomment this when we start using Maestra
+            // if (Platform.OS === 'ios' && MaestraModule) {
+            //     MaestraModule.updateNotificationPermissions(existingStatus === PermissionStatus.GRANTED);
+            // }
             if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
                 const token = await backoff('navigation', async () => {
                     try {

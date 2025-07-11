@@ -1307,7 +1307,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Changelly è un exchange di criptovalute istantaneo e non-custodial",
         "description": "Stai per utilizzare un servizio Changelly gestito da una parte indipendente non affiliata con Tonhub\nDevi accettare i Termini di Utilizzo e la Politica sulla Privacy per continuare",
         "dontShowTitle": "Non mostrare più per Changelly",
-        "bannerTitle": "Depositi USDT e USDC",
+        "bannerTitle": "Depositi USDC",
         "bannerDescription": "Disponibili Tron, Solana, Ethereum, Polygon!"
     },
     "w5": {

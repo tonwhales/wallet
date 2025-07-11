@@ -17,6 +17,7 @@ import { ATextInputRef } from "../ATextInput";
 import { AddressSearchItem } from "./AddressSearch";
 import { isSolanaAddress } from "../../utils/solana/address";
 import { isTonAddress } from "../../utils/ton/address";
+import { debounce } from "../../utils/debounce";
 
 export type AddressInputState = {
     input: string,
@@ -117,7 +118,7 @@ export function addressInputReducer() {
     }
 }
 
-function RightActions({ resolving, input, openScanner, rightAction, clear }: { resolving: boolean | undefined, input: string, openScanner: () => void, rightAction?: React.ReactNode, clear: () => void }) {
+const RightActions = memo(({ resolving, input, openScanner, rightAction, clear }: { resolving: boolean | undefined, input: string, openScanner: () => void, rightAction?: React.ReactNode, clear: () => void }) => {
     const theme = useTheme();
 
     if (resolving) {
@@ -161,7 +162,7 @@ function RightActions({ resolving, input, openScanner, rightAction, clear }: { r
             {rightAction}
         </View>
     )
-}
+});
 
 export type AddressDomainInputRef = Omit<ATextInputRef, 'setText'> & {
     inputAction: React.Dispatch<AddressInputAction>
@@ -225,11 +226,27 @@ export const AddressDomainInput = memo(forwardRef(({
         }
     );
 
+    const [displayText, setDisplayText] = useState(inputState.input);
+    const [isFocused, setIsFocused] = useState(false);
+    
+    const { input, domain, target, suffix } = inputState;
+
     useEffect(() => {
         onStateChange(inputState);
+        setDisplayText(input);
     }, [inputState]);
 
-    const { input, domain, target, suffix } = inputState;
+
+    const debouncedInputActionRef = useRef<ReturnType<typeof debounce<(value: string) => void>> | null>(null);
+
+    if (!debouncedInputActionRef.current) {
+        debouncedInputActionRef.current = debounce((value: string) => {
+            inputAction({
+                type: InputAction.Input,
+                input: value
+            });
+        }, 300);
+    }
 
     const openScanner = () => {
         (async () => {
@@ -269,7 +286,7 @@ export const AddressDomainInput = memo(forwardRef(({
             if (resolvedDomainWallet instanceof Address) {
                 const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
                 const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
-
+                setDisplayText(`${domain}${zone}`)
                 inputAction({
                     type: InputAction.DomainTarget,
                     domain: `${domain}${zone}`,
@@ -278,7 +295,7 @@ export const AddressDomainInput = memo(forwardRef(({
             } else {
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
                 const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: isTestnet, bounceableFormat });
-
+                setDisplayText(`${domain}${zone}`)
                 inputAction({
                     type: InputAction.DomainTarget,
                     domain: `${domain}${zone}`,
@@ -294,14 +311,14 @@ export const AddressDomainInput = memo(forwardRef(({
     const { suff, textInput } = useMemo(() => {
 
         let suff = undefined;
-        let textInput = input;
+        let textInput = displayText;
 
         if (domain && target) {
             const t = target;
 
             return {
                 suff: t.slice(0, 4) + '...' + t.slice(t.length - 4),
-                textInput: input
+                textInput: displayText
             }
         }
 
@@ -318,7 +335,7 @@ export const AddressDomainInput = memo(forwardRef(({
         }
 
         return { suff, textInput };
-    }, [resolving, isKnown, contact, target, input, domain, suffix]);
+    }, [resolving, isKnown, contact, target, displayText, domain, suffix]);
 
     useEffect(() => {
         if (!netConfig) {
@@ -366,13 +383,12 @@ export const AddressDomainInput = memo(forwardRef(({
                 { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelWidth.value / 2]) },
                 { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeight.value * 2]) },
             ],
-            opacity: interpolate(valueNotEmptyShared.value, [0, 0.2, 1], [1, 0.1, 1]),
         }
     });
 
     const labelShiftStyle = useAnimatedStyle(() => {
         return {
-            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, 10]),
+            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, 14]),
         }
     });
 
@@ -380,27 +396,41 @@ export const AddressDomainInput = memo(forwardRef(({
         // We allow entering spaces for searching names of accounts
         // But we remove spaces for addresses
         const trimmed = value.trim();
-        if(isTonAddress(trimmed) || isSolanaAddress(trimmed)) {
+        if (isTonAddress(trimmed) || isSolanaAddress(trimmed)) {
             value = trimmed;
         } else {
             value = value.trimStart();
         }
         if (value !== textInput) {
-            inputAction({
-                type: InputAction.Input,
-                input: value
-            });
+            setDisplayText(value);
+            debouncedInputActionRef.current?.(value);
         }
-    }, [textInput, inputAction]);
+    }, [textInput]);
 
-    const focus = useCallback(() => onFocus?.(index), [index, onFocus]);
-    const blur = useCallback(() => onBlur?.(index), [index, onBlur]);
+    const focus = useCallback(() => {
+        onFocus?.(index)
+        setIsFocused(true);
+    }, [index, onFocus]);
+
+    const blur = useCallback(() => {
+        onBlur?.(index)
+        setIsFocused(false);
+    }, [index, onBlur]);
+
     const submit = useCallback(() => onSubmit?.(index), [index, onSubmit]);
-    const clear = useCallback(() => inputAction({ type: InputAction.Clear }), [inputAction]);
+
+    const clear = useCallback(() => {
+        debouncedInputActionRef.current?.cancel();
+        setDisplayText('');
+        animatedRef.current?.blur()
+        setTimeout(() => {
+            inputAction({ type: InputAction.Clear });
+        }, 100);
+    }, [inputAction]);
 
     useEffect(() => {
-        valueNotEmptyShared.value = withTiming(valueNotEmpty ? 1 : 0, { duration: 50 });
-    }, [valueNotEmpty]);
+        valueNotEmptyShared.value = withTiming(valueNotEmpty || isFocused ? 1 : 0, { duration: 100 });
+    }, [valueNotEmpty, isFocused]);
 
     const openAddressBook = () => {
         navigation.navigateAddressBook({
@@ -482,7 +512,7 @@ export const AddressDomainInput = memo(forwardRef(({
                         onBlur={blur}
                         onSubmitEditing={submit}
                     />
-                    {suff && (
+                    {suff && textInput && (
                         <View style={{ justifyContent: 'center' }}>
                             <Text
                                 numberOfLines={1}
@@ -508,7 +538,7 @@ export const AddressDomainInput = memo(forwardRef(({
             }}>
                 <RightActions
                     resolving={resolving}
-                    input={input}
+                    input={textInput}
                     openScanner={openScanner}
                     rightAction={rightAction}
                     clear={clear}

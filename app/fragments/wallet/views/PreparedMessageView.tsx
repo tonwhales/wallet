@@ -69,12 +69,8 @@ export function PreparedMessageView(props: {
     const contact = contacts[parsedAddressFriendly] || contacts[parsedAddressNonBounceable];
     const knownWallets = useKnownWallets(isTestnet);
     const targetContract = useContractInfo(opAddress);
-
-    const forcedAvatar: ForcedAvatarType | undefined = useMemo(() => {
-        if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
-            return 'holders';
-        }
-    }, [targetContract, opAddress]);
+    const isTargetHolders = targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card'
+    const forcedAvatar: ForcedAvatarType | undefined = useMemo(() => isTargetHolders ? 'holders' : undefined, [targetContract, opAddress]);
 
     // Operation
     const op = useMemo(() => {

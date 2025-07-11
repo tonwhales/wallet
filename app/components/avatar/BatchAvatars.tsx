@@ -90,6 +90,7 @@ export const BatchAvatar = memo(({
     const contact = contacts[opAddressBounceable];
     const isOwn = !!ownAccounts.find((a) => a.address.equals(target));
     const targetContract = useContractInfo(friendlyTarget);
+    const isTargetHolders = targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card'
 
     return (
         <Avatar
@@ -107,7 +108,7 @@ export const BatchAvatar = memo(({
             verified={verified}
             showSpambadge={showSpambadge}
             knownWallets={knownWallets}
-            forcedAvatar={targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card' ? 'holders' : undefined}
+            forcedAvatar={isTargetHolders ? 'holders' : undefined}
         />
     );
 });

@@ -30,7 +30,8 @@ export const TransferHeader = memo(({
     const avatarColorHash = walletSettings?.color ?? avatarHash(addressKey, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
     const targetContract = useContractInfo(addressKey);
-    const forcedAvatar = targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card' ? 'holders' : undefined;
+    const isTargetHolders = targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card'
+    const forcedAvatar = isTargetHolders ? 'holders' : undefined;
 
     return (
         <Animated.View

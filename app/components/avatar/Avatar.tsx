@@ -7,6 +7,7 @@ import { PerfView } from '../basic/PerfView';
 import { ThemeType } from '../../engine/state/theme';
 import { KnownWallet } from '../../secure/KnownWallets';
 import { SpamLabel } from '../SpamLabel';
+import { ForcedAvatar, ForcedAvatarType } from './ForcedAvatar';
 
 export const avatarImages = [
     require('@assets/avatars/0.png'),
@@ -168,9 +169,10 @@ export const Avatar = memo((props: {
     theme: ThemeType,
     hashColor?: { hash: number } | boolean,
     knownWallets?: { [key: string]: KnownWallet },
-    isLedger?: boolean
+    isLedger?: boolean,
+    forcedAvatar?: ForcedAvatarType
 }) => {
-    const { theme, address, hashColor, icProps, size, showSpambadge, spam, markContact, verified, dontShowVerified, borderColor, borderWidth, image, isLedger } = props
+    const { theme, address, hashColor, icProps, size, showSpambadge, spam, markContact, verified, dontShowVerified, borderColor, borderWidth, image, isLedger, forcedAvatar } = props
     const known = address ? props.knownWallets?.[address] : undefined;
     const hash = (props.hash !== undefined && props.hash !== null)
         ? props.hash
@@ -181,7 +183,19 @@ export const Avatar = memo((props: {
     // resolve image
     let img: ReactNode;
 
-    if (image) {
+    if (forcedAvatar) {
+        img = <ForcedAvatar
+                    type={forcedAvatar}
+                    size={props.size}
+                    hideVerifIcon={true}   
+                    icProps={{
+                        isOwn: false,
+                        backgroundColor: theme.backgroundPrimary,
+                        size: props.size,
+                        borderWidth: 2
+                    }}
+                />
+    } else if (image) {
         img = (
             <ExpoImage
                 source={{ uri: props.image }}

@@ -5,8 +5,9 @@ import { PendingTransactionStatus } from "../../state/pending";
 export function usePendingSolanaActions(address: string, mint?: string) {
     const { isTestnet } = useNetwork();
     const [pending, setPending] = usePendingSolanaTransactions(address, isTestnet);
-    const txsQuery = useSolanaTransactions(address);
-    const tokenTxsQuery = useSolanaTokenTransactions(address, mint);
+    const shouldTransactionsBeFetched = pending.length > 0;
+    const txsQuery = useSolanaTransactions(address, shouldTransactionsBeFetched);
+    const tokenTxsQuery = useSolanaTokenTransactions(address, mint, shouldTransactionsBeFetched);
     const txs = txsQuery.data;
     const latest32Txs = txs?.slice(-32) ?? [];
     const tokenLatest32Txs = tokenTxsQuery.data?.slice(-32) ?? [];

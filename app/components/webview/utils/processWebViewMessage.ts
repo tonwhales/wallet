@@ -37,6 +37,7 @@ export enum DAppWebViewAPIMethod {
     lockAppWithAuth = 'auth.lockAppWithAuth',
     walletIsEnabled = 'wallet.isEnabled',
     walletCheckIfCardIsAlreadyAdded = 'wallet.checkIfCardIsAlreadyAdded',
+    walletCheckIfCardsAreAdded = 'wallet.checkIfCardsAreAdded',
     walletCanAddCard = 'wallet.canAddCard',
     walletAddCardToWallet = 'wallet.addCardToWallet',
     eventEmitter = 'dapp-emitter',
@@ -181,6 +182,31 @@ export function processWebViewMessage(
                         })();
                     } catch {
                         warn('Failed to check if card is already added');
+                        dispatchWalletResponse(ref, { result: false });
+                    }
+                }
+                return true;
+            case DAppWebViewAPIMethod.walletCheckIfCardsAreAdded:
+                if (api.useWalletAPI) {
+                    try {
+                        const cardIds = args?.cardIds;
+                        if (!cardIds) {
+                            warn('Invalid cardIds');
+                            dispatchWalletResponse(ref, { result: false });
+                            return true;
+                        }
+
+                        (async () => {
+                            try {
+                                const result = await WalletService.checkIfCardsAreAdded(cardIds);
+                                dispatchWalletResponse(ref, { result });
+                            } catch {
+                                warn('Failed to check if cards are added');
+                                dispatchWalletResponse(ref, { result: false });
+                            }
+                        })();
+                    } catch {
+                        warn('Failed to check if cards are added');
                         dispatchWalletResponse(ref, { result: false });
                     }
                 }

@@ -59,7 +59,21 @@ class RNAppleProvisioning: NSObject, RCTBridgeModule, PKAddPaymentPassViewContro
     
     resolve(isAddedToAllDevices)
   }
-  
+
+  @objc
+  func checkIfCardsAreAdded(_ cardIds: [String], resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    if (passLibrary == nil) {
+      passLibrary = PKPassLibrary()
+    }
+
+    var result = [String: Bool]()
+    for cardId in cardIds {
+      result[cardId] = cardIsAlreadyAdded(suff: cardId, library: passLibrary!, watchSession: watchSession!)
+    }
+
+    resolve(result)
+  }
+
   @objc
   func canAddCard(_ cardIdentifier: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     if (passLibrary == nil) {

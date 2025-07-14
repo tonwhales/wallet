@@ -26,6 +26,7 @@ interface IosWalletService {
     checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string): Promise<boolean>;
     canAddCard(cardId: string): Promise<boolean>;
     addCardToWallet(request: AddCardRequest): Promise<boolean>;
+    checkIfCardsAreAdded(cardIds: string[]): Promise<{ [key: string]: boolean }>;
 
     getCredentials(): Promise<ProvisioningCredential[]>;
     setCredentialsInGroupUserDefaults(data: { [key: string]: ProvisioningCredential }): Promise<void>;
@@ -39,6 +40,7 @@ interface AndroidWalletService {
     checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string): Promise<boolean>;
     canAddCard(cardId: string): Promise<boolean>;
     addCardToWallet(request: AddCardRequest): Promise<boolean>;
+    checkIfCardsAreAdded(cardIds: string[]): Promise<{ [key: string]: boolean }>;
 
     getIsDefaultWallet(): Promise<boolean>;
     setDefaultWallet(): Promise<void>;
@@ -59,6 +61,13 @@ export const IosWalletService: IosWalletService = {
         return RNAppleProvisioning.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
     },
 
+    async checkIfCardsAreAdded(cardIds: string[]): Promise<{ [key: string]: boolean }> {
+        if (Platform.OS === 'android') {
+            return {};
+        }
+        return RNAppleProvisioning.checkIfCardsAreAdded(cardIds);
+    },
+
     async canAddCard(cardId: string): Promise<boolean> {
         if (Platform.OS === 'android') {
             return false;
@@ -73,28 +82,28 @@ export const IosWalletService: IosWalletService = {
         return RNAppleProvisioning.addCardToWallet(request);
     },
 
-    async getCredentials() {
+    async getCredentials(): Promise<ProvisioningCredential[]> {
         if (Platform.OS === 'android') {
-            return {};
+            return [];
         }
         return RNAppleProvisioning.getCredentials();
     },
 
-    async setCredentialsInGroupUserDefaults(data: { [key: string]: ProvisioningCredential }) {
+    async setCredentialsInGroupUserDefaults(data: { [key: string]: ProvisioningCredential }): Promise<void> {
         if (Platform.OS === 'android') {
             return;
         }
         return RNAppleProvisioning.setCredentialsInGroupUserDefaults(data);
     },
 
-    async getShouldRequireAuthenticationForAppleWallet() {
+    async getShouldRequireAuthenticationForAppleWallet(): Promise<boolean> {
         if (Platform.OS === 'android') {
             return false;
         }
         return RNAppleProvisioning.getShouldRequireAuthenticationForAppleWallet();
     },
 
-    async setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication: boolean) {
+    async setShouldRequireAuthenticationForAppleWallet(shouldRequireAuthentication: boolean): Promise<void> {
         if (Platform.OS === 'android') {
             return;
         }
@@ -103,7 +112,7 @@ export const IosWalletService: IosWalletService = {
 }
 
 export const AndroidWalletService: AndroidWalletService = {
-    async isEnabled() {
+    async isEnabled(): Promise<boolean> {
         if (Platform.OS === 'ios') {
             return false;
         }
@@ -111,7 +120,7 @@ export const AndroidWalletService: AndroidWalletService = {
         return WalletModule.isEnabled();
     },
 
-    async getIsDefaultWallet() {
+    async getIsDefaultWallet(): Promise<boolean> {
         if (Platform.OS === 'ios') {
             return false;
         }
@@ -119,7 +128,7 @@ export const AndroidWalletService: AndroidWalletService = {
         return WalletModule.getIsDefaultWallet();
     },
 
-    async setDefaultWallet() {
+    async setDefaultWallet(): Promise<void> {
         if (Platform.OS === 'ios') {
             return;
         }
@@ -127,7 +136,7 @@ export const AndroidWalletService: AndroidWalletService = {
         return WalletModule.setDefaultWallet();
     },
 
-    async addCardToWallet(request: AddCardRequest) {
+    async addCardToWallet(request: AddCardRequest): Promise<boolean> {
         if (Platform.OS === 'ios') {
             return false;
         }
@@ -141,7 +150,7 @@ export const AndroidWalletService: AndroidWalletService = {
         );
     },
 
-    async checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string) {
+    async checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix: string): Promise<boolean> {
         if (Platform.OS === 'ios') {
             return false;
         }
@@ -149,12 +158,25 @@ export const AndroidWalletService: AndroidWalletService = {
         return WalletModule.checkIfCardIsAlreadyAdded(primaryAccountNumberSuffix);
     },
 
-    async canAddCard(cardId: string) {
+    async canAddCard(cardId: string): Promise<boolean> {
         if (Platform.OS === 'ios') {
             return false;
         }
 
         return true;
+    },
+
+    async checkIfCardsAreAdded(cardIds: string[]): Promise<{ [key: string]: boolean }> {
+        if (Platform.OS === 'ios') {
+            return {};
+        }
+
+        const result = await WalletModule.checkIfCardsAreAdded(cardIds);
+
+        return result.reduce((acc: { [x: string]: any; }, cardId: any, index: number) => {
+            acc[cardIds[index]] = cardId;
+            return acc;
+        }, {});
     }
 }
 

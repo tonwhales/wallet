@@ -51,4 +51,8 @@ RCT_EXTERN_METHOD(setExtensionData:(NSString *)key
                   resolver:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(checkIfCardsAreAdded:(NSArray *)cardIds
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 @end

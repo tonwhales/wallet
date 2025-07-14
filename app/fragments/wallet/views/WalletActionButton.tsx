@@ -8,13 +8,14 @@ import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterCon
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { ReceiveableSolanaAsset } from "../ReceiveFragment";
-import { useHoldersAccounts, useNetwork, useSelectedAccount, useSolanaSelectedAccount } from "../../../engine/hooks";
+import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
 import { SimpleTransferAsset } from "../../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { AppsFlyerEvent, RegistrationMethod, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 import { useQRCodeHandler } from "../../../engine/hooks/qrcode/useQRCodeHandler";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { holdersUrl, HoldersUserState } from "../../../engine/api/holders/fetchUserState";
 
 export enum WalletActionType {
     Send = 'send',
@@ -90,6 +91,10 @@ export const WalletActionButton = memo(({
     const accounts = useHoldersAccounts(address, solanaAddress).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
     const handleQRCode = useQRCodeHandler({ toastProps: { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) } });
+    const url = holdersUrl(isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
+    const holdersAccStatus = useHoldersAccountStatus(address).data;
+    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: handleQRCode }), [handleQRCode]);
     const isDisabled = !isWalletMode && !accounts?.length;
@@ -146,6 +151,14 @@ export const WalletActionButton = memo(({
                     if (accountId) {
                         const path = `/transfer/${accounts}`;
                         const navParams: HoldersAppParams = { type: HoldersAppParamsType.Path, path, query: {} };
+                        if (needsEnrollment || !isHoldersReady) {
+                            navigation.navigateHoldersLanding(
+                                { endpoint: url, onEnrollType: navParams },
+                                isTestnet
+                            );
+                            return;
+                        }
+                
                         navigation.navigateHolders(navParams, isTestnet);
                     }
                 }

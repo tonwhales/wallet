@@ -8,8 +8,9 @@ import { PublicKey } from "@solana/web3.js";
 
 const TRANSACTIONS_LENGTH = 16;
 
-export function useSolanaTokenTransactions(address: string, mint?: string) {
+export function useSolanaTokenTransactions(address: string, mint?: string, enabled?: boolean) {
     const { isTestnet } = useNetwork();
+    const isEnabled = enabled ?? true;
 
     const query = useInfiniteQuery<SolanaTransaction[]>({
         queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').TokenTransactions(mint ?? 'default'),
@@ -80,7 +81,8 @@ export function useSolanaTokenTransactions(address: string, mint?: string) {
 
             return { pages, pageParams };
         },
-        staleTime: 6000
+        staleTime: 6000,
+        enabled: isEnabled
     });
 
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -105,8 +107,10 @@ export function useSolanaTokenTransactions(address: string, mint?: string) {
 
     // Refetch only first page on mount instead of refetching all pages (in case of token transactions it would search through all transactions to find token transfers)
     useEffect(() => {
-        query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
-    }, []);
+        if (isEnabled) {
+            query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        }
+    }, [isEnabled]);
 
     return {
         data: query.data?.pages.flat() || [],

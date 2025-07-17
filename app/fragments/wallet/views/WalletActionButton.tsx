@@ -102,9 +102,7 @@ export const WalletActionButton = memo(({
         // TODO: rm platfrom check after review
         // dont show Dedust on ios until the issue with review is resolved
         if (Platform.OS === 'android') {
-            navigation.navigate('SelectExchange');
-        } else {
-            navigation.navigate('Changelly');
+            navigation.navigate('Swap');
         }
     }, [navigation]);
 

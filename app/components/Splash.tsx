@@ -3,7 +3,6 @@ import { View, Image, Platform } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from "react-native-reanimated";
 import { useTheme } from "../engine/hooks";
-import { changeNavBarColor } from "../modules/NavBar";
 
 export const Splash = memo(({ hide }: { hide: boolean }) => {
     const theme = useTheme();

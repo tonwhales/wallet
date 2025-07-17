@@ -42,6 +42,24 @@ function migrateHoldersSolanaToken(address: string) {
     return true;
 }
 
+const holdersTokenMigrationKey_0 = 'holders-token-migration-0';
+function migrateHoldersToken_0(address: string) {
+    const key = `${holdersTokenMigrationKey_0}-${address}`;
+
+    if (storage.getBoolean(key)) {
+        return false;
+    }
+
+    const token = getHoldersToken(address);
+    if (!token) {
+        storage.set(key, true);
+        return true;
+    }
+    deleteHoldersToken(address);
+    storage.set(key, true);
+    return true;
+}
+
 export function deleteHoldersToken(address: string) {
     // clean up provisioning credentials cache for this address
     removeProvisioningCredentials(address);
@@ -60,6 +78,11 @@ export function getHoldersToken(address: string) {
 
     // Migate to solana
     if (migrateHoldersSolanaToken(address)) {
+        return null;
+    }
+
+    // Migrate to new token session
+    if (migrateHoldersToken_0(address)) {
         return null;
     }
 

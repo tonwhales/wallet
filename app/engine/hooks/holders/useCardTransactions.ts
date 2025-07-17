@@ -1,9 +1,10 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { CardNotification, fetchCardsTransactions } from "../../api/holders/fetchCardsTransactions";
 import { Queries } from "../../queries";
-import { deleteHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
+import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersUserState } from "../../api/holders/fetchUserState";
 import axios from "axios";
+import { deleteHoldersToken } from "../../../storage/holders";
 
 export function useCardTransactions(address: string, id: string) {
     let status = useHoldersAccountStatus(address).data;

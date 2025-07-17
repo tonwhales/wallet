@@ -1,13 +1,13 @@
 import { useEffect } from "react";
-import { getHoldersToken, useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
+import { useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
 import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
-import { HoldersUserState } from "./api/holders/fetchUserState";
 import { useNetwork } from "./hooks/network/useNetwork";
 import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
 import { useHoldersAccounts, useSolanaSelectedAccount } from "./hooks";
 import { Queries } from "./queries";
 import { queryClient } from "./clients";
 import { AppState, AppStateStatus } from "react-native";
+import { getHoldersToken } from "../storage/holders";
 
 export function useHoldersWatcher() {
     const account = useSelectedAccount();

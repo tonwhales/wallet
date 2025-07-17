@@ -5,7 +5,7 @@ import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { holdersUrl } from "../../api/holders/fetchUserState";
 import { extensionKey } from "../dapps/useAddExtension";
 import { TonConnectBridgeType } from "../../tonconnect/types";
-import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
+import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "../../../storage/holders";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { AppManifest } from "../../api/fetchManifest";
 import { WalletVersions } from "../../types";

@@ -1,5 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
-import { getHoldersToken, HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { getHoldersToken } from "../../storage/holders";
+import { HoldersAccountStatus } from "../../engine/hooks/holders/useHoldersAccountStatus";
 import { getQueryData } from "../../engine/utils/getQueryData";
 import { Queries } from "../../engine/queries";
 import { getIsConnectAppReady } from "../../engine/hooks/dapps/useIsConnectAppReady";

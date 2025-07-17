@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { fetchIbanPromo } from "../../api/holders/fetchIbanPromo";
-import { getHoldersToken } from "./useHoldersAccountStatus";
+import { getHoldersToken } from "../../../storage/holders";
 
 export function useHoldersIban(address: string | Address | undefined) {
     const { isTestnet } = useNetwork();

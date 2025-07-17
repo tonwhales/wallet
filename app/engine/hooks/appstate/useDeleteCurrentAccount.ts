@@ -6,7 +6,7 @@ import { storage, storagePersistence } from "../../../storage/storage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { queryClient } from "../../clients";
 import { clearDomainKeysState } from "../../state/domainKeys";
-import { deleteHoldersToken } from "../holders/useHoldersAccountStatus";
+import { deleteHoldersToken } from "../../../storage/holders";
 import { useNetwork } from "../network";
 import { useSetAppState } from "./useSetAppState";
 import { useSetBiometricsState } from './useSetBiometricsState';

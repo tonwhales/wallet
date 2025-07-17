@@ -8,7 +8,7 @@ import { dispatchAuthResponse, dispatchLastAuthTimeResponse, dispatchLockAppWith
 import { AuthWalletKeysType, getLastAuthTimestamp } from "../../secure/AuthWalletKeys";
 import { warn } from "../../../utils/log";
 import { addCardRequestSchema, WalletService } from "../../../modules/WalletService";
-import { getHoldersToken } from "../../../engine/hooks/holders/useHoldersAccountStatus";
+import { getHoldersToken } from "../../../storage/holders";
 import { processStatusBarMessage } from "./processStatusBarMessage";
 import { setStatusBarBackgroundColor, setStatusBarStyle } from "expo-status-bar";
 import { processEmitterMessage } from "./processEmitterMessage";

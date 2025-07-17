@@ -10,7 +10,7 @@ import { getAppManifest } from "../../getters/getAppManifest";
 import { AppManifest } from "../../api/fetchManifest";
 import { TonProofItemReplySuccess } from "@tonconnect/protocol";
 import { useAppConnections, useConnectApp, useNetwork, useSaveAppConnection } from "..";
-import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
+import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "../../../storage/holders";
 import { TonConnectBridgeType } from "../../tonconnect/types";
 import { extensionKey } from "../dapps/useAddExtension";
 import { useWalletVersion } from "../useWalletVersion";

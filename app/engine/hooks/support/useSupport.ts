@@ -1,4 +1,4 @@
-import { getHoldersToken } from "../holders/useHoldersAccountStatus";
+import { getHoldersToken } from "../../../storage/holders";
 import { HoldersUserState, holdersUrl as resolveHoldersUrl } from "../../api/holders/fetchUserState";
 import { queryClient } from "../../clients";
 import { Queries } from "../../queries";

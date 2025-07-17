@@ -6,7 +6,7 @@ import { useHoldersOtp, useNetwork, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { t } from "../../i18n/t";
 import { Image } from "expo-image";
-import { getHoldersToken } from "../../engine/hooks/holders/useHoldersAccountStatus";
+import { getHoldersToken } from "../../storage/holders";
 import { holdersUrl } from "../../engine/api/holders/fetchUserState";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";

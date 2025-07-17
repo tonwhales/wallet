@@ -1,7 +1,7 @@
 import { Address } from "@ton/ton";
 import { queryClient } from "../clients";
 import { Queries } from "../queries";
-import { getHoldersToken } from "../hooks/holders/useHoldersAccountStatus";
+import { getHoldersToken } from "../../storage/holders";
 import { HoldersUserState, fetchUserState } from "../api/holders/fetchUserState";
 import { fetchAccountsPublic, fetchAccountsList } from "../api/holders/fetchAccounts";
 import { updateProvisioningCredentials } from "../holders/updateProvisioningCredentials";

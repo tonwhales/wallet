@@ -17,6 +17,7 @@ import { Address } from "@ton/core";
 import { getCurrentAddress } from "../../../storage/appState";
 import Intercom, { Space } from "@intercom/intercom-react-native";
 import { z } from "zod";
+import { isAuthTimedOut } from "../../SessionWatcher";
 
 export type DAppWebViewAPI = {
     useMainButton?: boolean;
@@ -129,9 +130,14 @@ export function processWebViewMessage(
                         let lastAuthTime: number | undefined;
                         // wait for auth to complete
                         try {
-                            await authContext.authenticate({ cancelable: true, paddingTop: 32 });
-                            isAuthenticated = true;
-                            lastAuthTime = getLastAuthTimestamp();
+                            if (isAuthTimedOut()) {
+                                await authContext.authenticate({ cancelable: true, paddingTop: 32 });
+                                isAuthenticated = true;
+                                lastAuthTime = getLastAuthTimestamp();
+                            } else {
+                                isAuthenticated = true;
+                                lastAuthTime = getLastAuthTimestamp();
+                            }
                         } catch {
                             warn('Failed to authenticate');
                         }

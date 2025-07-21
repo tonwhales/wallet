@@ -5,11 +5,11 @@ import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useEffect, useMemo } from 'react';
-import { useHoldersAccountStatus, useHoldersAccounts, useIsLedgerRoute, useNetwork, useSecureScreen, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useHoldersAccounts, useIsLedgerRoute, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { Address } from '@ton/core';
 
@@ -53,8 +53,6 @@ export const HoldersAppFragment = fragment(({ initialParams }: { initialParams?:
     const status = useHoldersAccountStatus(address!.toString({ testOnly: isTestnet })).data;
     const accounts = useHoldersAccounts(address!.toString({ testOnly: isTestnet }), isLedger ? undefined : solanaAddress).data;
     const url = holdersUrl(isTestnet);
-
-    useSecureScreen()
 
     useEffect(() => {
         return () => {

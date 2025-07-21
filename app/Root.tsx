@@ -9,7 +9,7 @@ import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
 import { LedgerTransportProvider } from './fragments/ledger/components/TransportContext';
 import { PerformanceProfiler, RenderPassReport } from '@shopify/react-native-performance';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { Mixpanel } from 'mixpanel-react-native';
 import { LogBox } from 'react-native';
 import { AddressBookLoader } from './engine/AddressBookContext';
@@ -21,6 +21,7 @@ import { ModalAlertProvider } from './components/ModalAlert';
 import { devKey } from './analytics/mixpanel';
 import { WebViewPreloaderProvider } from './components/WebViewPreloaderContext';
 import { ToastProvider } from './components/toast/ToastProvider';
+import { runMigrations } from './migrations/runMigrations';
 
 const PERSISTANCE_VERSION = '23';
 // set default value for spam comments
@@ -42,6 +43,11 @@ export const Root = memo(() => {
             console.log('Render pass report', report);
             new Mixpanel(devKey, true).track('react_native_performance', report);
         }
+    }, []);
+
+    // run all necessary migrations
+    useEffect(() => {
+        runMigrations();
     }, []);
 
     return (

@@ -9,7 +9,7 @@ export function getScreenProtectorState() {
     return value === undefined ? true : value;
 }
 
-function storeScreenProtectorState(value: boolean) {
+export function storeScreenProtectorState(value: boolean) {
     sharedStoragePersistence.set(screenProtectorStateKey, value);
 }
 

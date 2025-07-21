@@ -14,18 +14,7 @@ export function isAuthTimedOut() {
 }
 
 export function shouldLockApp() {
-    const lastAuthAt = getLastAuthTimestamp() ?? 0;
     const lockAppWithAuth = getLockAppWithAuthState();
-
-    console.log(`[SessionWatcher] 
-        lastAuthAt: ${new Date(lastAuthAt).toISOString()},
-        lockAppWithAuth: ${lockAppWithAuth}, 
-        appLockTimeout: ${appLockTimeout}, 
-        Date.now(): ${new Date(Date.now()).toISOString()}, 
-        timedOut: ${lastAuthAt + appLockTimeout < Date.now()}, 
-        left: ${lastAuthAt + appLockTimeout - Date.now()}
-    `);
-
     const timedOut = isAuthTimedOut();
     return lockAppWithAuth && timedOut;
 }
@@ -42,7 +31,6 @@ export const SessionWatcher = (({ navRef }: { navRef: NavigationContainerRefWith
 
         const checkAndNavigate = () => {
             const shouldLock = shouldLockApp();
-            console.log(`[SessionWatcher] shouldLock: ${shouldLock}`);
             if (shouldLock) {
                 navRef.navigate('AppAuth');
             } else {

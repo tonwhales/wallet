@@ -165,7 +165,7 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
                         })}
                         theme={theme}
                         withCopyIcon
-                        bounceable={favoriteHoldersAccount ? true : undefined}
+                        bounceable={favoriteHoldersAccount && !isWalletMode ? true : undefined}
                         addressNameType={favoriteHoldersAccount && !isWalletMode ? "direct-deposit" : "wallet"}
                     />
                 )}

@@ -336,7 +336,9 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         throw Error('Invalid state');
                     }
                 }
-                navigation.navigateAndReplaceAll('Home', { ledger });
+                setTimeout(() => {
+                    navigation.navigateAndReplaceAll('Home', { ledger });
+                });
                 return;
             }
 

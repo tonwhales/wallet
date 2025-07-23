@@ -65,7 +65,12 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 method: registrationMethod
             });
         }
-        navigation.navigateAndReplaceAll('Home', { ledger });
+
+        // Postpone navigation to next event loop cycle to ensure all loading states,
+        // overlays, and animations are properly cleared before navigating
+        setTimeout(() => {
+            navigation.navigateAndReplaceAll('Home', { ledger });
+        });
     }, [additionalWallet, isImport, isTestnet, ledger]);
 
     // Create new wallet on launch if no wallets exist

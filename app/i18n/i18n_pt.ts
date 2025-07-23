@@ -90,7 +90,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "operation": "Operação",
         "description": "Descrição",
         "openSettings": "Abrir configurações",
-        "exchanges": "Trocas"
+        "exchanges": "Trocas",
+        "directDepositAddress": "Endereço de depósito direto"
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -152,6 +153,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "sync": "Baixando dados da carteira",
         "balanceTitle": "Saldo em Ton",
         "owner": "Proprietário",
+        "mainAccount": "Conta principal",
         "actions": {
             "receive": "Receber",
             "send": "Enviar",

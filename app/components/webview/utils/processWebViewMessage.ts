@@ -54,6 +54,7 @@ export enum DAppWebViewAPIMethod {
     backPolicy = 'backPolicy',
     showIntercom = 'showIntercom',
     showIntercomWithMessage = 'showIntercomWithMessage',
+    showSelectMainAccount = 'showSelectMainAccount',
 }
 
 const userAttributesSchema = z.object({
@@ -343,6 +344,9 @@ export function processWebViewMessage(
                         warn('Failed to show intercom with message');
                     }
                 })();
+                return true;
+            case DAppWebViewAPIMethod.showSelectMainAccount:
+                navigation.navigate('SelectHoldersMainAccount');
                 return true;
             default:
                 if (api.useMainButton && method.startsWith(DAppWebViewAPIMethod.mainButton)) {

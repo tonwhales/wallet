@@ -287,7 +287,7 @@ export const LiquidStakingFragment = fragment(() => {
                             copyOnPress
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
                             theme={theme}
-                            isPoolAddress
+                            addressNameType="pool"
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>

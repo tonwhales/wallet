@@ -4,3 +4,4 @@ export * from './jettons';
 export * from './appstate';
 export * from './network';
 export * from './push';
+export * from './address';

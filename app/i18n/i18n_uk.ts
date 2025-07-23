@@ -90,7 +90,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "operation": "Операція",
         "description": "Опис",
         "openSettings": "Відкрити налаштування",
-        "exchanges": "Біржі"
+        "exchanges": "Біржі",
+        "directDepositAddress": "Адреса прямого поповнення"
     },
     "syncStatus": {
         "connecting": "Підключення",
@@ -152,6 +153,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "sync": "Завантаження даних гаманця",
         "balanceTitle": "Баланс TON",
         "owner": "Власник",
+        "mainAccount": "Основний акаунт",
         "actions": {
             "receive": "Отримати",
             "send": "Надіслати",

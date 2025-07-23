@@ -18,6 +18,7 @@ import { HoldersUserState, holdersUrl as resolveHoldersUrl } from "../../engine/
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { HoldersAppParamsType } from "../../fragments/holders/HoldersAppFragment";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { useFavoriteHoldersAccount } from "../../engine/hooks/holders/useFavoriteHoldersAccount";
 
 const hideIcon = <Image source={require('@assets/ic-hide.png')} style={{ width: 36, height: 36 }} />;
 
@@ -43,6 +44,7 @@ export const HoldersAccounts = memo(({
     const holdersUrl = resolveHoldersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(holdersUrl, owner.toString({ testOnly: isTestnet }));
     const ledgerContext = useLedgerTransport();
+    const [favoriteHoldersAccount] = useFavoriteHoldersAccount();
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersUserState.NeedEnrollment) {
@@ -145,9 +147,10 @@ export const HoldersAccounts = memo(({
                 content={{ type: HoldersItemContentType.BALANCE }}
                 isLedger={isLedger}
                 cardsClickable
+                isFavorite={favoriteHoldersAccount === item?.address}
             />
         )
-    }, [rightAction, owner, isTestnet, holdersAccStatus, isLedger]);
+    }, [rightAction, owner, isTestnet, holdersAccStatus, isLedger, favoriteHoldersAccount]);
 
     if (accs.length === 0) {
         return null;

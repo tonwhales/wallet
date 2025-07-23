@@ -6,6 +6,9 @@ import { copyText } from "../../utils/copyText";
 import { ToastDuration, ToastProps, useToaster } from "../toast/ToastProvider";
 import { useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
+import CopyIcon from '@assets/ic-copy.svg';
+import { getAddressName } from "../../utils/getAddressName";
+import { AddressNameType } from "../../engine/types";
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
     return src.slice(0, params?.start ?? 10)
@@ -27,7 +30,9 @@ export const SolanaWalletAddress = memo((props: {
     previewBackgroundColor?: string,
     copyOnPress?: boolean,
     copyToastProps?: Omit<ToastProps, 'message' | 'type' | 'duration'>,
-    bounceable?: boolean
+    bounceable?: boolean,
+    withCopyIcon?: boolean,
+    addressNameType?: AddressNameType,
 }) => {
     const toaster = useToaster();
     const theme = useTheme();
@@ -53,13 +58,13 @@ export const SolanaWalletAddress = memo((props: {
 
         toaster.show(
             {
-                message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                message: getAddressName(t, props.addressNameType) + ' ' + t('common.copied').toLowerCase(),
                 type: 'default',
                 duration: ToastDuration.SHORT,
                 ...props.copyToastProps
             }
         );
-    }, [value, address, toaster, copyToastProps]);
+    }, [value, address, toaster, copyToastProps, props.addressNameType]);
 
     const handleAction = useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
         switch (e.nativeEvent.name) {
@@ -169,7 +174,7 @@ export const SolanaWalletAddress = memo((props: {
                     style={({ pressed }) => {
                         return [
                             props.style,
-                            { opacity: (pressed && props.copyOnPress) ? 0.5 : 1 }
+                            { opacity: (pressed && props.copyOnPress) ? 0.5 : 1, flexDirection: 'row', alignItems: 'center' }
                         ]
                     }}
                     onPress={props.copyOnPress ? onCopy : undefined}
@@ -224,6 +229,9 @@ export const SolanaWalletAddress = memo((props: {
                                 {address.slice(address.length / 2, address.length)}
                             </Text>
                         </>
+                    )}
+                    {props.withCopyIcon && (
+                        <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={theme.iconPrimary} />
                     )}
                 </Pressable>
             )}

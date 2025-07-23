@@ -54,7 +54,7 @@ export enum DAppWebViewAPIMethod {
     backPolicy = 'backPolicy',
     showIntercom = 'showIntercom',
     showIntercomWithMessage = 'showIntercomWithMessage',
-    showSelectMainAccount = 'showSelectMainAccount',
+    navigate = 'navigate',
 }
 
 const userAttributesSchema = z.object({
@@ -345,8 +345,8 @@ export function processWebViewMessage(
                     }
                 })();
                 return true;
-            case DAppWebViewAPIMethod.showSelectMainAccount:
-                navigation.navigate('SelectHoldersMainAccount');
+            case DAppWebViewAPIMethod.navigate:
+                navigation.navigate(args?.routeName, args?.params);
                 return true;
             default:
                 if (api.useMainButton && method.startsWith(DAppWebViewAPIMethod.mainButton)) {

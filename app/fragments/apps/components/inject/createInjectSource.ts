@@ -337,8 +337,12 @@ window['dapp-client'] = (() => {
     const setBackPolicy = (backPolicy) => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'backPolicy', args: { backPolicy } } }));
     }
+    
+    const navigate = (routeName, params) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'navigate', args: { routeName, params } } }));
+    }
 
-    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, setBackPolicy, __DAPP_CLIENT_AVAILABLE };
+    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, setBackPolicy, navigate, __DAPP_CLIENT_AVAILABLE };
     Object.freeze(obj);
     return obj;
 })();

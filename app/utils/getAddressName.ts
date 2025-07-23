@@ -1,7 +1,7 @@
-import { TFunction } from "i18next";
 import { AddressNameType } from "../engine/types";
+import { t } from "../i18n/t";
 
-export const getAddressName = (t: TFunction, addressType?: AddressNameType) => {
+export const getAddressName = (addressType?: AddressNameType) => {
     switch (addressType) {
         case 'pool':
             return t('common.poolAddress');

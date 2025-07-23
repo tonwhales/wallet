@@ -58,7 +58,7 @@ export const SolanaWalletAddress = memo((props: {
 
         toaster.show(
             {
-                message: getAddressName(t, props.addressNameType) + ' ' + t('common.copied').toLowerCase(),
+                message: getAddressName(props.addressNameType) + ' ' + t('common.copied').toLowerCase(),
                 type: 'default',
                 duration: ToastDuration.SHORT,
                 ...props.copyToastProps

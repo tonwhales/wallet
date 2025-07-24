@@ -123,6 +123,7 @@ import { LiquidUSDeStakingUnstakeFragment } from './fragments/staking/LiquidUSDe
 import { TonConnectSignFragment } from './fragments/secure/dapps/TonConnectSignFragment';
 import { ChangellyFragment } from './fragments/integrations/ChangellyFragment';
 import { SelectExchangeFragment } from './fragments/integrations/SelectExchangeFragment';
+import { SelectHoldersMainAccountFragment } from './fragments/holders/SelectHoldersMainAccountFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -379,6 +380,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),
     genericScreen('Holders', HoldersAppFragment, safeArea, true, 0),
     modalScreen('Exchanges', ExchangesFragment, safeArea),
+    modalScreen('SelectHoldersMainAccount', SelectHoldersMainAccountFragment, safeArea),
 
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea, true),

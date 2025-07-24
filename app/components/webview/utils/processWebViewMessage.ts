@@ -54,6 +54,7 @@ export enum DAppWebViewAPIMethod {
     backPolicy = 'backPolicy',
     showIntercom = 'showIntercom',
     showIntercomWithMessage = 'showIntercomWithMessage',
+    navigate = 'navigate',
 }
 
 const userAttributesSchema = z.object({
@@ -343,6 +344,9 @@ export function processWebViewMessage(
                         warn('Failed to show intercom with message');
                     }
                 })();
+                return true;
+            case DAppWebViewAPIMethod.navigate:
+                navigation.navigate(args?.routeName, args?.params);
                 return true;
             default:
                 if (api.useMainButton && method.startsWith(DAppWebViewAPIMethod.mainButton)) {

@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useSolanaSavingsBalance, useStaking, useTheme } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { reduceHoldersBalances } from "../../../utils/reduceHoldersBalances";
@@ -15,6 +15,8 @@ import { useSavingsBalance } from "../../../engine/hooks/jettons/useSavingsBalan
 import { t } from "../../../i18n/t";
 import { APP_MODE_TOGGLE_HEIGHT } from "../../../utils/constants";
 import Animated, { useSharedValue, Easing, useAnimatedStyle, withTiming, withDelay, withSequence, runOnJS } from "react-native-reanimated";
+import { useFavoriteHoldersAccount } from "../../../engine/hooks/holders/useFavoriteHoldersAccount";
+import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
 
 const AnimatedPriceLoader = () => {
     const theme = useTheme();
@@ -92,6 +94,7 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
     const bottomBarHeight = useBottomTabBarHeight();
+    const [favoriteHoldersAccount] = useFavoriteHoldersAccount();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -116,6 +119,59 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
 
         return (cardsBalance || 0n);
     }, [stakingBalance, holdersCards, price?.price?.usd]);
+
+    const renderAddress = useCallback((text: string, address: Address | string) => {
+        return (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
+                {!isWalletMode && (
+                    <Text style={[{
+                        color: theme.textUnchangeable,
+                        opacity: 0.5,
+                        fontFamily: undefined
+                    }, Typography.regular15_20]}>{`${text}: `}</Text>
+                )}
+                {typeof address === 'string' ? (
+                    <SolanaWalletAddress
+                        address={address}
+                        elipsise={{ start: 6, end: 6 }}
+                        textStyle={[{
+                            color: theme.textUnchangeable,
+                            opacity: 0.5,
+                            fontFamily: undefined
+                        }, Typography.regular15_20]}
+                        disableContextMenu
+                        copyOnPress
+                        copyToastProps={Platform.select({
+                            ios: { marginBottom: 24 + bottomBarHeight },
+                            android: { marginBottom: 16 }
+                        })}
+                        withCopyIcon
+                        addressNameType="direct-deposit"
+                    />
+                ) : (
+                    <WalletAddress
+                        address={address}
+                        elipsise={{ start: 6, end: 6 }}
+                        textStyle={[{
+                            color: theme.textUnchangeable,
+                            opacity: 0.5,
+                            fontFamily: undefined
+                        }, Typography.regular15_20]}
+                        disableContextMenu
+                        copyOnPress
+                        copyToastProps={Platform.select({
+                            ios: { marginBottom: 24 + bottomBarHeight, },
+                            android: { marginBottom: 16 }
+                        })}
+                        theme={theme}
+                        withCopyIcon
+                        bounceable={favoriteHoldersAccount && !isWalletMode ? true : undefined}
+                        addressNameType={favoriteHoldersAccount && !isWalletMode ? "direct-deposit" : "wallet"}
+                    />
+                )}
+            </View>
+        )
+    }, [isWalletMode, theme, bottomBarHeight, favoriteHoldersAccount]);
 
     return (
         <LinearGradient
@@ -151,33 +207,11 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
                 />
                 {!account && (<AnimatedPriceLoader />)}
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-                {!isWalletMode && (
-                    <Text style={[{
-                        color: theme.textUnchangeable,
-                        opacity: 0.5,
-                        fontFamily: undefined
-                    }, Typography.regular15_20]}>{`${t('wallet.owner')}: `}</Text>
-                )}
-                <WalletAddress
-                    address={address}
-                    elipsise={{ start: 6, end: 6 }}
-                    textStyle={[{
-                        color: theme.textUnchangeable,
-                        opacity: 0.5,
-                        fontFamily: undefined
-                    }, Typography.regular15_20]}
-                    disableContextMenu
-                    copyOnPress
-                    copyToastProps={Platform.select({
-                        ios: { marginBottom: 24 + bottomBarHeight, },
-                        android: { marginBottom: 16, }
-                    })}
-                    theme={theme}
-                    withCopyIcon
-                />
-            </View>
-
+            {favoriteHoldersAccount && !isWalletMode ? (
+                renderAddress(t('wallet.mainAccount'), favoriteHoldersAccount)
+            ) : (
+                renderAddress(t('wallet.owner'), address)
+            )}
         </LinearGradient>
     );
 });

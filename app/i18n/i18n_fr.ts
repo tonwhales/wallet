@@ -90,7 +90,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "operation": "Opération",
         "description": "Description",
         "openSettings": "Ouvrir les paramètres",
-        "exchanges": "Échanges"
+        "exchanges": "Échanges",
+        "directDepositAddress": "Adresse de dépôt direct"
     },
     "syncStatus": {
         "connecting": "Connexion",
@@ -167,6 +168,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         },
         "pendingTransactions": "Transactions en attente",
         "owner": "Propriétaire",
+        "mainAccount": "Compte principal",
     },
     "transactions": {
         "title": "Transactions",

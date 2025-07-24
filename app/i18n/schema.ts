@@ -93,6 +93,7 @@ export type LocalizationSchema = {
         description: string,
         openSettings: string,
         exchanges: string,
+        directDepositAddress: string,
     },
     syncStatus: {
         connecting: string,
@@ -154,6 +155,7 @@ export type LocalizationSchema = {
         sync: string,
         balanceTitle: string,
         owner: string,
+        mainAccount: string,
         actions: {
             receive: string,
             send: string,

@@ -228,7 +228,7 @@ export const StakingFragment = fragment(() => {
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
                             bounceable={true}
                             theme={theme}
-                            isPoolAddress
+                            addressNameType="pool"
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>

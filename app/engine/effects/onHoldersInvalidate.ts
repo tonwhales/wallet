@@ -6,7 +6,7 @@ export async function onHoldersInvalidate(account: string, isTestnet: boolean) {
     await queryClient.invalidateQueries({
         predicate: (query) => {
             const queryKey = query.queryKey as string[];
-            if (queryKey[0] === 'holders' || queryKey[0] === 'holders-otp') {
+            if (queryKey[0] === 'holders') {
                 const isAccountInQuery = queryKey[1] === address;
 
                 if (queryKey[2] === 'invite') {

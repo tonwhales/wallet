@@ -16,10 +16,13 @@ export const favoriteHoldersAccountsAtom = atom({
     key: 'wallet/favoriteHoldersAccounts',
     default: getFavoriteHoldersAccounts(),
     effects: [
-        ({ onSet }) => {
+        ({ onSet, setSelf }) => {
             onSet((favoriteHoldersAccounts) => {
                 setFavoriteHoldersAccounts(favoriteHoldersAccounts);
             });
+
+            const stored = getFavoriteHoldersAccounts();
+            setSelf(stored);
         }
     ]
 });

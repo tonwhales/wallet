@@ -42,10 +42,13 @@ export const walletsSettingsAtom = atom({
     key: 'wallet/settings',
     default: getWalletsSettings(),
     effects: [
-        ({ onSet }) => {
+        ({ onSet, setSelf }) => {
             onSet((newWalletSettings) => {
                 setWalletsSettings(newWalletSettings);
             });
+
+            const stored = getWalletsSettings();
+            setSelf(stored);
         }
     ]
 });

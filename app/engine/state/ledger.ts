@@ -11,10 +11,13 @@ export type LedgerHiddenJettons = Record<string, Record<string, boolean>>;
 export const ledgerEnabledState = atom({
     key: 'misc/ledgerEnabledState',
     default: (getLedgerEnabled() || false),
-    effects: [({ onSet }) => {
+    effects: [({ onSet, setSelf }) => {
         onSet((newValue) => {
             setLedgerEnabled(newValue);
-        })
+        });
+
+        const stored = getLedgerEnabled() || false;
+        setSelf(stored);
     }]
 });
 
@@ -22,10 +25,13 @@ export const ledgerWalletsAtom = atom<LedgerWallet[]>({
     key: 'ledger/wallets',
     default: getLedgerWallets(),
     effects: [
-        ({ onSet }) => {
+        ({ onSet, setSelf }) => {
             onSet((ledgerWallets) => {
                 setLedgerWallets(ledgerWallets);
             });
+
+            const stored = getLedgerWallets();
+            setSelf(stored);
         }
     ]
 });
@@ -47,10 +53,13 @@ export const ledgerHiddenJettonsAtom = atom({
     key: 'ledger/hiddenJettons',
     default: getLedgerHiddenJettons(),
     effects: [
-        ({ onSet }) => {
+        ({ onSet, setSelf }) => {
             onSet((ledgerHiddenJettons) => {
                 setLedgerHiddenJettons(ledgerHiddenJettons);
             });
+
+            const stored = getLedgerHiddenJettons();
+            setSelf(stored);
         }
     ]
 });

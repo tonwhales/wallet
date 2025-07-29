@@ -39,7 +39,6 @@ export const AppBlurContextProvider = ({ children }: { children: any }) => {
                         <BlurView
                             style={{ position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}
                             intensity={30}
-                            experimentalBlurMethod={'dimezisBlurView'} // android only custom blur view impl
                         />
                     </Animated.View>
                 )

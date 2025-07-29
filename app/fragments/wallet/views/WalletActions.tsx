@@ -40,8 +40,6 @@ export const WalletActions = memo(({
     const [isWalletMode] = useAppMode(address, { isLedger });
     const holdersAccountsCount = holdersAccounts?.accounts?.length ?? 0;
     const receiveType = holdersAccountsCount > 0 ? WalletActionType.Deposit : WalletActionType.Receive;
-    // TODO: rm platfrom check after review
-    // dont show swap on ios until the issue with review is resolved
     const showSwap = appConfig?.features?.swap && Platform.OS === 'android' && !isLedger;
 
     let asset: ReceiveAsset | undefined = undefined;

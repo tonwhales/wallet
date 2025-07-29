@@ -56,10 +56,13 @@ import { appStateAtom } from './engine/state/appState';
 import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
-import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
+import { registerForPushNotificationsAsync, registerPushToken, setupAPNsTokenHandler } from './utils/registerPushNotifications';
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { warn } from './utils/log';
+import { NativeModules } from 'react-native';
+
+const { MaestraModule } = NativeModules;
 import { useIsRestoring } from '@tanstack/react-query';
 import { ThemeFragment } from './fragments/ThemeFragment';
 import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
@@ -118,6 +121,9 @@ import { LiquidUSDeStakingTransferFragment } from './fragments/staking/LiquidUSD
 import { LiquidUSDeStakingCalculatorFragment } from './fragments/staking/LiquidUSDeStakingCalculatorFragment';
 import { LiquidUSDeStakingUnstakeFragment } from './fragments/staking/LiquidUSDeStakingUnstakeFragment';
 import { TonConnectSignFragment } from './fragments/secure/dapps/TonConnectSignFragment';
+import { ChangellyFragment } from './fragments/integrations/ChangellyFragment';
+import { SelectExchangeFragment } from './fragments/integrations/SelectExchangeFragment';
+import { SelectHoldersMainAccountFragment } from './fragments/holders/SelectHoldersMainAccountFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -280,6 +286,8 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Products', ProductsFragment, safeArea),
     modalScreen('ProductsList', ProductsListFragment, safeArea),
     modalScreen('Swap', SwapFragment, safeArea),
+    modalScreen('Changelly', ChangellyFragment, safeArea),
+    modalScreen('SelectExchange', SelectExchangeFragment, safeArea),
     modalScreen('TransactionsFilter', TransactionsFilterFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
     modalScreen('JettonTransaction', JettonTransactionPreviewFragment, safeArea),
@@ -372,6 +380,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),
     genericScreen('Holders', HoldersAppFragment, safeArea, true, 0),
     modalScreen('Exchanges', ExchangesFragment, safeArea),
+    modalScreen('SelectHoldersMainAccount', SelectHoldersMainAccountFragment, safeArea),
 
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea, true),
@@ -423,11 +432,24 @@ export const Navigation = memo(() => {
     }, [mounted]);
     const hideSplash = mounted && !isRestoring;
 
+    // @TODO: uncomment this when we start using Maestra
+    // useEffect(() => {
+    //     const apnsSubscription = setupAPNsTokenHandler();
+
+    //     return () => {
+    //         apnsSubscription?.remove();
+    //     };
+    // }, []);
+
     // Register token
     useEffect(() => {
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            // @TODO: uncomment this when we start using Maestra
+            // if (Platform.OS === 'ios' && MaestraModule) {
+            //     MaestraModule.updateNotificationPermissions(existingStatus === PermissionStatus.GRANTED);
+            // }
             if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
                 const token = await backoff('navigation', async () => {
                     try {

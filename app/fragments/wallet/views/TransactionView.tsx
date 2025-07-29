@@ -141,10 +141,12 @@ export function TransactionView(props: {
         if (holdersOp) {
             return 'holders';
         }
+        if (operation.op?.res === 'known.cashback') {
+            return 'cashback';
+        }
         if (targetContract?.kind === 'dedust-vault') {
             return 'dedust';
         }
-
         if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }

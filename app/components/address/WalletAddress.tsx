@@ -10,6 +10,8 @@ import { useAddToDenyList, useNetwork, useBounceableWalletFormat, useTheme } fro
 import { Address } from "@ton/core";
 import { ThemeType } from "../../engine/state/theme";
 import CopyIcon from '@assets/ic-copy.svg';
+import { getAddressName } from "../../utils/getAddressName";
+import { AddressNameType } from "../../engine/types";
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
     return src.slice(0, params?.start ?? 10)
@@ -34,7 +36,7 @@ export const WalletAddress = memo((props: {
     bounceable?: boolean,
     theme: ThemeType,
     withCopyIcon?: boolean,
-    isPoolAddress?: boolean,
+    addressNameType?: AddressNameType,
 }) => {
     const toaster = useToaster();
     const network = useNetwork();
@@ -75,17 +77,15 @@ export const WalletAddress = memo((props: {
         const text = props.value ? props.value : friendlyAddress;
         copyText(text);
 
-        const addressName = props.isPoolAddress ? t('common.poolAddress') : t('common.walletAddress');
-
         toaster.show(
             {
-                message: addressName + ' ' + t('common.copied').toLowerCase(),
+                message: getAddressName(props.addressNameType) + ' ' + t('common.copied').toLowerCase(),
                 type: 'default',
                 duration: ToastDuration.SHORT,
                 ...props.copyToastProps
             }
         );
-    }, [props.value, props.address, toaster, props.copyToastProps, friendlyAddress, props.isPoolAddress]);
+    }, [props.value, props.address, toaster, props.copyToastProps, friendlyAddress, props.addressNameType]);
 
     const handleAction = useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
         switch (e.nativeEvent.name) {

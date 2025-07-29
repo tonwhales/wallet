@@ -3218,10 +3218,10 @@
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-"@ton/ton@^15.0.0":
-  version "15.0.0"
-  resolved "https://registry.yarnpkg.com/@ton/ton/-/ton-15.0.0.tgz#03aab727d082db877ec6012f3b1b3fb6aa564b40"
-  integrity sha512-0xBivkN0u0+vczt3mKJrx5yqkCxRR00wM8gXCmN/eOzzHKXRFWDEjJp8EEs5J/mq1Op/OhCOFExmOZkr58wgOA==
+"@ton/ton@^15.3.1":
+  version "15.3.1"
+  resolved "https://registry.yarnpkg.com/@ton/ton/-/ton-15.3.1.tgz#c20688b27eb8ce8474610843804a7599679c38a2"
+  integrity sha512-+UuvbE0o0VIU/0W90STO+emRIDr3Vs39LdbX5ySm/Ra+RQJSiH0KX6TDOFqWDmD2Wzk4/zw21KwSiZ6Xjk8zlw==
   dependencies:
     axios "^1.6.7"
     dataloader "^2.0.0"
@@ -8155,6 +8155,11 @@ min-indent@^1.0.0:
   resolved "https://registry.yarnpkg.com/min-indent/-/min-indent-1.0.1.tgz#a63f681673b30571fbe8bc25686ae746eefa9869"
   integrity sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==
 
+mindbox-sdk@^2.13.4:
+  version "2.13.4"
+  resolved "https://registry.yarnpkg.com/mindbox-sdk/-/mindbox-sdk-2.13.4.tgz#6d507d896c6707c86ac3278076090650be596c80"
+  integrity sha512-u2fEpPMroW/I3cLjXlKOmp2oY1PI16PGSXFUPNRKqN7Nwudkwn93e3D9BwBAEaD0TbqjZ6CBnWNULrNz8Xe0AQ==
+
 "minimatch@2 || 3", minimatch@^3.0.2, minimatch@^3.0.4, minimatch@^3.1.1:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.1.2.tgz#19cd194bfd3e428f049a70817c038d89ab4be35b"
@@ -9478,16 +9483,6 @@ react-native-webview@^13.14.1:
   dependencies:
     escape-string-regexp "^4.0.0"
     invariant "2.2.4"
-
-react-native-wonderpush-fcm@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/react-native-wonderpush-fcm/-/react-native-wonderpush-fcm-1.0.9.tgz#50c509c8530498c4cac44d9e6801b766b216a2b1"
-  integrity sha512-qtIwaEQUmo5S9dSPjPjUR5Z9elpU5iZnehs0APSdH1LEofgrAjjYV2RMMM1EU/eaOMVjQBBCy9FWcWO04mawcg==
-
-react-native-wonderpush@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-wonderpush/-/react-native-wonderpush-2.3.0.tgz#ec8ecc5b5ccf482c21d87f9aca12690b6c4bd845"
-  integrity sha512-Echps78Ad5PqSzH/NkeD+Gq1wdhnZy7rHxDBCzrPqud+tWHB+GXqdOc4Ptyybp+CPtkKkvcK2OVPJTQDHwSaAg==
 
 react-native@0.72.6:
   version "0.72.6"

@@ -6,8 +6,9 @@ import { fetchSolanaTransactions, SolanaTransaction } from "../../api/solana/fet
 
 const TRANSACTIONS_LENGTH = 16;
 
-export function useSolanaTransactions(address: string) {
+export function useSolanaTransactions(address: string, enabled?: boolean) {
     const { isTestnet } = useNetwork();
+    const isEnabled = enabled ?? true;
 
     const query = useInfiniteQuery<SolanaTransaction[]>({
         queryKey: Queries.SolanaAccount(address, isTestnet ? 'devnet' : 'mainnet').Transactions(),
@@ -72,7 +73,8 @@ export function useSolanaTransactions(address: string) {
 
             return { pages, pageParams };
         },
-        staleTime: 6000
+        staleTime: 6000,
+        enabled: isEnabled,
     });
 
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -96,8 +98,10 @@ export function useSolanaTransactions(address: string) {
     }, [query.isRefetching]);
 
     useEffect(() => {
-        query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
-    }, []);
+        if (isEnabled) {
+            query.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        }
+    }, [isEnabled]);
 
     return {
         data: query.data?.pages.flat() || [],

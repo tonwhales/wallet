@@ -5,7 +5,7 @@ import { avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput, AddressDomainInputRef, AddressInputState, InputAction } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { useAppState, useBounceableWalletFormat, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useContractInfo, useHoldersAccounts, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -81,7 +81,10 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const ledgerTransport = useLedgerTransport();
     const holdersAccounts = useHoldersAccounts(account, isLedger ? undefined : solanaAddress).data?.accounts
         ?.filter(acc => hasDirectTonDeposit(acc) && acc.network !== 'solana') ?? [];
-    const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address)));
+    const targetContract = useContractInfo(validAddressFriendly || '');
+    const isTargetHolders = holdersAccounts.find((acc) => !!acc.address && validAddress?.equals(Address.parse(acc.address))) ||
+        targetContract?.kind === 'card' ||
+        targetContract?.kind === 'jetton-card';
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

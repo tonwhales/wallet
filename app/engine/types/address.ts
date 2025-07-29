@@ -1,0 +1,1 @@
+export type AddressNameType = 'pool' | 'wallet' | 'direct-deposit';

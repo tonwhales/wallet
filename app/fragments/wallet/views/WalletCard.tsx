@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import { useAccountLite, useHoldersAccounts, useLiquidStakingBalance, usePrice, useSolanaSavingsBalance, useStaking, useTheme } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { reduceHoldersBalances } from "../../../utils/reduceHoldersBalances";
@@ -14,6 +14,72 @@ import { solanaAddressFromPublicKey } from "../../../utils/solana/address";
 import { useSavingsBalance } from "../../../engine/hooks/jettons/useSavingsBalance";
 import { t } from "../../../i18n/t";
 import { APP_MODE_TOGGLE_HEIGHT } from "../../../utils/constants";
+import Animated, { useSharedValue, Easing, useAnimatedStyle, withTiming, withDelay, withSequence, runOnJS } from "react-native-reanimated";
+import { useFavoriteHoldersAccount } from "../../../engine/hooks/holders/useFavoriteHoldersAccount";
+import { SolanaWalletAddress } from "../../../components/address/SolanaWalletAddress";
+
+const AnimatedPriceLoader = () => {
+    const theme = useTheme();
+
+    const progress = useSharedValue(0);
+
+    useEffect(() => {
+        const startAnimation = () => {
+            progress.value = withSequence(
+                withTiming(1, {
+                    duration: 2000,
+                    easing: Easing.bezier(0.8, 0.6, 0.4, 0.1)
+                }),
+                withTiming(0, { duration: 0 }),
+                withDelay(100, withTiming(0, { duration: 0 }, () => {
+                    runOnJS(startAnimation)();
+                }))
+            );
+        };
+
+        startAnimation();
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: progress.value * 200 }, { rotate: '45deg' }],
+        };
+    });
+
+    return (
+        <View
+            style={{
+                position: 'absolute',
+                top: 28 + APP_MODE_TOGGLE_HEIGHT,
+                left: 0, right: 0, bottom: 0,
+                overflow: 'hidden',
+                borderRadius: 8,
+                height: 36,
+                backgroundColor: theme.backgroundUnchangeable,
+                justifyContent: 'center',
+            }}
+        >
+            <Animated.View style={[
+                {
+                    backgroundColor: 'white',
+                    width: 8, height: 58,
+                    marginLeft: -40,
+                },
+                Platform.select({
+                    android: {
+                        opacity: 0.8
+                    }
+                }),
+                animatedStyle
+            ]} />
+            <BlurView
+                tint={theme.style === 'dark' ? 'dark' : 'light'}
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                blurReductionFactor={5}
+            />
+        </View>
+    );
+}
 
 export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, isLedger }: { address: Address, pubKey: Buffer, height: number, walletHeaderHeight: number, isLedger?: boolean }) => {
     const solanaAddress = solanaAddressFromPublicKey(pubKey).toString();
@@ -27,6 +93,7 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
     const bottomBarHeight = useBottomTabBarHeight();
+    const [favoriteHoldersAccount] = useFavoriteHoldersAccount();
 
     const stakingBalance = useMemo(() => {
         if (!staking && !liquidBalance) {
@@ -51,6 +118,59 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
 
         return (cardsBalance || 0n);
     }, [stakingBalance, holdersCards, price?.price?.usd]);
+
+    const renderAddress = useCallback((text: string, address: Address | string) => {
+        return (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
+                {!isWalletMode && (
+                    <Text style={[{
+                        color: theme.textUnchangeable,
+                        opacity: 0.5,
+                        fontFamily: undefined
+                    }, Typography.regular15_20]}>{`${text}: `}</Text>
+                )}
+                {typeof address === 'string' ? (
+                    <SolanaWalletAddress
+                        address={address}
+                        elipsise={{ start: 6, end: 6 }}
+                        textStyle={[{
+                            color: theme.textUnchangeable,
+                            opacity: 0.5,
+                            fontFamily: undefined
+                        }, Typography.regular15_20]}
+                        disableContextMenu
+                        copyOnPress
+                        copyToastProps={Platform.select({
+                            ios: { marginBottom: 24 + bottomBarHeight },
+                            android: { marginBottom: 16 }
+                        })}
+                        withCopyIcon
+                        addressNameType="direct-deposit"
+                    />
+                ) : (
+                    <WalletAddress
+                        address={address}
+                        elipsise={{ start: 6, end: 6 }}
+                        textStyle={[{
+                            color: theme.textUnchangeable,
+                            opacity: 0.5,
+                            fontFamily: undefined
+                        }, Typography.regular15_20]}
+                        disableContextMenu
+                        copyOnPress
+                        copyToastProps={Platform.select({
+                            ios: { marginBottom: 24 + bottomBarHeight, },
+                            android: { marginBottom: 16 }
+                        })}
+                        theme={theme}
+                        withCopyIcon
+                        bounceable={favoriteHoldersAccount && !isWalletMode ? true : undefined}
+                        addressNameType={favoriteHoldersAccount && !isWalletMode ? "direct-deposit" : "wallet"}
+                    />
+                )}
+            </View>
+        )
+    }, [isWalletMode, theme, bottomBarHeight, favoriteHoldersAccount]);
 
     return (
         <LinearGradient
@@ -84,59 +204,13 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
                     centsTextStyle={{ color: theme.textSecondary }}
                     theme={theme}
                 />
-                {!account && (
-                    <View
-                        style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            overflow: 'hidden',
-                            borderRadius: 8,
-                            marginTop: 28,
-                        }}
-                    >
-                        {Platform.OS === 'android' ? (
-                            <View
-                                style={{
-                                    flexGrow: 1,
-                                    backgroundColor: theme.backgroundUnchangeable,
-                                }}
-                            />
-                        ) : (
-                            <BlurView
-                                tint={theme.style === 'dark' ? 'dark' : 'light'}
-                                style={{ flexGrow: 1 }}
-                            />
-                        )}
-                    </View>
-                )}
+                {!account && (<AnimatedPriceLoader />)}
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
-                {!isWalletMode && (
-                    <Text style={[{
-                        color: theme.textUnchangeable,
-                        opacity: 0.5,
-                        fontFamily: undefined
-                    }, Typography.regular15_20]}>{`${t('wallet.owner')}: `}</Text>
-                )}
-                <WalletAddress
-                    address={address}
-                    elipsise={{ start: 6, end: 6 }}
-                    textStyle={[{
-                        color: theme.textUnchangeable,
-                        opacity: 0.5,
-                        fontFamily: undefined
-                    }, Typography.regular15_20]}
-                    disableContextMenu
-                    copyOnPress
-                    copyToastProps={Platform.select({
-                        ios: { marginBottom: 24 + bottomBarHeight, },
-                        android: { marginBottom: 16, }
-                    })}
-                    theme={theme}
-                    withCopyIcon
-                />
-            </View>
-
+            {favoriteHoldersAccount && !isWalletMode ? (
+                renderAddress(t('wallet.mainAccount'), favoriteHoldersAccount)
+            ) : (
+                renderAddress(t('wallet.owner'), address)
+            )}
         </LinearGradient>
     );
 });

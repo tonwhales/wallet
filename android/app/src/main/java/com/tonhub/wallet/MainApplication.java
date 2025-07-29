@@ -31,6 +31,8 @@ import com.tonhub.wallet.modules.flagsecure.FlagSecurePackage;
 import com.shopify.reactnativeperformance.ReactNativePerformance;
 import com.tonhub.wallet.modules.wallet.WalletPackage;
 import com.intercom.reactnative.IntercomModule;
+import cloud.mindbox.mobile_sdk.Mindbox;
+import cloud.mindbox.mindbox_firebase.MindboxFirebase;
 
 public class MainApplication extends Application implements ReactApplication {
     private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(
@@ -92,6 +94,15 @@ public class MainApplication extends Application implements ReactApplication {
             DefaultNewArchitectureEntryPoint.load();
         }
         ApplicationLifecycleDispatcher.onApplicationCreate(this);
+
+        // @TODO: uncomment this when we start using Maestra
+        // java.util.List<cloud.mindbox.mobile_sdk.pushes.MindboxPushService> pushServices = new java.util.ArrayList<>();
+        
+        // if (MindboxFirebase.INSTANCE != null) {
+        //     pushServices.add(MindboxFirebase.INSTANCE);
+        // }
+        
+        // Mindbox.INSTANCE.initPushServices(this, pushServices);
     }
 
     @Override

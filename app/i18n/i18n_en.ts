@@ -89,7 +89,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "required": "required",
         "operation": "Operation",
         "description": "Description",
-        "openSettings": "Open settings"
+        "openSettings": "Open settings",
+        "exchanges": "Exchanges",
+        "directDepositAddress": "Direct deposit address"
     },
     "syncStatus": {
         "connecting": "Connecting",
@@ -151,6 +153,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "sync": "Downloading wallet data",
         "balanceTitle": "Ton balance",
         "owner": "Owner",
+        "mainAccount": "Main account",
         "actions": {
             "receive": "Receive",
             "send": "Send",
@@ -967,7 +970,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "withdrawRequested": "Withdraw requested",
         "upgrade": "Upgrade code to {{hash}}",
         "upgradeOk": "Upgrade completed",
-        "cashback": "Cashback",
+        "cashback": "Tokenback",
         "tokenSent": "Token sent",
         "tokenReceived": "Token received",
         "holders": {
@@ -1154,7 +1157,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "addressMarkSpam": "Mark address as spam",
         "txShare": "Share transaction",
         "txRepeat": "Repeat transaction",
-        "view": "View in explorer",
+        "view": "View in Tonviewer",
         "share": {
             "address": "TON address",
             "transaction": "TON transaction"
@@ -1303,7 +1306,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "From EQ to UQ"
     },
     "changelly": {
-        "bannerTitle": "USDT & USDC deposits",
+        "title": "Changelly is a non-custodial, instant cryptocurrency exchange",
+        "description": "You are about to use a Changelly service operated by an independent party not affiliated with Tonhub\nYou must agree to the Terms of Use and Privacy Policy to continue",
+        "dontShowTitle": "Don't show it again for Changelly",
+        "bannerTitle": "USDC deposits",
         "bannerDescription": "Tron, Solana, Ethereum, Polygon available!"
     },
     "w5": {

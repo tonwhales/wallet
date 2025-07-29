@@ -4,10 +4,11 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { GeneralHoldersAccount, PrePaidHoldersCard, fetchAccountsList, fetchAccountsPublic } from "../../api/holders/fetchAccounts";
-import { deleteHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
+import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersUserState } from "../../api/holders/fetchUserState";
 import { updateProvisioningCredentials } from "../../holders/updateProvisioningCredentials";
 import axios from "axios";
+import { deleteHoldersToken } from "../../../storage/holders";
 
 export type HoldersAccounts = {
     accounts: GeneralHoldersAccount[],

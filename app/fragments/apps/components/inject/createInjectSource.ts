@@ -246,6 +246,18 @@ window['dapp-wallet'] = (() => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.checkIfCardIsAlreadyAdded', args: { primaryAccountNumberSuffix } } }));
     }
 
+    const checkIfCardsAreAdded = (cardIds, callback) => {
+        if (inProgress) {
+            callback({ error: 'wallet.inProgress' });
+            return;
+        }
+
+        inProgress = true;
+        currentCallback = callback;
+
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'wallet.checkIfCardsAreAdded', args: { cardIds } } }));
+    }
+
     const canAddCard = (cardId, callback) => {
         if (inProgress) {
             callback({ error: 'wallet.inProgress' });
@@ -325,8 +337,12 @@ window['dapp-client'] = (() => {
     const setBackPolicy = (backPolicy) => {
         window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'backPolicy', args: { backPolicy } } }));
     }
+    
+    const navigate = (routeName, params) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'navigate', args: { routeName, params } } }));
+    }
 
-    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, setBackPolicy, __DAPP_CLIENT_AVAILABLE };
+    const obj = { openUrl, openEnrollment, showKeyboardAccessoryView, lockScroll, subscribed, closeApp, setBackPolicy, navigate, __DAPP_CLIENT_AVAILABLE };
     Object.freeze(obj);
     return obj;
 })();
@@ -453,9 +469,14 @@ export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {
     `;
 }
 
-export function dispatchWalletResponse(webRef: React.RefObject<WebView>, data: { result: boolean }) {
-    let injectedMessage = `window['dapp-wallet'].__response({ data: ${data.result} }); true;`;
-    webRef.current?.injectJavaScript(injectedMessage);
+export function dispatchWalletResponse(webRef: React.RefObject<WebView>, data: { result: boolean | { [key: string]: boolean } }) {
+    if (typeof data.result === 'boolean') {
+        let injectedMessage = `window['dapp-wallet'].__response({ data: ${data.result} }); true;`;
+        webRef.current?.injectJavaScript(injectedMessage);
+    } else {
+        let injectedMessage = `window['dapp-wallet'].__response(${JSON.stringify({ data: data.result })}); true;`;
+        webRef.current?.injectJavaScript(injectedMessage);
+    }
 }
 
 export function dispatchLastAuthTimeResponse(webRef: React.RefObject<WebView>, lastAuthTime: number) {

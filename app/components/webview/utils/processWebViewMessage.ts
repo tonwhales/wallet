@@ -8,7 +8,7 @@ import { dispatchAuthResponse, dispatchLastAuthTimeResponse, dispatchLockAppWith
 import { AuthWalletKeysType, getLastAuthTimestamp } from "../../secure/AuthWalletKeys";
 import { warn } from "../../../utils/log";
 import { addCardRequestSchema, WalletService } from "../../../modules/WalletService";
-import { getHoldersToken } from "../../../engine/hooks/holders/useHoldersAccountStatus";
+import { getHoldersToken } from "../../../storage/holders";
 import { processStatusBarMessage } from "./processStatusBarMessage";
 import { setStatusBarBackgroundColor, setStatusBarStyle } from "expo-status-bar";
 import { processEmitterMessage } from "./processEmitterMessage";
@@ -17,6 +17,7 @@ import { Address } from "@ton/core";
 import { getCurrentAddress } from "../../../storage/appState";
 import Intercom, { Space } from "@intercom/intercom-react-native";
 import { z } from "zod";
+import { isAuthTimedOut } from "../../SessionWatcher";
 
 export type DAppWebViewAPI = {
     useMainButton?: boolean;
@@ -37,6 +38,7 @@ export enum DAppWebViewAPIMethod {
     lockAppWithAuth = 'auth.lockAppWithAuth',
     walletIsEnabled = 'wallet.isEnabled',
     walletCheckIfCardIsAlreadyAdded = 'wallet.checkIfCardIsAlreadyAdded',
+    walletCheckIfCardsAreAdded = 'wallet.checkIfCardsAreAdded',
     walletCanAddCard = 'wallet.canAddCard',
     walletAddCardToWallet = 'wallet.addCardToWallet',
     eventEmitter = 'dapp-emitter',
@@ -52,6 +54,7 @@ export enum DAppWebViewAPIMethod {
     backPolicy = 'backPolicy',
     showIntercom = 'showIntercom',
     showIntercomWithMessage = 'showIntercomWithMessage',
+    navigate = 'navigate',
 }
 
 const userAttributesSchema = z.object({
@@ -128,9 +131,14 @@ export function processWebViewMessage(
                         let lastAuthTime: number | undefined;
                         // wait for auth to complete
                         try {
-                            await authContext.authenticate({ cancelable: true, paddingTop: 32 });
-                            isAuthenticated = true;
-                            lastAuthTime = getLastAuthTimestamp();
+                            if (isAuthTimedOut()) {
+                                await authContext.authenticate({ cancelable: true, paddingTop: 32 });
+                                isAuthenticated = true;
+                                lastAuthTime = getLastAuthTimestamp();
+                            } else {
+                                isAuthenticated = true;
+                                lastAuthTime = getLastAuthTimestamp();
+                            }
                         } catch {
                             warn('Failed to authenticate');
                         }
@@ -181,6 +189,31 @@ export function processWebViewMessage(
                         })();
                     } catch {
                         warn('Failed to check if card is already added');
+                        dispatchWalletResponse(ref, { result: false });
+                    }
+                }
+                return true;
+            case DAppWebViewAPIMethod.walletCheckIfCardsAreAdded:
+                if (api.useWalletAPI) {
+                    try {
+                        const cardIds = args?.cardIds;
+                        if (!cardIds) {
+                            warn('Invalid cardIds');
+                            dispatchWalletResponse(ref, { result: false });
+                            return true;
+                        }
+
+                        (async () => {
+                            try {
+                                const result = await WalletService.checkIfCardsAreAdded(cardIds);
+                                dispatchWalletResponse(ref, { result });
+                            } catch {
+                                warn('Failed to check if cards are added');
+                                dispatchWalletResponse(ref, { result: false });
+                            }
+                        })();
+                    } catch {
+                        warn('Failed to check if cards are added');
                         dispatchWalletResponse(ref, { result: false });
                     }
                 }
@@ -311,6 +344,9 @@ export function processWebViewMessage(
                         warn('Failed to show intercom with message');
                     }
                 })();
+                return true;
+            case DAppWebViewAPIMethod.navigate:
+                navigation.navigate(args?.routeName, args?.params);
                 return true;
             default:
                 if (api.useMainButton && method.startsWith(DAppWebViewAPIMethod.mainButton)) {

@@ -25,6 +25,7 @@ import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders
 
 import IcCheck from "@assets/ic-check.svg";
 import Warning from '@assets/ic-exclamation-mark.svg';
+import FavoriteIcon from '@assets/ic-favorite.svg';
 
 export enum HoldersItemContentType {
     BALANCE = 'balance',
@@ -131,7 +132,8 @@ export const HoldersAccountItem = memo((props: {
     content?: { type: HoldersItemContentType.SELECT, isSelected: boolean } | { type: HoldersItemContentType.BALANCE } | { type: HoldersItemContentType.NAVIGATION },
     addressDescription?: boolean,
     isLedger?: boolean,
-    cardsClickable?: boolean
+    cardsClickable?: boolean,
+    isFavorite?: boolean
 }) => {
     const {
         owner, account, holdersAccStatus,
@@ -140,7 +142,7 @@ export const HoldersAccountItem = memo((props: {
         onBeforeOpen, onOpen,
         onWarningClick,
         hideCardsIfEmpty,
-        isTestnet, isLedger, cardsClickable
+        isTestnet, isLedger, cardsClickable, isFavorite
     } = props;
     const [price] = usePrice();
     const master = (account.network === 'ton-mainnet' || account.network === 'ton-testnet')
@@ -237,8 +239,8 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({
             type: HoldersAppParamsType.Card,
             id
-        }, isTestnet);
-    }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation]);
+        }, isTestnet, isLedger);
+    }, [checkEnrollmentAndPrepareNavigation, isTestnet, isLedger, navigation]);
 
     const onCreateCardPress = useCallback(() => {
         const { shouldReturn } = checkEnrollmentAndPrepareNavigation();
@@ -247,8 +249,8 @@ export const HoldersAccountItem = memo((props: {
         navigation.navigateHolders({
             type: HoldersAppParamsType.CreateCard,
             id: account.id
-        }, isTestnet);
-    }, [checkEnrollmentAndPrepareNavigation, isTestnet, navigation, account.id]);
+        }, isTestnet, isLedger);
+    }, [checkEnrollmentAndPrepareNavigation, isTestnet, isLedger, navigation, account.id]);
 
     const showAddCardButton = useMemo(() => {
         if (account.cards.length === 0) return true;
@@ -381,38 +383,46 @@ export const HoldersAccountItem = memo((props: {
     }, [cardsClickable, theme, onCreateCardPress, account.cards]);
 
     const accountInfo = useMemo(() => (
-        <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            {resolveHoldersIcon(
-                { ticker: account.cryptoCurrency?.ticker }
-            )}
-            <View style={{ flexShrink: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <PerfText
-                        style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {name}
-                    </PerfText>
-                </View>
-                {props.addressDescription && !!props.account.address && (
-                    <PerfText
-                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                        numberOfLines={1}
-                        ellipsizeMode={'tail'}
-                    >
-                        <PerfText style={{ flexShrink: 1 }}>
-                            <AddressComponent
-                                bounceable={true}
-                                address={props.account.address}
-                                testOnly={isTestnet}
-                            />
-                        </PerfText>
-                    </PerfText>
+        <View style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {resolveHoldersIcon(
+                    { ticker: account.cryptoCurrency?.ticker }
                 )}
+                <View style={{ flexShrink: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                        <PerfText
+                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {name}
+                        </PerfText>
+                    </View>
+                    {props.addressDescription && !!props.account.address && (
+                        <PerfText
+                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                            numberOfLines={1}
+                            ellipsizeMode={'tail'}
+                        >
+                            <PerfText style={{ flexShrink: 1 }}>
+                                <AddressComponent
+                                    bounceable={true}
+                                    address={props.account.address}
+                                    testOnly={isTestnet}
+                                />
+                            </PerfText>
+                        </PerfText>
+                    )}
+                </View>
             </View>
+            {isFavorite && (
+                <FavoriteIcon
+                    color={theme.iconPrimary}
+                    style={{ height: 24, width: 24 }}
+                />
+            )}
         </View>
-    ), [jettonMasterContent?.icon, account.cryptoCurrency?.ticker, theme.textPrimary, theme.textSecondary, name, props.addressDescription, props.account.address, isTestnet]);
+    ), [jettonMasterContent?.icon, account.cryptoCurrency?.ticker, theme.textPrimary, theme.textSecondary, name, props.addressDescription, props.account.address, isTestnet, isFavorite]);
 
     const navigationIcon = useMemo(() => (
         content?.type === HoldersItemContentType.NAVIGATION ? (

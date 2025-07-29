@@ -155,7 +155,7 @@ export const WalletTransactions = memo((props: {
         });
     }, [navigation, isTestnet, bounceableFormat]);
 
-    const onLongPress = (tx: TonTransaction, formattedAddressString: string) => {
+    const onLongPress = useCallback((tx: TonTransaction, formattedAddressString: string) => {
         const operation = tx.base.operation;
         const item = operation.items[0];
         const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
@@ -241,7 +241,7 @@ export const WalletTransactions = memo((props: {
         }
 
         return showActionSheetWithOptions(actionSheetOptions, handleAction);
-    }
+    }, [addressBook, isTestnet, knownWallets, navigation, onAddressContact, onMarkAddressSpam, onRepeatTx, onShare, props.address, props.ledger, spamMinAmount, spamWallets, showActionSheetWithOptions, theme]);
 
     useEffect(() => {
         // Scroll to top when new pending transactions appear
@@ -329,7 +329,8 @@ export const WalletTransactions = memo((props: {
             }
             renderItem={renderItem}
             initialNumToRender={16}
-            onEndReached={() => props.onLoadMore()}
+            onEndReached={props.onLoadMore}
+            maxToRenderPerBatch={16}
             onEndReachedThreshold={0.2}
             keyExtractor={(item) => 'tx-' + item.data.id}
             onRefresh={props.refresh?.onRefresh}

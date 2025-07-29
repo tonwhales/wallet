@@ -15,7 +15,8 @@ import { useBounceableWalletFormat, useDAppBridge, useLanguage, usePrimaryCurren
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { HoldersUserState, holdersUrl } from '../../../engine/api/holders/fetchUserState';
-import { HoldersAccountStatus, getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
+import { HoldersAccountStatus } from '../../../engine/hooks/holders/useHoldersAccountStatus';
+import { getHoldersToken } from '../../../storage/holders';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppWebView';

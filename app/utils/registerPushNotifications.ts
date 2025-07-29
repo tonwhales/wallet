@@ -2,16 +2,30 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import axios from 'axios';
 import { getAppInstanceKeyPair } from '../storage/appState';
-import { Platform } from 'react-native';
+import { Platform, NativeModules } from 'react-native';
 import { whalesConnectEndpoint } from '../engine/clients';
+
+const { MaestraModule } = NativeModules;
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
     }),
-  });
+});
+
+export const setupAPNsTokenHandler = () => {
+    if (Platform.OS !== 'ios') return null;
+
+    const subscription = Notifications.addPushTokenListener(tokenData => {
+        if (MaestraModule && tokenData.data) {
+            MaestraModule.updateAPNSToken(tokenData.data);
+        }
+    });
+
+    return subscription;
+};
 
 export const registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
@@ -29,6 +43,12 @@ export const registerForPushNotificationsAsync = async () => {
             finalStatus = status;
             const res = await Notifications.requestPermissionsAsync();
         }
+
+        // @TODO: uncomment this when we start using Maestra
+        // if (Platform.OS === 'ios' && MaestraModule) {
+        //     MaestraModule.updateNotificationPermissions(finalStatus === 'granted');
+        // }
+
         if (finalStatus !== 'granted') {
             return null;
         }

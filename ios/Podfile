@@ -28,13 +28,6 @@ project 'wallet',
         'Debug Testnet' => :debug,
         'Release Testnet' => :release
 
-target 'WonderPushNotificationServiceExtension' do
-  platform :ios, '10.0'
-
-  # Pods for WonderPushNotificationServiceExtension
-  pod 'WonderPushExtension', '~> 4.0'
-end
-
 target 'WhalesApp' do
   use_expo_modules!
   config = use_native_modules!
@@ -53,7 +46,8 @@ target 'WhalesApp' do
   )
 
   # pod 'OpenSSL-Universal', :modular_headers => true, :configurations => ['Release', 'Release Testnet', 'Debug', 'Debug Testnet']
-
+  pod 'Mindbox'
+  
   post_install do |installer|
     react_native_post_install(
       installer,

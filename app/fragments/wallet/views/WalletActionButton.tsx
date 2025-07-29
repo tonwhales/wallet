@@ -8,13 +8,14 @@ import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterCon
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { ReceiveableSolanaAsset } from "../ReceiveFragment";
-import { useHoldersAccounts, useNetwork, useSelectedAccount, useSolanaSelectedAccount } from "../../../engine/hooks";
+import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useSolanaSelectedAccount } from "../../../engine/hooks";
 import { useAppMode } from "../../../engine/hooks/appstate/useAppMode";
 import { HoldersAppParams, HoldersAppParamsType } from "../../holders/HoldersAppFragment";
 import { SimpleTransferAsset } from "../../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { AppsFlyerEvent, RegistrationMethod, trackAppsFlyerEvent } from "../../../analytics/appsflyer";
 import { useQRCodeHandler } from "../../../engine/hooks/qrcode/useQRCodeHandler";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { holdersUrl, HoldersUserState } from "../../../engine/api/holders/fetchUserState";
 
 export enum WalletActionType {
     Send = 'send',
@@ -90,9 +91,20 @@ export const WalletActionButton = memo(({
     const accounts = useHoldersAccounts(address, solanaAddress).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
     const handleQRCode = useQRCodeHandler({ toastProps: { marginBottom: Platform.select({ ios: 16 + bottomBarHeight, android: 16 }) } });
+    const url = holdersUrl(isTestnet);
+    const isHoldersReady = useIsConnectAppReady(url);
+    const holdersAccStatus = useHoldersAccountStatus(address).data;
+    const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: handleQRCode }), [handleQRCode]);
     const isDisabled = !isWalletMode && !accounts?.length;
+    const onSwap = useCallback(() => {
+        // TODO: rm platfrom check after review
+        // dont show Dedust on ios until the issue with review is resolved
+        if (Platform.OS === 'android') {
+            navigation.navigate('Swap');
+        }
+    }, [navigation]);
 
     switch (action.type) {
         case WalletActionType.Buy: {
@@ -137,6 +149,14 @@ export const WalletActionButton = memo(({
                     if (accountId) {
                         const path = `/transfer/${accounts}`;
                         const navParams: HoldersAppParams = { type: HoldersAppParamsType.Path, path, query: {} };
+                        if (needsEnrollment || !isHoldersReady) {
+                            navigation.navigateHoldersLanding(
+                                { endpoint: url, onEnrollType: navParams },
+                                isTestnet
+                            );
+                            return;
+                        }
+                
                         navigation.navigateHolders(navParams, isTestnet);
                     }
                 }
@@ -277,7 +297,7 @@ export const WalletActionButton = memo(({
         case WalletActionType.Swap: {
             return (
                 <Pressable
-                    onPress={() => navigation.navigate('Swap')}
+                    onPress={onSwap}
                     style={({ pressed }) => ([{ opacity: pressed ? 0.5 : 1 }, styles.button])}
                 >
                     <View style={{ alignItems: 'center', justifyContent: 'center' }}>

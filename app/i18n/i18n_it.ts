@@ -89,7 +89,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "required": "richiesto",
         "operation": "Operazione",
         "description": "Descrizione",
-        "openSettings": "Apri impostazioni"
+        "openSettings": "Apri impostazioni",
+        "exchanges": "Scambi",
+        "directDepositAddress": "Indirizzo di deposito diretto"
     },
     "syncStatus": {
         "connecting": "Connessione in corso",
@@ -151,6 +153,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "sync": "Scaricamento dati del portafoglio",
         "balanceTitle": "Saldo Ton",
         "owner": "Proprietario",
+        "mainAccount": "Account principale",
         "actions": {
             "receive": "Ricevi",
             "send": "Invia",
@@ -967,7 +970,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "withdrawRequested": "Prelievo richiesto",
         "upgrade": "Aggiorna codice a {{hash}}",
         "upgradeOk": "Aggiornamento completato",
-        "cashback": "Cashback",
+        "cashback": "Tokenback",
         "tokenSent": "Token inviato",
         "tokenReceived": "Token ricevuto",
         "holders": {
@@ -1154,7 +1157,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "addressMarkSpam": "Segna indirizzo come spam",
         "txShare": "Condividi transazione",
         "txRepeat": "Ripeti transazione",
-        "view": "Visualizza in explorer",
+        "view": "Visualizza in Tonviewer",
         "share": {
             "address": "Indirizzo TON",
             "transaction": "Transazione TON"
@@ -1303,7 +1306,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "Da EQ a UQ"
     },
     "changelly": {
-        "bannerTitle": "Depositi USDT e USDC",
+        "title": "Changelly è un exchange di criptovalute istantaneo e non-custodial",
+        "description": "Stai per utilizzare un servizio Changelly gestito da una parte indipendente non affiliata con Tonhub\nDevi accettare i Termini di Utilizzo e la Politica sulla Privacy per continuare",
+        "dontShowTitle": "Non mostrare più per Changelly",
+        "bannerTitle": "Depositi USDC",
         "bannerDescription": "Disponibili Tron, Solana, Ethereum, Polygon!"
     },
     "w5": {

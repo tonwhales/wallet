@@ -14,6 +14,7 @@ import { GeneralHoldersAccount, PrePaidHoldersCard } from "../../engine/api/hold
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
 import { JettonsList } from "../../components/products/JettonsList";
+import { useFavoriteHoldersAccount } from "../../engine/hooks/holders/useFavoriteHoldersAccount";
 
 export type ProductsListFragmentParams = {
     type: 'holders-accounts' | 'holders-cards' | 'jettons',
@@ -28,6 +29,8 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
     const selected = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
     const solanaAddress = useSolanaSelectedAccount()!;
+    const [favoriteHoldersAccount] = useFavoriteHoldersAccount();
+
     const addressStr = useMemo(() => {
         if (isLedger && ledgerContext?.addr?.address) {
             try {
@@ -63,6 +66,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                             owner={Address.parse(addressStr)}
                             content={{ type: HoldersItemContentType.BALANCE }}
                             cardsClickable
+                            isFavorite={favoriteHoldersAccount === item?.address}
                         />
                     );
                 },
@@ -88,7 +92,7 @@ const ProductsListComponent = memo(({ type, isLedger }: { type: 'holders-account
                 estimatedItemSize: 84
             };
         }
-    }, [holdersAccounts, holdersAccStatus]);
+    }, [holdersAccounts, holdersAccStatus, favoriteHoldersAccount]);
 
     return (
         <View style={{ flexGrow: 1 }}>

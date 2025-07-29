@@ -89,7 +89,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "required": "обов'язково",
         "operation": "Операція",
         "description": "Опис",
-        "openSettings": "Відкрити налаштування"
+        "openSettings": "Відкрити налаштування",
+        "exchanges": "Біржі",
+        "directDepositAddress": "Адреса прямого поповнення"
     },
     "syncStatus": {
         "connecting": "Підключення",
@@ -151,6 +153,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "sync": "Завантаження даних гаманця",
         "balanceTitle": "Баланс TON",
         "owner": "Власник",
+        "mainAccount": "Основний акаунт",
         "actions": {
             "receive": "Отримати",
             "send": "Надіслати",
@@ -967,7 +970,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "withdrawRequested": "Запит на виведення",
         "upgrade": "Оновити код до {{hash}}",
         "upgradeOk": "Оновлення завершено",
-        "cashback": "Кешбек",
+        "cashback": "Токенбек",
         "tokenSent": "Токен відправлено",
         "tokenReceived": "Токен отримано",
         "holders": {
@@ -1154,7 +1157,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "addressMarkSpam": "Позначити адресу як спам",
         "txShare": "Поділитися транзакцією",
         "txRepeat": "Повторити транзакцію",
-        "view": "Переглянути в експлорері",
+        "view": "Переглянути в Tonviewer",
         "share": {
             "address": "TON адреса",
             "transaction": "TON транзакція"
@@ -1303,7 +1306,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "З EQ на UQ"
     },
     "changelly": {
-        "bannerTitle": "Депозити USDT та USDC",
+        "title": "Changelly - некстодіальний, миттєвий обмінник криптовалют",
+        "description": "Ви збираєтеся використовувати сервіс Changelly, який керується незалежною стороною, не пов'язаною з Tonhub\nДля продовження вам необхідно погодитися з Умовами використання та Політикою конфіденційності",
+        "dontShowTitle": "Більше не показувати для Changelly",
+        "bannerTitle": "Депозити USDC",
         "bannerDescription": "Доступні Tron, Solana, Ethereum, Polygon!"
     },
     "w5": {

@@ -1,7 +1,7 @@
 import { fetchApplePayCredentials } from "../api/holders/fetchApplePayCredentials";
 import { z } from "zod";
 import { IosWalletService } from "../../modules/WalletService";
-import { getHoldersToken } from "../hooks/holders/useHoldersAccountStatus";
+import { getHoldersToken } from "../../storage/holders";
 import { Platform } from "react-native";
 
 export const credentialsKey = 'PaymentPassCredentials';

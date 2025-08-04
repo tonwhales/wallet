@@ -24,7 +24,7 @@ export const SolanaTxInfo = memo(({ signature }: { signature: string }) => {
         }
         const options = [
             t('common.cancel'),
-            t('txActions.view'),
+            t('txActions.viewInExplorer'),
             t('common.copy'),
             t('common.share')
         ];

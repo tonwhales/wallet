@@ -10,7 +10,7 @@ const SolanaNativeTransfers = ({ nativeTransfers, owner, item }: { nativeTransfe
     });
 
     return (
-        <View style={[styles.transactionItem, { gap: 16 }]}>
+        <View style={[styles.transactionItem, { gap: 32 }]}>
             {filteredNativeTransfers?.map((tx, index) => {
                 return <SolanaNativeTransferView
                     key={`${item.signature}-${index}`}
@@ -25,7 +25,7 @@ const SolanaNativeTransfers = ({ nativeTransfers, owner, item }: { nativeTransfe
 
 const SolanaTokenTransfers = ({ tokenTransfers, owner, item, asset }: { tokenTransfers: SolanaTokenTransfer[], owner: string, item: SolanaTransaction, asset?: ReceiveableSolanaAsset }) => {
     return (
-        <View style={[styles.transactionItem, { gap: 2 }]}>
+        <View style={[styles.transactionItem, { gap: 32 }]}>
             {!!asset && tokenTransfers?.map((tx, index) => {
                 return <SolanaTokenTransferView
                     key={`${tx.mint}-${item.signature}-${index}`}

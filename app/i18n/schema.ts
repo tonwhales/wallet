@@ -1156,7 +1156,8 @@ export type LocalizationSchema = {
         addressShare: string,
         addressContact: string,
         addressContactEdit: string,
-        addressMarkSpam: string
+        addressMarkSpam: string,
+        viewInExplorer: string,
         txShare: string,
         txRepeat: string,
         view: string,

@@ -1,5 +1,5 @@
 import { useTypedNavigation } from '../useTypedNavigation';
-import { useClient4, useConfig, useConnectPendingRequests, useSetAppState } from '../../engine/hooks';
+import { useClient4, useConfig, useConnectPendingRequests, useCurrentAddress, useSetAppState } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
@@ -22,6 +22,7 @@ import { resolveAndNavigateToDomainTransfer } from './resolveAndNavigateToDomain
 import { resolveAndNavigateToTransfer } from './resolveAndNavigateToTransfer';
 import { getTimeSec } from '../getTimeSec';
 import { t } from '../../i18n/t';
+import { resolveAndNavigateToChangellyOrder } from './resolveAndNavigateToChangellyOrder';
 
 export function useLinkNavigator(
     isTestnet: boolean,
@@ -39,6 +40,7 @@ export function useLinkNavigator(
     const ledgerContext = useLedgerTransport();
     const netConfig = useConfig();
     const address = isLedger ? ledgerContext.addr!.address : selected?.addressString;
+    const {tonAddress, solanaAddress} = useCurrentAddress()
 
     const [, updatePendingReuests] = useConnectPendingRequests();
     const pendingReqsUpdaterRef = useRef(updatePendingReuests);
@@ -233,6 +235,19 @@ export function useLinkNavigator(
                     navigation,
                     isTestnet,
                     request: resolved.request
+                });
+                break;
+            }
+            case 'changelly-transaction': {
+                resolveAndNavigateToChangellyOrder({
+                    selectedTonAddress: tonAddress!,
+                    selectedSolanaAddress: solanaAddress,
+                    navigation,
+                    updateAppState,
+                    isTestnet,
+                    transactionId: resolved.transactionId,
+                    address: resolved.address,
+                    ledgerContext
                 });
                 break;
             }

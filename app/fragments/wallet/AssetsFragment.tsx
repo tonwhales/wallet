@@ -27,9 +27,9 @@ import { getSpecialJetton } from "../../secure/KnownWallets";
 import { ExtraCurrencyHint } from "../../engine/api/fetchExtraCurrencyHints";
 import { SimpleTransferAsset } from "../secure/simpleTransfer/hooks/useSimpleTransfer";
 import { ExtraCurrencyProductItem } from "../../components/products/ExtraCurrencyProductItem";
+import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 import IcCheck from "@assets/ic-check.svg";
-import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 type ListItem =
     { type: 'jetton', hint: JettonFull }
@@ -124,7 +124,8 @@ export type AssetsFragmentParams = {
     assetCallback?: (selected: ReceiveableTonAsset | null) => void,
     selectedAsset?: SimpleTransferAsset | null,
     viewType: AssetViewType,
-    isLedger?: boolean
+    isLedger?: boolean,
+    hideSelection?: boolean
 }
 
 export const AssetsFragment = fragment(() => {
@@ -137,7 +138,7 @@ export const AssetsFragment = fragment(() => {
     const solanaAddress = useSolanaSelectedAccount()!;
     const [disabledState] = useCloudValue<{ disabled: { [key: string]: { reason: string } } }>('jettons-disabled', (src) => { src.disabled = {} });
 
-    const { target, simpleTransferAssetCallback, assetCallback, selectedAsset, viewType, includeHolders, isLedger } = useParams<AssetsFragmentParams>();
+    const { target, simpleTransferAssetCallback, assetCallback, selectedAsset, viewType, includeHolders, isLedger, hideSelection } = useParams<AssetsFragmentParams>();
 
     const title = viewType === AssetViewType.Receive
         ? t('receive.assets')
@@ -342,7 +343,7 @@ export const AssetsFragment = fragment(() => {
         }, { ledger: isLedger, replace: isLedger });
     }, [onJettonCallback, onAssetCallback, isTestnet, isLedger]);
 
-    const renderItem = useCallback(({ item }: { item: ListItem }) => {
+    const renderItem = useCallback(({ item }: { item: ListItem }) => { 
         switch (item.type) {
             case 'holders':
                 let isSelected = false;
@@ -374,7 +375,7 @@ export const AssetsFragment = fragment(() => {
                         hint={item.hint}
                         owner={owner}
                         onSelect={onJettonSelected}
-                        hideSelection={!simpleTransferAssetCallback && !assetCallback}
+                        hideSelection={hideSelection ?? (!simpleTransferAssetCallback && !assetCallback)}
                         selected={selectedAsset?.type === 'jetton' ? selectedAsset.master : null}
                         isTestnet={isTestnet}
                         theme={theme}

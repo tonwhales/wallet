@@ -7,7 +7,11 @@ export function useAppConfig(): AppConfig {
     const { isTestnet } = useNetwork();
     const defaultConfig: AppConfig = {
         txTimeout: 60,
-        features: { swap: true }
+        features: { swap: true },
+        changelly: {
+            minAmount: 31,
+            minAmountCurrency: 'usd'
+        }
     };
 
     const remoteConfig = useQuery({

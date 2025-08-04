@@ -28,7 +28,7 @@ import { ConfirmLegal } from "../../components/ConfirmLegal";
 const skipLegalDeDust = 'skipLegalDeDust';
 const logo = require('@assets/known/ic-dedust.png');
 
-export const SwapFragment = fragment(() => {
+export const DedustFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();

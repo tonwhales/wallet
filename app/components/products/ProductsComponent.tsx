@@ -30,9 +30,10 @@ import { HoldersChangellyBanner } from "./HoldersChangellyBanner"
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode"
 import { IbanBanner } from "../holders/IbanBanner"
 import { SolanaBanner } from "../solana/SolanaBanner"
+import { PendingSolanaTransactions } from "../../fragments/wallet/views/PendingSolanaTransactions"
+import { OrdersList } from "../orders/OrdersList"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
-import { PendingSolanaTransactions } from "../../fragments/wallet/views/PendingSolanaTransactions"
 
 export type HoldersBannerType = { type: 'built-in' } | { type: 'custom', banner: HoldersCustomBanner };
 
@@ -102,6 +103,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
+                {isWalletMode && <OrdersList />}
                 <PendingTransactions />
                 <PendingSolanaTransactions
                     address={selected.solanaAddress}

@@ -203,11 +203,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "subtitleSolana": "Envoyez uniquement des SOL et des jetons SPL sur le réseau Solana à cette adresse, sinon vous risquez de perdre vos fonds.",
         "share": {
             "title": "Mon adresse Tonhub",
+            "button": "Partager les détails",
             "error": "Échec du partage de l'adresse, veuillez réessayer ou contacter le support"
         },
         "holdersJettonWarning": "Transférez uniquement {{symbol}} à cette adresse, si vous envoyez un autre jeton, vous le perdrez.",
         "assets": "Jetons et comptes",
-        "fromExchange": "Depuis un échange",
+        "fromExchange": "Dépôt depuis un échange",
+        "fromAnotherWallet": "Dépôt depuis un autre portefeuille",
         "otherCoins": "Autres jetons",
         "deposit": "Déposer sur"
     },
@@ -343,8 +345,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "description": "Les applications ou extensions que vous avez autorisées s'afficheront ici. Vous pouvez révoquer leur accès à tout moment.",
             "installExtension": "Installez et ouvrez l'extension pour cette application",
             "moreWallets": "Plus de portefeuilles ({{count}})",
-            "connectionSecureDescription": "Aucun fonds ne sera transféré à l’application et aucun accès à vos coins ne sera accordé",
-            "invalidManifest": "Erreur de manifeste de l’application",
+            "connectionSecureDescription": "Aucun fonds ne sera transféré à l'application et aucun accès à vos coins ne sera accordé",
+            "invalidManifest": "Erreur de manifeste de l'application",
             "invalidManifestDescription": "Cette application a échoué à se connecter à votre portefeuille. Veuillez contacter leur équipe de support."
         },
         "consent": "En cliquant sur Continuer, vous acceptez nos"
@@ -1310,7 +1312,55 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Vous êtes sur le point d'utiliser un service Changelly exploité par une partie indépendante non affiliée à Tonhub\nVous devez accepter les Conditions d'utilisation et la Politique de confidentialité pour continuer",
         "dontShowTitle": "Ne plus afficher pour Changelly",
         "bannerTitle": "Dépôts USDC",
-        "bannerDescription": "Tron, Solana, Ethereum, Polygon disponibles!"
+        "bannerDescription": "Tron, Solana, Ethereum, Polygon disponibles !"
+    },
+    "order": {
+        "enterAmount": "Entrez le montant du transfert",
+        "give": "Donnez",
+        "get": "Recevez",
+        "exchangeRate": "Taux de change",
+        "networkServiceFee": "Frais de réseau et de service",
+        "poweredBy": "Alimenté par",
+        "continue": "Continuer",
+        "sendToDeposit": "Envoyez {{currency}} pour déposer sur votre compte",
+        "waitingTransfer": "En attente de transfert...",
+        "amount": "Montant",
+        "address": "Adresse",
+        "network": "Réseau",
+        "youSend": "Vous envoyez",
+        "wallet": "Portefeuille",
+        "youGet": "Vous recevez",
+        "closeOrder": "Fermer la commande",
+        "deposit": "Dépôt",
+        "waitingForTransfer": "En attente de transfert",
+        "chooseCrypto": "Choisir crypto",
+        "chooseAsset": "Choisissez l'actif que vous voulez recevoir :",
+        "orderCloseTitle": "Êtes-vous sûr de vouloir fermer cette commande ?",
+        "orderCloseDescription": "Une fois la commande fermée, tous les fonds déjà envoyés à l'adresse fournie seront définitivement perdus et ne pourront pas être récupérés.\n\nSi vous rencontrez des problèmes ou avez des questions, veuillez contacter notre équipe de support.",
+        "orderCloseConfirm": "Oui, j'accepte de fermer la commande",
+        "contactSupport": "Contacter le support",
+        "info": {
+            "title": {
+                "pending": "Dépôt en cours",
+                "success": "Dépôt réussi",
+                "failure": "Échec du dépôt"
+            },
+            "description": {
+                "pending": "Paiement reçu. Le rechargement prendra de 5 minutes à 10 heures.",
+                "success": "Crypto sur votre compte",
+                "failure": "Échec du paiement. Veuillez contacter le support"
+            },
+            "notifications": {
+                "amountCopiedSuccess": "Montant copié avec succès",
+                "payAddressCopiedSuccess": "Adresse copiée avec succès",
+                "orderClosedSuccess": "Commande fermée avec succès"
+            },
+            "status": {
+                "pending": "En cours",
+                "success": "Paiement réussi",
+                "failure": "Échec du paiement"
+            },
+        },
     },
     "w5": {
         "banner": {

@@ -23,6 +23,7 @@ import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent";
 import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { IbanBanner } from "../holders/IbanBanner";
 import { LedgerJettonsHiddenComponent } from "./LedgerJettonsHiddenComponent";
+import { OrdersList } from "../orders/OrdersList";
 
 export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: LedgerWallet, testOnly: boolean }) => {
     const theme = useTheme();
@@ -73,10 +74,12 @@ export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: Led
         });
 
     }, [wallet.address, testOnly]);
-
+    console.log('LEDGER PRODUCTS COMPONENT');
+    
     return (
         <View>
             <View style={{ backgroundColor: theme.backgroundPrimary }}>
+                {isWalletMode && <OrdersList />}
                 <PendingTransactions address={address.toString({ testOnly })} isLedger={true} />
                 {!isWalletMode && (
                     <IbanBanner isLedger={true} />

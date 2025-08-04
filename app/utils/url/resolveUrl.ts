@@ -251,6 +251,16 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         url: decodeURIComponent(url.query.url)
                     };
                 }
+            } else if (isTonhubHost && url.pathname.toLowerCase().startsWith('/changelly/transaction')) { // open changelly transaction
+                const transactionId = url.pathname.slice('/changelly/transaction/'.length)
+                
+                if (url.query && url.query.address && transactionId) {
+                    return {
+                        type: 'changelly-transaction',
+                        transactionId,
+                        address: url.query.address
+                    };
+                }
             } else if (isSupportedDomain && url.pathname.toLowerCase().startsWith('/holders')) { // holders path with address
                 return resolveHoldersUrl(url);
             }

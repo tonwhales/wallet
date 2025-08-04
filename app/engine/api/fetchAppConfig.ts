@@ -9,6 +9,10 @@ const appConfigCodec = z.object({
     features: z.record(z.boolean()).optional(),
     browserAlerTexts: browserAlertTextsSchema.nullish(),
     resources: z.record(z.string()).optional(),
+    changelly: z.object({
+        minAmount: z.number(),
+        minAmountCurrency: z.string(),
+    }),
 });
 
 export type AppConfig = z.infer<typeof appConfigCodec>;

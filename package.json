@@ -19,6 +19,7 @@
     "@craftzdog/react-native-buffer": "^6.0.5",
     "@dedust/sdk": "^0.8.6",
     "@expo/react-native-action-sheet": "^4.0.1",
+    "@gorhom/bottom-sheet": "5.1.4",
     "@intercom/intercom-react-native": "^8.3.0",
     "@ledgerhq/hw-transport": "^6.28.8",
     "@ledgerhq/react-native-hid": "^6.30.0",

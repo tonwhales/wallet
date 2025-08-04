@@ -59,7 +59,9 @@ export function fromCoins(src: bigint | string, precision: number): string {
 
 export function humanizeNumber(
   value: string | number,
-  minimumFractionDigits = 0
+  minimumFractionDigits = 0,
+  maximumFractionDigits = 2,
+  digitsAfterDot = 2
 ): string {
   if (isNullOrUndefined(value)) return '0';
 
@@ -67,12 +69,12 @@ export function humanizeNumber(
   const dotIndex = stringedValue.indexOf('.');
 
   const humanizedValue =
-    dotIndex < 0 ? stringedValue : stringedValue.slice(0, dotIndex + 3);
+    dotIndex < 0 ? stringedValue : stringedValue.slice(0, dotIndex + digitsAfterDot + 1);
 
   return Number(humanizedValue)
     .toLocaleString('en', {
       minimumFractionDigits,
-      maximumFractionDigits: 2
+      maximumFractionDigits
     })
     .replace(/,/g, ' ');
 }

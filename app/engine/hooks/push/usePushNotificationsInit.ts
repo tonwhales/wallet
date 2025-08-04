@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import MindboxSdk from 'mindbox-sdk';
 import { PushNotificationData, isExpoPushData, isMaestraPushDataAndroid } from '../../types';
 import { handleLinkReceived } from '../../../utils/CachedLinking';
-import { Platform, DeviceEventEmitter } from 'react-native';
+import { Platform, DeviceEventEmitter, EmitterSubscription } from 'react-native';
 
 export const usePushNotificationsInit = (initialPushData?: PushNotificationData) => {
   // Common function to handle Android push notification data
@@ -56,7 +56,7 @@ export const usePushNotificationsInit = (initialPushData?: PushNotificationData)
   // And send data to the JS layer when user clicks on the notification
   // This is done because of the conflict between Maestra and Expo FCM services
   useEffect(() => {
-    let pushNotificationListener = null;
+    let pushNotificationListener: EmitterSubscription | null = null;
     if (Platform.OS === 'android') {
       pushNotificationListener = DeviceEventEmitter.addListener(
         'pushNotificationOpened',

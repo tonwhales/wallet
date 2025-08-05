@@ -11,11 +11,12 @@ export function authParamsFromLedgerProof(
         value: string;
     },
     walletStateInit: string | null | undefined,
-    appsflyerId?: string
+    appsflyerId?: string,
+    isTestnet?: boolean
 ): TonAuthRequest {
     return {
         stack: 'ton',
-        network: 'ton-mainnet',
+        network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
         key: {
             kind: 'tonconnect-v2',
             wallet: 'tonhub',

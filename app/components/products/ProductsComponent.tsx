@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback } from "react"
 import { View } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useTheme } from "../../engine/hooks"
+import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useSolanaTokens, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -52,6 +52,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const showHoldersBanner = !hasHoldersAccounts && inviteCheck?.allowed;
     const holdersBanner: HoldersBannerType = !!inviteCheck?.banner ? { type: 'custom', banner: inviteCheck.banner } : { type: 'built-in' };
     const holderBannerContent = showHoldersBanner ? holdersBanner : null;
+    const tokens = useSolanaTokens(selected.solanaAddress, false);
+    const solanaTokenMint = tokens?.data?.[0]?.address;
 
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
 
@@ -106,6 +108,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 <PendingSolanaTransactions
                     address={selected.solanaAddress}
                     viewType="main"
+                    mint={solanaTokenMint}
                 />
                 <PaymentOtpBanner address={selected.address} />
                 {isWalletMode ? (

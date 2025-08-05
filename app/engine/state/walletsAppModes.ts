@@ -22,12 +22,12 @@ export const walletsAppModesAtom = atom({
     default: getWalletsAppModes(),
     effects: [
         ({ onSet, setSelf }) => {
+            const stored = getWalletsAppModes();
+            setSelf(stored);
+
             onSet((walletsAppModes) => {
                 setWalletsAppModes(walletsAppModes);
             });
-
-            const stored = getWalletsAppModes();
-            setSelf(stored);
         }
     ]
 });

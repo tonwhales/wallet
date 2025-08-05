@@ -17,12 +17,12 @@ export const bounceableWalletFormatAtom = atom({
     default: getBounceableWalletFormat(),
     effects: [
         ({ onSet, setSelf }) => {
+            const stored = getBounceableWalletFormat();
+            setSelf(stored);
+            
             onSet((newValue) => {
                 setBounceableWalletFormat(newValue);
             });
-
-            const stored = getBounceableWalletFormat();
-            setSelf(stored);
         }
     ]
 });

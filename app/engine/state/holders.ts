@@ -32,12 +32,12 @@ export const hiddenCardsState = atom<string[]>({
     key: 'holders/hiddenCards',
     default: getStoredHiddenCards(),
     effects: [({ onSet, setSelf }) => {
+        const stored = getStoredHiddenCards();
+        setSelf(stored);
+
         onSet((newValue) => {
             storeHiddenCards(newValue);
         });
-
-        const stored = getStoredHiddenCards();
-        setSelf(stored);
     }]
 });
 
@@ -45,11 +45,11 @@ export const hiddenPrepaidCardsState = atom<string[]>({
     key: 'holders/hiddenPrepaidCards',
     default: getStoredHiddenPrepaidCards(),
     effects: [({ onSet, setSelf }) => {
+        const stored = getStoredHiddenPrepaidCards();
+        setSelf(stored);
+
         onSet((newValue) => {
             storeHiddenPrepaidCards(newValue);
         });
-
-        const stored = getStoredHiddenPrepaidCards();
-        setSelf(stored);
     }]
 });

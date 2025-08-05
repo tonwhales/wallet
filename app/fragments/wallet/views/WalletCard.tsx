@@ -88,6 +88,7 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
     const account = useAccountLite(address);
     const theme = useTheme();
     const staking = useStaking(address);
+    const liquidBalance = useLiquidStakingBalance(address);
     const holdersCards = useHoldersAccounts(address, isLedger ? undefined : solanaAddress).data?.accounts;
     const [price] = usePrice();
     const [isWalletMode] = useAppMode(address);
@@ -95,11 +96,11 @@ export const WalletCard = memo(({ address, pubKey, height, walletHeaderHeight, i
     const [favoriteHoldersAccount] = useFavoriteHoldersAccount();
 
     const stakingBalance = useMemo(() => {
-        if (!staking) {
+        if (!staking && !liquidBalance) {
             return 0n;
         }
-        return staking.total;
-    }, [staking]);
+        return liquidBalance + staking.total;
+    }, [staking, liquidBalance]);
 
     const walletBalance = useMemo(() => {
         const accountWithStaking = (account?.balance ?? 0n) + (stakingBalance || 0n);

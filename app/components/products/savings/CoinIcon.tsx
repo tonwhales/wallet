@@ -11,6 +11,7 @@ export const CoinIcon = ({ type, url }: { type?: Currency, url?: string | null }
         [Currency.Ton]: { source: require('@assets/ic-ton-acc.png') },
         [Currency.UsdcSol]: { source: require('@assets/ic-usdc.png') },
         [Currency.Sol]: { SvgComponent: SolanaIcon },
+        [Currency.Btc]: { source: require('@assets/ic-bitcoin.png') },
     };
 
     const icon = type ? coinIconMap[type] : url ? { source: url } : undefined;

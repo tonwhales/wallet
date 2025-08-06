@@ -49,6 +49,8 @@ export function getChainShortNameByChain(chain?: string | null): string {
       return 'OP';
     case 'stellar':
       return 'XLM';
+    case 'bitcoin':
+      return 'BTC';
     default:
       return '';
   }
@@ -76,18 +78,23 @@ export function getCoinInfoByCurrency(currency: Currency) {
         blockchain: 'solana',
         name: 'SOL'
       };
+    case Currency.Btc:
+      return {
+        blockchain: 'bitcoin',
+        name: 'BTC'
+      };
     default:
       return {
-        blockchain: 'ton',
-        name: 'TON'
+        blockchain: '',
+        name: ''
       };
   }
 }
 
 export const KNOWN_TICKERS: { [key: string]: string } = {
   usdton: 'ton',
-  usdt20: 'ether',
-  usdc: 'ether',
+  usdt20: 'ethereum',
+  usdc: 'ethereum',
   usdtrx: 'tron',
   usdcmatic: 'polygon',
   usdtpolygon: 'polygon',
@@ -109,6 +116,9 @@ export function getKnownCurrencyFromName(name: string): Currency | undefined {
   }
   if (name.toLowerCase() === 'ton') {
     return Currency.Ton;
+  }
+  if (name.toLowerCase() === 'btc') {
+    return Currency.Btc;
   }
   return undefined;
 }

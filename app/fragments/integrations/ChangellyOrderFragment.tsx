@@ -72,7 +72,7 @@ export const ChangellyOrderFragment = fragment(() => {
     const originKnownCurrency = getKnownCurrencyFromName(fromCurrency);
     const originCoinName = originKnownCurrency ? getCoinInfoByCurrency(originKnownCurrency).name.toUpperCase() : fromCurrency.toUpperCase();
     const originBlockchain = network ?? ''
-    const originBlockchainTag = getChainShortNameByChain(originBlockchain)
+    const originBlockchainTag = getChainShortNameByChain(originBlockchain) || originBlockchain?.toUpperCase();
 
     const resultKnownCurrency = getKnownCurrencyFromName(toCurrency);
     const resultCoinName = resultKnownCurrency ? getCoinInfoByCurrency(resultKnownCurrency).name.toUpperCase() : toCurrency.toUpperCase();
@@ -82,7 +82,7 @@ export const ChangellyOrderFragment = fragment(() => {
     const targetAddressDisplayValue = payinAddress;
     const networkDisplayValue = `${originBlockchain.charAt(0).toUpperCase() + originBlockchain.slice(1)} (${originBlockchainTag})`;
     const networkFeeDisplayValue = `${networkFee ?? 0}%`;
-    const exchangeRateDisplayValue = `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumber(exchangeRate)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
+    const exchangeRateDisplayValue = `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumber(exchangeRate, 0, 6, 6)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
     const youSendDisplayValue = `${amount} ${originCoinName} (${originBlockchainTag})`;
     const youGetDisplayValue = `${amountExpectedTo ?? humanizeNumber(exchangeRate)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
     

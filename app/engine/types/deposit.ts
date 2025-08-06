@@ -11,5 +11,6 @@ export enum Currency {
     UsdTon = 'usdton',
     Ton = 'ton',
     Sol = 'sol',
-    UsdcSol = 'usdcsol'
+    UsdcSol = 'usdcsol',
+    Btc = 'btc',
 }

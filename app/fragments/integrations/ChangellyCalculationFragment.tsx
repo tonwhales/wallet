@@ -51,7 +51,8 @@ export const ChangellyCalculationFragment = fragment(() => {
     const { blockchain: blockchainTo, name: nameTo } = getCoinInfoByCurrency(currencyTo);
     
     const originBlockchain = currencyFrom.blockchain;
-    const originBlockchainTag = getChainShortNameByChain(originBlockchain);
+    const originBlockchainName = (originBlockchain || '').charAt(0).toUpperCase() + (originBlockchain || []).slice(1);
+    const originBlockchainTag = getChainShortNameByChain(originBlockchain) || originBlockchain?.toUpperCase();
     const originKnownCurrency = getKnownCurrencyFromName(currencyFrom.name);
     const originCoinName = originKnownCurrency ? getCoinInfoByCurrency(originKnownCurrency).name : currencyFrom.name;
     const originTicker = currencyFrom.ticker;
@@ -145,7 +146,7 @@ export const ChangellyCalculationFragment = fragment(() => {
                             blockchain={originBlockchain}
                             imageUrl={originImage}
                             tag={originBlockchainTag}
-                            description={t('products.holders.accounts.network', { networkName: originBlockchainTag })}
+                            description={t('products.holders.accounts.network', { networkName: originBlockchainName })}
                             isPressable={false}
                             currency={originKnownCurrency}
                         />

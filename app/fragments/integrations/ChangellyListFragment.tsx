@@ -39,7 +39,8 @@ export const ChangellyListFragment = fragment(() => {
     const renderItem = useCallback(({ item }: { item: ChangellyCurrency }) => {
         const originKnownCurrency = getKnownCurrencyFromName(item.name);
         const originCoinName = originKnownCurrency ? getCoinInfoByCurrency(originKnownCurrency).name : item.name;
-        const originBlockchainTag = getChainShortNameByChain(item.blockchain)
+        const originBlockchainTag = getChainShortNameByChain(item.blockchain) || item.blockchain?.toUpperCase();
+        const originBlockchainName = (item.blockchain || '').charAt(0).toUpperCase() + (item.blockchain || []).slice(1);
 
         return (
             <CoinItem
@@ -49,7 +50,7 @@ export const ChangellyListFragment = fragment(() => {
                 name={originCoinName}
                 blockchain={item.blockchain}
                 tag={originBlockchainTag}
-                description={t('products.holders.accounts.network', { networkName: originBlockchainTag })}
+                description={t('products.holders.accounts.network', { networkName: originBlockchainName })}
                 onPress={() => onCoinPress(item)}
                 withArrow
             />

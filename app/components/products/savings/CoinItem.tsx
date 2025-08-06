@@ -96,11 +96,10 @@ export const CoinItem = memo(({
                     {blockchain && (
                         <View style={{
                             justifyContent: 'center', alignItems: 'center',
-                            height: 20, width: 20, borderRadius: 10,
-                            position: 'absolute', right: -2, bottom: -2,
-                            backgroundColor: theme.surfaceOnBg
+                            height: 21, width: 21, borderRadius: 10,
+                            position: 'absolute', right: -3, bottom: -3,
                         }}>
-                            <ChainIcon blockchain={blockchain} size={20} />
+                            <ChainIcon blockchain={blockchain} size={21} />
                         </View>
                     )}
                 </View>

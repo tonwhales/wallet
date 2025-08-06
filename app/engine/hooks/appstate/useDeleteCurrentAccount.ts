@@ -1,6 +1,6 @@
 import { mixpanelFlush, mixpanelReset } from "../../../analytics/mixpanel";
 import { useWebViewPreloader } from "../../../components/WebViewPreloaderContext";
-import { clearLedgerSelected, getAppState } from "../../../storage/appState";
+import { getAppState } from "../../../storage/appState";
 import { BiometricsState, PasscodeState } from '../../../storage/secureStorage';
 import { storage, storagePersistence } from "../../../storage/storage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -12,6 +12,7 @@ import { useSetAppState } from "./useSetAppState";
 import { useSetBiometricsState } from './useSetBiometricsState';
 import { useSetPasscodeState } from './useSetPasscodeState';
 import { NativeModules, Platform } from "react-native";
+import { useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
 
 const { WebViewCacheModule } = NativeModules;
 
@@ -21,6 +22,8 @@ export function useDeleteCurrentAccount() {
     const setBiometricsState = useSetBiometricsState();
     const setPasscodeState = useSetPasscodeState();
     const { clearWebViewLocalStorage } = useWebViewPreloader();
+    const ledgerContext = useLedgerTransport();
+
     const navigation = useTypedNavigation();
     return () => {
         const appState = getAppState();
@@ -61,7 +64,7 @@ export function useDeleteCurrentAccount() {
             setAppState({ addresses: [], selected: -1 }, isTestnet);
             setPasscodeState(PasscodeState.NotSet);
             setBiometricsState(BiometricsState.NotSet);
-            clearLedgerSelected();
+            ledgerContext.reset({ isFullSilentLogout: true });
             clearWebViewLocalStorage();
 
             navigation.navigateAndReplaceAll('Welcome');

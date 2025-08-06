@@ -91,7 +91,7 @@ export type LedgerTransport = {
     bleSearchState: BLESearchState,
     startHIDSearch: () => Promise<void>,
     startBleSearch: () => void,
-    reset: (isLogout?: boolean, onLogoutCallback?: () => void) => void,
+    reset: (params?: { isLogout?: boolean, onLogoutCallback?: () => void, isFullSilentLogout?: boolean }) => void,
     wallets: LedgerWallet[],
     ledgerName: string,
     onShowLedgerConnectionError: (onDiscard?: () => void) => void,
@@ -142,7 +142,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
     const reconnectAttempts = useRef<number>(0);
 
-    const reset = useCallback((isLogout?: boolean, onLogoutCallback?: () => void) => {
+    const reset = useCallback((params?: { isLogout?: boolean, onLogoutCallback?: () => void, isFullSilentLogout?: boolean }) => {
         const resetState = () => {
             setLedgerConnection(null);
             setTonTransport(null);
@@ -151,7 +151,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
             dispatchBleState({ type: 'reset' });
             reconnectAttempts.current = 0;
         }
-        if (isLogout) {
+        if (params?.isLogout) {
             Alert.alert(t('logout.title', { name: ledgerName }), undefined, [
                 {
                     text: t('common.cancel'),
@@ -168,7 +168,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                         setAddr(null);
                         clearLedgerSelected();
                         clearWebViewLocalStorage();
-                        onLogoutCallback?.();
+                        params?.onLogoutCallback?.();
                         if (newItems.length > 0) {
                             return;
                         }
@@ -176,6 +176,13 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                     }
                 }
             ]);
+            return;
+        }
+        if (params?.isFullSilentLogout) {
+            setLedgerWallets([]);
+            setAddr(null);
+            clearLedgerSelected();
+            resetState()
             return;
         }
 

@@ -29,7 +29,7 @@ const PendingInstructionsView = memo(({
     transaction: PendingSolanaTransactionInstructions,
     last?: boolean,
     single?: boolean,
-    viewType?: 'history' | 'main' | 'jetton-history',
+    viewType?: 'history' | 'main',
     address: string,
     onOpen: () => void,
     statusText: string
@@ -44,7 +44,8 @@ const PendingInstructionsView = memo(({
             style={{
                 paddingHorizontal: viewType === 'main' ? 20 : undefined,
                 paddingVertical: 20,
-                maxHeight: ASSET_ITEM_HEIGHT
+                maxHeight: ASSET_ITEM_HEIGHT,
+                backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary,
             }}
         >
             <Pressable
@@ -67,7 +68,7 @@ const PendingInstructionsView = memo(({
                             kind={'out'}
                             address={transaction.instructions[0]?.accounts?.[0]?.pubkey.toString() ?? ''}
                             avatarId={transaction.instructions[0]?.accounts?.[0]?.pubkey.toString() ?? ''}
-                            style={{ backgroundColor: theme.backgroundPrimary }}
+                            style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={{}}
                             forceAvatar={isHolders ? 'holders' : undefined}
                         />
@@ -84,7 +85,7 @@ const PendingInstructionsView = memo(({
                                     id={transaction.instructions[0]?.accounts?.[0]?.pubkey.toString() ?? ''}
                                     theme={theme}
                                     knownWallets={{}}
-                                    backgroundColor={theme.backgroundPrimary}
+                                    backgroundColor={viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary}
                                     hashColor
                                     icProps={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                                 />
@@ -149,7 +150,7 @@ const PendingTxView = memo((
         transaction: PendingSolanaTransactionTx,
         last?: boolean,
         single?: boolean,
-        viewType?: 'history' | 'main' | 'jetton-history',
+        viewType?: 'history' | 'main',
         address: string,
         onOpen: () => void,
         statusText: string
@@ -169,7 +170,8 @@ const PendingTxView = memo((
             style={{
                 paddingHorizontal: viewType === 'main' ? 20 : undefined,
                 paddingVertical: 20,
-                maxHeight: ASSET_ITEM_HEIGHT
+                maxHeight: ASSET_ITEM_HEIGHT,
+                backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary,
             }}
         >
             <Pressable
@@ -192,7 +194,7 @@ const PendingTxView = memo((
                             kind={'out'}
                             address={target}
                             avatarId={target ?? ''}
-                            style={{ backgroundColor: theme.backgroundPrimary }}
+                            style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={{}}
                         />
                     ) : (
@@ -204,7 +206,7 @@ const PendingTxView = memo((
                             id={target}
                             theme={theme}
                             knownWallets={{}}
-                            backgroundColor={theme.backgroundPrimary}
+                            backgroundColor={viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary}
                             hashColor
                             icProps={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                         />
@@ -264,18 +266,14 @@ const PendingTxView = memo((
 
 export const PendingSolanaTransactionView = memo(({
     transaction,
-    last,
-    single,
-    viewType = 'main',
     address,
-    mint
+    mint,
+    viewType = 'main'
 }: {
     transaction: PendingSolanaTransaction,
-    last?: boolean,
-    single?: boolean,
-    viewType?: 'history' | 'main' | 'jetton-history',
     address: string,
-    mint?: string
+    mint?: string,
+    viewType?: 'history' | 'main'
 }) => {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -319,8 +317,8 @@ export const PendingSolanaTransactionView = memo(({
     }, [transaction.status, status]);
 
     if (transaction.type === 'instructions') {
-        return <PendingInstructionsView transaction={transaction} address={address} onOpen={onOpen} statusText={statusText}  />;
+        return <PendingInstructionsView viewType={viewType} transaction={transaction} address={address} onOpen={onOpen} statusText={statusText}  />;
     }
-    return <PendingTxView transaction={transaction} address={address} onOpen={onOpen} statusText={statusText} />;
+    return <PendingTxView viewType={viewType} transaction={transaction} address={address} onOpen={onOpen} statusText={statusText} />;
 });
 PendingSolanaTransactionView.displayName = 'PendingSolanaTransactionView';

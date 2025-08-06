@@ -143,7 +143,7 @@ const SolanaTransactionsHeader = memo(({ owner }: SolanaWalletFragmentProps) => 
                 />
                 <PendingSolanaTransactions
                     address={owner}
-                    viewType="main"
+                    viewType="history"
                 />
             </View>
         </View>

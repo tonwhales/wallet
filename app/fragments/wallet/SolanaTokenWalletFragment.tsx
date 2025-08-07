@@ -154,7 +154,7 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                 />
                 <PendingSolanaTransactions
                     address={owner}
-                    viewType="main"
+                    viewType="history"
                     filter={solanaFilter}
                     mint={mint}
                 />

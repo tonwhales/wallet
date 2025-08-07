@@ -16,7 +16,10 @@ export const bounceableWalletFormatAtom = atom({
     key: 'bounceableWalletFormatAtom',
     default: getBounceableWalletFormat(),
     effects: [
-        ({ onSet }) => {
+        ({ onSet, setSelf }) => {
+            const stored = getBounceableWalletFormat();
+            setSelf(stored);
+            
             onSet((newValue) => {
                 setBounceableWalletFormat(newValue);
             });

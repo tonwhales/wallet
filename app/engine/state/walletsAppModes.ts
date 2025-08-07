@@ -21,7 +21,10 @@ export const walletsAppModesAtom = atom({
     key: 'wallet/appModes',
     default: getWalletsAppModes(),
     effects: [
-        ({ onSet }) => {
+        ({ onSet, setSelf }) => {
+            const stored = getWalletsAppModes();
+            setSelf(stored);
+
             onSet((walletsAppModes) => {
                 setWalletsAppModes(walletsAppModes);
             });

@@ -59,6 +59,7 @@ export function useHoldersWatcher() {
                     }
                     break;
                 case 'inapp_otp':
+                case 'inapp_otp_confirmation':
                     queryClient.invalidateQueries(otpKey);
                     break;
             }

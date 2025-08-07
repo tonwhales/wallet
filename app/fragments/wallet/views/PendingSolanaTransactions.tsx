@@ -17,17 +17,23 @@ export const PendingSolanaTransactionsList = memo((
     }: {
         txs: PendingSolanaTransaction[],
         style?: StyleProp<ViewStyle>,
-        viewType?: 'history' | 'main' | 'jetton-history',
+        viewType?: 'history' | 'main',
         address: string
     }
 ) => {
     return (
-        <View style={[{ overflow: 'hidden', borderRadius: 20 }, style]}>
+        <View style={[
+            {
+                overflow: 'hidden',
+                borderRadius: 20,
+                marginHorizontal: 16,
+            },
+            style
+        ]}>
             {txs.map((tx, i) => (
                 <PendingSolanaTransactionView
                     key={`tx-${tx.id}-${viewType}`}
                     transaction={tx}
-                    last={(i === txs.length - 1) || viewType === 'history'}
                     viewType={viewType}
                     address={address}
                 />
@@ -46,7 +52,7 @@ export const PendingSolanaTransactions = memo(({
     mint
 }: {
     address?: string,
-    viewType?: 'history' | 'main' | 'jetton-history',
+    viewType?: 'history' | 'main',
     filter?: (tx: PendingSolanaTransaction) => boolean,
     onChange?: (txs: PendingSolanaTransaction[]) => void,
     listStyle?: StyleProp<ViewStyle>,

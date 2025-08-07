@@ -100,7 +100,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 <LiquidStakingPool
                     key={`liquid-${index}`}
                     member={address}
-                    style={[style, { padding: 0, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
+                    style={[style, { padding: 0, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 8 }]}
                     hideCycle
                     hideHeader
                     iconBackgroundColor={theme.backgroundPrimary}
@@ -115,7 +115,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                     member={address}
                     hideHeader
                     iconBackgroundColor={theme.backgroundPrimary}
-                    style={[{ height: ASSET_ITEM_HEIGHT, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
+                    style={[{ height: ASSET_ITEM_HEIGHT, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 8, justifyContent: 'center' }]}
                 />
             )
         }

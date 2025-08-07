@@ -1155,6 +1155,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "addressContact": "Add address to contacts",
         "addressContactEdit": "Edit address contact",
         "addressMarkSpam": "Mark address as spam",
+        "viewInExplorer": "View in explorer",
         "txShare": "Share transaction",
         "txRepeat": "Repeat transaction",
         "view": "View in Tonviewer",

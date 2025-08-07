@@ -31,19 +31,25 @@ function storeHiddenPrepaidCards(value: string[]) {
 export const hiddenCardsState = atom<string[]>({
     key: 'holders/hiddenCards',
     default: getStoredHiddenCards(),
-    effects: [({ onSet }) => {
+    effects: [({ onSet, setSelf }) => {
+        const stored = getStoredHiddenCards();
+        setSelf(stored);
+
         onSet((newValue) => {
             storeHiddenCards(newValue);
-        })
+        });
     }]
 });
 
 export const hiddenPrepaidCardsState = atom<string[]>({
     key: 'holders/hiddenPrepaidCards',
     default: getStoredHiddenPrepaidCards(),
-    effects: [({ onSet }) => {
+    effects: [({ onSet, setSelf }) => {
+        const stored = getStoredHiddenPrepaidCards();
+        setSelf(stored);
+
         onSet((newValue) => {
             storeHiddenPrepaidCards(newValue);
-        })
+        });
     }]
 });

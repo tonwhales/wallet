@@ -87,7 +87,7 @@ import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
 import { NewAddressFormatFragment } from './fragments/NewAddressFormatFragment';
 import { BounceableFormatAboutFragment } from './fragments/utils/BounceableFormatAboutFragment';
-import { SwapFragment } from './fragments/integrations/SwapFragment';
+import { DedustFragment } from './fragments/integrations/DedustFragment';
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
@@ -124,6 +124,10 @@ import { TonConnectSignFragment } from './fragments/secure/dapps/TonConnectSignF
 import { ChangellyFragment } from './fragments/integrations/ChangellyFragment';
 import { SelectExchangeFragment } from './fragments/integrations/SelectExchangeFragment';
 import { SelectHoldersMainAccountFragment } from './fragments/holders/SelectHoldersMainAccountFragment';
+import { ChangellyListFragment } from './fragments/integrations/ChangellyListFragment';
+import { ChangellyCalculationFragment } from './fragments/integrations/ChangellyCalculationFragment';
+import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderFragment';
+import { SwapFragment } from './fragments/wallet/SwapFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -279,13 +283,17 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Receive', ReceiveFragment, safeArea),
     modalScreen('ReceiveAssets', ReceiveAssetsFragment, safeArea),
     modalScreen('LedgerReceiveAssets', ReceiveAssetsFragment, safeArea),
+    modalScreen('Swap', SwapFragment, safeArea),
     modalScreen('ReceiveAssetsJettons', AssetsFragment, safeArea),
+    modalScreen('ChangellyList', ChangellyListFragment, safeArea),
+    modalScreen('ChangellyCalculation', ChangellyCalculationFragment, safeArea),
+    modalScreen('ChangellyOrder', ChangellyOrderFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     modalScreen('ContactAssets', AssetsFragment, safeArea),
     transparentModalScreen('Products', ProductsFragment, safeArea),
     modalScreen('ProductsList', ProductsListFragment, safeArea),
-    modalScreen('Swap', SwapFragment, safeArea),
+    modalScreen('Dedust', DedustFragment, safeArea),
     modalScreen('Changelly', ChangellyFragment, safeArea),
     modalScreen('SelectExchange', SelectExchangeFragment, safeArea),
     modalScreen('TransactionsFilter', TransactionsFilterFragment, safeArea),

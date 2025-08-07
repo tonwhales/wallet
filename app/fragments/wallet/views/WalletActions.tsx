@@ -40,7 +40,7 @@ export const WalletActions = memo(({
     const [isWalletMode] = useAppMode(address, { isLedger });
     const holdersAccountsCount = holdersAccounts?.accounts?.length ?? 0;
     const receiveType = holdersAccountsCount > 0 ? WalletActionType.Deposit : WalletActionType.Receive;
-    const showSwap = appConfig?.features?.swap && Platform.OS === 'android' && !isLedger;
+    const showSwap = appConfig?.features?.swap;
 
     let asset: ReceiveAsset | undefined = undefined;
     let jetton: Jetton | undefined = undefined;

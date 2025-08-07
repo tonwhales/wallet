@@ -101,8 +101,10 @@ export const WalletActionButton = memo(({
     const onSwap = useCallback(() => {
         // TODO: rm platfrom check after review
         // dont show Dedust on ios until the issue with review is resolved
-        if (Platform.OS === 'android') {
-            navigation.navigate('Swap');
+        if (Platform.OS === 'android' && !isLedger) {
+            navigation.navigate('SelectExchange');
+        } else {
+            navigation.navigateSwap();
         }
     }, [navigation]);
 

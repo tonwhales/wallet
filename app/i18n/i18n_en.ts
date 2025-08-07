@@ -203,11 +203,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "subtitleSolana": "Send only SOL and SPL tokens in Solana network to this address, or you might lose your funds.",
         "share": {
             "title": "My Tonhub Address",
+            "button": "Share details",
             "error": "Failed to share address, please try again or contact support"
         },
         "holdersJettonWarning": "Transfer to this address only {{symbol}}, if you send another token, you will lose it.",
         "assets": "Tokens and Accounts",
-        "fromExchange": "From an exchange",
+        "fromExchange": "Deposit from an exchange",
+        "fromAnotherWallet": "Deposit from another wallet",
         "otherCoins": "Other tokens",
         "deposit": "Deposit to"
     },
@@ -1312,6 +1314,55 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "dontShowTitle": "Don't show it again for Changelly",
         "bannerTitle": "USDC deposits",
         "bannerDescription": "Tron, Solana, Ethereum, Polygon available!"
+    },
+    "order": {
+        "enterAmount": "Enter transfer amount",
+        "give": "Give",
+        "get": "Get",
+        "exchangeRate": "Ex. rate",
+        "networkServiceFee": "Network and service fee",
+        "poweredBy": "Powered by",
+        "continue": "Continue",
+        "sendToDeposit": "Send {{currency}} to deposit your account",
+        "waitingTransfer": "Waiting for transfer...",
+        "amount": "Amount",
+        "address": "Address",
+        "network": "Network",
+        "youSend": "You send",
+        "wallet": "Wallet",
+        "youGet": "You get",
+        "closeOrder": "Close order",
+        "deposit": "Deposit",
+        "waitingForTransfer": "Waiting for transfer",
+        "chooseCrypto": "Choose crypto",
+        "chooseAsset": "Choose the asset you want to receive:",
+        "orderCloseTitle": "Are you sure you want to close this order?",
+        "orderCloseDescription": "Once the order is closed, any funds already sent to the provided address will be permanently lost and cannot be recovered.\n\nIf you're experiencing any issues or have questions, please contact our support team.",
+        "orderCloseConfirm": "Yes, I agree to close the order",
+        "contactSupport": "Contact support",
+        "info": {
+            "title": {
+                "pending": "Deposit is on the way",
+                "success": "Deposit successful",
+                "failure": "Deposit failed"
+            },
+            "description": {
+                "pending": "Payment received. Top up will take from 5 minutes to 10 hours.",
+                "success": "Crypto on your account",
+                "failure": "Payment failed. Please contact support"
+            },
+            "notifications": {
+                "amountCopiedSuccess": "Amount copied successfully",
+                "payAddressCopiedSuccess": "Address copied successfully",
+                "orderClosedSuccess": "Order closed successfully"
+            },
+            "status": {
+                "pending": "On the way",
+                "success": "Payment successful",
+                "failure": "Payment failed"
+            },
+        },
+
     },
     "w5": {
         "banner": {

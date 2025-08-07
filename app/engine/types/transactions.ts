@@ -1,4 +1,4 @@
-import { AccountStatus, Address, Cell, ExtraCurrency } from '@ton/core';
+import { AccountStatus, Address, Cell } from '@ton/core';
 import { LocalizedResources } from '../../i18n/schema';
 
 export type StoredAddressExternal = {
@@ -165,7 +165,7 @@ export type FiatCurrencyCoin =
     | 'INR'
     | 'JPY';
 
-export type CryptoCurrencyCoin = 'USDT' | 'USDC' | 'EURT' | 'TON';
+export type CryptoCurrencyCoin = 'USDT' | 'USDC' | 'SOL' | 'TON';
 
 export type CurrencyCoin = FiatCurrencyCoin | CryptoCurrencyCoin;
 

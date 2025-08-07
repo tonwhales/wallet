@@ -38,6 +38,9 @@ import { SolanaTransactionPreviewParams } from '../fragments/solana/transaction/
 import { PendingSolanaTransactionPreviewParams } from '../fragments/solana/transaction/PendingSolanaTransactionPreviewFragment';
 import { LiquidUSDeStakingTransferParams } from '../fragments/staking/LiquidUSDeStakingTransferFragment';
 import { TonConnectSignProps } from '../fragments/secure/dapps/TonConnectSignFragment';
+import { ChangellyListFragmentParams } from '../fragments/integrations/ChangellyListFragment';
+import { ChangellyCalculationFragmentParams } from '../fragments/integrations/ChangellyCalculationFragment';
+import { ChangellyOrderFragmentParams } from '../fragments/integrations/ChangellyOrderFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -342,6 +345,10 @@ export class TypedNavigation {
         this.navigate('ReceiveAssets', params);
     }
 
+    navigateSwap() {
+        this.navigate('Swap');
+    }
+
     navigateAssets(params: AssetsFragmentParams) {
         this.navigate('Assets', params);
     }
@@ -352,6 +359,18 @@ export class TypedNavigation {
 
     navigateReceiveAssetsJettons(params: AssetsFragmentParams) {
         this.navigate('ReceiveAssetsJettons', params);
+    }
+
+    navigateChangellyList(params: ChangellyListFragmentParams) {
+        this.navigate('ChangellyList', params);
+    }
+
+    navigateChangellyCalculation(params: ChangellyCalculationFragmentParams) {
+        this.navigate('ChangellyCalculation', params)
+    }
+
+    navigateChangellyOrder(params: ChangellyOrderFragmentParams) {
+        this.navigate('ChangellyOrder', params)
     }
 
     navigateAddressBook(params: AddressBookParams) {

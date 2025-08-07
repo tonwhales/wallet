@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { t } from "../../../i18n/t";
 import { useDisplayableJettons, useNetwork, useSolanaSavingsBalance, useSolanaTokens, useTheme } from "../../../engine/hooks";
 import { Typography } from "../../styles";
-import { TonProductComponent } from "../TonProductComponent";
+import { TonProductComponent } from "./TonWalletProduct";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
 import { Address } from "@ton/ton";
 import { JettonProductItem } from "../JettonProductItem";
@@ -101,6 +101,7 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
             case 'solanaToken':
                 return (
                     <SolanaTokenProduct
+                        theme={theme}
                         token={item}
                         address={solanaAddress}
                     />

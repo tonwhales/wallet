@@ -187,11 +187,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "subtitleSolana": "Отправляйте на этот адрес только токены блокчейна Solana. Другие активы будут потеряны навсегда",
         "share": {
             "title": "Мой Tonhub адрес",
+            "button": "Поделиться реквизитами",
             "error": "Не удалось поделиться адресом, попробуйте еще раз или обратитесь в службу поддержки"
         },
         "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
         "assets": "Жетоны и счета",
-        "fromExchange": "С биржи",
+        "fromExchange": "Пополнить с биржи",
+        "fromAnotherWallet": "Пополнить с другого кошелька",
         "otherCoins": "Другие токены",
         "deposit": "Пополнить"
     },
@@ -1312,6 +1314,54 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "dontShowTitle": "Больше не показывать для Changelly",
         "bannerTitle": "Депозиты USDC",
         "bannerDescription": "Доступны Tron, Solana, Ethereum, Polygon!"
+    },
+    "order": {
+        "enterAmount": "Введите сумму перевода",
+        "give": "Отправляете",
+        "get": "Получаете",
+        "exchangeRate": "Курс обмена",
+        "networkServiceFee": "Комиссия сети и сервиса",
+        "poweredBy": "При поддержке",
+        "continue": "Продолжить",
+        "sendToDeposit": "Отправьте {{currency}} для пополнения счета",
+        "waitingTransfer": "Ожидание перевода...",
+        "amount": "Сумма",
+        "address": "Адрес",
+        "network": "Сеть",
+        "youSend": "Вы отправляете",
+        "wallet": "Кошелек",
+        "youGet": "Вы получаете",
+        "closeOrder": "Закрыть заказ",
+        "deposit": "Депозит",
+        "waitingForTransfer": "Ожидание перевода",
+        "chooseCrypto": "Выберите криптовалюту",
+        "chooseAsset": "Выберите актив, который хотите получить:",
+        "orderCloseTitle": "Вы уверены, что хотите закрыть этот заказ?",
+        "orderCloseDescription": "После закрытия заказа любые средства, уже отправленные на указанный адрес, будут безвозвратно утеряны и не могут быть восстановлены.\n\nЕсли у вас возникли проблемы или вопросы, пожалуйста, обратитесь в нашу службу поддержки.",
+        "orderCloseConfirm": "Да, я согласен закрыть заказ",
+        "contactSupport": "Связаться с поддержкой",
+        "info": {
+            "title": {
+                "pending": "Пополнение уже в пути",
+                "success": "Счет успешно пополнен",
+                "failure": "Пополнение не удалось"
+            },
+            "description": {
+                "pending": "Ваш платеж получен! Пополнение поступит в течение нескольких минут",
+                "success": "Криптовалюта на вашем счете",
+                "failure": "Платеж не удался. Пожалуйста, свяжитесь с поддержкой"
+            },
+            "notifications": {
+                "amountCopiedSuccess": "Сумма успешно скопирована",
+                "payAddressCopiedSuccess": "Адрес успешно скопирован",
+                "orderClosedSuccess": "Заказ успешно закрыт"
+            },
+            "status": {
+                "pending": "В процессе",
+                "success": "Успешный платеж",
+                "failure": "Платеж не удался"
+            },
+        },
     },
     "w5": {
         "banner": {

@@ -205,11 +205,13 @@ export type LocalizationSchema = {
         subtitleSolana: string,
         share: {
             title: string,
+            button: string,
             error: string
         },
         holdersJettonWarning: string,
         assets: string,
         fromExchange: string,
+        fromAnotherWallet: string,
         otherCoins: string,
         deposit: string
     },
@@ -1314,6 +1316,54 @@ export type LocalizationSchema = {
         dontShowTitle: string,
         bannerTitle: string,
         bannerDescription: string
+    },
+    order: {
+        enterAmount: string,
+        give: string,
+        get: string,
+        exchangeRate: string,
+        networkServiceFee: string,
+        poweredBy: string,
+        continue: string,
+        sendToDeposit: string,
+        waitingTransfer: string,
+        amount: string,
+        address: string,
+        network: string,
+        youSend: string,
+        wallet: string,
+        youGet: string,
+        closeOrder: string,
+        deposit: string,
+        waitingForTransfer: string,
+        chooseCrypto: string,
+        chooseAsset: string,
+        orderCloseTitle: string,
+        orderCloseDescription: string,
+        orderCloseConfirm: string,
+        contactSupport: string,
+        info: {
+            title: {
+                pending: string,
+                success: string,
+                failure: string
+            },
+            description: {
+                pending: string,
+                success: string,
+                failure: string
+            },
+            notifications: {
+                amountCopiedSuccess: string,
+                payAddressCopiedSuccess: string,
+                orderClosedSuccess: string
+            },
+            status: {
+                pending: string,
+                success: string,
+                failure: string
+            },
+        },
     },
     w5: {
         banner: {

@@ -115,7 +115,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                     member={address}
                     hideHeader
                     iconBackgroundColor={theme.backgroundPrimary}
-                    style={[{ height: ASSET_ITEM_HEIGHT, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 8, }]}
+                    style={[{ height: ASSET_ITEM_HEIGHT, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 8, justifyContent: 'center' }]}
                 />
             )
         }

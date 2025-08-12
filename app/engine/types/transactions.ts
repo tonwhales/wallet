@@ -1,5 +1,7 @@
 import { AccountStatus, Address, Cell } from '@ton/core';
 import { LocalizedResources } from '../../i18n/schema';
+import { PreparedMessage } from '../hooks/transactions/usePeparedMessages';
+import { ContractInfo } from '../api/fetchContractInfo';
 
 export type StoredAddressExternal = {
     bits: number;
@@ -505,6 +507,10 @@ export type TonTransaction = {
     outMessages: StoredMessage[],
     lt: string,
     hash: string
+    message?: PreparedMessage
+    contractInfo?: ContractInfo
+    symbolText?: string
+    jettonDecimals?: number | null
 }
 
 export type TonStoredTransaction = {

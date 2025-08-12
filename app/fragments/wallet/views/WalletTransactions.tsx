@@ -1,12 +1,10 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Address } from "@ton/core";
-import { TypedNavigation } from "../../../utils/useTypedNavigation";
-import { EdgeInsets } from "react-native-safe-area-context";
-import { SectionList, SectionListData, SectionListRenderItemInfo, View, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { SectionList, SectionListData, SectionListRenderItemInfo, View, Platform, Share } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
-import { ThemeType } from "../../../engine/state/theme";
-import { AccountStoredTransaction, HoldersTransaction, TonTransaction, TransactionType } from '../../../engine/types';
-import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
+import { TonTransaction, TransactionType } from '../../../engine/types';
+import { useAddressFormatsHistory, useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState, TransactionsEmptyStateType } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
@@ -22,37 +20,39 @@ import { getQueryData } from "../../../engine/utils/getQueryData";
 import { Queries } from "../../../engine/queries";
 import { StoredJettonWallet } from "../../../engine/metadata/StoredMetadata";
 import { jettonWalletQueryFn } from "../../../engine/hooks/jettons/jettonsBatcher";
-import { HoldersTransactionView } from "./HoldersTransactionView";
 import { TransactionListItem } from "./TransactionListItem";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
-import { HoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
+import { useAccountTransactionsV2 } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
 
 export const WalletTransactions = memo((props: {
-    txs: AccountStoredTransaction[],
-    hasNext: boolean,
     address: Address,
-    navigation: TypedNavigation,
-    safeArea: EdgeInsets,
-    onLoadMore: () => void,
-    loading: boolean,
-    refresh?: {
-        onRefresh: () => void,
-        refreshing: boolean
-    }
     header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
-    sectionedListProps?: {
-        contentContainerStyle?: StyleProp<ViewStyle>,
-        contentInset?: Insets,
-        contentOffset?: PointProp
-    },
     ledger?: boolean,
-    theme: ThemeType,
-    holdersAccStatus?: HoldersAccountStatus,
     isWalletTab?: boolean
 }) => {
-    const bottomBarHeight = useBottomTabBarHeight();
-    const { theme, navigation, holdersAccStatus } = props;
+    const navigation = useTypedNavigation();
+    const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const { getAddressFormat } = useAddressFormatsHistory();
+    const txs = useAccountTransactionsV2(
+        props.address.toString({ testOnly: isTestnet }),
+        { refetchOnMount: true },
+        { type: TransactionType.TON }
+    );
+    const refreshing = txs.refreshing;
+    const hasNext = txs.hasNext;
+    const transactions = txs.data ?? [];
+    const loading = txs.loading;
+
+    const onLoadMore = useCallback(() => {
+        txs.next();
+    }, [txs.next]);
+
+    const onRefresh = useCallback(() => {
+        txs.refresh();
+    }, [txs.refresh]);
+
+    const bottomBarHeight = useBottomTabBarHeight();
     const knownWallets = useKnownWallets(isTestnet);
     const [spamMinAmount] = useSpamMinAmount();
     const [dontShowComments] = useDontShowComments();
@@ -69,10 +69,11 @@ export const WalletTransactions = memo((props: {
     const { showActionSheetWithOptions } = useActionSheet();
 
     const { transactionsSectioned } = useMemo(() => {
-        const sectioned = new Map<string, { title: string, data: AccountStoredTransaction[] }>();
-        for (let i = 0; i < props.txs.length; i++) {
-            const tx = props.txs[i];
-            const time = (tx.type === TransactionType.TON ? tx.data.base.time : tx.data.time);
+        const sectioned = new Map<string, { title: string, data: TonTransaction[] }>();
+        for (let i = 0; i < transactions.length; i++) {
+            const tx = transactions[i];
+            if (!tx?.base?.time) continue;
+            const time = tx.base.time;
             const timeKey = getDateKey(time);
             const section = sectioned.get(timeKey);
             if (section) {
@@ -82,15 +83,15 @@ export const WalletTransactions = memo((props: {
             }
         }
         return { transactionsSectioned: Array.from(sectioned.values()) };
-    }, [props.txs]);
+    }, [transactions]);
 
-    const navigateToPreview = (transaction: TonTransaction) => {
-        props.navigation.navigateTonTransaction(transaction, props.ledger);
-    };
+    const navigateToPreview = useCallback((transaction: TonTransaction) => {
+        navigation.navigateTonTransaction(transaction, props.ledger);
+    }, [navigation, props.ledger]);
 
-    const renderSectionHeader = (section: { section: SectionListData<any, { title: string }> }) => (
+    const renderSectionHeader = useCallback((section: { section: SectionListData<any, { title: string }> }) => (
         <TransactionsSectionHeader theme={theme} title={section.section.title} />
-    );
+    ), [theme]);
 
     const onShare = useCallback((link: string, title: string) => {
         if (Platform.OS === 'ios') {
@@ -155,7 +156,7 @@ export const WalletTransactions = memo((props: {
         });
     }, [navigation, isTestnet, bounceableFormat]);
 
-    const onLongPress = useCallback((tx: TonTransaction, formattedAddressString: string) => {
+    const onLongPress = useCallback((tx: TonTransaction, formattedAddressString?: string) => {
         const operation = tx.base.operation;
         const item = operation.items[0];
         const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
@@ -186,7 +187,8 @@ export const WalletTransactions = memo((props: {
 
         const canRepeat = kind === 'out'
             && !props.ledger
-            && tx.base.parsed.body?.type !== 'payload';
+            && tx.base.parsed.body?.type !== 'payload'
+            && !!formattedAddressString;
 
         const handleAction = (eN?: number) => {
             switch (eN) {
@@ -250,31 +252,15 @@ export const WalletTransactions = memo((props: {
         }
     }, [pending.length]);
 
-    const renderItem = useCallback((tx: SectionListRenderItemInfo<AccountStoredTransaction, { title: string }>) => {
-        if (tx.item.type === TransactionType.HOLDERS) {
-            const hTx = tx.item.data as HoldersTransaction;
-
-            return (
-                <HoldersTransactionView
-                    tx={hTx}
-                    theme={theme}
-                    navigation={navigation}
-                    holdersAccStatus={holdersAccStatus}
-                />
-            );
-        }
-
-        const item = { ...tx, item: tx.item.data as TonTransaction } as unknown as SectionListRenderItemInfo<TonTransaction, { title: string }>;
-
+    const renderItem = useCallback((tx: SectionListRenderItemInfo<TonTransaction, { title: string }>) => {
         return (
             <TransactionListItem
-                {...item}
+                {...tx}
                 address={props.address}
                 theme={theme}
                 onPress={navigateToPreview}
                 onLongPress={onLongPress}
                 ledger={props.ledger}
-                navigation={navigation}
                 spamMinAmount={spamMinAmount}
                 dontShowComments={dontShowComments}
                 denyList={addressBook.denyList}
@@ -286,56 +272,91 @@ export const WalletTransactions = memo((props: {
                 walletsSettings={walletsSettings}
                 knownWallets={knownWallets}
                 addToDenyList={addToDenyList}
+                getAddressFormat={getAddressFormat}
             />
         );
-    }, [props.address, theme, navigateToPreview, onLongPress, props.ledger, spamMinAmount, dontShowComments, addressBook.denyList, addressBook.contacts, isTestnet, spamWallets, appState, bounceableFormat, walletsSettings, knownWallets, holdersAccStatus]);
+    }, [
+        props.address,
+        theme,
+        navigateToPreview,
+        onLongPress,
+        props.ledger,
+        spamMinAmount,
+        dontShowComments,
+        addressBook.denyList,
+        addressBook.contacts,
+        isTestnet,
+        spamWallets,
+        appState,
+        bounceableFormat,
+        walletsSettings,
+        knownWallets,
+        addToDenyList
+    ]);
 
-    return (
-        <SectionList
-            ref={ref}
-            style={{ flexGrow: 1, flex: 1 }}
-            contentContainerStyle={[
-                props.sectionedListProps?.contentContainerStyle
-            ]}
-            contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
-            sections={transactionsSectioned}
-            scrollEventThrottle={50}
-            removeClippedSubviews={true}
-            stickySectionHeadersEnabled={false}
-            onScrollToIndexFailed={() => {
-                warn('Failed to scroll to index');
-            }}
-            getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
-            renderSectionHeader={renderSectionHeader}
-            ListHeaderComponent={props.header}
-            ListFooterComponent={props.hasNext ? (
-                <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                    <ReAnimatedCircularProgress
-                        size={24}
-                        color={theme.iconPrimary}
-                        reverse
-                        infinitRotate
-                        progress={0.8}
-                    />
-                </View>
-            ) : null}
-            ListEmptyComponent={
-                props.loading
-                    ? <TransactionsSkeleton />
-                    : <TransactionsEmptyState
-                        type={TransactionsEmptyStateType.Ton}
-                        isWalletTab={props.isWalletTab}
-                    />
-            }
-            renderItem={renderItem}
-            initialNumToRender={16}
-            onEndReached={props.onLoadMore}
-            maxToRenderPerBatch={16}
-            onEndReachedThreshold={0.2}
-            keyExtractor={(item) => 'tx-' + item.data.id}
-            onRefresh={props.refresh?.onRefresh}
-            refreshing={props.refresh?.refreshing}
-        />
-    );
+    const listEmptyComponent = useMemo(() => (
+        loading
+            ? <TransactionsSkeleton />
+            : <TransactionsEmptyState
+                type={TransactionsEmptyStateType.Ton}
+                isWalletTab={props.isWalletTab}
+            />
+    ), [loading, props.isWalletTab]);
+
+    const list = useMemo(() => {
+        return (
+            <SectionList
+                ref={ref}
+                style={{ flexGrow: 1, flex: 1 }}
+                contentContainerStyle={{
+                    paddingBottom: 32
+                }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
+                sections={transactionsSectioned}
+                scrollEventThrottle={50}
+                removeClippedSubviews={true}
+                stickySectionHeadersEnabled={false}
+                onScrollToIndexFailed={() => {
+                    warn('Failed to scroll to index');
+                }}
+                getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
+                renderSectionHeader={renderSectionHeader}
+                ListHeaderComponent={props.header}
+                ListFooterComponent={hasNext ? (
+                    <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                        <ReAnimatedCircularProgress
+                            size={24}
+                            color={theme.iconPrimary}
+                            reverse
+                            infinitRotate
+                            progress={0.8}
+                        />
+                    </View>
+                ) : null}
+                ListEmptyComponent={listEmptyComponent}
+                renderItem={renderItem}
+                initialNumToRender={16}
+                onEndReached={onLoadMore}
+                maxToRenderPerBatch={16}
+                onEndReachedThreshold={0.2}
+                keyExtractor={(item) => 'tx-' + item.id + item.message?.addressString}
+                onRefresh={onRefresh}
+                refreshing={refreshing}
+            />
+        )
+    }, [
+        transactions.length,
+        refreshing,
+        bottomBarHeight,
+        props.header,
+        hasNext,
+        theme,
+        renderSectionHeader,
+        renderItem,
+        onRefresh,
+        ...(transactions.length === 0 ? [listEmptyComponent] : [])
+    ]);
+
+    return list
 });
 WalletTransactions.displayName = 'WalletTransactions';

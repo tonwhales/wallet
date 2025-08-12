@@ -27,28 +27,18 @@ export function useHoldersWatcher() {
 
         cards.refetch();
 
-        const refetchTxs = () => {
-            queryClient.invalidateQueries({
-                queryKey: Queries.TransactionsV2(accAddressString, true),
-                refetchPage: (last, index, allPages) => index == 0,
-            });
-        }
-
         return watchHoldersAccountUpdates(token, (event) => {
             switch (event.type) {
                 case 'connected':
                     cards.refetch();
-                    refetchTxs();
                     break;
                 case 'accounts_changed':
                 case 'balance_change':
                 case 'limits_change':
                     cards.refetch();
-                    refetchTxs();
                     break;
                 case 'prepaid_transaction':
                     cards.refetch();
-                    refetchTxs();
                     break;
                 case 'state_change':
                     status.refetch();

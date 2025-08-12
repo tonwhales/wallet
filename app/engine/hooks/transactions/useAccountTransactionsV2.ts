@@ -1,291 +1,309 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { Address } from '@ton/core';
-import { AccountStoredTransaction, HoldersTransaction, StoredTransaction, TonTransaction, TransactionType } from '../../types';
-import { useClient4, useHoldersAccountStatus, useNetwork } from '..';
+import { StoredTransaction, TonTransaction, TransactionType } from '../../types';
+import { useClient4, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
-import { log } from '../../../utils/log';
 import { queryClient } from '../../clients';
-import { HoldersUserState } from '../../api/holders/fetchUserState';
-import { AccountTransactionsParams, AccountTransactionsV2Cursor, fetchAccountTransactionsV2, HoldersCursor, TonCursor } from '../../api/fetchAccountTransactionsV2';
-import { useEffect, useRef, useState } from 'react';
+import { AccountTransactionsParams, TonCursor, fetchAccountTransactionsV2 } from '../../api/fetchAccountTransactionsV2';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { TonClient4 } from '@ton/ton';
+import { prepareMessages } from './usePeparedMessages';
+import { fetchGaslessConfig, GaslessConfig } from '../../api/gasless/fetchGaslessConfig';
+import { fetchContractInfo } from '../../api/fetchContractInfo';
+import { getJettonHint } from '../jettons/useJetton';
+import { mapJettonFullToMasterState } from '../../../utils/jettons/mapJettonToMasterState';
+import { getHintFull } from '../../../utils/jettons/hintSortFilter';
+import { JettonFull } from '../../api/fetchHintsFull';
 
-const TRANSACTIONS_LENGTH = 16;
+const PAGE_SIZE = 16;
+const REFRESH_TIMEOUT = 35000;
+const STALE_TIME = 5000;
+
+interface UseAccountTransactionsResult {
+    data: TonTransaction[] | null;
+    next: () => void;
+    hasNext: boolean;
+    loading: boolean;
+    refresh: () => void;
+    refreshing: boolean;
+}
+
+interface QueryContext {
+    pageParam?: { ton: TonCursor };
+}
+
+function getLastTransactionFromPages(pages: TonTransaction[][]): TonTransaction | null {
+    if (pages.length === 0) return null;
+
+    const lastPage = pages[pages.length - 1];
+    return lastPage.length > 0 ? lastPage[lastPage.length - 1] : null;
+}
+
+function shouldLoadNextPage(lastPage: TonTransaction[] | undefined, totalPages: number): boolean {
+    if (!lastPage || totalPages < 1) {
+        return false;
+    }
+    return lastPage.length >= PAGE_SIZE - 2;
+}
+
+function transformStoredToTonTransaction(stored: StoredTransaction): TonTransaction {
+    return {
+        id: `${stored.lt}_${stored.hash}`,
+        base: stored,
+        outMessagesCount: stored.outMessagesCount,
+        outMessages: stored.outMessages,
+        lt: stored.lt,
+        hash: stored.hash
+    };
+}
+
+function hasJettonTransactions(transactions: TonTransaction[]): boolean {
+    return transactions.some(tx =>
+        tx.base.operation.items.length > 0 &&
+        tx.base.operation.items[0].kind === 'token'
+    );
+}
+
+function areTransactionsEqual(tx1: TonTransaction, tx2: TonTransaction): boolean {
+    return tx1.lt === tx2.lt && tx1.hash === tx2.hash;
+}
+
+function createNextPageParam(lastTransaction: TonTransaction): { ton: TonCursor } {
+    return {
+        ton: {
+            lt: lastTransaction.lt,
+            hash: lastTransaction.hash
+        }
+    };
+}
+
+async function getInitialCursor(client: TonClient4, account: string): Promise<TonCursor | null> {
+    const accountAddr = Address.parse(account);
+    const accountLite = await client.getAccountLite(await getLastBlock(), accountAddr);
+
+    if (!accountLite.account.last) {
+        return null;
+    }
+
+    return {
+        lt: accountLite.account.last.lt,
+        hash: accountLite.account.last.hash
+    };
+}
+
+async function fetchTransactionsPage(
+    account: string,
+    isTestnet: boolean,
+    cursor: TonCursor | null,
+    params?: AccountTransactionsParams
+): Promise<TonTransaction[]> {
+    if (!cursor) {
+        return [];
+    }
+
+    const accountAddr = Address.parse(account);
+    const apiCursor = { ton: cursor };
+
+    const res = await fetchAccountTransactionsV2(accountAddr, isTestnet, apiCursor, undefined, params);
+
+    return res.data
+        .filter(t => t.type === TransactionType.TON)
+        .map(t => transformStoredToTonTransaction(t.data as StoredTransaction));
+}
+
+function optimizeDataStructure(old: any, next: any): any {
+    // If old data doesn't exist, use new data
+    if (!old?.pages || old.pages.length === 0) {
+        return next;
+    }
+
+    // If next data doesn't exist, keep old data  
+    if (!next?.pages || next.pages.length === 0) {
+        return old;
+    }
+
+    const oldFirstPage = old.pages[0];
+    const nextFirstPage = next.pages[0];
+
+    // If pages are empty, use next
+    if (!oldFirstPage?.length || !nextFirstPage?.length) {
+        return next;
+    }
+
+    // If we have more pages, definitely use new data (new pages loaded)
+    if (next.pages.length > old.pages.length) {
+        return next;
+    }
+
+    // If we have fewer pages, use new data (refresh happened)  
+    if (next.pages.length < old.pages.length) {
+        return next;
+    }
+
+    // Same number of pages - check if first transaction changed
+    if (areTransactionsEqual(oldFirstPage[0], nextFirstPage[0])) {
+        return old;
+    }
+
+    // Data has changed, use new data
+    return next;
+}
+
+export const formatTransactions = async (transactions: TonTransaction[], isTestnet: boolean, owner: Address | null) => {
+    const result: TonTransaction[] = [];
+    let gaslessConfig: GaslessConfig | null = null;
+    try {
+        gaslessConfig = await fetchGaslessConfig(isTestnet)
+    } catch (e) {
+        console.log('ERROR', e);
+    }
+
+    for (const tx of transactions) {
+        if (tx.base.outMessages.length > 1) {
+            const preparedMessages = prepareMessages(tx.base.outMessages, isTestnet, owner, gaslessConfig);
+            for (const message of preparedMessages) {
+                if (message.type === 'relayed') continue;
+                const operation = message.operation;
+                const item = operation.items[0];
+                const opAddress = item.kind === 'token' ? operation.address : message.friendlyTarget;
+                const contractInfo = await fetchContractInfo(opAddress);
+                const symbolText = item.kind === 'ton'
+                ? ' TON'
+                : (message.jettonMaster?.symbol ? ` ${message.jettonMaster.symbol}` : '')
+                result.push({ ...tx, message, contractInfo, symbolText });
+            }
+        } else {
+            try {
+                const operation = tx.base.operation;
+                const item = operation.items[0];
+                const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+                const contractInfo = await fetchContractInfo(opAddress);
+                const jettonHint = getJettonHint({
+                    owner: owner!,
+                    master: tx.base.parsed.resolvedAddress,
+                    wallet: tx.base.parsed.resolvedAddress,
+                    isTestnet,
+                })
+                const jettonMaster = jettonHint ? mapJettonFullToMasterState(jettonHint) : null;
+                const { isSCAM } = jettonHint ? getHintFull(jettonHint as JettonFull, isTestnet) : { isSCAM: false };
+                const symbolText = item.kind === 'ton'
+                    ? ' TON'
+                    : (jettonMaster?.symbol
+                        ? ` ${jettonMaster.symbol}${isSCAM ? ' • SCAM' : ''}`
+                        : '')
+                const jettonDecimals = jettonMaster?.decimals;
+                result.push({ ...tx, contractInfo, symbolText, jettonDecimals });
+
+            } catch (e) {
+                console.log('ERROR', e);
+            }
+        }
+    }    
+    return result;
+}
 
 export function useAccountTransactionsV2(
     account: string,
     options: { refetchOnMount: boolean } = { refetchOnMount: false },
     params?: AccountTransactionsParams
-): {
-    data: AccountStoredTransaction[] | null,
-    next: () => void,
-    hasNext: boolean,
-    loading: boolean,
-    refresh: () => void,
-    refreshing: boolean
-} {
+): UseAccountTransactionsResult {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
-    const status = useHoldersAccountStatus(account).data;
+    const address = Address.parse(account);
 
-    const token = (
-        !!status &&
-        status.state === HoldersUserState.Ok
-    ) ? status.token : undefined;
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const refreshTimeoutRef = useRef<NodeJS.Timeout>();
 
-    let raw = useInfiniteQuery<AccountStoredTransaction[]>({
-        queryKey: Queries.TransactionsV2(account, !!token, params),
+    const query = useInfiniteQuery<TonTransaction[]>({
+        queryKey: Queries.TransactionsV2(account, false, params),
         refetchOnWindowFocus: true,
-        getNextPageParam: (last, allPages) => {
-            if (!last || allPages.length < 1 || !last[TRANSACTIONS_LENGTH - 2]) {
+        staleTime: STALE_TIME,
+        getNextPageParam: (lastPage, allPages) => {
+            if (!shouldLoadNextPage(lastPage, allPages.length)) {
                 return undefined;
             }
 
-            let lastTon: TonTransaction | undefined;
-            let lastHolders: HoldersTransaction | undefined;
-
-            for (let i = allPages.length - 1; i >= 0; i--) {
-                for (let j = allPages[i].length - 1; j >= 0; j--) {
-                    const item = allPages[i][j];
-                    if (item.type === TransactionType.TON) {
-                        if (lastTon && lastHolders) {
-                            break;
-                        } else if (lastTon) {
-                            continue;
-                        }
-                        lastTon = item.data as TonTransaction;
-                        continue;
-                    }
-
-                    if (lastTon && lastHolders) {
-                        break;
-                    } else if (lastHolders) {
-                        continue;
-                    }
-
-
-                    lastHolders = item.data as HoldersTransaction;
-                }
+            const lastTransaction = getLastTransactionFromPages(allPages);
+            if (lastTransaction) {
+                return createNextPageParam(lastTransaction);
             }
 
-            if (!lastTon && !lastHolders) {
-                return undefined;
-            }
-
-            return {
-                ton: lastTon ? { lt: lastTon.lt, hash: lastTon.hash } : undefined,
-                holders: !!lastHolders?.id ? { fromCursor: lastHolders.id } : undefined
-            };
+            return undefined;
         },
-        queryFn: async (ctx) => {
-            let accountAddr = Address.parse(account);
-            let tonCursor: TonCursor | undefined;
-            let holdersCursor: HoldersCursor | undefined;
-            let sliceFirst: boolean = false;
+        queryFn: async (ctx: QueryContext) => {
+            const isFirstPage = !ctx.pageParam;
+            let cursor: TonCursor | null;
 
-            const pageParam = ctx.pageParam as (AccountTransactionsV2Cursor | undefined);
-
-            if (!!pageParam) {
-                sliceFirst = true;
-                tonCursor = pageParam.ton;
-                holdersCursor = pageParam.holders;
+            if (isFirstPage) {
+                cursor = await getInitialCursor(client, account);
             } else {
-                let accountLite = await client.getAccountLite(await getLastBlock(), accountAddr);
-                if (!accountLite.account.last) {
-                    return [];
-                }
-
-                tonCursor = { lt: accountLite.account.last.lt, hash: accountLite.account.last.hash };
+                cursor = ctx.pageParam!.ton;
             }
 
-            log(`[txns-query] fetching ${tonCursor ? `ton: ${JSON.stringify(tonCursor)}` : ''} ${holdersCursor ? `holders: ${JSON.stringify(holdersCursor)}` : ''} ${sliceFirst ? 'sliceFirst' : ''}`);
+            const transactions = await fetchTransactionsPage(account, isTestnet, cursor, params);
 
-            const cursor: AccountTransactionsV2Cursor = { ton: tonCursor, holders: holdersCursor };
+            // Skip first transaction for subsequent pages to avoid duplicates
+            const result = isFirstPage ? transactions : transactions.slice(1);
 
-            const res = await fetchAccountTransactionsV2(accountAddr, isTestnet, cursor, token, params);
-            let txs: AccountStoredTransaction[] = [];
-            let shouldRefetchJttons = false;
-
-            // Add jetton wallets to hints (in case of hits worker lag being to high)
-            txs = res.data.map(t => {
-                if (t.type !== TransactionType.TON) {
-                    return {
-                        type: TransactionType.HOLDERS,
-                        data: t.data as HoldersTransaction,
-                        hasMore: res.hasMore
-                    };
-                }
-
-                const base = t.data as StoredTransaction;
-
-                if (!shouldRefetchJttons) {
-                    shouldRefetchJttons = base.operation.items.length > 0
-                        ? base.operation.items[0].kind === 'token'
-                        : false;
-                }
-
-                return {
-                    type: TransactionType.TON,
-                    data: {
-                        id: `${base.lt}_${base.hash}`,
-                        base: base,
-                        outMessagesCount: base.outMessagesCount,
-                        outMessages: base.outMessages,
-                        lt: base.lt,
-                        hash: base.hash
-                    } as TonTransaction
-                };
-            });
-
-            if (sliceFirst) {
-                txs = txs.slice(1);
-            }
-
-            log(`[txns-query] fetched ${txs.length} txs`);
-
-            if (shouldRefetchJttons) {
+            // Invalidate jetton hints if we found jetton transactions
+            if (hasJettonTransactions(result)) {
                 queryClient.invalidateQueries({ queryKey: Queries.HintsFull(account) });
             }
 
-            return txs;
+            console.log(`[txns-queryFn] ✅ ${isFirstPage ? 'FIRST' : 'NEXT'} PAGE: ${result.length} transactions`);
+            return await formatTransactions(result, isTestnet, address);
+
         },
-        structuralSharing: (old, next) => {
-            const firstOld = old?.pages?.[0];
-            const firstNext = next?.pages?.[0];
-
-            // If something absent
-            if (!firstOld || !firstNext) {
-                return next;
-            }
-
-            if (firstOld.length < 1 || firstNext.length < 1) {
-                return next;
-            }
-
-            // If first elements are equal
-            if (firstOld[0].type === firstNext[0].type) {
-                if (firstOld[0].type === TransactionType.TON) {
-                    const firstOldTon = firstOld[0].data;
-                    const firstNextTon = firstNext[0].data as TonTransaction;
-
-                    if (firstOldTon.lt === firstNextTon.lt && firstOldTon.hash === firstNextTon.hash) {
-                        return next;
-                    }
-                } else {
-                    const firstOldHolders = firstOld[0].data as HoldersTransaction;
-                    const firstNextHolders = firstNext[0].data as HoldersTransaction;
-
-                    if (firstOldHolders.id === firstNextHolders.id) {
-                        return next;
-                    }
-                }
-            }
-
-            // Something changed, rebuild the list
-            let offset = firstNext.findIndex(a => {
-                if (a.type === TransactionType.TON) {
-                    const aTon = a.data as TonTransaction;
-
-                    if (firstOld[0].type !== TransactionType.TON) {
-                        return false;
-                    }
-
-                    return aTon.lt === firstOld[0].data.lt && aTon.hash === firstOld[0].data.hash;
-                } else {
-                    const aHolders = a.data as HoldersTransaction;
-
-                    if (firstOld[0].type !== TransactionType.HOLDERS) {
-                        return false;
-                    }
-
-                    return aHolders.id === (firstOld[0].data as HoldersTransaction).id;
-                }
-            });
-
-            // If not found, we need to invalidate the whole list
-            if (offset === -1) {
-                return {
-                    pageParams: [next.pageParams[0]],
-                    pages: [next.pages[0]],
-                };
-            }
-
-            // If found, we need to shift pages and pageParams
-            let pages: AccountStoredTransaction[][] = [next.pages[0]];
-            let pageParams: AccountTransactionsV2Cursor[] = [next.pageParams[0] as any];
-            let tail = old!.pages[0].slice(TRANSACTIONS_LENGTH - offset);
-            let nextPageParams = {
-                ton: next.pages[0][next.pages[0].length - 1].type === TransactionType.TON
-                    ? { lt: (next.pages[0][next.pages[0].length - 1].data as TonTransaction).lt, hash: (next.pages[0][next.pages[0].length - 1].data as TonTransaction).hash }
-                    : undefined,
-                holders: next.pages[0][next.pages[0].length - 1].type === TransactionType.HOLDERS
-                    ? { fromCursor: (next.pages[0][next.pages[0].length - 1].data as HoldersTransaction).time.toString() }
-                    : undefined
-            }
-
-            for (let page of old!.pages.slice(1)) {
-                let newPage = tail.concat(page.slice(0, TRANSACTIONS_LENGTH - 1 - offset));
-                pageParams.push(nextPageParams);
-                pages.push(newPage);
-
-                tail = page.slice(TRANSACTIONS_LENGTH - 1 - offset);
-                nextPageParams = {
-                    ton: newPage[newPage.length - 1].type === TransactionType.TON
-                        ? { lt: (newPage[newPage.length - 1].data as TonTransaction).lt, hash: (newPage[newPage.length - 1].data as TonTransaction).hash }
-                        : undefined,
-                    holders: newPage[newPage.length - 1].type === TransactionType.HOLDERS
-                        ? { fromCursor: (newPage[newPage.length - 1].data as HoldersTransaction).time.toString() }
-                        : undefined
-                };
-            }
-
-            return { pages, pageParams };
-        },
-        staleTime: 5 * 1000
+        structuralSharing: optimizeDataStructure,
     });
 
-    // Refreshing state only for manual on pull to refresh called
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const timerRef = useRef<NodeJS.Timeout>();
-
+    // Handle refresh timeout
     useEffect(() => {
-        if (!raw.isRefetching) {
+        if (!query.isRefetching) {
             setIsRefreshing(false);
         } else {
-            timerRef.current = setTimeout(() => {
+            refreshTimeoutRef.current = setTimeout(() => {
                 setIsRefreshing(false);
-            }, 35000);
+            }, REFRESH_TIMEOUT);
         }
 
         return () => {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
+            if (refreshTimeoutRef.current) {
+                clearTimeout(refreshTimeoutRef.current);
             }
-        }
-    }, [raw.isRefetching]);
+        };
+    }, [query.isRefetching]);
 
+    // Handle refetch first page on mount
     useEffect(() => {
-        if (options.refetchOnMount) {
-            raw.refetch({ refetchPage: (last, index, allPages) => index == 0 });
+        if (options.refetchOnMount && !query.isFetchingNextPage) {
+            query.refetch({ refetchPage: (_, index) => index === 0 });
         }
     }, [options.refetchOnMount]);
 
+    const next = useCallback(() => {
+        if (!query.isFetchingNextPage && query.hasNextPage) {
+            query.fetchNextPage();
+        }
+    }, [query.isFetchingNextPage, query.hasNextPage, query.fetchNextPage]);
+
+    const refresh = useCallback(async () => {
+        setIsRefreshing(true);
+        try {
+            await query.refetch({ refetchPage: (_, index) => index === 0 });
+        } catch {
+            // Ignore errors, isRefreshing will be reset by useEffect
+        }
+        setIsRefreshing(false);
+    }, [query.refetch]);
+
     return {
-        data: raw.data?.pages.flat() || null,
-        next: () => {
-            if (!raw.isFetchingNextPage && !raw.isFetching && raw.hasNextPage) {
-                raw.fetchNextPage();
-            }
-        },
-        refresh: async () => {
-            setIsRefreshing(true);
-            try {
-                await raw.refetch({ refetchPage: (last, index, allPages) => index == 0 });
-            } catch { }
-            setIsRefreshing(false);
-        },
+        data: query.data?.pages.flat() || null,
+        loading: query.isFetching,
         refreshing: isRefreshing,
-        hasNext: !!raw.hasNextPage,
-        loading: raw.isFetching,
-    }
+        hasNext: !!query.hasNextPage,
+        next,
+        refresh
+    };
 }

@@ -27,8 +27,6 @@ export const selectedAccountSelector = selector({
             return {
                 ...selected,
                 addressString: selected.address.toString({ testOnly: isTestnet }),
-                // addressString: 'UQABKYFl0SWU72G6Vq123zdQ1w_8gn3kWv5eYPohCxOZH5-6',
-                // address: Address.parse('UQABKYFl0SWU72G6Vq123zdQ1w_8gn3kWv5eYPohCxOZH5-6'),
             };
         }
 

@@ -19,6 +19,7 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate;
 import expo.modules.ReactActivityDelegateWrapper;
 import com.tonhub.wallet.push.PushNotificationManager;
 import cloud.mindbox.mobile_sdk.Mindbox;
+import java.util.ArrayList;
 
 public class MainActivity extends ReactActivity {
     private PushNotificationManager mPushNotificationManager;
@@ -49,6 +50,62 @@ public class MainActivity extends ReactActivity {
         if (isMaestraPush(intent)) {
             Mindbox.INSTANCE.onPushClicked(this, intent);
         }
+    }
+
+    /**
+     * Sanitizes a Bundle by copying only React-supported types.
+     * this clears all unsupported types like android.os.UserHandle, Parcelable objects
+     * THOSE CUASE CRASHES when Android is trying to Arguments.fromBundle
+     */
+    private Bundle sanitizeBundle(Bundle source) {
+        if (source == null) return null;
+
+        Bundle sanitized = new Bundle();
+        for (String key : source.keySet()) {
+            Object value = source.get(key);
+            if (value == null) {
+                continue;
+            }
+
+            if (value instanceof Bundle) {
+                sanitized.putBundle(key, sanitizeBundle((Bundle) value));
+            } else if (value instanceof String) {
+                sanitized.putString(key, (String) value);
+            } else if (value instanceof Boolean) {
+                sanitized.putBoolean(key, (Boolean) value);
+            } else if (value instanceof Integer) {
+                sanitized.putInt(key, (Integer) value);
+            } else if (value instanceof Double) {
+                sanitized.putDouble(key, (Double) value);
+            } else if (value instanceof Float) {
+                sanitized.putDouble(key, ((Float) value).doubleValue());
+            } else if (value instanceof Long) {
+                sanitized.putDouble(key, ((Long) value).doubleValue());
+            } else if (value instanceof String[]) {
+                sanitized.putStringArray(key, (String[]) value);
+            } else if (value instanceof ArrayList) {
+                ArrayList<?> list = (ArrayList<?>) value;
+                if (list.isEmpty()) {
+                    sanitized.putStringArrayList(key, new ArrayList<>());
+                } else {
+                    Object first = list.get(0);
+                    if (first instanceof String) {
+                        //noinspection unchecked
+                        sanitized.putStringArrayList(key, (ArrayList<String>) list);
+                    } else if (first instanceof Bundle) {
+                        ArrayList<Bundle> bundles = new ArrayList<>();
+                        for (Object item : list) {
+                            if (item instanceof Bundle) {
+                                bundles.add(sanitizeBundle((Bundle) item));
+                            }
+                        }
+                        sanitized.putParcelableArrayList(key, bundles);
+                    }
+                }
+            }
+        }
+
+        return sanitized;
     }
 
     @Override
@@ -161,7 +218,7 @@ public class MainActivity extends ReactActivity {
                             if (initBundle == null) {
                                 initBundle = new Bundle();
                             }
-                            initBundle.putBundle("initialPushData", extras);
+                            initBundle.putBundle("initialPushData", sanitizeBundle(extras));
                         }
 
                         return initBundle;

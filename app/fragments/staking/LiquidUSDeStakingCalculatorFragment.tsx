@@ -168,7 +168,7 @@ export const LiquidUSDeStakingCalculatorFragment = fragment(() => {
     }, [amount, price, currency, validAmount]);
 
     const onTopUp = useCallback(() => {
-        navigation.navigateLiquidUSDeStakingTransfer({ amount, action: 'deposit' }, { ledger: isLedger });
+        navigation.navigateLiquidUSDeStakingTransfer({ amount, action: 'deposit' }, { ledger: isLedger, replace: true });
     }, [amount, isLedger, navigation]);
 
     return (

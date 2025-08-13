@@ -87,7 +87,7 @@ export function PreparedMessageView(props: {
                     return t('tx.sent');
                 }
             }
-        }, [operation.op, status, parsedAddress]
+        }, [operation.op, status, parsedAddress, isTestnet]
     );
 
     // Resolve built-in known wallets

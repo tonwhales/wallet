@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { View } from "react-native";
 import { t } from "../../../i18n/t";
 import { useDisplayableJettons, useNetwork, useSolanaSavingsBalance, useSolanaTokens, useTheme } from "../../../engine/hooks";
@@ -120,17 +120,20 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
 
     const solanaTokens: ({ type: AssetType.SolanaToken } & SolanaToken)[] = tokens?.data?.map((t) => ({ type: AssetType.SolanaToken, ...t })) ?? [];
 
-    const items: SavingsItem[] = [
-        { type: AssetType.Ton },
-        { type: AssetType.Special },
-    ];
+    const items: SavingsItem[] = useMemo(() => {
+        const baseItems: SavingsItem[] = [
+            { type: AssetType.Ton },
+            { type: AssetType.Special },
+        ];
 
-    if (!isLedger) {
-        items.push({ type: AssetType.Solana });
-        items.push(...solanaTokens);
-    }
+        if (!isLedger) {
+            baseItems.push({ type: AssetType.Solana });
+            baseItems.push(...solanaTokens);
+        }
 
-    items.push(...savingsItems);
+        baseItems.push(...savingsItems);
+        return baseItems;
+    }, [isLedger, solanaTokens, savingsItems]);
 
     const renderFace = useCallback(() => {
         return (

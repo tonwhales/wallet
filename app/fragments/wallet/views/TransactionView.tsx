@@ -71,7 +71,7 @@ export const TransactionView = memo((props: {
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const parsedAddressNonBounceable = parsedAddress.toString({ testOnly: isTestnet, bounceable: false });
     const isOwn = (appState?.addresses ?? []).findIndex((a) => a.address.equals(parsedAddress)) >= 0
-    const bounceable = getAddressFormat(parsedAddress) ?? (contractInfo?.kind === 'wallet' || !contractInfo
+    const bounceable = getAddressFormat(parsedAddress) ?? (contractInfo?.kind === 'wallet' || !contractInfo || kind === 'in'
         ? bounceableFormat
         : parsedOpAddr.isBounceable)
     const walletSettings = walletsSettings[parsedAddressFriendly];

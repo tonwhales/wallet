@@ -108,7 +108,7 @@ const TransactionPreview = () => {
     const targetContract = useContractInfo(opAddress);
 
     const { getAddressFormat } = useAddressFormatsHistory();
-    const isTargetBounceable = getAddressFormat(parsedAddress) ?? (targetContract?.kind === 'wallet'
+    const isTargetBounceable = getAddressFormat(parsedAddress) ?? (targetContract?.kind === 'wallet' || kind === 'in'
         ? bounceableFormat
         : parsedOpAddr.isBounceable)
 
@@ -416,7 +416,7 @@ const TransactionPreview = () => {
                             >
                                 <AddressComponent
                                     address={parsedOpAddr.address}
-                                    bounceable={tx.base.parsed.kind === 'out' ? isTargetBounceable : bounceableFormat}
+                                    bounceable={isTargetBounceable}
                                     end={4}
                                     testOnly={isTestnet}
                                     known={fromKnownWalletsList}

@@ -60,7 +60,7 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
     }
 
     const renderItem = useCallback((item: SavingsItem) => {
-        switch (item.type) {
+        switch (item?.type) {
             case 'jetton':
                 return (
                     <JettonProductItem
@@ -123,10 +123,14 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
     const items: SavingsItem[] = [
         { type: AssetType.Ton },
         { type: AssetType.Special },
-        { type: AssetType.Solana },
-        ...solanaTokens,
-        ...savingsItems,
     ];
+
+    if (!isLedger) {
+        items.push({ type: AssetType.Solana });
+        items.push(...solanaTokens);
+    }
+
+    items.push(...savingsItems);
 
     const renderFace = useCallback(() => {
         return (

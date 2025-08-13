@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { View, Text, Pressable, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -6,8 +6,7 @@ import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useIsLedgerRoute, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
-import { Address } from "@ton/core";
+import { useBounceableWalletFormat, useCurrentAddress, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSolanaTokens, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
@@ -46,29 +45,19 @@ export const ReceiveAssetsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const selected = useSelectedAccount();
-    const solanaAddress = useSolanaSelectedAccount()!;
-    const isLedger = useIsLedgerRoute()
+    const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
-    const tokens = useSolanaTokens(solanaAddress, isLedger);
-
-    const ledgerAddress = useMemo(() => {
-        if (isLedger && !!ledgerContext?.addr) {
-            return Address.parse(ledgerContext.addr.address);
-        }
-    }, [ledgerContext, isLedger]);
-
-    const owner = isLedger ? ledgerAddress! : selected!.address;
-    const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress).data?.accounts ?? [];
-    const hints = useDisplayableJettons(owner.toString({ testOnly: isTestnet }));
+    const tokens = useSolanaTokens(solanaAddress!, isLedger);
+    const holdersAccStatus = useHoldersAccountStatus(tonAddress).data;
+    const holdersAccounts = useHoldersAccounts(tonAddress, isLedger ? undefined : solanaAddress).data?.accounts ?? [];
+    const hints = useDisplayableJettons(tonAddress.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
-    const [isWalletMode] = useAppMode(selected?.address, { isLedger });
+    const [isWalletMode] = useAppMode(tonAddress);
 
     const onAssetCallback = useCallback((asset: ReceiveableTonAsset | null) => {
         if (assetCallback) {
@@ -77,9 +66,9 @@ export const ReceiveAssetsFragment = fragment(() => {
                 assetCallback(asset);
             }, 10);
         } else {
-            navigation.navigateReceive({ addr: owner.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
+            navigation.navigateReceive({ addr: tonAddress.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
         }
-    }, [assetCallback, isLedger, owner, isTestnet, bounceableFormat]);
+    }, [assetCallback, isLedger, tonAddress, isTestnet, bounceableFormat]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         let path = `/account/${target.id}?deposit-open=true`;
@@ -105,7 +94,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const onWarningClick = useCallback(() => {
         const navParams: HoldersAppParams = { type: HoldersAppParamsType.Create };
         navigation.goBack();
-        
+
         if (needsEnrollment || !isHoldersReady) {
             if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
                 ledgerContext.onShowLedgerConnectionError();
@@ -121,6 +110,9 @@ export const ReceiveAssetsFragment = fragment(() => {
     const solanaTokens: SolanaToken[] = tokens?.data ?? [];
 
     const openSolanaToken = useCallback((token: SolanaToken) => {
+        if (!solanaAddress) {
+            return;
+        }
         navigation.navigateSolanaReceive({
             addr: solanaAddress,
             asset: {
@@ -134,6 +126,9 @@ export const ReceiveAssetsFragment = fragment(() => {
     }, [navigation, solanaAddress]);
 
     const openSolanaWallet = useCallback(() => {
+        if (!solanaAddress) {
+            return;
+        }
         navigation.navigateSolanaReceive({ addr: solanaAddress });
     }, [navigation, solanaAddress]);
 
@@ -142,7 +137,7 @@ export const ReceiveAssetsFragment = fragment(() => {
             case AssetType.HOLDERS:
                 return (
                     <HoldersAccountItem
-                        owner={owner}
+                        owner={tonAddress}
                         account={item.account}
                         itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                         style={{ paddingVertical: 0 }}
@@ -158,7 +153,7 @@ export const ReceiveAssetsFragment = fragment(() => {
                 return (
                     <SpecialJettonProduct
                         theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
-                        address={owner}
+                        address={tonAddress}
                         testOnly={isTestnet}
                         assetCallback={onAssetCallback}
                     />
@@ -212,27 +207,27 @@ export const ReceiveAssetsFragment = fragment(() => {
                     </Pressable>
                 );
             case AssetType.SOLANA:
-                return (
+                return solanaAddress ? (
                     <SolanaWalletProduct
                         theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
                         address={solanaAddress}
                         onSelect={openSolanaWallet}
                     />
-                );
+                ) : null;
             case AssetType.SOLANA_TOKEN:
-                return (
+                return solanaAddress ? (
                     <SolanaTokenProduct
                         theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
                         token={item.token}
                         address={solanaAddress}
                         onSelect={() => openSolanaToken(item.token)}
                     />
-                );
+                ) : null;
             default:
                 return (
                     <TonProductComponent
                         theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
-                        address={owner}
+                        address={tonAddress}
                         testOnly={isTestnet}
                         onSelect={() => onAssetCallback(null)}
                         isLedger={isLedger}
@@ -240,7 +235,7 @@ export const ReceiveAssetsFragment = fragment(() => {
                 );
         }
     }, [
-        owner, isTestnet, theme, owner, holdersAccStatus, isLedger,
+        tonAddress, isTestnet, theme, holdersAccStatus, isLedger,
         onHoldersSelected, onAssetCallback
     ]);
 

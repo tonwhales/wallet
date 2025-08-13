@@ -127,7 +127,7 @@ export const StakingPoolsFragment = fragment(() => {
                     key={`active-${p.pool}`}
                     pool={Address.parse(p.pool)}
                     isLedger={isLedger}
-                    balance={p.balance + p.pendingDeposit + p.pendingWithdraw + p.withdraw}
+                    balance={p.balance + p.pendingDeposit}
                     member={memberAddress!}
                 />
             );

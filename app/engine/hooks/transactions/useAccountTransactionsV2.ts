@@ -192,7 +192,7 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                     : (jettonMaster?.symbol
                         ? ` ${jettonMaster.symbol}${isSCAM ? ' • SCAM' : ''}`
                         : '')
-                const jettonDecimals = jettonMaster?.decimals;
+                const jettonDecimals = item.kind === 'ton' ? undefined : jettonMaster?.decimals;
                 result.push({ ...tx, contractInfo, symbolText, jettonDecimals });
 
             } catch (e) {

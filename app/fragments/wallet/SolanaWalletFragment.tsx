@@ -17,6 +17,7 @@ import { SolanaWalletActions } from "./views/solana/SolanaWalletActions";
 import { isSolanaAddress } from "../../utils/solana/address";
 import { SolanaWalletAddress } from "../../components/address/SolanaWalletAddress";
 import { PendingSolanaTransactions } from "./views/PendingSolanaTransactions";
+import { Image } from "expo-image";
 
 import SolanaIcon from '@assets/ic-solana.svg';
 
@@ -50,13 +51,19 @@ const SolanaHeader = memo(() => {
 
     return (
         <View style={styles.headerTitleComponent}>
-            <Text
-                style={[{ color: theme.textPrimary }, styles.headerTitle]}
-                numberOfLines={1}
-                ellipsizeMode={'tail'}
-            >
-                {'SOL'}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Text
+                    style={[{ color: theme.textPrimary }, styles.headerTitle]}
+                    numberOfLines={1}
+                    ellipsizeMode={'tail'}
+                >
+                    {'SOL'}
+                </Text>
+                <Image
+                    source={require('@assets/ic-verified.png')}
+                    style={{ height: 20, width: 20 }}
+                />
+            </View>
             {!!rate && (
                 <Text
                     style={[{ color: theme.textSecondary }, styles.headerSubtitle]}

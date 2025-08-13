@@ -81,13 +81,19 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                 style={styles.header}
                 titleComponent={(
                     <View style={styles.headerTitleComponent}>
-                        <Text
-                            style={[{ color: theme.textPrimary }, styles.headerTitle]}
-                            numberOfLines={1}
-                            ellipsizeMode={'tail'}
-                        >
-                            {'TON'}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Text
+                                style={[{ color: theme.textPrimary }, styles.headerTitle]}
+                                numberOfLines={1}
+                                ellipsizeMode={'tail'}
+                            >
+                                {'TON'}
+                            </Text>
+                            <Image
+                                source={require('@assets/ic-verified.png')}
+                                style={{ height: 20, width: 20 }}
+                            />
+                        </View>
                         <PriceComponent
                             showSign={false}
                             amount={toNano(1)}
@@ -128,17 +134,6 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                                     width: 72
                                 }}
                             />
-                            <View style={{
-                                justifyContent: 'center', alignItems: 'center',
-                                height: 32, width: 32, borderRadius: 32,
-                                position: 'absolute', right: -7, bottom: -7,
-                                backgroundColor: theme.surfaceOnBg
-                            }}>
-                                <Image
-                                    source={require('@assets/ic-verified.png')}
-                                    style={{ height: 32, width: 32 }}
-                                />
-                            </View>
                         </View>
                         <View style={{ marginTop: 16, width: '100%' }}>
                             <View style={{ gap: 8, alignItems: 'center' }}>

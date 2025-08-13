@@ -218,6 +218,7 @@ export function useAccountTransactionsV2(
         queryKey: Queries.TransactionsV2(account, false, params),
         refetchOnWindowFocus: true,
         staleTime: STALE_TIME,
+        enabled: !!account,
         getNextPageParam: (lastPage, allPages) => {
             if (!shouldLoadNextPage(lastPage, allPages.length)) {
                 return undefined;

@@ -210,7 +210,6 @@ export function useAccountTransactionsV2(
 ): UseAccountTransactionsResult {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
-    const address = Address.parse(account);
 
     const [isRefreshing, setIsRefreshing] = useState(false);
     const refreshTimeoutRef = useRef<NodeJS.Timeout>();
@@ -219,6 +218,7 @@ export function useAccountTransactionsV2(
         queryKey: Queries.TransactionsV2(account, false, params),
         refetchOnWindowFocus: true,
         staleTime: STALE_TIME,
+        enabled: !!account,
         getNextPageParam: (lastPage, allPages) => {
             if (!shouldLoadNextPage(lastPage, allPages.length)) {
                 return undefined;
@@ -232,6 +232,7 @@ export function useAccountTransactionsV2(
             return undefined;
         },
         queryFn: async (ctx: QueryContext) => {
+            const address = Address.parse(account);
             const isFirstPage = !ctx.pageParam;
             let cursor: TonCursor | null;
 

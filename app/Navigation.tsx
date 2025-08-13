@@ -105,7 +105,6 @@ import { ReceiveAssetsFragment } from './fragments/wallet/ReceiveAssetsFragment'
 import { LanguageFragment } from './fragments/LanguageFragment';
 import { MixpanelEvent, trackEvent } from './analytics/mixpanel';
 import { CachedLinking } from './utils/CachedLinking';
-import { TransactionsFilterFragment } from './fragments/wallet/TransactionsFilterFragment';
 import { LedgerSignDataFragment } from './fragments/ledger/LedgerSignDataFragment';
 import { SolanaSimpleTransferFragment } from './fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 import { TransferFragment } from './fragments/secure/transfer/TransferFragment';
@@ -296,7 +295,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Dedust', DedustFragment, safeArea),
     modalScreen('Changelly', ChangellyFragment, safeArea),
     modalScreen('SelectExchange', SelectExchangeFragment, safeArea),
-    modalScreen('TransactionsFilter', TransactionsFilterFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
     modalScreen('JettonTransaction', JettonTransactionPreviewFragment, safeArea),
 

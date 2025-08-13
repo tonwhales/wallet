@@ -1,6 +1,7 @@
 import { Address } from "@ton/core";
-import { EthenaAssets, useEthena } from "../engine/hooks/staking/useEthena";
+import { useEthena } from "../engine/hooks/staking/useEthena";
 import { useNetwork } from "../engine/hooks";
+import { useMemo } from "react";
 
 const Img_EXMO = require('@assets/known/exmo.png');
 const Img_Foundation = require('@assets/known/foundation.png');
@@ -705,7 +706,8 @@ const knownWalletsMainnet = {
 export const useKnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet } = (isTestnet: boolean) => {
     const ethena = useEthena();
     const wallets = isTestnet ? knownWalletsTestnet : knownWalletsMainnet;
-    return {
+    
+    return useMemo(() => ({
         ...wallets,
         [ethena.minter.toString({ testOnly: isTestnet })]: {
             name: 'USDe Minter',
@@ -715,7 +717,7 @@ export const useKnownWallets: (isTestnet: boolean) => { [key: string]: KnownWall
             name: 'tsUSDe Minter',
             ic: Img_tsUSDe
         }
-    }
+    }), [wallets, ethena.minter, ethena.tsMinter, isTestnet]);
 }
 
 export const SpecialJettonTestnet: string | null = 'kQCSJnVYculwsyLUx_VT3qbIeYUs-nwfPsXjfo9VLYlIQuiD';
@@ -735,14 +737,16 @@ export function useSavingsMasters() {
     const { isTestnet } = useNetwork();
     const ethena = useEthena();
 
-    const ethenaMasters = {
-        [ethena.minter.toString({ testOnly: isTestnet })]: { description: 'Ethena USDe' },
-        [ethena.tsMinter.toString({ testOnly: isTestnet })]: { description: 'Ethena tsUSDe' },
-    }
+    return useMemo(() => {
+        const ethenaMasters = {
+            [ethena.minter.toString({ testOnly: isTestnet })]: { description: 'Ethena USDe' },
+            [ethena.tsMinter.toString({ testOnly: isTestnet })]: { description: 'Ethena tsUSDe' },
+        }
 
-    return isTestnet
-        ? { ...savingsMastersTestnet, ...ethenaMasters }
-        : { ...savingsMastersMainnet, ...ethenaMasters };
+        return isTestnet
+            ? { ...savingsMastersTestnet, ...ethenaMasters }
+            : { ...savingsMastersMainnet, ...ethenaMasters };
+    }, [isTestnet, ethena.minter, ethena.tsMinter]);
 }
 
 export const KnownJettonMastersTestnet: { [key: string]: any } = {

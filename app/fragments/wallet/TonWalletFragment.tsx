@@ -7,9 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useParams } from "../../utils/useParams";
 import { Address, toNano } from "@ton/core";
 import { Typography } from "../../components/styles";
-import { memo, Suspense, useCallback } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { memo, Suspense } from "react";
 import { PendingTransactions } from "./views/PendingTransactions";
 import { useFocusEffect } from "@react-navigation/native";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -17,8 +15,6 @@ import { WalletTransactions } from "./views/WalletTransactions";
 import { WalletActions } from "./views/WalletActions";
 import { Image } from "expo-image";
 import { ValueComponent } from "../../components/ValueComponent";
-import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
-import { TransactionType } from "../../engine/types";
 
 export type TonWalletFragmentParams = { owner: string }
 
@@ -42,33 +38,12 @@ const TonWalletSkeleton = memo(() => {
 });
 
 const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
-    const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const safeArea = useSafeAreaInsets();
     const ownerAddress = Address.parse(owner);
     const account = useAccountLite(ownerAddress);
     const isLedger = useIsLedgerRoute()
-
-    const txs = useAccountTransactionsV2(
-        ownerAddress.toString({ testOnly: isTestnet }),
-        { refetchOnMount: true },
-        { type: TransactionType.TON }
-    );
-    const transactions = txs.data;
-
-    const onReachedEnd = useCallback(() => {
-        if (txs.hasNext) {
-            txs.next();
-        }
-    }, [txs.next, txs.hasNext]);
-
-    const onRefresh = useCallback(() => {
-        if (!txs.loading) {
-            txs.refresh();
-        }
-    }, [txs.refresh, txs.loading]);
 
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
@@ -106,20 +81,8 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
             />
 
             <WalletTransactions
-                txs={transactions ?? []}
                 address={ownerAddress}
-                navigation={navigation}
-                safeArea={safeArea}
-                onLoadMore={onReachedEnd}
-                hasNext={txs.hasNext === true}
-                loading={txs.loading}
-                theme={theme}
                 ledger={isLedger}
-                sectionedListProps={{
-                    contentContainerStyle: {
-                        paddingBottom: 32
-                    }
-                }}
                 header={
                     <View style={styles.content}>
                         <View style={{
@@ -169,10 +132,6 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                         </View>
                     </View>
                 }
-                refresh={{
-                    onRefresh,
-                    refreshing: txs.refreshing
-                }}
             />
         </View>
     );

@@ -4,8 +4,6 @@ import Animated, { runOnJS, SharedValue, useAnimatedStyle, withTiming } from 're
 import { useNetwork, useSelectedAccount, useTheme } from '../engine/hooks';
 import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { holdersUrl } from '../engine/api/holders/fetchUserState';
-import { useTransactionsFilter } from '../engine/hooks/transactions/useTransactionsFilter';
-import { TransactionType } from '../engine/types';
 import { useLedgerTransport } from '../fragments/ledger/components/TransportContext';
 import { Address } from '@ton/core';
 import { t } from '../i18n/t';
@@ -29,7 +27,6 @@ export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeigh
     const [toggleWidth, setToggleWidth] = useState(0);
     const { isTestnet } = useNetwork();
     const url = holdersUrl(isTestnet);
-    const [, setFilter] = useTransactionsFilter(address);
 
     useEffect(() => {
         setToggleInWalletMode(isWalletMode);
@@ -47,7 +44,6 @@ export const AppModeToggle = memo(({ isLedger, scrollOffsetSv, walletHeaderHeigh
 
     const onSwitchAppMode = useCallback((isSwitchingToWallet: boolean) => {
         toggleAppMode(isSwitchingToWallet);
-        setFilter((prev) => ({ ...prev, type: isSwitchingToWallet ? TransactionType.TON : TransactionType.HOLDERS }));
         if (!isSwitchingToWallet) {
             queryClient.invalidateQueries({ queryKey: Queries.Holders(address.toString({ testOnly: isTestnet })).Iban() });
         }

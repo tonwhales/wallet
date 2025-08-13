@@ -9,14 +9,14 @@ import { AppState } from "../../../storage/appState";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { TonTransaction } from "../../../engine/types";
+import { PreparedMessageView } from "./PreparedMessageView";
 
 export type TransactionListItemProps = {
     address: Address,
     theme: ThemeType,
     onPress: (tx: TonTransaction) => void,
-    onLongPress?: (tx: TonTransaction, formattedAddressString: string) => void,
+    onLongPress: (tx: TonTransaction, formattedAddressString?: string) => void,
     ledger?: boolean,
-    navigation: TypedNavigation,
     addToDenyList: (address: string | Address, reason: string) => void,
     spamMinAmount: bigint,
     dontShowComments: boolean,
@@ -26,11 +26,23 @@ export type TransactionListItemProps = {
     spamWallets: string[],
     appState: AppState,
     bounceableFormat: boolean,
-    walletsSettings: { [key: string]: WalletSettings }
-    knownWallets: { [key: string]: KnownWallet }
+    walletsSettings: { [key: string]: WalletSettings },
+    knownWallets: { [key: string]: KnownWallet },
+    getAddressFormat: (address: Address) => boolean | undefined,
 }
 
 export const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TonTransaction, { title: string }> & TransactionListItemProps) => {
+    if (item.message) {
+        return (
+            <PreparedMessageView
+                own={props.address}
+                tx={item}
+                theme={theme}
+                ledger={props.ledger}
+                {...props}
+            />
+        );
+    }
     return (
         <TransactionView
             own={props.address}

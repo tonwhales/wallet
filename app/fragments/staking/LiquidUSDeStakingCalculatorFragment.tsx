@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import React, { memo, useMemo, useState } from "react";
-import { Platform, View, Text, ScrollView } from "react-native";
+import React, { memo, useCallback, useMemo, useState } from "react";
+import { Platform, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ATextInput } from "../../components/ATextInput";
 import { fragment } from "../../fragment";
@@ -9,14 +9,14 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { formatCurrency, formatInputAmount } from "../../utils/formatCurrency";
 import { ValueComponent } from "../../components/ValueComponent";
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, usePrice, useSelectedAccount, useTheme, useUSDeStakingApy } from "../../engine/hooks";
-import { Address, fromNano, toNano } from "@ton/core";
-import { useLedgerTransport } from "../ledger/components/TransportContext";
+import { useCurrentAddress, useLiquidUSDeStakingMember, useLiquidUSDeStakingRate, usePrice, useTheme, useUSDeStakingApy } from "../../engine/hooks";
+import { fromNano, toNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { useValidAmount } from "../../utils/useValidAmount";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../utils/withDecimals";
 import { Typography } from "../../components/styles";
 import { PriceComponent } from "../../components/PriceComponent";
+import { RoundButton } from "../../components/RoundButton";
 
 const CalcComponent = memo(({ amount }: { amount: bigint }) => {
     const usdeApy = (useUSDeStakingApy()?.apy ?? 1) / 100;
@@ -132,20 +132,9 @@ export const LiquidUSDeStakingCalculatorFragment = fragment(() => {
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();
     const [price, currency] = usePrice();
-    const selected = useSelectedAccount();
-    const ledgerContext = useLedgerTransport();
-    const isLedger = useIsLedgerRoute();
     const rate = useLiquidUSDeStakingRate();
-
-    const ledgerAddress = useMemo(() => {
-        if (!isLedger || !ledgerContext?.addr?.address) return;
-        try {
-            return Address.parse(ledgerContext?.addr?.address);
-        } catch { }
-    }, [ledgerContext?.addr?.address]);
-
-    const account = isLedger ? ledgerAddress : selected?.address;
-    const nominator = useLiquidUSDeStakingMember(account);
+    const { tonAddress, isLedger } = useCurrentAddress();
+    const nominator = useLiquidUSDeStakingMember(tonAddress);
 
     const tsUSDe = nominator?.balance || 0n;
     const inUsde = useMemo(() => {
@@ -177,6 +166,10 @@ export const LiquidUSDeStakingCalculatorFragment = fragment(() => {
             isNeg
         );
     }, [amount, price, currency, validAmount]);
+
+    const onTopUp = useCallback(() => {
+        navigation.navigateLiquidUSDeStakingTransfer({ amount, action: 'deposit' }, { ledger: isLedger });
+    }, [amount, isLedger, navigation]);
 
     return (
         <>
@@ -258,6 +251,19 @@ export const LiquidUSDeStakingCalculatorFragment = fragment(() => {
                     )}
                 </View>
             </ScrollView>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                style={{
+                    marginHorizontal: 16, marginTop: 16,
+                    marginBottom: safeArea.bottom + 16,
+                }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+            >
+                <RoundButton
+                    title={t('products.staking.calc.goToTopUp')}
+                    onPress={onTopUp}
+                />
+            </KeyboardAvoidingView>
         </>
     );
 });

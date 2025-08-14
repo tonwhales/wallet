@@ -68,12 +68,12 @@ export const ScannerFragment = systemFragment(() => {
 
     const onReadFromMedia = useCallback(async () => {
         try {
-            const { status } = await RNImagePicker.requestMediaLibraryPermissionsAsync()
-            if (status === 'granted') {
+            // On Android 13+ use system Photo Picker (no permissions)
+            if (Platform.OS === 'android' && Platform.Version >= 33) {
                 const result = await RNImagePicker.launchImageLibraryAsync({
                     allowsMultipleSelection: false,
                     mediaTypes: RNImagePicker.MediaTypeOptions.Images,
-                })
+                });
                 if (!result.canceled) {
                     const resourceUri = result.assets[0].uri;
                     const results = await BarCodeScanner.scanFromURLAsync(resourceUri);
@@ -86,8 +86,30 @@ export const ScannerFragment = systemFragment(() => {
                         }, 10);
                     }
                 }
-            } else {
+                return;
+            }
+
+            // Older Android/iOS: request media library permission first
+            const { status } = await RNImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
                 openGalleryPermissionAlert();
+                return;
+            }
+            const result = await RNImagePicker.launchImageLibraryAsync({
+                allowsMultipleSelection: false,
+                mediaTypes: RNImagePicker.MediaTypeOptions.Images,
+            });
+            if (!result.canceled) {
+                const resourceUri = result.assets[0].uri;
+                const results = await BarCodeScanner.scanFromURLAsync(resourceUri);
+                if (results.length > 0) {
+                    const res = results[0];
+                    setActive(false);
+                    setTimeout(() => {
+                        navigation.goBack();
+                        (route as any).callback(res.data);
+                    }, 10);
+                }
             }
         } catch {
             Alert.alert(t('qr.title'), t('qr.failedToReadFromImage'));

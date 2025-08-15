@@ -1239,6 +1239,7 @@ export type LocalizationSchema = {
             failed: string,
             failedMessage: string,
             verifying: string,
+            validAddressTitle: string,
         }
     },
     devTools: {

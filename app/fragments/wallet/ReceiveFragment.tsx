@@ -247,8 +247,16 @@ export const ReceiveFragment = fragment(() => {
             if (!isValid) {
                 Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
                 return;
+            } else {
+                toaster.show(
+                    {
+                        message: t('hardwareWallet.verifyAddress.validAddressTitle'),
+                        type: 'default',
+                        duration: ToastDuration.SHORT
+                    }
+                );
+                return;
             }
-
         } catch (e) {
             const isCanceled = e instanceof TransportStatusError && (e as any).statusCode === 0x6985;
             if (isCanceled) {
@@ -469,7 +477,7 @@ export const ReceiveFragment = fragment(() => {
                             borderRadius: 40, paddingHorizontal: 16,
                             flexShrink: 1, maxWidth: 224, alignSelf: 'center',
                             paddingVertical: 8,
-                            marginTop: capturing ? 0 : 16
+                            marginTop: capturing ? 0 : 8
                         }}
                         entering={FadeInUp}
                         exiting={FadeOutDown}
@@ -502,7 +510,7 @@ export const ReceiveFragment = fragment(() => {
                         backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 40, paddingHorizontal: 16, gap: 8,
                         flexShrink: 1,
-                        marginTop: (capturing && !isLedger) ? 0 : 16,
+                        marginTop: (capturing && !isLedger) ? 0 : 8,
                         alignSelf: 'center',
                         paddingVertical: 8
                     }}
@@ -535,7 +543,7 @@ export const ReceiveFragment = fragment(() => {
             <View style={{
                 gap: 8, width: '100%', paddingHorizontal: 16, paddingBottom: Platform.select({
                     android: safeArea.bottom + 16,
-                    ios: safeArea.bottom + 32
+                    ios: safeArea.bottom + 16
                 })
             }}>
                 <RoundButton title={t('receive.fromExchange')} onPress={navigateToExchanges} />

@@ -1236,7 +1236,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "invalidAddressMessage": "Diese Adresse ist ungültig. Bitte überprüfen Sie die Adresse und versuchen Sie es erneut",
             "failed": "Bestätigung der Adresse fehlgeschlagen",
             "failedMessage": "Bitte verbinden Sie Ledger erneut und versuchen Sie es noch einmal",
-            "verifying": "Auf Ledger bestätigen"
+            "verifying": "Auf Ledger bestätigen",
+            "validAddressTitle": "Diese Adresse ist gültig"
         }
     },
     "devTools": {

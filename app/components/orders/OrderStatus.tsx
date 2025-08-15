@@ -34,7 +34,7 @@ export const OrderStatus: React.FC<OrderStatusProps> = ({
     const rotation = useSharedValue(0);
 
     useEffect(() => {
-        if (isInitial) {
+        if (isInitial || isPending) {
             rotation.value = withRepeat(
                 withTiming(360, {
                     duration: 2000,
@@ -44,7 +44,7 @@ export const OrderStatus: React.FC<OrderStatusProps> = ({
                 false
             );
         }
-    }, [rotation]);
+    }, [isInitial, isPending, rotation]);
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -54,6 +54,7 @@ export const OrderStatus: React.FC<OrderStatusProps> = ({
 
     const getIconColor = () => {
         if (isSuccess) return theme.accentGreen;
+        if (isPending) return theme.warning;
         if (isFailure) return theme.accentRed;
         return theme.accent;
     };
@@ -77,7 +78,7 @@ export const OrderStatus: React.FC<OrderStatusProps> = ({
                             fill="transparent"
                             strokeOpacity={0.5}
                         />
-                        {isInitial && (
+                        {(isInitial || isPending) && (
                             <Circle
                                 cx={size / 2}
                                 cy={size / 2}
@@ -119,7 +120,7 @@ export const OrderStatus: React.FC<OrderStatusProps> = ({
         }
 
         if (isPending) {
-            return <ArrowIcon width={56} height={56} color={getIconColor()} />;
+            return <ArrowIcon width={56} height={56} style={{ transform: [{ rotate: '180deg' }] }} color={getIconColor()} />;
         }
 
         return null;

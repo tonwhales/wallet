@@ -58,14 +58,16 @@ export const ChangellyCalculationFragment = fragment(() => {
     const originTicker = currencyFrom.ticker;
     const originImage = currencyFrom.image;
     
-    const exchangeRateDisplayValue = estimation?.rate ? `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumber(estimation?.rate ?? '1', 0, 6, 4)} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
+    const exchangeRateDisplayValue = estimation?.rate ? `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumber(estimation?.rate ?? '1')} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
     const networkFeeDisplayValue = estimation?.networkFee ? `${humanizeNumber(estimation?.networkFee ?? 0)}%` : '';
     const isContinueButtonDisabled = isCreatingTransaction || !estimation?.amountTo;
+    const [resultAmount, setResultAmount] = useState('0')
     
     useEffect(() => {
         if (estimation?.maxFrom) {
             setMaxValue(parseAmountToNumber(formatInputAmount(estimation.maxFrom, MAX_DECIMALS)));
         }
+        setResultAmount(humanizeNumber(estimation?.amountTo || 0))
     }, [estimation]);
     
     useEffect(() => {
@@ -101,6 +103,8 @@ export const ChangellyCalculationFragment = fragment(() => {
 
         if (formatted !== '' && formatted !== '0') {
             estimateDebounced({ toCurrency: currencyTo, fromCurrency: originTicker, amount: parseAmountToNumber(formatted).toString() });
+        } else {
+            setResultAmount('0')
         }
     }, [amount, previousAmount, formatAmountInput]);
 
@@ -175,7 +179,7 @@ export const ChangellyCalculationFragment = fragment(() => {
                             isPressable={false}
                         />
                         <TextInput
-                            value={estimation?.visibleAmount ?? '0'}
+                            value={resultAmount}
                             style={[Typography.semiBold17_24, { color: theme.textPrimary, textAlign: 'right', minWidth: 80 }]}
                             editable={false}
                         />

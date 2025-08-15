@@ -221,7 +221,7 @@ export const AssetsFragment = fragment(() => {
         }
 
         return items;
-    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute, extraCurrencies]);
+    }, [disabledState, isTestnet, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute, extraCurrencies]);
 
     const onJettonCallback = useCallback((selected?: SimpleTransferAsset) => {
         if (simpleTransferAssetCallback) {

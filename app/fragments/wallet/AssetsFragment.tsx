@@ -166,10 +166,6 @@ export const AssetsFragment = fragment(() => {
     const itemsList = useMemo(() => {
         const filtered: ListItem[] = hints
             .filter((j) => {
-                if (isLedger) {
-                    return true;
-                }
-
                 const isSpecial = getSpecialJetton(isTestnet) === j.jetton.address
                 const isSavings = savings.some((s) => s.jetton.address === j.jetton.address);
 
@@ -225,7 +221,7 @@ export const AssetsFragment = fragment(() => {
         }
 
         return items;
-    }, [disabledState, isTestnet, isLedger, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute, extraCurrencies]);
+    }, [disabledState, isTestnet, hints, holdersAccounts, includeHolders, savings, isJettonsReceiveRoute, extraCurrencies]);
 
     const onJettonCallback = useCallback((selected?: SimpleTransferAsset) => {
         if (simpleTransferAssetCallback) {

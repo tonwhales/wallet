@@ -166,10 +166,6 @@ export const AssetsFragment = fragment(() => {
     const itemsList = useMemo(() => {
         const filtered: ListItem[] = hints
             .filter((j) => {
-                if (isLedger) {
-                    return true;
-                }
-
                 const isSpecial = getSpecialJetton(isTestnet) === j.jetton.address
                 const isSavings = savings.some((s) => s.jetton.address === j.jetton.address);
 

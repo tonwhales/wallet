@@ -66,7 +66,7 @@ export const ChangellyOrderFragment = fragment(() => {
     const { mutate: resolveChangellyTransaction, isSuccess: isTransactionResolved, isLoading: isResolvingTransaction } = useResolveChangellyTransaction();
     const { isInitial, isPending, isSuccess, isFailure } = getOrderState(status);
 
-    const amount = amountExpectedFrom ?? '0'
+    const amount = humanizeNumber(amountExpectedFrom ?? '0')
     const exchangeRate = exchangeRateString ?? '1'
 
     const originKnownCurrency = getKnownCurrencyFromName(fromCurrency);
@@ -81,10 +81,10 @@ export const ChangellyOrderFragment = fragment(() => {
     const amountDisplayValue = `${amount} ${originCoinName}`;
     const targetAddressDisplayValue = payinAddress;
     const networkDisplayValue = `${originBlockchain.charAt(0).toUpperCase() + originBlockchain.slice(1)} (${originBlockchainTag})`;
-    const networkFeeDisplayValue = `${networkFee ?? 0}%`;
-    const exchangeRateDisplayValue = `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumber(exchangeRate, 0, 6, 6)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
+    const networkFeeDisplayValue = `${humanizeNumber(networkFee ?? 0)}%`;
+    const exchangeRateDisplayValue = `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumber(exchangeRate)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
     const youSendDisplayValue = `${amount} ${originCoinName} (${originBlockchainTag})`;
-    const youGetDisplayValue = `${amountExpectedTo ?? humanizeNumber(exchangeRate)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
+    const youGetDisplayValue = `${humanizeNumber(amountExpectedTo ?? 0)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
     
     const walletDisplayValue = useMemo(() => {
         if (isTonAddress(payoutAddress)) {
@@ -235,10 +235,12 @@ export const ChangellyOrderFragment = fragment(() => {
                     </>
                 ) : (
                     <>
-                        <RoundButton
-                            title={t('order.closeOrder')}
-                            onPress={onClosePress}
-                        />
+                        {isInitial && (
+                            <RoundButton
+                                title={t('order.closeOrder')}
+                                onPress={onClosePress}
+                            />
+                        )}
                         <RoundButton
                             title={t('order.contactSupport')}
                             onPress={onContactSupport}

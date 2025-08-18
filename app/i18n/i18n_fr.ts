@@ -361,7 +361,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "message": "Demande de signature d'un message",
         "hint": "Aucun fonds ne sera transféré à l'application et aucun accès à vos coins ne sera accordé.",
         "action": "Signer",
-        "binary": "Message binaire"
+        "binary": "Message binaire",
+        "binaryData": "Données binaires",
+        "cellSchema": "Schéma de cellule",
+        "cellData": "Données de cellule"
     },
     "migrate": {
         "title": "Migrer les anciens portefeuilles",

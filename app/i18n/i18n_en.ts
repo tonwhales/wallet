@@ -361,7 +361,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "message": "Requested to sign a message",
         "hint": "No funds would be transfered to the app and no access to your coins would be granted.",
         "action": "Sign",
-        "binary": "Binary payload message"
+        "binary": "Binary payload message",
+        "binaryData": "Binary data",
+        "cellSchema": "Cell schema",
+        "cellData": "Cell data"
     },
     "migrate": {
         "title": "Migrate old wallets",

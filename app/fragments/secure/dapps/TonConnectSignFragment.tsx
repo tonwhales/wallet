@@ -103,7 +103,7 @@ const SignStateLoader = memo(({ data, callback }: { callback?: (response: Wallet
                 result: {
                     signature: Base64.encode(signed),
                     timestamp,
-                    address: parsedAddr.toRaw(),
+                    address: parsedAddr.toRawString(),
                     domain,
                     payload
                 },

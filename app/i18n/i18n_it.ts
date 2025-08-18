@@ -361,7 +361,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "message": "Richiesta di firmare un messaggio",
         "hint": "Nessun fondo sarà trasferito all'app e nessun accesso alle tue monete sarà concesso.",
         "action": "Firma",
-        "binary": "Messaggio binario"
+        "binary": "Messaggio binario",
+        "binaryData": "Dati binari",
+        "cellSchema": "Schema della cella",
+        "cellData": "Dati della cella"
     },
     "migrate": {
         "title": "Migrare vecchi portafogli",

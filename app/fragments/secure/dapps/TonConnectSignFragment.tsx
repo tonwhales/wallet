@@ -167,6 +167,20 @@ const SignStateLoader = memo(({ data, callback }: { callback?: (response: Wallet
         }
     }, []);
 
+    const renderPayloadData = useCallback((title: string, body?: string) => {
+        if (!body) return null
+        return (
+            <>
+                <Text style={[{ color: theme.textPrimary }, Typography.semiBold15_20]}>
+                    {title}:
+                </Text>
+                <Text style={[{ color: theme.textPrimary, opacity: 0.7 }, Typography.medium15_20]}>
+                    {body}
+                </Text>
+            </>
+        )
+    }, [theme])
+
     return (
         <View style={[
             { flexGrow: 1 },
@@ -235,26 +249,18 @@ const SignStateLoader = memo(({ data, callback }: { callback?: (response: Wallet
                         </Text>
                     </ScrollView>
                 ) : (
-                    <View style={{
-                        flexGrow: 1,
-                        flexDirection: 'row',
-                        justifyContent: 'center', alignItems: 'center',
-                        marginVertical: 64, borderRadius: 20,
-                        marginHorizontal: 16,
-                        backgroundColor: theme.surfaceOnElevation,
-                        padding: 16
-                    }}>
-                        <Image
-                            source={require('@assets/ic-doc.png')}
-                            style={{ width: 46, height: 46 }}
-                        />
-                        <Text style={[
-                            { color: theme.textPrimary, flexShrink: 1 },
-                            Typography.semiBold17_24
-                        ]}>
-                            {t('sign.binary')}
-                        </Text>
-                    </View>
+                    <ScrollView
+                        style={{ flexBasis: 0, marginVertical: 16, borderRadius: 20, backgroundColor: theme.surfaceOnElevation, padding: 16 }}
+                        showsVerticalScrollIndicator={true}
+                        contentContainerStyle={{ gap: 16 }}
+                    >
+                        {payload.type === 'binary' ? renderPayloadData(t('sign.binaryData'), payload?.bytes) :
+                            <>
+                                {renderPayloadData(t('sign.cellSchema'), payload?.schema)}
+                                {renderPayloadData(t('sign.cellData'), payload?.cell)}
+                            </>
+                        }
+                    </ScrollView>
                 )}
                 <View>
                     <View style={{ flexDirection: 'row', width: '100%', gap: 16, marginBottom: 16 }}>

@@ -363,7 +363,10 @@ export type LocalizationSchema = {
         message: string,
         hint: string,
         action: string,
-        binary: string
+        binary: string,
+        binaryData: string,
+        cellSchema: string,
+        cellData: string
     },
     migrate: {
         title: string,

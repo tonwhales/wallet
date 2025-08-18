@@ -24,6 +24,7 @@ import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { IbanBanner } from "../holders/IbanBanner";
 import { LedgerJettonsHiddenComponent } from "./LedgerJettonsHiddenComponent";
 import { OrdersList } from "../orders/OrdersList";
+import { TonhubChangellyBanner } from "./TonhubChangellyBanner";
 
 export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: LedgerWallet, testOnly: boolean }) => {
     const theme = useTheme();
@@ -84,6 +85,7 @@ export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: Led
                 {!isWalletMode && (
                     <IbanBanner isLedger={true} />
                 )}
+                <TonhubChangellyBanner />
 
                 {(!inviteCheck && !!banners?.product) && (
                     <View style={{ paddingHorizontal: 16, marginTop: 16 }}>

@@ -1314,7 +1314,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "You are about to use a Changelly service operated by an independent party not affiliated with Tonhub\nYou must agree to the Terms of Use and Privacy Policy to continue",
         "dontShowTitle": "Don't show it again for Changelly",
         "bannerTitle": "USDC deposits",
-        "bannerDescription": "Tron, Solana, Ethereum, Polygon available!"
+        "bannerDescription": "Tron, Solana, Ethereum, Polygon available!",
+        "tonhubBannerTitle": "Changelly in Tonhub!",
+        "tonhubBannerDescription": "Deposit from other blockchains",
     },
     "order": {
         "enterAmount": "Enter transfer amount",

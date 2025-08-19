@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { View, Text, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -15,12 +15,17 @@ import { SolanaTokenProduct } from "../../components/products/savings/SolanaToke
 import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
 import { AssetType, Currency } from "../../engine/types/deposit";
 import { TonProductComponent } from "../../components/products/savings/TonWalletProduct";
+import { ConfirmLegal } from "../../components/ConfirmLegal";
+import { sharedStoragePersistence } from "../../storage/storage";
+import ChangellyLogo from '../../../assets/changelly.svg';
+import { CHANGELLY_PRIVACY_URL, CHANGELLY_TERMS_URL } from "../../utils/constants";
 
 type ListItem = { type: AssetType.TON }
     | { type: AssetType.SPECIAL }
     | { type: AssetType.SOLANA }
     | { type: AssetType.SOLANA_TOKEN, token: SolanaToken };
 
+const skipLegalChangelly = 'skip_legal_changelly';
 
 export const SwapFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -29,12 +34,17 @@ export const SwapFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const { tonAddress, solanaAddress, isLedger } = useCurrentAddress();
     const tokens = useSolanaTokens(solanaAddress!, isLedger);
+    const [accepted, setAccepted] = useState(sharedStoragePersistence.getBoolean(skipLegalChangelly));
 
     const solanaTokens: SolanaToken[] = tokens?.data ?? [];
 
     const onCurrencySelected = useCallback((currencyTo: Currency) => {
         navigation.navigateChangellyList({ currencyTo });
     }, [navigation]);
+
+    const onConfirmLegal = useCallback(() => {
+        setAccepted(true);
+    }, [setAccepted])
 
     const renderItem = useCallback(({ item }: { item: ListItem }) => {
         switch (item.type) {
@@ -115,19 +125,35 @@ export const SwapFragment = fragment(() => {
                 ]}
                 onClosePressed={navigation.goBack}
             />
-            <SectionList
-                sections={itemsList}
-                renderItem={renderItem}
-                renderSectionHeader={renderSectionHeader}
-                removeClippedSubviews={true}
-                stickySectionHeadersEnabled={false}
-                ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
-                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
-                contentContainerStyle={{ paddingHorizontal: 16 }}
-                contentInset={{ bottom: safeArea.bottom + 16 }}
-                keyExtractor={(item, index) => `swap-asset-${index}`}
-                ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
-            />
+            {!accepted ? (
+                <>
+                    <ConfirmLegal
+                        onConfirmed={onConfirmLegal}
+                        skipKey={skipLegalChangelly}
+                        title={t('changelly.title')}
+                        description={t('changelly.description')}
+                        termsAndPrivacy={t('swap.termsAndPrivacy')}
+                        privacyUrl={CHANGELLY_PRIVACY_URL}
+                        termsUrl={CHANGELLY_TERMS_URL}
+                        dontShowTitle={t('changelly.dontShowTitle')}
+                        iconSvg={<ChangellyLogo />}
+                    />
+                </>
+            ) : (
+                <SectionList
+                    sections={itemsList}
+                    renderItem={renderItem}
+                    renderSectionHeader={renderSectionHeader}
+                    removeClippedSubviews={true}
+                    stickySectionHeadersEnabled={false}
+                    ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+                    style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
+                    contentContainerStyle={{ paddingHorizontal: 16 }}
+                    contentInset={{ bottom: safeArea.bottom + 16 }}
+                    keyExtractor={(item, index) => `swap-asset-${index}`}
+                    ListFooterComponent={<View style={{ height: Platform.OS === 'android' ? safeArea.bottom + 16 : 0 }} />}
+                />
+            )}
         </View>
     );
 });

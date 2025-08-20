@@ -12,7 +12,7 @@ import { CoinItem } from "../../components/products/savings/CoinItem";
 import { getChainNameByChain, getChainShortNameByChain, getCoinInfoByCurrency, getKnownCurrencyFromName } from "../../engine/utils/chain";
 import { Typography } from "../../components/styles";
 import { RoundButton } from "../../components/RoundButton";
-import { humanizeNumber } from "../../utils/holders/humanize";
+import { humanizeNumberAdaptive } from "../../utils/holders/humanize";
 import { formatInputAmount } from "../../utils/formatCurrency";
 import { parseAmountToNumber } from "../../utils/parseAmount";
 import { OrderInfoLine } from "../../components/orders/OrderInfoLine";
@@ -58,8 +58,8 @@ export const ChangellyCalculationFragment = fragment(() => {
     const originTicker = currencyFrom.ticker;
     const originImage = currencyFrom.image;
     
-    const exchangeRateDisplayValue = estimation?.rate ? `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumber(estimation?.rate ?? '1')} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
-    const networkFeeDisplayValue = estimation?.networkFee ? `${humanizeNumber(estimation?.networkFee ?? 0)}%` : '';
+    const exchangeRateDisplayValue = estimation?.rate ? `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumberAdaptive(estimation?.rate ?? '1')} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
+    const networkFeeDisplayValue = estimation?.networkFee ? `${humanizeNumberAdaptive(estimation?.networkFee ?? 0)}%` : '';
     const isContinueButtonDisabled = isCreatingTransaction || !estimation?.amountTo;
     const [resultAmount, setResultAmount] = useState('0')
     
@@ -67,7 +67,7 @@ export const ChangellyCalculationFragment = fragment(() => {
         if (estimation?.maxFrom) {
             setMaxValue(parseAmountToNumber(formatInputAmount(estimation.maxFrom, MAX_DECIMALS)));
         }
-        setResultAmount(humanizeNumber(estimation?.amountTo || 0))
+        setResultAmount(humanizeNumberAdaptive(estimation?.amountTo || 0))
     }, [estimation]);
     
     useEffect(() => {

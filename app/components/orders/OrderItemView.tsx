@@ -70,7 +70,7 @@ export const OrderItemView = memo(({ order, onPress }: OrderItemViewProps) => {
                 padding: 20,
                 opacity: pressed ? 0.5 : 1,
             })}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 }}>
                 <View style={{
                     backgroundColor: theme.divider,
                     borderRadius: 23,
@@ -82,9 +82,9 @@ export const OrderItemView = memo(({ order, onPress }: OrderItemViewProps) => {
                     <OrderIcon width={46} height={46} color={theme.iconPrimary} />
                     {iconStatus}
                 </View>
-                <View>
-                    <Text style={[Typography.semiBold17_24, { color: theme.textPrimary }]}>{t('order.deposit')}</Text>
-                    <Text style={[Typography.regular15_20, { color: theme.textSecondary }]}>{description}</Text>
+                <View style={{ flexShrink: 1 }}>
+                    <Text numberOfLines={1} ellipsizeMode="tail" style={[Typography.semiBold17_24, { color: theme.textPrimary }]}>{t('order.deposit')}</Text>
+                    <Text numberOfLines={1} ellipsizeMode="tail" style={[Typography.regular15_20, { color: theme.textSecondary }]}>{description}</Text>
                 </View>
             </View>
             <View style={{ alignItems: 'flex-end' }}>

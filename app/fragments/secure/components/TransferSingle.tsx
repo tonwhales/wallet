@@ -356,6 +356,14 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                     onGaslessSendFailed(gaslessTransferRes.error);
                     return;
                 }
+                // Notify callback
+                if (callback) {
+                    try {
+                        callback(true, tetherTransferForSend);
+                    } catch {
+                        warn('Failed to execute callback');
+                    }
+                }
             } catch (error) {
                 onGaslessSendFailed((error as Error)?.message);
                 return;

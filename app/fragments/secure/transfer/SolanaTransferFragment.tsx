@@ -91,7 +91,8 @@ function paramsToTransfer(order: SolanaTransferParams): TransferLoadedParams | n
     }
 }
 
-const TransferOrder = (order: SolanaOrder) => {
+const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, signature: string | null) => void }) => {
+    const { order, callback } = props;
     const theme = useTheme();
     const toaster = useToaster();
     const solanaClients = useSolanaClients();
@@ -121,6 +122,7 @@ const TransferOrder = (order: SolanaOrder) => {
                 sender: solanaAddress
             });
             registerPending(pending);
+            callback?.(true, null);
         } catch (error) {
             Alert.alert(
                 t('transfer.solana.error.title'),
@@ -138,7 +140,7 @@ const TransferOrder = (order: SolanaOrder) => {
         }
         // Reset stack to root
         navigation.popToTop();
-    }, [theme, authContext, order, solanaAddress, navigation, registerPending]);
+    }, [theme, authContext, order, solanaAddress, navigation, registerPending, callback]);
 
     const avatarColorHash = avatarHash(order.target, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -281,7 +283,7 @@ const TransferLoaded = (params: SolanaTransferParams) => {
     }
 
     if (transfer.type === 'order') {
-        return <TransferOrder {...transfer.order} />
+        return <TransferOrder order={transfer.order} callback={params.callback} />
     }
 
     return (

@@ -20,6 +20,7 @@ export type SolanaSimpleTransferParams = {
     comment?: string | null,
     amount?: string | null,
     token?: string | null
+    callback?: (ok: boolean, signature: string | null) => void
 }
 
 const SolanaSimpleTransferComponent = () => {

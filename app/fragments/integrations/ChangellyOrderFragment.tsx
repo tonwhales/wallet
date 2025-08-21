@@ -5,19 +5,19 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useTheme, useAppState, useNetwork, useWalletsSettings, useBounceableWalletFormat } from "../../engine/hooks";
+import { useTheme, useAppState, useNetwork, useWalletsSettings, useBounceableWalletFormat, useCurrentAddress, useSolanaToken } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { getChainShortNameByChain, getCoinInfoByCurrency, getKnownCurrencyFromName, KNOWN_TICKERS } from "../../engine/utils/chain";
 import { Typography } from "../../components/styles";
 import { RoundButton } from "../../components/RoundButton";
-import { humanizeNumberAdaptive } from "../../utils/holders/humanize";
+import { humanizeNumber } from "../../utils/holders/humanize";
 import { OrderInfoLine } from "../../components/orders/OrderInfoLine";
 import { OrderInfoRich } from "../../components/orders/OrderInfoRich";
 import { OrderStatus } from "../../components/orders/OrderStatus";
 import { isTonAddress } from "../../utils/ton/address";
 import { shortAddress } from "../../utils/shortAddress";
-import { Address } from "@ton/core";
+import { Address, toNano } from "@ton/core";
 import { useKnownWallets } from "../../secure/KnownWallets";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { OrderCloseModal } from "../../components/orders/OrderCloseModal";
@@ -32,6 +32,10 @@ import NetworkFeeIcon from '@assets/order/network-fee.svg';
 import SendAmountIcon from '@assets/order/send-amount.svg';
 import ToAccountIcon from '@assets/order/to-account.svg';
 import ResultIcon from '@assets/order/result.svg';
+import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
+import { toBnWithDecimals } from "../../utils/withDecimals";
+import { SOLANA_USDC_MINT_MAINNET } from "../../utils/solana/address";
+import { useChangellyEvents } from "../../engine/hooks/changelly/useChangellyEvents";
 
 export type ChangellyOrderFragmentParams = {
     changellyTransaction: ChangellyTransactionModel;
@@ -48,7 +52,11 @@ export const ChangellyOrderFragment = fragment(() => {
     const [walletsSettings] = useWalletsSettings();
     const [bounceableFormat] = useBounceableWalletFormat()
     const orderCloseModalRef = useRef<BottomSheetModal>(null);
-    
+    const { changellyEvents, saveChangellyEvents } = useChangellyEvents()
+    const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
+    const specialJetton = useSpecialJetton(tonAddress);
+    const token = useSolanaToken(solanaAddress!, SOLANA_USDC_MINT_MAINNET);
+
     const { changellyTransaction, isAfterCreation } = useParams<ChangellyOrderFragmentParams>()
     const { amountExpectedFrom,
         fromCurrency,
@@ -61,12 +69,14 @@ export const ChangellyOrderFragment = fragment(() => {
         payoutAddress,
         expiresAt,
         status,
-        error
+        error,
+        id: transactionId
     } = changellyTransaction
     const { mutate: resolveChangellyTransaction, isSuccess: isTransactionResolved, isLoading: isResolvingTransaction } = useResolveChangellyTransaction();
     const { isInitial, isPending, isSuccess, isFailure } = getOrderState(status);
+    const isDepositFromTonhubDone = changellyEvents?.[transactionId]?.isDepositFromTonhubDone
 
-    const amount = amountExpectedFrom ?? '0'
+    const amount = humanizeNumber(amountExpectedFrom ?? '0')
     const exchangeRate = exchangeRateString ?? '1'
 
     const originKnownCurrency = getKnownCurrencyFromName(fromCurrency);
@@ -81,11 +91,11 @@ export const ChangellyOrderFragment = fragment(() => {
     const amountDisplayValue = `${amount} ${originCoinName}`;
     const targetAddressDisplayValue = payinAddress;
     const networkDisplayValue = `${originBlockchain.charAt(0).toUpperCase() + originBlockchain.slice(1)} (${originBlockchainTag})`;
-    const networkFeeDisplayValue = `${humanizeNumberAdaptive(networkFee ?? 0)}%`;
-    const exchangeRateDisplayValue = `1 ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)}) = ${humanizeNumberAdaptive(exchangeRate)} ${originCoinName} (${originBlockchainTag})`;
+    const networkFeeDisplayValue = `${humanizeNumber(networkFee ?? 0)}%`;
+    const exchangeRateDisplayValue = `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumber(exchangeRate)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
     const youSendDisplayValue = `${amount} ${originCoinName} (${originBlockchainTag})`;
-    const youGetDisplayValue = `${humanizeNumberAdaptive(amountExpectedTo ?? 0)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
-    
+    const youGetDisplayValue = `${humanizeNumber(amountExpectedTo ?? 0)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
+
     const walletDisplayValue = useMemo(() => {
         if (isTonAddress(payoutAddress)) {
             try {
@@ -150,6 +160,71 @@ export const ChangellyOrderFragment = fragment(() => {
     const onContactSupport = useCallback(() => {
         Intercom.presentSpace(Space.home)
     }, []);
+
+    const onSendCallback = useCallback((ok: boolean) => {
+        if (!ok) return
+        saveChangellyEvents(transactionId, { isDepositFromTonhubDone: true })
+    }, [transactionId, saveChangellyEvents]);
+
+    const onSend = useCallback(() => {
+        switch (fromCurrency) {
+            case 'usdton':
+                const hasSpecialJettonWallet = !!specialJetton?.wallet;
+                const usdtAmount = toBnWithDecimals(amount, 9);
+                if (hasSpecialJettonWallet) {
+                    navigation.navigateSimpleTransfer({
+                        amount: usdtAmount,
+                        target: targetAddressDisplayValue,
+                        comment: null,
+                        asset: {
+                            type: 'jetton',
+                            master: specialJetton.master,
+                            wallet: specialJetton.wallet,
+                        },
+                        stateInit: null,
+                        callback: onSendCallback
+                    }, { ledger: isLedger });
+                }
+                break;
+            case 'ton':
+                const tonAmount = toBnWithDecimals(amount, 9);
+                navigation.navigateSimpleTransfer({
+                    amount: tonAmount,
+                    target: targetAddressDisplayValue,
+                    comment: null,
+                    stateInit: null,
+                    callback: onSendCallback
+                }, { ledger: isLedger });
+                break;
+            case 'sol':
+                const solAmount = toNano(amount);
+                navigation.navigateSolanaSimpleTransfer({
+                    target: targetAddressDisplayValue,
+                    comment: null,
+                    amount: solAmount.toString(),
+                    token: null,
+                    callback: onSendCallback
+                })
+            case 'usdcsol':
+                const usdcSolAmount = toNano(amount);
+                navigation.navigateSolanaSimpleTransfer({
+                    target: targetAddressDisplayValue,
+                    comment: null,
+                    amount: usdcSolAmount.toString(),
+                    token: token?.address,
+                    callback: onSendCallback
+                })
+        }
+    }, [transactionId, amount, token, targetAddressDisplayValue, isLedger, specialJetton, fromCurrency])
+
+    const canSend = useMemo(() => {
+        return isInitial &&
+            (fromCurrency === 'usdton'
+                || fromCurrency === 'ton'
+                || fromCurrency === 'sol'
+                || fromCurrency === 'usdcsol')
+            && !isDepositFromTonhubDone
+    }, [isInitial, fromCurrency, isDepositFromTonhubDone]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -220,12 +295,17 @@ export const ChangellyOrderFragment = fragment(() => {
             >
                 {isAfterCreation ? (
                     <>
-                        <RoundButton
-                            title={t('order.continue')}
-                            onPress={() => {
-                                navigation.navigateAndReplaceHome();
-                            }}
-                        />
+                        {canSend ? <RoundButton
+                            title={'Send'}
+                            onPress={onSend}
+                            style={{ marginTop: 8 }}
+                        /> :
+                            <RoundButton
+                                title={t('order.continue')}
+                                onPress={() => {
+                                    navigation.navigateAndReplaceHome();
+                                }}
+                            />}
                         <RoundButton
                             title={t('order.closeOrder')}
                             onPress={onClosePress}
@@ -235,18 +315,25 @@ export const ChangellyOrderFragment = fragment(() => {
                     </>
                 ) : (
                     <>
-                        {isInitial && (
+                        {canSend && <RoundButton
+                            title={'Send'}
+                            onPress={onSend}
+                            style={{ marginTop: 8 }}
+                        />}
+                        {isInitial && !isDepositFromTonhubDone && (
                             <RoundButton
                                 title={t('order.closeOrder')}
                                 onPress={onClosePress}
+                                display={canSend ? "secondary" : "default"}
+                                style={{ marginTop: 8 }}
                             />
                         )}
-                        <RoundButton
+                        {!canSend && <RoundButton
                             title={t('order.contactSupport')}
                             onPress={onContactSupport}
                             display="secondary"
                             style={{ marginTop: 8 }}
-                        />
+                        />}
                     </>
                 )}
             </KeyboardAvoidingView>

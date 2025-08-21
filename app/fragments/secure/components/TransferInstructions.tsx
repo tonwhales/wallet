@@ -49,6 +49,7 @@ export const TransferInstructions = (params: {
             });
             ref.current = pending.id;
             registerPending(pending);
+            callback?.(true, null);
         } catch (error) {
             Alert.alert(
                 t('transfer.solana.error.title'),
@@ -65,7 +66,7 @@ export const TransferInstructions = (params: {
             return;
         }
         navigation.goBack();
-    }, [theme, authContext, params, solanaAddress, navigation, registerPending]);
+    }, [theme, authContext, params, solanaAddress, navigation, registerPending, callback]);
 
     useEffect(() => {
         return () => {

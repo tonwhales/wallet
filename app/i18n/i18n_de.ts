@@ -203,11 +203,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "subtitleSolana": "Senden Sie nur SOL und SPL-Token im Solana-Netzwerk an diese Adresse, sonst könnten Sie Ihre Gelder verlieren.",
         "share": {
             "title": "Meine Tonhub-Adresse",
+            "button": "Details teilen",
             "error": "Fehler beim Teilen der Adresse, bitte versuchen Sie es erneut oder kontaktieren Sie den Support"
         },
         "holdersJettonWarning": "Überweisen Sie nur {{symbol}} an diese Adresse, sonst verlieren Sie andere Token.",
         "assets": "Tokens und Konten",
-        "fromExchange": "Von einer Börse",
+        "fromExchange": "Einzahlung von einer Börse",
+        "fromAnotherWallet": "Einzahlung von einer anderen Wallet",
         "otherCoins": "Andere Token",
         "deposit": "Einzahlen auf"
     },
@@ -359,7 +361,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "message": "Angefordert, eine Nachricht zu signieren",
         "hint": "Es werden keine Gelder an die App übertragen und kein Zugriff auf Ihre Münzen gewährt.",
         "action": "Signieren",
-        "binary": "Binäre Nachricht"
+        "binary": "Binäre Nachricht",
+        "binaryData": "Binärdaten",
+        "cellSchema": "Zellschema",
+        "cellData": "Zelldaten"
     },
     "migrate": {
         "title": "Alte Wallets migrieren",
@@ -1234,7 +1239,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "invalidAddressMessage": "Diese Adresse ist ungültig. Bitte überprüfen Sie die Adresse und versuchen Sie es erneut",
             "failed": "Bestätigung der Adresse fehlgeschlagen",
             "failedMessage": "Bitte verbinden Sie Ledger erneut und versuchen Sie es noch einmal",
-            "verifying": "Auf Ledger bestätigen"
+            "verifying": "Auf Ledger bestätigen",
+            "validAddressTitle": "Diese Adresse ist gültig"
         }
     },
     "devTools": {
@@ -1311,7 +1317,57 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Sie sind dabei, einen Changelly-Service zu nutzen, der von einer unabhängigen Partei betrieben wird, die nicht mit Tonhub verbunden ist\nSie müssen den Nutzungsbedingungen und der Datenschutzrichtlinie zustimmen, um fortzufahren",
         "dontShowTitle": "Nicht mehr für Changelly anzeigen",
         "bannerTitle": "USDC-Einzahlungen",
-        "bannerDescription": "Tron, Solana, Ethereum, Polygon verfügbar!"
+        "bannerDescription": "Tron, Solana, Ethereum, Polygon verfügbar!",
+        "tonhubBannerTitle": "Changelly in Tonhub!",
+        "tonhubBannerDescription": "Einzahlung von anderen Blockchains",
+    },
+    "order": {
+        "enterAmount": "Übertragungsbetrag eingeben",
+        "give": "Geben",
+        "get": "Erhalten",
+        "exchangeRate": "Wechselkurs",
+        "networkServiceFee": "Netzwerk- und Servicegebühr",
+        "poweredBy": "Unterstützt von",
+        "continue": "Fortfahren",
+        "sendToDeposit": "{{currency}} senden, um Ihr Konto aufzuladen",
+        "waitingTransfer": "Warten auf Übertragung...",
+        "amount": "Betrag",
+        "address": "Adresse",
+        "network": "Netzwerk",
+        "youSend": "Sie senden",
+        "wallet": "Wallet",
+        "youGet": "Sie erhalten",
+        "closeOrder": "Bestellung schließen",
+        "deposit": "Einzahlung",
+        "waitingForTransfer": "Warten auf Übertragung",
+        "chooseCrypto": "Krypto wählen",
+        "chooseAsset": "Wählen Sie das Asset aus, das Sie erhalten möchten:",
+        "orderCloseTitle": "Sind Sie sicher, dass Sie diese Bestellung schließen möchten?",
+        "orderCloseDescription": "Sobald die Bestellung geschlossen ist, gehen alle bereits an die angegebene Adresse gesendeten Gelder dauerhaft verloren und können nicht wiederhergestellt werden.\n\nWenn Sie Probleme haben oder Fragen haben, wenden Sie sich bitte an unser Support-Team.",
+        "orderCloseConfirm": "Ja, ich stimme zu, die Bestellung zu schließen",
+        "contactSupport": "Support kontaktieren",
+        "info": {
+            "title": {
+                "pending": "Einzahlung ist unterwegs",
+                "success": "Einzahlung erfolgreich",
+                "failure": "Einzahlung fehlgeschlagen"
+            },
+            "description": {
+                "pending": "Zahlung erhalten. Die Aufladung dauert 5 Minuten bis 10 Stunden.",
+                "success": "Krypto auf Ihrem Konto",
+                "failure": "Zahlung fehlgeschlagen. Bitte kontaktieren Sie den Support"
+            },
+            "notifications": {
+                "amountCopiedSuccess": "Betrag erfolgreich kopiert",
+                "payAddressCopiedSuccess": "Adresse erfolgreich kopiert",
+                "orderClosedSuccess": "Bestellung erfolgreich geschlossen"
+            },
+            "status": {
+                "pending": "Unterwegs",
+                "success": "Zahlung erfolgreich",
+                "failure": "Zahlung fehlgeschlagen"
+            },
+        },
     },
     "w5": {
         "banner": {

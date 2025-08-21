@@ -203,11 +203,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "subtitleSolana": "Envía solo SOL y tokens SPL en la red Solana a esta dirección, o podrías perder tus fondos.",
         "share": {
             "title": "Mi dirección de Tonhub",
+            "button": "Compartir detalles",
             "error": "No se pudo compartir la dirección, por favor intente de nuevo o contacte al soporte"
         },
         "holdersJettonWarning": "Transfiera a esta dirección solo {{symbol}}, si envía otro token, lo perderá.",
         "assets": "Tokens y Cuentas",
-        "fromExchange": "Desde un intercambio",
+        "fromExchange": "Depositar desde un intercambio",
+        "fromAnotherWallet": "Depositar desde otra billetera",
         "otherCoins": "Otros tokens",
         "deposit": "Depositar en"
     },
@@ -359,7 +361,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "message": "Solicitado para firmar un mensaje",
         "hint": "No se transferirán fondos a la aplicación y no se otorgará acceso a tus monedas.",
         "action": "Firmar",
-        "binary": "Mensaje binario"
+        "binary": "Mensaje binario",
+        "binaryData": "Datos binarios",
+        "cellSchema": "Esquema de celda",
+        "cellData": "Datos de celda"
     },
     "migrate": {
         "title": "Migrar billeteras antiguas",
@@ -1284,7 +1289,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "invalidAddressMessage": "Esta dirección no es válida. Por favor, verifique la dirección y vuelva a intentarlo",
             "failed": "Error al confirmar la dirección",
             "failedMessage": "Por favor, reconecte Ledger y vuelva a intentarlo",
-            "verifying": "Confirmar en Ledger"
+            "verifying": "Confirmar en Ledger",
+            "validAddressTitle": "Esta dirección es válida"
         }
     },
     "devTools": {
@@ -1360,8 +1366,58 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "title": "Changelly es un intercambio de criptomonedas instantáneo y no custodial",
         "description": "Estás a punto de usar un servicio de Changelly operado por una parte independiente no afiliada con Tonhub\nDebes aceptar los Términos de Uso y la Política de Privacidad para continuar",
         "dontShowTitle": "No mostrar de nuevo para Changelly",
-        "bannerTitle": "Depósitos de USDC",
-        "bannerDescription": "¡Disponibles Tron, Solana, Ethereum, Polygon!"
+        "bannerTitle": "Depósitos USDC",
+        "bannerDescription": "¡Disponibles Tron, Solana, Ethereum, Polygon!",
+        "tonhubBannerTitle": "¡Changelly en Tonhub!",
+        "tonhubBannerDescription": "Depósita desde otras blockchains",
+    },
+    "order": {
+        "enterAmount": "Ingresa la cantidad a transferir",
+        "give": "Das",
+        "get": "Recibes",
+        "exchangeRate": "Tipo de cambio",
+        "networkServiceFee": "Comisión de red y servicio",
+        "poweredBy": "Desarrollado por",
+        "continue": "Continuar",
+        "sendToDeposit": "Envía {{currency}} para depositar en tu cuenta",
+        "waitingTransfer": "Esperando transferencia...",
+        "amount": "Cantidad",
+        "address": "Dirección",
+        "network": "Red",
+        "youSend": "Envías",
+        "wallet": "Billetera",
+        "youGet": "Recibes",
+        "closeOrder": "Cerrar orden",
+        "deposit": "Depósito",
+        "waitingForTransfer": "Esperando transferencia",
+        "chooseCrypto": "Elegir cripto",
+        "chooseAsset": "Elige el activo que quieres recibir:",
+        "orderCloseTitle": "¿Estás seguro de que quieres cerrar esta orden?",
+        "orderCloseDescription": "Una vez que se cierre la orden, cualquier fondo ya enviado a la dirección proporcionada se perderá permanentemente y no podrá ser recuperado.\n\nSi estás experimentando algún problema o tienes preguntas, por favor contacta a nuestro equipo de soporte.",
+        "orderCloseConfirm": "Sí, acepto cerrar la orden",
+        "contactSupport": "Contactar soporte",
+        "info": {
+            "title": {
+                "pending": "Depósito en camino",
+                "success": "Depósito exitoso",
+                "failure": "Depósito fallido"
+            },
+            "description": {
+                "pending": "Pago recibido. La recarga tomará de 5 minutos a 10 horas.",
+                "success": "Crypto en tu cuenta",
+                "failure": "Pago fallido. Por favor contacta al soporte"
+            },
+            "notifications": {
+                "amountCopiedSuccess": "Cantidad copiada exitosamente",
+                "payAddressCopiedSuccess": "Dirección copiada exitosamente",
+                "orderClosedSuccess": "Orden cerrada exitosamente"
+            },
+            "status": {
+                "pending": "En camino",
+                "success": "Pago exitoso",
+                "failure": "Pago fallido"
+            },
+        },
     },
     "w5": {
         "banner": {

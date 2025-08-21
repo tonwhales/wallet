@@ -59,7 +59,9 @@ export function fromCoins(src: bigint | string, precision: number): string {
 
 export function humanizeNumber(
   value: string | number,
-  minimumFractionDigits = 0
+  minimumFractionDigits = 0,
+  maximumFractionDigits = 2,
+  digitsAfterDot = 2
 ): string {
   if (isNullOrUndefined(value)) return '0';
 
@@ -67,14 +69,40 @@ export function humanizeNumber(
   const dotIndex = stringedValue.indexOf('.');
 
   const humanizedValue =
-    dotIndex < 0 ? stringedValue : stringedValue.slice(0, dotIndex + 3);
+    dotIndex < 0 ? stringedValue : stringedValue.slice(0, dotIndex + digitsAfterDot + 1);
 
   return Number(humanizedValue)
     .toLocaleString('en', {
       minimumFractionDigits,
-      maximumFractionDigits: 2
+      maximumFractionDigits
     })
     .replace(/,/g, ' ');
+}
+
+/**
+ * 1 = 1
+ * 1.1234 = 1.12
+ * 0.1234 = 0.12
+ * 0.000001234 = 0.0000012
+ */
+export function humanizeNumberAdaptive(value: string | number): string {
+  if (isNullOrUndefined(value)) return '0';
+  
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num) || num === 0) return '0';
+  
+  // For numbers >= 1 or integers - maximum 2 decimal places
+  if (Math.abs(num) >= 1) {
+    const fractionDigits = num % 1 === 0 ? 0 : 2;
+    return humanizeNumber(num, 0, fractionDigits);
+  }
+  
+  // For numbers < 1 - find position of first significant digit + 2
+  const str = Math.abs(num).toString();
+  const match = str.match(/\.0*(\d)/);
+  const digitsAfterDot = match ? str.indexOf(match[1]) - str.indexOf('.') + 1 : 2;
+  
+  return humanizeNumber(num, 0, digitsAfterDot, digitsAfterDot);
 }
 
 export function humanizeCoins(

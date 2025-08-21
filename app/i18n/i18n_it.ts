@@ -203,11 +203,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "subtitleSolana": "Invia solo SOL e token SPL nella rete Solana a questo indirizzo, altrimenti potresti perdere i tuoi fondi.",
         "share": {
             "title": "Il mio indirizzo Tonhub",
+            "button": "Condividi dettagli",
             "error": "Condivisione dell'indirizzo fallita, riprova o contatta il supporto"
         },
         "holdersJettonWarning": "Trasferisci a questo indirizzo solo {{symbol}}, se invii un altro token, lo perderai.",
         "assets": "Token e Conti",
-        "fromExchange": "Da uno scambio",
+        "fromExchange": "Deposito da uno scambio",
+        "fromAnotherWallet": "Deposito da un altro portafoglio",
         "otherCoins": "Altri token",
         "deposit": "Deposita su"
     },
@@ -359,7 +361,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "message": "Richiesta di firmare un messaggio",
         "hint": "Nessun fondo sarà trasferito all'app e nessun accesso alle tue monete sarà concesso.",
         "action": "Firma",
-        "binary": "Messaggio binario"
+        "binary": "Messaggio binario",
+        "binaryData": "Dati binari",
+        "cellSchema": "Schema della cella",
+        "cellData": "Dati della cella"
     },
     "migrate": {
         "title": "Migrare vecchi portafogli",
@@ -1234,7 +1239,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "invalidAddressMessage": "Questo indirizzo non è valido. Controlla l'indirizzo e riprova",
             "failed": "Verifica dell'indirizzo fallita",
             "failedMessage": "Ricollega Ledger e riprova",
-            "verifying": "Conferma su Ledger"
+            "verifying": "Conferma su Ledger",
+            "validAddressTitle": "Questo indirizzo è valido"
         }
     },
     "devTools": {
@@ -1311,7 +1317,57 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Stai per utilizzare un servizio Changelly gestito da una parte indipendente non affiliata con Tonhub\nDevi accettare i Termini di Utilizzo e la Politica sulla Privacy per continuare",
         "dontShowTitle": "Non mostrare più per Changelly",
         "bannerTitle": "Depositi USDC",
-        "bannerDescription": "Disponibili Tron, Solana, Ethereum, Polygon!"
+        "bannerDescription": "Disponibili Tron, Solana, Ethereum, Polygon!",
+        "tonhubBannerTitle": "Changelly in Tonhub!",
+        "tonhubBannerDescription": "Deposita da altre blockchain",
+    },
+    "order": {
+        "enterAmount": "Inserisci l'importo del trasferimento",
+        "give": "Dai",
+        "get": "Ricevi",
+        "exchangeRate": "Tasso di cambio",
+        "networkServiceFee": "Commissioni di rete e servizio",
+        "poweredBy": "Alimentato da",
+        "continue": "Continua",
+        "sendToDeposit": "Invia {{currency}} per depositare sul tuo conto",
+        "waitingTransfer": "In attesa del trasferimento...",
+        "amount": "Importo",
+        "address": "Indirizzo",
+        "network": "Rete",
+        "youSend": "Invii",
+        "wallet": "Portafoglio",
+        "youGet": "Ricevi",
+        "closeOrder": "Chiudi ordine",
+        "deposit": "Deposito",
+        "waitingForTransfer": "In attesa del trasferimento",
+        "chooseCrypto": "Scegli crypto",
+        "chooseAsset": "Scegli l'asset che vuoi ricevere:",
+        "orderCloseTitle": "Sei sicuro di voler chiudere questo ordine?",
+        "orderCloseDescription": "Una volta chiuso l'ordine, tutti i fondi già inviati all'indirizzo fornito andranno persi permanentemente e non potranno essere recuperati.\n\nSe stai riscontrando problemi o hai domande, contatta il nostro team di supporto.",
+        "orderCloseConfirm": "Sì, accetto di chiudere l'ordine",
+        "contactSupport": "Contatta il supporto",
+        "info": {
+            "title": {
+                "pending": "Deposito in arrivo",
+                "success": "Deposito riuscito",
+                "failure": "Deposito fallito"
+            },
+            "description": {
+                "pending": "Pagamento ricevuto. La ricarica richiederà da 5 minuti a 10 ore.",
+                "success": "Crypto nel tuo account",
+                "failure": "Pagamento fallito. Per favore contatta il supporto"
+            },
+            "notifications": {
+                "amountCopiedSuccess": "Importo copiato con successo",
+                "payAddressCopiedSuccess": "Indirizzo copiato con successo",
+                "orderClosedSuccess": "Ordine chiuso con successo"
+            },
+            "status": {
+                "pending": "In arrivo",
+                "success": "Pagamento riuscito",
+                "failure": "Pagamento fallito"
+            },
+        },
     },
     "w5": {
         "banner": {

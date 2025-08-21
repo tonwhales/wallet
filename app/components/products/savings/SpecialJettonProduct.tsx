@@ -1,35 +1,27 @@
 import { memo, useCallback, useMemo } from "react";
 import { ThemeType } from "../../../engine/state/theme";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { Pressable, View, Image, Text } from "react-native";
-import { Typography } from "../../styles";
-import { PriceComponent } from "../../PriceComponent";
-import { ValueComponent } from "../../ValueComponent";
 import { Address } from "@ton/core";
 import { useSpecialJetton } from "../../../engine/hooks/jettons/useSpecialJetton";
-import { WImage } from "../../WImage";
-import { ItemDivider } from "../../ItemDivider";
 import { useBounceableWalletFormat, useJettonContent } from "../../../engine/hooks";
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
 import { useWalletVersion } from "../../../engine/hooks/useWalletVersion";
-import { GaslessInfoButton } from "../../jettons/GaslessInfoButton";
 import { ReceiveableTonAsset } from "../../../fragments/wallet/ReceiveFragment";
 import { t } from "../../../i18n/t";
-import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
+import { CoinItem } from "./CoinItem";
+import { Currency } from "../../../engine/types/deposit";
 
 export const SpecialJettonProduct = memo(({
     theme,
     isLedger,
     address,
     testOnly,
-    divider,
     assetCallback
 }: {
     theme: ThemeType,
     isLedger?: boolean,
     address: Address,
     testOnly: boolean,
-    divider?: 'top' | 'bottom',
     assetCallback?: (asset: ReceiveableTonAsset | null) => void
 }) => {
     const navigation = useTypedNavigation();
@@ -40,6 +32,7 @@ export const SpecialJettonProduct = memo(({
     const ledgerAddressStr = address.toString({ bounceable: bounceableFormat, testOnly });
     const gaslessConfig = useGaslessConfig().data;
     const walletVersion = useWalletVersion(address);
+    const symbol = specialJetton?.symbol ?? 'USDT';
 
     const isGassless = useMemo(() => {
         if (walletVersion !== 'v5R1') {
@@ -98,115 +91,21 @@ export const SpecialJettonProduct = memo(({
     }, [assetCallback, specialJetton, isLedger, ledgerAddressStr, navigation, masterContent]);
 
     return (
-        <Pressable
-            style={({ pressed }) => ({ flex: 1, opacity: pressed ? 0.5 : 1 })}
+        <CoinItem
+            theme={theme}
+            balance={balance}
+            symbol={symbol}
+            currency={Currency.UsdTon}
+            decimals={specialJetton?.decimals ?? 6}
+            priceNano={specialJetton?.nano ?? 0n}
+            isGassless={isGassless}
+            assetCallback={assetCallback}
             onPress={onPress}
-        >
-            {divider === 'top' && <ItemDivider marginVertical={0} />}
-            <View style={[
-                {
-                    flexDirection: 'row', flexGrow: 1,
-                    alignItems: 'center',
-                    paddingHorizontal: 20,
-                    minHeight: ASSET_ITEM_HEIGHT,
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20,
-                    overflow: 'hidden',
-                    gap: 12
-                },
-            ]}>
-                <View style={{
-                    width: 46, height: 46, borderRadius: 23,
-                    borderWidth: 0,
-                    backgroundColor: theme.ton,
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <WImage
-                        requireSource={require('@assets/known/ic-usdt.png')}
-                        width={46}
-                        height={46}
-                        borderRadius={23}
-                    />
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        height: 20, width: 20, borderRadius: 10,
-                        position: 'absolute', right: -2, bottom: -2,
-                        backgroundColor: theme.surfaceOnBg
-                    }}>
-                        <Image
-                            source={require('@assets/ic-ton-acc.png')}
-                            style={{
-                                borderRadius: 10,
-                                height: 20,
-                                width: 20
-                            }}
-                        />
-                    </View>
-                </View>
-                <View style={{ flexShrink: 1 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <Text
-                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                            ellipsizeMode="tail"
-                            numberOfLines={1}
-                        >
-                            {'USDT'}
-                        </Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            {(isGassless && !assetCallback) && (<GaslessInfoButton />)}
-                            <Image
-                                source={require('@assets/ic-verified.png')}
-                                style={{ height: 20, width: 20 }}
-                            />
-                        </View>
-                    </View>
-                    <Text
-                        numberOfLines={1}
-                        ellipsizeMode={'tail'}
-                        style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                    >
-                        {t('savings.usdt')}
-                    </Text>
-                </View>
-                {!!assetCallback ? (
-                    <View style={{ flexGrow: 1, alignItems: 'flex-end', marginLeft: 8 }}>
-                        <Image
-                            source={require('@assets/ic-chevron-right.png')}
-                            style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
-                        />
-                    </View>
-                ) : (
-                    <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                            <ValueComponent
-                                value={balance}
-                                precision={2}
-                                decimals={specialJetton?.decimals ?? 6}
-                                centFontStyle={{ color: theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                {` ${specialJetton?.symbol ?? 'USDT'}`}
-                            </Text>
-                        </Text>
-                        <PriceComponent
-                            amount={specialJetton?.nano ?? 0n}
-                            style={{
-                                backgroundColor: 'transparent',
-                                paddingHorizontal: 0, paddingVertical: 0,
-                                alignSelf: 'flex-end',
-                                height: undefined,
-                            }}
-                            textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                            theme={theme}
-                            priceUSD={1}
-                            hideCentsIfNull
-                        />
-                    </View>
-                )}
-            </View>
-            {divider === 'bottom' && <ItemDivider marginVertical={0} />}
-        </Pressable>
+            name={symbol}
+            description={t('savings.general', { symbol })}
+            blockchain="ton"
+            withArrow={!!assetCallback}
+            priceUSD={1}
+        />
     );
 });

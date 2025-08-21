@@ -90,12 +90,12 @@ export const SelectExchangeFragment = fragment(() => {
                 {!isLedger && (<ExchangeItem
                     title="Dedust.io"
                     logo={<Image source={DedustLogo} style={{ height: 46, width: 46 }} />}
-                    onPress={() => { navigation.navigate('Swap') }} />
+                    onPress={() => { navigation.navigate('Dedust') }} />
                 )}
                 <ExchangeItem
                     title="Changelly"
                     logo={<ChangellyLogo height={54} width={54} />}
-                    onPress={() => { navigation.goBack();navigation.navigate('Changelly') }} />
+                    onPress={() => { navigation.navigateSwap() }} />
             </ScrollView>
         </View>
     );

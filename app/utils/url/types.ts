@@ -109,4 +109,8 @@ export type ResolvedUrl = ResolvedTxUrl
     } | {
         type: 'solana-transfer',
         request: TransactionRequestURL | TransferRequestURL
+    } | {
+        type: 'changelly-transaction',
+        transactionId: string,
+        address: string
     }

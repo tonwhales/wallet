@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { View, Text, Pressable, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -6,9 +6,7 @@ import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useRoute } from "@react-navigation/native";
-import { useBounceableWalletFormat, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useIsLedgerRoute, useNetwork, useSelectedAccount, useSolanaSelectedAccount, useSolanaTokens, useTheme } from "../../engine/hooks";
-import { Address } from "@ton/core";
+import { useBounceableWalletFormat, useCurrentAddress, useDisplayableJettons, useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSolanaTokens, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
@@ -17,7 +15,6 @@ import { Image } from "expo-image";
 import { ReceiveableTonAsset } from "./ReceiveFragment";
 import { HoldersAccountItem, HoldersItemContentType } from "../../components/products/HoldersAccountItem";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
-import { hasDirectSolanaDeposit, hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 import { SpecialJettonProduct } from "../../components/products/savings/SpecialJettonProduct";
 import { AssetViewType } from "./AssetsFragment";
 import { holdersUrl, HoldersUserState } from "../../engine/api/holders/fetchUserState";
@@ -26,16 +23,9 @@ import { useAppMode } from "../../engine/hooks/appstate/useAppMode";
 import { SolanaWalletProduct } from "../../components/products/savings/SolanaWalletProduct";
 import { SolanaTokenProduct } from "../../components/products/savings/SolanaTokenProduct";
 import { SolanaToken } from "../../engine/api/solana/fetchSolanaTokens";
-import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
-
-enum AssetType {
-    TON = 'ton',
-    HOLDERS = 'holders',
-    SPECIAL = 'special',
-    OTHERCOINS = 'otherCoins',
-    SOLANA = 'solana',
-    SOLANA_TOKEN = 'solana-token'
-}
+import { ChangellyBanner } from "../../components/products/ChangellyBanner";
+import { AssetType } from "../../engine/types/deposit";
+import { TonProductComponent } from "../../components/products/savings/TonWalletProduct";
 
 type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SPECIAL }
@@ -44,61 +34,6 @@ type ListItem = { type: AssetType.OTHERCOINS }
     | { type: AssetType.SPECIAL }
     | { type: AssetType.SOLANA }
     | { type: AssetType.SOLANA_TOKEN, token: SolanaToken };
-
-const TonAssetItem = memo(({ onSelect }: { onSelect: () => void }) => {
-    const theme = useTheme();
-
-    return (
-        <View style={{ height: ASSET_ITEM_HEIGHT }}>
-            <Pressable
-                style={{
-                    backgroundColor: theme.surfaceOnElevation,
-                    padding: 20,
-                    marginBottom: 16,
-                    borderRadius: 20,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}
-                onPress={onSelect}
-            >
-                <View style={{ width: 46, height: 46 }}>
-                    <Image
-                        source={require('@assets/ic-ton-acc.png')}
-                        style={{ height: 46, width: 46 }}
-                    />
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        height: 20, width: 20, borderRadius: 10,
-                        position: 'absolute', right: -2, bottom: -2,
-                        backgroundColor: theme.surfaceOnBg
-                    }}>
-                        <Image
-                            source={require('@assets/ic-verified.png')}
-                            style={{ height: 20, width: 20 }}
-                        />
-                    </View>
-                </View>
-                <View style={{ justifyContent: 'center', flexGrow: 1, flex: 1, marginLeft: 12 }}>
-                    <Text style={[{ flexShrink: 1, color: theme.textPrimary }, Typography.semiBold17_24]}>
-                        {'Toncoin'}
-                    </Text>
-                    <Text
-                        style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
-                    >
-                        {t('savings.ton')}
-                    </Text>
-                </View>
-                <View style={{ alignItems: 'flex-end', marginLeft: 8 }}>
-                    <Image
-                        source={require('@assets/ic-chevron-right.png')}
-                        style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
-                    />
-                </View>
-            </Pressable>
-        </View>
-    );
-});
 
 export type ReceiveAssetsFragment = {
     assetCallback?: (selected: ReceiveableTonAsset | null) => void,
@@ -110,29 +45,19 @@ export const ReceiveAssetsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const selected = useSelectedAccount();
-    const solanaAddress = useSolanaSelectedAccount()!;
-    const isLedger = useIsLedgerRoute()
+    const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
     const { assetCallback, title } = useParams<ReceiveAssetsFragment>();
     const ledgerContext = useLedgerTransport();
     const [bounceableFormat] = useBounceableWalletFormat();
-    const tokens = useSolanaTokens(solanaAddress, isLedger);
-
-    const ledgerAddress = useMemo(() => {
-        if (isLedger && !!ledgerContext?.addr) {
-            return Address.parse(ledgerContext.addr.address);
-        }
-    }, [ledgerContext, isLedger]);
-
-    const owner = isLedger ? ledgerAddress! : selected!.address;
-    const holdersAccStatus = useHoldersAccountStatus(owner).data;
-    const holdersAccounts = useHoldersAccounts(owner, isLedger ? undefined : solanaAddress).data?.accounts ?? [];
-    const hints = useDisplayableJettons(owner.toString({ testOnly: isTestnet }));
+    const tokens = useSolanaTokens(solanaAddress!, isLedger);
+    const holdersAccStatus = useHoldersAccountStatus(tonAddress).data;
+    const holdersAccounts = useHoldersAccounts(tonAddress, isLedger ? undefined : solanaAddress).data?.accounts ?? [];
+    const hints = useDisplayableJettons(tonAddress.toString({ testOnly: isTestnet }));
     const showOtherCoins = hints.jettonsList.length > 0 || hints.savings.length > 0;
     const url = holdersUrl(isTestnet);
     const isHoldersReady = useIsConnectAppReady(url);
     const needsEnrollment = holdersAccStatus?.state === HoldersUserState.NeedEnrollment;
-    const [isWalletMode] = useAppMode(selected?.address, { isLedger });
+    const [isWalletMode] = useAppMode(tonAddress);
 
     const onAssetCallback = useCallback((asset: ReceiveableTonAsset | null) => {
         if (assetCallback) {
@@ -141,9 +66,9 @@ export const ReceiveAssetsFragment = fragment(() => {
                 assetCallback(asset);
             }, 10);
         } else {
-            navigation.navigateReceive({ addr: owner.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
+            navigation.navigateReceive({ addr: tonAddress.toString({ testOnly: isTestnet, bounceable: isLedger ? false : bounceableFormat }), asset: asset || undefined }, isLedger);
         }
-    }, [assetCallback, isLedger, owner, isTestnet, bounceableFormat]);
+    }, [assetCallback, isLedger, tonAddress, isTestnet, bounceableFormat]);
 
     const onHoldersSelected = useCallback((target: GeneralHoldersAccount) => {
         let path = `/account/${target.id}?deposit-open=true`;
@@ -169,7 +94,7 @@ export const ReceiveAssetsFragment = fragment(() => {
     const onWarningClick = useCallback(() => {
         const navParams: HoldersAppParams = { type: HoldersAppParamsType.Create };
         navigation.goBack();
-        
+
         if (needsEnrollment || !isHoldersReady) {
             if (isLedger && (!ledgerContext.ledgerConnection || !ledgerContext.tonTransport)) {
                 ledgerContext.onShowLedgerConnectionError();
@@ -185,6 +110,9 @@ export const ReceiveAssetsFragment = fragment(() => {
     const solanaTokens: SolanaToken[] = tokens?.data ?? [];
 
     const openSolanaToken = useCallback((token: SolanaToken) => {
+        if (!solanaAddress) {
+            return;
+        }
         navigation.navigateSolanaReceive({
             addr: solanaAddress,
             asset: {
@@ -198,6 +126,9 @@ export const ReceiveAssetsFragment = fragment(() => {
     }, [navigation, solanaAddress]);
 
     const openSolanaWallet = useCallback(() => {
+        if (!solanaAddress) {
+            return;
+        }
         navigation.navigateSolanaReceive({ addr: solanaAddress });
     }, [navigation, solanaAddress]);
 
@@ -206,7 +137,7 @@ export const ReceiveAssetsFragment = fragment(() => {
             case AssetType.HOLDERS:
                 return (
                     <HoldersAccountItem
-                        owner={owner}
+                        owner={tonAddress}
                         account={item.account}
                         itemStyle={{ backgroundColor: theme.surfaceOnElevation }}
                         style={{ paddingVertical: 0 }}
@@ -222,7 +153,7 @@ export const ReceiveAssetsFragment = fragment(() => {
                 return (
                     <SpecialJettonProduct
                         theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
-                        address={owner}
+                        address={tonAddress}
                         testOnly={isTestnet}
                         assetCallback={onAssetCallback}
                     />
@@ -232,7 +163,8 @@ export const ReceiveAssetsFragment = fragment(() => {
                     assetCallback: onAssetCallback,
                     viewType: AssetViewType.Receive,
                     includeHolders: false,
-                    isLedger
+                    isLedger,
+                    hideSelection: true,
                 });
 
                 return (
@@ -275,27 +207,35 @@ export const ReceiveAssetsFragment = fragment(() => {
                     </Pressable>
                 );
             case AssetType.SOLANA:
-                return (
+                return solanaAddress ? (
                     <SolanaWalletProduct
-                        theme={theme}
+                        theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
                         address={solanaAddress}
                         onSelect={openSolanaWallet}
                     />
-                );
+                ) : null;
             case AssetType.SOLANA_TOKEN:
-                return (
+                return solanaAddress ? (
                     <SolanaTokenProduct
+                        theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
                         token={item.token}
                         address={solanaAddress}
                         onSelect={() => openSolanaToken(item.token)}
                     />
-                );
+                ) : null;
             default:
-                const tonCallback = () => onAssetCallback(null);
-                return (<TonAssetItem onSelect={tonCallback} />);
+                return (
+                    <TonProductComponent
+                        theme={{ ...theme, surfaceOnBg: theme.surfaceOnElevation }}
+                        address={tonAddress}
+                        testOnly={isTestnet}
+                        onSelect={() => onAssetCallback(null)}
+                        isLedger={isLedger}
+                    />
+                );
         }
     }, [
-        owner, isTestnet, theme, owner, holdersAccStatus, isLedger,
+        tonAddress, isTestnet, theme, holdersAccStatus, isLedger,
         onHoldersSelected, onAssetCallback
     ]);
 
@@ -379,6 +319,10 @@ export const ReceiveAssetsFragment = fragment(() => {
                 renderSectionHeader={renderSectionHeader}
                 removeClippedSubviews={true}
                 stickySectionHeadersEnabled={false}
+                ListHeaderComponent={() => <ChangellyBanner
+                    onPress={() => navigation.navigateSwap()}
+                    theme={theme}
+                />}
                 ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
                 style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}

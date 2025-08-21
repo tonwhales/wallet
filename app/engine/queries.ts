@@ -1,4 +1,5 @@
 import { AccountTransactionsParams } from "./api/fetchAccountTransactionsV2";
+import { Currency } from "./types/deposit";
 
 export const Queries = {
     // Everything in account is invalidated futher in onAccountTouched.ts
@@ -108,5 +109,9 @@ export const Queries = {
         TokenTransactions: (mint: string) => (['solana', address, network, 'transactions', mint]),
         TransactionStatus: (signature: string) => (['solana',address,  network, 'transaction', signature])
     }),
-    SolanaTransactionFees: (network: 'mainnet' | 'testnet', tx: string) => (['solana', 'transactionFees', network, tx])
+    SolanaTransactionFees: (network: 'mainnet' | 'testnet', tx: string) => (['solana', 'transactionFees', network, tx]),
+    Changelly: (tonAddress: string) => ({
+        Transactions: () => (['changelly', tonAddress, 'transactions']),
+        Currencies: (currencyTo: Currency) => (['changelly', tonAddress, currencyTo, 'currencies']),
+    }),
 }

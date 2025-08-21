@@ -203,11 +203,13 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "subtitleSolana": "Надсилайте лише SOL та SPL токени в мережі Solana на цю адресу, інакше ви можете втратити свої кошти.",
         "share": {
             "title": "Моя адреса Tonhub",
+            "button": "Поділитися реквізитами",
             "error": "Не вдалося поділитися адресою, спробуйте ще раз або зверніться до підтримки"
         },
         "holdersJettonWarning": "Надсилайте на цю адресу тільки {{symbol}}, якщо ви надішлете інший токен, ви його втратите.",
         "assets": "Токени та рахунки",
-        "fromExchange": "З біржі",
+        "fromExchange": "Поповнити з біржі",
+        "fromAnotherWallet": "Поповнити з іншого гаманця",
         "otherCoins": "Інші токени",
         "deposit": "Поповнити на"
     },
@@ -359,7 +361,10 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "message": "Запит на підпис повідомлення",
         "hint": "Жодні кошти не будуть передані до додатку і доступ до ваших монет не буде надано.",
         "action": "Підписати",
-        "binary": "Бінарне повідомлення"
+        "binary": "Бінарне повідомлення",
+        "binaryData": "Бінарні дані",
+        "cellSchema": "Схема комірки",
+        "cellData": "Дані комірки"
     },
     "migrate": {
         "title": "Міграція старих гаманців",
@@ -1234,7 +1239,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "invalidAddressMessage": "Ця адреса недійсна. Будь ласка, перевірте адресу та спробуйте ще раз",
             "failed": "Не вдалося підтвердити адресу",
             "failedMessage": "Будь ласка, перепідключіть Ledger і спробуйте ще раз",
-            "verifying": "Підтвердження на Ledger"
+            "verifying": "Підтвердження на Ledger",
+            "validAddressTitle": "Ця адреса дійсна"
         }
     },
     "devTools": {
@@ -1307,11 +1313,61 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "bannerDescription": "З EQ на UQ"
     },
     "changelly": {
-        "title": "Changelly - некстодіальний, миттєвий обмінник криптовалют",
-        "description": "Ви збираєтеся використовувати сервіс Changelly, який керується незалежною стороною, не пов'язаною з Tonhub\nДля продовження вам необхідно погодитися з Умовами використання та Політикою конфіденційності",
+        "title": "Changelly - некастодіальний, миттєвий обмінник криптовалют",
+        "description": "Ви збираєтесь використовувати сервіс Changelly, який керується незалежною стороною, не пов'язаною з Tonhub\nДля продовження вам необхідно погодитися з Умовами використання та Політикою конфіденційності",
         "dontShowTitle": "Більше не показувати для Changelly",
         "bannerTitle": "Депозити USDC",
-        "bannerDescription": "Доступні Tron, Solana, Ethereum, Polygon!"
+        "bannerDescription": "Доступні Tron, Solana, Ethereum, Polygon!",
+        "tonhubBannerTitle": "Changelly в Tonhub!",
+        "tonhubBannerDescription": "Поповнюйте з інших блокчейнів",
+    },
+    "order": {
+        "enterAmount": "Введіть суму переказу",
+        "give": "Надсилаєте",
+        "get": "Отримуєте",
+        "exchangeRate": "Курс обміну",
+        "networkServiceFee": "Комісія мережі та сервісу",
+        "poweredBy": "За підтримки",
+        "continue": "Продовжити",
+        "sendToDeposit": "Надішліть {{currency}} для поповнення рахунку",
+        "waitingTransfer": "Очікування переказу...",
+        "amount": "Сума",
+        "address": "Адреса",
+        "network": "Мережа",
+        "youSend": "Ви надсилаєте",
+        "wallet": "Гаманець",
+        "youGet": "Ви отримуєте",
+        "closeOrder": "Закрити замовлення",
+        "deposit": "Депозит",
+        "waitingForTransfer": "Очікування переказу",
+        "chooseCrypto": "Оберіть криптовалюту",
+        "chooseAsset": "Оберіть актив, який хочете отримати:",
+        "orderCloseTitle": "Ви впевнені, що хочете закрити це замовлення?",
+        "orderCloseDescription": "Після закриття замовлення будь-які кошти, вже надіслані на вказану адресу, будуть безповоротно втрачені і не можуть бути відновлені.\n\nЯкщо у вас виникли проблеми або питання, будь ласка, зверніться до нашої служби підтримки.",
+        "orderCloseConfirm": "Так, я погоджуюся закрити замовлення",
+        "contactSupport": "Зв'язатися з підтримкою",
+        "info": {
+            "title": {
+                "pending": "Поповнення в процесі",
+                "success": "Поповнення успішне",
+                "failure": "Поповнення не вдалося"
+            },
+            "description": {
+                "pending": "Ваш платіж отримано! Поповнення надійде протягом кількох хвилин",
+                "success": "Криптовалюта на вашому акаунті",
+                "failure": "Платіж не вдалося. Будь ласка, зверніться до підтримки"
+            },
+            "notifications": {
+                "amountCopiedSuccess": "Сума успішно скопійована",
+                "payAddressCopiedSuccess": "Адреса успішно скопійована",
+                "orderClosedSuccess": "Замовлення успішно закрито"
+            },
+            "status": {
+                "pending": "В процесі",
+                "success": "Платіж успішний",
+                "failure": "Платіж не вдався"
+            },
+        },
     },
     "w5": {
         "banner": {

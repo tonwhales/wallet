@@ -12,3 +12,4 @@ export { useWalletSettings } from './useWalletSettings';
 export { useBounceableWalletFormat } from './useBounceableWalletFormat';
 export { useLinksSubscription } from './useLinksSubscription';
 export { useWalletName } from './useWalletName';
+export { useCurrentAddress } from './useCurrentAddress';

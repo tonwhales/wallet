@@ -187,11 +187,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "subtitleSolana": "Отправляйте на этот адрес только токены блокчейна Solana. Другие активы будут потеряны навсегда",
         "share": {
             "title": "Мой Tonhub адрес",
+            "button": "Поделиться реквизитами",
             "error": "Не удалось поделиться адресом, попробуйте еще раз или обратитесь в службу поддержки"
         },
         "holdersJettonWarning": "Переводите на этот адрес только {{symbol}}, если вы отправите другой токен, вы потеряете его.",
         "assets": "Жетоны и счета",
-        "fromExchange": "С биржи",
+        "fromExchange": "Пополнить с биржи",
+        "fromAnotherWallet": "Пополнить с другого кошелька",
         "otherCoins": "Другие токены",
         "deposit": "Пополнить"
     },
@@ -343,7 +345,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "message": "Запросили подписать сообщение",
         "hint": "Никакие средства не будут переведены автоматически, приложение не сможет получить доступ к вашим монетам.",
         "action": "Подписать",
-        "binary": "Бинарное сообщение"
+        "binary": "Бинарное сообщение",
+        "binaryData": "Бинарные данные",
+        "cellSchema": "Схема ячейки",
+        "cellData": "Данные ячейки"
     },
     "migrate": {
         "title": "Перенос старых адресов",
@@ -1234,7 +1239,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidAddressMessage": "Этот адрес недействителен. Пожалуйста, проверьте адрес и попробуйте снова",
             "failed": "Не удалось подтвердить адрес",
             "failedMessage": "Пожалуйста, переподключите Ledger и попробуйте снова",
-            "verifying": "Подтверждение на Ledger"
+            "verifying": "Подтверждение на Ledger",
+            "validAddressTitle": "Этот адрес действителен"
         }
     },
     "devTools": {
@@ -1311,7 +1317,57 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "description": "Вы собираетесь использовать сервис Changelly, который управляется независимой стороной, не связанной с Tonhub\nДля продолжения вам необходимо согласиться с Условиями использования и Политикой конфиденциальности",
         "dontShowTitle": "Больше не показывать для Changelly",
         "bannerTitle": "Депозиты USDC",
-        "bannerDescription": "Доступны Tron, Solana, Ethereum, Polygon!"
+        "bannerDescription": "Доступны Tron, Solana, Ethereum, Polygon!",
+        "tonhubBannerTitle": "Changelly в Tonhub!",
+        "tonhubBannerDescription": "Пополняйте из других блокчейнов",
+    },
+    "order": {
+        "enterAmount": "Введите сумму перевода",
+        "give": "Отправляете",
+        "get": "Получаете",
+        "exchangeRate": "Курс обмена",
+        "networkServiceFee": "Комиссия сети и сервиса",
+        "poweredBy": "При поддержке",
+        "continue": "Продолжить",
+        "sendToDeposit": "Отправьте {{currency}} для пополнения счета",
+        "waitingTransfer": "Ожидание перевода...",
+        "amount": "Сумма",
+        "address": "Адрес",
+        "network": "Сеть",
+        "youSend": "Вы отправляете",
+        "wallet": "Кошелек",
+        "youGet": "Вы получаете",
+        "closeOrder": "Закрыть заказ",
+        "deposit": "Депозит",
+        "waitingForTransfer": "Ожидание перевода",
+        "chooseCrypto": "Выберите криптовалюту",
+        "chooseAsset": "Выберите актив, который хотите получить:",
+        "orderCloseTitle": "Вы уверены, что хотите закрыть этот заказ?",
+        "orderCloseDescription": "После закрытия заказа любые средства, уже отправленные на указанный адрес, будут безвозвратно утеряны и не могут быть восстановлены.\n\nЕсли у вас возникли проблемы или вопросы, пожалуйста, обратитесь в нашу службу поддержки.",
+        "orderCloseConfirm": "Да, я согласен закрыть заказ",
+        "contactSupport": "Связаться с поддержкой",
+        "info": {
+            "title": {
+                "pending": "Пополнение уже в пути",
+                "success": "Счет успешно пополнен",
+                "failure": "Пополнение не удалось"
+            },
+            "description": {
+                "pending": "Ваш платеж получен! Пополнение поступит в течение нескольких минут",
+                "success": "Криптовалюта на вашем счете",
+                "failure": "Платеж не удался. Пожалуйста, свяжитесь с поддержкой"
+            },
+            "notifications": {
+                "amountCopiedSuccess": "Сумма успешно скопирована",
+                "payAddressCopiedSuccess": "Адрес успешно скопирован",
+                "orderClosedSuccess": "Заказ успешно закрыт"
+            },
+            "status": {
+                "pending": "В процессе",
+                "success": "Успешный платеж",
+                "failure": "Платеж не удался"
+            },
+        },
     },
     "w5": {
         "banner": {

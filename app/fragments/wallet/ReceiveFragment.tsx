@@ -25,6 +25,7 @@ import { TransportStatusError } from "@ledgerhq/hw-transport";
 import { encodeURL } from "@solana/pay";
 import { PublicKey } from "@solana/web3.js";
 import CopyIcon from '@assets/ic-copy.svg';
+import { RoundButton } from "../../components/RoundButton";
 
 type ReceiveableAssetContent = {
     icon: string | null | undefined;
@@ -246,8 +247,16 @@ export const ReceiveFragment = fragment(() => {
             if (!isValid) {
                 Alert.alert(t('hardwareWallet.verifyAddress.invalidAddressTitle'), t('hardwareWallet.verifyAddress.invalidAddressMessage'));
                 return;
+            } else {
+                toaster.show(
+                    {
+                        message: t('hardwareWallet.verifyAddress.validAddressTitle'),
+                        type: 'default',
+                        duration: ToastDuration.SHORT
+                    }
+                );
+                return;
             }
-
         } catch (e) {
             const isCanceled = e instanceof TransportStatusError && (e as any).statusCode === 0x6985;
             if (isCanceled) {
@@ -468,7 +477,7 @@ export const ReceiveFragment = fragment(() => {
                             borderRadius: 40, paddingHorizontal: 16,
                             flexShrink: 1, maxWidth: 224, alignSelf: 'center',
                             paddingVertical: 8,
-                            marginTop: capturing ? 0 : 16
+                            marginTop: capturing ? 0 : 8
                         }}
                         entering={FadeInUp}
                         exiting={FadeOutDown}
@@ -500,8 +509,8 @@ export const ReceiveFragment = fragment(() => {
                     style={{
                         backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 40, paddingHorizontal: 16, gap: 8,
-                        flexShrink: 1, maxWidth: 224,
-                        marginTop: (capturing && !isLedger) ? 0 : 16,
+                        flexShrink: 1,
+                        marginTop: (capturing && !isLedger) ? 0 : 8,
                         alignSelf: 'center',
                         paddingVertical: 8
                     }}
@@ -525,44 +534,21 @@ export const ReceiveFragment = fragment(() => {
                                 />
                             </View>
                             <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                {t('common.share')}
-                            </Text>
-                        </View>
-                    </Pressable>
-                </Animated.View>
-                <Animated.View
-                    style={{
-                        backgroundColor: theme.surfaceOnElevation,
-                        borderRadius: 40, paddingHorizontal: 16,
-                        flexShrink: 1, maxWidth: 224, marginTop: 16, alignSelf: 'center',
-                        paddingVertical: 8
-                    }}
-                    entering={FadeInUp}
-                    exiting={FadeOutDown}
-                >
-                    <Pressable
-                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                        onPress={navigateToExchanges}
-                    >
-                        <View style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 8
-                        }}>
-                            <View style={{ height: 20, width: 20, justifyContent: 'center', alignItems: 'center' }}>
-                                <Image
-                                    source={require('@assets/ic-from-exchange.png')}
-                                    style={{ height: 20, width: 20 }}
-                                />
-                            </View>
-                            <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                {t('receive.fromExchange')}
+                                {t('receive.share.button')}
                             </Text>
                         </View>
                     </Pressable>
                 </Animated.View>
             </ScrollView>
+            <View style={{
+                gap: 8, width: '100%', paddingHorizontal: 16, paddingBottom: Platform.select({
+                    android: safeArea.bottom + 16,
+                    ios: safeArea.bottom + 16
+                })
+            }}>
+                <RoundButton title={t('receive.fromExchange')} onPress={navigateToExchanges} />
+                <RoundButton display="secondary" title={t('receive.fromAnotherWallet')} onPress={() => navigation.navigateSwap()} />
+            </View>
         </View>
     );
 });

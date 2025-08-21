@@ -14,6 +14,7 @@ import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { clearLedgerSelected, setLedgerSelected } from "../../../storage/appState";
 import { checkAndRequestAndroidBluetoothPermissions, openBluetoothPermissionAlert } from "../../../utils/permissions";
 import { useWebViewPreloader } from "../../../components/WebViewPreloaderContext";
+import { Address } from "@ton/core";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 const bufferSchema = z
@@ -127,18 +128,14 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const [bleSearch, setSearch] = useState<number>(0);
 
     const [isReconnectLedger, setIsReconnectLedger] = useState<boolean>(false);
-    const [, setWalletSettings] = useWalletSettings(addr?.address);
-    const [walletsSettings] = useWalletsSettings();
+    const [walletSettings, setWalletSettings] = useWalletSettings(addr?.address ? Address.parse(addr?.address) : null);
     const { clearWebViewLocalStorage } = useWebViewPreloader();
 
     // Selected Ledger name
     const ledgerName = useMemo(() => {
         const index = ledgerWallets.findIndex(wallet => wallet.address === addr?.address);
-        if (addr?.address) {
-            return walletsSettings?.[addr.address]?.name ?? `${t('hardwareWallet.ledger')} ${index + 1}`;
-        }
-        return `${t('hardwareWallet.ledger')} ${index + 1}`;
-    }, [ledgerWallets, addr, walletsSettings])
+        return walletSettings?.name ?? `${t('hardwareWallet.ledger')} ${index + 1}`;
+    }, [ledgerWallets, addr, walletSettings])
 
     const reconnectAttempts = useRef<number>(0);
 

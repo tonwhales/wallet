@@ -1,9 +1,9 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { View } from "react-native";
 import { t } from "../../../i18n/t";
 import { useDisplayableJettons, useNetwork, useSolanaSavingsBalance, useSolanaTokens, useTheme } from "../../../engine/hooks";
 import { Typography } from "../../styles";
-import { TonProductComponent } from "../TonProductComponent";
+import { TonProductComponent } from "./TonWalletProduct";
 import { SpecialJettonProduct } from "./SpecialJettonProduct";
 import { Address } from "@ton/ton";
 import { JettonProductItem } from "../JettonProductItem";
@@ -60,7 +60,7 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
     }
 
     const renderItem = useCallback((item: SavingsItem) => {
-        switch (item.type) {
+        switch (item?.type) {
             case 'jetton':
                 return (
                     <JettonProductItem
@@ -101,6 +101,7 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
             case 'solanaToken':
                 return (
                     <SolanaTokenProduct
+                        theme={theme}
                         token={item}
                         address={solanaAddress}
                     />
@@ -119,13 +120,20 @@ export const SavingsProduct = memo(({ address, isLedger, pubKey }: { address: Ad
 
     const solanaTokens: ({ type: AssetType.SolanaToken } & SolanaToken)[] = tokens?.data?.map((t) => ({ type: AssetType.SolanaToken, ...t })) ?? [];
 
-    const items: SavingsItem[] = [
-        { type: AssetType.Ton },
-        { type: AssetType.Special },
-        { type: AssetType.Solana },
-        ...solanaTokens,
-        ...savingsItems,
-    ];
+    const items: SavingsItem[] = useMemo(() => {
+        const baseItems: SavingsItem[] = [
+            { type: AssetType.Ton },
+            { type: AssetType.Special },
+        ];
+
+        if (!isLedger) {
+            baseItems.push({ type: AssetType.Solana });
+            baseItems.push(...solanaTokens);
+        }
+
+        baseItems.push(...savingsItems);
+        return baseItems;
+    }, [isLedger, solanaTokens, savingsItems]);
 
     const renderFace = useCallback(() => {
         return (

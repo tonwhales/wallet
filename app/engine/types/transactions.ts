@@ -1,5 +1,7 @@
-import { AccountStatus, Address, Cell, ExtraCurrency } from '@ton/core';
+import { AccountStatus, Address, Cell } from '@ton/core';
 import { LocalizedResources } from '../../i18n/schema';
+import { PreparedMessage } from '../hooks/transactions/usePeparedMessages';
+import { ContractInfo } from '../api/fetchContractInfo';
 
 export type StoredAddressExternal = {
     bits: number;
@@ -165,7 +167,7 @@ export type FiatCurrencyCoin =
     | 'INR'
     | 'JPY';
 
-export type CryptoCurrencyCoin = 'USDT' | 'USDC' | 'EURT' | 'TON';
+export type CryptoCurrencyCoin = 'USDT' | 'USDC' | 'SOL' | 'TON';
 
 export type CurrencyCoin = FiatCurrencyCoin | CryptoCurrencyCoin;
 
@@ -505,6 +507,10 @@ export type TonTransaction = {
     outMessages: StoredMessage[],
     lt: string,
     hash: string
+    message?: PreparedMessage
+    contractInfo?: ContractInfo
+    symbolText?: string
+    jettonDecimals?: number | null
 }
 
 export type TonStoredTransaction = {

@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.5.18</string>
+	<string>2.5.19</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -43,7 +43,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>266</string>
+	<string>267</string>
 	<key>INTERCOM_APP</key>
 	<string>$(INTERCOM_APP)</string>
 	<key>INTERCOM_IOS_API</key>

@@ -137,9 +137,10 @@ export const ChangellyCalculationFragment = fragment(() => {
             <ScrollView
                 style={{ paddingHorizontal: 16, paddingVertical: 8 }}
                 keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{ gap: 8 }}
                 contentInset={contentInset}
             >
-                <View style={{ backgroundColor: theme.surfaceOnElevation, borderTopEndRadius: 20, borderTopStartRadius: 20, paddingTop: 16 }}>
+                <View style={{ backgroundColor: theme.surfaceOnElevation, borderRadius: 20, paddingTop: 16 }}>
                     <Text style={[Typography.medium15_20, { color: theme.textSecondary, paddingHorizontal: 16 }]}>
                         {t('order.give')}
                     </Text>
@@ -163,28 +164,8 @@ export const ChangellyCalculationFragment = fragment(() => {
                             placeholderTextColor={theme.textPrimary}
                         />
                     </View>
-
                 </View>
-                <View style={{ backgroundColor: theme.elevation, height: 48, paddingTop: -20 }}>
-                    <View style={{ height: 40, borderBottomEndRadius: 20, borderBottomStartRadius: 20, backgroundColor: theme.surfaceOnElevation, marginBottom: 8, marginTop: -20 }} />
-                    <View style={{ height: 40, borderTopEndRadius: 20, borderTopStartRadius: 20, backgroundColor: theme.surfaceOnElevation }} />
-                    <View style={{
-                        position: 'absolute',
-                        alignSelf: 'center',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        top: 4,
-                        width: 40,
-                        height: 40,
-                        borderRadius: 20,
-                        borderColor: theme.elevation,
-                        backgroundColor: theme.surfaceOnElevation,
-                        borderWidth: 4,
-                    }}>
-                        <ArrowIcon width={16} height={16} style={{ transform: [{ rotate: '180deg' }] }} color={theme.accent} />
-                    </View>
-                </View>
-                <View style={{ backgroundColor: theme.surfaceOnElevation, borderBottomEndRadius: 20, borderBottomStartRadius: 20, paddingBottom: 16 }}>
+                <View style={{ backgroundColor: theme.surfaceOnElevation, borderRadius: 20, paddingBottom: 16 }}>
                     <Text style={[Typography.medium15_20, { color: theme.textSecondary, paddingHorizontal: 16 }]}>
                         {t('order.get')}
                     </Text>
@@ -203,6 +184,21 @@ export const ChangellyCalculationFragment = fragment(() => {
                             style={[Typography.semiBold17_24, { color: theme.textPrimary, textAlign: 'right', minWidth: 80 }]}
                             editable={false}
                         />
+                    </View>
+                    <View style={{
+                        position: 'absolute',
+                        alignSelf: 'center',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        top: -22,
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        borderColor: theme.elevation,
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderWidth: 4,
+                    }}>
+                        <ArrowIcon width={16} height={16} style={{ transform: [{ rotate: '180deg' }] }} color={theme.accent} />
                     </View>
                 </View>
                 <View style={{ gap: 12, marginTop: 8 }}>

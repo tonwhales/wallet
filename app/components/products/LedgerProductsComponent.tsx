@@ -75,7 +75,6 @@ export const LedgerProductsComponent = memo(({ wallet, testOnly }: { wallet: Led
         });
 
     }, [wallet.address, testOnly]);
-    console.log('LEDGER PRODUCTS COMPONENT');
     
     return (
         <View>

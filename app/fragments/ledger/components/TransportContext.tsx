@@ -135,7 +135,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const ledgerName = useMemo(() => {
         const index = ledgerWallets.findIndex(wallet => wallet.address === addr?.address);
         return walletSettings?.name ?? `${t('hardwareWallet.ledger')} ${index + 1}`;
-    }, [ledgerWallets, addr, walletSettings])
+    }, [ledgerWallets, addr, walletSettings?.name])
 
     const reconnectAttempts = useRef<number>(0);
 

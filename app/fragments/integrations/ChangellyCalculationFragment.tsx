@@ -140,7 +140,7 @@ export const ChangellyCalculationFragment = fragment(() => {
                 contentContainerStyle={{ gap: 8 }}
                 contentInset={contentInset}
             >
-                <View style={{ backgroundColor: theme.surfaceOnElevation, borderRadius: 20, paddingTop: 16 }}>
+                <View style={{ backgroundColor: theme.surfaceOnElevation, borderRadius: 20, paddingVertical: 16 }}>
                     <Text style={[Typography.medium15_20, { color: theme.textSecondary, paddingHorizontal: 16 }]}>
                         {t('order.give')}
                     </Text>
@@ -165,7 +165,7 @@ export const ChangellyCalculationFragment = fragment(() => {
                         />
                     </View>
                 </View>
-                <View style={{ backgroundColor: theme.surfaceOnElevation, borderRadius: 20, paddingBottom: 16 }}>
+                <View style={{ backgroundColor: theme.surfaceOnElevation, borderRadius: 20, paddingVertical: 16 }}>
                     <Text style={[Typography.medium15_20, { color: theme.textSecondary, paddingHorizontal: 16 }]}>
                         {t('order.get')}
                     </Text>

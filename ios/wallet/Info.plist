@@ -43,7 +43,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>266</string>
+	<string>268</string>
 	<key>INTERCOM_APP</key>
 	<string>$(INTERCOM_APP)</string>
 	<key>INTERCOM_IOS_API</key>

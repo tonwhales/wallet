@@ -275,7 +275,11 @@ export const WalletImportFragment = systemFragment(() => {
             )}
             {state && versions.length === 0 ? (
                 <Animated.View
-                    style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
+                    style={{
+                        alignItems: 'stretch', justifyContent: 'center', flexGrow: 1,
+                        paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
+                        paddingBottom: Platform.OS === 'android' ? safeArea.bottom : 0,
+                    }}
                     key={'content'}
                     entering={FadeIn}
                 >

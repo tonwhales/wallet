@@ -161,6 +161,10 @@ export const DappAuthComponent = memo(({
         return color;
     }, [dAppIconColors]);
 
+    const selectedAccountIndex = useMemo(() => {
+        return appState.addresses.findIndex((a) => a.address.equals(selectedAccount.address));
+    }, [appState, selectedAccount]);
+
     const connectLineSvg = useMemo(() => {
         return Skia.SVG.MakeFromString(
             `<svg xmlns="http://www.w3.org/2000/svg" width="79" height="51" viewBox="0 0 79 51" fill="none">
@@ -312,7 +316,7 @@ export const DappAuthComponent = memo(({
                 {single ? (
                     <>
                         <WalletItem
-                            index={0}
+                            index={selectedAccountIndex}
                             address={selectedAccount.address}
                             onSelect={onAddressSelected}
                             style={{ marginBottom: 0, marginTop: 16 }}

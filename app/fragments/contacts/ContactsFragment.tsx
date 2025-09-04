@@ -18,7 +18,7 @@ import { ATextInput } from "../../components/ATextInput";
 import { useKnownWallets } from "../../secure/KnownWallets";
 import { Typography } from "../../components/styles";
 import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
-import { TonStoredTransaction, TransactionType } from "../../engine/types";
+import { TransactionType } from "../../engine/types";
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-contacts-dark.webp'),
@@ -43,7 +43,7 @@ export const ContactsFragment = fragment(() => {
     const transactionsAddresses = useMemo(() => {
         const addresses = new Set<string>();
         // first 10 transactions
-        (transactions as TonStoredTransaction[]).map((t) => t.data).slice(0, 10).forEach((t) => {
+        transactions.slice(0, 10).forEach((t) => {
             if (t && !!t.base.operation.address) {
                 addresses.add(t.base.operation.address);
             }

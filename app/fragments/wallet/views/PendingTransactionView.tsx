@@ -1,6 +1,6 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import { PendingTransaction } from "../../../engine/state/pending";
-import { useContractInfo, useNetwork, useTheme, useWalletSettings } from "../../../engine/hooks";
+import { useContractInfo, useNetwork, usePendingActions, useTheme, useTonTransactionStatus, useWalletSettings } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
@@ -56,7 +56,18 @@ export const PendingTransactionView = memo(({
     const ledgerContext = useLedgerTransport();
     const ledgerAddresses = ledgerContext?.wallets;
     const extraCurrencyMap = useExtraCurrencyMap((tx.body as any)?.extraCurrency, owner);
-
+    const { data: txStatus } = useTonTransactionStatus(
+        tx.hash.toString('hex'),
+        isTestnet ? 'testnet' : 'mainnet'
+    );
+    const { markAsSent } = usePendingActions(owner, isTestnet);
+    
+    useEffect(() => {
+        if (txStatus?.found && !txStatus.inProgress) {
+            markAsSent(tx.id);
+        }
+    }, [txStatus, markAsSent, tx.id]);
+    
     const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
         if (targetContract?.kind === 'dedust-vault') {
             return 'dedust';

@@ -127,7 +127,10 @@ export const WalletBackupFragment = systemFragment(() => {
                 <ScreenHeader
                     title={t('common.logout')}
                     onBackPressed={navigation.goBack}
-                    style={{ paddingHorizontal: 16 }}
+                    style={{ 
+                        paddingHorizontal: 16, 
+                        ...Platform.select({ android: { paddingTop: safeArea.top } }) 
+                    }}
                 />
             ) : (
                 !init && (

@@ -48,7 +48,7 @@ export const ScannerFragment = systemFragment(() => {
     // Possible causes: 
     // 1. Different camera manufacturers support different aspect ratios. 
     // 2. Different phone manufacturers design screens with varying aspect ratios.
-    const { ratio, imagePadding, prepareRatio, ready } = useCameraAspectRatio();
+    const { ratio, imagePadding, prepareRatio } = useCameraAspectRatio();
 
     const sharedOpacity = useSharedValue(1);
     const animShutterStyle = useAnimatedStyle(() => {

@@ -11,7 +11,7 @@ import { Platform } from "react-native";
 import { getChainShortNameByChain, getCoinInfoByCurrency, getKnownCurrencyFromName, KNOWN_TICKERS } from "../../engine/utils/chain";
 import { Typography } from "../../components/styles";
 import { RoundButton } from "../../components/RoundButton";
-import { humanizeNumberAdaptive } from "../../utils/holders/humanize";
+import { addSpaceSeparators, humanizeNumberAdaptive } from "../../utils/holders/humanize";
 import { OrderInfoLine } from "../../components/orders/OrderInfoLine";
 import { OrderInfoRich } from "../../components/orders/OrderInfoRich";
 import { OrderStatus } from "../../components/orders/OrderStatus";
@@ -78,12 +78,12 @@ export const ChangellyOrderFragment = fragment(() => {
     const resultCoinName = resultKnownCurrency ? getCoinInfoByCurrency(resultKnownCurrency).name.toUpperCase() : toCurrency.toUpperCase();
     const resultBlockchain = KNOWN_TICKERS[toCurrency]
 
-    const amountDisplayValue = `${amount} ${originCoinName}`;
+    const amountDisplayValue = `${addSpaceSeparators(amount)} ${originCoinName}`;
     const targetAddressDisplayValue = payinAddress;
     const networkDisplayValue = `${originBlockchain.charAt(0).toUpperCase() + originBlockchain.slice(1)} (${originBlockchainTag})`;
     const networkFeeDisplayValue = `${humanizeNumberAdaptive(networkFee ?? 0)}%`;
     const exchangeRateDisplayValue = `1 ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)}) = ${humanizeNumberAdaptive(exchangeRate)} ${originCoinName} (${originBlockchainTag})`;
-    const youSendDisplayValue = `${amount} ${originCoinName} (${originBlockchainTag})`;
+    const youSendDisplayValue = `${addSpaceSeparators(amount)} ${originCoinName} (${originBlockchainTag})`;
     const youGetDisplayValue = `${humanizeNumberAdaptive(amountExpectedTo ?? 0)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
     
     const walletDisplayValue = useMemo(() => {

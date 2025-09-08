@@ -147,7 +147,7 @@ export const LegalFragment = systemFragment(() => {
                     <Text
                         style={{ color: theme.accent }}
                         onPress={() => navigation.navigate('Privacy')}>
-                        {t('legal.privacyPolicy')}
+                        {' ' + t('legal.privacyPolicy')}
                     </Text>
                     <Text style={{ color: theme.textSecondary, }}>
                         {' ' + t('common.and') + ' '}

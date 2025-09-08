@@ -342,6 +342,14 @@ export const LedgerSignTransferFragment = fragment(() => {
     const netConfig = useConfig();
 
     useEffect(() => {
+        return () => {
+            if (params && params.callback) {
+                params.callback(false, null);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
         if (!ledgerContext || !ledgerContext.ledgerConnection || !ledgerContext.tonTransport || !ledgerContext.addr) {
             ledgerContext.onShowLedgerConnectionError(() => {
                 if (params && params.callback) {

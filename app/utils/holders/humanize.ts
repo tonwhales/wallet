@@ -123,3 +123,16 @@ export function humanizeFiat(value: string | number, currency?: string): string 
   return `${humanizeNumber(isString(value) ? parseCoins(value) : value)}${currency ? ` ${getFiatSymbol(currency)}` : ''
     }`;
 }
+
+export function addSpaceSeparators(value: string | number): string {
+  if (isNullOrUndefined(value)) return '0';
+  
+  const stringValue = String(value);
+  const parts = stringValue.split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1];
+  
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  
+  return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+}

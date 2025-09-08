@@ -129,7 +129,8 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
     const doSendData = usePrevious({
         owner: owner,
         balance,
-        order
+        order,
+        callback: params?.callback
     });
 
     const doSend = useCallback(async () => {
@@ -137,7 +138,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
             return;
         }
 
-        const { order, balance } = doSendData.current;
+        const { order, balance, callback } = doSendData.current;
 
         // Check amount
         if (balance < order.amount || balance === 0n) {
@@ -166,7 +167,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
                         amount: accountAfterAmount
                     }
 
-                    navigation.navigateSolanaTransfer({ type: 'order', order: newOrder });
+                    navigation.navigateSolanaTransfer({ type: 'order', order: newOrder, callback });
                     return;
                 } else {
                     Alert.alert(t('transfer.solana.error.title'), (emulationError as Error).message);
@@ -185,7 +186,7 @@ export const useSolanaSimpleTransfer = ({ params, navigation, owner, token }: Op
                 );
                 return;
             }
-            navigation.navigateSolanaTransfer({ type: 'order', order });
+            navigation.navigateSolanaTransfer({ type: 'order', order, callback });
         } catch (error: any) {
             // Handle the specific "Attempt to debit" error
             if (error.message?.includes('Attempt to debit an account but found no record of a prior credit')) {

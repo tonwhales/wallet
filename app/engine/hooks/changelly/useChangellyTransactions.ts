@@ -6,6 +6,7 @@ import {
     ChangellyTransactionStatus,
     ChangellyTransactionModel
 } from "../../api/changelly/fetchChangellyUserTransactions";
+import { useChangellyEvents } from "./useChangellyEvents";
 
 interface UseChangellyTransactionsParams {
     limit?: number;
@@ -15,6 +16,7 @@ interface UseChangellyTransactionsParams {
 
 export function useChangellyTransactions(params?: UseChangellyTransactionsParams) {
     const { tonAddressString, solanaAddress } = useCurrentAddress();
+    const { removeObsoleteEvents } = useChangellyEvents()
     
     const wallet = { ton: tonAddressString!, solana: solanaAddress };
 
@@ -33,6 +35,10 @@ export function useChangellyTransactions(params?: UseChangellyTransactionsParams
             if (!result.ok) {
                 throw new Error(result.message || result.error);
             }
+            
+            // Remove all entries from useChangellyEvents if their transactionId is not present in result.data
+            const validTransactionIds = result.data.map(transaction => transaction.id);
+            removeObsoleteEvents(validTransactionIds);
             
             return result.data;
         },

@@ -102,7 +102,7 @@ const SolanaTransactionsHeader = memo(({ owner }: SolanaWalletFragmentProps) => 
             <View style={{
                 width: 72, height: 72, borderRadius: 36,
                 borderWidth: 0,
-                backgroundColor: theme.surfaceOnBg,
+                backgroundColor: theme.style === 'dark' ? theme.surfaceOnBg : theme.black,
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>

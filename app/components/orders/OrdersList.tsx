@@ -5,7 +5,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useChangellyTransactions } from "../../engine/hooks/changelly/useChangellyTransactions";
 import { ChangellyTransactionModel } from "../../engine/api/changelly/fetchChangellyUserTransactions";
 
-export const OrdersList = memo(({ }) => {
+export const OrdersList = memo(() => {
     const { data: orders } = useChangellyTransactions();
 
     const navigation = useTypedNavigation();

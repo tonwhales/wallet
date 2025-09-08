@@ -5,6 +5,7 @@ import { useLockAppWithAuthState } from "../engine/hooks/settings";
 import { getLastAuthTimestamp } from "./secure/AuthWalletKeys";
 import { useAppBlur } from "./AppBlurContext";
 import { getLockAppWithAuthState } from "../engine/state/lockAppWithAuthState";
+import { useCurrentAddress } from "../engine/hooks";
 
 const appLockTimeout = 1000 * 60 * 10; // 10 minutes
 
@@ -23,6 +24,8 @@ export const SessionWatcher = (({ navRef }: { navRef: NavigationContainerRefWith
     const [locked] = useLockAppWithAuthState();
     const lastStateRef = useRef<string | null>(null);
     const { setBlur } = useAppBlur();
+    const { tonAddress } = useCurrentAddress();
+
     useEffect(() => {
         if (!locked) {
             setBlur(false);
@@ -31,7 +34,7 @@ export const SessionWatcher = (({ navRef }: { navRef: NavigationContainerRefWith
 
         const checkAndNavigate = () => {
             const shouldLock = shouldLockApp();
-            if (shouldLock) {
+            if (shouldLock && !!tonAddress) {
                 navRef.navigate('AppAuth');
             } else {
                 setBlur(false);
@@ -67,6 +70,6 @@ export const SessionWatcher = (({ navRef }: { navRef: NavigationContainerRefWith
         return () => {
             subscription.remove();
         };
-    }, [locked]);
+    }, [locked, tonAddress]);
     return null;
 });

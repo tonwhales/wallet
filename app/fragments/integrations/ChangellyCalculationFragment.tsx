@@ -27,6 +27,7 @@ import { useKeyboard } from "@react-native-community/hooks";
 import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
 import NetworkFeeIcon from '@assets/order/network-fee.svg';
 import ChangellyLogo from '@assets/changelly-big.svg';
+import ArrowIcon from '@assets/order/arrow-without-background.svg';
 
 const INITIAL_MAX_VALUE = 1000000;
 const MAX_DECIMALS = 6;
@@ -183,6 +184,21 @@ export const ChangellyCalculationFragment = fragment(() => {
                             style={[Typography.semiBold17_24, { color: theme.textPrimary, textAlign: 'right', minWidth: 80 }]}
                             editable={false}
                         />
+                    </View>
+                    <View style={{
+                        position: 'absolute',
+                        alignSelf: 'center',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        top: -22,
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        borderColor: theme.elevation,
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderWidth: 4,
+                    }}>
+                        <ArrowIcon width={16} height={16} style={{ transform: [{ rotate: '180deg' }] }} color={theme.accent} />
                     </View>
                 </View>
                 <View style={{ gap: 12, marginTop: 8 }}>

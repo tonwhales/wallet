@@ -345,6 +345,7 @@ export const WalletTransactions = memo((props: {
             />
         )
     }, [
+        ...(transactions.length > 0 ? [transactions[0]?.hash] : []),
         transactions.length,
         refreshing,
         bottomBarHeight,

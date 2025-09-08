@@ -29,7 +29,6 @@ import { TonWalletFragmentParams } from '../fragments/wallet/TonWalletFragment';
 import { LedgerDeviceSelectionParams } from '../fragments/ledger/LedgerDeviceSelectionFragment';
 import { LedgerSelectAccountParams } from '../fragments/ledger/LedgerSelectAccountFragment';
 import { TonTransaction } from '../engine/types';
-import { TransactionsFilterFragmentParams } from '../fragments/wallet/TransactionsFilterFragment';
 import { SolanaWalletFragmentProps } from '../fragments/wallet/SolanaWalletFragment';
 import { SolanaSimpleTransferParams } from '../fragments/solana/simpleTransfer/SolanaSimpleTransferFragment';
 import { SolanaTransferParams } from '../fragments/secure/transfer/SolanaTransferFragment';
@@ -388,10 +387,6 @@ export class TypedNavigation {
 
     navigateLedgerSelectAccount(params: LedgerSelectAccountParams) {
         this.navigate('LedgerSelectAccount', params);
-    }
-
-    navigateTransactionsFilter(params: TransactionsFilterFragmentParams) {
-        this.navigate('TransactionsFilter', params);
     }
 
     //

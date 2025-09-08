@@ -42,6 +42,12 @@ export const Queries = {
 
         return base;
     },
+    TransactionStatus: (txHash: string, network: 'mainnet' | 'testnet') => [
+        'transactions',
+        'status',
+        network,
+        txHash
+    ],
     Holders: (address: string) => ({
         All: () => ['holders', address],
         Status: () => ['holders', address, 'status'],
@@ -107,7 +113,7 @@ export const Queries = {
         Tokens: () => (['solana', address, network, 'tokens']),
         Transactions: () => (['solana', address, network, 'transactions']),
         TokenTransactions: (mint: string) => (['solana', address, network, 'transactions', mint]),
-        TransactionStatus: (signature: string) => (['solana',address,  network, 'transaction', signature])
+        TransactionStatus: (signature: string) => (['solana', address, network, 'transaction', signature])
     }),
     SolanaTransactionFees: (network: 'mainnet' | 'testnet', tx: string) => (['solana', 'transactionFees', network, tx]),
     Changelly: (tonAddress: string) => ({

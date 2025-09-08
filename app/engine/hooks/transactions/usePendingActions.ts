@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { usePendingTransactions } from "..";
 import { PendingTransactionStatus } from "../../state/pending";
-import { TransactionType } from "../../types";
+import { TonTransaction, TransactionType } from "../../types";
 import { TonStoredTransaction } from "../../types";
 import { useAccountTransactionsV2 } from "./useAccountTransactionsV2";
 
@@ -10,7 +10,7 @@ export function usePendingActions(address: string, isTestnet: boolean) {
     const setPendingRef = useRef(setPending);
     const txsQuery = useAccountTransactionsV2(address, undefined, { type: TransactionType.TON });
     const txs = txsQuery.data;
-    const last32Txs = (txs as TonStoredTransaction[])?.slice(-32);
+    const last32Txs = (txs as TonTransaction[])?.slice(-32);
 
     useEffect(() => {
         setPendingRef.current = setPending;
@@ -38,10 +38,23 @@ export function usePendingActions(address: string, isTestnet: boolean) {
         });
     }, []);
 
+    const markAsSent = useCallback((id: string) => {
+        setPendingRef.current((prev) => {
+            return prev.map((tx) => {
+                if (tx.id === id) {
+                    return { ...tx, status: PendingTransactionStatus.Sent };
+                }
+                return tx;
+            });
+        });
+
+        txsQuery.refresh();
+    }, []);
+
     useEffect(() => {
         removePending(pending.filter((tx) => {
             const isToBeRemoved = last32Txs.some((t) => {
-                const txSeqno = t.data?.base?.parsed?.seqno;
+                const txSeqno = t.base?.parsed?.seqno;
 
                 if (!txSeqno) {
                     return false;
@@ -51,7 +64,7 @@ export function usePendingActions(address: string, isTestnet: boolean) {
 
                 // out of range
                 if (seqnoDiff < -1000) {
-                    const timeDiff = t.data.base.time - tx.time;
+                    const timeDiff = t.base.time - tx.time;
                     return timeDiff > 0;
                 }
 
@@ -62,5 +75,5 @@ export function usePendingActions(address: string, isTestnet: boolean) {
         }).map((tx) => tx.id));
     }, [last32Txs, pending]);
 
-    return { state: pending, removePending, markAsTimedOut };
+    return { state: pending, removePending, markAsTimedOut, markAsSent };
 }

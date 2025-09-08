@@ -7,3 +7,4 @@ export { useLastTwoTxs } from './useLastTwoTxs';
 export { usePendingSolanaTransactions } from './usePendingSolanaTransactions';
 export { usePendingSolanaActions } from './usePendingSolanaActions';
 export { useRegisterPendingSolana } from './useRegisterPendingSolana';
+export { useTonTransactionStatus } from './useTonTransactionStatus';

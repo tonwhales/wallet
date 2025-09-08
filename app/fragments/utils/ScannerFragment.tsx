@@ -48,7 +48,7 @@ export const ScannerFragment = systemFragment(() => {
     // Possible causes: 
     // 1. Different camera manufacturers support different aspect ratios. 
     // 2. Different phone manufacturers design screens with varying aspect ratios.
-    const { ratio, imagePadding, prepareRatio, ready } = useCameraAspectRatio();
+    const { ratio, imagePadding, prepareRatio } = useCameraAspectRatio();
 
     const sharedOpacity = useSharedValue(1);
     const animShutterStyle = useAnimatedStyle(() => {
@@ -256,9 +256,11 @@ export const ScannerFragment = systemFragment(() => {
                         <DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color={'rgba(0,0,0,0.5)'} />
                     </Canvas>
                     <View style={{
-                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                        justifyContent: 'center', alignItems: 'center',
-                        paddingTop: rectSize / 2 + 16 + safeArea.top + safeArea.bottom,
+                        position: 'absolute', 
+                        top: (dimensions.screen.height - rectSize) / 2 - safeArea.top - safeArea.bottom + rectSize + 8,
+                        left: 0, 
+                        right: 0,
+                        alignItems: 'center',
                     }}>
                         <Text style={{
                             fontWeight: '500',
@@ -274,12 +276,9 @@ export const ScannerFragment = systemFragment(() => {
                         {
                             flexDirection: 'row',
                             justifyContent: 'space-between', alignItems: 'center',
-                            paddingHorizontal: 16
-                        },
-                        Platform.select({
-                            android: { marginBottom: imagePadding + 16, opacity: ready ? 1 : 0 },
-                            ios: { marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24 },
-                        }),
+                            paddingHorizontal: 16,
+                            marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24
+                        }
                     ]}>
                         <Pressable style={(props) => {
                             return {
@@ -318,7 +317,7 @@ export const ScannerFragment = systemFragment(() => {
                     <ScreenHeader
                         style={[
                             { position: 'absolute', top: 0, left: 0, right: 0 },
-                            Platform.select({ android: { top: imagePadding, opacity: ready ? 1 : 0 } })
+                            Platform.select({ android: { top: safeArea.top } })
                         ]}
                         onClosePressed={() => {
                             setActive(false);

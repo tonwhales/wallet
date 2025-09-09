@@ -85,6 +85,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
 
     const [minAmountWarn, setMinAmountWarn] = useState<string>();
     const validAmount = useValidAmount(amount.ton);
+    const validWsTonAmount = useValidAmount(amount.wsTon);
 
     const balance = useMemo(() => {
         if (params?.action === 'withdraw') {
@@ -335,6 +336,22 @@ export const LiquidStakingTransferFragment = fragment(() => {
         );
     }, [validAmount, price, currency]);
 
+    const amountError = useMemo(() => {
+        if (!validAmount) {
+            return undefined;
+        }
+
+        const isDeposit = params?.action === 'top_up';
+
+        if (isDeposit && validAmount > balance) {
+            return t('transfer.error.notEnoughJettons', { symbol: 'TON' });
+        }
+        if (!isDeposit && validWsTonAmount && validWsTonAmount > balance) {
+            return t('transfer.error.notEnoughJettons', { symbol: 'wsTON' });
+        }
+        return undefined;
+    }, [validAmount, balance, params?.action, validWsTonAmount]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({
@@ -459,6 +476,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     suffix={priceText}
                                     hideClearButton
                                     inputSuffix={'wsTON'}
+                                    error={amountError}
                                 />
                             </View>
                             <View
@@ -534,18 +552,6 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     hideClearButton
                                     inputSuffix={'TON'}
                                 />
-                                {!!minAmountWarn && (
-                                    <Text style={{
-                                        color: theme.accentRed,
-                                        fontSize: 13,
-                                        lineHeight: 18,
-                                        marginTop: 8,
-                                        marginLeft: 16,
-                                        fontWeight: '400'
-                                    }}>
-                                        {minAmountWarn}
-                                    </Text>
-                                )}
                             </View>
                         </>
                     ) : (
@@ -643,19 +649,8 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     suffix={priceText}
                                     hideClearButton
                                     inputSuffix={'TON'}
+                                    error={amountError}
                                 />
-                                {!!minAmountWarn && (
-                                    <Text style={{
-                                        color: theme.accentRed,
-                                        fontSize: 13,
-                                        lineHeight: 18,
-                                        marginTop: 8,
-                                        marginLeft: 16,
-                                        fontWeight: '400'
-                                    }}>
-                                        {minAmountWarn}
-                                    </Text>
-                                )}
                             </View>
                             <View
                                 style={{
@@ -816,6 +811,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
             >
                 <RoundButton
                     title={t('common.continue')}
+                    disabled={!!amountError || validAmount === 0n}
                     action={doContinue}
                 />
             </KeyboardAvoidingView>

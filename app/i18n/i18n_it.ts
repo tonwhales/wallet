@@ -480,7 +480,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawStakeConfirmTitle": "Conferma Prelievo",
                 "topUpTitle": "Ricarica",
                 "topUpConfirmTitle": "Conferma Ricarica",
-                "notEnoughStaked": "purtroppo non hai abbastanza monete in staking",
+                "notEnoughStaked": "Sfortunatamente, non hai abbastanza monete in staking",
                 "confirmWithdraw": "Richiedi Prelievo",
                 "confirmWithdrawReady": "Preleva ora",
                 "restrictedTitle": "Questo Pool di Staking è ristretto",

@@ -480,7 +480,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawStakeConfirmTitle": "Підтвердити зняття",
                 "topUpTitle": "Поповнення",
                 "topUpConfirmTitle": "Підтвердити поповнення",
-                "notEnoughStaked": "на жаль, у вас недостатньо монет для ставки",
+                "notEnoughStaked": "У вас недостатньо монет на балансі стейкінгу",
                 "confirmWithdraw": "Запит на зняття",
                 "confirmWithdrawReady": "Зняти зараз",
                 "restrictedTitle": "Цей пул ставок обмежений",

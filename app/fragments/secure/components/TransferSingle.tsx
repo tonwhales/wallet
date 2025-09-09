@@ -219,6 +219,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
         // Check amount
         const isGasless = fees.type === 'gasless' && fees.params.ok;
+        const notEnoughBalanceToPayFees = fees.type === 'ton' && ((account?.balance ?? 0n) < fees.value)
+        const tooBigAmountToPayFees = fees.type === 'ton' && ((order.messages[0].amount ?? 0n) + fees.value > (account?.balance ?? 0n)) && !order.messages[0].amountAll;
         if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount && !isGasless) {
             const diff = order.messages[0].amount - account!.balance;
             const diffString = fromNano(diff);
@@ -234,7 +236,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             const missing = `${missingAmount[0]}${missingAmount[1]} ${jetton?.symbol}`;
             Alert.alert(t('transfer.error.notEnoughJettons', { symbol: jetton?.symbol }), t('transfer.error.gaslessNotEnoughCoins', { fee, missing }));
             return;
-        } else if (fees.type === 'ton' && ((account?.balance ?? 0n) < fees.value)) {
+        } else if (notEnoughBalanceToPayFees) {
             const diff = fees.value - account!.balance;
             const diffString = fromNano(diff);
             Alert.alert(
@@ -242,8 +244,15 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 t('transfer.error.notEnoughGasMessage', { diff: diffString }),
             );
             return;
+        } else if (tooBigAmountToPayFees) {
+            const diff = order.messages[0].amount + fees.value - account!.balance;
+            const diffString = fromNano(diff);
+            Alert.alert(
+                t('transfer.error.notEnoughGasTitle'),
+                t('transfer.error.notEnoughGasMessage', { diff: diffString }),
+            );
+            return;
         }
-
         if (
             !order.messages[0].amountAll && order.messages[0].amount === BigInt(0)
             && !(order.messages[0].extraCurrency ? Object.values(order.messages[0].extraCurrency).some(amount => amount > 0n) : false)

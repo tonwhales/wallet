@@ -352,6 +352,10 @@ export const LiquidStakingTransferFragment = fragment(() => {
         return undefined;
     }, [validAmount, balance, params?.action, validWsTonAmount]);
 
+    const isContinueDisabled = useMemo(() => {
+        return !!amountError || validAmount === 0n;
+    }, [amountError, validAmount]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({
@@ -811,7 +815,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
             >
                 <RoundButton
                     title={t('common.continue')}
-                    disabled={!!amountError || validAmount === 0n}
+                    disabled={isContinueDisabled}
                     action={doContinue}
                 />
             </KeyboardAvoidingView>

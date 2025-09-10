@@ -76,7 +76,7 @@ export const ChangellyOrderFragment = fragment(() => {
     const { isInitial, isPending, isSuccess, isFailure } = getOrderState(status);
     const isDepositFromTonhubDone = changellyEvents?.[transactionId]?.isDepositFromTonhubDone
 
-    const amount = addSpaceSeparators(amountExpectedFrom ?? '0')
+    const amount = amountExpectedFrom ?? '0'
     const exchangeRate = exchangeRateString ?? '1'
 
     const originKnownCurrency = getKnownCurrencyFromName(fromCurrency);
@@ -88,12 +88,12 @@ export const ChangellyOrderFragment = fragment(() => {
     const resultCoinName = resultKnownCurrency ? getCoinInfoByCurrency(resultKnownCurrency).name.toUpperCase() : toCurrency.toUpperCase();
     const resultBlockchain = KNOWN_TICKERS[toCurrency]
 
-    const amountDisplayValue = `${amount} ${originCoinName}`;
+    const amountDisplayValue = `${addSpaceSeparators(amount)} ${originCoinName}`;
     const targetAddressDisplayValue = payinAddress;
     const networkDisplayValue = `${originBlockchain.charAt(0).toUpperCase() + originBlockchain.slice(1)} (${originBlockchainTag})`;
     const networkFeeDisplayValue = `${humanizeNumberAdaptive(networkFee ?? 0)}%`;
     const exchangeRateDisplayValue = `1 ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)}) = ${humanizeNumberAdaptive(exchangeRate)} ${originCoinName} (${originBlockchainTag})`;
-    const youSendDisplayValue = `${amount} ${originCoinName} (${originBlockchainTag})`;
+    const youSendDisplayValue = `${addSpaceSeparators(amount)} ${originCoinName} (${originBlockchainTag})`;
     const youGetDisplayValue = `${humanizeNumberAdaptive(amountExpectedTo ?? 0)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
 
     const walletDisplayValue = useMemo(() => {

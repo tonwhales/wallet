@@ -76,7 +76,7 @@ export const ChangellyOrderFragment = fragment(() => {
     const { isInitial, isPending, isSuccess, isFailure } = getOrderState(status);
     const isDepositFromTonhubDone = changellyEvents?.[transactionId]?.isDepositFromTonhubDone
 
-    const amount = humanizeNumber(amountExpectedFrom ?? '0')
+    const amount = amountExpectedFrom ?? '0'
     const exchangeRate = exchangeRateString ?? '1'
 
     const originKnownCurrency = getKnownCurrencyFromName(fromCurrency);
@@ -240,7 +240,7 @@ export const ChangellyOrderFragment = fragment(() => {
                 onClosePressed={navigation.goBack}
             />
             <ScrollView style={{ paddingHorizontal: 16, flex: 1 }} keyboardShouldPersistTaps="handled"
-                contentContainerStyle={{ gap: 8, paddingBottom: 0 }}>
+                contentContainerStyle={{ gap: 8, paddingBottom: 8 }}>
                 <OrderStatus
                     expiresAt={expiresAt}
                     isInitial={isInitial}
@@ -270,6 +270,12 @@ export const ChangellyOrderFragment = fragment(() => {
                         copyMessage={t('order.info.notifications.payAddressCopiedSuccess')}
                     />
                     <OrderInfoRich
+                        title={t('common.tx')}
+                        value={transactionId}
+                        isTransactionInfo
+                        copyMessage={t('common.copiedAlert')}
+                    />
+                    <OrderInfoRich
                         title={t('order.network')}
                         value={networkDisplayValue}
                     />
@@ -285,7 +291,7 @@ export const ChangellyOrderFragment = fragment(() => {
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 style={[
-                    { marginHorizontal: 16, marginTop: 8 },
+                    { marginHorizontal: 16 },
                     Platform.select({
                         android: { marginBottom: safeArea.bottom + 16 },
                         ios: { marginBottom: safeArea.bottom + 16 }
@@ -298,7 +304,6 @@ export const ChangellyOrderFragment = fragment(() => {
                         {canSend ? <RoundButton
                             title={'Send'}
                             onPress={onSend}
-                            style={{ marginTop: 8 }}
                         /> :
                             <RoundButton
                                 title={t('order.continue')}
@@ -318,7 +323,6 @@ export const ChangellyOrderFragment = fragment(() => {
                         {canSend && <RoundButton
                             title={'Send'}
                             onPress={onSend}
-                            style={{ marginTop: 8 }}
                         />}
                         {isInitial && !isDepositFromTonhubDone && (
                             <RoundButton

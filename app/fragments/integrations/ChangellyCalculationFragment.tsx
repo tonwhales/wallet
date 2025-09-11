@@ -71,11 +71,11 @@ export const ChangellyCalculationFragment = fragment(() => {
     const [resultAmount, setResultAmount] = useState('0')
     
     useEffect(() => {
-        const resultAmount = Number(estimation?.amountTo ?? 0) - Number(estimation?.networkFee ?? 0)
+        const newResultAmount = Number(estimation?.amountTo ?? 0) - Number(estimation?.networkFee ?? 0)
         if (estimation?.maxFrom) {
             setMaxValue(parseAmountToNumber(formatInputAmount(estimation.maxFrom, MAX_DECIMALS)));
         }
-        setResultAmount(humanizeNumberAdaptive(resultAmount))
+        setResultAmount(humanizeNumberAdaptive(newResultAmount))
     }, [estimation]);
     
     useEffect(() => {

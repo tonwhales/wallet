@@ -1327,6 +1327,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "get": "Erhalten",
         "exchangeRate": "Wechselkurs",
         "networkServiceFee": "Netzwerk- und Servicegebühr",
+        "serviceFee": "Servicegebühr",
         "poweredBy": "Unterstützt von",
         "continue": "Fortfahren",
         "sendToDeposit": "{{currency}} senden, um Ihr Konto aufzuladen",

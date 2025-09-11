@@ -59,16 +59,23 @@ export const ChangellyCalculationFragment = fragment(() => {
     const originTicker = currencyFrom.ticker;
     const originImage = currencyFrom.image;
     
-    const exchangeRateDisplayValue = estimation?.rate ? `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumberAdaptive(estimation?.rate ?? '1')} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
-    const networkFeeDisplayValue = estimation?.networkFee ? `${humanizeNumberAdaptive(estimation?.networkFee ?? 0)}%` : '';
+    const resultFullName = `${nameTo} (${getChainShortNameByChain(blockchainTo)})`
+    const originFullName = `${originCoinName} (${originBlockchainTag})`
+    const networkFee = Number(estimation?.networkFee ?? 0)
+    const changellyFee = Number(estimation?.fee ?? 0)
+    
+    const exchangeRateDisplayValue = estimation?.rate ? `1 ${originFullName} = ${humanizeNumberAdaptive(estimation?.rate ?? '1', true)} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
+    const networkFeeDisplayValue = estimation?.networkFee ? `${humanizeNumberAdaptive(networkFee)} ${resultFullName}` : '';
+    const changellyFeeDisplayValue = estimation?.fee ? `${humanizeNumberAdaptive(changellyFee)} ${resultFullName}` : '';
     const isContinueButtonDisabled = isCreatingTransaction || !estimation?.amountTo;
     const [resultAmount, setResultAmount] = useState('0')
     
     useEffect(() => {
+        const resultAmount = Number(estimation?.amountTo ?? 0) - Number(estimation?.networkFee ?? 0)
         if (estimation?.maxFrom) {
             setMaxValue(parseAmountToNumber(formatInputAmount(estimation.maxFrom, MAX_DECIMALS)));
         }
-        setResultAmount(humanizeNumberAdaptive(estimation?.amountTo || 0))
+        setResultAmount(humanizeNumberAdaptive(resultAmount))
     }, [estimation]);
     
     useEffect(() => {
@@ -210,8 +217,14 @@ export const ChangellyCalculationFragment = fragment(() => {
                     />
                     <OrderInfoLine
                         icon={NetworkFeeIcon}
-                        label={t('order.networkServiceFee')}
+                        label={t('txPreview.blockchainFee')}
                         value={networkFeeDisplayValue}
+                        isLoading={isFetchingEstimate}
+                    />
+                    <OrderInfoLine
+                        icon={NetworkFeeIcon}
+                        label={t('order.serviceFee')}
+                        value={changellyFeeDisplayValue}
                         isLoading={isFetchingEstimate}
                     />
                 </View>

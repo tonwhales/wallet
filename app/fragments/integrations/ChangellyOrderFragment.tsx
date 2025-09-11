@@ -91,10 +91,11 @@ export const ChangellyOrderFragment = fragment(() => {
     const amountDisplayValue = `${addSpaceSeparators(amount)} ${originCoinName}`;
     const targetAddressDisplayValue = payinAddress;
     const networkDisplayValue = `${originBlockchain.charAt(0).toUpperCase() + originBlockchain.slice(1)} (${originBlockchainTag})`;
-    const networkFeeDisplayValue = `${humanizeNumberAdaptive(networkFee ?? 0)}%`;
-    const exchangeRateDisplayValue = `1 ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)}) = ${humanizeNumberAdaptive(exchangeRate)} ${originCoinName} (${originBlockchainTag})`;
+    const networkFeeDisplayValue = `${humanizeNumberAdaptive(networkFee ?? 0)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
+    const exchangeRateDisplayValue = `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumberAdaptive(1 / Number(exchangeRate ?? 0), true)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
     const youSendDisplayValue = `${addSpaceSeparators(amount)} ${originCoinName} (${originBlockchainTag})`;
-    const youGetDisplayValue = `${humanizeNumberAdaptive(amountExpectedTo ?? 0)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
+    const youGetValue = Number(amountExpectedTo ?? 0) - Number(networkFee ?? 0)
+    const youGetDisplayValue = `~ ${humanizeNumberAdaptive(youGetValue)} ${resultCoinName} (${getChainShortNameByChain(resultBlockchain)})`;
 
     const walletDisplayValue = useMemo(() => {
         if (isTonAddress(payoutAddress)) {
@@ -281,7 +282,7 @@ export const ChangellyOrderFragment = fragment(() => {
                     />
                 </View>
                 <View style={{ gap: 12, marginTop: 8 }}>
-                    <OrderInfoLine icon={NetworkFeeIcon} label={t('order.networkServiceFee')} value={networkFeeDisplayValue} />
+                    <OrderInfoLine icon={NetworkFeeIcon} label={t('txPreview.blockchainFee')} value={networkFeeDisplayValue} />
                     <OrderInfoLine icon={ExchangeRateIcon} label={t('order.exchangeRate')} value={exchangeRateDisplayValue} />
                     <OrderInfoLine icon={SendAmountIcon} label={t('order.youSend')} value={youSendDisplayValue} />
                     <OrderInfoLine icon={ToAccountIcon} label={t('order.wallet')} value={walletDisplayValue} />

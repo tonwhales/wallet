@@ -85,14 +85,14 @@ export function humanizeNumber(
  * 0.1234 = 0.12
  * 0.000001234 = 0.0000012
  */
-export function humanizeNumberAdaptive(value: string | number): string {
+export function humanizeNumberAdaptive(value: string | number, alwaysShowSignificantDigits = false): string {
   if (isNullOrUndefined(value)) return '0';
   
   const num = typeof value === 'string' ? parseFloat(value) : value;
   if (isNaN(num) || num === 0) return '0';
   
   // For numbers >= 1 or integers - maximum 2 decimal places
-  if (Math.abs(num) >= 1) {
+  if (!alwaysShowSignificantDigits && Math.abs(num) >= 1) {
     const fractionDigits = num % 1 === 0 ? 0 : 2;
     return humanizeNumber(num, 0, fractionDigits);
   }

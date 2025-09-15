@@ -8,7 +8,7 @@ import { t } from '../i18n/t';
 import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady, useLanguage, useSolanaSelectedAccount, useIsLedgerRoute } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useTheme, useThemeStyle, useHasHoldersProducts, useIsConnectAppReady, useLanguage, useSolanaSelectedAccount, useIsLedgerRoute, useCurrentAddress } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
@@ -38,7 +38,7 @@ import IcSupport from '@assets/settings/ic-support.svg';
 import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
-import Intercom, { Space } from '@intercom/intercom-react-native';
+import { showIntercomForWalletAddress } from '../utils/intercom';
 
 const iosStoreUrl = 'https://apps.apple.com/app/apple-store/id1607656232?action=write-review';
 const androidStoreUrl = 'https://play.google.com/store/apps/details?id=com.tonhub.wallet&showAllReviews=true';
@@ -66,6 +66,7 @@ export const SettingsFragment = fragment(() => {
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
     const [, switchAppToWalletMode] = useAppMode(selected?.address);
+    const { tonAddressString } = useCurrentAddress()
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed;
     const holdersBanner: HoldersBannerType = !!inviteCheck?.settingsBanner ? { type: 'custom', banner: inviteCheck.settingsBanner } : { type: 'built-in' };
@@ -231,7 +232,9 @@ export const SettingsFragment = fragment(() => {
                     <ItemButton
                         leftIconComponent={<IcSupport width={24} height={24} />}
                         title={t('settings.support.title')}
-                        onPress={() => Intercom.presentSpace(Space.home)}
+                        onPress={async () => {
+                            await showIntercomForWalletAddress(tonAddressString)
+                        }}
                     />
                     <ItemButton
                         leftIconComponent={<IcTelegram width={24} height={24} />}

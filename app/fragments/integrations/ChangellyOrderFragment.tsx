@@ -25,17 +25,17 @@ import { useParams } from "../../utils/useParams";
 import { ChangellyTransactionModel } from "../../engine/api/changelly/fetchChangellyUserTransactions";
 import { getOrderState } from "../../engine/utils/orders";
 import { useResolveChangellyTransaction } from "../../engine/hooks/changelly/useResolveChangellyTransaction";
-import Intercom, { Space } from "@intercom/intercom-react-native";
+import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
+import { toBnWithDecimals } from "../../utils/withDecimals";
+import { SOLANA_USDC_MINT_MAINNET } from "../../utils/solana/address";
+import { useChangellyEvents } from "../../engine/hooks/changelly/useChangellyEvents";
+import { showIntercomForWalletAddress } from "../../utils/intercom";
 
 import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
 import NetworkFeeIcon from '@assets/order/network-fee.svg';
 import SendAmountIcon from '@assets/order/send-amount.svg';
 import ToAccountIcon from '@assets/order/to-account.svg';
 import ResultIcon from '@assets/order/result.svg';
-import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
-import { toBnWithDecimals } from "../../utils/withDecimals";
-import { SOLANA_USDC_MINT_MAINNET } from "../../utils/solana/address";
-import { useChangellyEvents } from "../../engine/hooks/changelly/useChangellyEvents";
 
 export type ChangellyOrderFragmentParams = {
     changellyTransaction: ChangellyTransactionModel;
@@ -53,7 +53,7 @@ export const ChangellyOrderFragment = fragment(() => {
     const [bounceableFormat] = useBounceableWalletFormat()
     const orderCloseModalRef = useRef<BottomSheetModal>(null);
     const { changellyEvents, saveChangellyEvents } = useChangellyEvents()
-    const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
+    const { tonAddress, tonAddressString, solanaAddress, isLedger } = useCurrentAddress()
     const specialJetton = useSpecialJetton(tonAddress);
     const token = useSolanaToken(solanaAddress!, SOLANA_USDC_MINT_MAINNET);
 
@@ -158,8 +158,8 @@ export const ChangellyOrderFragment = fragment(() => {
     }, [changellyTransaction.id, toCurrency]);
 
     const onContactSupport = useCallback(() => {
-        Intercom.presentSpace(Space.home)
-    }, []);
+        showIntercomForWalletAddress(tonAddressString)
+    }, [tonAddressString]);
 
     const onSendCallback = useCallback((ok: boolean) => {
         if (!ok) return

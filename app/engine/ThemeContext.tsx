@@ -1,7 +1,7 @@
 import { createContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ThemeStyle, ThemeType, baseTheme, darkTheme, themeStyleState } from './state/theme';
 import { useRecoilValue } from 'recoil';
-import { Platform, useColorScheme } from 'react-native';
+import { Platform, useColorScheme, AppState } from 'react-native';
 import { AndroidAppearance } from '../modules/AndroidAppearance';
 import { changeNavBarColor } from '../modules/NavBar';
 
@@ -10,6 +10,27 @@ export const ThemeContext = createContext<ThemeType>(baseTheme);
 function usePlatformColorScheme() {
     const colorScheme = useColorScheme();
     const andColorScheme = AndroidAppearance.useColorScheme();
+
+    // Force theme update on Android when component mounts
+    useEffect(() => {
+        AndroidAppearance.forceThemeUpdate();
+    }, []);
+
+    // Check theme changes when app becomes active (Android)
+    useEffect(() => {
+        if (Platform.OS !== 'android') {
+            return;
+        }
+
+        const handleAppStateChange = (nextAppState: string) => {
+            if (nextAppState === 'active') {
+                AndroidAppearance.checkThemeChange();
+            }
+        };
+
+        const subscription = AppState.addEventListener('change', handleAppStateChange);
+        return () => subscription?.remove();
+    }, []);
 
     return Platform.select({ ios: colorScheme, android: andColorScheme });
 }

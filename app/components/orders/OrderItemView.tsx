@@ -15,7 +15,6 @@ import CountdownIcon from "@assets/order/countdown.svg";
 import SuccessIcon from '@assets/order/success.svg';
 import FailureIcon from '@assets/order/failure.svg';
 
-
 interface OrderItemViewProps {
     order: ChangellyTransactionModel;
     onPress: (order: ChangellyTransactionModel) => void;
@@ -27,6 +26,7 @@ export const OrderItemView = memo(({ order, onPress }: OrderItemViewProps) => {
 
     const knownCurrencyTo = getKnownCurrencyFromName(order.toCurrency);
     const symbol = knownCurrencyTo ? getCoinInfoByCurrency(knownCurrencyTo).name.toUpperCase() : order.toCurrency.toUpperCase();
+    const youGetValue = Number(order.amountExpectedTo ?? 0) - Number(order.networkFee ?? 0)
 
     const description = (() => {
         if (isInitial) return t('order.waitingForTransfer');
@@ -88,7 +88,7 @@ export const OrderItemView = memo(({ order, onPress }: OrderItemViewProps) => {
                 </View>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-                <Text style={[Typography.semiBold17_24, { color: theme.accentGreen }]}>+{humanizeNumber(order.amountExpectedTo || 0)} {symbol}</Text>
+                <Text style={[Typography.semiBold17_24, { color: theme.accentGreen }]}>+{humanizeNumber(youGetValue)} {symbol}</Text>
                 {isInitial && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                         <CountdownIcon width={16} height={16} color={theme.iconPrimary} />

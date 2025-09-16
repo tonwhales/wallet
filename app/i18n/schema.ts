@@ -1329,6 +1329,7 @@ export type LocalizationSchema = {
         get: string,
         exchangeRate: string,
         networkServiceFee: string,
+        serviceFee: string,
         poweredBy: string,
         continue: string,
         sendToDeposit: string,

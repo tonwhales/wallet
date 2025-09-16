@@ -1,74 +1,51 @@
-import { getHoldersToken } from "../../../storage/holders";
-import { HoldersUserState, holdersUrl as resolveHoldersUrl } from "../../api/holders/fetchUserState";
-import { queryClient } from "../../clients";
-import { Queries } from "../../queries";
-import { getQueryData } from "../../utils/getQueryData";
-import { HoldersAccounts } from "../holders/useHoldersAccounts";
-import { HoldersAccountStatus } from "../holders/useHoldersAccountStatus";
 import { useCallback } from "react";
-import { useNetwork } from "../network";
-import { useSelectedAccount } from "../appstate";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useLedgerTransport } from "../../../fragments/ledger/components/TransportContext";
-import { Address } from "@ton/core";
+import { useLanguage } from "../appstate";
+import Intercom, { Space } from "@intercom/intercom-react-native";
+import { useCurrentAddress } from "../appstate";
 
-export const useSupport = (options?: { isLedger?: boolean }) => {
-    const network = useNetwork();
-    const holdersUrl = resolveHoldersUrl(network.isTestnet);
-    const queryCache = queryClient.getQueryCache();
-    const selected = useSelectedAccount();
-    const ledgerContext = useLedgerTransport();
-    const navigation = useTypedNavigation();
+export interface HoldersProfile {
+    email: string;
+    userId: string;
+    name: string;
+    phone: string;
+}
 
-    const onSupport = useCallback(() => {
-        navigation.navigateDAppWebView({
-            url: `${holdersUrl}/support`,
-            fullScreen: true,
-            webViewProps: {
-                injectedJavaScriptBeforeContentLoaded: `
-                        (() => {
-                            window.initialState = ${JSON.stringify(initialState)};
-                        })();
-                        `,
-            },
-            useQueryAPI: true
-        });
-    }, [])
+export const useSupport = () => {
+    const [language] = useLanguage();
+    const { tonAddressString } = useCurrentAddress();
 
-    const _address = options?.isLedger ? Address.parse(ledgerContext.addr!.address) : selected?.address;
-    const address = _address?.toString({ testOnly: network.isTestnet });
-
-    if (!address) {
-        return {
-            onSupport: () => { }
-        }
-    }
-
-    const status = getQueryData<HoldersAccountStatus>(queryCache, Queries.Holders(address).Status());
-    const token = status?.state === HoldersUserState.Ok ? status.token : getHoldersToken(address);
-    const accountsStatus = getQueryData<HoldersAccounts>(queryCache, Queries.Holders(address).Cards(!!token ? 'private' : 'public'));
-
-    const initialState = {
-        ...status
-            ? {
-                user: {
-                    status: {
-                        state: status.state,
-                        kycStatus: status.state === 'need-kyc' ? status.kycStatus : null,
-                        suspended: (status as { suspended: boolean | undefined }).suspended === true,
-                    },
-                    token
-                }
+    const authorizeIntercom = useCallback(async (options?: { holdersProfile?: HoldersProfile }) => {
+        if (!!tonAddressString) {
+            await Intercom.logout()
+            await Intercom.loginUserWithUserAttributes({
+                userId: tonAddressString,
+                languageOverride: language,
+            });
+            if (options?.holdersProfile) {
+                await Intercom.updateUser({
+                    email: options?.holdersProfile.email,
+                    name: options?.holdersProfile.name + ' (' + options?.holdersProfile.userId + ')',
+                    phone: options?.holdersProfile.phone,
+                })
             }
-            : { address },
-        ...accountsStatus?.type === 'private'
-            ? { accountsList: accountsStatus.accounts, prepaidCards: accountsStatus.prepaidCards }
-            : {},
-    };
+        } else {
+            await Intercom.logout()
+            await Intercom.loginUnidentifiedUser();
+        }
+    }, [tonAddressString, language])
 
+    const onSupport = useCallback(async (options?: { holdersProfile?: HoldersProfile, space?: Space }) => {
+        await authorizeIntercom({ holdersProfile: options?.holdersProfile });
+        await Intercom.presentSpace(options?.space || Space.messages)
+    }, [authorizeIntercom])
 
+    const onSupportWithMessage = useCallback(async (options?: { holdersProfile?: HoldersProfile, message?: string }) => {
+        await authorizeIntercom({ holdersProfile: options?.holdersProfile });
+        await Intercom.presentMessageComposer(options?.message);
+    }, [authorizeIntercom])
 
     return {
-        onSupport
+        onSupport,
+        onSupportWithMessage
     }
 }

@@ -38,7 +38,6 @@ import IcSupport from '@assets/settings/ic-support.svg';
 import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
-import { showIntercomForWalletAddress } from '../utils/intercom';
 
 const iosStoreUrl = 'https://apps.apple.com/app/apple-store/id1607656232?action=write-review';
 const androidStoreUrl = 'https://play.google.com/store/apps/details?id=com.tonhub.wallet&showAllReviews=true';
@@ -66,7 +65,7 @@ export const SettingsFragment = fragment(() => {
     const showHoldersItem = !isLedger && hasHoldersProducts;
     const ledgerContext = useLedgerTransport();
     const [, switchAppToWalletMode] = useAppMode(selected?.address);
-    const { tonAddressString } = useCurrentAddress()
+    const { onSupport } = useSupport();
     const hasHoldersAccounts = (holdersAccounts?.accounts?.length ?? 0) > 0;
     const showHoldersBanner = !isLedger && !hasHoldersAccounts && inviteCheck?.allowed;
     const holdersBanner: HoldersBannerType = !!inviteCheck?.settingsBanner ? { type: 'custom', banner: inviteCheck.settingsBanner } : { type: 'built-in' };
@@ -232,9 +231,7 @@ export const SettingsFragment = fragment(() => {
                     <ItemButton
                         leftIconComponent={<IcSupport width={24} height={24} />}
                         title={t('settings.support.title')}
-                        onPress={async () => {
-                            await showIntercomForWalletAddress(tonAddressString)
-                        }}
+                        onPress={onSupport}
                     />
                     <ItemButton
                         leftIconComponent={<IcTelegram width={24} height={24} />}

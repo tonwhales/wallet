@@ -5,7 +5,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useTheme, useAppState, useNetwork, useWalletsSettings, useBounceableWalletFormat, useCurrentAddress, useSolanaToken } from "../../engine/hooks";
+import { useTheme, useAppState, useNetwork, useWalletsSettings, useBounceableWalletFormat, useCurrentAddress, useSolanaToken, useSupport } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { getChainShortNameByChain, getCoinInfoByCurrency, getKnownCurrencyFromName, KNOWN_TICKERS } from "../../engine/utils/chain";
@@ -29,7 +29,6 @@ import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
 import { toBnWithDecimals } from "../../utils/withDecimals";
 import { SOLANA_USDC_MINT_MAINNET } from "../../utils/solana/address";
 import { useChangellyEvents } from "../../engine/hooks/changelly/useChangellyEvents";
-import { showIntercomForWalletAddress } from "../../utils/intercom";
 
 import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
 import NetworkFeeIcon from '@assets/order/network-fee.svg';
@@ -53,10 +52,11 @@ export const ChangellyOrderFragment = fragment(() => {
     const [bounceableFormat] = useBounceableWalletFormat()
     const orderCloseModalRef = useRef<BottomSheetModal>(null);
     const { changellyEvents, saveChangellyEvents } = useChangellyEvents()
-    const { tonAddress, tonAddressString, solanaAddress, isLedger } = useCurrentAddress()
+    const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
     const specialJetton = useSpecialJetton(tonAddress);
     const token = useSolanaToken(solanaAddress!, SOLANA_USDC_MINT_MAINNET);
-
+    const { onSupport } = useSupport();
+    
     const { changellyTransaction, isAfterCreation } = useParams<ChangellyOrderFragmentParams>()
     const { amountExpectedFrom,
         fromCurrency,
@@ -156,10 +156,6 @@ export const ChangellyOrderFragment = fragment(() => {
             toCurrency
         });
     }, [changellyTransaction.id, toCurrency]);
-
-    const onContactSupport = useCallback(() => {
-        showIntercomForWalletAddress(tonAddressString)
-    }, [tonAddressString]);
 
     const onSendCallback = useCallback((ok: boolean) => {
         if (!ok) return
@@ -334,7 +330,7 @@ export const ChangellyOrderFragment = fragment(() => {
                         )}
                         {!canSend && <RoundButton
                             title={t('order.contactSupport')}
-                            onPress={onContactSupport}
+                            onPress={onSupport}
                             display="secondary"
                             style={{ marginTop: 8 }}
                         />}

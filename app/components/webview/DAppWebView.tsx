@@ -1,7 +1,7 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator, BackHandler, Linking } from "react-native";
 import WebView, { WebViewMessageEvent, WebViewNavigation, WebViewProps } from "react-native-webview";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useNetwork, useSupport, useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -77,6 +77,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const toaster = useToasterClient();
+    const { onSupport, onSupportWithMessage } = useSupport();
     const markRefIdShown = useMarkBannerHidden();
     const [, updateLocalStorageStatus] = useLocalStorageStatus();
     const [currentUrl, setCurrentUrl] = useState<string | undefined>(undefined);
@@ -216,7 +217,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             address,
             safelyOpenUrl,
             onClose,
-            setSubscribed
+            setSubscribed,
+            onSupport,
+            onSupportWithMessage
         });
 
         if (processed) {

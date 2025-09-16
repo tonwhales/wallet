@@ -36,7 +36,7 @@ export const useSupport = () => {
 
     const onSupport = useCallback(async (options?: { holdersProfile?: HoldersProfile, space?: Space }) => {
         await authorizeIntercom({ holdersProfile: options?.holdersProfile });
-        await Intercom.presentSpace(options?.space || Space.messages)
+        await Intercom.presentSpace(options?.space || Space.home)
     }, [authorizeIntercom])
 
     const onSupportWithMessage = useCallback(async (options?: { holdersProfile?: HoldersProfile, message?: string }) => {

@@ -18,7 +18,6 @@ import { getCurrentAddress } from "../../../storage/appState";
 import { Space } from "@intercom/intercom-react-native";
 import { z } from "zod";
 import { isAuthTimedOut } from "../../SessionWatcher";
-import { HoldersProfile } from "../../../engine/hooks";
 
 export type DAppWebViewAPI = {
     useMainButton?: boolean;
@@ -90,8 +89,8 @@ export type DAppWebViewAPIProps = {
     safelyOpenUrl: (url: string) => void;
     onClose?: () => void;
     setSubscribed: () => void;
-    onSupport: (options?: { holdersProfile?: HoldersProfile, space?: Space }) => void;
-    onSupportWithMessage: (options?: { holdersProfile?: HoldersProfile, message?: string }) => void;
+    onSupport: (options?: { space?: Space }) => void;
+    onSupportWithMessage: (options?: { message?: string }) => void;
 }
 
 export function processWebViewMessage(
@@ -315,8 +314,7 @@ export function processWebViewMessage(
                 (async () => {
                     try {
                         if (api.useSupportAPI) {
-                            const userProfile = userAttributesSchema.safeParse(args.userProfile);
-                            onSupport({ holdersProfile: (userProfile as any).data as HoldersProfile, space: Space.messages });
+                            onSupport({ space: Space.messages });
                         }
                     } catch {
                         warn('Failed to show intercom');
@@ -331,7 +329,7 @@ export function processWebViewMessage(
                                 warn('Invalid text');
                                 return true;
                             } else {
-                                onSupportWithMessage({ holdersProfile: (args.userProfile as any).data as HoldersProfile, message: args.text });
+                                onSupportWithMessage({ message: args.text });
                             }
                         }
                     } catch {

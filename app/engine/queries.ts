@@ -56,6 +56,7 @@ export const Queries = {
         Invite: () => ['holders', address, 'invite', 'v2'],
         OTP: () => ['holders-otp', address],
         Iban: () => ['holders', address, 'iban'],
+        Profile: () => ['holders', address, 'profile']
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

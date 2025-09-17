@@ -15,7 +15,7 @@ import { processEmitterMessage } from "./processEmitterMessage";
 import { NavigationOptionsAction, SetNavigationOptionsAction } from "./reduceNavigationOptions";
 import { Address } from "@ton/core";
 import { getCurrentAddress } from "../../../storage/appState";
-import Intercom, { Space } from "@intercom/intercom-react-native";
+import { Space } from "@intercom/intercom-react-native";
 import { z } from "zod";
 import { isAuthTimedOut } from "../../SessionWatcher";
 
@@ -89,13 +89,16 @@ export type DAppWebViewAPIProps = {
     safelyOpenUrl: (url: string) => void;
     onClose?: () => void;
     setSubscribed: () => void;
+    onSupport: (options?: { space?: Space }) => void;
+    onSupportWithMessage: (options?: { message?: string }) => void;
 }
 
 export function processWebViewMessage(
     event: WebViewMessageEvent,
     {
         api, ref, navigation, authContext, isTestnet, address, toaster,
-        dispatchMainButton, setLoaded, onEnroll, dispatchNavigationOptions, updateLocalStorageStatus, safelyOpenUrl, onClose, setSubscribed
+        dispatchMainButton, setLoaded, onEnroll, dispatchNavigationOptions, updateLocalStorageStatus, 
+        safelyOpenUrl, onClose, setSubscribed, onSupport, onSupportWithMessage
     }: DAppWebViewAPIProps
 ): boolean {
     const nativeEvent = event.nativeEvent;
@@ -311,14 +314,7 @@ export function processWebViewMessage(
                 (async () => {
                     try {
                         if (api.useSupportAPI) {
-                            await Intercom.logout();
-                            const userProfile = userAttributesSchema.safeParse(args.userProfile);
-                            if (userProfile.success) {
-                                await Intercom.loginUserWithUserAttributes(userProfile.data);
-                            } else {
-                                await Intercom.loginUnidentifiedUser();
-                            }
-                            Intercom.presentSpace(Space.messages);
+                            onSupport({ space: Space.messages });
                         }
                     } catch {
                         warn('Failed to show intercom');
@@ -332,13 +328,9 @@ export function processWebViewMessage(
                             if (!args.text) {
                                 warn('Invalid text');
                                 return true;
-                            } else if (args.userProfile) {
-                                await Intercom.logout();
-                                await Intercom.loginUserWithUserAttributes(args.userProfile);
                             } else {
-                                await Intercom.loginUnidentifiedUser();
+                                onSupportWithMessage({ message: args.text });
                             }
-                            await Intercom.presentMessageComposer(args.text);
                         }
                     } catch {
                         warn('Failed to show intercom with message');

@@ -5,7 +5,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useTheme, useAppState, useNetwork, useWalletsSettings, useBounceableWalletFormat, useCurrentAddress, useSolanaToken } from "../../engine/hooks";
+import { useTheme, useAppState, useNetwork, useWalletsSettings, useBounceableWalletFormat, useCurrentAddress, useSolanaToken, useSupport } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 import { getChainShortNameByChain, getCoinInfoByCurrency, getKnownCurrencyFromName, KNOWN_TICKERS } from "../../engine/utils/chain";
@@ -25,17 +25,16 @@ import { useParams } from "../../utils/useParams";
 import { ChangellyTransactionModel } from "../../engine/api/changelly/fetchChangellyUserTransactions";
 import { getOrderState } from "../../engine/utils/orders";
 import { useResolveChangellyTransaction } from "../../engine/hooks/changelly/useResolveChangellyTransaction";
-import Intercom, { Space } from "@intercom/intercom-react-native";
+import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
+import { toBnWithDecimals } from "../../utils/withDecimals";
+import { SOLANA_USDC_MINT_MAINNET } from "../../utils/solana/address";
+import { useChangellyEvents } from "../../engine/hooks/changelly/useChangellyEvents";
 
 import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
 import NetworkFeeIcon from '@assets/order/network-fee.svg';
 import SendAmountIcon from '@assets/order/send-amount.svg';
 import ToAccountIcon from '@assets/order/to-account.svg';
 import ResultIcon from '@assets/order/result.svg';
-import { useSpecialJetton } from "../../engine/hooks/jettons/useSpecialJetton";
-import { toBnWithDecimals } from "../../utils/withDecimals";
-import { SOLANA_USDC_MINT_MAINNET } from "../../utils/solana/address";
-import { useChangellyEvents } from "../../engine/hooks/changelly/useChangellyEvents";
 
 export type ChangellyOrderFragmentParams = {
     changellyTransaction: ChangellyTransactionModel;
@@ -56,7 +55,8 @@ export const ChangellyOrderFragment = fragment(() => {
     const { tonAddress, solanaAddress, isLedger } = useCurrentAddress()
     const specialJetton = useSpecialJetton(tonAddress);
     const token = useSolanaToken(solanaAddress!, SOLANA_USDC_MINT_MAINNET);
-
+    const { onSupport } = useSupport();
+    
     const { changellyTransaction, isAfterCreation } = useParams<ChangellyOrderFragmentParams>()
     const { amountExpectedFrom,
         fromCurrency,
@@ -157,10 +157,6 @@ export const ChangellyOrderFragment = fragment(() => {
             toCurrency
         });
     }, [changellyTransaction.id, toCurrency]);
-
-    const onContactSupport = useCallback(() => {
-        Intercom.presentSpace(Space.home)
-    }, []);
 
     const onSendCallback = useCallback((ok: boolean) => {
         if (!ok) return
@@ -335,7 +331,7 @@ export const ChangellyOrderFragment = fragment(() => {
                         )}
                         {!canSend && <RoundButton
                             title={t('order.contactSupport')}
-                            onPress={onContactSupport}
+                            onPress={onSupport}
                             display="secondary"
                             style={{ marginTop: 8 }}
                         />}

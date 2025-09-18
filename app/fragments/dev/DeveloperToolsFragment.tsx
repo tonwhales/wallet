@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -12,7 +12,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useEthena, useSelectedAccount, useSetAppState, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
@@ -23,7 +23,7 @@ import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { queryClient } from '../../engine/clients';
+import { queryClient, whalesConnectEndpoint } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
@@ -36,8 +36,122 @@ import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { createLogger } from '../../utils/log';
 import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
+import axios from 'axios';
+import { useWalletRequestsWatcher } from '../../engine/useWalletRequestsWatcher';
+import { Base64 } from '@tonconnect/protocol';
+import nacl from 'tweetnacl';
+import { sha256_sync } from '@ton/crypto';
+import { WalletRequest } from '../../engine/WalletRequestsWatcher';
 
 const logger = createLogger('tonconnect');
+
+function createRequestSignatureMessage(
+    requestor: string,
+    confirmant: string,
+    message: string | undefined,
+    expirationSeconds: number = 60 * 5,
+    timestamp: number = Math.floor(Date.now() / 1000),
+    metadata?: Record<string, any>
+): string {
+    const parts = [
+        'WALLET_REQUEST_CREATE',
+        requestor,
+        confirmant,
+        message || '',
+        expirationSeconds.toString(),
+        timestamp.toString(),
+        metadata ? JSON.stringify(metadata) : ''
+    ];
+
+    return parts.join('|');
+}
+
+function createResponseSignatureMessage(
+    requestId: string,
+    walletAddress: string,
+    status: string,
+    response: string | undefined,
+    timestamp: number = Math.floor(Date.now() / 1000)
+): string {
+    const parts = [
+        'WALLET_REQUEST_RESPOND',
+        requestId,
+        walletAddress,
+        status,
+        response || '',
+        timestamp.toString()
+    ];
+
+    return parts.join('|');
+}
+
+function signMessage(message: string, authWalletKeys: WalletKeys) {
+    const messageBuffer = Buffer.from(message, 'utf-8');
+    const messageHash = sha256_sync(messageBuffer);
+
+    console.log('Signing message:', message);
+    console.log('Message hash:', messageHash);
+
+    const signed = nacl.sign.detached(
+        new Uint8Array(messageHash),
+        new Uint8Array(authWalletKeys.keyPair.secretKey),
+    );
+
+    return Base64.encode(signed);
+}
+
+async function sendConfirmationRequest(authWalletKeys: WalletKeys, requester: string, confirmant: string, message?: string, expirationSeconds?: number, isTestnet?: boolean) {
+    const signatureMessage = createRequestSignatureMessage(requester, confirmant, message, expirationSeconds);
+    const url = `${whalesConnectEndpoint}/wallet-request/create`;
+
+    const signed = signMessage(signatureMessage, authWalletKeys);
+
+    const body = {
+        requestor: requester,
+        confirmant: confirmant,
+        signature: signed,
+        timestamp: Math.floor(Date.now() / 1000),
+        network: isTestnet ? 'testnet' : 'mainnet'
+    }
+
+    const res = await axios.post(url, body);
+
+    console.log('sendConfirmationRequest', res.data);
+    console.log('sendConfirmationRequest', res.status);
+
+    return res.data;
+}
+
+async function sendConfirmationResponse(authWalletKeys: WalletKeys, requestId: string, walletAddress: string, status: 'confirmed' | 'declined', response?: string, isTestnet?: boolean) {
+    const signature = createResponseSignatureMessage(requestId, walletAddress, status, response);
+    const url = `${whalesConnectEndpoint}/wallet-request/respond`;
+
+    const signed = signMessage(signature, authWalletKeys);
+
+    const body = {
+        requestId: requestId,
+        walletAddress: walletAddress,
+        status: status,
+        signature: signed,
+        timestamp: Math.floor(Date.now() / 1000),
+        network: isTestnet ? 'testnet' : 'mainnet'
+    }
+
+    const res = await axios.post(url, body);
+
+    console.log('sendConfirmationResponse', res.data);
+    console.log('sendConfirmationResponse', res.status);
+
+    return res.data;
+}
+
+async function fetchWalletRequests(address: string, isTestnet?: boolean) {
+    const url = `${whalesConnectEndpoint}/wallet-request/${address}/${isTestnet ? 'testnet' : 'mainnet'}/list`;
+    const res = await axios.get(url);
+    console.log('getWalletRequests', res.data);
+    console.log('getWalletRequests', res.status);
+    return res.data;
+}
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -61,6 +175,24 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const reboot = useReboot();
     const clearHolders = useClearHolders(isTestnet);
+
+    const { requests, addRequest, updateRequest, removeRequest, clearRequests } = useWalletRequestsWatcher();
+    const [walletRequests, setWalletRequests] = useState<WalletRequest[]>([]);
+    const appState = getAppState();
+    const addresses = appState.addresses;
+    const currentAddress = addresses[appState.selected];
+    const requester = addresses[0];
+    const confirmant = addresses[1];
+
+    const isConfirmant = confirmant.addressString === currentAddress.addressString;
+    const isRequester = requester.addressString === currentAddress.addressString;
+
+    const getWalletRequests = useCallback(async () => {
+        const res = await fetchWalletRequests(currentAddress.address.toString({ bounceable: false, testOnly: isTestnet }), isTestnet);
+        if (res.requests && res.requests.length > 0) {
+            setWalletRequests(res.requests);
+        }
+    }, [currentAddress.address, isTestnet]);
 
     const resetCache = useCallback(async () => {
         queryClient.clear();
@@ -300,6 +432,61 @@ export const DeveloperToolsFragment = fragment(() => {
                     }}>
                         <Item title={"Store code"} hint={countryCodes.storeFrontCode ?? 'Not availible'} />
                         <Item title={"Country code"} hint={countryCodes.countryCode} />
+                    </View>
+                    <View style={{
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 16
+                    }}>
+                        <Text style={{ color: theme.textPrimary }}>
+                            {isRequester ? '[Requester]' : '[Confirmant]'}
+                        </Text>
+                        {isRequester && <ItemButton
+                            title={"Send request"}
+                            onPress={async () => {
+                                try {
+                                    const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+                                    console.log('pub key:', walletKeys.keyPair.publicKey.toString('hex'));
+                                    const normalizedRequester = requester.address.toString({ bounceable: false, testOnly: isTestnet });
+                                    const normalizedConfirmant = confirmant.address.toString({ bounceable: false, testOnly: isTestnet });
+                                    const res = await sendConfirmationRequest(walletKeys, normalizedRequester, normalizedConfirmant, undefined, undefined, isTestnet);
+                                    console.log(res.status);
+                                    console.log('request sent');
+                                } catch (e) {
+                                    console.log(`[Send request] ${(e as Error).message}`);
+                                }
+                            }}
+                        />}
+                        {isConfirmant && <ItemButton
+                            title={"Send response"}
+                            onPress={async () => {
+                                try {
+                                    const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
+                                    const normalizedConfirmant = confirmant.address.toString({ bounceable: false, testOnly: isTestnet });
+                                    const res = await sendConfirmationResponse(walletKeys, requests[0].requestId, normalizedConfirmant, 'confirmed', undefined, isTestnet);
+                                    console.log(res.status);
+                                    console.log('response sent');
+                                } catch (e) {
+                                    console.log(`[Send response] ${JSON.stringify(e)}`);
+                                }
+                            }}
+                        />}
+                        <Text style={{ color: theme.textPrimary }}>
+                            {'Requests watcher:'}
+                        </Text>
+                        <Text style={{ color: theme.textPrimary }}>
+                            {requests.map(request => `${request.requestId}: ${request.status}`).join('\n')}
+                        </Text>
+                        <ItemButton
+                            title={'Fetch requests'}
+                            onPress={getWalletRequests}
+                        />
+                        <Text style={{ color: theme.textPrimary }}>
+                            {walletRequests.map(request => `${request.requestId}: ${request.status}`).join('\n')}
+                        </Text>
                     </View>
                     <WebView webviewDebuggingEnabled={isTestnet} ref={webViewRef} source={{ uri: holdersUrl(isTestnet) }} style={{ width: 0, height: 0 }} />
                 </ScrollView>

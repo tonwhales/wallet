@@ -11,7 +11,6 @@ import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
 import { setStatusBarStyle } from "expo-status-bar";
 import { ThemeType } from "../../engine/state/theme";
-import { TransactionsHeader } from "./views/TransactionsHeader";
 import { useCurrentAddress } from "../../engine/hooks/appstate/useCurrentAddress";
 
 function TransactionsComponent(props: { account: Address, solanaAddress?: string, isLedger?: boolean, theme: ThemeType }) {
@@ -23,7 +22,6 @@ function TransactionsComponent(props: { account: Address, solanaAddress?: string
             <WalletTransactions
                 address={address}
                 ledger={props.isLedger}
-                header={<TransactionsHeader address={address} />}
                 isWalletTab={true}
             />
         </View>

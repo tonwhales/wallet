@@ -13,6 +13,7 @@ import { GaslessConfig } from "../../api/gasless/fetchGaslessConfig";
 type PreparedMessageType = 'relayed' | 'message';
 
 export type PreparedMessage = {
+    index: number,
     type: PreparedMessageType,
     address: Address,
     addressString: string,
@@ -36,7 +37,7 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
         isTestnet: testOnly,
     })) : []).filter(h => !!h);
 
-    return messages.map((message) => {
+    return messages.map((message, index) => {
         if (message.info.type !== 'internal') {
             return null;
         }
@@ -124,6 +125,7 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
             }
 
             return {
+                index,
                 type,
                 address: mAddress,
                 addressString,

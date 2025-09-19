@@ -11,7 +11,6 @@ import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
 import { SettingsFragment } from '../SettingsFragment';
 import { HintsPrefetcher } from "../../components/HintsPrefetcher";
-import { PendingTxsWatcher } from "../../components/PendingTxsWatcher";
 import { Address } from "@ton/core";
 import { useAccountTransactionsV2 } from "../../engine/hooks/transactions/useAccountTransactionsV2";
 import { TransactionType } from "../../engine/types";
@@ -111,7 +110,6 @@ export const LedgerAppComponent = () => {
                 />
             </Tab.Navigator>
             <HintsPrefetcher address={addressString} />
-            <PendingTxsWatcher address={addressString} />
         </View>
     );
 }

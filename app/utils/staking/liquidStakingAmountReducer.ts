@@ -26,7 +26,7 @@ export function liquidStakingAmountReducer(withdrawRate: bigint, depositRate: bi
             }
 
             const wsTon = formatInputAmount(action.amount, 9, { skipFormattingDecimals: true }, state.wsTon);
-            const computed = parseFloat(amount) * (1 / parseFloat(rate));
+            const computed = parseFloat(amount) * (parseFloat(rate));
             const ton = fromNano(toNano(computed.toFixed(9)));
 
             if (wsTon === state.wsTon) {

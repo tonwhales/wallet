@@ -121,4 +121,14 @@ export const Queries = {
         Transactions: () => (['changelly', tonAddress, 'transactions']),
         Currencies: (currencyTo: Currency) => (['changelly', tonAddress, currencyTo, 'currencies']),
     }),
+    WalletRequests: (address: string, isTestnet: boolean, type?: 'pending-incoming' | 'pending-outgoing' | 'All') => {
+        switch (type) {
+            case 'pending-incoming':
+                return ['wallet-requests', address, isTestnet, 'pending-incoming'];
+            case 'pending-outgoing':
+                return ['wallet-requests', address, isTestnet, 'pending-outgoing'];
+            default:
+                return ['wallet-requests', address, isTestnet, 'all'];
+        }
+    },
 }

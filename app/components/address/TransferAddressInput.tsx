@@ -21,6 +21,7 @@ import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
 import { hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { AddressConfirmationRequest } from "../../fragments/secure/simpleTransfer/components/AddressConfirmationRequest";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -271,6 +272,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         </PerfText>
                     </Animated.View>
                 )}
+                <AddressConfirmationRequest address={validAddress ? state.target : undefined} />
                 <HoldersAccountsSearch
                     theme={theme}
                     onSelect={onAddressSearchItemSelected}

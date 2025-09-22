@@ -143,18 +143,6 @@ export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletR
 
                 watcher.on('error', (error) => {
                     console.warn('Wallet requests watcher error:', error.message);
-
-                    // Handle certificate errors specifically
-                    if (error.type === 'certificate_error') {
-                        console.error('Certificate validation failed. This is likely due to:');
-                        console.error('1. Development server using HTTP instead of HTTPS');
-                        console.error('2. Self-signed certificates');
-                        console.error('3. Invalid certificate chain');
-                        console.error('Current endpoint:', whalesConnectEndpoint);
-
-                        // Set connection status to disconnected for certificate errors
-                        setConnectionStatus('disconnected');
-                    }
                 });
 
                 watcher.on('disconnected', () => {

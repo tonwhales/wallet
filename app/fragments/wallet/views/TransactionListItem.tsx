@@ -3,7 +3,6 @@ import { TransactionView } from "./TransactionView";
 import { SectionListRenderItemInfo } from "react-native";
 import { Address } from "@ton/core";
 import { ThemeType } from "../../../engine/state/theme";
-import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { AppState } from "../../../storage/appState";
 import { WalletSettings } from "../../../engine/state/walletSettings";
@@ -17,7 +16,6 @@ export type TransactionListItemProps = {
     onPress: (tx: TonTransaction) => void,
     onLongPress: (tx: TonTransaction, formattedAddressString?: string) => void,
     ledger?: boolean,
-    addToDenyList: (address: string | Address, reason: string) => void,
     spamMinAmount: bigint,
     dontShowComments: boolean,
     denyList: { [key: string]: { reason: string | null } },
@@ -61,7 +59,6 @@ export const TransactionListItem = memo(({ item, section, index, theme, ...props
         && prev.theme === next.theme
         && prev.section === next.section
         && prev.index === next.index
-        && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
         && prev.spamWallets === next.spamWallets

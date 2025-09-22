@@ -1,5 +1,6 @@
 import { fragment } from "../../fragment";
-import { useNetwork, usePrice, usePrimaryCurrency, useSolanaAccount, useSolanaTransactions, useTheme } from "../../engine/hooks";
+import { usePrice, useSolanaAccount, useTheme } from "../../engine/hooks";
+import { useUnifiedSolanaTransactions } from "../../engine/hooks/transactions/useUnifiedSolanaTransactions";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, StyleSheet, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -16,7 +17,6 @@ import { SolanaTransactions } from "./views/solana/SolanaTransactions";
 import { SolanaWalletActions } from "./views/solana/SolanaWalletActions";
 import { isSolanaAddress } from "../../utils/solana/address";
 import { SolanaWalletAddress } from "../../components/address/SolanaWalletAddress";
-import { PendingSolanaTransactions } from "./views/PendingSolanaTransactions";
 import { Image } from "expo-image";
 
 import SolanaIcon from '@assets/ic-solana.svg';
@@ -148,35 +148,35 @@ const SolanaTransactionsHeader = memo(({ owner }: SolanaWalletFragmentProps) => 
                     navigation={navigation}
                     address={owner}
                 />
-                <PendingSolanaTransactions
-                    address={owner}
-                    viewType="history"
-                />
             </View>
         </View>
     );
 });
 
 const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
-    const bottomBarHeight = useBottomTabBarHeight();
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const safeArea = useSafeAreaInsets();
-    const txs = useSolanaTransactions(owner);
+    const {
+        transactions,
+        pendingCount,
+        loading,
+        refreshing,
+        hasNext,
+        next,
+        refresh
+    } = useUnifiedSolanaTransactions(owner);
     const account = useSolanaAccount(owner);
 
-    const transactions = txs.data ?? [];
-
     const onReachedEnd = useCallback(() => {
-        if (txs.hasNext) {
-            txs.next();
+        if (hasNext) {
+            next();
         }
-    }, [txs.next, txs.hasNext]);
+    }, [next, hasNext]);
 
     const onRefresh = useCallback(() => {
-        txs.refresh();
+        refresh();
         account.refetch();
-    }, [txs.refresh, account.refetch]);
+    }, [refresh, account.refetch]);
 
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
@@ -191,14 +191,13 @@ const SolanaWalletComponent = memo(({ owner }: SolanaWalletFragmentProps) => {
             />
             <SolanaTransactions
                 theme={theme}
-                navigation={navigation}
                 txs={transactions}
-                hasNext={txs.hasNext}
-                safeArea={safeArea}
+                hasNext={hasNext}
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
-                loading={txs.loading}
-                refreshing={txs.refreshing}
+                loading={loading}
+                refreshing={refreshing}
+                pendingCount={pendingCount}
                 owner={owner}
                 header={<SolanaTransactionsHeader owner={owner} />}
             />

@@ -21,6 +21,8 @@ import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { JettonTransfer } from "../../../engine/hooks/transactions/useJettonTransactions";
 import { JettonTransactionView } from "./JettonTransactionView";
+import { UnifiedJettonTransaction } from "../../../engine/types/unifiedTransaction";
+import { UnifiedJettonTransactionView } from "./UnifiedJettonTransactionView";
 import { parseForwardPayloadComment } from "../../../utils/spam/isTxSPAM";
 import { t } from "../../../i18n/t";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
@@ -82,7 +84,7 @@ const JettonTransactionListItem = memo(({ item, section, index, theme, ...props 
 JettonTransactionListItem.displayName = 'JettonTransactionListItem';
 
 export const JettonWalletTransactions = memo((props: {
-    txs: JettonTransfer[],
+    txs: UnifiedJettonTransaction[],
     hasNext: boolean,
     address: Address,
     navigation: TypedNavigation,
@@ -98,9 +100,12 @@ export const JettonWalletTransactions = memo((props: {
     },
     ledger?: boolean,
     theme: ThemeType,
-    jetton: Jetton
+    jetton: Jetton,
+    pendingCount?: number,
+    markAsSent?: (id: string) => void,
+    markAsTimedOut?: (id: string) => void
 }) => {
-    const { theme, navigation, address, ledger, jetton, txs, header, loading, hasNext, sectionedListProps, onLoadMore, onRefresh } = props;
+    const { theme, navigation, address, ledger, jetton, txs, header, loading, hasNext, sectionedListProps, onLoadMore, onRefresh, markAsSent, markAsTimedOut } = props;
     const bottomBarHeight = useBottomTabBarHeight();
     const { isTestnet } = useNetwork();
     const knownWallets = useKnownWallets(isTestnet);
@@ -116,25 +121,29 @@ export const JettonWalletTransactions = memo((props: {
     const [walletsSettings] = useWalletsSettings();
     const gaslessConfig = useGaslessConfig().data;
 
-    const ref = useRef<SectionList<JettonTransfer, { title: string }>>(null);
+    const ref = useRef<SectionList<UnifiedJettonTransaction, { title: string }>>(null);
 
     const { showActionSheetWithOptions } = useActionSheet();
 
     const { transactionsSectioned } = useMemo(() => {
-        const sectioned = new Map<string, { title: string, data: JettonTransfer[] }>();
+        const sectioned = new Map<string, { title: string, data: UnifiedJettonTransaction[] }>();
         for (let i = 0; i < props.txs.length; i++) {
-            const t = txs[i];
+            const unifiedTx = txs[i];
 
-            if (gaslessConfig?.relay_address && Address.parse(gaslessConfig.relay_address).equals(Address.parse(t.destination))) {
-                continue;
+            // Skip gasless relay transactions for blockchain transactions
+            if (unifiedTx.type === 'blockchain') {
+                const t = unifiedTx.data as JettonTransfer;
+                if (gaslessConfig?.relay_address && Address.parse(gaslessConfig.relay_address).equals(Address.parse(t.destination))) {
+                    continue;
+                }
             }
 
-            const time = getDateKey(t.transaction_now);
+            const time = getDateKey(unifiedTx.time);
             const section = sectioned.get(time);
             if (section) {
-                section.data.push(t);
+                section.data.push(unifiedTx);
             } else {
-                sectioned.set(time, { title: formatDate(t.transaction_now), data: [t] });
+                sectioned.set(time, { title: formatDate(unifiedTx.time), data: [unifiedTx] });
             }
         }
         return { transactionsSectioned: Array.from(sectioned.values()) };
@@ -158,7 +167,7 @@ export const JettonWalletTransactions = memo((props: {
         });
     }, [ledger, address, jetton, isTestnet]);
 
-    const renderSectionHeader = (section: { section: SectionListData<JettonTransfer, { title: string }> }) => (
+    const renderSectionHeader = (section: { section: SectionListData<UnifiedJettonTransaction, { title: string }> }) => (
         <TransactionsSectionHeader theme={theme} title={section.section.title} />
     );
 
@@ -321,33 +330,35 @@ export const JettonWalletTransactions = memo((props: {
                 />
             }
             renderItem={(item) => (
-                <JettonTransactionListItem
+                <UnifiedJettonTransactionView
                     {...item}
                     address={address}
                     theme={theme}
+                    navigation={navigation}
                     onPress={navigateToPreview}
                     onLongPress={onLongPress}
                     ledger={ledger}
-                    navigation={navigation}
-                    spamMinAmount={spamMinAmount}
-                    dontShowComments={dontShowComments}
-                    denyList={addressBook.denyList}
                     contacts={addressBook.contacts}
                     isTestnet={isTestnet}
-                    spamWallets={spamWallets}
                     appState={appState}
                     bounceableFormat={bounceableFormat}
                     walletsSettings={walletsSettings}
                     knownWallets={knownWallets}
-                    addToDenyList={addToDenyList}
+                    dontShowComments={dontShowComments}
+                    denyList={addressBook.denyList}
+                    spamWallets={spamWallets}
+                    spamMinAmount={spamMinAmount}
                     jetton={props.jetton}
+                    addToDenyList={addToDenyList}
+                    markAsSent={markAsSent}
+                    markAsTimedOut={markAsTimedOut}
                 />
             )}
             onRefresh={onRefresh}
             refreshing={loading}
             onEndReached={onLoadMore}
             onEndReachedThreshold={1}
-            keyExtractor={(item) => 'tx-' + item.trace_id + item.transaction_lt}
+            keyExtractor={(item) => 'jetton-tx-' + item.id}
         />
     );
 });

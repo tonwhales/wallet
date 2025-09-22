@@ -5,6 +5,7 @@ import { WalletSettings } from "../../../engine/state/walletSettings";
 import { Avatar } from "../../../components/avatar/Avatar";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
+import { TRANSACTION_AVATAR_SIZE } from "../../../utils/constants";
 
 export const TxAvatar = memo((
     {
@@ -41,7 +42,6 @@ export const TxAvatar = memo((
     if (status === "pending") {
         return (
             <PendingTransactionAvatar
-                kind={kind}
                 address={parsedAddressFriendly}
                 avatarId={parsedAddressFriendly}
                 knownWallets={knownWallets}
@@ -55,7 +55,7 @@ export const TxAvatar = memo((
         return (
             <ForcedAvatar
                 type={forceAvatar}
-                size={48}
+                size={TRANSACTION_AVATAR_SIZE}
                 icProps={{
                     isOwn,
                     backgroundColor: theme.backgroundPrimary,
@@ -68,7 +68,7 @@ export const TxAvatar = memo((
 
     return (
         <Avatar
-            size={48}
+            size={TRANSACTION_AVATAR_SIZE}
             address={parsedAddressFriendly}
             id={parsedAddressFriendly}
             borderWidth={0}

@@ -29,10 +29,11 @@ import { TransferInstructionView } from "../transfer/components/TransferInstruct
 export type PendingSolanaTransactionPreviewParams = {
     owner: string;
     transaction: PendingSolanaTransaction;
+    statusText?: string;
 }
 
-const SolanaTxPreview = ({ transfer }: { transfer: SolanaTransactionPreview & { id: string } }) => {
-    const { op, amount, kind, from, to, dateStr, symbol, address, id } = transfer;
+const SolanaTxPreview = ({ transfer, statusText }: { transfer: SolanaTransactionPreview & { id: string }, statusText?: string }) => {
+    const { amount, kind, from, to, dateStr, symbol, address, id } = transfer;
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -108,7 +109,7 @@ const SolanaTxPreview = ({ transfer }: { transfer: SolanaTransactionPreview & { 
                         numberOfLines={1}
                         ellipsizeMode="tail"
                     >
-                        {op}
+                        {statusText}
                     </PerfText>
                     <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
                         <Text
@@ -231,12 +232,12 @@ const SolanaTxPreviewInstructions = ({ tx }: { tx: PendingSolanaTransactionInstr
 }
 
 const PendingSolanaTransactionPreview = fragment(() => {
-    const { owner, transaction } = useParams<PendingSolanaTransactionPreviewParams>();
+    const { owner, transaction, statusText } = useParams<PendingSolanaTransactionPreviewParams>();
     const transferInfo = usePendingSolanaTransferInfo({ owner, transaction });
 
     return !transferInfo
         ? <SolanaTxPreviewInstructions tx={{ ...transaction as PendingSolanaTransactionInstructions, owner }} />
-        : <SolanaTxPreview transfer={{ ...transferInfo, id: transaction.id }} />
+        : <SolanaTxPreview transfer={{ ...transferInfo, id: transaction.id }} statusText={statusText}/>
 });
 
 PendingSolanaTransactionPreview.displayName = 'PendingSolanaTransactionPreview';

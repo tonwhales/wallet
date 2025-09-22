@@ -17,7 +17,8 @@ export const AddressInputAvatar = memo(({
     isLedger,
     avatarColor,
     knownWallets,
-    forceAvatar
+    forceAvatar,
+    disableFade
 }: {
     size: number,
     theme: ThemeType,
@@ -29,6 +30,7 @@ export const AddressInputAvatar = memo(({
     avatarColor: string,
     knownWallets?: { [key: string]: KnownWallet },
     forceAvatar?: ForcedAvatarType
+    disableFade?: boolean
 }) => {
 
     let avatar = null;
@@ -43,7 +45,7 @@ export const AddressInputAvatar = memo(({
         );
     } else if (friendly) {
         avatar = (
-            <Animated.View entering={FadeIn} exiting={FadeOut}>
+            <Animated.View entering={disableFade ? undefined : FadeIn} exiting={disableFade ? undefined : FadeOut}>
                 <Avatar
                     size={size}
                     id={friendly}

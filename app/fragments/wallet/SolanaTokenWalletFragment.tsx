@@ -1,5 +1,6 @@
 import { fragment } from "../../fragment";
-import { usePrimaryCurrency, useSolanaToken, useSolanaTokenTransactions, useTheme } from "../../engine/hooks";
+import { usePrimaryCurrency, useSolanaToken, useTheme } from "../../engine/hooks";
+import { useUnifiedSolanaTransactions } from "../../engine/hooks/transactions/useUnifiedSolanaTransactions";
 import { setStatusBarStyle } from "expo-status-bar";
 import { Platform, View, Text } from "react-native";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -8,7 +9,6 @@ import { useParams } from "../../utils/useParams";
 import { Typography } from "../../components/styles";
 import { memo, Suspense, useCallback } from "react";
 import { ValueComponent } from "../../components/ValueComponent";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { useFocusEffect } from "@react-navigation/native";
@@ -20,7 +20,6 @@ import { solanaWalletFragmentStyles } from "./SolanaWalletFragment";
 import { toNano } from "@ton/core";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WImage } from "../../components/WImage";
-import { PendingSolanaTransactions } from "./views/PendingSolanaTransactions";
 import { ReceiveableSolanaAsset } from "./ReceiveFragment";
 import { Image } from "expo-image";
 import { PendingSolanaTransaction } from "../../engine/state/pending";
@@ -68,13 +67,6 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
     const decimals = token.decimals ?? 6;
     const price = toNano(token.uiAmount ?? 0);
     const logoURI = token.logoURI ?? '';
-
-    const solanaFilter = useCallback((tx: PendingSolanaTransaction) => {
-        if (tx.type === 'tx') {
-            return tx.tx?.token?.mint === mint;
-        }
-        return false;
-    }, [mint]);
 
     return (
         <View style={styles.content}>
@@ -152,12 +144,6 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
                         }
                     }}
                 />
-                <PendingSolanaTransactions
-                    address={owner}
-                    viewType="history"
-                    filter={solanaFilter}
-                    mint={mint}
-                />
                 <View style={{ marginTop: 16 }} />
             </View>
         </View>
@@ -165,11 +151,17 @@ const SolanaTokenHeader = memo(({ mint, owner }: { mint: string, owner: string }
 });
 
 const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragmentProps) => {
-    const bottomBarHeight = useBottomTabBarHeight();
     const navigation = useTypedNavigation();
     const theme = useTheme();
-    const safeArea = useSafeAreaInsets();
-    const txs = useSolanaTokenTransactions(owner, mint);
+    const {
+        transactions,
+        pendingCount,
+        loading,
+        refreshing,
+        hasNext,
+        next,
+        refresh
+    } = useUnifiedSolanaTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
     const asset: ReceiveableSolanaAsset = {
         mint: mint,
@@ -179,18 +171,16 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         }
     }
 
-    const transactions = txs.data ?? [];
-
     const onReachedEnd = useCallback(() => {
-        if (txs.hasNext) {
-            txs.next();
+        if (hasNext) {
+            next();
         }
-    }, [txs.next, txs.hasNext]);
+    }, [next, hasNext]);
 
     const onRefresh = useCallback(() => {
-        txs.refresh();
+        refresh();
         token?.refresh();
-    }, [txs.refresh, token?.refresh]);
+    }, [refresh, token?.refresh]);
 
     const [currency] = usePrimaryCurrency();
 
@@ -239,17 +229,16 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
             />
             <SolanaTransactions
                 theme={theme}
-                navigation={navigation}
                 txs={transactions}
-                hasNext={txs.hasNext}
-                safeArea={safeArea}
+                hasNext={hasNext}
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
-                loading={txs.loading}
+                loading={loading}
                 owner={owner}
                 asset={asset}
                 header={<SolanaTokenHeader mint={mint} owner={owner} />}
-                refreshing={txs.refreshing}
+                refreshing={refreshing}
+                pendingCount={pendingCount}
             />
         </View>
     );

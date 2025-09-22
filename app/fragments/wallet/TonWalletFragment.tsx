@@ -8,7 +8,6 @@ import { useParams } from "../../utils/useParams";
 import { Address, toNano } from "@ton/core";
 import { Typography } from "../../components/styles";
 import { memo, Suspense } from "react";
-import { PendingTransactions } from "./views/PendingTransactions";
 import { useFocusEffect } from "@react-navigation/native";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletTransactions } from "./views/WalletTransactions";
@@ -123,11 +122,6 @@ const TonWalletComponent = memo(({ owner }: TonWalletFragmentParams) => {
                                 isTestnet={isTestnet}
                                 isLedger={isLedger}
                                 actionAsset={{ type: 'ton' }}
-                            />
-                            <PendingTransactions
-                                isLedger={isLedger}
-                                viewType={'history'}
-                                address={ownerAddress.toString({ testOnly: isTestnet })}
                             />
                         </View>
                     </View>

@@ -746,11 +746,11 @@ export const LiquidStakingTransferFragment = fragment(() => {
                             {t('products.staking.pools.rateTitle')}
                         </Text>
                         <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                            {'1 TON = '}
+                            {params.action === 'withdraw' ? '1 wsTON = ' : '1 TON = '}
                             <ValueComponent
                                 value={(params.action === 'withdraw' ? liquidStaking?.rateWithdraw : liquidStaking?.rateDeposit) ?? 0n}
                                 precision={9}
-                                suffix={' wsTON'}
+                                suffix={params.action === 'withdraw' ? ' TON' : ' wsTON'}
                             />
                         </Text>
                         <ItemDivider marginHorizontal={0} marginVertical={20} />

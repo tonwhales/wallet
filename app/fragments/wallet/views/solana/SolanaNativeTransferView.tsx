@@ -10,6 +10,7 @@ import { formatTime } from "../../../../utils/dates";
 import { ValueComponent } from "../../../../components/ValueComponent";
 import { AddressInputAvatar } from "../../../../components/address/AddressInputAvatar";
 import { Typography } from "../../../../components/styles";
+import { TRANSACTION_AVATAR_SIZE } from "../../../../utils/constants";
 
 export const SolanaNativeTransferView = memo(({ transfer, owner, item }: { transfer: SolanaNativeTransfer, owner: string, item: SolanaTransaction }) => {
     const navigation = useTypedNavigation();
@@ -35,13 +36,13 @@ export const SolanaNativeTransferView = memo(({ transfer, owner, item }: { trans
             style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, flexDirection: 'row', alignItems: 'center', gap: 8 })}
         >
             <View style={{
-                width: 48, height: 48, borderRadius: 24,
+                width: TRANSACTION_AVATAR_SIZE, height: TRANSACTION_AVATAR_SIZE, borderRadius: 24,
                 backgroundColor: theme.surfaceOnBg,
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>
                 <AddressInputAvatar
-                    size={46}
+                    size={TRANSACTION_AVATAR_SIZE}
                     theme={theme}
                     isOwn={false}
                     markContact={false}
@@ -49,6 +50,7 @@ export const SolanaNativeTransferView = memo(({ transfer, owner, item }: { trans
                     avatarColor={avatarColor}
                     knownWallets={{}}
                     hash={null}
+                    disableFade
                 />
             </View>
             <View style={{ flex: 1, marginRight: 4 }}>

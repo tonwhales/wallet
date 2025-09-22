@@ -14,14 +14,13 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { WalletActions } from "./views/WalletActions";
 import { JettonWalletTransactions } from "./views/JettonWalletTransactions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useJettonTransactions } from "../../engine/hooks/transactions/useJettonTransactions";
+import { useUnifiedJettonTransactions } from "../../engine/hooks/transactions/useUnifiedJettonTransactions";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { mapJettonToMasterState } from "../../utils/jettons/mapJettonToMasterState";
 import { CurrencySymbols } from "../../utils/formatCurrency";
 import { calculateSwapAmount } from "../../utils/jettons/calculateSwapAmount";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { PendingTransaction } from "../../engine/state/pending";
-import { JettonPendingTransactions } from "./views/JettonPendingTransactions";
 import { Image } from "expo-image";
 
 export type JettonWalletFragmentProps = {
@@ -162,13 +161,6 @@ const JettonWalletHeader = memo(({ owner, master, wallet, isLedger, onRefresh }:
                     isTestnet={isTestnet}
                     isLedger={isLedger}
                 />
-                <JettonPendingTransactions
-                    owner={ownerAddress.toString({ testOnly: isTestnet })}
-                    master={master}
-                    onChange={onRefresh}
-                    filter={pendingFilter}
-                    isLedger={isLedger}
-                />
             </View>
         </View>
     );
@@ -182,18 +174,25 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
     const ownerAddress = Address.parse(owner);
 
     const jetton = useJetton({ owner, master, wallet });
-    const txs = useJettonTransactions(owner, master, { refetchOnMount: true });
-    const transactions = txs.data ?? [];
+    const {
+        transactions,
+        pendingCount,
+        hasNext,
+        next,
+        refresh,
+        markAsSent,
+        markAsTimedOut
+    } = useUnifiedJettonTransactions(owner, master);
 
     const onReachedEnd = useCallback(() => {
-        if (txs.hasNext) {
-            txs.next();
+        if (hasNext) {
+            next();
         }
-    }, [txs.next, txs.hasNext]);
+    }, [next, hasNext]);
 
     const onRefresh = useCallback(() => {
-        txs.refresh();
-    }, [txs.refresh]);
+        refresh();
+    }, [refresh]);
 
     const [currency] = usePrimaryCurrency();
     const rate = jetton?.prices?.[currency];
@@ -248,18 +247,21 @@ const JettonWalletComponent = memo(({ owner, master, wallet, isLedger }: JettonW
                 theme={theme}
                 navigation={navigation}
                 txs={transactions}
-                hasNext={txs.hasNext}
+                hasNext={hasNext}
                 address={ownerAddress}
                 safeArea={safeArea}
                 onLoadMore={onReachedEnd}
                 onRefresh={onRefresh}
                 loading={false}
+                pendingCount={pendingCount}
                 sectionedListProps={{
                     contentContainerStyle: {
                         paddingBottom: 32
                     }
                 }}
                 ledger={isLedger}
+                markAsSent={markAsSent}
+                markAsTimedOut={markAsTimedOut}
                 header={
                     <JettonWalletHeader
                         owner={owner}

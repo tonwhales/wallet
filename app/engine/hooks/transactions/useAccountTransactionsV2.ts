@@ -25,7 +25,7 @@ interface UseAccountTransactionsResult {
     next: () => void;
     hasNext: boolean;
     loading: boolean;
-    refresh: () => void;
+    refresh: (silent?: boolean) => void;
     refreshing: boolean;
 }
 
@@ -289,14 +289,20 @@ export function useAccountTransactionsV2(
         }
     }, [query.isFetchingNextPage, query.hasNextPage, query.fetchNextPage]);
 
-    const refresh = useCallback(async () => {
-        setIsRefreshing(true);
+    const refresh = useCallback(async (silent?: boolean) => {
+        if (!silent) {
+            setIsRefreshing(true);
+        }
+
         try {
             await query.refetch({ refetchPage: (_, index) => index === 0 });
         } catch {
             // Ignore errors, isRefreshing will be reset by useEffect
         }
-        setIsRefreshing(false);
+
+        if (!silent) {
+            setIsRefreshing(false);
+        }
     }, [query.refetch]);
 
     return {

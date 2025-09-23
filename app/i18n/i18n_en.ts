@@ -887,10 +887,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "backupTitle": "Your Backup Key",
         "backupSubtitle": "Write down these 24 words in exactly the same order and save them in a secret place",
         "okSaved": "OK, I saved it",
-        "copy": "Copy to clipboard"
-    ,
-        "avatarTitle": "Your addresses",
-        "regenerate": "Regenerate"},
+        "copy": "Copy to clipboard",
+        "regenerate": "Regenerate"
+    },
     "import": {
         "title": "Enter backup key",
         "subtitle": "Please restore access to your wallet by entering the 24 secret words you wrote down when creating the wallet",

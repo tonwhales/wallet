@@ -26,8 +26,9 @@ import { Avatar, avatarColors, avatarImages } from '../../components/avatar/Avat
 import { avatarHash } from '../../utils/avatarHash';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { WalletVersions } from '../../engine/types';
-import { Typography } from '../../components/styles';
 import { Address } from '@ton/core';
+
+const AVATAR_SIZE = 76;
 
 export const WalletCreateFragment = systemFragment(() => {
     const { isTestnet } = useNetwork();
@@ -38,34 +39,21 @@ export const WalletCreateFragment = systemFragment(() => {
     const [state, setState] = useState<{ mnemonics: string, saved?: boolean } | null>(mnemonics ? { mnemonics } : null);
     const toaster = useToaster();
     const [bounceableFormat] = useBounceableWalletFormat();
-    const [v4Address, setV4Address] = useState<string>('');
     const [v5Address, setV5Address] = useState<string>('');
-    const avatarV4 = avatarHash(v4Address, avatarImages.length);
-    const avatarColorV4 = avatarHash(v4Address, avatarColors.length);
     const avatarV5 = avatarHash(v5Address, avatarImages.length);
     const avatarColorV5 = avatarHash(v5Address, avatarColors.length);
-    const v4AddressString = v4Address ? Address.parse(v4Address).toString({ testOnly: isTestnet, bounceable: bounceableFormat }) : '';
     const v5AddressString = v5Address ? Address.parse(v5Address).toString({ testOnly: isTestnet, bounceable: bounceableFormat }) : '';
 
-    // getting address from mnemonics
-    useEffect(() => {
-        const getKey = async () => {
-            const key = await mnemonicToWalletKey((state?.mnemonics || '').split(' '));
-            const contractV4 = await contractFromPublicKey(key.publicKey, WalletVersions.v4R2, isTestnet);
-            const contractV5 = await contractFromPublicKey(key.publicKey, WalletVersions.v5R1, isTestnet);
-            setV4Address(contractV4.address.toString({ testOnly: isTestnet }));
-            setV5Address(contractV5.address.toString({ testOnly: isTestnet }));
-        }
-        getKey();
-    }, [state?.mnemonics, isTestnet]);
 
     useEffect(() => {
         if (!mnemonics) {
             (async () => {
                 const mnemonics = await mnemonicNew();
+                const mnemonicsString = mnemonics.join(' ');
 
+                await updateAvatar(mnemonicsString)
                 // Persist state
-                setState({ mnemonics: mnemonics.join(' ') });
+                setState({ mnemonics: mnemonicsString });
             })();
         }
     }, []);
@@ -85,7 +73,15 @@ export const WalletCreateFragment = systemFragment(() => {
 
     const regenerateMnemonics = useCallback(async () => {
         const newMnemonics = await mnemonicNew();
-        setState({ mnemonics: newMnemonics.join(' ') });
+        const mnemonicsString = newMnemonics.join(' ');
+        await updateAvatar(mnemonicsString)
+        setState({ mnemonics: mnemonicsString });
+    }, []);
+
+    const updateAvatar = useCallback(async (mnemonics: string) => {
+        const key = await mnemonicToWalletKey((mnemonics || '').split(' '));
+        const contractV5 = await contractFromPublicKey(key.publicKey, WalletVersions.v5R1, isTestnet);
+        setV5Address(contractV5.address.toString({ testOnly: isTestnet }));
     }, []);
 
     return (
@@ -151,51 +147,32 @@ export const WalletCreateFragment = systemFragment(() => {
                         }}>
                             {t('create.backupSubtitle')}
                         </Text>
-                        <View style={[
-                            {
-                                paddingVertical: 20,
-                                borderRadius: 20,
-                                marginBottom: 8,
-                                backgroundColor: theme.border,
-                            }
-                        ]}>
-                            <Text style={[Typography.semiBold15_20, { color: theme.textSecondary, marginBottom: 8, textAlign: 'center' }]}>{t('create.avatarTitle')}</Text>
-                            <View
+
+                        <View style={{ marginTop: AVATAR_SIZE / 2}}>
+                            <MnemonicsView
+                                mnemonics={state.mnemonics}
+                                preventCapture={true}
                                 style={{
-                                    justifyContent: 'space-between',
-                                    flexDirection: 'row'
+                                    paddingTop: AVATAR_SIZE / 2 + 8,
                                 }}
-                            >
-                                <View style={{ alignItems: 'center', flex: 1 }}>
-                                    <Avatar
-                                        size={50}
-                                        borderColor={theme.surfaceOnElevation}
-                                        hash={avatarV4}
-                                        theme={theme}
-                                        id={v4Address}
-                                        backgroundColor={avatarColors[avatarColorV4]}
-                                        isLedger={false}
-                                    />
-                                    <Text style={[Typography.medium13_18, { color: theme.textSecondary, marginTop: 4 }]}>{v4AddressString.slice(0, 4)}...{v4AddressString.slice(-4)}</Text>
-                                </View>
-                                <View style={{ alignItems: 'center', flex: 1 }}>
-                                    <Avatar
-                                        size={50}
-                                        borderColor={theme.surfaceOnElevation}
-                                        hash={avatarV5}
-                                        theme={theme}
-                                        id={v5Address}
-                                        backgroundColor={avatarColors[avatarColorV5]}
-                                        isLedger={false}
-                                    />
-                                    <Text style={[Typography.medium13_18, { color: theme.textSecondary, marginTop: 4 }]}>{v5AddressString.slice(0, 4)}...{v5AddressString.slice(-4)}{' (v5)'}</Text>
-                                </View>
+                            />
+                            <View style={{
+                                borderRadius: AVATAR_SIZE / 2,
+                                backgroundColor: theme.surfaceOnElevation,
+                                justifyContent: 'center', alignItems: 'center',
+                                position: 'absolute', top: -38, alignSelf: 'center'
+                            }}>
+                                <Avatar
+                                    id={v5AddressString}
+                                    hash={avatarV5}
+                                    size={AVATAR_SIZE}
+                                    borderColor={theme.elevation}
+                                    borderWidth={3}
+                                    theme={theme}
+                                    backgroundColor={avatarColors[avatarColorV5]}
+                                />
                             </View>
                         </View>
-                        <MnemonicsView
-                            mnemonics={state.mnemonics}
-                            preventCapture={true}
-                        />
                         {isTestnet && (
                             <RoundButton
                                 display={'text'}

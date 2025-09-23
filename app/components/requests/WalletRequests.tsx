@@ -6,14 +6,19 @@ import { WalletRequestItem } from "./WalletRequestItem";
 export const WalletRequests = memo(() => {
     const { requests } = useWalletRequestsWatcher();
 
-    if (requests.length === 0) {
+    const statusFilteredRequests = requests.filter(request => request.status === 'pending');
+
+    if (statusFilteredRequests.length === 0) {
         return null;
     }
 
     return (
         <View>
-            {requests.map((request) => (
-                <WalletRequestItem key={request.requestId} request={request} />
+            {statusFilteredRequests.map((request) => (
+                <WalletRequestItem
+                    key={request.requestId}
+                    request={request}
+                />
             ))}
         </View>
     );

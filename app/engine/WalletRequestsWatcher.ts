@@ -20,7 +20,7 @@ export type WalletRequest = {
 };
 
 export type WalletRequestEvent = {
-    type: 'new_request' | 'status_update' | 'expired';
+    type: 'new_request' | 'request_response' | 'expired';
     request: WalletRequest;
 };
 
@@ -105,7 +105,6 @@ export class WalletRequestsWatcher extends EventEmitter {
 
         // Create websocket connection
         const wsUrl = `${this.protocol}://${this.endpoint}/wallet-request/${encodeURIComponent(this.walletAddressNormalized)}/${this.isTestnet ? 'testnet' : 'mainnet'}/watch/ws`;
-        console.log(wsUrl);
         let nws = new WebSocket(wsUrl);
 
         nws.onopen = () => {

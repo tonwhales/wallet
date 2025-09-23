@@ -5,6 +5,7 @@ import { useCurrentAddress } from './hooks/appstate/useCurrentAddress';
 import { useAppVisible, useNetwork } from './hooks';
 import { whalesConnectEndpoint } from './clients';
 import { atomFamily } from 'recoil';
+import { Platform } from 'react-native';
 
 // State atom families for wallet requests
 export const walletRequestsState = atomFamily<WalletRequest[], string>({
@@ -31,12 +32,12 @@ export type WalletRequestsWatcherActions = {
 };
 
 export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletRequestsWatcherActions {
-    const { tonAddressString } = useCurrentAddress();
+    const { tonAddress } = useCurrentAddress();
     const { isTestnet } = useNetwork();
     const appStateVisible = useAppVisible();
 
     // Use empty string as fallback to avoid undefined key
-    const addressKey = tonAddressString || '';
+    const addressKey = tonAddress.toString({ bounceable: false, testOnly: isTestnet }) || '';
     const [requests, setRequests] = useRecoilState(walletRequestsState(addressKey));
     const [connectionStatus, setConnectionStatus] = useRecoilState(walletRequestsConnectionState(addressKey));
 
@@ -75,7 +76,7 @@ export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletR
     useEffect(() => {
         // Only create watcher when app is active and we have an address
         const isActive = appStateVisible === 'active';
-        const shouldConnect = isActive && tonAddressString;
+        const shouldConnect = isActive && addressKey;
 
         if (!shouldConnect) {
             // Clean up existing watcher
@@ -88,7 +89,7 @@ export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletR
         }
 
         // Check if we need to restart watcher for address change
-        const addressChanged = currentAddressRef.current !== tonAddressString;
+        const addressChanged = currentAddressRef.current !== addressKey;
         if (addressChanged) {
             if (watcherRef.current) {
                 watcherRef.current.stop();
@@ -107,9 +108,9 @@ export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletR
                 const endpoint = whalesConnectEndpoint.replace(/^https?:\/\//, '');
                 const protocol = isHttps ? 'wss' : 'ws';
 
-                const watcher = new WalletRequestsWatcher(endpoint, tonAddressString, protocol, isTestnet);
+                const watcher = new WalletRequestsWatcher(endpoint, addressKey, protocol, isTestnet);
                 watcherRef.current = watcher;
-                currentAddressRef.current = tonAddressString;
+                currentAddressRef.current = addressKey;
 
                 // Setup event handlers
                 watcher.on('connected', (data) => {
@@ -117,12 +118,11 @@ export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletR
                 });
 
                 watcher.on('notification', (event: WalletRequestEvent) => {
-                    console.log('notification', event);
                     switch (event.type) {
                         case 'new_request':
                             addRequest(event.request);
                             break;
-                        case 'status_update':
+                        case 'request_response':
                             updateRequest(event.request.requestId, {
                                 ...event.request
                             });
@@ -136,13 +136,12 @@ export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletR
                 });
 
                 watcher.on('pending_requests', (data) => {
-                    console.log('pending_requests', data);
                     // Replace all requests with pending ones
                     setRequests(data.requests);
                 });
 
                 watcher.on('error', (error) => {
-                    console.warn('Wallet requests watcher error:', error.message);
+                    console.warn(`[Request watcher ${Platform.OS}]: error`, error.message);
                 });
 
                 watcher.on('disconnected', () => {
@@ -150,7 +149,7 @@ export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletR
                 });
 
             } catch (error) {
-                console.error('Failed to create wallet requests watcher:', error);
+                console.error(`[Request watcher ${Platform.OS}]: error`, error);
                 setConnectionStatus('disconnected');
             }
         }
@@ -164,7 +163,7 @@ export function useWalletRequestsWatcher(): WalletRequestsWatcherState & WalletR
             currentAddressRef.current = null;
         };
     }, [
-        tonAddressString,
+        addressKey,
         isTestnet,
         appStateVisible,
         addRequest,

@@ -12,7 +12,9 @@ export type RoundButtonDisplay =
     | 'secondary_contrast'
     | 'disabled'
     | 'danger_zone'
-    | 'danger_zone_text';
+    | 'danger_zone_text'
+    | 'warning'
+    | 'success';
 
 export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisplay]: {
     textColor: string,
@@ -79,6 +81,16 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             backgroundColor: theme.transparent,
             borderColor: theme.transparent,
             textColor: theme.textSecondary,
+        },
+        warning: {
+            backgroundColor: theme.warning,
+            borderColor: theme.warning,
+            textColor: theme.textUnchangeable,
+        },
+        success: {
+            backgroundColor: theme.accentGreen,
+            borderColor: theme.accentGreen,
+            textColor: theme.textUnchangeable,
         }
     }
 }

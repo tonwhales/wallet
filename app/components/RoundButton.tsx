@@ -20,6 +20,7 @@ export const RoundButton = memo((props: {
     subtitle?: string,
     style?: StyleProp<ViewStyle>,
     disabled?: boolean,
+    overrideDisabledDisplay?: boolean,
     loading?: boolean,
     onPress?: () => void,
     action?: () => Promise<any>,
@@ -49,7 +50,7 @@ export const RoundButton = memo((props: {
     }, [props.onPress, props.action]);
 
     const size = sizes[props.size || 'large'];
-    const display = props.disabled
+    const display = (props.disabled && !props.overrideDisabledDisplay)
         ? roundButtonDisplays(theme)['disabled']
         : roundButtonDisplays(theme)[props.display || 'default'];
 
@@ -117,7 +118,11 @@ export const RoundButton = memo((props: {
                                     iOSUIKit.title3,
                                     {
                                         marginTop: size.pad,
-                                        opacity: doLoading ? 0 : props.disabled ? 0.6 : 1,
+                                        opacity: doLoading
+                                            ? 0
+                                            : props.disabled && !props.overrideDisabledDisplay
+                                                ? 0.6
+                                                : 1,
                                         color: display.textColor,
                                         fontSize: size.fontSize,
                                         fontWeight: '600',

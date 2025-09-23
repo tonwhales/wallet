@@ -1,22 +1,18 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { createWalletRequest } from "../../api/requests/createWalletRequest";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { useCurrentAddress, useNetwork, useWalletRequests } from "..";
+import { useCurrentAddress, useNetwork } from "..";
+import { walletRequestsState } from "../../useWalletRequestsWatcher";
+import { useRecoilState } from "recoil";
 
 export function useAddressConfirmationRequest(address: string) {
     const authWalletKeys = useKeysAuth();
     const { isTestnet } = useNetwork();
     const currentAddress = useCurrentAddress();
     const [requestId, setRequestId] = useState<string | null>(null);
-    const [status, setStatus] = useState<'pending' | 'confirmed' | 'declined' | 'expired' | 'error' | null>(null);
-
-    const { data: requests } = useWalletRequests({
-        address: currentAddress.tonAddress.toString({ bounceable: false, testOnly: isTestnet }),
-        isTestnet,
-        type: 'pending-outgoing',
-        refetchInterval: 1000 * 10,
-        enabled: !!currentAddress.tonAddress && !!requestId
-    });
+    const addressKey = currentAddress.tonAddress.toString({ bounceable: false, testOnly: isTestnet }) || '';
+    const [requests, setRequests] = useRecoilState(walletRequestsState(addressKey));
+    const status: 'pending' | 'confirmed' | 'declined' | 'expired' | 'not-requested' = requests.find(r => r.requestId === requestId)?.status || 'not-requested';
 
     const sendRequest = useCallback(async () => {
         const keys = await authWalletKeys.authenticate();
@@ -26,21 +22,15 @@ export function useAddressConfirmationRequest(address: string) {
             confirmant: address,
             isTestnet: isTestnet
         });
-        console.log('res', res);
-        setStatus('pending');
+
+        setRequests(prev => [...prev, res]);
         setRequestId(res.requestId);
+
     }, [address, authWalletKeys, currentAddress, isTestnet]);
 
     const reset = useCallback(() => {
-        setStatus(null);
         setRequestId(null);
     }, []);
-
-    useEffect(() => {
-        if (requests && requests.length > 0) {
-            setStatus('confirmed');
-        }
-    }, [requests]);
 
     return { requestId, sendRequest, status, reset };
 }

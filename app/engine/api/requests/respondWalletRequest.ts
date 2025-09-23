@@ -2,6 +2,7 @@ import axios from "axios";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { whalesConnectEndpoint } from "../../clients";
 import { signWalletRequest } from "./signWalletRequest";
+import { WalletRequest } from "../../WalletRequestsWatcher";
 
 function createResponseSignatureMessage(
     requestId: string,
@@ -35,7 +36,7 @@ export async function respondWalletRequest({ keys, requestId, walletAddress, sta
     const signature = createResponseSignatureMessage(requestId, walletAddress, status, response);
     const url = `${whalesConnectEndpoint}/wallet-request/respond`;
 
-    const signed = signWalletRequest(signature, keys);
+    const signed = await signWalletRequest(signature, keys);
 
     const body = {
         requestId: requestId,
@@ -48,8 +49,5 @@ export async function respondWalletRequest({ keys, requestId, walletAddress, sta
 
     const res = await axios.post(url, body);
 
-    console.log('sendConfirmationResponse', res.data);
-    console.log('sendConfirmationResponse', res.status);
-
-    return res.data;
+    return res.data as { success: boolean, request: WalletRequest };
 }

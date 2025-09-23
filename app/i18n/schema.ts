@@ -1470,6 +1470,15 @@ export type LocalizationSchema = {
             title: string,
             description: string
         }
+    },
+    walletRequests: {
+        title: string,
+        description: string,
+        request: string,
+        confirmed: string,
+        declined: string,
+        expired: string,
+        pending: string,
     }
 };
 

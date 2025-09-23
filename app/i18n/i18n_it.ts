@@ -888,7 +888,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "backupSubtitle": "Scrivi queste 24 parole esattamente nell'ordine indicato e conservale in un luogo segreto",
         "okSaved": "OK, l'ho salvato",
         "copy": "Copia negli appunti"
-    },
+    ,
+        "avatarTitle": "I tuoi indirizzi",
+        "regenerate": "Rigenera"},
     "import": {
         "title": "Inserisci la chiave di backup",
         "subtitle": "Per favore, ripristina l'accesso al tuo portafoglio inserendo le 24 parole segrete che hai scritto quando hai creato il portafoglio",

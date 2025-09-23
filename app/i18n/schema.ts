@@ -890,7 +890,9 @@ export type LocalizationSchema = {
         backupSubtitle: string,
         okSaved: string,
         copy: string
-    },
+    ,
+        avatarTitle: string,
+        regenerate: string},
     import: {
         title: string,
         subtitle: string,

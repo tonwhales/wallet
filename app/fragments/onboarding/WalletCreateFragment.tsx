@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, View, Text, ToastAndroid, Alert, ScrollView } from 'react-native';
+import { Platform, View, Text, Alert, ScrollView } from 'react-native';
 import Animated, { FadeIn, FadeOutDown, FadeOutRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
@@ -10,18 +10,24 @@ import { RoundButton } from '../../components/RoundButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { warn } from '../../utils/log';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import * as ScreenCapture from 'expo-screen-capture';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { MnemonicsView } from '../../components/secure/MnemonicsView';
-import { useNetwork, useTheme } from '../../engine/hooks';
-import { mnemonicNew } from "@ton/crypto";
+import { useBounceableWalletFormat, useNetwork, useTheme } from '../../engine/hooks';
+import { mnemonicNew, mnemonicToWalletKey } from "@ton/crypto";
 import { StatusBar } from 'expo-status-bar';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { AppsFlyerEvent } from '../../analytics/appsflyer';
 import { trackAppsFlyerEvent } from '../../analytics/appsflyer';
+import { Avatar, avatarColors, avatarImages } from '../../components/avatar/Avatar';
+import { avatarHash } from '../../utils/avatarHash';
+import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { WalletVersions } from '../../engine/types';
+import { Typography } from '../../components/styles';
+import { Address } from '@ton/core';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { isTestnet } = useNetwork();
@@ -31,6 +37,27 @@ export const WalletCreateFragment = systemFragment(() => {
     const { mnemonics, additionalWallet, ledger } = useParams<{ mnemonics?: string, additionalWallet?: boolean, ledger?: boolean }>();
     const [state, setState] = useState<{ mnemonics: string, saved?: boolean } | null>(mnemonics ? { mnemonics } : null);
     const toaster = useToaster();
+    const [bounceableFormat] = useBounceableWalletFormat();
+    const [v4Address, setV4Address] = useState<string>('');
+    const [v5Address, setV5Address] = useState<string>('');
+    const avatarV4 = avatarHash(v4Address, avatarImages.length);
+    const avatarColorV4 = avatarHash(v4Address, avatarColors.length);
+    const avatarV5 = avatarHash(v5Address, avatarImages.length);
+    const avatarColorV5 = avatarHash(v5Address, avatarColors.length);
+    const v4AddressString = v4Address ? Address.parse(v4Address).toString({ testOnly: isTestnet, bounceable: bounceableFormat }) : '';
+    const v5AddressString = v5Address ? Address.parse(v5Address).toString({ testOnly: isTestnet, bounceable: bounceableFormat }) : '';
+
+    // getting address from mnemonics
+    useEffect(() => {
+        const getKey = async () => {
+            const key = await mnemonicToWalletKey((state?.mnemonics || '').split(' '));
+            const contractV4 = await contractFromPublicKey(key.publicKey, WalletVersions.v4R2, isTestnet);
+            const contractV5 = await contractFromPublicKey(key.publicKey, WalletVersions.v5R1, isTestnet);
+            setV4Address(contractV4.address.toString({ testOnly: isTestnet }));
+            setV5Address(contractV5.address.toString({ testOnly: isTestnet }));
+        }
+        getKey();
+    }, [state?.mnemonics, isTestnet]);
 
     useEffect(() => {
         if (!mnemonics) {
@@ -55,6 +82,11 @@ export const WalletCreateFragment = systemFragment(() => {
             subscription?.remove();
         }
     }, [navigation, state]);
+
+    const regenerateMnemonics = useCallback(async () => {
+        const newMnemonics = await mnemonicNew();
+        setState({ mnemonics: newMnemonics.join(' ') });
+    }, []);
 
     return (
         <View
@@ -119,6 +151,47 @@ export const WalletCreateFragment = systemFragment(() => {
                         }}>
                             {t('create.backupSubtitle')}
                         </Text>
+                        <View style={[
+                            {
+                                paddingVertical: 20,
+                                borderRadius: 20,
+                                marginBottom: 8,
+                                backgroundColor: theme.border,
+                            }
+                        ]}>
+                            <Text style={[Typography.semiBold15_20, { color: theme.textSecondary, marginBottom: 8, textAlign: 'center' }]}>{t('create.avatarTitle')}</Text>
+                            <View
+                                style={{
+                                    justifyContent: 'space-between',
+                                    flexDirection: 'row'
+                                }}
+                            >
+                                <View style={{ alignItems: 'center', flex: 1 }}>
+                                    <Avatar
+                                        size={50}
+                                        borderColor={theme.surfaceOnElevation}
+                                        hash={avatarV4}
+                                        theme={theme}
+                                        id={v4Address}
+                                        backgroundColor={avatarColors[avatarColorV4]}
+                                        isLedger={false}
+                                    />
+                                    <Text style={[Typography.medium13_18, { color: theme.textSecondary, marginTop: 4 }]}>{v4AddressString.slice(0, 4)}...{v4AddressString.slice(-4)}</Text>
+                                </View>
+                                <View style={{ alignItems: 'center', flex: 1 }}>
+                                    <Avatar
+                                        size={50}
+                                        borderColor={theme.surfaceOnElevation}
+                                        hash={avatarV5}
+                                        theme={theme}
+                                        id={v5Address}
+                                        backgroundColor={avatarColors[avatarColorV5]}
+                                        isLedger={false}
+                                    />
+                                    <Text style={[Typography.medium13_18, { color: theme.textSecondary, marginTop: 4 }]}>{v5AddressString.slice(0, 4)}...{v5AddressString.slice(-4)}{' (v5)'}</Text>
+                                </View>
+                            </View>
+                        </View>
                         <MnemonicsView
                             mnemonics={state.mnemonics}
                             preventCapture={true}
@@ -150,6 +223,13 @@ export const WalletCreateFragment = systemFragment(() => {
                         )}
                     </ScrollView>
                     <View style={{ paddingHorizontal: 16 }}>
+                        <RoundButton
+                            title={t('create.regenerate')}
+                            display={'text'}
+                            onPress={() => {
+                                regenerateMnemonics();
+                            }}
+                        />
                         <RoundButton
                             title={t('create.okSaved')}
                             onPress={() => {

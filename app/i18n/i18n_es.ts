@@ -888,7 +888,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "backupSubtitle": "Escribe estas 24 palabras en el mismo orden y guárdalas en un lugar secreto",
         "okSaved": "OK, las guardé",
         "copy": "Copiar al portapapeles"
-    },
+    ,
+        "avatarTitle": "Sus direcciones",
+        "regenerate": "Regenerar"},
     "import": {
         "title": "Ingresar clave de respaldo",
         "subtitle": "Por favor, restaura el acceso a tu billetera ingresando las 24 palabras secretas que anotaste al crear la billetera",

@@ -25,15 +25,22 @@ export function setWalletsSettings(walletsSettings: { [key: string]: WalletSetti
 function getWalletsSettings(): z.infer<typeof walletSettingsSchema> {
     let walletsSettings = sharedStoragePersistence.getString(walletSettingsKey);
     if (walletsSettings) {
-        const jsonObj = JSON.parse(walletsSettings);
-        if (jsonObj.color === undefined) {
-            jsonObj.color = null;
-        }
         const parsed = walletSettingsSchema.safeParse(JSON.parse(walletsSettings));
         if (!parsed.success) {
             return {};
         }
-        return parsed.data;
+        
+        // Avatar changing feature is disabled for now. 
+        // If you want to enable this feature again, just remove the code below
+        const result: { [key: string]: WalletSettings } = {};
+        for (const [key, wallet] of Object.entries(parsed.data)) {
+            result[key] = {
+                name: wallet.name,
+                avatar: null,
+                color: null
+            };
+        }
+        return result;
     }
     return {};
 }

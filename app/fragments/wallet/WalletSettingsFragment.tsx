@@ -94,16 +94,6 @@ export const WalletSettingsFragment = fragment(() => {
         }
     }, [hasChanges, setSettings, isLedger]);
 
-    const onChangeAvatar = useCallback(() => {
-        const callback = (hash: number, color: number) => {
-            if (!isLedger) {
-                setAvatar(hash);
-            }
-            setColor(color);
-        };
-        navigation.navigate('AvatarPicker', { callback, hash: avatar, initColor: selectedColor, isLedger });
-    }, [isLedger, selectedColor, avatar]);
-
     const onInputNameFocus = () => {
         setIsInputNameFocus(true)
     }
@@ -185,15 +175,10 @@ export const WalletSettingsFragment = fragment(() => {
 
                     <Animated.View style={animAvatarStyles}
                         onLayout={(e) => setAvatarHeight(e.nativeEvent.layout.height)}>
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1,
-                                    justifyContent: 'center', alignItems: 'center'
-                                }
+                        <View
+                            style={{
+                                justifyContent: 'center', alignItems: 'center'
                             }}
-                            disabled={isInputNameFocus}
-                            onPress={onChangeAvatar}
                         >
                             <Avatar
                                 size={100}
@@ -205,13 +190,7 @@ export const WalletSettingsFragment = fragment(() => {
                                 backgroundColor={avatarColors[selectedColor]}
                                 isLedger={isLedger}
                             />
-                            <Text style={[
-                                { color: theme.accent, marginTop: 12 },
-                                Typography.medium17_24
-                            ]}>
-                                {t('wallets.settings.changeAvatar')}
-                            </Text>
-                        </Pressable>
+                        </View>
                     </Animated.View>
 
                     <Animated.View style={[{
@@ -274,7 +253,7 @@ export const WalletSettingsFragment = fragment(() => {
                                     <Text
                                         key={index}
                                         style={[
-                                            { 
+                                            {
                                                 color: theme.textPrimary,
                                                 includeFontPadding: false
                                             },

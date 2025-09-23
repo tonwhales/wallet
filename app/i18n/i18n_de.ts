@@ -888,7 +888,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "backupSubtitle": "Schreiben Sie diese 24 Wörter in genau der gleichen Reihenfolge auf und bewahren Sie sie an einem geheimen Ort auf",
         "okSaved": "OK, ich habe sie gespeichert",
         "copy": "In die Zwischenablage kopieren"
-    },
+    ,
+        "avatarTitle": "Ihre Adressen",
+        "regenerate": "Neu generieren"},
     "import": {
         "title": "Sicherungsschlüssel eingeben",
         "subtitle": "Bitte stellen Sie den Zugriff auf Ihre Geldbörse wieder her, indem Sie die 24 geheimen Wörter eingeben, die Sie beim Erstellen der Geldbörse notiert haben",

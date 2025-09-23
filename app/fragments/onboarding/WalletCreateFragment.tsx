@@ -44,7 +44,6 @@ export const WalletCreateFragment = systemFragment(() => {
     const avatarColorV5 = avatarHash(v5Address, avatarColors.length);
     const v5AddressString = v5Address ? Address.parse(v5Address).toString({ testOnly: isTestnet, bounceable: bounceableFormat }) : '';
 
-
     useEffect(() => {
         if (!mnemonics) {
             (async () => {

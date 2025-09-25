@@ -14,6 +14,7 @@ import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { Typography } from "../../components/styles";
+import { isLatestIos } from "../../utils/isLatestIos";
 
 export const AccountSelectorFragment = fragment(() => {
     const theme = useTheme();
@@ -93,7 +94,7 @@ export const AccountSelectorFragment = fragment(() => {
         <View style={[
             { flexGrow: 1, justifyContent: 'flex-end' },
             Platform.select({
-                ios: { paddingBottom: isScrollMode ? 0 : safeArea.bottom === 0 ? 32 : safeArea.bottom, },
+                ios: { paddingBottom: isScrollMode || isLatestIos ? 0 : safeArea.bottom === 0 ? 32 : safeArea.bottom, },
                 android: { paddingTop: safeArea.top, backgroundColor: theme.backgroundPrimary, }
             })
         ]}>
@@ -146,7 +147,7 @@ export const AccountSelectorFragment = fragment(() => {
                     backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
-                    paddingBottom: safeArea.bottom + 16
+                    paddingBottom: isLatestIos ? 16 : safeArea.bottom + 16
                 }}>
                     {Platform.OS === 'ios' && (
                         <Text style={[{

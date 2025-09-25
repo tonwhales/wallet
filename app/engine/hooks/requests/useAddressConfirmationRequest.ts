@@ -16,16 +16,18 @@ export function useAddressConfirmationRequest(address: string) {
 
     const sendRequest = useCallback(async () => {
         const keys = await authWalletKeys.authenticate();
-        const res = await createWalletRequest({
-            keys,
-            requester: currentAddress.tonAddress.toString({ bounceable: false, testOnly: isTestnet }),
-            confirmant: address,
-            isTestnet: isTestnet
-        });
-
-        setRequests(prev => [...prev, res]);
-        setRequestId(res.requestId);
-
+        try {
+            const res = await createWalletRequest({
+                keys,
+                requester: currentAddress.tonAddress.toString({ bounceable: false, testOnly: isTestnet }),
+                confirmant: address,
+                isTestnet: isTestnet
+            });
+            setRequests(prev => [...prev, res]);
+            setRequestId(res.requestId);
+        } catch (error) {
+            console.error('useAddressConfirmationRequest error', error);
+        }
     }, [address, authWalletKeys, currentAddress, isTestnet]);
 
     const reset = useCallback(() => {

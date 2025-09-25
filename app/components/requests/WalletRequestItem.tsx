@@ -88,7 +88,7 @@ export const WalletRequestItem = memo(({ request }: { request: WalletRequest }) 
                         await onAnswer('declined');
                     }}
                     display='secondary'
-                    style={{ flex: 1 }}
+                    style={{ flex: 1, backgroundColor: theme.cardStackSecond }}
                     size='normal'
                 />
                 <RoundButton

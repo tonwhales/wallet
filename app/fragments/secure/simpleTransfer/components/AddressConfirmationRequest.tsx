@@ -1,41 +1,35 @@
 import { memo } from "react";
 import { View, Text } from "react-native";
-import { useAddressConfirmationRequest, useNetwork, useTheme } from "../../../../engine/hooks";
+import { useAddressConfirmationRequest, useTheme } from "../../../../engine/hooks";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { RoundButton } from "../../../../components/RoundButton";
-import { Address } from "@ton/core";
 import { t } from "../../../../i18n/t";
 import { RoundButtonDisplay } from "../../../../components/roundButtonDisplays";
 
-type Props = {
-    address?: string;
-}
+type Props = { address: string }
 
-function RequestView({ address }: { address: string }) {
-    const { requestId, sendRequest, status, reset } = useAddressConfirmationRequest(address);
+function RequestView({ address }: Props) {
+    const { sendRequest, status } = useAddressConfirmationRequest(address);
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
-
-    const formatted = Address.parse(address).toString({ testOnly: isTestnet });
 
     let title = 'Request confirmation';
     let buttonDisplay: RoundButtonDisplay = 'pro';
 
     switch (status) {
         case 'pending':
-            title = 'Wating for confirmation...';
+            title = t('walletRequests.pending');
             buttonDisplay = 'pro';
             break;
         case 'confirmed':
-            title = 'Address confirmed!';
+            title = t('walletRequests.confirmed');
             buttonDisplay = 'success';
             break;
         case 'declined':
-            title = 'Request declined';
+            title = t('walletRequests.declined');
             buttonDisplay = 'warning';
             break;
         case 'expired':
-            title = 'Request expired';
+            title = t('walletRequests.expired');
             buttonDisplay = 'warning';
             break;
     }
@@ -46,7 +40,6 @@ function RequestView({ address }: { address: string }) {
             gap: 16,
         }}>
             <RoundButton
-                // title={t('walletRequests.request')}
                 disabled={status !== 'not-requested'}
                 overrideDisabledDisplay={true}
                 title={title}
@@ -71,8 +64,8 @@ export const AddressConfirmationRequest = memo(({ address }: Props) => {
     }
 
     return (
-        <Animated.View>
+        <View>
             <RequestView address={address} />
-        </Animated.View>
+        </View>
     );
 });

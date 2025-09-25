@@ -5,7 +5,7 @@ import { useCurrentAddress, useNetwork } from "..";
 import { walletRequestsState } from "../../useWalletRequestsWatcher";
 import { useRecoilState } from "recoil";
 
-export function useAddressConfirmationRequest(address: string) {
+export function useAddressConfirmationRequest(address?: string) {
     const authWalletKeys = useKeysAuth();
     const { isTestnet } = useNetwork();
     const currentAddress = useCurrentAddress();
@@ -15,6 +15,7 @@ export function useAddressConfirmationRequest(address: string) {
     const status: 'pending' | 'confirmed' | 'declined' | 'expired' | 'not-requested' = requests.find(r => r.requestId === requestId)?.status || 'not-requested';
 
     const sendRequest = useCallback(async () => {
+        if (!address) return;
         const keys = await authWalletKeys.authenticate();
         try {
             const res = await createWalletRequest({

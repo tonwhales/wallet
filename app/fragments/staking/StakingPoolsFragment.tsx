@@ -22,7 +22,7 @@ import { LiquidUSDeStakingPool } from "../../components/staking/LiquidUSDeStakin
 import { useAppConfig } from "../../engine/hooks/useAppConfig";
 import { Typography } from "../../components/styles";
 
-export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper' | 'liquid' | 'usde';
+export type StakingPoolType = 'club' | 'team' | 'nominators' | 'lockup' | 'tonkeeper' | 'liquid' | 'usde';
 
 export function filterPools(pools: StakingPoolMember[], type: StakingPoolType, processed: Set<string>, knownPools: Record<string, KnownStakingPool>) {
     return pools.filter((v) => knownPools[v.pool].name.toLowerCase().includes(type) && !processed.has(v.pool));
@@ -93,7 +93,6 @@ export const StakingPoolsFragment = fragment(() => {
     };
 
     const onJoinTeam = () => openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
-    const onEPNMore = () => openWithInApp('https://epn.bz/');
 
     // Await config
     if (!config) {
@@ -210,43 +209,7 @@ export const StakingPoolsFragment = fragment(() => {
     let club = filterPools(memberData, 'club', processed, knownPools);
     let team = filterPools(memberData, 'team', processed, knownPools);
     let nominators = filterPools(memberData, 'nominators', processed, knownPools);
-    let epn = filterPools(memberData, 'epn', processed, knownPools);
     let tonkeeper = filterPools(memberData, 'tonkeeper', processed, knownPools);
-
-    if (epn.length > 0) {
-        const epnItems: ReactElement[] = [];
-
-        for (let memberData of epn) {
-            epnItems.push(
-                <StakingPool
-                    key={`epn-${memberData.pool}`}
-                    pool={Address.parse(memberData.pool)}
-                    balance={memberData.balance}
-                    isLedger={isLedger}
-                    member={memberAddress!}
-                />
-            );
-        }
-        items.push(
-            <View
-                key={'epn-view'}
-                style={poolViewStyle}
-            >
-                <StakingPoolsHeader
-                    key={'epn-header'}
-                    text={t('products.staking.pools.epnPartners')}
-                    description={t('products.staking.pools.epnPartnersDescription')}
-                    action={{
-                        title: t('products.staking.pools.moreAboutEPN'),
-                        onAction: onEPNMore
-                    }}
-                />
-                <View style={poolItemsStyle}>
-                    {epnItems}
-                </View>
-            </View>
-        )
-    }
 
     if (nominators.length > 0) {
         const nominatorsItems: ReactElement[] = [];

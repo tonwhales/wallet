@@ -6,7 +6,7 @@ import { RoundButton } from "../../../../components/RoundButton";
 import { t } from "../../../../i18n/t";
 import { RoundButtonDisplay } from "../../../../components/roundButtonDisplays";
 
-type Props = { address: string }
+type Props = { address?: string }
 
 function RequestView({ address }: Props) {
     const { sendRequest, status } = useAddressConfirmationRequest(address);

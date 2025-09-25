@@ -1469,6 +1469,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "Deposits via IBAN",
             "description": "Get early access"
         }
+    },
+    "walletRequests": {
+        "title": "Wants to send you funds, confirm that this is your address",
+        "description": "If the owner of this address uses Tonhub, you can request them to verify that this is the correct address and belongs to them",
+        "request": "Request confirmation",
+        "confirmed": "Address confirmed!",
+        "declined": "Request declined",
+        "expired": "Request expired",
+        "pending": "Waiting for confirmation...",
     }
 };
 

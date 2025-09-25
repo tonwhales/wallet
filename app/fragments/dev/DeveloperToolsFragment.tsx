@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -12,7 +12,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useEthena, useSelectedAccount, useSetAppState, useSolanaSelectedAccount, useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetNetwork } from '../../engine/hooks';
@@ -23,7 +23,7 @@ import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { queryClient } from '../../engine/clients';
+import { queryClient, whalesConnectEndpoint } from '../../engine/clients';
 import { getCountryCodes } from '../../utils/isNeocryptoAvailable';
 import { Item } from '../../components/Item';
 import { IosWalletService } from '../../modules/WalletService';
@@ -36,8 +36,12 @@ import WebView from 'react-native-webview';
 import { holdersUrl } from '../../engine/api/holders/fetchUserState';
 import { createLogger } from '../../utils/log';
 import { useWebViewPreloader } from '../../components/WebViewPreloaderContext';
-
-const logger = createLogger('tonconnect');
+import axios from 'axios';
+import { useWalletRequestsWatcher } from '../../engine/useWalletRequestsWatcher';
+import { Base64 } from '@tonconnect/protocol';
+import nacl from 'tweetnacl';
+import { sha256_sync } from '@ton/crypto';
+import { WalletRequest } from '../../engine/WalletRequestsWatcher';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();

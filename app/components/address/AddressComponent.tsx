@@ -3,7 +3,7 @@ import { Text } from "react-native";
 import { Address } from "@ton/core";
 
 export const AddressComponent = memo((props: { 
-    testOnly: boolean,
+    testOnly?: boolean,
     address: string | Address, 
     start?: number, end?: number, 
     bounceable?: boolean,

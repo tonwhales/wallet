@@ -33,6 +33,7 @@ import { SolanaBanner } from "../solana/SolanaBanner"
 import { PendingSolanaTransactions } from "../../fragments/wallet/views/PendingSolanaTransactions"
 import { OrdersList } from "../orders/OrdersList"
 import { TonhubChangellyBanner } from "./TonhubChangellyBanner"
+import { WalletRequests } from "../requests/WalletRequests"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
@@ -116,6 +117,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 <PaymentOtpBanner address={selected.address} />
                 {isWalletMode ? (
                     <>
+                    <WalletRequests />
                         <AddressFormatUpdate />
                         <W5Banner />
                         <SolanaBanner />

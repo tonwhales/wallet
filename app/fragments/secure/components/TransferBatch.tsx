@@ -228,7 +228,6 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey, walletVersion, isTestnet);
         const isV5 = walletVersion === 'v5R1';
-        let allowSendingToYourself = false;
 
         if (!selected) {
             return;
@@ -238,26 +237,6 @@ export const TransferBatch = memo((props: ConfirmLoadedPropsBatch) => {
         for (const i of internals) {
             const target = i.message.addr.address;
             const restricted = i.message.restricted;
-
-            // Check if transfering to yourself
-            if (target.equals(contract.address) && !allowSendingToYourself) {
-                allowSendingToYourself = await new Promise((resolve) => {
-                    Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
-                        {
-                            onPress: () => resolve(true),
-                            text: t('common.continueAnyway')
-                        },
-                        {
-                            onPress: () => resolve(false),
-                            text: t('common.cancel'),
-                            isPreferred: true,
-                        }
-                    ]);
-                });
-                if (!allowSendingToYourself) {
-                    return;
-                }
-            }
 
             // Check if restricted
             if (restricted) {

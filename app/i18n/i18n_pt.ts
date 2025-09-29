@@ -91,7 +91,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Descrição",
         "openSettings": "Abrir configurações",
         "exchanges": "Trocas",
-        "directDepositAddress": "Endereço de depósito direto"
+        "directDepositAddress": "Endereço de depósito direto",
+        "viewIn": "Ver no {{name}}"
     },
     "syncStatus": {
         "connecting": "Conectando",

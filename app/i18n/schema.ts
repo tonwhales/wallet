@@ -94,6 +94,7 @@ export type LocalizationSchema = {
         openSettings: string,
         exchanges: string,
         directDepositAddress: string,
+        viewIn: string,
     },
     syncStatus: {
         connecting: string,

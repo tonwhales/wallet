@@ -92,7 +92,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "openSettings": "Abrir configuración",
         "exchanges": "Intercambios",
         "directDepositAddress": "Dirección de depósito directo",
-        "goBackTo": "Volver a {{name}}"
+        "goBackTo": "Volver a {{name}}",
         "viewIn": "Ver en {{name}}"
     },
     "syncStatus": {

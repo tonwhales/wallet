@@ -62,9 +62,9 @@ export const OrderInfoRich: React.FC<OrderInfoRichProps> = ({
     const onTansactionPress = useCallback(() => {
         const options = [
             t('common.cancel'),
-            'View in Changelly',
-                t('common.copy'),
-                t('common.share')
+            t('common.viewIn', { name: 'Changelly' }),
+            t('common.copy'),
+            t('common.share')
         ];
         const cancelButtonIndex = 0;
         const changellyLink = `${CHANGELLY_TRANSACTION_URL}${value}`;
@@ -133,14 +133,14 @@ export const OrderInfoRich: React.FC<OrderInfoRichProps> = ({
                 <CopyIcon style={{ height: 16, width: 16 }} height={16} width={16} color={theme.iconPrimary} />
             )}
             {isTransactionInfo && (
-                    <Image
-                        source={require('@assets/ic-explorer.png')}
-                        style={{
-                            tintColor: theme.iconPrimary,
-                            height: 20, width: 20,
-                            marginRight: -2,
-                        }}
-                    />
+                <Image
+                    source={require('@assets/ic-explorer.png')}
+                    style={{
+                        tintColor: theme.iconPrimary,
+                        height: 20, width: 20,
+                        marginRight: -2,
+                    }}
+                />
             )}
         </Pressable>
     );

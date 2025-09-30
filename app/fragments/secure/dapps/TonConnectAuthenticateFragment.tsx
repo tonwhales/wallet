@@ -71,16 +71,20 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const walletVersion = useWalletVersion();
     const toastMargin = safeArea.bottom + 56 + 48;
 
-    const handleReturnStrategy = useCallback((returnStrategy: string) => {
-        if (returnStrategy === 'back') {
-            Minimizer.goBack();
-        } else if (returnStrategy !== 'none') {
+    const handleReturnStrategy = useCallback((returnStrategy?: string, replyItems?: ExtendedConnectItemReply[]) => {
+        if (connectProps.type === TonConnectAuthType.Callback) {
+            return;
+        }
+
+        if (returnStrategy && returnStrategy !== 'none' && returnStrategy !== 'back') {
             try {
                 const url = new URL(decodeURIComponent(returnStrategy));
                 Linking.openURL(url.toString());
             } catch {
                 warn('Failed to open url');
             }
+        } else {
+            Minimizer.goBack();
         }
     }, []);
 
@@ -390,31 +394,23 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 await sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
                 success.current = true;
-                toaster.show({
-                    type: 'success',
-                    message: t('products.tonConnect.successAuth'),
-                    onDestroy: () => {
-                        navigate.current();
-                    },
-                    duration: ToastDuration.SHORT,
-                    marginBottom: toastMargin
+
+                setState(value => {
+                    if (value.type === 'initing') {
+                        return { ...value, type: 'authorized' };
+                    }
+                    return value;
                 });
                 return;
             } else if (connectProps.type === TonConnectAuthType.Callback) {
                 success.current = true;
-                toaster.show({
-                    type: 'success',
-                    message: t('products.tonConnect.successAuth'),
-                    onDestroy: () => {
-                        connectProps.callback({ ok: true, replyItems });
-
-                        timerRef.current = setTimeout(() => {
-                            navigate.current();
-                        }, 50);
-                    },
-                    duration: ToastDuration.SHORT,
-                    marginBottom: toastMargin
+                setState(value => {
+                    if (value.type === 'initing') {
+                        return { ...value, type: 'authorized', replyItems };
+                    }
+                    return value;
                 });
+                connectProps.callback({ ok: true, replyItems });
                 return;
             }
 
@@ -478,6 +474,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             onApprove={approve}
             onCancel={onCancel}
             single={connectProps.type === 'callback'}
+            handleReturnStrategy={handleReturnStrategy}
         />
     )
 });

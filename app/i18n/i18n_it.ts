@@ -91,7 +91,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Descrizione",
         "openSettings": "Apri impostazioni",
         "exchanges": "Scambi",
-        "directDepositAddress": "Indirizzo di deposito diretto"
+        "directDepositAddress": "Indirizzo di deposito diretto",
+        "goBackTo": "Torna a {{name}}"
     },
     "syncStatus": {
         "connecting": "Connessione in corso",
@@ -347,7 +348,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "Più portafogli ({{count}})",
             "connectionSecureDescription": "Nessun fondo sarà trasferito all'app e nessun accesso alle tue monete sarà concesso",
             "invalidManifest": "Errore del manifesto dell'app",
-            "invalidManifestDescription": "Questa app non è stata in grado di connettersi al tuo portafoglio. Per favore contatta il loro team di supporto."
+            "invalidManifestDescription": "Questa app non è stata in grado di connettersi al tuo portafoglio. Per favore contatta il loro team di supporto.",
+            "authorized": "{{name}} è stato collegato con successo al tuo portafoglio"
         },
         "consent": "Cliccando continua accetti i nostri"
     },

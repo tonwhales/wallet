@@ -91,7 +91,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "description": "Описание",
         "openSettings": "Открыть настройки",
         "exchanges": "Обменники",
-        "directDepositAddress": "Адрес прямого пополнения"
+        "directDepositAddress": "Адрес прямого пополнения",
+        "goBackTo": "Назад в {{name}}"
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -331,7 +332,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "moreWallets": "Еще кошельки ({{count}})",
             "connectionSecureDescription": "Никакие средства не будут переведены автоматически, приложение не сможет получить доступ к вашим монетам",
             "invalidManifest": "Ошибка манифеста приложения",
-            "invalidManifestDescription": "Это приложение не смогло подключиться к вашему кошельку. Пожалуйста, обратитесь в службу поддержки этого приложения."
+            "invalidManifestDescription": "Это приложение не смогло подключиться к вашему кошельку. Пожалуйста, обратитесь в службу поддержки этого приложения.",
+            "authorized": "{{name}} успешно подключен к вашему кошельку"
         },
         "consent": "Нажимая кнопку \"Продолжить\" вы соглашаетесь с нашими"
     },

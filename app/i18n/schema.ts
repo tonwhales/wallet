@@ -94,6 +94,7 @@ export type LocalizationSchema = {
         openSettings: string,
         exchanges: string,
         directDepositAddress: string,
+        goBackTo: string,
     },
     syncStatus: {
         connecting: string,
@@ -349,7 +350,8 @@ export type LocalizationSchema = {
             moreWallets: string,
             connectionSecureDescription: string,
             invalidManifest: string,
-            invalidManifestDescription: string
+            invalidManifestDescription: string,
+            authorized: string
         },
         consent: string,
     },

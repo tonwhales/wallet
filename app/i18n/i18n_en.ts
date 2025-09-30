@@ -91,7 +91,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Description",
         "openSettings": "Open settings",
         "exchanges": "Exchanges",
-        "directDepositAddress": "Direct deposit address"
+        "directDepositAddress": "Direct deposit address",
+        "goBackTo": "Go back to {{name}}"
     },
     "syncStatus": {
         "connecting": "Connecting",
@@ -347,7 +348,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "More wallets ({{count}})",
             "connectionSecureDescription": "No funds would be transfered to the app and no access to your coins would be granted",
             "invalidManifest": "App manifest error",
-            "invalidManifestDescription": "This app failed to connect to your wallet. Please contact their support team."
+            "invalidManifestDescription": "This app failed to connect to your wallet. Please contact their support team.",
+            "authorized": "{{name}} is successfully connected to your wallet"
         },
         "consent": "By clicking continue you accepting our"
     },

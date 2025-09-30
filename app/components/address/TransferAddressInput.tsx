@@ -272,7 +272,9 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         </PerfText>
                     </Animated.View>
                 )}
-                <AddressConfirmationRequest address={validAddress ? state.target : undefined} />
+                {__DEV__ && ( // TODO: return when wallet confirmation design is refined
+                    <AddressConfirmationRequest address={validAddress ? state.target : undefined} />
+                )}
                 <HoldersAccountsSearch
                     theme={theme}
                     onSelect={onAddressSearchItemSelected}

@@ -92,6 +92,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "openSettings": "Відкрити налаштування",
         "exchanges": "Біржі",
         "directDepositAddress": "Адреса прямого поповнення",
+        "goBackTo": "Назад до {{name}}"
         "viewIn": "Переглянути в {{name}}"
     },
     "syncStatus": {
@@ -348,7 +349,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "Більше гаманців ({{count}})",
             "connectionSecureDescription": "Жодні кошти не будуть передані до додатку і доступ до ваших монет не буде надано",
             "invalidManifest": "Помилка манифесту додатку",
-            "invalidManifestDescription": "Цей додаток не зміг підключитися до вашого гаманця. Будь ласка, зверніться до їхньої команди підтримки."
+            "invalidManifestDescription": "Цей додаток не зміг підключитися до вашого гаманця. Будь ласка, зверніться до їхньої команди підтримки.",
+            "authorized": "{{name}} успішно підключено до вашого гаманця"
         },
         "consent": "Натискаючи продовжити, ви приймаєте наші"
     },

@@ -92,6 +92,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "openSettings": "Ouvrir les paramètres",
         "exchanges": "Échanges",
         "directDepositAddress": "Adresse de dépôt direct",
+        "goBackTo": "Retour à {{name}}"
         "viewIn": "Afficher dans {{name}}"
     },
     "syncStatus": {
@@ -348,7 +349,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "Plus de portefeuilles ({{count}})",
             "connectionSecureDescription": "Aucun fonds ne sera transféré à l'application et aucun accès à vos coins ne sera accordé",
             "invalidManifest": "Erreur de manifeste de l'application",
-            "invalidManifestDescription": "Cette application a échoué à se connecter à votre portefeuille. Veuillez contacter leur équipe de support."
+            "invalidManifestDescription": "Cette application a échoué à se connecter à votre portefeuille. Veuillez contacter leur équipe de support.",
+            "authorized": "{{name}} est connecté avec succès à votre portefeuille"
         },
         "consent": "En cliquant sur Continuer, vous acceptez nos"
     },

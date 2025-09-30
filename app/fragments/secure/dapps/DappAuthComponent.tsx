@@ -30,24 +30,24 @@ import { normalizeUrl } from "../../../utils/url/resolveUrl";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
+type TonConnectBaseState = {
+    name: string,
+    url: string,
+    app: AppManifest,
+    protocolVersion: number,
+    request: ConnectRequest,
+    clientSessionId?: string,
+    returnStrategy?: ReturnStrategy,
+    domain: string,
+    manifestUrl: string
+};
 
 export type TonConnectSignState =
     { type: 'loading' }
     | { type: 'expired', returnStrategy?: ReturnStrategy }
-    | {
-        type: 'initing',
-        name: string,
-        url: string,
-        app: AppManifest,
-        protocolVersion: number,
-        request: ConnectRequest,
-        clientSessionId?: string,
-        returnStrategy?: ReturnStrategy,
-        domain: string,
-        manifestUrl: string
-    }
+    | ({ type: 'initing' } & TonConnectBaseState)
     | { type: 'completed', returnStrategy?: ReturnStrategy }
-    | { type: 'authorized', returnStrategy?: ReturnStrategy }
+    | ({ type: 'authorized' } & TonConnectBaseState)
     | { type: 'failed', returnStrategy?: ReturnStrategy }
     | { type: 'invalid-manifest', returnStrategy?: ReturnStrategy }
 export type TonXSignState =
@@ -55,7 +55,7 @@ export type TonXSignState =
     | { type: 'expired' }
     | { type: 'initing', name: string, url: string, app?: AppData | null }
     | { type: 'completed' }
-    | { type: 'authorized' }
+    | { type: 'authorized', name: string, url: string, app?: AppData | null }
     | { type: 'failed' }
 
 
@@ -70,7 +70,8 @@ export const DappAuthComponent = memo(({
     onCancel,
     addExtension,
     setAddExtension,
-    single
+    single,
+    handleReturnStrategy
 }: {
     state: SignState,
     onApprove: (selectedAccount?: SelectedAccount) => Promise<void>,
@@ -78,6 +79,7 @@ export const DappAuthComponent = memo(({
     addExtension?: boolean,
     setAddExtension?: (add: boolean) => void,
     single?: boolean
+    handleReturnStrategy?: (returnStrategy?: string) => void
 }) => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -121,13 +123,21 @@ export const DappAuthComponent = memo(({
         if (state.type === 'initing') {
             return state.connector === 'ton-connect' ? state.app?.iconUrl : state.app?.image?.preview256;
         }
+        if (state.type === 'authorized' && state.connector === 'ton-connect') {
+            return state.app?.iconUrl;
+        }
         return undefined;
     }, [state]);
 
     const domain = useMemo(() => {
-        if (state.type !== 'initing') {
+        if (state.type !== 'initing' && state.type !== 'authorized') {
             return '';
         }
+
+        if (state.type === 'authorized' && state.connector !== 'ton-connect') {
+            return '';
+        }
+
         const urlStr = state.app ? state.app.url : state.url;
         try {
             const normalized = normalizeUrl(urlStr);
@@ -186,10 +196,41 @@ export const DappAuthComponent = memo(({
         }
     }, [state, domain]);
 
+    const titleContent = useMemo(() => {
+        if (state.type === 'invalid-manifest') {
+            return (
+                <>
+                    <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
+                        {t('auth.apps.invalidManifest')}
+                    </Text>
+                    <Text style={[{ color: theme.textSecondary, textAlign: 'center', marginTop: 10 }, Typography.regular13_18]}>
+                        {t('auth.apps.invalidManifestDescription')}
+                    </Text>
+                </>
+            );
+        } else if (state.type === 'authorized') {
+            return (
+                <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
+                    {t('auth.apps.authorized', { name: domain[0].toLocaleUpperCase() + domain.slice(1) })}
+                </Text>
+            );
+        } else {
+            return (
+                <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
+                    {description}
+                </Text>
+            );
+        }
+    }, [state.type, theme.textPrimary, theme.textSecondary, description, domain]);
+
     const approveDisabled = (state.type === 'invalid-manifest')
         ? true
         : (state.type !== 'initing' || isApproving);
 
+    const navigateBack = useCallback(() => {
+        navigation.goBack();
+        handleReturnStrategy?.('returnStrategy' in state ? state.returnStrategy : undefined);
+    }, [state]);
     return (
         <View style={[
             { flexGrow: 1 },
@@ -282,22 +323,7 @@ export const DappAuthComponent = memo(({
                         </>
                     ) : (
                         <>
-                            {
-                                state.type === 'invalid-manifest' ? (
-                                    <>
-                                        <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
-                                            {t('auth.apps.invalidManifest')}
-                                        </Text>
-                                        <Text style={[{ color: theme.textSecondary, textAlign: 'center', marginTop: 10 }, Typography.regular13_18]}>
-                                            {t('auth.apps.invalidManifestDescription')}
-                                        </Text>
-                                    </>
-                                ) : (
-                                    <Text style={[{ color: theme.textPrimary, textAlign: 'center', marginTop: 10 }, Typography.semiBold27_32]}>
-                                        {description}
-                                    </Text>
-                                )
-                            }
+                            {titleContent}
                             {state.type === 'initing' && !!setAddExtension && (
                                 <CheckBox
                                     checked={addExtension}
@@ -313,7 +339,7 @@ export const DappAuthComponent = memo(({
                         </>
                     )}
                 </View>
-                {single ? (
+                {single || state.type === 'authorized' ? (
                     <>
                         <WalletItem
                             index={selectedAccountIndex}
@@ -401,20 +427,30 @@ export const DappAuthComponent = memo(({
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row', width: '100%', gap: 16, marginBottom: 16 }}>
-                        <RoundButton
-                            style={{ flex: 1 }}
-                            display={'secondary'}
-                            disabled={!onCancel || isApproving}
-                            title={t('common.cancel')}
-                            onPress={onCancel}
-                        />
-                        <RoundButton
-                            style={{ flex: 1 }}
-                            title={t('common.connect')}
-                            disabled={approveDisabled}
-                            action={doApprove}
-                            loading={state.type === 'loading' || isApproving}
-                        />
+                        {state.type === 'authorized' ? (
+                            <RoundButton
+                                style={{ flex: 1 }}
+                                title={t('common.goBackTo', { name: state.name })}
+                                onPress={navigateBack}
+                            />
+                        ) : (
+                            <>
+                                <RoundButton
+                                    style={{ flex: 1 }}
+                                    display={'secondary'}
+                                    disabled={!onCancel || isApproving}
+                                    title={t('common.cancel')}
+                                    onPress={onCancel}
+                                />
+                                <RoundButton
+                                    style={{ flex: 1 }}
+                                    title={t('common.connect')}
+                                    disabled={approveDisabled}
+                                    action={doApprove}
+                                    loading={state.type === 'loading' || isApproving}
+                                />
+                            </>
+                        )}
                     </View>
                 </View>
             </View>

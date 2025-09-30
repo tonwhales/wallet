@@ -92,6 +92,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "openSettings": "Abrir configuración",
         "exchanges": "Intercambios",
         "directDepositAddress": "Dirección de depósito directo",
+        "goBackTo": "Volver a {{name}}"
         "viewIn": "Ver en {{name}}"
     },
     "syncStatus": {
@@ -348,7 +349,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "Más billeteras ({{count}})",
             "connectionSecureDescription": "No se transferirán fondos a la aplicación y no se otorgará acceso a tus monedas",
             "invalidManifest": "Error de manifiesto de la app",
-            "invalidManifestDescription": "Esta app falló al conectar con tu billetera. Por favor contacta al equipo de soporte."
+            "invalidManifestDescription": "Esta app falló al conectar con tu billetera. Por favor contacta al equipo de soporte.",
+            "authorized": "{{name}} se ha conectado exitosamente a tu billetera"
         },
         "consent": "Al hacer clic en continuar aceptas nuestros"
     },

@@ -122,7 +122,7 @@ const TransferOrder = (props: { order: SolanaOrder, callback?: (ok: boolean, sig
                 sender: solanaAddress
             });
             registerPending(pending);
-            callback?.(true, null);
+            callback?.(true, pending.id);
         } catch (error) {
             Alert.alert(
                 t('transfer.solana.error.title'),

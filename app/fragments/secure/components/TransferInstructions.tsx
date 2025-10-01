@@ -49,7 +49,7 @@ export const TransferInstructions = (params: {
             });
             ref.current = pending.id;
             registerPending(pending);
-            callback?.(true, null);
+            callback?.(true, pending.id);
         } catch (error) {
             Alert.alert(
                 t('transfer.solana.error.title'),

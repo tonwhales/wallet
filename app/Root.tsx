@@ -23,7 +23,7 @@ import { WebViewPreloaderProvider } from './components/WebViewPreloaderContext';
 import { ToastProvider } from './components/toast/ToastProvider';
 import { runMigrations } from './migrations/runMigrations';
 
-const PERSISTANCE_VERSION = '25';
+const PERSISTANCE_VERSION = '26';
 // set default value for spam comments
 migrateDontShowComments();
 

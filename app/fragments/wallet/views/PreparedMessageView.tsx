@@ -49,7 +49,7 @@ export function PreparedMessageView(props: {
     const time = tx.base.time;
     const contractInfo = tx.contractInfo;
     const operation = message.operation;
-    // If items[0] is a token but jettonMaster is not found (swap on DEX), use items[1] (TON)
+    // If items[0] is a token but jettonMaster is not found (for example, swap on DEX), use items[1] (TON)
     const item = operation.items[0].kind === 'token' && !message.jettonMaster && operation.items.length > 1
         ? operation.items[1]
         : operation.items[0];
@@ -82,7 +82,7 @@ export function PreparedMessageView(props: {
                 if (operation.op.res === 'known.withdraw' && isLiquid) {
                     return t('known.withdrawLiquid');
                 }
-                // If this is tx.tokenTransfer but jettonMaster is not found (swap on DEX), use standard text
+                // If this is tx.tokenTransfer but jettonMaster is not found (for example, swap on DEX), use standard text
                 if (operation.op.res === 'tx.tokenTransfer' && !message.jettonMaster) {
                     if (status === 'pending') {
                         return t('tx.sending');

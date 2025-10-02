@@ -92,8 +92,8 @@ const TransactionPreview = () => {
     });
     const jettonMaster = jetton?.master ?? null;
     const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : undefined;
-    
-    // If items[0] is a token but jettonMasterContent is not found (swap on DEX), use items[1] (TON)
+
+    // If items[0] is a token but jettonMasterContent is not found (for example, swap on DEX), use items[1] (TON)
     const item = operation.items[0].kind === 'token' && !jettonMasterContent && operation.items.length > 1
         ? operation.items[1]
         : operation.items[0];
@@ -177,7 +177,7 @@ const TransactionPreview = () => {
             return 'dedust';
         } else if (operation.op?.res === 'known.cashback') {
             return 'cashback';
-        }else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
+        } else if (targetContract?.kind === 'card' || targetContract?.kind === 'jetton-card') {
             return 'holders';
         }
     }, [targetContract, ledgerAddresses, opAddress]);

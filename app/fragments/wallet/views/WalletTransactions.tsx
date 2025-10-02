@@ -147,7 +147,7 @@ export const WalletTransactions = memo((props: {
                 }
             }
             
-            // If jettonWallet is not found (swap on DEX), use TON from items[1]
+            // If jettonWallet is not found (for example, swap on DEX), use TON from items[1]
             if (!jetton && operation.items.length > 1 && operation.items[1].kind === 'ton') {
                 item = operation.items[1];
                 opAddressString = tx.base.parsed.resolvedAddress;
@@ -166,7 +166,7 @@ export const WalletTransactions = memo((props: {
 
     const onLongPress = useCallback((tx: TonTransaction, formattedAddressString?: string) => {
         const operation = tx.base.operation;
-        // If items[0] is a token but jettonDecimals is not set (swap on DEX), use items[1] (TON)
+        // If items[0] is a token but jettonDecimals is not set (for example, swap on DEX), use items[1] (TON)
         const item = operation.items[0].kind === 'token' && !tx.jettonDecimals && operation.items.length > 1
             ? operation.items[1]
             : operation.items[0];

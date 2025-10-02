@@ -167,7 +167,7 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                 const operation = message.operation;
                 const item = operation.items[0];
 
-                // If item.kind === 'token' but jettonMaster is not found (swap on DEX), use TON from items[1]
+                // If item.kind === 'token' but jettonMaster is not found (for example, swap on DEX), use TON from items[1]
                 const actualItem = item.kind === 'token' && !message.jettonMaster && operation.items.length > 1
                     ? operation.items[1]
                     : item;
@@ -192,7 +192,7 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                 })
                 const jettonMaster = jettonHint ? mapJettonFullToMasterState(jettonHint) : null;
 
-                // Если item.kind === 'token', но jettonMaster не найден (swap на DEX), используем TON из items[1]
+                // If item.kind === 'token', but jettonMaster is not found (for example, swap on DEX), use TON from items[1]
                 const actualItem = item.kind === 'token' && !jettonMaster && operation.items.length > 1
                     ? operation.items[1]
                     : item;

@@ -100,7 +100,7 @@ export function humanizeNumberAdaptive(value: string | number, alwaysShowSignifi
   // For numbers < 1 - find position of first significant digit + 2
   const str = Math.abs(num).toString();
   const match = str.match(/\.0*(\d)/);
-  const digitsAfterDot = match ? str.indexOf(match[1]) - str.indexOf('.') + 1 : 2;
+  const digitsAfterDot = match ? match[0].length : 2;
   
   return humanizeNumber(num, 0, digitsAfterDot, digitsAfterDot);
 }

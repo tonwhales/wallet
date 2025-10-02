@@ -21,18 +21,19 @@ export const OrderInfoLine: React.FC<OrderInfoLineProps> = ({
     const theme = useTheme();
 
     return (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View style={{ 
                 width: 20, 
                 height: 20, 
                 backgroundColor: theme.surfaceOnElevation, 
                 borderRadius: 10,
                 justifyContent: 'center',
-                alignItems: 'center' 
+                alignItems: 'center',
+                marginRight: 12
             }}>
                 <Icon color={theme.textSecondary} width={20} height={20} />
             </View>
-            <Text style={[Typography.regular15_20, { color: theme.textSecondary }]}>
+            <Text style={[Typography.regular15_20, { color: theme.textSecondary, marginRight: 4 }]}>
                 {label}
             </Text>
             {isLoading ? <AnimatedSkeleton /> : (

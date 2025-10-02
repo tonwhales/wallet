@@ -47,10 +47,12 @@ export const ChangellyCalculationFragment = fragment(() => {
     const [maxValue, setMaxValue] = useState(INITIAL_MAX_VALUE);
     const { currencyTo, currencyFrom } = useParams<ChangellyCalculationFragmentParams>();
     const { mutate: createChangellyTransaction, data: changellyTransaction, isSuccess: isTransactionCreated, isLoading: isCreatingTransaction } = useCreateChangellyTransaction();
-    const { mutate: estimate, data: estimation, isLoading: isFetchingEstimate } = useChangellyEstimate();
+    const { mutate: estimate, data: estimation, isLoading: isFetchingEstimate, reset: resetEstimate } = useChangellyEstimate();
     const estimateDebounced = useMemo(() => debounce(estimate, 500), []);
     const { blockchain: blockchainTo, name: nameTo } = getCoinInfoByCurrency(currencyTo);
-    
+    const [resultAmount, setResultAmount] = useState('0')
+    const isInitial = resultAmount === '0';
+
     const originBlockchain = currencyFrom.blockchain;
     const originBlockchainName = (originBlockchain || '').charAt(0).toUpperCase() + (originBlockchain || []).slice(1);
     const originBlockchainTag = getChainShortNameByChain(originBlockchain) || originBlockchain?.toUpperCase();
@@ -63,13 +65,12 @@ export const ChangellyCalculationFragment = fragment(() => {
     const originFullName = `${originCoinName} (${originBlockchainTag})`
     const networkFee = Number(estimation?.networkFee ?? 0)
     const changellyFee = Number(estimation?.fee ?? 0)
-    
-    const exchangeRateDisplayValue = estimation?.rate ? `1 ${originFullName} = ${humanizeNumberAdaptive(estimation?.rate ?? '1', true)} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
-    const networkFeeDisplayValue = estimation?.networkFee ? `${humanizeNumberAdaptive(networkFee)} ${resultFullName}` : '';
-    const changellyFeeDisplayValue = estimation?.fee ? `${humanizeNumberAdaptive(changellyFee)} ${resultFullName}` : '';
-    const isContinueButtonDisabled = isCreatingTransaction || !estimation?.amountTo;
-    const [resultAmount, setResultAmount] = useState('0')
-    
+
+    const exchangeRateDisplayValue = estimation?.rate && !isInitial ? `1 ${originFullName} = ${humanizeNumberAdaptive(estimation?.rate ?? '1', true)} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
+    const networkFeeDisplayValue = estimation?.networkFee && !isInitial ? `${humanizeNumberAdaptive(networkFee)} ${resultFullName}` : '';
+    const changellyFeeDisplayValue = estimation?.fee && !isInitial ? `${humanizeNumberAdaptive(changellyFee)} ${resultFullName}` : '';
+    const isContinueButtonDisabled = isInitial || isCreatingTransaction || !estimation?.amountTo;
+
     useEffect(() => {
         const newResultAmount = Number(estimation?.amountTo ?? 0) - Number(estimation?.networkFee ?? 0)
         if (estimation?.maxFrom) {
@@ -112,7 +113,9 @@ export const ChangellyCalculationFragment = fragment(() => {
         if (formatted !== '' && formatted !== '0') {
             estimateDebounced({ toCurrency: currencyTo, fromCurrency: originTicker, amount: parseAmountToNumber(formatted).toString() });
         } else {
-            setResultAmount('0')
+            estimateDebounced.cancel();
+            setResultAmount('0');
+            resetEstimate();
         }
     }, [amount, previousAmount, formatAmountInput]);
 

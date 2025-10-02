@@ -166,19 +166,24 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                 if (message.type === 'relayed') continue;
                 const operation = message.operation;
                 const item = operation.items[0];
-                const opAddress = item.kind === 'token' ? operation.address : message.friendlyTarget;
+
+                // If item.kind === 'token' but jettonMaster is not found (swap on DEX), use TON from items[1]
+                const actualItem = item.kind === 'token' && !message.jettonMaster && operation.items.length > 1
+                    ? operation.items[1]
+                    : item;
+
+                const opAddress = actualItem.kind === 'token' ? operation.address : message.friendlyTarget;
                 const contractInfo = await fetchContractInfo(opAddress);
-                const symbolText = item.kind === 'ton'
-                ? ' TON'
-                : (message.jettonMaster?.symbol ? ` ${message.jettonMaster.symbol}` : '')
+                const symbolText = actualItem.kind === 'ton'
+                    ? ' TON'
+                    : (message.jettonMaster?.symbol ? ` ${message.jettonMaster.symbol}` : '')
                 result.push({ ...tx, message, contractInfo, symbolText });
             }
         } else {
             try {
                 const operation = tx.base.operation;
                 const item = operation.items[0];
-                const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-                const contractInfo = await fetchContractInfo(opAddress);
+
                 const jettonHint = getJettonHint({
                     owner: owner!,
                     master: tx.base.parsed.resolvedAddress,
@@ -186,20 +191,28 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                     isTestnet,
                 })
                 const jettonMaster = jettonHint ? mapJettonFullToMasterState(jettonHint) : null;
+
+                // Если item.kind === 'token', но jettonMaster не найден (swap на DEX), используем TON из items[1]
+                const actualItem = item.kind === 'token' && !jettonMaster && operation.items.length > 1
+                    ? operation.items[1]
+                    : item;
+
+                const opAddress = actualItem.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+                const contractInfo = await fetchContractInfo(opAddress);
                 const { isSCAM } = jettonHint ? getHintFull(jettonHint as JettonFull, isTestnet) : { isSCAM: false };
-                const symbolText = item.kind === 'ton'
+                const symbolText = actualItem.kind === 'ton'
                     ? ' TON'
                     : (jettonMaster?.symbol
                         ? ` ${jettonMaster.symbol}${isSCAM ? ' • SCAM' : ''}`
                         : '')
-                const jettonDecimals = item.kind === 'ton' ? undefined : jettonMaster?.decimals;
+                const jettonDecimals = actualItem.kind === 'ton' ? undefined : jettonMaster?.decimals;
                 result.push({ ...tx, contractInfo, symbolText, jettonDecimals });
 
             } catch (e) {
                 console.log('ERROR', e);
             }
         }
-    }    
+    }
     return result;
 }
 

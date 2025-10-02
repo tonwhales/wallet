@@ -89,15 +89,16 @@ export function previewToTransferParams(
     if (tx.base.parsed.body?.type === 'payload') {
         const operation = tx.base.operation;
         const item = operation.items[0];
-        if (item.kind === 'token') {
+        // If item.kind === 'token', but jettonMasterContent is not found (swap на DEX), do not create repeatParams
+        if (item.kind === 'token' && jettonMasterContent) {
             const operation = tx.base.operation;
             const opAddressString = operation.address;
             const opAddr = Address.parseFriendly(opAddressString);
             const target = opAddr.address.toString({ testOnly: isTestnet, bounceable });
             const comment = operation.comment;
-            const amount = fromBnWithDecimals(item.amount, jettonMasterContent?.decimals ?? 9);
+            const amount = fromBnWithDecimals(item.amount, jettonMasterContent.decimals ?? 9);
             const jettonWallet = Address.parse(tx.base.parsed.resolvedAddress);
-            const jettonMaster = jettonMasterContent?.address ? Address.parse(jettonMasterContent.address) : undefined;
+            const jettonMaster = jettonMasterContent.address ? Address.parse(jettonMasterContent.address) : undefined;
 
             return {
                 type: 'simple',

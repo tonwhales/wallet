@@ -82,10 +82,23 @@ const TransactionPreview = () => {
     const tx = params.transaction;
     const operation = tx.base.operation;
     const kind = tx.base.parsed.kind;
-    const item = operation.items[0];
     const fees = BigInt(tx.base.fees);
     const messages = tx.base.outMessages ?? [];
-    const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+    
+    const resolvedAddressString = tx.base.parsed.resolvedAddress;
+    const jetton = useJetton({
+        owner: address!.toString({ testOnly: isTestnet }),
+        wallet: resolvedAddressString,
+    });
+    const jettonMaster = jetton?.master ?? null;
+    const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : undefined;
+    
+    // If items[0] is a token but jettonMasterContent is not found (swap on DEX), use items[1] (TON)
+    const item = operation.items[0].kind === 'token' && !jettonMasterContent && operation.items.length > 1
+        ? operation.items[1]
+        : operation.items[0];
+    
+    const opAddress = item.kind === 'token' ? operation.address : resolvedAddressString;
     const isOwn = appState.addresses.findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
     const parsedOpAddr = Address.parseFriendly(opAddress);
     const parsedAddress = parsedOpAddr.address;
@@ -135,13 +148,6 @@ const TransactionPreview = () => {
         );
     }, [price, currency, fees]);
 
-    const resolvedAddressString = tx.base.parsed.resolvedAddress;
-    const jetton = useJetton({
-        owner: address!.toString({ testOnly: isTestnet }),
-        wallet: resolvedAddressString,
-    });
-    const jettonMaster = jetton?.master ?? null;
-    const jettonMasterContent = jetton ? mapJettonToMasterState(jetton, isTestnet) : undefined;
     const repeatParams = useMemo(() => {
         return previewToTransferParams(tx, isTestnet, isTargetBounceable, isLedger, jettonMasterContent);
     }, [tx, isTestnet, isTargetBounceable, isLedger, jettonMasterContent]);
@@ -424,7 +430,7 @@ const TransactionPreview = () => {
                             </PerfText>
                         </PerfView>
                     ) : (
-                        !!operation.op && (
+                        !!operation.op && !(operation.op.res === 'tx.tokenTransfer' && !jettonMasterContent) && (
                             <PerfText
                                 style={[{ color: theme.textSecondary, marginTop: 2 }, Typography.regular15_20]}
                                 numberOfLines={1}

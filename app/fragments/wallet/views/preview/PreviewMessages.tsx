@@ -59,6 +59,9 @@ const MessagePreview = memo(({
 
     if (!amount && operation.items[0].kind === 'ton') {
         amount = BigInt(operation.items[0].amount);
+    } else if (!amount && operation.items[0].kind === 'token' && !message.jettonMaster && operation.items.length > 1 && operation.items[1].kind === 'ton') {
+        // If items[0] is a token but jettonMaster is not found (swap on DEX), use TON from items[1]
+        amount = BigInt(operation.items[1].amount);
     }
 
     return (

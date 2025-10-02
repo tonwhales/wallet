@@ -299,7 +299,7 @@ export const ChangellyOrderFragment = fragment(() => {
                 {isAfterCreation ? (
                     <>
                         {canSend ? <RoundButton
-                            title={'Send'}
+                            title={t('common.send')}
                             onPress={onSend}
                         /> :
                             <RoundButton
@@ -318,7 +318,7 @@ export const ChangellyOrderFragment = fragment(() => {
                 ) : (
                     <>
                         {canSend && <RoundButton
-                            title={'Send'}
+                            title={t('common.send')}
                             onPress={onSend}
                         />}
                         {isInitial && !isDepositFromTonhubDone && (

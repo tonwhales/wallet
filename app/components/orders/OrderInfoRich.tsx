@@ -92,9 +92,9 @@ export const OrderInfoRich: React.FC<OrderInfoRichProps> = ({
                     break;
                 case 3:
                     if (Platform.OS === 'ios') {
-                        Share.share({ title: t('receive.share.title'), url: changellyLink });
+                        Share.share({ url: changellyLink });
                     } else {
-                        Share.share({ title: t('receive.share.title'), message: changellyLink });
+                        Share.share({ message: changellyLink });
                     }
                     break;
                 case cancelButtonIndex:

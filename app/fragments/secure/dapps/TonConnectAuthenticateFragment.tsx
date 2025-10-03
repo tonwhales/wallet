@@ -72,7 +72,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const toastMargin = safeArea.bottom + 56 + 48;
 
     const handleReturnStrategy = useCallback((returnStrategy?: string, replyItems?: ExtendedConnectItemReply[]) => {
-        if (connectProps.type === TonConnectAuthType.Callback) {
+        if (connectProps.type === TonConnectAuthType.Callback || connectProps.type === TonConnectAuthType.Qr) {
             return;
         }
 

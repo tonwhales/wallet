@@ -69,7 +69,6 @@ export const OrderCloseModal = forwardRef<BottomSheetModal, Props>((props, ref) 
                 enablePanDownToClose={true}
                 backdropComponent={renderBackdrop}
                 enableDynamicSizing={true}
-                maxDynamicContentSize={Dimensions.get('window').height * 0.61}
                 keyboardBlurBehavior="restore"
                 android_keyboardInputMode="adjustResize"
                 handleIndicatorStyle={{

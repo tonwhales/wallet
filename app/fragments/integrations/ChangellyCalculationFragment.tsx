@@ -45,6 +45,10 @@ export const ChangellyCalculationFragment = fragment(() => {
     const [amount, setAmount] = useState('');
     const [previousAmount, setPreviousAmount] = useState('');
     const [maxValue, setMaxValue] = useState(INITIAL_MAX_VALUE);
+    const [inputFontSize, setInputFontSize] = useState(17);
+    const [resultFontSize, setResultFontSize] = useState(17);
+    const [inputWidth, setInputWidth] = useState(0);
+    const [resultWidth, setResultWidth] = useState(0);
     const { currencyTo, currencyFrom } = useParams<ChangellyCalculationFragmentParams>();
     const { mutate: createChangellyTransaction, data: changellyTransaction, isSuccess: isTransactionCreated, isLoading: isCreatingTransaction } = useCreateChangellyTransaction();
     const { mutate: estimate, data: estimation, isLoading: isFetchingEstimate, reset: resetEstimate } = useChangellyEstimate();
@@ -70,6 +74,34 @@ export const ChangellyCalculationFragment = fragment(() => {
     const networkFeeDisplayValue = estimation?.networkFee && !isInitial ? `${humanizeNumberAdaptive(networkFee)} ${resultFullName}` : '';
     const changellyFeeDisplayValue = estimation?.fee && !isInitial ? `${humanizeNumberAdaptive(changellyFee)} ${resultFullName}` : '';
     const isContinueButtonDisabled = isInitial || isCreatingTransaction || !estimation?.amountTo;
+
+    const calculateFontSize = useCallback((text: string, availableWidth: number, baseFontSize: number = 17, minFontSize: number = 8) => {
+        if (!text || !availableWidth || availableWidth < 80) return baseFontSize;
+        
+        // Approximate character width based on font size (semibold font is slightly wider)
+        const charWidth = baseFontSize * 0.6;
+        const estimatedWidth = text.length * charWidth;
+        
+        if (estimatedWidth <= availableWidth) {
+            return baseFontSize;
+        }
+        
+        // Calculate the scaling factor needed
+        const scale = availableWidth / estimatedWidth;
+        const newFontSize = Math.max(baseFontSize * scale, minFontSize);
+        
+        return Math.floor(newFontSize);
+    }, []);
+
+    useEffect(() => {
+        const newSize = calculateFontSize(amount || '0', inputWidth);
+        setInputFontSize(newSize);
+    }, [amount, inputWidth, calculateFontSize]);
+
+    useEffect(() => {
+        const newSize = calculateFontSize(resultAmount, resultWidth);
+        setResultFontSize(newSize);
+    }, [resultAmount, resultWidth, calculateFontSize]);
 
     useEffect(() => {
         const newResultAmount = Number(estimation?.amountTo ?? 0) - Number(estimation?.networkFee ?? 0)
@@ -168,10 +200,17 @@ export const ChangellyCalculationFragment = fragment(() => {
                         <TextInput
                             value={amount}
                             onChangeText={handleAmountChange}
-                            style={[Typography.semiBold17_24, { color: theme.textPrimary, textAlign: 'right', minWidth: 80 }]}
+                            style={[Typography.semiBold17_24, { 
+                                color: theme.textPrimary, 
+                                textAlign: 'right',
+                                fontSize: inputFontSize,
+                                lineHeight: inputFontSize * 1.4,
+                                flex: 1,
+                            }]}
                             keyboardType="decimal-pad"
                             placeholder="0"
                             placeholderTextColor={theme.textPrimary}
+                            onLayout={(e) => setInputWidth(e.nativeEvent.layout.width)}
                         />
                     </View>
                 </View>
@@ -191,8 +230,15 @@ export const ChangellyCalculationFragment = fragment(() => {
                         />
                         <TextInput
                             value={resultAmount}
-                            style={[Typography.semiBold17_24, { color: theme.textPrimary, textAlign: 'right', minWidth: 80 }]}
+                            style={[Typography.semiBold17_24, { 
+                                color: theme.textPrimary, 
+                                textAlign: 'right',
+                                fontSize: resultFontSize,
+                                lineHeight: resultFontSize * 1.4,
+                                flex: 1
+                            }]}
                             editable={false}
+                            onLayout={(e) => setResultWidth(e.nativeEvent.layout.width)}
                         />
                     </View>
                     <View style={{

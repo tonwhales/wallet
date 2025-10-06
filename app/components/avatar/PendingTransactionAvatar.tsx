@@ -51,7 +51,7 @@ export const PendingTransactionAvatar = memo(({
                 justifyContent: 'center'
             }}>
                 {!!forceAvatar ? (
-                    <ForcedAvatar type={forceAvatar} size={48} hideVerifIcon />
+                    <ForcedAvatar type={forceAvatar} size={48} hideVerifIcon={!verified} />
                 ) : (
                     <Avatar
                         address={address}

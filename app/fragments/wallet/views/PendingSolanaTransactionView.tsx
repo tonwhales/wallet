@@ -57,13 +57,14 @@ const PendingInstructionsView = memo(({
                     borderWidth: 0, marginRight: 8,
                     justifyContent: 'center', alignItems: 'center',
                 }}>
-                    {(transaction.status === 'pending') ? (
+                    {(transaction.status === 'pending' || transaction.status === 'sent') ? (
                         <PendingTransactionAvatar
                             address={transaction.instructions[0]?.accounts?.[0]?.pubkey.toString() ?? ''}
                             avatarId={transaction.instructions[0]?.accounts?.[0]?.pubkey.toString() ?? ''}
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={{}}
                             forceAvatar={isHolders ? 'holders' : undefined}
+                            verified={verified}
                         />
                     ) : (
                         <View>

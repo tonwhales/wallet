@@ -9,14 +9,13 @@ import {
     createUnifiedPendingJettonTransaction 
 } from '../../types/unifiedTransaction';
 import { PendingTransaction } from '../../state/pending';
-import { usePendingTransactionEffects } from './usePendingTransactionEffects';
 import { filterTransactionsBeforeEarliestPending } from './transactionFilters';
 
 export function useUnifiedJettonTransactions(owner: string, master: string) {
     const { isTestnet } = useNetwork();
     const address = Address.parse(owner);
     const txsQuery = useJettonTransactions(owner, master, { refetchOnMount: true });
-    const { state: pending, removePending, markAsSent, markAsTimedOut } = usePendingActions(address.toString({ testOnly: isTestnet }), isTestnet, txsQuery.refresh);
+    const { state: pending, markAsSent, markAsTimedOut } = usePendingActions(address.toString({ testOnly: isTestnet }), isTestnet, txsQuery.refresh);
 
     // Filter pending transactions for this specific jetton
     const jettonPending = useMemo(() => {
@@ -34,12 +33,6 @@ export function useUnifiedJettonTransactions(owner: string, master: string) {
             return false;
         });
     }, [pending, master]);
-
-    usePendingTransactionEffects({
-        pendingTransactions: jettonPending,
-        txsQuery,
-        removePending
-    });
     
     const { unifiedTransactions, pendingCount } = useMemo(() => {
         const blockchainTxs: UnifiedJettonTransaction[] = (txsQuery.data?.flat() ?? []).map(createUnifiedJettonTransaction);

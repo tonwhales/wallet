@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useNetwork, usePendingSolanaTransactions, useSolanaTokenTransactions, useSolanaTransactions } from "..";
 import { PendingTransactionStatus } from "../../state/pending";
+import { usePendingTransactionEffects } from "./usePendingTransactionEffects";
 
 export function usePendingSolanaActions(address: string, mint?: string) {
     const { isTestnet } = useNetwork();
@@ -26,6 +27,12 @@ export function usePendingSolanaActions(address: string, mint?: string) {
             return prev.filter((tx) => !ids.includes(tx.id));
         });
     }, []);
+
+    usePendingTransactionEffects({
+        pendingTransactions: pending,
+        txsQuery,
+        removePending: remove,
+    });
 
     const setStatus = (id: string, status: PendingTransactionStatus) => {
         setPendingRef.current((prev) => {

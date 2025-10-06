@@ -4,7 +4,6 @@ import { TransactionType } from '../../types';
 import { useAccountTransactionsV2 } from './useAccountTransactionsV2';
 import { usePendingActions } from '..';
 import { UnifiedTonTransaction, createUnifiedTonTransaction, createUnifiedPendingTonTransaction } from '../../types/unifiedTransaction';
-import { usePendingTransactionEffects } from './usePendingTransactionEffects';
 import { filterTransactionsBeforeEarliestPending } from './transactionFilters';
 
 export function useUnifiedTransactions(address: Address, isTestnet: boolean) {
@@ -13,14 +12,7 @@ export function useUnifiedTransactions(address: Address, isTestnet: boolean) {
         { refetchOnMount: true },
         { type: TransactionType.TON }
     );
-    const { state: pending, removePending, markAsSent, markAsTimedOut } = usePendingActions(address.toString({ testOnly: isTestnet }), isTestnet);
-
-    usePendingTransactionEffects({
-        pendingTransactions: pending,
-        txsQuery,
-        removePending,
-        hideLoaderOnRefresh: true
-    });
+    const { state: pending, markAsSent, markAsTimedOut } = usePendingActions(address.toString({ testOnly: isTestnet }), isTestnet);
 
     const { unifiedTransactions, pendingCount } = useMemo(() => {
         const blockchainTxs: UnifiedTonTransaction[] = (txsQuery.data ?? []).map(createUnifiedTonTransaction);

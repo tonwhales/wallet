@@ -111,9 +111,13 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
 
             if (!amount && operation.items[0].kind === 'ton') {
                 amount = BigInt(operation.items[0].amount);
+            } else if (!amount && operation.items.length > 1 && operation.items[1].kind === 'ton') {
+                // If items[0] is a token but jettonMaster is not found, use TON from items[1]
+                amount = BigInt(operation.items[1].amount);
             }
 
-            if (!jettonAmount && operation.items[0].kind === 'token') {
+            if (!jettonAmount && operation.items[0].kind === 'token' && jettonMaster) {
+                // Use jettonAmount only if jettonMaster is found
                 jettonAmount = BigInt(operation.items[0].amount);
             }
 

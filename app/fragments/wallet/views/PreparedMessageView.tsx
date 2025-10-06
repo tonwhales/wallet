@@ -49,7 +49,10 @@ export function PreparedMessageView(props: {
     const time = tx.base.time;
     const contractInfo = tx.contractInfo;
     const operation = message.operation;
-    const item = operation.items[0];
+    // If items[0] is a token but jettonMaster is not found (for example, swap on DEX), use items[1] (TON)
+    const item = operation.items[0].kind === 'token' && !message.jettonMaster && operation.items.length > 1
+        ? operation.items[1]
+        : operation.items[0];
     const itemAmount = BigInt(item.amount);
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount
     const showAmount = absAmount >= 0n
@@ -79,6 +82,14 @@ export function PreparedMessageView(props: {
                 if (operation.op.res === 'known.withdraw' && isLiquid) {
                     return t('known.withdrawLiquid');
                 }
+                // If this is tx.tokenTransfer but jettonMaster is not found (for example, swap on DEX), use standard text
+                if (operation.op.res === 'tx.tokenTransfer' && !message.jettonMaster) {
+                    if (status === 'pending') {
+                        return t('tx.sending');
+                    } else {
+                        return t('tx.sent');
+                    }
+                }
                 return t(operation.op.res, operation.op.options);
             } else {
                 if (status === 'pending') {
@@ -87,7 +98,7 @@ export function PreparedMessageView(props: {
                     return t('tx.sent');
                 }
             }
-        }, [operation.op, status, parsedAddress, isTestnet]
+        }, [operation.op, status, parsedAddress, isTestnet, message.jettonMaster]
     );
 
     // Resolve built-in known wallets

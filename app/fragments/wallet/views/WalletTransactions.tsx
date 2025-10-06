@@ -117,8 +117,8 @@ export const WalletTransactions = memo((props: {
     const onRepeatTx = useCallback(async (tx: TonTransaction, formattedAddressString: string) => {
         const amount = BigInt(tx.base.parsed.amount);
         const operation = tx.base.operation;
-        const item = operation.items[0];
-        const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        let item = operation.items[0];
+        let opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
 
         let jetton: Address | undefined = undefined;
 
@@ -146,6 +146,12 @@ export const WalletTransactions = memo((props: {
                     warn('Failed to fetch jetton wallet');
                 }
             }
+            
+            // If jettonWallet is not found (for example, swap on DEX), use TON from items[1]
+            if (!jetton && operation.items.length > 1 && operation.items[1].kind === 'ton') {
+                item = operation.items[1];
+                opAddressString = tx.base.parsed.resolvedAddress;
+            }
         }
 
         navigation.navigateSimpleTransfer({
@@ -160,7 +166,10 @@ export const WalletTransactions = memo((props: {
 
     const onLongPress = useCallback((tx: TonTransaction, formattedAddressString?: string) => {
         const operation = tx.base.operation;
-        const item = operation.items[0];
+        // If items[0] is a token but jettonDecimals is not set (for example, swap on DEX), use items[1] (TON)
+        const item = operation.items[0].kind === 'token' && !tx.jettonDecimals && operation.items.length > 1
+            ? operation.items[1]
+            : operation.items[0];
         const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
         const opAddressFriendly = Address.parseFriendly(opAddress);
         const opAddressInAnotherFormat = opAddressFriendly.address.toString({ testOnly: isTestnet, bounceable: !opAddressFriendly.isBounceable });

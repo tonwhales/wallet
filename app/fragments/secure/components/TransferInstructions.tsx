@@ -48,7 +48,7 @@ export const TransferInstructions = (params: {
                 transaction
             });
             ref.current = pending.id;
-            registerPending(pending);
+            registerPending({...pending, id: pending.base58Signature });
             callback?.(true, pending.id);
         } catch (error) {
             Alert.alert(

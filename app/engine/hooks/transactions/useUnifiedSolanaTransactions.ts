@@ -8,13 +8,12 @@ import {
     createUnifiedPendingSolanaTransaction 
 } from '../../types/unifiedTransaction';
 import { PendingSolanaTransaction } from '../../state/pending';
-import { usePendingTransactionEffects } from './usePendingTransactionEffects';
 
 export function useUnifiedSolanaTransactions(address: string, mint?: string) {
     const nativeTxsQuery = useSolanaTransactions(address, !mint); // Enable for native SOL wallet
     const tokenTxsQuery = useSolanaTokenTransactions(address, mint, !!mint); // Enable for token wallet
     const txsQuery = mint ? tokenTxsQuery : nativeTxsQuery;
-    const { state: pending, remove: removePending } = usePendingSolanaActions(address, mint);
+    const { state: pending } = usePendingSolanaActions(address, mint);
 
     // Filter pending transactions for this specific token (if mint is provided)
     const filteredPending = useMemo(() => {
@@ -32,12 +31,6 @@ export function useUnifiedSolanaTransactions(address: string, mint?: string) {
             return false;
         });
     }, [pending, mint]);
-
-    usePendingTransactionEffects({
-        pendingTransactions: filteredPending,
-        txsQuery,
-        removePending,
-    });
     
     const { unifiedTransactions, pendingCount } = useMemo(() => {
         

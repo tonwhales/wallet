@@ -3,6 +3,7 @@ import { usePendingTransactions } from "..";
 import { PendingTransactionStatus } from "../../state/pending";
 import { TonTransaction, TransactionType } from "../../types";
 import { useAccountTransactionsV2 } from "./useAccountTransactionsV2";
+import { usePendingTransactionEffects } from "./usePendingTransactionEffects";
 
 export function usePendingActions(address: string, isTestnet: boolean, onRefreshCallback?: () => void) {
     const [pending, setPending] = usePendingTransactions(address, isTestnet);
@@ -28,6 +29,13 @@ export function usePendingActions(address: string, isTestnet: boolean, onRefresh
             return prev.filter((tx) => !ids.includes(tx.id));
         });
     }, []);
+
+    usePendingTransactionEffects({
+        pendingTransactions: pending,
+        txsQuery,
+        removePending,
+        hideLoaderOnRefresh: true
+    });
 
     const markAsTimedOut = useCallback(async (id: string) => {
         onRefresh();

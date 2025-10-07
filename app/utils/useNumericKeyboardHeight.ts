@@ -1,5 +1,4 @@
-import { useDimensions } from '@react-native-community/hooks';
-import { Platform } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
 
 // 216 / 291 / 301
 // 667 / 812 / 896
@@ -13,11 +12,11 @@ export function useNumericKeyboardHeight() {
             return 0;
         }
 
-        let dimensions = useDimensions();
-        if (dimensions.screen.height <= 667) {
+        let dimensions = useWindowDimensions();
+        if (dimensions.height <= 667) {
             return 216 + 45;
         }
-        if (dimensions.screen.height <= 812) {
+        if (dimensions.height <= 812) {
             return 291 + 45;
         }
         return 301 + 45;

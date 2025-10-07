@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, View, Text, Pressable, Image } from "react-native";
+import { Platform, View, Text, Pressable, Image, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -7,7 +7,6 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../../components/RoundButton";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useDimensions } from "@react-native-community/hooks";
 import { useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { StatusBar } from "expo-status-bar";
@@ -31,7 +30,7 @@ export const HardwareWalletFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
-    const dimentions = useDimensions();
+    const dimentions = useWindowDimensions();
     const { selectedAddress } = useParams<LedgerDeviceSelectionParams>();
 
     const [searching, setSearching] = useState(false);
@@ -98,12 +97,12 @@ export const HardwareWalletFragment = fragment(() => {
                 }}>
                     <Image
                         style={{
-                            width: dimentions.screen.width - 32,
-                            height: dimentions.screen.width - 32,
+                            width: dimentions.width - 32,
+                            height: dimentions.width - 32,
                             overflow: 'hidden'
                         }}
-                        height={dimentions.screen.width - 32}
-                        width={dimentions.screen.width - 32}
+                        height={dimentions.width - 32}
+                        width={dimentions.width - 32}
                         source={
                             ledgerImages[Platform.OS === 'android' ? 'android' : 'ios'][theme.style]
                         }

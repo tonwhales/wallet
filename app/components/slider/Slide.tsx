@@ -1,6 +1,5 @@
-import { useDimensions } from "@react-native-community/hooks";
 import React, { memo } from "react";
-import { View, Text, Image, ImageSourcePropType } from "react-native";
+import { View, Text, Image, ImageSourcePropType, useWindowDimensions } from "react-native";
 import { useTheme } from "../../engine/hooks";
 
 export const Slide = memo((
@@ -17,12 +16,12 @@ export const Slide = memo((
     }
 ) => {
     const theme = useTheme();
-    const dimensions = useDimensions();
-    const imgWidth = dimensions.screen.height > 800 ? dimensions.screen.width - 64 : 248;
+    const dimensions = useWindowDimensions();
+    const imgWidth = dimensions.height > 800 ? dimensions.width - 64 : 248;
 
     return (
         <View style={{
-            width: dimensions.screen.width,
+            width: dimensions.width,
             justifyContent: 'center', alignItems: 'center',
         }}>
             <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>

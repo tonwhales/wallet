@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { Alert, Platform, View, Text, Image, ScrollView } from 'react-native';
+import { Alert, Platform, View, Text, Image, ScrollView, useWindowDimensions } from 'react-native';
 import { BiometricsState, encryptAndStoreAppKeyWithBiometrics } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
 import { memo, useCallback, useState } from 'react';
-import { useDimensions } from '@react-native-community/hooks';
 import { useSetBiometricsState, useTheme } from '../../engine/hooks';
 import { ThemeStyle } from '../../engine/state/theme';
 import { ScreenHeader } from '../ScreenHeader';
@@ -20,7 +19,7 @@ export const WalletSecureComponent = memo((props: {
     import?: boolean
 }) => {
     const safeArea = useSafeAreaInsets();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const theme = useTheme();
     // Action
     const [loading, setLoading] = useState(false);
@@ -103,7 +102,7 @@ export const WalletSecureComponent = memo((props: {
             />
             <ScrollView
                 bounces={false}
-                style={{ height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}
+                style={{ height: dimensions.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}
             >
                 <View style={{
                     backgroundColor: theme.backgroundPrimary,
@@ -141,11 +140,11 @@ export const WalletSecureComponent = memo((props: {
                         <View style={{
                             justifyContent: 'center', alignItems: 'center',
                             aspectRatio: 0.92,
-                            width: dimensions.screen.width - 32,
+                            width: dimensions.width - 32,
                         }}>
                             <Image
                                 resizeMode={'contain'}
-                                style={{ width: dimensions.screen.width - 32 }}
+                                style={{ width: dimensions.width - 32 }}
                                 source={imgSource}
                             />
                         </View>

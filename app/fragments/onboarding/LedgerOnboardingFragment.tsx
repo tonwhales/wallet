@@ -1,12 +1,11 @@
 import React, { useCallback } from "react";
-import { Platform, ScrollView, Text, View, Image } from "react-native";
+import { Platform, ScrollView, Text, View, Image, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
 import { useTheme } from '../../engine/hooks';
-import { useDimensions } from "@react-native-community/hooks";
 import { ScreenHeader } from "../../components/ScreenHeader";
 
 import { ledgerImages } from "../ledger/HardwareWalletFragment";
@@ -14,7 +13,7 @@ import { Typography } from "../../components/styles";
 
 export const LedgerOnboardingFragment = systemFragment(() => {
     const theme = useTheme();
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -55,16 +54,16 @@ export const LedgerOnboardingFragment = systemFragment(() => {
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         aspectRatio: 0.92,
-                        width: dimensions.screen.width - 32,
+                        width: dimensions.width - 32,
                     }}>
                         <Image
                             style={{
-                                width: dimensions.screen.width - 32,
-                                height: dimensions.screen.width - 32,
+                                width: dimensions.width - 32,
+                                height: dimensions.width - 32,
                                 overflow: 'hidden'
                             }}
-                            height={dimensions.screen.width - 32}
-                            width={dimensions.screen.width - 32}
+                            height={dimensions.width - 32}
+                            width={dimensions.width - 32}
                             source={
                                 ledgerImages[Platform.OS === 'android' ? 'android' : 'ios'][theme.style]
                             }

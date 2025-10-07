@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image } from 'react-native';
+import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
@@ -8,13 +8,11 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { RoundButton } from '../../components/RoundButton';
-import { useDimensions } from '@react-native-community/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Canvas, rrect, rect, DiffRect } from '@shopify/react-native-skia';
 import * as RNImagePicker from 'expo-image-picker';
-import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
-import { Camera, FlashMode } from 'expo-camera';
+import { CameraView, useCameraPermissions, BarcodeScanningResult, scanFromURLAsync } from 'expo-camera';
 import { useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
 import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
@@ -34,14 +32,14 @@ export const ScannerFragment = systemFragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
-    const dimensions = useDimensions();
+    const dimensions = useWindowDimensions();
     const navigation = useNavigation();
 
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
 
-    const cameraRef = useRef<Camera>(null);
+    const cameraRef = useRef<CameraView>(null);
 
     // Screen Ratio and image padding for Android
     // The issue arises from the discrepancy between the camera preview's aspect ratio and the screen's aspect ratio. 
@@ -76,7 +74,7 @@ export const ScannerFragment = systemFragment(() => {
                 });
                 if (!result.canceled) {
                     const resourceUri = result.assets[0].uri;
-                    const results = await BarCodeScanner.scanFromURLAsync(resourceUri);
+                    const results = await scanFromURLAsync(resourceUri, ['qr', 'pdf417']);
                     if (results.length > 0) {
                         const res = results[0];
                         setActive(false);
@@ -101,7 +99,7 @@ export const ScannerFragment = systemFragment(() => {
             });
             if (!result.canceled) {
                 const resourceUri = result.assets[0].uri;
-                const results = await BarCodeScanner.scanFromURLAsync(resourceUri);
+                const results = await scanFromURLAsync(resourceUri, ['qr']);
                 if (results.length > 0) {
                     const res = results[0];
                     setActive(false);
@@ -116,14 +114,17 @@ export const ScannerFragment = systemFragment(() => {
         }
     }, []);
 
-    useEffect(() => {
-        (async () => {
-            const status = await BarCodeScanner.requestPermissionsAsync();
-            setHasPermission(status.granted);
-        })();
-    }, []);
+    const [permission, requestPermission] = useCameraPermissions();
 
-    const onScanned = useCallback((res: BarCodeScannerResult) => {
+    useEffect(() => {
+        if (permission === null) {
+            requestPermission();
+        } else {
+            setHasPermission(permission.granted);
+        }
+    }, [permission]);
+
+    const onScanned = useCallback((res: BarcodeScanningResult) => {
         if (res.data.length > 0) {
             if (route && (route as any).callback) {
                 setActive(false);
@@ -136,11 +137,11 @@ export const ScannerFragment = systemFragment(() => {
         }
     }, [route]);
 
-    const rectSize = dimensions.screen.width - (45 * 2);
-    const topLeftOuter0 = rrect(rect(0, 0, dimensions.screen.height, dimensions.screen.height), 10, 10);
+    const rectSize = dimensions.width - (45 * 2);
+    const topLeftOuter0 = rrect(rect(0, 0, dimensions.height, dimensions.height), 10, 10);
     const topLeftInner0 = rrect(rect(
-        (dimensions.screen.width - rectSize) / 2,
-        (dimensions.screen.height - rectSize) / 2 - safeArea.top - safeArea.bottom,
+        (dimensions.width - rectSize) / 2,
+        (dimensions.height - rectSize) / 2 - safeArea.top - safeArea.bottom,
         rectSize,
         rectSize
     ), 16, 16);
@@ -182,14 +183,14 @@ export const ScannerFragment = systemFragment(() => {
                     }}>
                         <View style={{
                             justifyContent: 'center', alignItems: 'center',
-                            width: dimensions.screen.width - 32,
-                            height: (dimensions.screen.width - 32) * 0.91,
+                            width: dimensions.width - 32,
+                            height: (dimensions.width - 32) * 0.91,
                             borderRadius: 20, overflow: 'hidden',
                             marginBottom: 32,
                         }}>
                             <Image
                                 resizeMode={'center'}
-                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                                style={{ height: dimensions.width - 32, width: dimensions.width - 32, marginTop: -20 }}
                                 source={EmptyIllustrations[theme.style]}
                             />
                         </View>
@@ -228,16 +229,18 @@ export const ScannerFragment = systemFragment(() => {
                     {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
 
                     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                        <Camera
+                        <CameraView
                             ref={cameraRef}
-                            onBarCodeScanned={!isActive ? undefined : onScanned}
+                            onBarcodeScanned={!isActive ? undefined : onScanned}
                             style={[
                                 StyleSheet.absoluteFill,
                                 Platform.select({ android: { marginTop: imagePadding, marginBottom: imagePadding } })
                             ]}
-                            flashMode={flashOn ? FlashMode.torch : FlashMode.off}
+                            enableTorch={flashOn}
                             onCameraReady={onCameraReady}
-                            ratio={ratio}
+                            barcodeScannerSettings={{
+                                barcodeTypes: ["qr"],
+                            }}
                         />
                         {Platform.OS === 'android' && (
                             <Animated.View style={[
@@ -257,7 +260,7 @@ export const ScannerFragment = systemFragment(() => {
                     </Canvas>
                     <View style={{
                         position: 'absolute', 
-                        top: (dimensions.screen.height - rectSize) / 2 - safeArea.top - safeArea.bottom + rectSize + 8,
+                        top: (dimensions.height - rectSize) / 2 - safeArea.top - safeArea.bottom + rectSize + 8,
                         left: 0, 
                         right: 0,
                         alignItems: 'center',

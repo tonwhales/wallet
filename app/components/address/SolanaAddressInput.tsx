@@ -1,7 +1,6 @@
 import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef } from "react"
 import { Pressable, Image, TextInput, View, Text, LayoutChangeEvent } from "react-native"
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
-import { BarCodeScanner } from 'expo-barcode-scanner';
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { Typography } from "../styles";
@@ -142,7 +141,6 @@ export const SolanaAddressInput = memo(forwardRef(({
 
     const openScanner = () => {
         (async () => {
-            await BarCodeScanner.requestPermissionsAsync();
             navigation.navigateScanner({ callback: onQRCodeRead });
         })();
     };

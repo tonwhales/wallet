@@ -67,7 +67,7 @@ export function usePendingActions(address: string, isTestnet: boolean, onRefresh
         const toMarkAsSent = pending.filter((tx) => {
             const isToBeMarkedAsSent = last32Txs.some((t) => {
                 const txSeqno = t.base?.parsed?.seqno;
-                const isBlockchainTxNewerThanPending = (t.base.time - tx.time) > 0;
+                const isBlockchainTxNewerThanPending = (t.base.time - tx.time) >= 0;
                 const seqnoDiff = tx.seqno - (txSeqno ?? 0);
 
                 // in some cases (like gasless USDT) seqno is not present, that's why we use time comparison

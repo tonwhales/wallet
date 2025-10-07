@@ -41,7 +41,7 @@ const CardActionBanner = memo(({ onPress, content, gradient }: { onPress: () => 
             {gradient && (
                 <LinearGradient
                     style={styles.gradient}
-                    colors={gradientColors}
+                    colors={gradientColors as [string, string, ...string[]]}
                     start={[0, 1]}
                     end={[1, 0]}
                 />
@@ -222,7 +222,7 @@ const ChipActionBanner = memo(({ address, onPress, content, gradient }: { addres
             {gradient && (
                 <LinearGradient
                     style={styles.gradient}
-                    colors={gradientColors}
+                    colors={gradientColors as [string, string, ...string[]]}
                     start={[0, 1]}
                     end={[1, 0]}
                 />

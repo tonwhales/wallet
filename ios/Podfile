@@ -53,13 +53,6 @@ target 'WhalesApp' do
         end
       end
 
-      # Workaround for XCode 14.3
-      if (target.name&.eql?('React-Codegen'))
-        target.build_configurations.each do |config|
-          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
-        end
-      end
-
       # Workaround for Flipper on XCode 15.3
       if target.name == 'Flipper'
         file_path = 'Pods/Flipper/xplat/Flipper/FlipperTransportTypes.h'

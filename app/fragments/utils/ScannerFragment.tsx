@@ -12,7 +12,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Canvas, rrect, rect, DiffRect } from '@shopify/react-native-skia';
 import * as RNImagePicker from 'expo-image-picker';
-import { CameraView, useCameraPermissions, BarcodeScanningResult, scanFromURLAsync } from 'expo-camera';
+import { CameraView, BarcodeScanningResult, Camera } from 'expo-camera';
 import { useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
 import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
@@ -74,7 +74,7 @@ export const ScannerFragment = systemFragment(() => {
                 });
                 if (!result.canceled) {
                     const resourceUri = result.assets[0].uri;
-                    const results = await scanFromURLAsync(resourceUri, ['qr', 'pdf417']);
+                    const results = await Camera.scanFromURLAsync(resourceUri);
                     if (results.length > 0) {
                         const res = results[0];
                         setActive(false);
@@ -99,7 +99,7 @@ export const ScannerFragment = systemFragment(() => {
             });
             if (!result.canceled) {
                 const resourceUri = result.assets[0].uri;
-                const results = await scanFromURLAsync(resourceUri, ['qr']);
+                const results = await Camera.scanFromURLAsync(resourceUri);
                 if (results.length > 0) {
                     const res = results[0];
                     setActive(false);
@@ -114,15 +114,12 @@ export const ScannerFragment = systemFragment(() => {
         }
     }, []);
 
-    const [permission, requestPermission] = useCameraPermissions();
-
     useEffect(() => {
-        if (permission === null) {
-            requestPermission();
-        } else {
+        (async () => {
+            const permission = await Camera.requestCameraPermissionsAsync();
             setHasPermission(permission.granted);
-        }
-    }, [permission]);
+        })();
+    }, []);
 
     const onScanned = useCallback((res: BarcodeScanningResult) => {
         if (res.data.length > 0) {
@@ -236,7 +233,7 @@ export const ScannerFragment = systemFragment(() => {
                                 StyleSheet.absoluteFill,
                                 Platform.select({ android: { marginTop: imagePadding, marginBottom: imagePadding } })
                             ]}
-                            enableTorch={flashOn}
+                            flash={flashOn ? 'on' : 'off'}
                             onCameraReady={onCameraReady}
                             barcodeScannerSettings={{
                                 barcodeTypes: ["qr"],
@@ -259,9 +256,9 @@ export const ScannerFragment = systemFragment(() => {
                         <DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color={'rgba(0,0,0,0.5)'} />
                     </Canvas>
                     <View style={{
-                        position: 'absolute', 
+                        position: 'absolute',
                         top: (dimensions.height - rectSize) / 2 - safeArea.top - safeArea.bottom + rectSize + 8,
-                        left: 0, 
+                        left: 0,
                         right: 0,
                         alignItems: 'center',
                     }}>

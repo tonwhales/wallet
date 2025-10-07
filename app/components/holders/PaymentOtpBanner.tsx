@@ -209,7 +209,7 @@ export const PaymentOtpBanner = memo(({ address }: { address: Address }) => {
         >
             <LinearGradient
                 style={styles.gradient}
-                colors={gradientColors}
+                colors={gradientColors as [string, string, ...string[]]}
                 start={[0, 1]}
                 end={[1, 0]}
             />

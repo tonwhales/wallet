@@ -1,4 +1,4 @@
-import { Camera } from "expo-camera";
+import { CameraRatio, CameraView } from "expo-camera";
 import { useState } from "react";
 import { Dimensions, Platform } from "react-native";
 
@@ -6,18 +6,18 @@ export function useCameraAspectRatio() {
     // Screen Ratio and image padding for Android
     const [previewSettings, setPreviewSettings] = useState<{
         imagePadding: number;
-        ratio: string | undefined;
+        ratio: CameraRatio | undefined;
         ready: boolean;
     }>({ imagePadding: 0, ratio: undefined, ready: false });
     const { height, width } = Dimensions.get('window');
     const screenRatio = height / width;
 
     // set the camera ratio and padding (portrait mode)
-    const prepareRatio = async (camera: Camera) => {
+    const prepareRatio = async (camera: CameraView) => {
         let desiredRatio = '4:3';  // Start with the system default
         // This issue only affects Android
         if (Platform.OS === 'android') {
-            const ratios = await camera.getSupportedRatiosAsync();
+            const ratios = await camera.getAvailablePictureSizesAsync();
 
             // Calculate the width/height of each of the supported camera ratios
             // These width/height are measured in landscape mode
@@ -47,7 +47,7 @@ export function useCameraAspectRatio() {
                 (height - realRatios[desiredRatio] * width) / 2
             );
             // set padding and ratio
-            setPreviewSettings({ imagePadding: remainder, ratio: desiredRatio, ready: true });
+            setPreviewSettings({ imagePadding: remainder, ratio: desiredRatio as CameraRatio, ready: true });
         }
     };
 

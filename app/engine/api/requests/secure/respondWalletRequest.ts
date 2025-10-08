@@ -1,8 +1,8 @@
 import axios from "axios";
-import { WalletKeys } from "../../../storage/walletKeys";
-import { whalesConnectEndpoint } from "../../clients";
+import { WalletKeys } from "../../../../storage/walletKeys";
+import { whalesConnectEndpoint } from "../../../clients";
 import { signWalletRequest } from "./signWalletRequest";
-import { WalletRequest } from "../../WalletRequestsWatcher";
+import { WalletRequest } from "../../../WalletRequestsWatcher";
 
 function createResponseSignatureMessage(
     requestId: string,

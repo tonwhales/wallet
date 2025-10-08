@@ -2,7 +2,7 @@ import { memo, useCallback } from "react";
 import { WalletRequest } from "../../engine/WalletRequestsWatcher";
 import { Pressable, View, Text } from "react-native";
 import { useCurrentAddress, useNetwork, useTheme } from "../../engine/hooks";
-import { respondWalletRequest } from "../../engine/api/requests/respondWalletRequest";
+import { respondWalletRequest } from "../../engine/api/requests/secure/respondWalletRequest";
 import { useKeysAuth } from "../secure/AuthWalletKeys";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { t } from "../../i18n/t";

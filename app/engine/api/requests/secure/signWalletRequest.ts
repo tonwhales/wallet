@@ -1,5 +1,5 @@
 import { sha256_sync } from "@ton/crypto";
-import { WalletKeys } from "../../../storage/walletKeys";
+import { WalletKeys } from "../../../../storage/walletKeys";
 import nacl from "tweetnacl";
 import { Base64 } from "@tonconnect/protocol";
 

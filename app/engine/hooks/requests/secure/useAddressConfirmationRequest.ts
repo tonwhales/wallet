@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
-import { createWalletRequest } from "../../api/requests/createWalletRequest";
-import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { useCurrentAddress, useNetwork } from "..";
-import { walletRequestsState } from "../../useWalletRequestsWatcher";
+import { createWalletRequest } from "../../../api/requests/secure/createWalletRequest";
+import { useKeysAuth } from "../../../../components/secure/AuthWalletKeys";
+import { useCurrentAddress, useNetwork } from "../..";
+import { walletRequestsState } from "../../../useWalletRequestsWatcher";
 import { useRecoilState } from "recoil";
 
 export function useAddressConfirmationRequest(address?: string) {
@@ -26,9 +26,7 @@ export function useAddressConfirmationRequest(address?: string) {
             });
             setRequests(prev => [...prev, res]);
             setRequestId(res.requestId);
-        } catch (error) {
-            console.error('useAddressConfirmationRequest error', error);
-        }
+        } catch { }
     }, [address, authWalletKeys, currentAddress, isTestnet]);
 
     const reset = useCallback(() => {

@@ -93,7 +93,6 @@ import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStaking
 import { ContactNewFragment } from './fragments/contacts/ContactNewFragment';
 import { SearchEngineFragment } from './fragments/SearchEngineFragment';
 import { ProductsListFragment } from './fragments/wallet/ProductsListFragment';
-import { PendingTxsWatcher } from './components/PendingTxsWatcher';
 import { TonconnectWatcher } from './components/TonconnectWatcher';
 import { SessionWatcher } from './components/SessionWatcher';
 import { MandatoryAuthSetupFragment } from './fragments/secure/MandatoryAuthSetupFragment';
@@ -127,6 +126,7 @@ import { ChangellyListFragment } from './fragments/integrations/ChangellyListFra
 import { ChangellyCalculationFragment } from './fragments/integrations/ChangellyCalculationFragment';
 import { ChangellyOrderFragment } from './fragments/integrations/ChangellyOrderFragment';
 import { SwapFragment } from './fragments/wallet/SwapFragment';
+import { isLatestIos } from './utils/isLatestIos';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -243,7 +243,7 @@ function transparentModalScreen(name: string, component: React.ComponentType<any
             name={name}
             component={component}
             options={{
-                presentation: 'modal',
+                presentation: isLatestIos ? 'containedTransparentModal' : 'modal',
                 headerShown: false,
                 contentStyle: { backgroundColor: Platform.OS === 'ios' ? 'transparent' : theme.backgroundPrimary },
             }}
@@ -560,7 +560,6 @@ export const Navigation = memo(() => {
                 </Stack.Navigator>
             </NavigationContainer>
             <HintsPrefetcher />
-            <PendingTxsWatcher />
             <TonconnectWatcher />
             <SessionWatcher navRef={navigationRef} />
             <Splash hide={hideSplash} />

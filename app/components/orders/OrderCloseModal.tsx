@@ -1,12 +1,11 @@
 import { Dimensions, Platform, Text } from "react-native";
 import { BottomSheetBackdrop, BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useRef, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
-import { useTheme } from "../../engine/hooks";
+import { useSupport, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
 import { RoundButton } from "../RoundButton";
 import { BottomSheetScrollViewMethods } from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheetScrollable/types";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Intercom, { Space } from "@intercom/intercom-react-native";
 import { t } from "../../i18n/t";
 import { ThemeStyle } from "../../engine/state/theme";
 
@@ -20,6 +19,7 @@ export const OrderCloseModal = forwardRef<BottomSheetModal, Props>((props, ref) 
     const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null);
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
+    const { onSupport } = useSupport();
 
     useImperativeHandle(ref, () => bottomSheetRef.current!, []);
 
@@ -35,10 +35,6 @@ export const OrderCloseModal = forwardRef<BottomSheetModal, Props>((props, ref) 
                 appearsOnIndex={0}
             />
         ), []);
-
-    const onContactSupport = useCallback(() => {
-        Intercom.presentSpace(Space.home)
-    }, []);
 
     const title = useMemo(() => {
         return (
@@ -60,10 +56,10 @@ export const OrderCloseModal = forwardRef<BottomSheetModal, Props>((props, ref) 
         return (
             <>
                 <RoundButton title={t('order.orderCloseConfirm')} onPress={onContinue} style={{ marginTop: 24 }} loading={props.isClosing} />
-                <RoundButton title={t('order.contactSupport')} display="secondary" onPress={onContactSupport} style={{ marginTop: 16 }} />
+                <RoundButton title={t('order.contactSupport')} display="secondary" onPress={onSupport} style={{ marginTop: 16 }} />
             </>
         )
-    }, [onContinue, onContactSupport]);
+    }, [onContinue, onSupport]);
 
     return (
         <BottomSheetModalProvider>
@@ -73,7 +69,6 @@ export const OrderCloseModal = forwardRef<BottomSheetModal, Props>((props, ref) 
                 enablePanDownToClose={true}
                 backdropComponent={renderBackdrop}
                 enableDynamicSizing={true}
-                maxDynamicContentSize={Dimensions.get('window').height * 0.61}
                 keyboardBlurBehavior="restore"
                 android_keyboardInputMode="adjustResize"
                 handleIndicatorStyle={{

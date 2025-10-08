@@ -13,6 +13,7 @@ import { SolanaAccountData, SolanaTokenTransfer, SolanaTransaction } from "../..
 import { useTheme } from "../../../../engine/hooks/theme";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { useSolanaToken } from "../../../../engine/hooks";
+import { TRANSACTION_AVATAR_SIZE } from "../../../../utils/constants";
 
 export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, item }: { transfer: SolanaTokenTransfer, owner: string, accountData: SolanaAccountData, item: SolanaTransaction }) => {
   const { fromUserAccount, toTokenAccount, tokenAmount, mint } = transfer;
@@ -44,13 +45,13 @@ export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, ite
       style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, flexDirection: 'row', alignItems: 'center', gap: 8 })}
     >
       <View style={{
-        width: 48, height: 48, borderRadius: 24,
+        width: TRANSACTION_AVATAR_SIZE, height: TRANSACTION_AVATAR_SIZE, borderRadius: 24,
         backgroundColor: theme.surfaceOnBg,
         justifyContent: 'center',
         alignItems: 'center'
       }}>
         <AddressInputAvatar
-          size={46}
+          size={TRANSACTION_AVATAR_SIZE}
           theme={theme}
           isOwn={false}
           markContact={false}
@@ -58,6 +59,7 @@ export const SolanaTokenTransferView = memo(({ transfer, owner, accountData, ite
           avatarColor={avatarColor}
           knownWallets={{}}
           hash={null}
+          disableFade
         />
       </View>
       <View style={{ flex: 1, marginRight: 4 }}>

@@ -4,11 +4,11 @@ import { ThemeType } from "../../../engine/state/theme";
 import { BlockhashWithExpiryBlockHeight, Keypair, Transaction } from "@solana/web3.js";
 import { PendingSolanaTransaction, PendingTransactionStatus } from "../../../engine/state/pending";
 import { parseTransactionInstructions } from "../../../utils/solana/parseInstructions";
-import { failableSolanaBackoff,  } from "./signAndSendSolanaOrder";
-import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { failableSolanaBackoff } from "./signAndSendSolanaOrder";
 import { t } from "../../../i18n/t";
 import { SendSolanaTransactionError } from "./mapSolanaError";
 import { mapSolanaError } from "./mapSolanaError";
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 type SignAndSendSolanaTransactionParams = {
     solanaClients: {
@@ -20,7 +20,7 @@ type SignAndSendSolanaTransactionParams = {
     transaction: Transaction
 }
 
-export async function signAndSendSolanaTransaction({ solanaClients, theme, authContext, transaction }: SignAndSendSolanaTransactionParams): Promise<PendingSolanaTransaction> {
+export async function signAndSendSolanaTransaction({ solanaClients, theme, authContext, transaction }: SignAndSendSolanaTransactionParams): Promise<PendingSolanaTransaction & { base58Signature: string }> {
     const { client, publicClient } = solanaClients;
 
     const walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
@@ -75,6 +75,7 @@ export async function signAndSendSolanaTransaction({ solanaClients, theme, authC
     return {
         type: 'instructions',
         id: base64Signature,
+        base58Signature,
         time: Math.floor(Date.now() / 1000),
         status: PendingTransactionStatus.Pending,
         lastBlockHash,

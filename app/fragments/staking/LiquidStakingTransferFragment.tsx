@@ -85,6 +85,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
 
     const [minAmountWarn, setMinAmountWarn] = useState<string>();
     const validAmount = useValidAmount(amount.ton);
+    const validWsTonAmount = useValidAmount(amount.wsTon);
 
     const balance = useMemo(() => {
         if (params?.action === 'withdraw') {
@@ -335,6 +336,26 @@ export const LiquidStakingTransferFragment = fragment(() => {
         );
     }, [validAmount, price, currency]);
 
+    const amountError = useMemo(() => {
+        if (!validAmount) {
+            return undefined;
+        }
+
+        const isDeposit = params?.action === 'top_up';
+
+        if (isDeposit && validAmount > balance) {
+            return t('transfer.error.notEnoughJettons', { symbol: 'TON' });
+        }
+        if (!isDeposit && validWsTonAmount && validWsTonAmount > balance) {
+            return t('transfer.error.notEnoughJettons', { symbol: 'wsTON' });
+        }
+        return undefined;
+    }, [validAmount, balance, params?.action, validWsTonAmount]);
+
+    const isContinueDisabled = useMemo(() => {
+        return !!amountError || validAmount === 0n;
+    }, [amountError, validAmount]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({
@@ -459,6 +480,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     suffix={priceText}
                                     hideClearButton
                                     inputSuffix={'wsTON'}
+                                    error={amountError}
                                 />
                             </View>
                             <View
@@ -534,18 +556,6 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     hideClearButton
                                     inputSuffix={'TON'}
                                 />
-                                {!!minAmountWarn && (
-                                    <Text style={{
-                                        color: theme.accentRed,
-                                        fontSize: 13,
-                                        lineHeight: 18,
-                                        marginTop: 8,
-                                        marginLeft: 16,
-                                        fontWeight: '400'
-                                    }}>
-                                        {minAmountWarn}
-                                    </Text>
-                                )}
                             </View>
                         </>
                     ) : (
@@ -643,19 +653,8 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                     suffix={priceText}
                                     hideClearButton
                                     inputSuffix={'TON'}
+                                    error={amountError}
                                 />
-                                {!!minAmountWarn && (
-                                    <Text style={{
-                                        color: theme.accentRed,
-                                        fontSize: 13,
-                                        lineHeight: 18,
-                                        marginTop: 8,
-                                        marginLeft: 16,
-                                        fontWeight: '400'
-                                    }}>
-                                        {minAmountWarn}
-                                    </Text>
-                                )}
                             </View>
                             <View
                                 style={{
@@ -747,11 +746,11 @@ export const LiquidStakingTransferFragment = fragment(() => {
                             {t('products.staking.pools.rateTitle')}
                         </Text>
                         <Text style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                            {'1 TON = '}
+                            {params.action === 'withdraw' ? '1 wsTON = ' : '1 TON = '}
                             <ValueComponent
                                 value={(params.action === 'withdraw' ? liquidStaking?.rateWithdraw : liquidStaking?.rateDeposit) ?? 0n}
                                 precision={9}
-                                suffix={' wsTON'}
+                                suffix={params.action === 'withdraw' ? ' TON' : ' wsTON'}
                             />
                         </Text>
                         <ItemDivider marginHorizontal={0} marginVertical={20} />
@@ -816,6 +815,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
             >
                 <RoundButton
                     title={t('common.continue')}
+                    disabled={isContinueDisabled}
                     action={doContinue}
                 />
             </KeyboardAvoidingView>

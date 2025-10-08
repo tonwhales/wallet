@@ -91,7 +91,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "description": "Описание",
         "openSettings": "Открыть настройки",
         "exchanges": "Обменники",
-        "directDepositAddress": "Адрес прямого пополнения"
+        "directDepositAddress": "Адрес прямого пополнения",
+        "goBackTo": "Назад в {{name}}",
+        "viewIn": "Посмотреть в {{name}}"
     },
     "syncStatus": {
         "connecting": "Идет подключение",
@@ -331,7 +333,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "moreWallets": "Еще кошельки ({{count}})",
             "connectionSecureDescription": "Никакие средства не будут переведены автоматически, приложение не сможет получить доступ к вашим монетам",
             "invalidManifest": "Ошибка манифеста приложения",
-            "invalidManifestDescription": "Это приложение не смогло подключиться к вашему кошельку. Пожалуйста, обратитесь в службу поддержки этого приложения."
+            "invalidManifestDescription": "Это приложение не смогло подключиться к вашему кошельку. Пожалуйста, обратитесь в службу поддержки этого приложения.",
+            "authorized": "{{name}} успешно подключен к вашему кошельку"
         },
         "consent": "Нажимая кнопку \"Продолжить\" вы соглашаетесь с нашими"
     },
@@ -1327,6 +1330,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "get": "Получаете",
         "exchangeRate": "Курс обмена",
         "networkServiceFee": "Комиссия сети и сервиса",
+        "serviceFee": "Комиссия сети",
         "poweredBy": "При поддержке",
         "continue": "Продолжить",
         "sendToDeposit": "Отправьте {{currency}} для пополнения счета",
@@ -1467,6 +1471,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "title": "Пополнение через IBAN",
             "description": "Получите ранний доступ"
         }
+    },
+    "walletRequests": {
+        "title": "Хочет отправить вам деньги, подтвердите, что это ваш адрес",
+        "description": "Если владелец этого адреса использует Tonhub, вы можете запросить у них подтвердить, что это правильный адрес и принадлежит им",
+        "request": "Запросить подтверждение",
+        "confirmed": "Адрес подтвержден!",
+        "declined": "Запрос отклонен",
+        "expired": "Запрос просрочен",
+        "pending": "Ожидание подтверждения...",
     }
 };
 

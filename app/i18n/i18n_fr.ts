@@ -91,7 +91,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Description",
         "openSettings": "Ouvrir les paramètres",
         "exchanges": "Échanges",
-        "directDepositAddress": "Adresse de dépôt direct"
+        "directDepositAddress": "Adresse de dépôt direct",
+        "goBackTo": "Retour à {{name}}",
+        "viewIn": "Afficher dans {{name}}"
     },
     "syncStatus": {
         "connecting": "Connexion",
@@ -347,7 +349,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "Plus de portefeuilles ({{count}})",
             "connectionSecureDescription": "Aucun fonds ne sera transféré à l'application et aucun accès à vos coins ne sera accordé",
             "invalidManifest": "Erreur de manifeste de l'application",
-            "invalidManifestDescription": "Cette application a échoué à se connecter à votre portefeuille. Veuillez contacter leur équipe de support."
+            "invalidManifestDescription": "Cette application a échoué à se connecter à votre portefeuille. Veuillez contacter leur équipe de support.",
+            "authorized": "{{name}} est connecté avec succès à votre portefeuille"
         },
         "consent": "En cliquant sur Continuer, vous acceptez nos"
     },
@@ -480,7 +483,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawStakeConfirmTitle": "Confirmer le Retrait",
                 "topUpTitle": "Recharger",
                 "topUpConfirmTitle": "Confirmer la Recharge",
-                "notEnoughStaked": "malheureusement vous n'avez pas suffisamment de coins en staking",
+                "notEnoughStaked": "Malheureusement, vous n'avez pas assez de pièces en staking",
                 "confirmWithdraw": "Demander le Retrait",
                 "confirmWithdrawReady": "Retirer maintenant",
                 "restrictedTitle": "Ce Pool de Staking est restreint",
@@ -1327,6 +1330,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "get": "Recevez",
         "exchangeRate": "Taux de change",
         "networkServiceFee": "Frais de réseau et de service",
+        "serviceFee": "Frais de service",
         "poweredBy": "Alimenté par",
         "continue": "Continuer",
         "sendToDeposit": "Envoyez {{currency}} pour déposer sur votre compte",
@@ -1467,6 +1471,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "Dépôts via IBAN",
             "description": "Obtenez un accès anticipé"
         }
+    },
+    "walletRequests": {
+        "title": "Veux vous envoyer des fonds, confirmez que c'est votre adresse",
+        "description": "Si le propriétaire de cette adresse utilise Tonhub, vous pouvez leur demander de vérifier que cette adresse est correcte et lui appartient",
+        "request": "Demander la confirmation",
+        "confirmed": "Adresse confirmée !",
+        "declined": "Demande refusée",
+        "expired": "Demande expirée",
+        "pending": "En attente de confirmation...",
     }
 };
 

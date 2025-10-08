@@ -34,4 +34,24 @@ export namespace AndroidAppearance {
         }
         return 'light';
     }
+
+    export function forceThemeUpdate(): void {
+        if (Platform.OS === 'android' && NativeModules.AppearanceModule.forceThemeUpdate) {
+            try {
+                NativeModules.AppearanceModule.forceThemeUpdate();
+            } catch (error) {
+                // Silent error handling
+            }
+        }
+    }
+
+    export function checkThemeChange(): void {
+        if (Platform.OS === 'android' && NativeModules.AppearanceModule.checkThemeChange) {
+            try {
+                NativeModules.AppearanceModule.checkThemeChange();
+            } catch (error) {
+                // Silent error handling
+            }
+        }
+    }
 }

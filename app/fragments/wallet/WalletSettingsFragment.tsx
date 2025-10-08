@@ -252,7 +252,7 @@ export const WalletSettingsFragment = fragment(() => {
                             ]}>
                                 {t('common.walletAddress')}
                             </Text>
-                            <Text
+                            <Pressable
                                 disabled={isInputNameFocus}
                                 onPress={() => {
                                     copyText(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }));
@@ -268,13 +268,23 @@ export const WalletSettingsFragment = fragment(() => {
                                         }
                                     );
                                 }}
-                                style={[
-                                    { color: theme.textPrimary },
-                                    Typography.regular17_24
-                                ]}
+                                style={{ flexDirection: 'row', flexWrap: 'wrap' }}
                             >
-                                {address.toString({ testOnly: isTestnet, bounceable: bounceableFormat })}
-                            </Text>
+                                {address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }).split('').map((char, index) => (
+                                    <Text
+                                        key={index}
+                                        style={[
+                                            { 
+                                                color: theme.textPrimary,
+                                                includeFontPadding: false
+                                            },
+                                            Typography.regular17_24
+                                        ]}
+                                    >
+                                        {char}
+                                    </Text>
+                                ))}
+                            </Pressable>
                         </View>
                     </Animated.View>
                 </View>

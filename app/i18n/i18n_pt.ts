@@ -91,7 +91,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Descrição",
         "openSettings": "Abrir configurações",
         "exchanges": "Trocas",
-        "directDepositAddress": "Endereço de depósito direto"
+        "directDepositAddress": "Endereço de depósito direto",
+        "goBackTo": "Voltar para {{name}}",
+        "viewIn": "Ver no {{name}}"
     },
     "syncStatus": {
         "connecting": "Conectando",
@@ -347,7 +349,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "Mais carteiras ({{count}})",
             "connectionSecureDescription": "Nenhum fundo será transferido para o aplicativo e nenhum acesso às suas moedas será concedido",
             "invalidManifest": "Erro do manifesto da aplicação",
-            "invalidManifestDescription": "Esta aplicação falhou em conectar-se à sua carteira. Por favor, entre em contato com o suporte deles."
+            "invalidManifestDescription": "Esta aplicação falhou em conectar-se à sua carteira. Por favor, entre em contato com o suporte deles.",
+            "authorized": "{{name}} foi conectado com sucesso à sua carteira"
         },
         "consent": "Ao clicar em continuar, você aceita nossos"
     },
@@ -480,7 +483,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawStakeConfirmTitle": "Confirmar Saque",
                 "topUpTitle": "Depositar",
                 "topUpConfirmTitle": "Confirmar Depósito",
-                "notEnoughStaked": "infelizmente você não tem moedas suficientes em stake",
+                "notEnoughStaked": "Infelizmente, você não tem moedas suficientes em staking",
                 "confirmWithdraw": "Solicitar Saque",
                 "confirmWithdrawReady": "Sacar agora",
                 "restrictedTitle": "Esta Pool de Staking é restrita",
@@ -1327,6 +1330,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "get": "Receber",
         "exchangeRate": "Taxa de câmbio",
         "networkServiceFee": "Taxa de rede e serviço",
+        "serviceFee": "Taxa de serviço",
         "poweredBy": "Desenvolvido por",
         "continue": "Continuar",
         "sendToDeposit": "Envie {{currency}} para depositar em sua conta",
@@ -1467,6 +1471,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "Depósitos via IBAN",
             "description": "Obtenha acesso antecipado"
         }
+    },
+    "walletRequests": {
+        "title": "Quer enviar você fundos, confirme que esta é sua endereço",
+        "description": "Se o proprietário deste endereço usa Tonhub, você pode solicitar que verifiquem que este é o endereço correto e pertence a ele",
+        "request": "Solicitar confirmação",
+        "confirmed": "Endereço confirmado!",
+        "declined": "Solicitação rejeitada",
+        "expired": "Solicitação expirada",
+        "pending": "Aguardando confirmação...",
     }
 };
 

@@ -94,6 +94,8 @@ export type LocalizationSchema = {
         openSettings: string,
         exchanges: string,
         directDepositAddress: string,
+        goBackTo: string,
+        viewIn: string,
     },
     syncStatus: {
         connecting: string,
@@ -349,7 +351,8 @@ export type LocalizationSchema = {
             moreWallets: string,
             connectionSecureDescription: string,
             invalidManifest: string,
-            invalidManifestDescription: string
+            invalidManifestDescription: string,
+            authorized: string
         },
         consent: string,
     },
@@ -1329,6 +1332,7 @@ export type LocalizationSchema = {
         get: string,
         exchangeRate: string,
         networkServiceFee: string,
+        serviceFee: string,
         poweredBy: string,
         continue: string,
         sendToDeposit: string,
@@ -1469,6 +1473,15 @@ export type LocalizationSchema = {
             title: string,
             description: string
         }
+    },
+    walletRequests: {
+        title: string,
+        description: string,
+        request: string,
+        confirmed: string,
+        declined: string,
+        expired: string,
+        pending: string,
     }
 };
 

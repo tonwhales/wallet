@@ -91,7 +91,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Description",
         "openSettings": "Open settings",
         "exchanges": "Exchanges",
-        "directDepositAddress": "Direct deposit address"
+        "directDepositAddress": "Direct deposit address",
+        "goBackTo": "Go back to {{name}}",
+        "viewIn": "View in {{name}}"
     },
     "syncStatus": {
         "connecting": "Connecting",
@@ -347,7 +349,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "More wallets ({{count}})",
             "connectionSecureDescription": "No funds would be transfered to the app and no access to your coins would be granted",
             "invalidManifest": "App manifest error",
-            "invalidManifestDescription": "This app failed to connect to your wallet. Please contact their support team."
+            "invalidManifestDescription": "This app failed to connect to your wallet. Please contact their support team.",
+            "authorized": "{{name}} is successfully connected to your wallet"
         },
         "consent": "By clicking continue you accepting our"
     },
@@ -480,7 +483,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawStakeConfirmTitle": "Confirm Withdrawal",
                 "topUpTitle": "Top Up",
                 "topUpConfirmTitle": "Confirm Top Up",
-                "notEnoughStaked": "unfortunately you don't have enougth coins staked",
+                "notEnoughStaked": "Unfortunately, you don't have enough coins staked",
                 "confirmWithdraw": "Request Withdrawal",
                 "confirmWithdrawReady": "Withdraw now",
                 "restrictedTitle": "This Staking Pool is restricted",
@@ -1327,6 +1330,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "get": "Get",
         "exchangeRate": "Ex. rate",
         "networkServiceFee": "Network and service fee",
+        "serviceFee": "Service fee",
         "poweredBy": "Powered by",
         "continue": "Continue",
         "sendToDeposit": "Send {{currency}} to deposit your account",
@@ -1468,6 +1472,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "Deposits via IBAN",
             "description": "Get early access"
         }
+    },
+    "walletRequests": {
+        "title": "Wants to send you funds, confirm that this is your address",
+        "description": "If the owner of this address uses Tonhub, you can request them to verify that this is the correct address and belongs to them",
+        "request": "Request confirmation",
+        "confirmed": "Address confirmed!",
+        "declined": "Request declined",
+        "expired": "Request expired",
+        "pending": "Waiting for confirmation...",
     }
 };
 

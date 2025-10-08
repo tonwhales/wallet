@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo } from "react";
 import { PendingTransaction } from "../../../engine/state/pending";
-import { useContractInfo, useNetwork, usePendingActions, useTheme, useTonTransactionStatus, useWalletSettings } from "../../../engine/hooks";
+import { useContractInfo, useNetwork, useTheme, useTonTransactionStatus, useWalletSettings } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
 import { ForcedAvatar, ForcedAvatarType } from "../../../components/avatar/ForcedAvatar";
@@ -22,7 +22,7 @@ import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useExtraCurrencyMap } from "../../../engine/hooks/jettons/useExtraCurrencyMap";
 import { avatarHash } from "../../../utils/avatarHash";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
-import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
+import { ASSET_ITEM_HEIGHT, TRANSACTION_AVATAR_SIZE, TRANSACTION_PROCESSING_TIMEOUT } from "../../../utils/constants";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
 
 export const PendingTransactionView = memo(({
@@ -31,14 +31,18 @@ export const PendingTransactionView = memo(({
     single,
     viewType = 'main',
     owner,
-    isLedger
+    isLedger,
+    markAsSent,
+    markAsTimedOut
 }: {
     tx: PendingTransaction,
     last?: boolean,
     single?: boolean,
     viewType?: 'history' | 'main' | 'jetton-history',
     owner: string,
-    isLedger?: boolean
+    isLedger?: boolean,
+    markAsSent?: (id: string) => void
+    markAsTimedOut?: (id: string) => void
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -60,13 +64,25 @@ export const PendingTransactionView = memo(({
         tx.hash.toString('hex'),
         isTestnet ? 'testnet' : 'mainnet'
     );
-    const { markAsSent } = usePendingActions(owner, isTestnet);
     
     useEffect(() => {
         if (txStatus?.found && !txStatus.inProgress) {
-            markAsSent(tx.id);
+            markAsSent?.(tx.id);
         }
     }, [txStatus, markAsSent, tx.id]);
+
+    useEffect(() => {
+        if(tx.status !== 'pending') {
+            return;
+        }
+        const timeout = setTimeout(async () => {
+            markAsTimedOut?.(tx.id);
+        }, TRANSACTION_PROCESSING_TIMEOUT);
+
+        return () => {
+            clearTimeout(timeout);
+        }
+    }, [tx.id, markAsTimedOut, tx.status]);
     
     const forceAvatar: ForcedAvatarType | undefined = useMemo(() => {
         if (targetContract?.kind === 'dedust-vault') {
@@ -140,12 +156,12 @@ export const PendingTransactionView = memo(({
             isLedgerTarget,
             isLedger
         });
-    }, [forceAvatar, isLedgerTarget, isLedger]);
+    }, [forceAvatar, isLedgerTarget, isLedger, tx]);
 
     return (
         <Animated.View
             entering={FadeInDown}
-            exiting={FadeOutUp}
+            exiting={viewType === 'main' ? FadeOutUp : undefined}
             style={{
                 paddingHorizontal: viewType === 'main' ? 20 : undefined,
                 paddingVertical: 20,
@@ -167,15 +183,15 @@ export const PendingTransactionView = memo(({
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center',
                 }}>
-                    {(tx.status === 'pending') ? (
+                    {(tx.status === 'pending' || tx.status === 'sent') ? (
                         <PendingTransactionAvatar
-                            kind={'out'}
                             address={targetFriendly}
                             avatarId={targetFriendly ?? 'batch'}
                             style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                             knownWallets={knownWallets}
                             forceAvatar={forceAvatar}
                             isLedger={isLedgerTarget}
+                            verified={tx.status === 'sent'}
                         />
                     ) : (
                         forceAvatar ? (
@@ -183,8 +199,7 @@ export const PendingTransactionView = memo(({
                         ) : (
                             <Avatar
                                 address={targetFriendly}
-                                verified={tx.status === 'sent'}
-                                size={46}
+                                size={TRANSACTION_AVATAR_SIZE}
                                 borderWidth={0}
                                 hash={settings?.avatar}
                                 id={targetFriendly ?? 'batch'}
@@ -254,8 +269,11 @@ export const PendingTransactionView = memo(({
                                 value={amount}
                                 decimals={(body?.type === 'token' && body.jetton.decimals) ? body.jetton.decimals : undefined}
                                 precision={4}
+                                centFontStyle={{ fontSize: 15 }}
                             />
-                            {(body?.type === 'token' && !!body.jetton?.symbol) ? ` ${body.jetton.symbol}` : ' TON'}
+                            <Text style={{ fontSize: 15 }}>
+                                {(body?.type === 'token' && !!body.jetton?.symbol) ? ` ${body.jetton.symbol}` : ' TON'}
+                            </Text>
                         </Text>
                     )}
                     {!!extraCurrencyMap && Object.entries(extraCurrencyMap).map(([id, extraCurrency]) => (
@@ -269,8 +287,11 @@ export const PendingTransactionView = memo(({
                                 value={extraCurrency.amount}
                                 decimals={extraCurrency.preview.decimals}
                                 precision={3}
+                                centFontStyle={{ fontSize: 15 }}
                             />
-                            {` ${extraCurrency.preview.symbol}`}
+                            <Text style={{ fontSize: 15 }}>
+                                {` ${extraCurrency.preview.symbol}`}
+                            </Text>
                         </Text>
                     ))}
                     {tx.body?.type !== 'token' && (

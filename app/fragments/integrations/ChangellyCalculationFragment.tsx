@@ -27,6 +27,7 @@ import { useKeyboard } from "@react-native-community/hooks";
 import ExchangeRateIcon from '@assets/order/exchange-rate.svg';
 import NetworkFeeIcon from '@assets/order/network-fee.svg';
 import ChangellyLogo from '@assets/changelly-big.svg';
+import ArrowIcon from '@assets/order/arrow-without-background.svg';
 
 const INITIAL_MAX_VALUE = 1000000;
 const MAX_DECIMALS = 6;
@@ -44,12 +45,18 @@ export const ChangellyCalculationFragment = fragment(() => {
     const [amount, setAmount] = useState('');
     const [previousAmount, setPreviousAmount] = useState('');
     const [maxValue, setMaxValue] = useState(INITIAL_MAX_VALUE);
+    const [inputFontSize, setInputFontSize] = useState(17);
+    const [resultFontSize, setResultFontSize] = useState(17);
+    const [inputWidth, setInputWidth] = useState(0);
+    const [resultWidth, setResultWidth] = useState(0);
     const { currencyTo, currencyFrom } = useParams<ChangellyCalculationFragmentParams>();
     const { mutate: createChangellyTransaction, data: changellyTransaction, isSuccess: isTransactionCreated, isLoading: isCreatingTransaction } = useCreateChangellyTransaction();
-    const { mutate: estimate, data: estimation, isLoading: isFetchingEstimate } = useChangellyEstimate();
+    const { mutate: estimate, data: estimation, isLoading: isFetchingEstimate, reset: resetEstimate } = useChangellyEstimate();
     const estimateDebounced = useMemo(() => debounce(estimate, 500), []);
     const { blockchain: blockchainTo, name: nameTo } = getCoinInfoByCurrency(currencyTo);
-    
+    const [resultAmount, setResultAmount] = useState('0')
+    const isInitial = resultAmount === '0';
+
     const originBlockchain = currencyFrom.blockchain;
     const originBlockchainName = (originBlockchain || '').charAt(0).toUpperCase() + (originBlockchain || []).slice(1);
     const originBlockchainTag = getChainShortNameByChain(originBlockchain) || originBlockchain?.toUpperCase();
@@ -58,16 +65,50 @@ export const ChangellyCalculationFragment = fragment(() => {
     const originTicker = currencyFrom.ticker;
     const originImage = currencyFrom.image;
     
-    const exchangeRateDisplayValue = estimation?.rate ? `1 ${originCoinName} (${originBlockchainTag}) = ${humanizeNumberAdaptive(estimation?.rate ?? '1')} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
-    const networkFeeDisplayValue = estimation?.networkFee ? `${humanizeNumberAdaptive(estimation?.networkFee ?? 0)}%` : '';
-    const isContinueButtonDisabled = isCreatingTransaction || !estimation?.amountTo;
-    const [resultAmount, setResultAmount] = useState('0')
-    
+    const resultFullName = `${nameTo} (${getChainShortNameByChain(blockchainTo)})`
+    const originFullName = `${originCoinName} (${originBlockchainTag})`
+    const networkFee = Number(estimation?.networkFee ?? 0)
+    const changellyFee = Number(estimation?.fee ?? 0)
+
+    const exchangeRateDisplayValue = estimation?.rate && !isInitial ? `1 ${originFullName} = ${humanizeNumberAdaptive(estimation?.rate ?? '1', true)} ${nameTo} (${getChainShortNameByChain(blockchainTo)})` : '';
+    const networkFeeDisplayValue = estimation?.networkFee && !isInitial ? `${humanizeNumberAdaptive(networkFee)} ${resultFullName}` : '';
+    const changellyFeeDisplayValue = estimation?.fee && !isInitial ? `${humanizeNumberAdaptive(changellyFee)} ${resultFullName}` : '';
+    const isContinueButtonDisabled = isInitial || isCreatingTransaction || !estimation?.amountTo;
+
+    const calculateFontSize = useCallback((text: string, availableWidth: number, baseFontSize: number = 17, minFontSize: number = 8) => {
+        if (!text || !availableWidth || availableWidth < 80) return baseFontSize;
+        
+        // Approximate character width based on font size (semibold font is slightly wider)
+        const charWidth = baseFontSize * 0.6;
+        const estimatedWidth = text.length * charWidth;
+        
+        if (estimatedWidth <= availableWidth) {
+            return baseFontSize;
+        }
+        
+        // Calculate the scaling factor needed
+        const scale = availableWidth / estimatedWidth;
+        const newFontSize = Math.max(baseFontSize * scale, minFontSize);
+        
+        return Math.floor(newFontSize);
+    }, []);
+
     useEffect(() => {
+        const newSize = calculateFontSize(amount || '0', inputWidth);
+        setInputFontSize(newSize);
+    }, [amount, inputWidth, calculateFontSize]);
+
+    useEffect(() => {
+        const newSize = calculateFontSize(resultAmount, resultWidth);
+        setResultFontSize(newSize);
+    }, [resultAmount, resultWidth, calculateFontSize]);
+
+    useEffect(() => {
+        const newResultAmount = Number(estimation?.amountTo ?? 0) - Number(estimation?.networkFee ?? 0)
         if (estimation?.maxFrom) {
             setMaxValue(parseAmountToNumber(formatInputAmount(estimation.maxFrom, MAX_DECIMALS)));
         }
-        setResultAmount(humanizeNumberAdaptive(estimation?.amountTo || 0))
+        setResultAmount(humanizeNumberAdaptive(newResultAmount))
     }, [estimation]);
     
     useEffect(() => {
@@ -104,7 +145,9 @@ export const ChangellyCalculationFragment = fragment(() => {
         if (formatted !== '' && formatted !== '0') {
             estimateDebounced({ toCurrency: currencyTo, fromCurrency: originTicker, amount: parseAmountToNumber(formatted).toString() });
         } else {
-            setResultAmount('0')
+            estimateDebounced.cancel();
+            setResultAmount('0');
+            resetEstimate();
         }
     }, [amount, previousAmount, formatAmountInput]);
 
@@ -157,10 +200,17 @@ export const ChangellyCalculationFragment = fragment(() => {
                         <TextInput
                             value={amount}
                             onChangeText={handleAmountChange}
-                            style={[Typography.semiBold17_24, { color: theme.textPrimary, textAlign: 'right', minWidth: 80 }]}
+                            style={[Typography.semiBold17_24, { 
+                                color: theme.textPrimary, 
+                                textAlign: 'right',
+                                fontSize: inputFontSize,
+                                lineHeight: inputFontSize * 1.4,
+                                flex: 1,
+                            }]}
                             keyboardType="decimal-pad"
                             placeholder="0"
                             placeholderTextColor={theme.textPrimary}
+                            onLayout={(e) => setInputWidth(e.nativeEvent.layout.width)}
                         />
                     </View>
                 </View>
@@ -180,9 +230,31 @@ export const ChangellyCalculationFragment = fragment(() => {
                         />
                         <TextInput
                             value={resultAmount}
-                            style={[Typography.semiBold17_24, { color: theme.textPrimary, textAlign: 'right', minWidth: 80 }]}
+                            style={[Typography.semiBold17_24, { 
+                                color: theme.textPrimary, 
+                                textAlign: 'right',
+                                fontSize: resultFontSize,
+                                lineHeight: resultFontSize * 1.4,
+                                flex: 1
+                            }]}
                             editable={false}
+                            onLayout={(e) => setResultWidth(e.nativeEvent.layout.width)}
                         />
+                    </View>
+                    <View style={{
+                        position: 'absolute',
+                        alignSelf: 'center',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        top: -22,
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        borderColor: theme.elevation,
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderWidth: 4,
+                    }}>
+                        <ArrowIcon width={16} height={16} style={{ transform: [{ rotate: '180deg' }] }} color={theme.accent} />
                     </View>
                 </View>
                 <View style={{ gap: 12, marginTop: 8 }}>
@@ -194,8 +266,14 @@ export const ChangellyCalculationFragment = fragment(() => {
                     />
                     <OrderInfoLine
                         icon={NetworkFeeIcon}
-                        label={t('order.networkServiceFee')}
+                        label={t('txPreview.blockchainFee')}
                         value={networkFeeDisplayValue}
+                        isLoading={isFetchingEstimate}
+                    />
+                    <OrderInfoLine
+                        icon={NetworkFeeIcon}
+                        label={t('order.serviceFee')}
+                        value={changellyFeeDisplayValue}
                         isLoading={isFetchingEstimate}
                     />
                 </View>

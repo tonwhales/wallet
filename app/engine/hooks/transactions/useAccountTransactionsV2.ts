@@ -25,7 +25,7 @@ interface UseAccountTransactionsResult {
     next: () => void;
     hasNext: boolean;
     loading: boolean;
-    refresh: () => void;
+    refresh: (silent?: boolean) => void;
     refreshing: boolean;
 }
 
@@ -166,19 +166,24 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                 if (message.type === 'relayed') continue;
                 const operation = message.operation;
                 const item = operation.items[0];
-                const opAddress = item.kind === 'token' ? operation.address : message.friendlyTarget;
+
+                // If item.kind === 'token' but jettonMaster is not found (for example, swap on DEX), use TON from items[1]
+                const actualItem = item.kind === 'token' && !message.jettonMaster && operation.items.length > 1
+                    ? operation.items[1]
+                    : item;
+
+                const opAddress = actualItem.kind === 'token' ? operation.address : message.friendlyTarget;
                 const contractInfo = await fetchContractInfo(opAddress);
-                const symbolText = item.kind === 'ton'
-                ? ' TON'
-                : (message.jettonMaster?.symbol ? ` ${message.jettonMaster.symbol}` : '')
+                const symbolText = actualItem.kind === 'ton'
+                    ? ' TON'
+                    : (message.jettonMaster?.symbol ? ` ${message.jettonMaster.symbol}` : '')
                 result.push({ ...tx, message, contractInfo, symbolText });
             }
         } else {
             try {
                 const operation = tx.base.operation;
                 const item = operation.items[0];
-                const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-                const contractInfo = await fetchContractInfo(opAddress);
+
                 const jettonHint = getJettonHint({
                     owner: owner!,
                     master: tx.base.parsed.resolvedAddress,
@@ -186,20 +191,28 @@ export const formatTransactions = async (transactions: TonTransaction[], isTestn
                     isTestnet,
                 })
                 const jettonMaster = jettonHint ? mapJettonFullToMasterState(jettonHint) : null;
+
+                // If item.kind === 'token', but jettonMaster is not found (for example, swap on DEX), use TON from items[1]
+                const actualItem = item.kind === 'token' && !jettonMaster && operation.items.length > 1
+                    ? operation.items[1]
+                    : item;
+
+                const opAddress = actualItem.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+                const contractInfo = await fetchContractInfo(opAddress);
                 const { isSCAM } = jettonHint ? getHintFull(jettonHint as JettonFull, isTestnet) : { isSCAM: false };
-                const symbolText = item.kind === 'ton'
+                const symbolText = actualItem.kind === 'ton'
                     ? ' TON'
                     : (jettonMaster?.symbol
                         ? ` ${jettonMaster.symbol}${isSCAM ? ' • SCAM' : ''}`
                         : '')
-                const jettonDecimals = item.kind === 'ton' ? undefined : jettonMaster?.decimals;
+                const jettonDecimals = actualItem.kind === 'ton' ? undefined : jettonMaster?.decimals;
                 result.push({ ...tx, contractInfo, symbolText, jettonDecimals });
 
             } catch (e) {
                 console.log('ERROR', e);
             }
         }
-    }    
+    }
     return result;
 }
 
@@ -289,14 +302,20 @@ export function useAccountTransactionsV2(
         }
     }, [query.isFetchingNextPage, query.hasNextPage, query.fetchNextPage]);
 
-    const refresh = useCallback(async () => {
-        setIsRefreshing(true);
+    const refresh = useCallback(async (silent?: boolean) => {
+        if (!silent) {
+            setIsRefreshing(true);
+        }
+
         try {
             await query.refetch({ refetchPage: (_, index) => index === 0 });
         } catch {
             // Ignore errors, isRefreshing will be reset by useEffect
         }
-        setIsRefreshing(false);
+
+        if (!silent) {
+            setIsRefreshing(false);
+        }
     }, [query.refetch]);
 
     return {

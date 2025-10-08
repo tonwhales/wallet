@@ -3,7 +3,7 @@ import { Address } from "@ton/core";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { SectionList, SectionListData, SectionListRenderItemInfo, View, Platform, Share } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
-import { TonTransaction, TransactionType } from '../../../engine/types';
+import { TonTransaction } from '../../../engine/types';
 import { useAddressFormatsHistory, useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState, TransactionsEmptyStateType } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
@@ -20,9 +20,10 @@ import { getQueryData } from "../../../engine/utils/getQueryData";
 import { Queries } from "../../../engine/queries";
 import { StoredJettonWallet } from "../../../engine/metadata/StoredMetadata";
 import { jettonWalletQueryFn } from "../../../engine/hooks/jettons/jettonsBatcher";
-import { TransactionListItem } from "./TransactionListItem";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
-import { useAccountTransactionsV2 } from "../../../engine/hooks/transactions/useAccountTransactionsV2";
+import { useUnifiedTransactions } from "../../../engine/hooks/transactions/useUnifiedTransactions";
+import { UnifiedTransactionView } from "./UnifiedTransactionView";
+import { UnifiedTonTransaction } from "../../../engine/types/unifiedTransaction";
 
 export const WalletTransactions = memo((props: {
     address: Address,
@@ -34,23 +35,25 @@ export const WalletTransactions = memo((props: {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const { getAddressFormat } = useAddressFormatsHistory();
-    const txs = useAccountTransactionsV2(
-        props.address.toString({ testOnly: isTestnet }),
-        { refetchOnMount: true },
-        { type: TransactionType.TON }
-    );
-    const refreshing = txs.refreshing;
-    const hasNext = txs.hasNext;
-    const transactions = txs.data ?? [];
-    const loading = txs.loading;
+    const {
+        transactions,
+        pendingCount,
+        loading,
+        refreshing,
+        hasNext,
+        next,
+        refresh,
+        markAsSent,
+        markAsTimedOut
+    } = useUnifiedTransactions(props.address, isTestnet);
 
     const onLoadMore = useCallback(() => {
-        txs.next();
-    }, [txs.next]);
+        next();
+    }, [next]);
 
     const onRefresh = useCallback(() => {
-        txs.refresh();
-    }, [txs.refresh]);
+        refresh();
+    }, [refresh]);
 
     const bottomBarHeight = useBottomTabBarHeight();
     const knownWallets = useKnownWallets(isTestnet);
@@ -61,7 +64,6 @@ export const WalletTransactions = memo((props: {
     const addToDenyList = useAddToDenyList();
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
-    const [pending] = usePendingTransactions(props.address, isTestnet);
     const ref = useRef<SectionList<any, { title: string }>>(null);
     const [bounceableFormat] = useBounceableWalletFormat();
     const [walletsSettings] = useWalletsSettings();
@@ -69,11 +71,11 @@ export const WalletTransactions = memo((props: {
     const { showActionSheetWithOptions } = useActionSheet();
 
     const { transactionsSectioned } = useMemo(() => {
-        const sectioned = new Map<string, { title: string, data: TonTransaction[] }>();
+        const sectioned = new Map<string, { title: string, data: UnifiedTonTransaction[] }>();
         for (let i = 0; i < transactions.length; i++) {
             const tx = transactions[i];
-            if (!tx?.base?.time) continue;
-            const time = tx.base.time;
+            if (!tx?.time) continue;
+            const time = tx.time;
             const timeKey = getDateKey(time);
             const section = sectioned.get(timeKey);
             if (section) {
@@ -115,8 +117,8 @@ export const WalletTransactions = memo((props: {
     const onRepeatTx = useCallback(async (tx: TonTransaction, formattedAddressString: string) => {
         const amount = BigInt(tx.base.parsed.amount);
         const operation = tx.base.operation;
-        const item = operation.items[0];
-        const opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        let item = operation.items[0];
+        let opAddressString = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
 
         let jetton: Address | undefined = undefined;
 
@@ -144,6 +146,12 @@ export const WalletTransactions = memo((props: {
                     warn('Failed to fetch jetton wallet');
                 }
             }
+            
+            // If jettonWallet is not found (for example, swap on DEX), use TON from items[1]
+            if (!jetton && operation.items.length > 1 && operation.items[1].kind === 'ton') {
+                item = operation.items[1];
+                opAddressString = tx.base.parsed.resolvedAddress;
+            }
         }
 
         navigation.navigateSimpleTransfer({
@@ -158,7 +166,10 @@ export const WalletTransactions = memo((props: {
 
     const onLongPress = useCallback((tx: TonTransaction, formattedAddressString?: string) => {
         const operation = tx.base.operation;
-        const item = operation.items[0];
+        // If items[0] is a token but jettonDecimals is not set (for example, swap on DEX), use items[1] (TON)
+        const item = operation.items[0].kind === 'token' && !tx.jettonDecimals && operation.items.length > 1
+            ? operation.items[1]
+            : operation.items[0];
         const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
         const opAddressFriendly = Address.parseFriendly(opAddress);
         const opAddressInAnotherFormat = opAddressFriendly.address.toString({ testOnly: isTestnet, bounceable: !opAddressFriendly.isBounceable });
@@ -247,14 +258,14 @@ export const WalletTransactions = memo((props: {
 
     useEffect(() => {
         // Scroll to top when new pending transactions appear
-        if (pending.length > 0) {
+        if (pendingCount > 0) {
             ref.current?.scrollToLocation({ sectionIndex: -1, itemIndex: 0, animated: true });
         }
-    }, [pending.length]);
+    }, [pendingCount]);
 
-    const renderItem = useCallback((tx: SectionListRenderItemInfo<TonTransaction, { title: string }>) => {
+    const renderItem = useCallback((tx: SectionListRenderItemInfo<UnifiedTonTransaction, { title: string }>) => {
         return (
-            <TransactionListItem
+            <UnifiedTransactionView
                 {...tx}
                 address={props.address}
                 theme={theme}
@@ -271,8 +282,9 @@ export const WalletTransactions = memo((props: {
                 bounceableFormat={bounceableFormat}
                 walletsSettings={walletsSettings}
                 knownWallets={knownWallets}
-                addToDenyList={addToDenyList}
                 getAddressFormat={getAddressFormat}
+                markAsSent={markAsSent}
+                markAsTimedOut={markAsTimedOut}
             />
         );
     }, [
@@ -291,7 +303,8 @@ export const WalletTransactions = memo((props: {
         bounceableFormat,
         walletsSettings,
         knownWallets,
-        addToDenyList
+        markAsSent,
+        markAsTimedOut,
     ]);
 
     const listEmptyComponent = useMemo(() => (
@@ -339,14 +352,14 @@ export const WalletTransactions = memo((props: {
                 onEndReached={onLoadMore}
                 maxToRenderPerBatch={16}
                 onEndReachedThreshold={0.2}
-                keyExtractor={(item) => 'tx-' + item.id + item.message?.addressString}
+                keyExtractor={(item) => 'tx-' + item.id}
                 onRefresh={onRefresh}
                 refreshing={refreshing}
             />
         )
     }, [
-        ...(transactions.length > 0 ? [transactions[0]?.hash] : []),
-        transactions.length,
+        transactionsSectioned,
+        pendingCount,
         refreshing,
         bottomBarHeight,
         props.header,
@@ -355,7 +368,7 @@ export const WalletTransactions = memo((props: {
         renderSectionHeader,
         renderItem,
         onRefresh,
-        ...(transactions.length === 0 ? [listEmptyComponent] : [])
+        transactions.length === 0 ? listEmptyComponent : null
     ]);
 
     return list

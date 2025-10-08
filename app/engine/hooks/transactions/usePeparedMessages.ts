@@ -13,6 +13,7 @@ import { GaslessConfig } from "../../api/gasless/fetchGaslessConfig";
 type PreparedMessageType = 'relayed' | 'message';
 
 export type PreparedMessage = {
+    index: number,
     type: PreparedMessageType,
     address: Address,
     addressString: string,
@@ -36,7 +37,7 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
         isTestnet: testOnly,
     })) : []).filter(h => !!h);
 
-    return messages.map((message) => {
+    return messages.map((message, index) => {
         if (message.info.type !== 'internal') {
             return null;
         }
@@ -110,9 +111,13 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
 
             if (!amount && operation.items[0].kind === 'ton') {
                 amount = BigInt(operation.items[0].amount);
+            } else if (!amount && operation.items.length > 1 && operation.items[1].kind === 'ton') {
+                // If items[0] is a token but jettonMaster is not found, use TON from items[1]
+                amount = BigInt(operation.items[1].amount);
             }
 
-            if (!jettonAmount && operation.items[0].kind === 'token') {
+            if (!jettonAmount && operation.items[0].kind === 'token' && jettonMaster) {
+                // Use jettonAmount only if jettonMaster is found
                 jettonAmount = BigInt(operation.items[0].amount);
             }
 
@@ -124,6 +129,7 @@ export const prepareMessages = (messages: StoredMessage[], testOnly: boolean, ow
             }
 
             return {
+                index,
                 type,
                 address: mAddress,
                 addressString,

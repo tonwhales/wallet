@@ -6,10 +6,9 @@ import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { useNetwork } from "../../../engine/hooks/network/useNetwork";
 import { t } from "../../../i18n/t";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
-import { useBounceableWalletFormat, usePendingActions, useSelectedAccount } from "../../../engine/hooks";
+import { usePendingActions, useSelectedAccount } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
 import { Typography } from "../../../components/styles";
-import { useAppConfig } from "../../../engine/hooks/useAppConfig";
 import { PendingTransactionView } from "./PendingTransactionView";
 
 export const PendingTransactionsList = memo((
@@ -19,14 +18,18 @@ export const PendingTransactionsList = memo((
         style,
         viewType = 'main',
         owner,
-        isLedger
+        isLedger,
+        markAsSent,
+        markAsTimedOut
     }: {
         theme: ThemeType,
         txs: PendingTransaction[],
         style?: StyleProp<ViewStyle>,
         viewType?: 'history' | 'main' | 'jetton-history',
         owner: string,
-        isLedger?: boolean
+        isLedger?: boolean,
+        markAsSent?: (id: string) => void,
+        markAsTimedOut?: (id: string) => void
     }
 ) => (
     <View style={[
@@ -45,6 +48,8 @@ export const PendingTransactionsList = memo((
                 viewType={viewType}
                 owner={owner}
                 isLedger={isLedger}
+                markAsSent={markAsSent}
+                markAsTimedOut={markAsTimedOut}
             />
         ))}
     </View>
@@ -69,7 +74,7 @@ export const PendingTransactions = memo(({
     const account = useSelectedAccount();
     const network = useNetwork();
     const addr = address ?? account?.addressString ?? '';
-    const { state: pending, removePending } = usePendingActions(addr, network.isTestnet);
+    const { state: pending, removePending, markAsSent, markAsTimedOut } = usePendingActions(addr, network.isTestnet);
     const theme = useTheme();
 
     const pendingTxs = useMemo(() => {
@@ -126,6 +131,8 @@ export const PendingTransactions = memo(({
                 style={listStyle}
                 owner={addr}
                 isLedger={isLedger}
+                markAsSent={markAsSent}
+                markAsTimedOut={markAsTimedOut}
             />
         </View>
     );

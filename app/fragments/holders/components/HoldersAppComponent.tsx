@@ -210,7 +210,7 @@ export const HoldersAppComponent = memo((
     const [currency] = usePrimaryCurrency();
     const [bounceableFormat] = useBounceableWalletFormat();
     const url = holdersUrl(isTestnet);
-    const { onSupport } = useSupport({ isLedger });
+    const { onSupport } = useSupport();
 
     const source = useMemo(() => {
         const queryParams = new URLSearchParams({

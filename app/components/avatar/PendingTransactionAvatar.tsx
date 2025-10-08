@@ -6,6 +6,7 @@ import { KnownWallet } from "../../secure/KnownWallets";
 import { useTheme, useWalletSettings } from "../../engine/hooks";
 import { ForcedAvatar, ForcedAvatarType } from "./ForcedAvatar";
 import { PendingIcon } from "./PendingIcon";
+import { TRANSACTION_AVATAR_SIZE } from "../../utils/constants";
 
 const Color = require('color');
 
@@ -13,18 +14,18 @@ export const PendingTransactionAvatar = memo(({
     style,
     avatarId,
     address,
-    kind,
     knownWallets,
     forceAvatar,
-    isLedger
+    isLedger,
+    verified = false
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
     address?: string,
-    kind: 'in' | 'out',
     knownWallets: { [key: string]: KnownWallet },
     forceAvatar?: ForcedAvatarType
-    isLedger?: boolean
+    isLedger?: boolean,
+    verified?: boolean
 }) => {
     const theme = useTheme();
     const [walletSettings] = useWalletSettings(address);
@@ -41,7 +42,7 @@ export const PendingTransactionAvatar = memo(({
     }
 
     return (
-        <View style={[{ flex: 1, height: 46, width: 46, justifyContent: 'center', alignItems: 'center' }, style]}>
+        <View style={[{ flex: 1, height: TRANSACTION_AVATAR_SIZE, width: TRANSACTION_AVATAR_SIZE, justifyContent: 'center', alignItems: 'center' }, style]}>
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0,
@@ -50,11 +51,11 @@ export const PendingTransactionAvatar = memo(({
                 justifyContent: 'center'
             }}>
                 {!!forceAvatar ? (
-                    <ForcedAvatar type={forceAvatar} size={46} hideVerifIcon />
+                    <ForcedAvatar type={forceAvatar} size={48} hideVerifIcon={!verified} />
                 ) : (
                     <Avatar
                         address={address}
-                        size={46}
+                        size={TRANSACTION_AVATAR_SIZE}
                         id={avatarId}
                         hash={walletSettings.avatar}
                         borderWidth={0}
@@ -62,12 +63,16 @@ export const PendingTransactionAvatar = memo(({
                         theme={theme}
                         knownWallets={knownWallets}
                         isLedger={isLedger}
+                        verified={verified}
                     />
                 )}
             </View>
-            <PendingIcon 
-                borderColor={(style as ViewStyle)?.backgroundColor ?? theme.surfaceOnElevation}
-            />
+            {!verified && (
+                <PendingIcon 
+                    borderColor={(style as ViewStyle)?.backgroundColor ?? theme.surfaceOnElevation}
+                    style={{ bottom: -3 }}
+                />
+            )}
         </View>
     )
 })

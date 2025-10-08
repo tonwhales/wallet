@@ -21,6 +21,7 @@ import { HoldersAccountsSearch } from "./HoldersAccountsSearch";
 import { hasDirectTonDeposit } from "../../utils/holders/hasDirectDeposit";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { AddressConfirmationRequest } from "../../fragments/secure/simpleTransfer/components/AddressConfirmationRequest";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -270,6 +271,9 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             {t('transfer.error.invalidAddress')}
                         </PerfText>
                     </Animated.View>
+                )}
+                {__DEV__ && ( // TODO: return when wallet confirmation design is refined
+                    <AddressConfirmationRequest address={validAddress ? state.target : undefined} />
                 )}
                 <HoldersAccountsSearch
                     theme={theme}

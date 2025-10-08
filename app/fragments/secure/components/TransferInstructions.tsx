@@ -48,7 +48,8 @@ export const TransferInstructions = (params: {
                 transaction
             });
             ref.current = pending.id;
-            registerPending(pending);
+            registerPending({...pending, id: pending.base58Signature });
+            callback?.(true, pending.id);
         } catch (error) {
             Alert.alert(
                 t('transfer.solana.error.title'),
@@ -65,7 +66,7 @@ export const TransferInstructions = (params: {
             return;
         }
         navigation.goBack();
-    }, [theme, authContext, params, solanaAddress, navigation, registerPending]);
+    }, [theme, authContext, params, solanaAddress, navigation, registerPending, callback]);
 
     useEffect(() => {
         return () => {

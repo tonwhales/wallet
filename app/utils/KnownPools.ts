@@ -13,7 +13,6 @@ export enum StakingPoolLink {
     Club = 'https://tonwhales.com/staking/pool/club',
     Team = 'https://tonwhales.com/staking/pool/team',
     Nominators = 'https://tonwhales.com/staking/pool/nominators',
-    Epn = 'https://tonwhales.com/staking/pool/epn',
     Tonkeeper = 'https://tonwhales.com/staking/pool/tonkeeper',
     Liquid = 'https://tonwhales.com/staking/liquid',
     Usde = 'https://ethena.fi'
@@ -77,16 +76,6 @@ const knownPoolsMainnet = {
         restricted: true,
         requireSource: require('@assets/ic_club_robot.png'),
         webLink: StakingPoolLink.Club
-    },
-    [Address.parse('EQBYtJtQzU3M-AI23gFM91tW6kYlblVtjej59gS8P3uJ_ePN').toString()]: {
-        name: 'ePN Partners 1',
-        requireSource: require('@assets/known/ic_epn_1.png'),
-        webLink: StakingPoolLink.Epn
-    },
-    [Address.parse('EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN').toString()]: {
-        name: 'ePN Partners 2',
-        requireSource: require('@assets/known/ic_epn_2.png'),
-        webLink: StakingPoolLink.Epn
     },
     [Address.parse('EQAA_5_dizuA1w6OpzTSYvXhvUwYTDNTW_MZDdZ0CGKeeper').toString()]: {
         name: 'Tonkeeper 1',

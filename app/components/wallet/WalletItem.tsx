@@ -106,6 +106,7 @@ export const WalletItem = memo((
                             color: theme.textPrimary,
                             marginBottom: 2,
                             maxWidth: '90%',
+                            flexShrink: 1
                         }, Typography.semiBold17_24]}
                         numberOfLines={1}
                     >

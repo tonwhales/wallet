@@ -91,7 +91,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Опис",
         "openSettings": "Відкрити налаштування",
         "exchanges": "Біржі",
-        "directDepositAddress": "Адреса прямого поповнення"
+        "directDepositAddress": "Адреса прямого поповнення",
+        "goBackTo": "Назад до {{name}}",
+        "viewIn": "Переглянути в {{name}}"
     },
     "syncStatus": {
         "connecting": "Підключення",
@@ -347,7 +349,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "Більше гаманців ({{count}})",
             "connectionSecureDescription": "Жодні кошти не будуть передані до додатку і доступ до ваших монет не буде надано",
             "invalidManifest": "Помилка манифесту додатку",
-            "invalidManifestDescription": "Цей додаток не зміг підключитися до вашого гаманця. Будь ласка, зверніться до їхньої команди підтримки."
+            "invalidManifestDescription": "Цей додаток не зміг підключитися до вашого гаманця. Будь ласка, зверніться до їхньої команди підтримки.",
+            "authorized": "{{name}} успішно підключено до вашого гаманця"
         },
         "consent": "Натискаючи продовжити, ви приймаєте наші"
     },
@@ -480,7 +483,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawStakeConfirmTitle": "Підтвердити зняття",
                 "topUpTitle": "Поповнення",
                 "topUpConfirmTitle": "Підтвердити поповнення",
-                "notEnoughStaked": "на жаль, у вас недостатньо монет для ставки",
+                "notEnoughStaked": "У вас недостатньо монет на балансі стейкінгу",
                 "confirmWithdraw": "Запит на зняття",
                 "confirmWithdrawReady": "Зняти зараз",
                 "restrictedTitle": "Цей пул ставок обмежений",
@@ -1327,6 +1330,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "get": "Отримуєте",
         "exchangeRate": "Курс обміну",
         "networkServiceFee": "Комісія мережі та сервісу",
+        "serviceFee": "Комісія сервісу",
         "poweredBy": "За підтримки",
         "continue": "Продовжити",
         "sendToDeposit": "Надішліть {{currency}} для поповнення рахунку",
@@ -1467,6 +1471,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "Поповнення через IBAN",
             "description": "Отримайте ранній доступ"
         }
+    },
+    "walletRequests": {
+        "title": "Хочеть відправити вам кошти, підтвердіть, що це ваш адреса",
+        "description": "Якщо власник цієї адреси використовує Tonhub, ви можете запросити їх підтвердити, що це правильна адреса і належить їм",
+        "request": "Запит на підтвердження",
+        "confirmed": "Адреса підтверджена!",
+        "declined": "Запит відхилено",
+        "expired": "Запит просрочений",
+        "pending": "Очікування підтвердження...",
     }
 };
 

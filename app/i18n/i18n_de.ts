@@ -91,7 +91,9 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "description": "Beschreibung",
         "openSettings": "Einstellungen öffnen",
         "exchanges": "Börsen",
-        "directDepositAddress": "Direkte Einzahlungsadresse"
+        "directDepositAddress": "Direkte Einzahlungsadresse",
+        "goBackTo": "Zurück zu {{name}}",
+        "viewIn": "In {{name}} anzeigen"
     },
     "syncStatus": {
         "connecting": "Verbinden",
@@ -347,7 +349,8 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "moreWallets": "Weitere Wallets ({{count}})",
             "connectionSecureDescription": "Es werden keine Gelder an die App übertragen und kein Zugriff auf Ihre Münzen gewährt",
             "invalidManifest": "App manifest Fehler",
-            "invalidManifestDescription": "Diese App konnte nicht mit Ihrem Wallet verbunden werden. Bitte kontaktieren Sie den Support der App."
+            "invalidManifestDescription": "Diese App konnte nicht mit Ihrem Wallet verbunden werden. Bitte kontaktieren Sie den Support der App.",
+            "authorized": "{{name}} wurde erfolgreich mit Ihrer Wallet verbunden"
         },
         "consent": "Durch Klicken auf Weiter akzeptieren Sie unsere"
     },
@@ -480,7 +483,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
                 "withdrawStakeConfirmTitle": "Auszahlung bestätigen",
                 "topUpTitle": "Aufstocken",
                 "topUpConfirmTitle": "Aufstockung bestätigen",
-                "notEnoughStaked": "Leider hast du nicht genug Coins gestakt",
+                "notEnoughStaked": "Leider haben Sie nicht genügend Münzen gestaked",
                 "confirmWithdraw": "Auszahlung anfordern",
                 "confirmWithdrawReady": "Jetzt auszahlen",
                 "restrictedTitle": "Dieser Staking-Pool ist eingeschränkt",
@@ -1327,6 +1330,7 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
         "get": "Erhalten",
         "exchangeRate": "Wechselkurs",
         "networkServiceFee": "Netzwerk- und Servicegebühr",
+        "serviceFee": "Servicegebühr",
         "poweredBy": "Unterstützt von",
         "continue": "Fortfahren",
         "sendToDeposit": "{{currency}} senden, um Ihr Konto aufzuladen",
@@ -1467,6 +1471,15 @@ const schema: PrepareSchema<LocalizationSchema, "" | "_plural"> = {
             "title": "Einzahlungen per IBAN",
             "description": "Erhalten Sie frühen Zugang"
         }
+    },
+    "walletRequests": {
+        "title": "Wollt Ihnen Geld senden, bestätigen Sie, dass dies Ihre Adresse ist",
+        "description": "Wenn der Besitzer dieser Adresse Tonhub verwendet, können Sie sie bitten, zu bestätigen, dass dies die richtige Adresse ist und zu ihm gehört",
+        "request": "Bestätigung anfragen",
+        "confirmed": "Adresse bestätigt!",
+        "declined": "Bestätigung abgelehnt",
+        "expired": "Bestätigung abgelaufen",
+        "pending": "Warten auf Bestätigung...",
     }
 };
 

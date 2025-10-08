@@ -85,14 +85,14 @@ export function humanizeNumber(
  * 0.1234 = 0.12
  * 0.000001234 = 0.0000012
  */
-export function humanizeNumberAdaptive(value: string | number): string {
+export function humanizeNumberAdaptive(value: string | number, alwaysShowSignificantDigits = false): string {
   if (isNullOrUndefined(value)) return '0';
   
   const num = typeof value === 'string' ? parseFloat(value) : value;
   if (isNaN(num) || num === 0) return '0';
   
   // For numbers >= 1 or integers - maximum 2 decimal places
-  if (Math.abs(num) >= 1) {
+  if (!alwaysShowSignificantDigits && Math.abs(num) >= 1) {
     const fractionDigits = num % 1 === 0 ? 0 : 2;
     return humanizeNumber(num, 0, fractionDigits);
   }
@@ -100,7 +100,7 @@ export function humanizeNumberAdaptive(value: string | number): string {
   // For numbers < 1 - find position of first significant digit + 2
   const str = Math.abs(num).toString();
   const match = str.match(/\.0*(\d)/);
-  const digitsAfterDot = match ? str.indexOf(match[1]) - str.indexOf('.') + 1 : 2;
+  const digitsAfterDot = match ? match[0].length : 2;
   
   return humanizeNumber(num, 0, digitsAfterDot, digitsAfterDot);
 }
@@ -122,4 +122,17 @@ export function humanizeCoins(
 export function humanizeFiat(value: string | number, currency?: string): string {
   return `${humanizeNumber(isString(value) ? parseCoins(value) : value)}${currency ? ` ${getFiatSymbol(currency)}` : ''
     }`;
+}
+
+export function addSpaceSeparators(value: string | number): string {
+  if (isNullOrUndefined(value)) return '0';
+  
+  const stringValue = String(value);
+  const parts = stringValue.split('.');
+  const integerPart = parts[0];
+  const decimalPart = parts[1];
+  
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  
+  return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
 }

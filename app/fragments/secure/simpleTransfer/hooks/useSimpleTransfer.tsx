@@ -397,9 +397,6 @@ export const useSimpleTransfer = ({ params, navigation }: Options) => {
         validAmount,
         walletVersion,
         callback: params?.callback,
-        tonTransport: ledgerTransport.tonTransport,
-        isReconnectLedger: ledgerTransport.isReconnectLedger,
-        onShowLedgerConnectionError: ledgerTransport.onShowLedgerConnectionError,
     });
 
     const doSend = useCallback(async () => {
@@ -419,9 +416,6 @@ export const useSimpleTransfer = ({ params, navigation }: Options) => {
             validAmount,
             walletVersion,
             callback,
-            tonTransport,
-            isReconnectLedger,
-            onShowLedgerConnectionError
         } = doSendData.current;
 
         if (validAmount === null || validAmount < 0n) {

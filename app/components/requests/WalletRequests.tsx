@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { useWalletRequestsWatcher } from "../../engine/useWalletRequestsWatcher";
 import { View } from "react-native";
-import { WalletRequestItem } from "./WalletRequestItem";
+import { WalletRequestItem } from "./secure/WalletRequestItem";
 
 export const WalletRequests = memo(() => {
     const { requests } = useWalletRequestsWatcher();

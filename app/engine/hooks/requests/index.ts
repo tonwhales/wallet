@@ -1,2 +1,2 @@
 export { useWalletRequests } from './useWalletRequests';
-export { useAddressConfirmationRequest } from './useAddressConfirmationRequest';
+export { useAddressConfirmationRequest } from './secure/useAddressConfirmationRequest';

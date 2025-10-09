@@ -24,6 +24,7 @@ import { avatarHash } from "../../../utils/avatarHash";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { ASSET_ITEM_HEIGHT, TRANSACTION_AVATAR_SIZE, TRANSACTION_PROCESSING_TIMEOUT } from "../../../utils/constants";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
+import { TransactionType } from "../../../engine/types";
 
 export const PendingTransactionView = memo(({
     tx,
@@ -41,8 +42,8 @@ export const PendingTransactionView = memo(({
     viewType?: 'history' | 'main' | 'jetton-history',
     owner: string,
     isLedger?: boolean,
-    markAsSent?: (id: string) => void
-    markAsTimedOut?: (id: string) => void
+    markAsSent?: (id: string, txType: TransactionType) => void
+    markAsTimedOut?: (id: string, txType: TransactionType) => void
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -67,7 +68,7 @@ export const PendingTransactionView = memo(({
     
     useEffect(() => {
         if (txStatus?.found && !txStatus.inProgress) {
-            markAsSent?.(tx.id);
+            markAsSent?.(tx.id, TransactionType.TON);
         }
     }, [txStatus, markAsSent, tx.id]);
 
@@ -76,7 +77,7 @@ export const PendingTransactionView = memo(({
             return;
         }
         const timeout = setTimeout(async () => {
-            markAsTimedOut?.(tx.id);
+            markAsTimedOut?.(tx.id, TransactionType.TON);
         }, TRANSACTION_PROCESSING_TIMEOUT);
 
         return () => {

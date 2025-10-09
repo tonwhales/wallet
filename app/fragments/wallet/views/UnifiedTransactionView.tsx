@@ -9,7 +9,7 @@ import { UnifiedTonTransaction, isPendingTonTransaction, isBlockchainTonTransact
 import { PendingTransactionView } from './PendingTransactionView';
 import { SectionListData, SectionListRenderItemInfo, View } from 'react-native';
 import { TransactionListItem } from './TransactionListItem';
-import { TonTransaction } from '../../../engine/types';
+import { TonTransaction, TransactionType } from '../../../engine/types';
 
 export const UnifiedTransactionView = memo((props: SectionListRenderItemInfo<UnifiedTonTransaction, { title: string }> & {
     address: Address,
@@ -28,8 +28,8 @@ export const UnifiedTransactionView = memo((props: SectionListRenderItemInfo<Uni
     denyList: { [key: string]: { reason: string | null } },
     spamWallets: string[],
     spamMinAmount: bigint,
-    markAsSent?: (id: string) => void,
-    markAsTimedOut?: (id: string) => void
+    markAsSent?: (id: string, txType: TransactionType) => void
+    markAsTimedOut?: (id: string, txType: TransactionType) => void
 }) => {
     const { item } = props;
 

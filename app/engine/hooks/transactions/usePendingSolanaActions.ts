@@ -23,6 +23,7 @@ export function usePendingSolanaActions(address: string, mint?: string) {
         if (ids.length === 0) {
             return;
         }
+        console.log('=======REMOVESOLANA', ids);
         setPendingRef.current((prev) => {
             return prev.filter((tx) => !ids.includes(tx.id));
         });
@@ -58,8 +59,8 @@ export function usePendingSolanaActions(address: string, mint?: string) {
     }, [onRefresh]);
 
     const markAsSent = useCallback((id: string) => {
-        setStatus(id, PendingTransactionStatus.Sent);
-        onRefresh();
+        // setStatus(id, PendingTransactionStatus.Sent);
+        // onRefresh();
     }, [onRefresh]);
 
     useEffect(() => {
@@ -85,7 +86,7 @@ export function usePendingSolanaActions(address: string, mint?: string) {
             });
 
             toMarkAsSent.forEach((tx) => {
-                markAsSent(tx.id);
+                // markAsSent(tx.id);
             });
         }
     }, [latest32Txs, pending, tokenLatest32Txs, markAsSent]);

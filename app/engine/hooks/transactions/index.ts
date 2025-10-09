@@ -2,6 +2,7 @@ export { usePendingTransactions } from './usePendingTransactions';
 export { useRegisterPending } from './useRegisterPending';
 export { usePeparedMessages } from './usePeparedMessages';
 export { usePendingActions } from './usePendingActions';
+export { useCommonPendingActions } from './useCommonPendingActions';
 export { useLastTwoTxs } from './useLastTwoTxs';
 export { usePendingSolanaTransactions } from './usePendingSolanaTransactions';
 export { usePendingSolanaActions } from './usePendingSolanaActions';

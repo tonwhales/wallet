@@ -2,6 +2,7 @@ import { AccountStatus, Address, Cell } from '@ton/core';
 import { LocalizedResources } from '../../i18n/schema';
 import { PreparedMessage } from '../hooks/transactions/usePeparedMessages';
 import { ContractInfo } from '../api/fetchContractInfo';
+import { SolanaTransaction } from '../api/solana/fetchSolanaTransactions';
 
 export type StoredAddressExternal = {
     bits: number;
@@ -478,8 +479,7 @@ export type HoldersTransaction =
 
 export enum TransactionType {
     TON = 'ton',
-    HOLDERS = 'holders',
-    ANY = 'any'
+    SOLANA = 'solana'
 }
 
 //
@@ -490,12 +490,12 @@ export type TonTx = {
     data: StoredTransaction
 }
 
-export type HoldersTx = {
-    type: TransactionType.HOLDERS,
-    data: HoldersTransaction
+export type SolanaTx = {
+    type: TransactionType.SOLANA,
+    data: SolanaTransaction
 }
 
-export type CommonTx = HoldersTx | TonTx;
+export type CommonTx = TonTx | SolanaTx;
 
 //
 // Stored
@@ -517,10 +517,3 @@ export type TonStoredTransaction = {
     type: TransactionType.TON,
     data: TonTransaction
 }
-
-export type HoldersStoredTransaction = {
-    type: TransactionType.HOLDERS,
-    data: HoldersTransaction
-}
-
-export type AccountStoredTransaction = TonStoredTransaction | HoldersStoredTransaction;

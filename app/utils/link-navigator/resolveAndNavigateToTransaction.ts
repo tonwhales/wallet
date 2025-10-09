@@ -1,5 +1,5 @@
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
-import { AccountStoredTransaction, SelectedAccount, TonTransaction, TransactionType } from "../../engine/types";
+import { SelectedAccount, TonStoredTransaction, TonTransaction, TransactionType } from "../../engine/types";
 import { TypedNavigation } from "../useTypedNavigation";
 import { AppState, getAppState } from "../../storage/appState";
 import { Address } from "@ton/core";
@@ -46,7 +46,7 @@ export async function resolveAndNavigateToTransaction(
                 holdersStatusData.state === HoldersUserState.Ok
             ) ? holdersStatusData.token : null;
 
-            let txsV2 = getQueryData<InfiniteData<AccountStoredTransaction[]>>(queryCache, Queries.TransactionsV2(resolved.address, !!token));
+            let txsV2 = getQueryData<InfiniteData<TonStoredTransaction[]>>(queryCache, Queries.TransactionsV2(resolved.address, !!token));
             let transaction = txsV2?.pages?.flat()?.find(tx => tx.type === TransactionType.TON && (tx.data.lt === lt && tx.data.hash === hash))?.data as TonTransaction | undefined
 
             if (!transaction) {
@@ -55,7 +55,7 @@ export async function resolveAndNavigateToTransaction(
                     refetchPage: (last, index, allPages) => index == 0,
                 });
 
-                txsV2 = getQueryData<InfiniteData<AccountStoredTransaction[]>>(queryCache, Queries.TransactionsV2(resolved.address, !!token));
+                txsV2 = getQueryData<InfiniteData<TonStoredTransaction[]>>(queryCache, Queries.TransactionsV2(resolved.address, !!token));
                 transaction = txsV2?.pages?.flat()?.find(tx => tx.type === TransactionType.TON && (tx.data.lt === lt && tx.data.hash === hash))?.data as TonTransaction | undefined;
             }
 

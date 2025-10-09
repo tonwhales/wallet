@@ -1,87 +1,28 @@
 import React, { memo, useCallback, useMemo, useRef } from "react";
-import { Address, toNano } from "@ton/core";
+import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
-import { SectionList, SectionListData, SectionListRenderItemInfo, View, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
-import { formatDate, getDateKey } from "../../../utils/dates";
+import { SectionList, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
 import { ThemeType } from "../../../engine/state/theme";
 import { Jetton } from '../../../engine/types';
-import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState, TransactionsEmptyStateType } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
-import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { AppState } from "../../../storage/appState";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { KnownWallet, useKnownWallets } from "../../../secure/KnownWallets";
+import { useKnownWallets } from "../../../secure/KnownWallets";
 import { warn } from "../../../utils/log";
-import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { JettonTransfer } from "../../../engine/hooks/transactions/useJettonTransactions";
-import { JettonTransactionView } from "./JettonTransactionView";
 import { UnifiedJettonTransaction } from "../../../engine/types/unifiedTransaction";
 import { UnifiedJettonTransactionView } from "./UnifiedJettonTransactionView";
-import { parseForwardPayloadComment } from "../../../utils/spam/isTxSPAM";
-import { t } from "../../../i18n/t";
-import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
-
-type TransactionListItemProps = {
-    address: Address,
-    theme: ThemeType,
-    onPress: (tx: JettonTransfer) => void,
-    onLongPress?: (tx: JettonTransfer) => void,
-    ledger?: boolean,
-    navigation: TypedNavigation,
-    addToDenyList: (address: string | Address, reason: string) => void,
-    spamMinAmount: bigint,
-    dontShowComments: boolean,
-    denyList: { [key: string]: { reason: string | null } },
-    contacts: { [key: string]: AddressContact },
-    isTestnet: boolean,
-    spamWallets: string[],
-    appState: AppState,
-    bounceableFormat: boolean,
-    walletsSettings: { [key: string]: WalletSettings }
-    knownWallets: { [key: string]: KnownWallet },
-    jetton: Jetton
-}
-
-const JettonTransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<JettonTransfer, { title: string }> & TransactionListItemProps) => {
-    return (
-        <JettonTransactionView
-            own={props.address}
-            tx={item}
-            separator={section.data[index + 1] !== undefined}
-            theme={theme}
-            ledger={props.ledger}
-            {...props}
-        />
-    );
-}, (prev, next) => {
-    return prev.item.trace_id === next.item.trace_id
-        && prev.isTestnet === next.isTestnet
-        && prev.dontShowComments === next.dontShowComments
-        && prev.spamMinAmount === next.spamMinAmount
-        && prev.address === next.address
-        && prev.theme === next.theme
-        && prev.section === next.section
-        && prev.index === next.index
-        && prev.addToDenyList === next.addToDenyList
-        && prev.denyList === next.denyList
-        && prev.contacts === next.contacts
-        && prev.spamWallets === next.spamWallets
-        && prev.appState === next.appState
-        && prev.onLongPress === next.onLongPress
-        && prev.bounceableFormat === next.bounceableFormat
-        && prev.walletsSettings === next.walletsSettings
-        && prev.knownWallets === next.knownWallets
-});
-JettonTransactionListItem.displayName = 'JettonTransactionListItem';
+import { useSectionedTransactions } from "../../../engine/hooks/transactions/useSectionedTransactions";
+import { TransactionsListFooter } from "../../../components/transactions/TransactionsListFooter";
+import { useRepeatJettonTransaction } from "../../../engine/hooks/transactions/useRepeatJettonTransaction";
+import { useJettonTransactionActions } from "../../../engine/hooks/transactions/useJettonTransactionActions";
 
 export const JettonWalletTransactions = memo((props: {
     txs: UnifiedJettonTransaction[],
@@ -123,31 +64,18 @@ export const JettonWalletTransactions = memo((props: {
 
     const ref = useRef<SectionList<UnifiedJettonTransaction, { title: string }>>(null);
 
-    const { showActionSheetWithOptions } = useActionSheet();
-
-    const { transactionsSectioned } = useMemo(() => {
-        const sectioned = new Map<string, { title: string, data: UnifiedJettonTransaction[] }>();
-        for (let i = 0; i < props.txs.length; i++) {
-            const unifiedTx = txs[i];
-
-            // Skip gasless relay transactions for blockchain transactions
-            if (unifiedTx.type === 'blockchain') {
-                const t = unifiedTx.data as JettonTransfer;
-                if (gaslessConfig?.relay_address && Address.parse(gaslessConfig.relay_address).equals(Address.parse(t.destination))) {
-                    continue;
-                }
-            }
-
-            const time = getDateKey(unifiedTx.time);
-            const section = sectioned.get(time);
-            if (section) {
-                section.data.push(unifiedTx);
-            } else {
-                sectioned.set(time, { title: formatDate(unifiedTx.time), data: [unifiedTx] });
+    const filterFn = useCallback((unifiedTx: UnifiedJettonTransaction) => {
+        // Skip gasless relay transactions for blockchain transactions
+        if (unifiedTx.type === 'blockchain') {
+            const t = unifiedTx.data as JettonTransfer;
+            if (gaslessConfig?.relay_address && Address.parse(gaslessConfig.relay_address).equals(Address.parse(t.destination))) {
+                return false;
             }
         }
-        return { transactionsSectioned: Array.from(sectioned.values()) };
-    }, [txs, gaslessConfig?.relay_address]);
+        return true;
+    }, [gaslessConfig?.relay_address]);
+
+    const transactionsSectioned = useSectionedTransactions(txs, filterFn);
 
     const navigateToPreview = useCallback((transaction: JettonTransfer) => {
         if (ledger) {
@@ -167,17 +95,9 @@ export const JettonWalletTransactions = memo((props: {
         });
     }, [ledger, address, jetton, isTestnet]);
 
-    const renderSectionHeader = (section: { section: SectionListData<UnifiedJettonTransaction, { title: string }> }) => (
+    const renderSectionHeader = useCallback((section: { section: any }) => (
         <TransactionsSectionHeader theme={theme} title={section.section.title} />
-    );
-
-    const onShare = useCallback((link: string, title: string) => {
-        if (Platform.OS === 'ios') {
-            Share.share({ title: title, url: link });
-        } else {
-            Share.share({ title: title, message: link });
-        }
-    }, []);
+    ), [theme]);
 
     const onMarkAddressSpam = useCallback(async (address: string) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
@@ -188,105 +108,18 @@ export const JettonWalletTransactions = memo((props: {
 
     const onAddressContact = useCallback((address: string) => {
         navigation.navigate('Contact', { address });
-    }, []);
+    }, [navigation]);
 
-    const onRepeatTx = useCallback((tx: JettonTransfer, formattedAddressString: string) => {
-        const decimals = props.jetton.decimals ?? 9;
-        const amount = toNano(fromBnWithDecimals(BigInt(tx.amount), decimals));
-        const comment = parseForwardPayloadComment(tx.forward_payload);
+    const onRepeatTx = useRepeatJettonTransaction(jetton);
 
-        navigation.navigateSimpleTransfer({
-            target: formattedAddressString,
-            comment: comment,
-            amount: amount < 0n ? -amount : amount,
-            stateInit: null,
-            asset: { type: 'jetton', master: jetton.master, wallet: jetton.wallet },
-            callback: null
-        });
-    }, [navigation, isTestnet, bounceableFormat, jetton]);
-
-    const onLongPress = (tx: JettonTransfer) => {
-        const targetAddress = Address.parse(tx.destination);
-
-        const bounceable = getAddressFormat(targetAddress) ?? bounceableFormat;
-        const targetAddressWithBounce = targetAddress.toString({ testOnly: isTestnet, bounceable });
-
-        const target = targetAddress.toString({ testOnly: isTestnet });
-        const targetNonBounceable = targetAddress.toString({ testOnly: isTestnet, bounceable: false });
-        // Previously contacts could be created with different address formats, now it's only bounceable, but we need to check both formats to keep compatibility
-        const contactAddress = addressBook.contacts[targetAddressWithBounce] ? targetAddressWithBounce : targetNonBounceable;
-        const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${targetAddressWithBounce}`;
-        const buffTxHash = Buffer.from(tx.trace_id, 'base64');
-        const txHash = buffTxHash.toString('base64');
-        const explorerTxLink = `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-            + `${props.address.toString({ testOnly: isTestnet })}/`
-            + `${tx.transaction_lt}_${encodeURIComponent(txHash)}`;
-        const contact = addressBook.contacts[contactAddress];
-        const isSpam = !!addressBook.denyList[contactAddress]?.reason;
-        const kind: 'in' | 'out' = targetAddress.equals(address) ? 'in' : 'out';
-        const comment = parseForwardPayloadComment(tx.forward_payload);
-
-        const spam =
-            !!spamWallets.find((i) => target === i)
-            || isSpam
-            || !!comment && !knownWallets[target] && !isTestnet && kind === 'in';
-
-        const canRepeat = kind === 'out'
-            && !ledger
-            && !tx.custom_payload
-            && !(!!tx.forward_payload && !comment);
-
-        const handleAction = (eN?: number) => {
-            switch (eN) {
-                case 1: {
-                    if (explorerTxLink) {
-                        onShare(explorerTxLink, t('txActions.share.transaction'));
-                    }
-                    break;
-                }
-                case 2: {
-                    onAddressContact(contactAddress);
-                    break;
-                }
-                case 3: {
-                    onShare(addressLink, t('txActions.share.address'));
-                    break;
-                }
-                case 4: {
-                    if (!spam) {
-                        onMarkAddressSpam(contactAddress);
-                    } else if (canRepeat) {
-                        onRepeatTx(tx, targetAddressWithBounce);
-                    }
-                    break;
-                }
-                case 5: {
-                    if (canRepeat) {
-                        onRepeatTx(tx, targetAddressWithBounce);
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-
-        const actionSheetOptions: ActionSheetOptions = {
-            options: [
-                t('common.cancel'),
-                t('txActions.txShare'),
-                !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
-                t('txActions.addressShare'),
-                ...(!spam ? [t('txActions.addressMarkSpam')] : []),
-                ...(canRepeat ? [t('txActions.txRepeat')] : []),
-            ],
-            userInterfaceStyle: theme.style,
-            cancelButtonIndex: 0,
-            destructiveButtonIndex: !spam ? 4 : undefined,
-        }
-
-        return showActionSheetWithOptions(actionSheetOptions, handleAction);
-    }
+    const onLongPress = useJettonTransactionActions({
+        address,
+        theme,
+        ledger,
+        onMarkAddressSpam,
+        onAddressContact,
+        onRepeatTx
+    });
 
     return (
         <SectionList
@@ -305,17 +138,7 @@ export const JettonWalletTransactions = memo((props: {
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
             ListHeaderComponent={header}
-            ListFooterComponent={hasNext ? (
-                <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                    <ReAnimatedCircularProgress
-                        size={24}
-                        color={theme.iconPrimary}
-                        reverse
-                        infinitRotate
-                        progress={0.8}
-                    />
-                </View>
-            ) : null}
+            ListFooterComponent={<TransactionsListFooter hasNext={hasNext} theme={theme} />}
             ListEmptyComponent={loading
                 ? <TransactionsSkeleton />
                 : <TransactionsEmptyState

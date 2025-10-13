@@ -16,13 +16,14 @@ import { resolveAndNavigateToJettonTransfer } from './resolveAndNavigateToJetton
 import { resolveAndNavigateToHolders } from './resolveAndNavigateToHolders';
 import { resolveAndNavigateToSolanaTransfer } from './resolveAndNavigateToSolanaTransfer';
 import { resolveAndNavigateToTransaction } from './resolveAndNavigateToTransaction';
-import { storeInviteId } from '../holders/storage';
+import { storeInvitationId, storeInviteId } from '../holders/storage';
 import { resolveHoldersInviteLink } from './resolveHoldersInviteLink';
 import { resolveAndNavigateToDomainTransfer } from './resolveAndNavigateToDomainTransfer';
 import { resolveAndNavigateToTransfer } from './resolveAndNavigateToTransfer';
 import { getTimeSec } from '../getTimeSec';
 import { t } from '../../i18n/t';
 import { resolveAndNavigateToChangellyOrder } from './resolveAndNavigateToChangellyOrder';
+import { resolveHoldersInvitationLink } from './resolveHoldersInvitationLink';
 
 export function useLinkNavigator(
     isTestnet: boolean,
@@ -226,6 +227,20 @@ export function useLinkNavigator(
                     navigation,
                     isTestnet,
                     inviteId: resolved.inviteId
+                })
+                break;
+            }
+            case 'holders-invitation': {
+                storeInvitationId(resolved.invitationId);
+
+                if (!selected) {
+                    return;
+                }
+
+                resolveHoldersInvitationLink({
+                    navigation,
+                    isTestnet,
+                    invitationId: resolved.invitationId
                 })
                 break;
             }

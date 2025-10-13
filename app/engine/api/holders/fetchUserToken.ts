@@ -87,6 +87,7 @@ export type TonConnectV2SolanaConfig = z.infer<typeof tonconnectV2SolanaConfig>;
 
 const tonAuthRequestCodec = z.object({
     inviteId: z.string().optional(),
+    invitationId: z.string().optional(),
     appsflyerId: z.string().optional(),
     stack: z.literal('ton'),
     network: z.union([z.literal('ton-mainnet'), z.literal('ton-testnet')]),

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
+import { View, Text, Platform, Image, Pressable, ScrollView, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
@@ -24,6 +24,8 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactionsList } from "../wallet/views/PendingTransactions";
 import { StakingPoolHeader } from "../../components/staking/StakingPoolHeader";
 import { Typography } from "../../components/styles";
+import { queryClient } from "../../engine/clients";
+import { Queries } from "../../engine/queries";
 
 export type StakingFragmentParams = {
     backToHome?: boolean;
@@ -32,7 +34,7 @@ export type StakingFragmentParams = {
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
-    const network = useNetwork();
+    const { isTestnet} = useNetwork();
     const safeArea = useSafeAreaInsets();
     const initParams = useParams<StakingFragmentParams>();
     const [params, setParams] = useState(initParams);
@@ -40,7 +42,7 @@ export const StakingFragment = fragment(() => {
     const isLedger = useIsLedgerRoute()
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-    const knownPools = useKnownPools(network.isTestnet);
+    const knownPools = useKnownPools(isTestnet);
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -54,8 +56,8 @@ export const StakingFragment = fragment(() => {
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
     const pool = useStakingPool(targetPool, memberAddress);
     const member = pool?.member;
-    const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: network.isTestnet }));
-    const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: network.isTestnet }), network.isTestnet);
+    const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: isTestnet }));
+    const { state: pendingTxs, removePending } = usePendingActions(memberAddress!.toString({ testOnly: isTestnet }), isTestnet);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
@@ -85,13 +87,13 @@ export const StakingFragment = fragment(() => {
     }, []);
 
     let available = useMemo(() => {
-        if (network.isTestnet) {
+        if (isTestnet) {
             return true;
         }
         return !!config?.pools.find((v2) => {
             return Address.parse(v2).equals(targetPool)
         })
-    }, [config, targetPool, network]);
+    }, [config, targetPool, isTestnet]);
 
     const transferAmount = (pool?.params?.minStake ?? 0n)
         + (pool?.params?.receiptPrice ?? 0n)
@@ -100,7 +102,7 @@ export const StakingFragment = fragment(() => {
     const onTopUp = useCallback(() => {
         navigation.navigateStakingTransfer(
             {
-                target: targetPool.toString({ testOnly: network.isTestnet }),
+                target: targetPool.toString({ testOnly: isTestnet }),
                 amount: transferAmount.toString(),
                 lockAddress: true,
                 lockComment: true,
@@ -108,19 +110,19 @@ export const StakingFragment = fragment(() => {
             },
             { ledger: isLedger }
         );
-    }, [targetPool, transferAmount, isLedger, network]);
+    }, [targetPool, transferAmount, isLedger, isTestnet]);
 
     const onUnstake = useCallback(() => {
         navigation.navigateStakingTransfer(
             {
-                target: targetPool.toString({ testOnly: network.isTestnet }),
+                target: targetPool.toString({ testOnly: isTestnet }),
                 lockAddress: true,
                 lockComment: true,
                 action: 'withdraw' as TransferAction,
             },
             { ledger: isLedger }
         );
-    }, [targetPool, isLedger, network]);
+    }, [targetPool, isLedger, isTestnet]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
@@ -136,6 +138,32 @@ export const StakingFragment = fragment(() => {
             setStatusBarStyle('light');
         }, 10);
     });
+
+    const [refetching, setRefetching] = useState(false);
+
+    const refetchInfo = useCallback(() => {
+        (async () => {
+            try {
+                setRefetching(true);
+                await queryClient.invalidateQueries({
+                    queryKey: ['staking-wallet-config', memberAddress!.toString({ testOnly: isTestnet })]
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: Queries.Account(targetPool.toString({ testOnly: isTestnet })).StakingPool().Params()
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: Queries.Account(targetPool.toString({ testOnly: isTestnet })).StakingPool().Status()
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: Queries.StakingMember(targetPool.toString({ testOnly: isTestnet }), memberAddress!.toString({ testOnly: isTestnet }) || 'default-null')
+                });
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setRefetching(false);
+            }
+        })();
+    }, [targetPool, isTestnet, memberAddress]);
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
@@ -155,6 +183,14 @@ export const StakingFragment = fragment(() => {
                 decelerationRate={'normal'}
                 alwaysBounceVertical={true}
                 overScrollMode={'never'}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refetching}
+                        onRefresh={refetchInfo}
+                        tintColor={theme.textUnchangeable}
+                        style={{ zIndex: 2000 }}
+                    />
+                }
             >
                 {Platform.OS === 'ios' && (
                     <View
@@ -207,7 +243,7 @@ export const StakingFragment = fragment(() => {
                             </Pressable>
                         </View>
                         <WalletAddress
-                            value={targetPool.toString({ testOnly: network.isTestnet })}
+                            value={targetPool.toString({ testOnly: isTestnet })}
                             address={targetPool}
                             elipsise={{ start: 4, end: 4 }}
                             style={{
@@ -364,12 +400,12 @@ export const StakingFragment = fragment(() => {
                                 theme={theme}
                                 txs={pendingPoolTxs}
                                 style={{ marginBottom: 16 }}
-                                owner={memberAddress!.toString({ testOnly: network.isTestnet })}
+                                owner={memberAddress!.toString({ testOnly: isTestnet })}
                                 isLedger={isLedger}
                             />
                         )}
                         <StakingPendingComponent
-                            isTestnet={network.isTestnet}
+                            isTestnet={isTestnet}
                             target={targetPool}
                             member={member}
                             isLedger={isLedger}
@@ -377,7 +413,7 @@ export const StakingFragment = fragment(() => {
                         {(type !== 'nominators' && !available) && (
                             <RestrictedPoolBanner type={type} />
                         )}
-                        {network.isTestnet && (
+                        {isTestnet && (
                             <RestrictedPoolBanner type={'team'} />
                         )}
                         {__DEV__ && (

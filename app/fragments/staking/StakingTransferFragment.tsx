@@ -20,7 +20,7 @@ import { useParams } from '../../utils/useParams';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
-import { Address, Cell, fromNano, toNano } from '@ton/core';
+import { Address, Cell, beginCell, fromNano, toNano } from '@ton/core';
 import { useAccountLite, useIsLedgerRoute, useNetwork, usePrice, useSelectedAccount, useStakingPool, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
@@ -138,25 +138,26 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Add withdraw payload
-        let payload: Cell;
+        let payload: Cell = beginCell().endCell();
         let transferAmount = value;
 
         if (isLedger) {
-            let ledgerPayload: TonPayloadFormat = {
-                type: 'comment',
-                text: 'Withdraw',
-            };
             let actionText = t('transfer.title');
 
             if (params.action === 'withdraw') {
+                if (transferAmount === balance) {
+                    transferAmount = 0n;
+                }
+                payload = createWithdrawStakeCell(transferAmount);
                 transferAmount = pool
                     ? (pool.params.withdrawFee + pool.params.receiptPrice)
                     : toNano('0.2');
                 actionText = t('products.staking.transfer.withdrawStakeTitle');
             } else if (params.action === 'top_up') {
                 actionText = t('products.staking.transfer.topUpTitle');
-                ledgerPayload.text = 'Deposit';
+                payload = createAddStakeCommand();
             } else if (params.action === 'withdraw_ready') {
+                payload = createWithdrawStakeCell(transferAmount);
                 transferAmount = pool
                     ? (pool.params.withdrawFee + pool.params.receiptPrice)
                     : toNano('0.2');
@@ -164,6 +165,12 @@ export const StakingTransferFragment = fragment(() => {
             }
 
             const text = t('products.staking.transfer.ledgerSignText', { action: actionText });
+
+            const ledgerPayload: TonPayloadFormat = {
+                type: 'unsafe',
+                message: payload
+            };
+
             navigation.navigateLedgerSignTransfer({
                 order: {
                     type: 'ledger',
@@ -175,7 +182,8 @@ export const StakingTransferFragment = fragment(() => {
                 },
                 text: text,
                 callback: (ok: boolean) => {
-                    if(ok) {
+                    if (ok) {
+                        navigation.goBack();
                         trackAppsFlyerEvent(AppsFlyerEvent.StakingDeposit, {
                             af_currency: 'TON',
                             af_quantity: transferAmount.toString()
@@ -245,7 +253,8 @@ export const StakingTransferFragment = fragment(() => {
             },
             text: null,
             callback: (ok: boolean) => {
-                if(ok) {
+                if (ok) {
+                    navigation.goBack();
                     trackAppsFlyerEvent(AppsFlyerEvent.StakingDeposit, {
                         af_currency: 'TON',
                         af_quantity: transferAmount.toString()

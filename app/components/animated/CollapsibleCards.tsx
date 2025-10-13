@@ -18,7 +18,7 @@ export const CardItemWrapper = memo(({
     progress: SharedValue<number>,
     item: ReactNode,
     index: number,
-    itemHeight?: number,
+    itemHeight?: number
 }) => {
     const animatedStyle = useAnimatedStyle(() => ({
         marginTop: interpolate(
@@ -60,7 +60,8 @@ type CollapsibleCardsProps<T> = {
     initialCollapsed?: boolean,
     limitConfig?: CollapsibleCardsLimitConfig,
     action?: React.ReactNode
-    alwaysExpanded?: boolean
+    alwaysExpanded?: boolean,
+    subtitleSection?: ReactNode
 };
 
 const CollapsibleCardsComponent = <T,>({
@@ -73,7 +74,8 @@ const CollapsibleCardsComponent = <T,>({
     initialCollapsed = true,
     limitConfig,
     action,
-    alwaysExpanded = false
+    alwaysExpanded = false,
+    subtitleSection
 }: CollapsibleCardsProps<T>) => {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
@@ -234,12 +236,13 @@ const CollapsibleCardsComponent = <T,>({
                         }}
                         onPress={toggle}
                     >
-                        <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                             {title}
                         </Text>
                         {action}
                     </Pressable>
                 </View>
+                {subtitleSection}
                 <View style={{ gap: 16, paddingHorizontal: 16 }}>
                     {items.map((item, index) => {
                         const itemView = renderItem(item, index);
@@ -252,6 +255,7 @@ const CollapsibleCardsComponent = <T,>({
 
     return (
         <View>
+            {subtitleSection}
             <View>
                 <Pressable
                     style={({ pressed }) => {

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { View, Text, Platform, Image, Pressable, ScrollView, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
@@ -24,6 +24,8 @@ import { TransferAction } from "./StakingTransferFragment";
 import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
 import { WalletAddress } from "../../components/address/WalletAddress";
 import { extractDomain } from "../../engine/utils/extractDomain";
+import { queryClient } from "../../engine/clients";
+import { Queries } from "../../engine/queries";
 
 export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
@@ -145,6 +147,32 @@ export const LiquidStakingFragment = fragment(() => {
         }, 10);
     });
 
+    const [refetching, setRefetching] = useState(false);
+
+    const refetchInfo = useCallback(() => {
+        (async () => {
+            try {
+                setRefetching(true);
+                await queryClient.invalidateQueries({
+                    queryKey: Queries.StakingLiquid(targetPool.toString({ testOnly: isTestnet }))
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: Queries.StakingLiquidMember(
+                        targetPool.toString({ testOnly: isTestnet }),
+                        memberAddress!.toString({ testOnly: isTestnet }) || 'default-null'
+                    )
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: Queries.APY(isTestnet ? 'testnet' : 'mainnet')
+                });
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setRefetching(false);
+            }
+        })();
+    }, [targetPool, isTestnet, memberAddress]);
+
     return (
         <View style={{ flex: 1 }}>
             <StatusBar style={'light'} />
@@ -207,6 +235,14 @@ export const LiquidStakingFragment = fragment(() => {
                 decelerationRate={'normal'}
                 alwaysBounceVertical={true}
                 overScrollMode={'never'}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refetching}
+                        onRefresh={refetchInfo}
+                        tintColor={theme.textUnchangeable}
+                        style={{ zIndex: 2000 }}
+                    />
+                }
             >
                 {Platform.OS === 'ios' && (
                     <View

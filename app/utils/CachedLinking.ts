@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { resolveSearchParams } from "./holders/resolveSearchParams";
 import { processSearchParams } from "./holders/queryParamsStore";
 import { isMaestraPushDataIOS } from "../engine/types";
+import Clipboard from "@react-native-clipboard/clipboard";
 
 const { MaestraModule } = NativeModules;
 
@@ -27,8 +28,13 @@ function resolveAndProcessLink(link: string) {
 // Fetch initial
 (async () => {
     let url = await Linking.getInitialURL();
+    const clipboardContent = await Clipboard.getString();
+    
     if (url) {
         resolveAndProcessLink(url);
+    } else if (clipboardContent && clipboardContent.startsWith('https://')) {
+        resolveAndProcessLink(clipboardContent);
+        Clipboard.setString('');
     }
 })();
 

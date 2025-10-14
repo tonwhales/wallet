@@ -17,7 +17,7 @@ import { useWalletVersion } from "../useWalletVersion";
 import { LedgerWallet } from "../../../fragments/ledger/components/TransportContext";
 import { PublicKey } from "@solana/web3.js";
 import { getAppsFlyerUID } from "../../../analytics/appsflyer";
-import { getInviteId } from "../../../utils/holders/storage";
+import { getInvitationId, getInviteId } from "../../../utils/holders/storage";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -31,13 +31,15 @@ export type HoldersEnrollParams = {
     domain: string,
     authContext: AuthWalletKeysType,
     authStyle?: AuthParams | undefined,
-    inviteId?: string
+    inviteId?: string,
+    invitationId?: string
 }
 
 export type HoldersLedgerEnrollParams = {
     acc: LedgerWallet,
     domain: string,
-    inviteId?: string
+    inviteId?: string,
+    invitationId?: string
 }
 
 export enum HoldersEnrollErrorType {
@@ -55,7 +57,7 @@ export enum HoldersEnrollErrorType {
 
 export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType } | { type: 'success' };
 
-export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solanaAddress }: HoldersEnrollParams) {
+export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, invitationId, solanaAddress }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
     const version = useWalletVersion();
     const saveAppConnection = useSaveAppConnection();
@@ -75,8 +77,9 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
             const isInjected = connections.find((item) => item.type === TonConnectBridgeType.Injected);
 
             const storedInviteId = getInviteId();
+            const storedInvitationId = getInvitationId();
 
-            if (inviteId || storedInviteId) {
+            if (inviteId || storedInviteId || invitationId || storedInvitationId) {
 
                 //
                 // Reset holders token with every invite attempt
@@ -207,6 +210,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle, inviteId, solana
                                 }
                             },
                             inviteId,
+                            invitationId,
                             appsflyerId
                         },
                         {

@@ -9,7 +9,7 @@ import { ReceiveableSolanaAsset } from "../../ReceiveFragment";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { UnifiedSolanaTransaction } from "../../../../engine/types/unifiedTransaction";
 import { UnifiedSolanaTransactionView } from "../UnifiedSolanaTransactionView";
-import { useSectionedTransactions } from "../../../../engine/hooks/transactions/useSectionedTransactions";
+import { useSectionedTransactions } from "../../../../engine/hooks/transactions";
 import { TransactionsListFooter } from "../../../../components/transactions/TransactionsListFooter";
 import { TransactionType } from "../../../../engine/types";
 

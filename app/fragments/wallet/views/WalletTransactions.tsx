@@ -13,13 +13,10 @@ import { useKnownWallets } from "../../../secure/KnownWallets";
 import { warn } from "../../../utils/log";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
-import { useUnifiedTransactions } from "../../../engine/hooks/transactions/useUnifiedTransactions";
+import { useUnifiedTransactions, useSectionedTransactions, useRepeatTonTransaction, useTonTransactionActions } from "../../../engine/hooks/transactions";
 import { UnifiedTransactionView } from "./UnifiedTransactionView";
 import { UnifiedTonTransaction } from "../../../engine/types/unifiedTransaction";
-import { useSectionedTransactions } from "../../../engine/hooks/transactions/useSectionedTransactions";
 import { TransactionsListFooter } from "../../../components/transactions/TransactionsListFooter";
-import { useRepeatTonTransaction } from "../../../engine/hooks/transactions/useRepeatTonTransaction";
-import { useTonTransactionActions } from "../../../engine/hooks/transactions/useTonTransactionActions";
 
 export const WalletTransactions = memo((props: {
     address: Address,

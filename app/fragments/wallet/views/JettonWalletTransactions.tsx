@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo, useRef } from "react";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
-import { SectionList, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
+import { SectionList, SectionListData, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
 import { ThemeType } from "../../../engine/state/theme";
 import { Jetton } from '../../../engine/types';
 import { useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
@@ -13,16 +13,13 @@ import { confirmAlert } from "../../../utils/confirmAlert";
 import { useKnownWallets } from "../../../secure/KnownWallets";
 import { warn } from "../../../utils/log";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
-import { JettonTransfer } from "../../../engine/hooks/transactions/useJettonTransactions";
+import { JettonTransfer, useSectionedTransactions, useRepeatJettonTransaction, useJettonTransactionActions } from "../../../engine/hooks/transactions";
 import { UnifiedJettonTransaction } from "../../../engine/types/unifiedTransaction";
 import { UnifiedJettonTransactionView } from "./UnifiedJettonTransactionView";
 import { useGaslessConfig } from "../../../engine/hooks/jettons/useGaslessConfig";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
 import { useAddressFormatsHistory } from "../../../engine/hooks";
-import { useSectionedTransactions } from "../../../engine/hooks/transactions/useSectionedTransactions";
 import { TransactionsListFooter } from "../../../components/transactions/TransactionsListFooter";
-import { useRepeatJettonTransaction } from "../../../engine/hooks/transactions/useRepeatJettonTransaction";
-import { useJettonTransactionActions } from "../../../engine/hooks/transactions/useJettonTransactionActions";
 
 export const JettonWalletTransactions = memo((props: {
     txs: UnifiedJettonTransaction[],
@@ -95,8 +92,8 @@ export const JettonWalletTransactions = memo((props: {
         });
     }, [ledger, address, jetton, isTestnet]);
 
-    const renderSectionHeader = useCallback((section: { section: any }) => (
-        <TransactionsSectionHeader theme={theme} title={section.section.title} />
+    const renderSectionHeader = useCallback(({ section }: { section: SectionListData<UnifiedJettonTransaction, { title: string }> }) => (
+        <TransactionsSectionHeader theme={theme} title={section.title} />
     ), [theme]);
 
     const onMarkAddressSpam = useCallback(async (address: string) => {

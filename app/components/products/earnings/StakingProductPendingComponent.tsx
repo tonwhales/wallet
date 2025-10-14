@@ -1,11 +1,11 @@
 import { memo, useMemo } from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { useNetwork, useStakingActive, useTheme } from "../../../engine/hooks";
 import { Address } from "@ton/core";
 import { StakingPoolMember } from "../../../engine/types";
 import { StakingPendingComponent } from "../../staking/StakingPendingComponent";
 
-export const StakingProductPedningComponent = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
+export const StakingProductPendingComponent = memo(({ address, isLedger }: { address: Address, isLedger?: boolean }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const active = useStakingActive(address);

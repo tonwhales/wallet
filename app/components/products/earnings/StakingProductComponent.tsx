@@ -15,9 +15,9 @@ import { useLiquidStakingBalance } from "../../../engine/hooks/staking/useLiquid
 import { StakingProductBanner } from "./StakingProductBanner";
 import { LiquidUSDeStakingPool } from "../../staking/LiquidUSDeStakingPool";
 import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
+import { StakingProductPendingComponent } from "./StakingProductPendingComponent";
 
 import StakingIcon from '@assets/ic-staking.svg';
-import { StakingProductPedningComponent } from "./StakingProductPedningComponent";
 
 type ProductItem =
     { type: 'active', address: Address, balance: bigint }
@@ -257,7 +257,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 renderFace={renderFace}
                 action={items.length ? <AddStakeButton /> : undefined}
                 itemHeight={ASSET_ITEM_HEIGHT}
-                subtitleSection={<StakingProductPedningComponent address={address} isLedger={isLedger} />}
+                subtitleSection={<StakingProductPendingComponent address={address} isLedger={isLedger} />}
             />
         </View>
     );

@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from "react"
 import { View } from "react-native"
-import { StakingProductComponent } from "./StakingProductComponent";
+import { StakingProductComponent } from "./earnings/StakingProductComponent";
 import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
 import { useHoldersAccounts, useHoldersAccountStatus, useIsConnectAppReady, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";

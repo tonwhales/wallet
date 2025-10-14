@@ -1,22 +1,23 @@
 import React, { memo, useCallback, useMemo } from "react";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
-import { t } from "../../i18n/t";
-import { useIsLedgerRoute, useLiquidUSDeStakingMember, useStakingActive, useTheme } from "../../engine/hooks";
-import { StakingPool } from "../staking/StakingPool";
-import { CollapsibleCards } from "../animated/CollapsibleCards";
-import { PerfText } from "../basic/PerfText";
-import { Typography } from "../styles";
-import { ValueComponent } from "../ValueComponent";
-import { PriceComponent } from "../PriceComponent";
+import { t } from "../../../i18n/t";
+import { useIsLedgerRoute, useLiquidUSDeStakingMember, useStakingActive, useTheme } from "../../../engine/hooks";
+import { StakingPool } from "../../staking/StakingPool";
+import { CollapsibleCards } from "../../animated/CollapsibleCards";
+import { PerfText } from "../../basic/PerfText";
+import { Typography } from "../../styles";
+import { ValueComponent } from "../../ValueComponent";
+import { PriceComponent } from "../../PriceComponent";
 import { Address } from "@ton/core";
-import { LiquidStakingPool } from "../staking/LiquidStakingPool";
-import { useLiquidStakingBalance } from "../../engine/hooks/staking/useLiquidStakingBalance";
+import { LiquidStakingPool } from "../../staking/LiquidStakingPool";
+import { useLiquidStakingBalance } from "../../../engine/hooks/staking/useLiquidStakingBalance";
 import { StakingProductBanner } from "./StakingProductBanner";
-import { LiquidUSDeStakingPool } from "../staking/LiquidUSDeStakingPool";
+import { LiquidUSDeStakingPool } from "../../staking/LiquidUSDeStakingPool";
+import { ASSET_ITEM_HEIGHT } from "../../../utils/constants";
+import { StakingProductPendingComponent } from "./StakingProductPendingComponent";
 
 import StakingIcon from '@assets/ic-staking.svg';
-import { ASSET_ITEM_HEIGHT } from "../../utils/constants";
 
 type ProductItem =
     { type: 'active', address: Address, balance: bigint }
@@ -81,6 +82,18 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
             };
         });
     }, [active]);
+
+    const pendingPools = useMemo(() => {
+        if (!active) {
+            return [];
+        }
+
+        return Object.keys(active).filter((k) => {
+            const state = active[k];
+            return state.pendingDeposit > 0n || state.pendingWithdraw > 0n || state.withdraw > 0n;
+        })
+    }, [active]);
+
     const liquidBalance = useLiquidStakingBalance(address);
     const liquidUsdeBalance = useLiquidUSDeStakingMember(address)?.balance || 0n;
 
@@ -163,7 +176,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
         items.push({ type: 'liquid-usde' });
     }
 
-    if (items.length === 0) {
+    if (items.length === 0 && pendingPools.length === 0) {
         items.push({ type: 'banner' });
         items.push({ type: 'usde-banner' });
     }
@@ -244,6 +257,7 @@ export const StakingProductComponent = memo(({ address, isLedger }: { address: A
                 renderFace={renderFace}
                 action={items.length ? <AddStakeButton /> : undefined}
                 itemHeight={ASSET_ITEM_HEIGHT}
+                subtitleSection={<StakingProductPendingComponent address={address} isLedger={isLedger} />}
             />
         </View>
     );

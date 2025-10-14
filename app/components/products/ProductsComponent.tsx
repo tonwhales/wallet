@@ -6,7 +6,7 @@ import { useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useN
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
-import { StakingProductComponent } from "./StakingProductComponent"
+import { StakingProductComponent } from "./earnings/StakingProductComponent"
 import { JettonsProductComponent } from "./JettonsProductComponent"
 import { HoldersHiddenProductComponent } from "./HoldersHiddenProductComponent"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
@@ -117,7 +117,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 <PaymentOtpBanner address={selected.address} />
                 {isWalletMode ? (
                     <>
-                    <WalletRequests />
+                        <WalletRequests />
                         <AddressFormatUpdate />
                         <W5Banner />
                         <SolanaBanner />

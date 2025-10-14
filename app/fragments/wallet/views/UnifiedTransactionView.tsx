@@ -9,7 +9,7 @@ import { UnifiedTonTransaction, isPendingTonTransaction, isBlockchainTonTransact
 import { PendingTransactionView } from './PendingTransactionView';
 import { SectionListData, SectionListRenderItemInfo, View } from 'react-native';
 import { TransactionListItem } from './TransactionListItem';
-import { TonTransaction } from '../../../engine/types';
+import { TonTransaction, TransactionType } from '../../../engine/types';
 
 export const UnifiedTransactionView = memo((props: SectionListRenderItemInfo<UnifiedTonTransaction, { title: string }> & {
     address: Address,
@@ -28,8 +28,8 @@ export const UnifiedTransactionView = memo((props: SectionListRenderItemInfo<Uni
     denyList: { [key: string]: { reason: string | null } },
     spamWallets: string[],
     spamMinAmount: bigint,
-    markAsSent?: (id: string) => void,
-    markAsTimedOut?: (id: string) => void
+    markAsSent?: (id: string, txType: TransactionType) => void
+    markAsTimedOut?: (id: string, txType: TransactionType) => void
 }) => {
     const { item } = props;
 
@@ -77,6 +77,22 @@ export const UnifiedTransactionView = memo((props: SectionListRenderItemInfo<Uni
     }
 
     return null;
-});
+}, (prev, next) => prev.item.id === next.item.id
+    && prev.isTestnet === next.isTestnet
+    && prev.dontShowComments === next.dontShowComments
+    && prev.spamMinAmount === next.spamMinAmount
+    && prev.address === next.address
+    && prev.theme === next.theme
+    && prev.section === next.section
+    && prev.index === next.index
+    && prev.denyList === next.denyList
+    && prev.contacts === next.contacts
+    && prev.spamWallets === next.spamWallets
+    && prev.appState === next.appState
+    && prev.onLongPress === next.onLongPress
+    && prev.bounceableFormat === next.bounceableFormat
+    && prev.walletsSettings === next.walletsSettings
+    && prev.knownWallets === next.knownWallets
+);
 
 UnifiedTransactionView.displayName = 'UnifiedTransactionView';

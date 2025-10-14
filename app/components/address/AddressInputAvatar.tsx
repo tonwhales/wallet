@@ -44,24 +44,32 @@ export const AddressInputAvatar = memo(({
             />
         );
     } else if (friendly) {
-        avatar = (
-            <Animated.View entering={disableFade ? undefined : FadeIn} exiting={disableFade ? undefined : FadeOut}>
-                <Avatar
-                    size={size}
-                    id={friendly}
-                    address={friendly}
-                    borderColor={theme.elevation}
-                    theme={theme}
-                    hash={hash}
-                    knownWallets={knownWallets}
-                    backgroundColor={avatarColor}
-                    markContact={markContact}
-                    icProps={{ isOwn }}
-                    borderWidth={0}
-                    isLedger={isLedger}
-                />
-            </Animated.View>
+        const avatarComponent = (
+            <Avatar
+                size={size}
+                id={friendly}
+                address={friendly}
+                borderColor={theme.elevation}
+                theme={theme}
+                hash={hash}
+                knownWallets={knownWallets}
+                backgroundColor={avatarColor}
+                markContact={markContact}
+                icProps={{ isOwn }}
+                borderWidth={0}
+                isLedger={isLedger}
+            />
         );
+
+        if (disableFade) {
+            avatar = avatarComponent;
+        } else {
+            avatar = (
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                    {avatarComponent}
+                </Animated.View>
+            );
+        }
     }
 
     return (

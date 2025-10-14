@@ -1,5 +1,5 @@
-import { TonTransaction } from './transactions';
-import { PendingSolanaTransaction, PendingTransaction, PendingTransactionStatus } from '../state/pending';
+import { TonTransaction, TransactionType } from './transactions';
+import { PendingSolanaTransaction, PendingTransaction } from '../state/pending';
 import { JettonTransfer } from '../hooks/transactions/useJettonTransactions';
 import { SolanaTransaction } from '../api/solana/fetchSolanaTransactions';
 
@@ -8,6 +8,7 @@ type UnifiedTransactionBase = {
     id: string;
     time: number;
     status: 'success' | 'failed' | 'pending' | 'sent' | 'timed-out';
+    network: TransactionType;
 };
 
 export type UnifiedTonTransaction = UnifiedTransactionBase & {
@@ -28,7 +29,8 @@ export function createUnifiedTonTransaction(tx: TonTransaction): UnifiedTonTrans
         id: tx.id + tx.message?.index,
         time: tx.base.time,
         status: tx.base.parsed.status,
-        data: tx
+        data: tx,
+        network: TransactionType.TON
     };
 }
 
@@ -38,7 +40,8 @@ export function createUnifiedJettonTransaction(tx: JettonTransfer): UnifiedJetto
         id: tx.trace_id + tx.transaction_lt,
         time: tx.transaction_now,
         status: tx.transaction_aborted ? 'failed' : 'success',
-        data: tx
+        data: tx,
+        network: TransactionType.TON
     };
 }
 
@@ -48,33 +51,28 @@ export function createUnifiedSolanaTransaction(tx: SolanaTransaction): UnifiedSo
         id: tx.signature,
         time: tx.timestamp,
         status: tx.transactionError ? 'failed' : 'success',
-        data: tx
+        data: tx,
+        network: TransactionType.SOLANA
     };
 }
 
 function createUnifiedPendingTransaction<T extends PendingTransaction | PendingSolanaTransaction, U>(
-    tx: T
+    tx: T,
+    network: TransactionType
 ): U {
     return {
         type: 'pending',
         id: tx.id,
         time: tx.time,
         status: tx.status,
-        data: tx
+        data: tx,
+        network
     } as U;
 }
 
-export const createUnifiedPendingTonTransaction = createUnifiedPendingTransaction as (
-    tx: PendingTransaction
-) => UnifiedTonTransaction;
-
-export const createUnifiedPendingJettonTransaction = createUnifiedPendingTransaction as (
-    tx: PendingTransaction
-) => UnifiedJettonTransaction;
-
-export const createUnifiedPendingSolanaTransaction = createUnifiedPendingTransaction as (
-    tx: PendingSolanaTransaction
-) => UnifiedSolanaTransaction;
+export const createUnifiedPendingTonTransaction = (tx: PendingTransaction): UnifiedTonTransaction => createUnifiedPendingTransaction(tx, TransactionType.TON);
+export const createUnifiedPendingJettonTransaction = (tx: PendingTransaction): UnifiedJettonTransaction => createUnifiedPendingTransaction(tx, TransactionType.TON);
+export const createUnifiedPendingSolanaTransaction = (tx: PendingSolanaTransaction): UnifiedSolanaTransaction => createUnifiedPendingTransaction(tx, TransactionType.SOLANA);
 
 export function isPendingTonTransaction(unifiedTx: UnifiedTonTransaction): unifiedTx is UnifiedTonTransaction & { data: PendingTransaction } {
     return unifiedTx.type === 'pending';

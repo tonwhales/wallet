@@ -2,28 +2,32 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Address } from "@ton/core";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { SectionList, SectionListData, SectionListRenderItemInfo, View } from "react-native";
-import { TonTransaction } from '../../../engine/types';
-import { useAddressFormatsHistory, useAddToDenyList, useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../../engine/hooks";
+import { TonTransaction, TransactionType } from '../../../engine/types';
+import { useAddressFormatsHistory, useAddToDenyList, useAppState, useBounceableWalletFormat, useCurrentAddress, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState, TransactionsEmptyStateType } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { t } from "../../../i18n/t";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { useKnownWallets } from "../../../secure/KnownWallets";
 import { warn } from "../../../utils/log";
 import { useAddressBookContext } from "../../../engine/AddressBookContext";
 import { TransactionsSectionHeader } from "./TransactionsSectionHeader";
-import { useUnifiedTransactions, useSectionedTransactions, useRepeatTonTransaction, useTonTransactionActions } from "../../../engine/hooks/transactions";
+import { useUnifiedTransactionsV3, useSectionedTransactions, useRepeatTonTransaction, useTonTransactionActions } from "../../../engine/hooks/transactions";
 import { UnifiedTransactionView } from "./UnifiedTransactionView";
-import { UnifiedTonTransaction } from "../../../engine/types/unifiedTransaction";
+import { UnifiedSolanaTransactionView } from "./UnifiedSolanaTransactionView";
+import { UnifiedTonTransaction, UnifiedSolanaTransaction, isBlockchainSolanaTransaction } from "../../../engine/types/unifiedTransaction";
 import { TransactionsListFooter } from "../../../components/transactions/TransactionsListFooter";
+import { isUSDCTransaction } from "../../../utils/solana/isUSDCTransaction";
 
-export const WalletTransactions = memo((props: {
+type UnifiedTransaction = UnifiedTonTransaction | UnifiedSolanaTransaction;
+
+export const TransactionsHistory = memo((props: {
     address: Address,
     header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ledger?: boolean,
     isWalletTab?: boolean
 }) => {
+    const { solanaAddress } = useCurrentAddress();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -38,7 +42,7 @@ export const WalletTransactions = memo((props: {
         refresh,
         markAsSent,
         markAsTimedOut
-    } = useUnifiedTransactions(props.address, isTestnet);
+    } = useUnifiedTransactionsV3();
 
     const onLoadMore = useCallback(() => {
         next();
@@ -80,7 +84,7 @@ export const WalletTransactions = memo((props: {
 
     const onAddressContact = useCallback((address: string) => {
         navigation.navigate('Contact', { address });
-    }, []);
+    }, [navigation]);
 
     const onRepeatTx = useRepeatTonTransaction();
 
@@ -100,30 +104,69 @@ export const WalletTransactions = memo((props: {
         }
     }, [pendingCount]);
 
-    const renderItem = useCallback((tx: SectionListRenderItemInfo<UnifiedTonTransaction, { title: string }>) => {
-        return (
-            <UnifiedTransactionView
-                {...tx}
-                address={props.address}
-                theme={theme}
-                onPress={navigateToPreview}
-                onLongPress={onLongPress}
-                ledger={props.ledger}
-                spamMinAmount={spamMinAmount}
-                dontShowComments={dontShowComments}
-                denyList={addressBook.denyList}
-                contacts={addressBook.contacts}
-                isTestnet={isTestnet}
-                spamWallets={spamWallets}
-                appState={appState}
-                bounceableFormat={bounceableFormat}
-                walletsSettings={walletsSettings}
-                knownWallets={knownWallets}
-                getAddressFormat={getAddressFormat}
-                markAsSent={markAsSent}
-                markAsTimedOut={markAsTimedOut}
-            />
-        );
+    const renderItem = useCallback((info: SectionListRenderItemInfo<UnifiedTransaction, { title: string }>) => {
+        const item = info.item;
+
+        // Render TON transaction (blockchain or pending)
+        if (item.network === TransactionType.TON) {
+            return (
+                <UnifiedTransactionView
+                    item={item as UnifiedTonTransaction}
+                    section={info.section as SectionListData<UnifiedTonTransaction, { title: string }>}
+                    index={info.index}
+                    separators={info.separators}
+                    address={props.address}
+                    theme={theme}
+                    onPress={navigateToPreview}
+                    onLongPress={onLongPress}
+                    ledger={props.ledger}
+                    spamMinAmount={spamMinAmount}
+                    dontShowComments={dontShowComments}
+                    denyList={addressBook.denyList}
+                    contacts={addressBook.contacts}
+                    isTestnet={isTestnet}
+                    spamWallets={spamWallets}
+                    appState={appState}
+                    bounceableFormat={bounceableFormat}
+                    walletsSettings={walletsSettings}
+                    knownWallets={knownWallets}
+                    getAddressFormat={getAddressFormat}
+                    markAsSent={markAsSent}
+                    markAsTimedOut={markAsTimedOut}
+                />
+            );
+        }
+
+        // Render Solana transaction
+        if (item.network === TransactionType.SOLANA) {
+            const solanaItem = item as UnifiedSolanaTransaction;
+
+            if (isBlockchainSolanaTransaction(solanaItem)) {
+                const isUsdc = isUSDCTransaction(solanaItem.data);
+                if (isUsdc) {
+                    return (
+                        <UnifiedSolanaTransactionView
+                            item={solanaItem}
+                            owner={solanaAddress!}
+                            asset={{
+                                mint: solanaItem.data.tokenTransfers[0].mint
+                            }}
+                            markAsTimedOut={markAsTimedOut}
+                        />
+                    )
+                }
+            }
+
+            return (
+                <UnifiedSolanaTransactionView
+                    item={solanaItem}
+                    owner={solanaAddress!}
+                    markAsTimedOut={markAsTimedOut}
+                />
+            );
+        }
+
+        return null;
     }, [
         props.address,
         theme,
@@ -142,6 +185,7 @@ export const WalletTransactions = memo((props: {
         knownWallets,
         markAsSent,
         markAsTimedOut,
+        solanaAddress,
     ]);
 
     const listEmptyComponent = useMemo(() => (
@@ -175,18 +219,30 @@ export const WalletTransactions = memo((props: {
                 ListFooterComponent={<TransactionsListFooter hasNext={hasNext} theme={theme} />}
                 ListEmptyComponent={listEmptyComponent}
                 renderItem={renderItem}
-                initialNumToRender={16}
+                initialNumToRender={64}
                 onEndReached={onLoadMore}
-                maxToRenderPerBatch={16}
-                onEndReachedThreshold={0.2}
-                keyExtractor={(item) => 'tx-' + item.id}
+                maxToRenderPerBatch={64}
+                onEndReachedThreshold={0.5}
+                keyExtractor={(item) => {
+                    if (item.type === 'pending') {
+                        return 'pending-' + item.id;
+                    }
+                    if (item.type === 'blockchain') {
+                        // Check if it's TON or Solana based on data structure
+                        if (item.network === TransactionType.TON) {
+                            return 'ton-tx-' + item.id;
+                        } else {
+                            return 'solana-tx-' + item.id;
+                        }
+                    }
+                    return 'tx-' + item.id;
+                }}
                 onRefresh={onRefresh}
                 refreshing={refreshing}
             />
         )
     }, [
         transactionsSectioned,
-        pendingCount,
         refreshing,
         bottomBarHeight,
         props.header,
@@ -195,9 +251,12 @@ export const WalletTransactions = memo((props: {
         renderSectionHeader,
         renderItem,
         onRefresh,
-        transactions.length === 0 ? listEmptyComponent : null
+        onLoadMore,
+        listEmptyComponent
     ]);
 
     return list
 });
-WalletTransactions.displayName = 'WalletTransactions';
+
+TransactionsHistory.displayName = 'TransactionsHistory';
+

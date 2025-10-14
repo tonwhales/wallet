@@ -4,7 +4,6 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useIsLedgerRoute, useTheme } from '../../engine/hooks';
-import { WalletTransactions } from "./views/WalletTransactions";
 import { useFocusEffect } from "@react-navigation/native";
 import { TabHeader } from "../../components/topbar/TabHeader";
 import { Address } from "@ton/core";
@@ -12,18 +11,27 @@ import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSke
 import { setStatusBarStyle } from "expo-status-bar";
 import { ThemeType } from "../../engine/state/theme";
 import { useCurrentAddress } from "../../engine/hooks/appstate/useCurrentAddress";
+import { TransactionsHistory } from "./views/TransactionsHistory";
+import { WalletTransactions } from "./views/WalletTransactions";
 
 function TransactionsComponent(props: { account: Address, solanaAddress?: string, isLedger?: boolean, theme: ThemeType }) {
-    const { account: address } = props;
+    const { account: address, isLedger } = props;
 
     return (
         <View style={{ flex: 1, backgroundColor: props.theme.backgroundPrimary }}>
             <TabHeader title={t('transactions.history')} />
-            <WalletTransactions
+            {isLedger ? <WalletTransactions
                 address={address}
                 ledger={props.isLedger}
                 isWalletTab={true}
-            />
+            /> : (
+                <TransactionsHistory
+                    address={address}
+                    ledger={props.isLedger}
+                    isWalletTab={true}
+                />
+            )}
+
         </View>
     );
 }

@@ -26,7 +26,6 @@ export function useCommonPendingActions(
     const { isTestnet } = useNetwork();
     const [tonPending, setTonPending] = usePendingTransactions(tonAddress || tonAddressString, isTestnet);
     const [solanaPending, setSolanaPending] = usePendingSolanaTransactions(solanaAddress!, isTestnet);
-    console.log('SOLANA PENDING', solanaPending);
 
     const setTonPendingRef = useRef(setTonPending);
     const setSolanaPendingRef = useRef(setSolanaPending);

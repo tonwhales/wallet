@@ -59,8 +59,8 @@ export function usePendingSolanaActions(address: string, mint?: string) {
     }, [onRefresh]);
 
     const markAsSent = useCallback((id: string) => {
-        // setStatus(id, PendingTransactionStatus.Sent);
-        // onRefresh();
+        setStatus(id, PendingTransactionStatus.Sent);
+        onRefresh();
     }, [onRefresh]);
 
     useEffect(() => {
@@ -86,7 +86,7 @@ export function usePendingSolanaActions(address: string, mint?: string) {
             });
 
             toMarkAsSent.forEach((tx) => {
-                // markAsSent(tx.id);
+                markAsSent(tx.id);
             });
         }
     }, [latest32Txs, pending, tokenLatest32Txs, markAsSent]);

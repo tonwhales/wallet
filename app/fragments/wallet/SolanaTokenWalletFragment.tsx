@@ -160,7 +160,8 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
         refreshing,
         hasNext,
         next,
-        refresh
+        refresh,
+        markAsTimedOut
     } = useUnifiedSolanaTransactions(owner, mint);
     const token = useSolanaToken(owner, mint);
     const asset: ReceiveableSolanaAsset = {
@@ -239,6 +240,7 @@ const SolanaTokenWalletComponent = memo(({ owner, mint }: SolanaTokenWalletFragm
                 header={<SolanaTokenHeader mint={mint} owner={owner} />}
                 refreshing={refreshing}
                 pendingCount={pendingCount}
+                markAsTimedOut={markAsTimedOut}
             />
         </View>
     );

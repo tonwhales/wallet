@@ -3,13 +3,15 @@ import { UnifiedSolanaTransaction, isPendingSolanaTransaction, isBlockchainSolan
 import { SolanaTransactionView } from './solana/SolanaTransactionView';
 import { PendingSolanaTransactionView } from './PendingSolanaTransactionView';
 import { ReceiveableSolanaAsset } from '../ReceiveFragment';
+import { TransactionType } from '../../../engine/types';
 
 export const UnifiedSolanaTransactionView = memo((props: {
     item: UnifiedSolanaTransaction,
     owner: string,
-    asset?: ReceiveableSolanaAsset
+    asset?: ReceiveableSolanaAsset,
+    markAsTimedOut: (id: string, txType: TransactionType) => void
 }) => {
-    const { item, owner, asset } = props;
+    const { item, owner, asset, markAsTimedOut } = props;
 
     if (isPendingSolanaTransaction(item)) {
         return (
@@ -18,6 +20,7 @@ export const UnifiedSolanaTransactionView = memo((props: {
                 address={owner}
                 mint={asset?.mint}
                 viewType="history"
+                markAsTimedOut={markAsTimedOut}
             />
         );
     }

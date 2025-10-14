@@ -24,6 +24,7 @@ import { useAppMode } from '../engine/hooks/appstate/useAppMode';
 import { HoldersSettings } from './holders/components/HoldersSettings';
 import { HoldersTransactionsFragment } from './wallet/HoldersTransactionsFragment';
 import { useLedgerTransport } from './ledger/components/TransportContext';
+import { useAccountTransactionsV3 } from '../engine/hooks/transactions/useAccountTransactionsV3';
 
 const Tab = createBottomTabNavigator();
 
@@ -60,6 +61,9 @@ export const HomeFragment = fragment(() => {
 
     // Subscribe for links
     useLinksSubscription();
+
+    // Prefetching first page of transaction history on mount
+    useAccountTransactionsV3({ refetchOnMount: true });
 
     const onBlur = useCallback(() => {
         // Setting backdrop screens curve to device curve if we are navigating 

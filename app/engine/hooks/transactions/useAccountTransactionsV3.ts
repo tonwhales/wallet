@@ -19,8 +19,10 @@ import { SolanaTransaction } from '../../api/solana/fetchSolanaTransactions';
 import { PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { SOLANA_USDC_MINT_DEVNET, SOLANA_USDC_MINT_MAINNET } from '../../../utils/solana/address';
+import { isUSDCTransaction } from '../../../utils/solana/isUSDCTransaction';
+import { useFocusEffect } from '@react-navigation/native';
 
-const PAGE_SIZE = 16;
+const DEFAULT_PAGE_SIZE = 32;
 const REFRESH_TIMEOUT = 35000;
 const STALE_TIME = 5000;
 
@@ -45,21 +47,26 @@ interface QueryContext {
     pageParam?: AccountTransactionsV3Cursor;
 }
 
-function getLastTransactionFromPages(pages: CommonTransaction[][]): { ton: TonTransaction | null, solana: SolanaTransaction | null } {
-    if (pages.length === 0) return { ton: null, solana: null };
+function getLastTransactionFromPages(pages: CommonTransaction[][]): { ton: TonTransaction | null, solana: SolanaTransaction | null, solanaToken: SolanaTransaction | null } {
+    if (pages.length === 0) return { ton: null, solana: null, solanaToken: null };
 
     const allTransactions = pages.flat();
     const lastTon = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.TON; data: TonTransaction } => tx.type === TransactionType.TON)?.data || null;
-    const lastSolana = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.SOLANA; data: SolanaTransaction } => tx.type === TransactionType.SOLANA)?.data || null;
+    const lastSolana = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.SOLANA; data: SolanaTransaction } => 
+        tx.type === TransactionType.SOLANA && !isUSDCTransaction(tx.data)
+    )?.data || null;
+    const lastSolanaToken = [...allTransactions].reverse().find((tx): tx is { type: TransactionType.SOLANA; data: SolanaTransaction } => 
+        tx.type === TransactionType.SOLANA && isUSDCTransaction(tx.data)
+    )?.data || null;
 
-    return { ton: lastTon, solana: lastSolana };
+    return { ton: lastTon, solana: lastSolana, solanaToken: lastSolanaToken };
 }
 
-function shouldLoadNextPage(lastPage: CommonTransaction[] | undefined, totalPages: number): boolean {
+function shouldLoadNextPage(lastPage: CommonTransaction[] | undefined, totalPages: number, limit: number | undefined): boolean {
     if (!lastPage || totalPages < 1) {
         return false;
     }
-    return lastPage.length >= PAGE_SIZE - 2;
+    return lastPage.length >= (limit ?? DEFAULT_PAGE_SIZE) - 2;
 }
 
 function transformStoredToTonTransaction(stored: StoredTransaction): TonTransaction {
@@ -92,7 +99,7 @@ function areTransactionsEqual(tx1: CommonTransaction, tx2: CommonTransaction): b
     return false;
 }
 
-function createNextPageParam(lastTransactions: { ton: TonTransaction | null, solana: SolanaTransaction | null }): AccountTransactionsV3Cursor {
+function createNextPageParam(lastTransactions: { ton: TonTransaction | null, solana: SolanaTransaction | null, solanaToken: SolanaTransaction | null }, usdcMint: string): AccountTransactionsV3Cursor {
     const cursor: AccountTransactionsV3Cursor = {};
 
     if (lastTransactions.ton) {
@@ -105,6 +112,13 @@ function createNextPageParam(lastTransactions: { ton: TonTransaction | null, sol
     if (lastTransactions.solana) {
         cursor.solana = {
             before: lastTransactions.solana.signature
+        };
+    }
+
+    if (lastTransactions.solanaToken) {
+        cursor.solanaToken = {
+            before: lastTransactions.solanaToken.signature,
+            mint: usdcMint
         };
     }
 
@@ -143,8 +157,9 @@ async function fetchTransactionsPage(
     },
     isTestnet: boolean,
     cursor: AccountTransactionsV3Cursor,
+    limit: number | undefined,
 ): Promise<CommonTransaction[]> {
-    const res = await fetchAccountTransactionsV3(account, cursor, isTestnet);
+    const res = await fetchAccountTransactionsV3(account, cursor, isTestnet, limit);
 
     return res.data.map((tx: CommonTx) => {
         if (tx.type === TransactionType.TON) {
@@ -280,7 +295,7 @@ export const formatTransactions = async (transactions: CommonTransaction[], isTe
 }
 
 export function useAccountTransactionsV3(
-    options: { refetchOnMount: boolean } = { refetchOnMount: false },
+    options: { refetchOnMount: boolean, limit?: number, refetchFirstPageOnWindowFocus?: boolean },
 ): UseAccountTransactionsResult {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
@@ -289,20 +304,20 @@ export function useAccountTransactionsV3(
 
     const [isRefreshing, setIsRefreshing] = useState(false);
     const refreshTimeoutRef = useRef<NodeJS.Timeout>();
+    const isFetchingRef = useRef(false);
 
     const query = useInfiniteQuery<CommonTransaction[]>({
         queryKey: Queries.TransactionsV3(tonAddressString, solanaAddress),
-        refetchOnWindowFocus: true,
         staleTime: STALE_TIME,
         enabled: !!tonAddressString,
         getNextPageParam: (lastPage, allPages) => {
-            if (!shouldLoadNextPage(lastPage, allPages.length)) {
+            if (!shouldLoadNextPage(lastPage, allPages.length, options.limit)) {
                 return undefined;
             }
 
             const lastTransactions = getLastTransactionFromPages(allPages);
-            if (lastTransactions.ton || lastTransactions.solana) {
-                return createNextPageParam(lastTransactions);
+            if (lastTransactions.ton || lastTransactions.solana || lastTransactions.solanaToken) {
+                return createNextPageParam(lastTransactions, usdcMint);
             }
 
             return undefined;
@@ -326,7 +341,7 @@ export function useAccountTransactionsV3(
                 solanaATAaddress: solanaATAaddress.toString()
             };
 
-            const transactions = await fetchTransactionsPage(account, isTestnet, cursor);
+            const transactions = await fetchTransactionsPage(account, isTestnet, cursor, options.limit ?? DEFAULT_PAGE_SIZE);
 
             // For TON, the cursor is inclusive (includes the last transaction from previous page)
             // So we need to skip the first TON transaction if it matches the cursor
@@ -357,6 +372,10 @@ export function useAccountTransactionsV3(
         structuralSharing: optimizeDataStructure,
     });
 
+    useEffect(() => {
+        isFetchingRef.current = query.isFetching;
+    }, [query.isFetching]);
+
     // Handle refresh timeout
     useEffect(() => {
         if (!query.isRefetching) {
@@ -376,10 +395,16 @@ export function useAccountTransactionsV3(
 
     // Handle refetch first page on mount
     useEffect(() => {
-        if (options.refetchOnMount && !query.isFetchingNextPage) {
+        if (!isFetchingRef.current && options.refetchOnMount && !query.isFetchingNextPage) {
             query.refetch({ refetchPage: (_, index) => index === 0 });
         }
     }, [options.refetchOnMount]);
+
+    useFocusEffect(useCallback(() => {
+        if (!isFetchingRef.current && options.refetchFirstPageOnWindowFocus) {
+            query.refetch({ refetchPage: (_, index) => index === 0 });
+        }
+    }, [options.refetchFirstPageOnWindowFocus]));
 
     const next = useCallback(() => {
         if (!query.isFetchingNextPage && query.hasNextPage) {

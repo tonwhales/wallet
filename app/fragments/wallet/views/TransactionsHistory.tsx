@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Address } from "@ton/core";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { SectionList, SectionListData, SectionListRenderItemInfo } from "react-native";
+import { SectionList, SectionListData, SectionListRenderItemInfo, View } from "react-native";
 import { TonTransaction, TransactionType } from '../../../engine/types';
 import { useAddressFormatsHistory, useAddToDenyList, useAppState, useBounceableWalletFormat, useCurrentAddress, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState, TransactionsEmptyStateType } from "./TransactionsEmptyStateView";
@@ -145,7 +145,7 @@ export const TransactionsHistory = memo((props: {
             const solanaItem = item as UnifiedSolanaTransaction;
 
             if (isBlockchainSolanaTransaction(solanaItem)) {
-                const isUsdc = isUSDCTransaction(solanaItem.data, isTestnet);
+                const isUsdc = isUSDCTransaction(solanaItem.data);
                 if (isUsdc) {
                     return (
                         <UnifiedSolanaTransactionView
@@ -154,6 +154,7 @@ export const TransactionsHistory = memo((props: {
                             asset={{
                                 mint: solanaItem.data.tokenTransfers[0].mint
                             }}
+                            markAsTimedOut={markAsTimedOut}
                         />
                     )
                 }
@@ -163,6 +164,7 @@ export const TransactionsHistory = memo((props: {
                 <UnifiedSolanaTransactionView
                     item={solanaItem}
                     owner={solanaAddress!}
+                    markAsTimedOut={markAsTimedOut}
                 />
             );
         }
@@ -184,7 +186,6 @@ export const TransactionsHistory = memo((props: {
         bounceableFormat,
         walletsSettings,
         knownWallets,
-        getAddressFormat,
         markAsSent,
         markAsTimedOut,
         solanaAddress,
@@ -221,10 +222,10 @@ export const TransactionsHistory = memo((props: {
                 ListFooterComponent={<TransactionsListFooter hasNext={hasNext} theme={theme} />}
                 ListEmptyComponent={listEmptyComponent}
                 renderItem={renderItem}
-                initialNumToRender={16}
+                initialNumToRender={64}
                 onEndReached={onLoadMore}
-                maxToRenderPerBatch={16}
-                onEndReachedThreshold={0.2}
+                maxToRenderPerBatch={64}
+                onEndReachedThreshold={0.5}
                 keyExtractor={(item) => {
                     if (item.type === 'pending') {
                         return 'pending-' + item.id;
@@ -245,7 +246,6 @@ export const TransactionsHistory = memo((props: {
         )
     }, [
         transactionsSectioned,
-        pendingCount,
         refreshing,
         bottomBarHeight,
         props.header,
@@ -255,7 +255,7 @@ export const TransactionsHistory = memo((props: {
         renderItem,
         onRefresh,
         onLoadMore,
-        transactions.length === 0 ? listEmptyComponent : null
+        listEmptyComponent
     ]);
 
     return list

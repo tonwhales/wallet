@@ -11,13 +11,11 @@ export function usePendingTransactionEffects<T extends { status: PendingTransact
     txsQuery,
     removePending,
     hideLoaderOnRefresh,
-    source
 }: {
     pendingTransactions: T[];
     txsQuery: { loading: boolean; refresh: (silent?: boolean) => void };
     removePending: (ids: string[]) => void;
     hideLoaderOnRefresh?: boolean;
-    source?: string
 }) {
     // Use refs to track state without causing useEffect to recreate
     const loadingRef = useRef(txsQuery.loading);

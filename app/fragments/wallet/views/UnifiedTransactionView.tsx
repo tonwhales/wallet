@@ -77,6 +77,22 @@ export const UnifiedTransactionView = memo((props: SectionListRenderItemInfo<Uni
     }
 
     return null;
-});
+}, (prev, next) => prev.item.id === next.item.id
+    && prev.isTestnet === next.isTestnet
+    && prev.dontShowComments === next.dontShowComments
+    && prev.spamMinAmount === next.spamMinAmount
+    && prev.address === next.address
+    && prev.theme === next.theme
+    && prev.section === next.section
+    && prev.index === next.index
+    && prev.denyList === next.denyList
+    && prev.contacts === next.contacts
+    && prev.spamWallets === next.spamWallets
+    && prev.appState === next.appState
+    && prev.onLongPress === next.onLongPress
+    && prev.bounceableFormat === next.bounceableFormat
+    && prev.walletsSettings === next.walletsSettings
+    && prev.knownWallets === next.knownWallets
+);
 
 UnifiedTransactionView.displayName = 'UnifiedTransactionView';

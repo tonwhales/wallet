@@ -11,6 +11,7 @@ import { UnifiedSolanaTransaction } from "../../../../engine/types/unifiedTransa
 import { UnifiedSolanaTransactionView } from "../UnifiedSolanaTransactionView";
 import { useSectionedTransactions } from "../../../../engine/hooks/transactions/useSectionedTransactions";
 import { TransactionsListFooter } from "../../../../components/transactions/TransactionsListFooter";
+import { TransactionType } from "../../../../engine/types";
 
 type SolanaTransactionsProps = {
   theme: ThemeType;
@@ -27,6 +28,7 @@ type SolanaTransactionsProps = {
   owner: string;
   asset?: ReceiveableSolanaAsset;
   pendingCount?: number;
+  markAsTimedOut: (id: string, txType: TransactionType) => void
 };
 
 export const SolanaTransactions = memo(({
@@ -40,7 +42,8 @@ export const SolanaTransactions = memo(({
   header,
   owner,
   asset,
-  pendingCount
+  pendingCount,
+  markAsTimedOut
 }: SolanaTransactionsProps) => {
   const bottomBarHeight = useBottomTabBarHeight();
   
@@ -68,9 +71,10 @@ export const SolanaTransactions = memo(({
         item={item}
         owner={owner}
         asset={asset}
+        markAsTimedOut={markAsTimedOut}
       />
     );
-  }, [owner, asset]);
+  }, [owner, asset, markAsTimedOut]);
 
   const ListEmptyComponent = useMemo(() => {
     if (loading) {

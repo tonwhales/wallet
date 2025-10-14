@@ -7,7 +7,7 @@ import { useCommonPendingActions } from './useCommonPendingActions';
 
 export function useUnifiedTransactionsV3() {
     const txsQuery = useAccountTransactionsV3(
-        { refetchOnMount: true },
+        { refetchOnMount: true, refetchFirstPageOnWindowFocus: true },
     );
     const { tonPending, solanaPending, markAsSent, markAsTimedOut } = useCommonPendingActions();
 

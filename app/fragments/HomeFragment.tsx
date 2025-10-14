@@ -62,9 +62,6 @@ export const HomeFragment = fragment(() => {
     // Subscribe for links
     useLinksSubscription();
 
-    // Prefetching first page of transaction history on mount
-    useAccountTransactionsV3({ refetchOnMount: true });
-
     const onBlur = useCallback(() => {
         // Setting backdrop screens curve to device curve if we are navigating 
         // to a specefic 'short' modal screen

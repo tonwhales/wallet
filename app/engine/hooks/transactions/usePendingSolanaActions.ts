@@ -23,7 +23,6 @@ export function usePendingSolanaActions(address: string, mint?: string) {
         if (ids.length === 0) {
             return;
         }
-        console.log('=======REMOVESOLANA', ids);
         setPendingRef.current((prev) => {
             return prev.filter((tx) => !ids.includes(tx.id));
         });
